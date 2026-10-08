@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/app/dev/navigation-sync.test.ts -t 'supplied receipt'",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:40:48.1224287Z",
+  "finishedAtUtc": "2026-10-07T08:40:51.1437191Z",
+  "exitCode": 1
+}

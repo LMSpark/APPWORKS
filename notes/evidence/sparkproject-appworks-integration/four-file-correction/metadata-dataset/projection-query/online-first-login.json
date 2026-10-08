@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-08T15:57:06.639Z",
+  "stage": "login",
+  "writes": 0,
+  "queries": [],
+  "failed": true,
+  "error": "[500] insert异常:org.springframework.dao.DataIntegrityViolationException: PreparedStatementCallback; Column 'LoginName' cannot be null"
+}

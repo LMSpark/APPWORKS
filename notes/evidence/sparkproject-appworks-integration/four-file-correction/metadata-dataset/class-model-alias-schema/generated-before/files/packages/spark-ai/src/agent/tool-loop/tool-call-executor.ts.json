@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/tool-loop/tool-call-executor",
+    "sourcePath": "packages/spark-ai/src/agent/tool-loop/tool-call-executor.ts",
+    "sourceFile": "packages/spark-ai/src/agent/tool-loop/tool-call-executor.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/tool-loop/tool-call-executor",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/tool-loop/tool-call-executor\n职责：支撑 Agent tool loop 的 tool call executor 能力，处理工具调用、结果映射、诊断事件或 payload 编解码。\n边界：只服务单次 turn 内的工具循环，不定义业务注册协议，也不直接管理 UI 或持久化页面状态。\nAI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiAgentToolCallExecutor"
+    ]
+  },
+  "$defs": {
+    "AiAgentToolCallExecutionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentToolCallExecutionInput",
+      "properties": {
+        "registration": {
+          "$ref": "../business/registration-types.ts.json#/$defs/AiAgentRegistration"
+        },
+        "scope": {
+          "$ref": "../business/scope-types.ts.json#/$defs/AiAgentScope"
+        },
+        "turn": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
+        },
+        "round": {
+          "type": "number"
+        },
+        "resolveToolName": {
+          "type": "object",
+          "title": "AiAgentToolNameResolver"
+        },
+        "call": {
+          "$ref": "../conversation/transport/transport-types.ts.json#/$defs/AiAgentTransportToolCall"
+        },
+        "request": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
+        },
+        "sessionStore": {
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentSessionStore"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentToolCallExecutionOutput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentToolCallExecutionOutput",
+      "properties": {
+        "toolMessage": {
+          "$ref": "../conversation/transport/transport-types.ts.json#/$defs/AiAgentTransportMessage"
+        },
+        "directive": {
+          "$ref": "../business/lifecycle-types.ts.json#/$defs/AiAgentLifecycleDirective"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentToolCallExecutor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentToolCallExecutor",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.execute.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AiAgentToolCallExecutionInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.execute.return": {
+          "type": "object",
+          "title": "Promise<AiAgentToolCallExecutionOutput | null>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.224Z",
+  "models": {
+    "AiAgentToolNameResolver": {
+      "name": "AiAgentToolNameResolver",
+      "jsdoc": "从 transport toolName 回查当前 runtime 可执行 toolName。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(toolName: string) => string | null",
+        "members": {}
+      }
+    },
+    "AiAgentToolCallExecutionInput": {
+      "name": "AiAgentToolCallExecutionInput",
+      "jsdoc": "工具调用执行的输入参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前工具的业务注册信息，含 runtime 执行器、生命周期钩子和恢复提示配置 */\n    registration: AiAgentRegistration<TInput>;\n    /** Agent 运行时作用域，提供 moduleId / moduleInstanceId / instanceId 等定位信息 */\n    scope: AiAgentScope;\n    /** 当前 turn 的元数据（turnId 等），用于诊断事件和工具调用记录关联 */\n    turn: AiAgentTurnMeta;\n    /** 当前 tool loop 中的轮次序号，从 0 开始；用于工具调用记录和诊断定位 */\n    round: number;\n    /** transport toolName → runtime toolName 的解析函数 */\n    resolveToolName: AiAgentToolNameResolver;\n    /** LLM 返回的原始 transport tool_call */\n    call: AiAgentTransportToolCall;\n    /** 当前 chat 请求，携带 beforeFunctionCall 钩子、onDelta / onToolCall 等回调 */\n    request: AiAgentChatRequest;\n    /** 会话存储，用于追加工具调用历史记录（appendFunctionCall） */\n    sessionStore: AiAgentSessionStore;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前工具的业务注册信息，含 runtime 执行器、生命周期钩子和恢复提示配置 */\n    registration: AiAgentRegistration<TInput>;\n    /** Agent 运行时作用域，提供 moduleId / moduleInstanceId / instanceId 等定位信息 */\n    scope: AiAgentScope;\n    /** 当前 turn 的元数据（turnId 等），用于诊断事件和工具调用记录关联 */\n    turn: AiAgentTurnMeta;\n    /** 当前 tool loop 中的轮次序号，从 0 开始；用于工具调用记录和诊断定位 */\n    round: number;\n    /** transport toolName → runtime toolName 的解析函数 */\n    resolveToolName: AiAgentToolNameResolver;\n    /** LLM 返回的原始 transport tool_call */\n    call: AiAgentTransportToolCall;\n    /** 当前 chat 请求，携带 beforeFunctionCall 钩子、onDelta / onToolCall 等回调 */\n    request: AiAgentChatRequest;\n    /** 会话存储，用于追加工具调用历史记录（appendFunctionCall） */\n    sessionStore: AiAgentSessionStore;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "registration",
+              "jsdoc": "当前工具的业务注册信息，含 runtime 执行器、生命周期钩子和恢复提示配置",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "Agent 运行时作用域，提供 moduleId / moduleInstanceId / instanceId 等定位信息",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "当前 turn 的元数据（turnId 等），用于诊断事件和工具调用记录关联",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "round",
+              "jsdoc": "当前 tool loop 中的轮次序号，从 0 开始；用于工具调用记录和诊断定位",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resolveToolName",
+              "jsdoc": "transport toolName → runtime toolName 的解析函数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "call",
+              "jsdoc": "LLM 返回的原始 transport tool_call",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "request",
+              "jsdoc": "当前 chat 请求，携带 beforeFunctionCall 钩子、onDelta / onToolCall 等回调",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionStore",
+              "jsdoc": "会话存储，用于追加工具调用历史记录（appendFunctionCall）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentToolCallExecutionOutput": {
+      "name": "AiAgentToolCallExecutionOutput",
+      "jsdoc": "工具调用执行的输出",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 发回 LLM 的工具消息（role: 'tool'） */\n    toolMessage: AiAgentTransportMessage;\n    /** 业务生命周期指令（continue / complete / abort） */\n    directive: AiAgentLifecycleDirective;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 发回 LLM 的工具消息（role: 'tool'） */\n    toolMessage: AiAgentTransportMessage;\n    /** 业务生命周期指令（continue / complete / abort） */\n    directive: AiAgentLifecycleDirective;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "toolMessage",
+              "jsdoc": "发回 LLM 的工具消息（role: 'tool'）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "directive",
+              "jsdoc": "业务生命周期指令（continue / complete / abort）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentToolCallExecutor": {
+      "name": "AiAgentToolCallExecutor",
+      "jsdoc": "Ai Agent Tool Call Executor 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "Ai Agent Tool Call Executor 的语义模型。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "execute",
+              "jsdoc": "执行单次工具调用。\n返回 null 表示工具无法识别（resolveToolName 返回 null），\n此时错误信息已通过 onDelta 推送给前端，调用方应跳过该调用。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentToolCallExecutionInput",
+                    "sourcePath": "packages/spark-ai/src/agent/tool-loop/tool-call-executor.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "TInput",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "AiAgentToolCallExecutionOutput",
+                        "sourcePath": "packages/spark-ai/src/agent/tool-loop/tool-call-executor.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

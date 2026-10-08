@@ -1,0 +1,677 @@
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\types.ts" b/packages/spark-data/src/types.ts
+index 42b5ed901..c5333f6a1 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\types.ts"
++++ b/packages/spark-data/src/types.ts
+@@ -905,6 +905,12 @@ export type DataViewFieldCascadeState = Readonly<{
+ 
+ /** 唯一定位一个 DataView 输入级联。 */
+ export type DataViewCascadeSelector = Readonly<{
++  cascadeId: string
++  parentTable?: never
++  parentViewId?: never
++  childTable?: never
++  childViewId?: never
++} | {
+   parentTable: string
+   parentViewId: string
+   childTable: string
+@@ -1223,12 +1229,14 @@ export type DataSetContract = {
+     childField?: string
+   }): void
+   /** 添加 DataView 输入级联 */
+-  addCascade(cascade: DataViewCascade): void
++  addCascade(cascade: DataViewCascade): DataViewCascade
++  /** 按唯一选择器读取级联，未命中返回 undefined，歧义报错。 */
++  getCascade(selector: DataViewCascadeSelector): DataViewCascade | undefined
+   /** 更新 DataView 输入级联 */
+   updateCascade(
+     selector: DataViewCascadeSelector,
+-    updates: Partial<DataViewQueryCascade>,
+-  ): DataViewQueryCascade
++    updates: Partial<DataViewCascade>,
++  ): DataViewCascade
+   /** 删除 DataView 输入级联 */
+   removeCascade(selector: DataViewCascadeSelector): void
+   /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\dataset.ts" b/packages/spark-data/src/dataset.ts
+index 7271573ae..f7ec1f6a7 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\dataset.ts"
++++ b/packages/spark-data/src/dataset.ts
+@@ -1089,18 +1089,30 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+       tableName: side === 'parent' ? relation.parentTable : relation.childTable, fieldName})
+   }
+ 
+-  private _resolveCascadeIndex(selector: DataViewCascadeSelector): number {
+-    this.viewCascades ??= []
+-    const idx = this.viewCascades.findIndex(dep => {
+-      if (dep.kind === 'field') return false
+-      if (dep.parentTable !== selector.parentTable || dep.parentViewId !== selector.parentViewId) return false
+-      if (dep.childTable !== selector.childTable || dep.childViewId !== selector.childViewId) return false
+-      return selector.cascadeId === undefined || dep.cascadeId === selector.cascadeId
++  private _resolveCascadeIndex(selector: DataViewCascadeSelector, required = true): number {
++    if (!isRecord(selector)) throw new Error('Cascade selector must be an object')
++    const endpoints = [selector.parentTable, selector.parentViewId, selector.childTable, selector.childViewId]
++    const hasEndpoints = endpoints.some(value => value !== undefined)
++    if ((selector.cascadeId !== undefined && (typeof selector.cascadeId !== 'string' || !selector.cascadeId.trim()))
++      || (hasEndpoints && endpoints.some(value => typeof value !== 'string' || !value.trim()))
++      || (!hasEndpoints && selector.cascadeId === undefined)) throw new Error('Cascade selector requires an identity or complete endpoints')
++    const matches = (this.viewCascades ?? []).flatMap((cascade, index) => {
++      if (selector.cascadeId !== undefined && cascade.cascadeId !== selector.cascadeId) return []
++      if (hasEndpoints && (cascade.kind === 'field'
++        || cascade.parentTable !== selector.parentTable || cascade.parentViewId !== selector.parentViewId
++        || cascade.childTable !== selector.childTable || cascade.childViewId !== selector.childViewId)) return []
++      return [index]
+     })
+-    if (idx < 0) {
+-      throw new Error(`Cascade ${selector.parentTable}:${selector.parentViewId}→${selector.childTable}:${selector.childViewId} not found`)
+-    }
+-    return idx
++    if (matches.length > 1) throw new Error('Cascade selector is ambiguous; provide cascadeId')
++    const index = matches[0] ?? -1
++    if (required && index < 0) throw new Error('Cascade not found')
++    return index
++  }
++
++  /** 按唯一身份读取级联；旧 query 也可使用完整端点，歧义会报错。 */
++  getCascade(selector: DataViewCascadeSelector): DataViewCascade | undefined {
++    const index = this._resolveCascadeIndex(selector, false)
++    return this.viewCascades?.[index]
+   }
+ 
+   /**
+@@ -1189,6 +1201,14 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+   }
+ 
+   private _assertCascadeShape(cascade: DataViewQueryCascade): void {
++    const input: unknown = cascade
++    const allowed = ['kind', 'cascadeId', 'sourceRelationId', 'parentTable', 'parentViewId',
++      'childTable', 'childViewId', 'filterBindings', 'dependencyType', 'autoLoad']
++    if (!isRecord(input) || Object.keys(input).some(key => !allowed.includes(key))
++      || (input['kind'] !== undefined && input['kind'] !== 'query')
++      || [input['parentTable'], input['parentViewId'], input['childTable'], input['childViewId']]
++        .some(value => typeof value !== 'string' || !value.trim())
++      || !Array.isArray(input['filterBindings'])) throw new Error('QUERY_CASCADE_CONFIG: invalid query definition')
+     const parentTable = this.getTable(cascade.parentTable)
+     if (!parentTable) throw new Error(`Parent table "${cascade.parentTable}" not found`)
+     const childTable = this.getTable(cascade.childTable)
+@@ -1214,19 +1234,17 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+    * 添加 DataViewCascade（DataView 输入级联）。
+    * @throws 级联引用非法或重复时抛 Error
+    */
+-  addCascade(cascade: DataViewCascade): void {
++  addCascade(cascade: DataViewCascade): DataViewCascade {
+     if (cascade.kind === 'field') {
+       const next = DataViewFieldCascadeDefinition.parse(cascade)
+       DataViewFieldCascadeDefinition.validateAll([...(this.viewCascades ?? []), next])
+       DataViewFieldCascadeDefinition.validateRuntime([next], this)
+       this.viewCascades = [...(this.viewCascades ?? []), next]
+       this._rebuildDataLinks()
+-      return
++      return next
+     }
+     this._assertCascadeShape(cascade)
+-    this.viewCascades ??= []
+-
+-    const dup = this.viewCascades.some(dep => {
++    const dup = (this.viewCascades ?? []).some(dep => {
+       if (dep.kind === 'field') return dep.cascadeId === cascade.cascadeId
+       if (cascade.cascadeId !== undefined && dep.cascadeId === cascade.cascadeId) return true
+       return dep.parentTable === cascade.parentTable
+@@ -1239,11 +1257,16 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+       throw new Error(`Cascade ${cascade.parentTable}:${cascade.parentViewId}→${cascade.childTable}:${cascade.childViewId} already exists`)
+     }
+ 
+-    this.viewCascades.push(deepClone({
++    const next = deepClone({
+       ...cascade,
+       dependencyType: cascade.dependencyType ?? 'currentRow',
+-    }))
++    })
++    const candidates = [...(this.viewCascades ?? []), next]
++    const fields = DataViewFieldCascadeDefinition.validateAll(candidates)
++    DataViewFieldCascadeDefinition.validateRuntime(fields, this)
++    this.viewCascades = candidates
+     this._rebuildDataLinks()
++    return next
+   }
+ 
+   /**
+@@ -1252,43 +1275,35 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+    */
+   updateCascade(
+     selector: DataViewCascadeSelector,
+-    updates: Partial<DataViewQueryCascade>,
+-  ): DataViewQueryCascade {
+-    this.viewCascades ??= []
+-
++    updates: Partial<DataViewCascade>,
++  ): DataViewCascade {
+     const idx = this._resolveCascadeIndex(selector)
+-    const current = this.viewCascades[idx]
+-    if (!current) {
+-      throw new Error(`Cascade ${selector.parentTable}:${selector.parentViewId}→${selector.childTable}:${selector.childViewId} not found`)
+-    }
+-    if (current.kind === 'field') throw new Error('FIELD_CASCADE_QUERY_ONLY: 此入口只维护查询级联')
+-    const next: DataViewQueryCascade = {
+-      ...current,
+-      ...updates,
+-      parentTable: updates.parentTable ?? current.parentTable,
+-      parentViewId: updates.parentViewId ?? current.parentViewId,
+-      childTable: updates.childTable ?? current.childTable,
+-      childViewId: updates.childViewId ?? current.childViewId,
+-      filterBindings: updates.filterBindings ?? current.filterBindings,
+-    }
+-
+-    this._assertCascadeShape(next)
+-
+-    const duplicate = this.viewCascades.some((dep, depIndex) => {
+-      if (depIndex === idx) return false
+-      if (dep.kind === 'field') return next.cascadeId !== undefined && dep.cascadeId === next.cascadeId
+-      if (next.cascadeId !== undefined && dep.cascadeId === next.cascadeId) return true
+-      return dep.parentTable === next.parentTable
+-        && dep.parentViewId === next.parentViewId
+-        && dep.childTable === next.childTable
+-        && dep.childViewId === next.childViewId
+-        && JSON.stringify(dep.filterBindings) === JSON.stringify(next.filterBindings)
+-    })
+-    if (duplicate) {
+-      throw new Error(`Cascade ${next.parentTable}:${next.parentViewId}→${next.childTable}:${next.childViewId} already exists`)
++    const current = this.viewCascades?.[idx]
++    if (!current) throw new Error('Cascade not found')
++    if (!isRecord(updates)) throw new Error('Cascade updates must be an object')
++    if (Object.hasOwn(updates, 'kind') && (updates.kind ?? 'query') !== (current.kind ?? 'query')) {
++      throw new Error('Cascade kind cannot be changed')
++    }
++    let next: DataViewCascade
++    if (current.kind === 'field') {
++      next = DataViewFieldCascadeDefinition.parse({...current, ...updates})
++    } else {
++      const {kind, ...queryUpdates} = updates
++      if (kind === 'field') throw new Error('Cascade kind cannot be changed')
++      const candidate = deepClone({...current, ...queryUpdates, ...(kind === undefined ? {} : {kind})})
++      this._assertCascadeShape(candidate)
++      if ((this.viewCascades ?? []).some((dep, index) => index !== idx && dep.kind !== 'field'
++        && dep.parentTable === candidate.parentTable && dep.parentViewId === candidate.parentViewId
++        && dep.childTable === candidate.childTable && dep.childViewId === candidate.childViewId
++        && JSON.stringify(dep.filterBindings) === JSON.stringify(candidate.filterBindings))) {
++        throw new Error('Cascade already exists')
++      }
++      next = candidate
+     }
+-
+-    this.viewCascades[idx] = next
++    const candidates = (this.viewCascades ?? []).map((item, index) => index === idx ? next : item)
++    const fields = DataViewFieldCascadeDefinition.validateAll(candidates)
++    DataViewFieldCascadeDefinition.validateRuntime(fields, this)
++    this.viewCascades = candidates
+     this._rebuildDataLinks()
+     return next
+   }
+@@ -1298,11 +1313,8 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+    * @throws 级联不存在时抛 Error
+    */
+   removeCascade(selector: DataViewCascadeSelector): void {
+-    this.viewCascades ??= []
+-
+     const idx = this._resolveCascadeIndex(selector)
+-
+-    this.viewCascades.splice(idx, 1)
++    this.viewCascades = (this.viewCascades ?? []).filter((_item, index) => index !== idx)
+     this._rebuildDataLinks()
+   }
+ 
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\dataset-crud-tool.ts" b/packages/spark-data/src/dataset-crud-tool.ts
+index 6abcfdf9c..d8ecc7905 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\dataset-crud-tool.ts"
++++ b/packages/spark-data/src/dataset-crud-tool.ts
+@@ -24,6 +24,7 @@ import type {
+   DataResourceRelation,
+   DataResourceRelationInput,
+   DataViewQueryCascade,
++  DataViewCascade,
+   DataViewFieldCascade,
+   DataViewCascadeSelector,
+   TableSemanticMetadata,
+@@ -287,13 +288,17 @@ type DataSetCrudToolUpdateResourceRelationParams = {
+ /** 创建 DataView 输入级联参数。 */
+ type DataSetCrudToolCreateCascadeParams = {
+   /** 新 DataView 输入级联定义。 */
+-  cascade: DataViewQueryCascade
++  cascade: DataViewCascade
+ }
+ 
+ /** 更新 DataView 输入级联参数。 */
+ type DataSetCrudToolUpdateCascadeParams = DataViewCascadeSelector & {
+   /** 要合并到级联定义上的更新内容。 */
+-  updates: Partial<DataViewQueryCascade>
++  updates: Partial<DataViewCascade>
++}
++
++type DataSetCrudToolCascadeFilter = Partial<Pick<DataViewQueryCascade, 'parentTable' | 'childTable'>> & {
++  kind?: DataViewCascade['kind']
+ }
+ 
+ /**
+@@ -1451,12 +1456,16 @@ export class DataSetCrudTool {
+   /**
+    * 列出 DataSet 中的 DataView 输入级联。
+    *
+-   * @param filter 可选过滤条件，支持按 parentTable / childTable 过滤。
++   * @param filter 按类型、父输入表或子选项表过滤；省略时包含全部级联。
+    * @returns 级联列表。
+    */
+-  listCascades(filter?: Partial<Pick<DataViewQueryCascade, 'parentTable' | 'childTable'>>): DataViewQueryCascade[] {
+-    return (this.dataSet.viewCascades ?? []).filter((cascade): cascade is DataViewQueryCascade => {
+-      if (cascade.kind === 'field') return false
++  listCascades(filter?: DataSetCrudToolCascadeFilter): DataViewCascade[] {
++    return (this.dataSet.viewCascades ?? []).filter(cascade => {
++      if (filter?.kind !== undefined && (cascade.kind ?? 'query') !== filter.kind) return false
++      if (cascade.kind === 'field') {
++        return (filter?.parentTable === undefined || cascade.parents.some(parent => parent.tableName === filter.parentTable))
++          && (filter?.childTable === undefined || cascade.optionsView.tableName === filter.childTable)
++      }
+       if (filter?.parentTable !== undefined && cascade.parentTable !== filter.parentTable) return false
+       if (filter?.childTable !== undefined && cascade.childTable !== filter.childTable) return false
+       return true
+@@ -1467,21 +1476,10 @@ export class DataSetCrudTool {
+    * 获取一条 DataView 输入级联。
+    *
+    * @param params 级联定位参数。
+-   * @param parentTable 父表名。
+-   * @param childTable 子表名。
+    * @returns 命中的级联；不存在时返回 undefined。
+    */
+-  getCascade(params: DataViewCascadeSelector): DataViewQueryCascade | undefined {
+-    const parentTable = this.requireNonEmptyString(params.parentTable, 'getCascade.parentTable')
+-    const parentViewId = this.requireNonEmptyString(params.parentViewId, 'getCascade.parentViewId')
+-    const childTable = this.requireNonEmptyString(params.childTable, 'getCascade.childTable')
+-    const childViewId = this.requireNonEmptyString(params.childViewId, 'getCascade.childViewId')
+-    return (this.dataSet.viewCascades ?? []).find((cascade): cascade is DataViewQueryCascade => {
+-      if (cascade.kind === 'field') return false
+-      if (cascade.parentTable !== parentTable || cascade.parentViewId !== parentViewId) return false
+-      if (cascade.childTable !== childTable || cascade.childViewId !== childViewId) return false
+-      return params.cascadeId === undefined || cascade.cascadeId === params.cascadeId
+-    })
++  getCascade(params: DataViewCascadeSelector): DataViewCascade | undefined {
++    return this.dataSet.getCascade(params)
+   }
+ 
+   /**
+@@ -1491,20 +1489,10 @@ export class DataSetCrudTool {
+    * @returns 新创建的级联。
+    * @throws 当级联引用非法时抛错。
+    */
+-  createCascade(params: DataSetCrudToolCreateCascadeParams): DataViewQueryCascade {
+-    const cascadeInput = this.requireViewCascade(params.cascade, 'createCascade.cascade')
+-    this.dataSet.addCascade(cascadeInput)
++  createCascade(params: DataSetCrudToolCreateCascadeParams): DataViewCascade {
++    const cascadeInput = this.requireObjectArg(params.cascade, 'createCascade.cascade')
++    const cascade = this.dataSet.addCascade(cascadeInput)
+     this._afterWrite()
+-    const cascade = this.getCascade({
+-      parentTable: cascadeInput.parentTable,
+-      parentViewId: cascadeInput.parentViewId,
+-      childTable: cascadeInput.childTable,
+-      childViewId: cascadeInput.childViewId,
+-      ...(cascadeInput.cascadeId !== undefined ? { cascadeId: cascadeInput.cascadeId } : {}),
+-    })
+-    if (!cascade) {
+-      throw new Error(`Cascade ${cascadeInput.parentTable}→${cascadeInput.childTable} not found`)
+-    }
+     return cascade
+   }
+ 
+@@ -1512,25 +1500,12 @@ export class DataSetCrudTool {
+    * 更新一条 DataView 输入级联。
+    *
+    * @param params 级联更新参数。
+-   * @param parentTable 原父表名。
+-   * @param childTable 原子表名。
+-   * @param updates 级联更新内容。
+    * @returns 更新后的级联。
+    * @throws 当级联不存在或更新目标非法时抛错。
+    */
+-  updateCascade(params: DataSetCrudToolUpdateCascadeParams): DataViewQueryCascade {
+-    const parentTable = this.requireNonEmptyString(params.parentTable, 'updateCascade.parentTable')
+-    const parentViewId = this.requireNonEmptyString(params.parentViewId, 'updateCascade.parentViewId')
+-    const childTable = this.requireNonEmptyString(params.childTable, 'updateCascade.childTable')
+-    const childViewId = this.requireNonEmptyString(params.childViewId, 'updateCascade.childViewId')
+-    const updates = this.requireObjectArg(params.updates, 'updateCascade.updates')
+-    const result = this.dataSet.updateCascade({
+-      parentTable,
+-      parentViewId,
+-      childTable,
+-      childViewId,
+-      ...(params.cascadeId !== undefined ? { cascadeId: params.cascadeId } : {}),
+-    }, updates)
++  updateCascade(params: DataSetCrudToolUpdateCascadeParams): DataViewCascade {
++    const {updates, ...selector} = params
++    const result = this.dataSet.updateCascade(selector, updates)
+     this._afterWrite()
+     return result
+   }
+@@ -1539,22 +1514,10 @@ export class DataSetCrudTool {
+    * 删除一条 DataView 输入级联。
+    *
+    * @param params 级联定位参数。
+-   * @param parentTable 父表名。
+-   * @param childTable 子表名。
+    * @throws 当级联不存在时抛错。
+    */
+   deleteCascade(params: DataViewCascadeSelector): void {
+-    const parentTable = this.requireNonEmptyString(params.parentTable, 'deleteCascade.parentTable')
+-    const parentViewId = this.requireNonEmptyString(params.parentViewId, 'deleteCascade.parentViewId')
+-    const childTable = this.requireNonEmptyString(params.childTable, 'deleteCascade.childTable')
+-    const childViewId = this.requireNonEmptyString(params.childViewId, 'deleteCascade.childViewId')
+-    this.dataSet.removeCascade({
+-      parentTable,
+-      parentViewId,
+-      childTable,
+-      childViewId,
+-      ...(params.cascadeId !== undefined ? { cascadeId: params.cascadeId } : {}),
+-    })
++    this.dataSet.removeCascade(params)
+     this._afterWrite()
+   }
+ 
+@@ -1598,26 +1561,6 @@ export class DataSetCrudTool {
+     return value
+   }
+ 
+-  private requireViewCascade(value: DataViewQueryCascade | Partial<DataViewQueryCascade>, label: string): DataViewQueryCascade {
+-    this.requireObjectArg(value, label)
+-    const parentTable = this.requireNonEmptyString(value.parentTable, `${label}.parentTable`)
+-    const parentViewId = this.requireNonEmptyString(value.parentViewId, `${label}.parentViewId`)
+-    const childTable = this.requireNonEmptyString(value.childTable, `${label}.childTable`)
+-    const childViewId = this.requireNonEmptyString(value.childViewId, `${label}.childViewId`)
+-    const filterBindings = this.requireNonEmptyArray(
+-      value.filterBindings === undefined ? undefined : [...value.filterBindings],
+-      `${label}.filterBindings`,
+-    )
+-    return {
+-      ...value,
+-      parentTable,
+-      parentViewId,
+-      childTable,
+-      childViewId,
+-      filterBindings,
+-    }
+-  }
+-
+   private normalizeTableNameArg(
+     tableNameOrParams: string | { tableName: string },
+     methodName: string,
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts" b/packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts
+index f744617b5..aa0e1919a 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts"
++++ b/packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts
+@@ -1,7 +1,119 @@
+ import { describe, expect, it } from 'vitest'
+ import { DataSetCrudTool, DataSet, SparkData } from '@spark-appworks/spark-data'
+ 
++function createValueCascadeTool() {
++  return DataSetCrudTool.fromJson({dataSetName: 'ValueCrud', tables: {
++    Orders: {columns: [{name: 'id', type: 'string', isPrimaryKey: true},
++      {name: 'country', type: 'string'}, {name: 'city', type: 'string'}], views: {default: {}, edit: {}}},
++    Cities: {columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'code', type: 'string'}],
++      views: {default: {}, choices: {valueField: 'code', selectionDelimiter: '|'}}},
++  }})
++}
++
++const valueCascade = {kind: 'field' as const, cascadeId: 'city', tableName: 'Orders', viewId: 'edit',
++  targetField: 'city', valueFormat: 'selection-string' as const,
++  parents: [{tableName: 'Orders', viewId: 'edit', field: 'country', parameter: 'countryId'}],
++  optionsView: {tableName: 'Cities', viewId: 'choices'}, valuePolicy: {mode: 'retain' as const}}
++
+ describe('DataSetCrudTool', () => {
++  it('maintains value cascades by identity with serialized value configuration and undo/redo', () => {
++    const tool = createValueCascadeTool()
++    try {
++      expect(tool.createCascade({cascade: valueCascade})).toEqual(valueCascade)
++      expect(tool.listCascades()).toEqual([valueCascade])
++      expect(tool.listCascades({kind: 'field'})).toEqual([valueCascade])
++      expect(tool.listCascades({kind: 'query'})).toEqual([])
++      expect(tool.listCascades({parentTable: 'Orders', childTable: 'Cities'})).toEqual([valueCascade])
++      expect(tool.getCascade({cascadeId: 'city'})).toEqual(valueCascade)
++      expect(tool.dataSet.getCascade({cascadeId: 'city'})).toEqual(valueCascade)
++      const updated = tool.updateCascade({cascadeId: 'city', updates: {
++        valuePolicy: {mode: 'retain-valid', clearValue: ''}}})
++      expect(updated).toMatchObject({valueFormat: 'selection-string', valuePolicy: {mode: 'retain-valid', clearValue: ''}})
++      expect(tool.undo()).toBe(true)
++      expect(tool.getCascade({cascadeId: 'city'})).toEqual(valueCascade)
++      expect(tool.redo()).toBe(true)
++      expect(tool.getCascade({cascadeId: 'city'})).toEqual(updated)
++      tool.deleteCascade({cascadeId: 'city'})
++      expect(tool.listCascades()).toEqual([])
++      expect(tool.getCascade({cascadeId: 'city'})).toBeUndefined()
++      expect(tool.undo()).toBe(true)
++      expect(tool.getCascade({cascadeId: 'city'})).toEqual(updated)
++      expect(tool.redo()).toBe(true)
++      expect(tool.listCascades()).toEqual([])
++      expect(tool.getView({tableName: 'Cities', viewId: 'choices'})).toMatchObject({valueField: 'code', selectionDelimiter: '|'})
++    } finally { tool.dataSet.destroy() }
++  })
++
++  it('rejects invalid value-cascade edits without changing configuration, live views or history', () => {
++    const tool = createValueCascadeTool()
++    try {
++      tool.createCascade({cascade: valueCascade})
++      const snapshot = tool.toJson()
++      const cursor = tool.historyCursor
++      const target = tool.getView({tableName: 'Orders', viewId: 'edit'})
++      const invalid = [
++        {optionsView: {tableName: 'Cities', viewId: 'missing'}},
++        {targetField: 'missing'}, {targetField: 'id'},
++        {parents: [{tableName: 'Orders', viewId: 'edit', field: 'city', parameter: 'self'}]},
++        {valuePolicy: {mode: 'clear', clearValue: []}},
++        {kind: 'query'}, {kind: undefined}, {filterBindings: []}, {rowMode: 'editing-row'},
++      ]
++      for (const updates of invalid) {
++        expect(() => Reflect.apply(tool.updateCascade, tool, [{cascadeId: 'city', updates}])).toThrow()
++        expect(tool.toJson()).toEqual(snapshot)
++        expect(tool.historyCursor).toBe(cursor)
++        expect(tool.getView({tableName: 'Orders', viewId: 'edit'})).toBe(target)
++      }
++      expect(() => tool.createCascade({cascade: valueCascade})).toThrow(/DUPLICATE/)
++      expect(() => tool.createCascade({cascade: {...valueCascade, cascadeId: 'another'}})).toThrow(/DUPLICATE/)
++      expect(() => tool.deleteCascade({cascadeId: 'missing'})).toThrow(/not found/)
++      expect(tool.historyCursor).toBe(cursor)
++      expect(tool.undo()).toBe(true)
++      expect(tool.listCascades()).toEqual([])
++      expect(() => tool.createCascade({cascade: {...valueCascade, targetField: 'missing'}})).toThrow()
++      expect(tool.canRedo).toBe(true)
++      expect(tool.redo()).toBe(true)
++      expect(tool.getCascade({cascadeId: 'city'})).toEqual(valueCascade)
++    } finally { tool.dataSet.destroy() }
++  })
++
++  it('requires a unique selector and rejects query and field configuration mixing', () => {
++    const tool = createValueCascadeTool()
++    const endpoints = {parentTable: 'Orders', parentViewId: 'edit', childTable: 'Cities', childViewId: 'choices'}
++    try {
++      tool.createCascade({cascade: valueCascade})
++      tool.createCascade({cascade: {...endpoints, cascadeId: 'query-a', filterBindings: [{sourceField: 'country', targetField: 'code'}]}})
++      tool.createCascade({cascade: {...endpoints, cascadeId: 'query-b', filterBindings: [{sourceField: 'id', targetField: 'id'}]}})
++      const before = tool.toJson()
++      const cursor = tool.historyCursor
++      expect(() => tool.getCascade(endpoints)).toThrow(/ambiguous/)
++      expect(() => tool.deleteCascade(endpoints)).toThrow(/ambiguous/)
++      expect(tool.getCascade({...endpoints, cascadeId: 'query-b'})).toMatchObject({cascadeId: 'query-b'})
++      expect(tool.getCascade({...endpoints, cascadeId: 'city'})).toBeUndefined()
++      expect(() => tool.updateCascade({cascadeId: 'query-a', updates: {kind: 'field'}})).toThrow()
++      expect(() => tool.updateCascade({cascadeId: 'query-a', updates: {targetField: 'city'}})).toThrow()
++      expect(() => tool.updateCascade({cascadeId: 'query-a', updates: {cascadeId: 'city'}})).toThrow()
++      expect(() => tool.getCascade({cascadeId: ''})).toThrow()
++      expect(() => Reflect.apply(tool.getCascade, tool, [{}])).toThrow()
++      expect(tool.toJson()).toEqual(before)
++      expect(tool.historyCursor).toBe(cursor)
++    } finally { tool.dataSet.destroy() }
++  })
++
++  it('returns the created query even when two legacy definitions share endpoints without identities', () => {
++    const tool = createValueCascadeTool()
++    const endpoints = {parentTable: 'Orders', parentViewId: 'edit', childTable: 'Cities', childViewId: 'choices'}
++    try {
++      tool.createCascade({cascade: {...endpoints, filterBindings: [{sourceField: 'country', targetField: 'code'}]}})
++      expect(tool.createCascade({cascade: {...endpoints, filterBindings: [{sourceField: 'id', targetField: 'id'}]}}))
++        .toMatchObject({filterBindings: [{sourceField: 'id', targetField: 'id'}]})
++      expect(tool.listCascades({kind: 'query'})).toHaveLength(2)
++      expect(() => tool.getCascade(endpoints)).toThrow(/ambiguous/)
++      expect(tool.undo()).toBe(true)
++      expect(tool.getCascade(endpoints)).toMatchObject({filterBindings: [{sourceField: 'country', targetField: 'code'}]})
++    } finally { tool.dataSet.destroy() }
++  })
++
+   it('constructor should create an empty DataSet with the provided name', () => {
+     const tool = new DataSetCrudTool('ToolDS')
+ 
+@@ -204,7 +316,7 @@ describe('DataSetCrudTool', () => {
+       childTable: 'Items',
+       childViewId: 'default',
+     }
+-    expect(tool.getCascade(cascadeSelector)?.dependencyType).toBe('currentRow')
++    expect(tool.getCascade(cascadeSelector)).toMatchObject({dependencyType: 'currentRow'})
+ 
+     tool.updateCascade({
+       ...cascadeSelector,
+@@ -213,13 +325,13 @@ describe('DataSetCrudTool', () => {
+         autoLoad: false,
+       },
+     })
+-    expect(tool.getCascade(cascadeSelector)?.dependencyType).toBe('selectedRows')
++    expect(tool.getCascade(cascadeSelector)).toMatchObject({dependencyType: 'selectedRows'})
+ 
+     tool.deleteCascade(cascadeSelector)
+     expect(tool.getCascade(cascadeSelector)).toBeUndefined()
+   })
+ 
+-  it('maintains field-cascade target, parent and option references while keeping query CRUD separate', () => {
++  it('maintains field-cascade target, parent and option references through the shared CRUD facade', () => {
+     const tool = DataSetCrudTool.fromJson({dataSetName: 'FieldCrud', tables: {
+       Orders: {tableName: 'Orders', columns: [{name: 'id', type: 'string', isPrimaryKey: true},
+         {name: 'country', type: 'string'}, {name: 'city', type: 'string'}],
+@@ -234,7 +346,9 @@ describe('DataSetCrudTool', () => {
+         optionsView: {tableName: 'Cities', viewId: 'choices'},
+         valuePolicy: {mode: 'retain-valid', clearValue: null}},
+     ]})
+-    expect(tool.listCascades()).toHaveLength(1)
++    expect(tool.listCascades()).toHaveLength(2)
++    expect(tool.listCascades({kind: 'query'})).toHaveLength(1)
++    expect(tool.listCascades({kind: 'field'})).toHaveLength(1)
+     expect(tool.getCascade({parentTable: 'Orders', parentViewId: 'edit', childTable: 'Cities', childViewId: 'choices'})?.cascadeId)
+       .toBe('query')
+     expect(() => tool.deleteColumn({tableName: 'Orders', columnName: 'city'})).toThrow('viewCascades')
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-structure-crud.test.ts" b/packages/spark-data/src/tests/dataset/dataset-structure-crud.test.ts
+index 76cbad293..ef2ee2c40 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-structure-crud.test.ts"
++++ b/packages/spark-data/src/tests/dataset/dataset-structure-crud.test.ts
+@@ -57,6 +57,20 @@ function createStructureDataSet(): DataSet {
+ }
+ 
+ describe('DataSet structure CRUD', () => {
++  it('does not create a cascade collection when a missing identity cannot be updated or deleted', () => {
++    const ds = DataSet.fromJson({dataSetName: 'Empty', tables: {}})
++    try {
++      expect(ds.viewCascades).toBeUndefined()
++      expect(ds.getCascade({cascadeId: 'missing'})).toBeUndefined()
++      expect(() => ds.getCascade({cascadeId: ''})).toThrow()
++      expect(() => ds.updateCascade({cascadeId: 'missing'}, {})).toThrow(/not found/)
++      expect(() => ds.removeCascade({cascadeId: 'missing'})).toThrow(/not found/)
++      expect(() => ds.addCascade({parentTable: 'missing', parentViewId: 'default', childTable: 'other',
++        childViewId: 'default', filterBindings: []})).toThrow()
++      expect(ds.viewCascades).toBeUndefined()
++    } finally { ds.destroy() }
++  })
++
+   it('keeps an absent resourceRelations collection absent when relation mutations fail', () => {
+     const ds = DataSet.fromJson({dataSetName: 'EmptyRelations', tables: {
+       Orders: {tableName: 'Orders', columns: [{name: 'id', type: 'number'}], views: {default: {}}},
+@@ -136,8 +150,7 @@ describe('DataSet structure CRUD', () => {
+       autoLoad: false,
+     })
+ 
+-    expect(updated.dependencyType).toBe('selectedRows')
+-    expect(updated.autoLoad).toBe(false)
++    expect(updated).toMatchObject({dependencyType: 'selectedRows', autoLoad: false})
+ 
+     const parentRelations = ds.getParentCascades('Items', 'default')
+     expect(parentRelations).toHaveLength(1)
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts" b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+index a3511c172..698628e4d 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts"
++++ b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+@@ -1,5 +1,5 @@
+ import {describe, expect, it, vi} from 'vitest'
+-import {DataViewFilter, RequestState, extractColumnRules} from '@spark-appworks/spark-data'
++import {DataSetCrudTool, DataViewFilter, RequestState, extractColumnRules} from '@spark-appworks/spark-data'
+ import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+ import {ProjectWorkspace, type ScenarioViewFile} from '@spark-appworks/spark-project-model'
+ import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
+@@ -235,7 +235,7 @@ describe('scenario view persistence and formal model assembly', () => {
+     }
+   })
+ 
+-  it.each(['native', 'selection-string'])('saves a %s field cascade and preserves the child format through submission and fresh reads', async format => {
++  it.each(['native', 'selection-string'] as const)('saves a %s field cascade and preserves the child format through submission and fresh reads', async format => {
+     const storage = fixture()
+     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'country', 'province', 'city'], ['province']),
+       model('ChildModel', 'ChildSource', ['id', 'code', 'parentId', 'provinceId', 'title'], ['provinceId'])])
+@@ -251,12 +251,19 @@ describe('scenario view persistence and formal model assembly', () => {
+       {field: 'parentId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'countryId'}},
+       {field: 'provinceId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'provinceId'}},
+     ]}}}}}
+-    const field = {kind: 'field', cascadeId: 'city-by-region', tableName: 'Parents', viewId: 'shared',
++    const field = {kind: 'field' as const, cascadeId: 'city-by-region', tableName: 'Parents', viewId: 'shared',
+       valueFormat: format, targetField: 'city',
+       parents: [{tableName: 'Parents', viewId: 'shared', field: 'country', parameter: 'countryId'}, {tableName: 'Parents', viewId: 'shared', field: 'province', parameter: 'provinceId'}],
+       optionsView: {tableName: 'Children', viewId: 'detail'},
+-      valuePolicy: {mode: 'retain-valid', clearValue: format === 'native' ? null : ''}}
+-    config['viewCascades'] = [cascade, field]
++      valuePolicy: {mode: 'retain-valid' as const, clearValue: format === 'native' ? null : ''}}
++    opened.dirtySource.setText(JSON.stringify(config))
++    const design = await first.assemble('SPACE', opened.dirtySource)
++    const editor = DataSetCrudTool.fromDataSet(design.dataSet)
++    try {
++      editor.createCascade({cascade: {...field, valuePolicy: {mode: 'retain' as const}}})
++      editor.updateCascade({cascadeId: field.cascadeId, updates: {valuePolicy: field.valuePolicy}})
++      config['viewCascades'] = editor.listCascades()
++    } finally { design.dataSet.destroy() }
+     opened.dirtySource.setText(JSON.stringify(config))
+     const saved = await first.service.save('SPACE')
+     expect(saved.dirty).toBe(false)
+@@ -327,6 +334,20 @@ describe('scenario view persistence and formal model assembly', () => {
+       expect(freshTarget.rows[0]?.['city']).toBe(expectedCity)
+       expect(freshTarget.getEditingPatch('P1')).toBeUndefined()
+       expect(freshAssembly.dataSet.viewCascades).toMatchObject([cascade, field])
++      const reopenedEditor = DataSetCrudTool.fromDataSet(freshAssembly.dataSet)
++      reopenedEditor.deleteCascade({cascadeId: field.cascadeId})
++      freshFile.dirtySource.setText(JSON.stringify({...freshFile.state.config,
++        viewCascades: reopenedEditor.listCascades()}))
++      await fresh.service.save('SPACE')
++      const finalOwner = storage.openOwner()
++      const finalFile = await finalOwner.service.open('SPACE')
++      const finalAssembly = await finalOwner.assemble('SPACE', finalFile.dirtySource)
++      try {
++        expect(finalAssembly.dataSet.viewCascades).toMatchObject([cascade])
++        expect(finalAssembly.dataSet.resourceRelations).toMatchObject([{sourceRelationId: 'REL'}])
++        expect(finalAssembly.dataSet.getView('Children', 'detail'))
++          .toMatchObject({valueField: format === 'native' ? 'id' : 'code', selectionDelimiter: '|'})
++      } finally { finalAssembly.dataSet.destroy() }
+     } finally { freshAssembly.dataSet.destroy() }
+   })
+ 
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\API.md" b/packages/spark-data/API.md
+index 373ce8546..28d8f3d8a 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-crud\\before\\packages\\spark-data\\API.md"
++++ b/packages/spark-data/API.md
+@@ -152,6 +152,10 @@ type DataViewQueryCascade = {
+ 
+ 此分支通过 `queryOptionRows` 完整读取独立选项结果，不替换共享选项 DataView 的 rows；消费方须读取级联状态，不能把共享 rows 当作该绑定的查询结果。普通选项组件自动接入此状态尚未完成。
+ 
++`DataSetCrudTool.listCascades()` 包含所有级联；`{kind:'field'}` 或 `{kind:'query'}` 显式筛选。字段级联的 `parentTable` 过滤匹配任一父输入，`childTable` 匹配子选项视图所属表。统一使用 `getCascade({cascadeId})`、`updateCascade({cascadeId, updates})`、`deleteCascade({cascadeId})` 维护，创建用 `createCascade({cascade})`。返回值为 `DataViewCascade` 联合，读取类型专有属性前按 `kind` 区分。
++
++DataSet 的 `getCascade/addCascade/updateCascade/removeCascade` 是同一校验入口；add/update 返回已接受的定义。字段更新仍执行完整引用、唯一目标和无环校验，不能改换 kind 或混入旧查询字段。失败保持原配置、运行视图及工具历史；成功支持撤销重做。既有 query 完整端点选择器继续支持，多命中明确报错；附带 ID 时两者必须同时匹配。`selection-string` 和选项视图配置原样保存到所属场景文件，仅回写配置，不把运行 DataSet 整体持久化。
++
+ #### `SparkData.fromJson(json)`
+ 
+ 从 JSON 字符串、canonical DataSet 对象或 pagedata 原始对象恢复 DataSet。

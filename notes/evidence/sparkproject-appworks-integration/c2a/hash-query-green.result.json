@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts --maxWorkers=1 --reporter=dot -t \"question marks after a target hash\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T06:35:47.0100220Z",
+  "finishedAt": "2026-10-07T06:35:49.7318766Z",
+  "exitCode": 0
+}

@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/cascade/cascade-value-binding",
+    "sourcePath": "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts",
+    "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/cascade/cascade-value-binding",
+    "jsdoc": "@spark-appworks/spark-data 的 strategies/cascade/cascade-value-binding 模块。\n导出 DtsTypeDeclarationModel symbol: DataViewCascadeValueBinding（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataViewCascadeValueBinding"
+    ]
+  },
+  "$defs": {
+    "ValueSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ValueSource",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "viewId"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewCascadeValueBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewCascadeValueBinding",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.equal.params": {
+          "type": "object",
+          "properties": {
+            "left": true,
+            "right": true
+          },
+          "additionalProperties": false
+        },
+        "method.equal.return": {
+          "type": "boolean"
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../dataset.ts.json#/$defs/DataSet"
+            },
+            "source": {
+              "$ref": "#/$defs/ValueSource"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": true,
+        "method.inputs.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../dataset.ts.json#/$defs/DataSet"
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ValueSource"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.inputs.return": {
+          "type": "array",
+          "items": true
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T19:26:38.328Z",
+  "models": {
+    "ValueSource": {
+      "name": "ValueSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<DataViewFieldCascade['parents'][number], 'tableName' | 'viewId' | 'field'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<DataViewFieldCascade['parents'][number], 'tableName' | 'viewId' | 'field'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewCascadeValueBinding": {
+      "name": "DataViewCascadeValueBinding",
+      "jsdoc": "级联共享值边界：字段值或选中主键数组，行定位由原生绑定处理。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "级联共享值边界：字段值或选中主键数组，行定位由原生绑定处理。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "equal",
+              "parameters": [
+                {
+                  "name": "left",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "right",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet",
+                    "sourcePath": "packages/spark-data/src/dataset.ts"
+                  }
+                },
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "reference",
+                    "name": "ValueSource",
+                    "sourcePath": "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "inputs",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet",
+                    "sourcePath": "packages/spark-data/src/dataset.ts"
+                  }
+                },
+                {
+                  "name": "sources",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly ValueSource[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "unknown",
+                  "name": "readonly unknown[]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

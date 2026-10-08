@@ -1,0 +1,54 @@
+[
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\types.ts",
+    "Hash": "8D089BA55B75FCC4E9C832318C8FD997BF785F5801B78F0B28583502B23487AC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-definition.ts",
+    "Hash": "2CA0D80DB8022DF63192326CC5C8ED12754B2A2EA2857806A2207062D6A2829B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-runtime.ts",
+    "Hash": "F062DFB0AB46E597926EBF792A7F9036E3E6F6D04C7F08F877704401A76F0673"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\selection-delegate.ts",
+    "Hash": "63DBF39EECBDB29A224C1CFCA0BB7DEA12951E6EB613D5E4D7D63E5108D52809"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset-crud-tool.ts",
+    "Hash": "2DB02207C48E8FDA807D3A26A05DC983D734EB8E8B63861389E9FE508A8AB046"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\field-cascade.test.ts",
+    "Hash": "4A0D04884D3BBA00B3D54F010634B07306336B7A5AF0714EEC683D60298CE17F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts",
+    "Hash": "F22547FBE359FE4ED4CACD92BED09AEB5A849F04334BF167C2E22D5A2B924F3C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-project-model\\tests\\scenario\\scenario-view-file.test.ts",
+    "Hash": "7F1EEBB4AAB2EBA64C0DE7845D84AE91A6C0B293824DFDB8BCA3BBFB422DFDE6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts",
+    "Hash": "CC2CFC2CFE1BB0A197AB4DE12C8B718327423322FE9BFBD9D80AFF11AC82F838"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\API.md",
+    "Hash": "C942B43CF09E8FCABA4831EF8DF7D865DED2FC4E29E58EEF1202BFC5FF509E9C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset.ts",
+    "Hash": "D79FC0F1911B77F49BCE6DA377A8A27B6B428CA4BA96E11C5071AEAE023EF098"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-binding.ts",
+    "Hash": "45A0D33612F96F032C3301409AB3F0E62334A9A952822A44870FDD97CB7A32EC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\selection\\data-view-selection-value.ts",
+    "Hash": "FDD4CDA6D6BDCEE9FC12BA9697F96D8F35CB5E4E2AA6FBE00969E9677989AA18"
+  }
+]

@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/recovery/class-model-failure-mode-recovery",
+    "sourcePath": "packages/spark-ai/src/class-model/recovery/class-model-failure-mode-recovery.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/recovery/class-model-failure-mode-recovery.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/recovery/class-model-failure-mode-recovery",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/recovery/class-model-failure-mode-recovery\n职责：维护 @spark-appworks/spark-ai 中 class-model/recovery/class-model-failure-mode-recovery 的 ClassModelFailureModeRecoveryCommand、ClassModelFailureModeRecoveryContext语义。\n边界：只服务 spark-ai 包内部的 Agent/DtsTypeDeclarationModel 能力，不直接耦合应用页面或 Vue 组件。\nAI用途：定位 spark-ai 公共 API、运行时协议或知识索引字段时，用本模块作为语义入口。\n\nDtsTypeDeclarationModel recovery：从构建期动作失败描述派生 RECOVERY_HINT。\nDtsTypeDeclarationModel 是知识索引（model_*_guide）；连通性在构建期 fail-fast，无 diagnostics 旁路。\nrecovery 只读动作失败描述，不遍历 DtsTypeDeclarationModel 图，不在 app 层补链。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ClassModelFailureModeRecoveryCommand",
+      "ClassModelFailureModeRecoveryContext"
+    ]
+  },
+  "$defs": {
+    "ClassModelFailureModeRecoveryCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelFailureModeRecoveryCommand",
+      "properties": {
+        "callResult": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "msg": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "msg"
+          ],
+          "additionalProperties": false
+        },
+        "moduleInstanceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelFailureModeRecoveryContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelFailureModeRecoveryContext",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "actionName": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "object",
+          "title": "AiApiActionFailureMode"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-14T20:06:51.010Z",
+  "models": {
+    "ClassModelFailureModeRecoveryCommand": {
+      "name": "ClassModelFailureModeRecoveryCommand",
+      "jsdoc": "Class Model Failure Mode Recovery Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 触发恢复的动作调用返回结果，code 用于匹配 failureMode.code，msg 用于 when 条件文本匹配 */\n    callResult: Readonly<{\n        code: string;\n        msg: string;\n    }>;\n    /** 模块实例 ID（如页面 ID），用于将 fix 模板中的 <pageId> 占位符替换为实际值 */\n    moduleInstanceId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 触发恢复的动作调用返回结果，code 用于匹配 failureMode.code，msg 用于 when 条件文本匹配 */\n    callResult: Readonly<{\n        code: string;\n        msg: string;\n    }>;\n    /** 模块实例 ID（如页面 ID），用于将 fix 模板中的 <pageId> 占位符替换为实际值 */\n    moduleInstanceId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "callResult",
+              "jsdoc": "触发恢复的动作调用返回结果，code 用于匹配 failureMode.code，msg 用于 when 条件文本匹配",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "moduleInstanceId",
+              "jsdoc": "模块实例 ID（如页面 ID），用于将 fix 模板中的 <pageId> 占位符替换为实际值",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelFailureModeRecoveryContext": {
+      "name": "ClassModelFailureModeRecoveryContext",
+      "jsdoc": "Class Model Failure Mode Recovery Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** API 对象的 kind 标识，用于定位失败动作所属的 ClassModel API 类别 */\n    kind: string;\n    /** 失败动作名称，用于在 recovery hint 中反查 model_action_guide */\n    actionName: string;\n    /** 匹配到的失败模式定义，含 code/when/fix 等字段，驱动 hint 生成 */\n    mode: AiApiActionFailureMode;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** API 对象的 kind 标识，用于定位失败动作所属的 ClassModel API 类别 */\n    kind: string;\n    /** 失败动作名称，用于在 recovery hint 中反查 model_action_guide */\n    actionName: string;\n    /** 匹配到的失败模式定义，含 code/when/fix 等字段，驱动 hint 生成 */\n    mode: AiApiActionFailureMode;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "API 对象的 kind 标识，用于定位失败动作所属的 ClassModel API 类别",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actionName",
+              "jsdoc": "失败动作名称，用于在 recovery hint 中反查 model_action_guide",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "jsdoc": "匹配到的失败模式定义，含 code/when/fix 等字段，驱动 hint 生成",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

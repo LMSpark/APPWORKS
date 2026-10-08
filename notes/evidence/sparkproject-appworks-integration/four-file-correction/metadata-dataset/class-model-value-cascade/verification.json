@@ -1,0 +1,17 @@
+{
+  "scope": "class-model-value-cascade",
+  "generatedChangedTrackedPaths": 81,
+  "runtimeSourceChanges": 0,
+  "schemaGate": "passed",
+  "semanticGate": "failed",
+  "semanticGateBefore": 167,
+  "semanticGateAfter": 313,
+  "scriptExecution": "failed: unresolved params schema ref",
+  "compatibilitySuites": 5,
+  "compatibilityTests": 149,
+  "compatibilitySeconds": 7.35,
+  "previousClosureHashesUnchanged": 14,
+  "wholeGoalComplete": false,
+  "onlineWrites": 0,
+  "javaChanges": 0
+}

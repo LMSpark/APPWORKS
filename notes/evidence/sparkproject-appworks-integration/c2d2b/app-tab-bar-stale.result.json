@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/app/services/project/application-switch.test.ts -t 'keeps the active route and both tabs'",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:40:17.0865517Z",
+  "finishedAtUtc": "2026-10-07T08:40:24.8019100Z",
+  "exitCode": 0
+}

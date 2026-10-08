@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/app/services/project/application-switch.test.ts tests/app/dev/navigation-sync.test.ts tests/runtime/page/runtime/system-page-identity-tabs.test.ts tests/page/runtime/page-runtime-tabs.test.ts tests/runtime/page/runtime/page-runtime-tabs.test.ts tests/auth-nav/navigation-platform-paths.test.ts tests/runtime/auth-nav/navigation-platform-paths.test.ts",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:39:49.9607202Z",
+  "finishedAtUtc": "2026-10-07T08:40:01.7571627Z",
+  "exitCode": 0
+}

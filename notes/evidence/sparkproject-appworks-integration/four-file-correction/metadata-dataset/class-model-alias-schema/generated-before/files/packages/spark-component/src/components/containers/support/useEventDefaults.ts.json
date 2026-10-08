@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/support/useEventDefaults",
+    "sourcePath": "packages/spark-component/src/components/containers/support/useEventDefaults.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/support/useEventDefaults.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/support/useEventDefaults",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/useEventDefaults\n职责：提供 use Event Defaults 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n统一事件分发器 — useEventDefaults\n将「系统默认行为 A」与「业务脚本回调 B」按事件名称自动合并，\n实现容器/字段组件的零代码事件机制。\n## 核心流程\n1. 按事件名称注入系统默认处理方法 A\n2. 按事件名称查找业务脚本的事件处理方法 B（从 props/attrs 中自动读取）\n3. 当 B 不存在 → 直接执行 A\n4. 当 B 存在 → 执行 B，注入「是否阻止 A」的控制参数 C（InteractionControl）\n5. 判断 C.cancel → 为 false 则执行 A，为 true 则跳过 A\n## 两种声明模式\n- **有 systemDefault**：分发器按 A/B/C 完整流程自动合并\n适用于交互事件（row-click / selection-change / current-change 等）\n- **无 systemDefault**：分发器仅执行 B 并返回 cancel 控制器\n适用于 CRUD 事件（add-row / edit-row / remove-row），调用方需手动执行 A 并处理返回值\n@example\n```typescript\nconst { dispatch } = useEventDefaults({\n'row-click': {\nsystemDefault: (row) => view.selection.setCurrentRow(row),\n},\n'add-row': {},  // CRUD: 无 systemDefault，仅收集 cancel\n}, props as Readonly<Record<string, unknown>>)\n// — 交互事件 → 全自动\nasync function handleRowClick(row, col, event) {\nawait dispatch('row-click', row, col, event)\n}\n// — CRUD → dispatch + 手动执行 A\nasync function addRow(row) {\nconst { cancel } = await dispatch('add-row', row)\nif (cancel) return cancelled\nreturn await view.addRow(row)\n}\n```",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "EventDefaultDeclaration",
+      "EventArgsMap",
+      "EventDefaultDeclarations",
+      "EventDispatcher"
+    ]
+  },
+  "$defs": {
+    "EventDefaultDeclaration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EventDefaultDeclaration",
+      "$defs": {
+        "method.systemDefault.params": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "object",
+              "title": "TArgs"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.systemDefault.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "EventArgsMap": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EventArgsMap",
+      "additionalProperties": false
+    },
+    "EventDispatcher": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EventDispatcher",
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:50.967Z",
+  "models": {
+    "EventDefaultDeclaration": {
+      "name": "EventDefaultDeclaration",
+      "jsdoc": "事件默认行为声明",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 系统默认处理方法 (A)\n     *\n     * 有值时：dispatch 走完整 A/B/C 流程（B 不取消 → 执行 A）\n     * 无值时：dispatch 仅执行 B 并返回 cancel 控制器\n     */\n    systemDefault?: (...args: TArgs) => void | Promise<void>;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "systemDefault",
+              "jsdoc": "系统默认处理方法 (A)\n有值时：dispatch 走完整 A/B/C 流程（B 不取消 → 执行 A）\n无值时：dispatch 仅执行 B 并返回 cancel 控制器",
+              "parameters": [
+                {
+                  "name": "args",
+                  "type": {
+                    "type": "rest",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "TArgs",
+                      "refersToTypeParameter": true
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "EventArgsMap": {
+      "name": "EventArgsMap",
+      "jsdoc": "dispatch 调用签名",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    [eventName: string]: readonly unknown[];\n}",
+        "members": {}
+      }
+    },
+    "EventDefaultDeclarations": {
+      "name": "EventDefaultDeclarations",
+      "jsdoc": "Event Default Declarations 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    [TName in keyof TEvents]: EventDefaultDeclaration<NoInfer<TEvents[TName]>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    [TName in keyof TEvents]: EventDefaultDeclaration<NoInfer<TEvents[TName]>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "EventDispatcher": {
+      "name": "EventDispatcher",
+      "jsdoc": "Event Dispatcher 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    <TName extends Extract<keyof TEvents, string>>(eventName: TName, ...args: TEvents[TName]): Promise<InteractionControl>;\n}",
+        "members": {}
+      }
+    }
+  }
+}

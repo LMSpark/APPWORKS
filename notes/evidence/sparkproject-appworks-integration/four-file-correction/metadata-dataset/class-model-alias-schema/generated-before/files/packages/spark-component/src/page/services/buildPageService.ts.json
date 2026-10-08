@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/services/buildPageService",
+    "sourcePath": "packages/spark-component/src/page/services/buildPageService.ts",
+    "sourceFile": "packages/spark-component/src/page/services/buildPageService.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/services/buildPageService",
+    "jsdoc": "@module @spark-appworks/spark-component:page/services/buildPageService\n职责：提供 build Page Service 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nPAGE_SERVICE 能力构建工厂\n构建 PageServiceCapability 实现，\n优先使用 props 注入的 UI 服务（测试或宿主覆盖），回退到 Element Plus。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageServiceOverrides"
+    ]
+  },
+  "$defs": {
+    "PageServiceOverrides": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageServiceOverrides",
+      "properties": {
+        "messageService": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "object",
+              "title": "(msg: string) => void"
+            },
+            "warning": {
+              "type": "object",
+              "title": "(msg: string) => void"
+            },
+            "error": {
+              "type": "object",
+              "title": "(msg: string) => void"
+            },
+            "info": {
+              "type": "object",
+              "title": "(msg: string) => void"
+            }
+          },
+          "required": [
+            "success",
+            "warning",
+            "error",
+            "info"
+          ],
+          "additionalProperties": false
+        },
+        "confirmService": {
+          "type": "object",
+          "properties": {
+            "confirm": {
+              "type": "object",
+              "title": "(msg: string, title?: string) => Promise<unknown>"
+            },
+            "alert": {
+              "type": "object",
+              "title": "(msg: string, title?: string) => Promise<unknown>"
+            },
+            "prompt": {
+              "type": "object",
+              "title": "(msg: string, title?: string) => Promise<string | null>"
+            }
+          },
+          "required": [
+            "confirm",
+            "alert"
+          ],
+          "additionalProperties": false
+        },
+        "pageService": {
+          "type": "object",
+          "title": "PageServiceCapability"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T17:02:32.106Z",
+  "models": {
+    "PageServiceOverrides": {
+      "name": "PageServiceOverrides",
+      "jsdoc": "可选的外部 UI 服务注入（测试或宿主覆盖用）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** message Service 回调。 */\n    messageService?: {\n        success: (msg: string) => void;\n        warning: (msg: string) => void;\n        error: (msg: string) => void;\n        info: (msg: string) => void;\n    } | undefined;\n    /** confirm Service 回调。 */\n    confirmService?: {\n        confirm: (msg: string, title?: string) => Promise<unknown>;\n        alert: (msg: string, title?: string) => Promise<unknown>;\n        prompt?: (msg: string, title?: string) => Promise<string | null>;\n    } | undefined;\n    /** page Service 字段。 */\n    pageService?: Partial<PageServiceCapability> | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "messageService",
+              "jsdoc": "message Service 回调。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmService",
+              "jsdoc": "confirm Service 回调。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageService",
+              "jsdoc": "page Service 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

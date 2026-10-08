@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/bundle/class-model-emit-fs",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/class-model-emit-fs.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/bundle/class-model-emit-fs.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/bundle/class-model-emit-fs",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/bundle/class-model-emit-fs\n职责：读取 DtsTypeDeclarationModel 内存 emit 对应源文件的 mtime，用于增量生成判断。\n边界：只服务 Node 编译期投影链路；运行时、浏览器入口和 Worker loader 不得导入本模块。\nAI用途：排查增量 bundle 为什么重建或跳过某个 .d.ts shard 时，用本模块确认源文件时间戳读取规则。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ReadSourceModifiedAtIsoCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReadSourceModifiedAtIsoCommand",
+      "properties": {
+        "repoRoot": {
+          "type": "string"
+        },
+        "emitSourcePath": {
+          "type": "string"
+        },
+        "sourceFile": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.700Z",
+  "models": {
+    "ReadSourceModifiedAtIsoCommand": {
+      "name": "ReadSourceModifiedAtIsoCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    repoRoot: string;\n    emitSourcePath: string;\n    /** manifest / .dts-manifest 记录的源路径，优先于 emit 键推导。 */\n    sourceFile?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    repoRoot: string;\n    emitSourcePath: string;\n    /** manifest / .dts-manifest 记录的源路径，优先于 emit 键推导。 */\n    sourceFile?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "repoRoot",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emitSourcePath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceFile",
+              "jsdoc": "manifest / .dts-manifest 记录的源路径，优先于 emit 键推导。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

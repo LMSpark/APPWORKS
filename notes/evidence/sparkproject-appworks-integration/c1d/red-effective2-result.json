@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run src/shell/plugins/__tests__/presets.test.ts --maxWorkers=1 --reporter=dot",
+  "workingDirectory": "packages/spark-app",
+  "exitCode": 1,
+  "startedAt": "2026-10-07T13:54:10.0353978+08:00",
+  "finishedAt": "2026-10-07T13:54:12.0467709+08:00",
+  "log": "red-effective2.log"
+}

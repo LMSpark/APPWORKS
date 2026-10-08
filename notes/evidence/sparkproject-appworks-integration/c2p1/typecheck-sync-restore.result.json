@@ -1,0 +1,8 @@
+{
+  "command": "pnpm run typecheck",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:11:09.4888640+08:00",
+  "finishedAt": "2026-10-07T14:11:21.5414798+08:00",
+  "exitCode": 0,
+  "log": "typecheck-sync-restore.log"
+}

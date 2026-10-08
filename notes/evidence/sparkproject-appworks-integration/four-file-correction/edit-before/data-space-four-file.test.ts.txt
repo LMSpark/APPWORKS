@@ -1,0 +1,303 @@
+import { config as testUtilsConfig, flushPromises, mount } from '@vue/test-utils'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { defineComponent, h, markRaw } from 'vue'
+import { createMemoryHistory, createRouter } from 'vue-router'
+import { describe, expect, it } from 'vitest'
+import { registerAllRenderers, Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
+import { DataSpaceRuntimeApi, type DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
+import { ScenarioViewConfig, PageRuntime, PageTool, type PageRuntime as PageRuntimeType } from '@spark-appworks/spark-project-model'
+import { HttpClientBase, isRecord, type HttpResponse, type RequestConfig } from '@spark-appworks/spark-utils'
+import { compileFunctions } from '../../../../packages/spark-component/src/page/createSandbox'
+import type { PageContext } from '../../../../packages/spark-component/src/page/context/types'
+import { SparkData } from '@spark-appworks/spark-data'
+import { LowcodeDataSpaceAssembler } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+
+const pageId = 'data-space-catalog'
+const scenarioId = '90A82E287930A234FEC3E687C94A93EA'
+const pageRoot = resolve(process.cwd(), 'config/pages/data-platform/data-space-catalog')
+const routeSnapshot = { path: '/__tool/test', fullPath: '/__tool/test', name: 'test', params: {}, query: {}, hash: '' }
+type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
+type TestFormalField = Readonly<{ id: string; name: string; type: string; primaryKey: boolean }>
+type TestFormalModelInput = Readonly<{ id: string; metaName: string; primaryKey: string; fields: readonly TestFormalField[] }>
+
+function recordAt(value: unknown, path: string): Record<string, unknown> {
+  if (!isRecord(value)) throw new Error(`${path} must be an object`)
+  return value
+}
+
+function formalModel(input: TestFormalModelInput): FormalModel {
+  const fields = input.fields.map((field, order) => ({ ...field, modelId: input.id,
+    canonicalName: field.name, description: '', output: true, computed: false, order, orderType: '', raw: {} }))
+  return { id: input.id, name: input.metaName, metaName: input.metaName, sourceName: input.metaName,
+    sourceId: '', sourceType: 'database-table', primaryKey: input.primaryKey, businessMain: false, fields, raw: {} }
+}
+
+function formalModels(): FormalModel[] {
+  return [
+    formalModel({ id: '90A82E287930A234FEC3E687C94A93EAp000', metaName: 'Base_DataSet', primaryKey: 'rowid', fields: [
+      { id: 'C29690D7067240CC840539CE0CBEE821', name: 'rowid', type: 'varchar', primaryKey: true },
+      { id: 'C6F91361CC8C4C44A8F40259B52A19FE', name: 'Name', type: 'varchar', primaryKey: false },
+      { id: '1D6C7C64E56346ED83C27CC6C97C7BC8', name: 'Type', type: 'varchar', primaryKey: false },
+      { id: '6B5651FBDFD94754B341B298DC269185', name: 'description', type: 'varchar', primaryKey: false },
+      { id: '807184E820A348ECAA5FDEC9FA99E07F', name: 'sysid', type: 'varchar', primaryKey: false },
+      { id: '19324DE8445D4985AD77F7595E1BF281', name: 'createuser', type: 'varchar', primaryKey: false },
+      { id: '7CEB9A4ABABB47BFB5826C5DB3A662E8', name: 'createtime', type: 'datetime', primaryKey: false },
+    ] }),
+    formalModel({ id: 'acb04903-043f-4c99-9a57-a8e9bc95ce72', metaName: 'Base_AppSystemList', primaryKey: 'rowid', fields: [
+      { id: 'B70A3CE33F506E53F2D3E3299BBAD6F6', name: 'rowid', type: 'varchar', primaryKey: true },
+      { id: '20BCD6183C5F6840EE1BFBC09C9D32AD', name: 'AppDesc', type: 'varchar', primaryKey: false },
+      { id: '73D1E09E013336F7A9F0DD9643353AD7', name: 'AppName', type: 'varchar', primaryKey: false },
+    ] }),
+    formalModel({ id: '90A82E287930A234FEC3E687C94A93EAp001', metaName: 'Base_UserInfo', primaryKey: 'ID', fields: [
+      { id: '0AA458FF39F246E9A2D5A9935AB34644', name: 'ROWID', type: 'varchar', primaryKey: false },
+      { id: '24459754EAAE44C6B42C241E57F947CA', name: 'ID', type: 'varchar', primaryKey: true },
+      { id: '60A746A09D8043C8B6ABD05C422914F8', name: 'UserName', type: 'varchar', primaryKey: false },
+    ] }),
+  ]
+}
+
+class CatalogFixtureHttpClient extends HttpClientBase {
+  public readonly requests: RequestConfig[] = []
+  public readonly saveRequests: RequestConfig[] = []
+  public readonly savedRows: Record<string, unknown>[] = []
+  public failSave = false
+  public maskCreatorName = false
+  public hideCreatorName = false
+  public allowAdd = true
+
+  protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+    if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+      this.saveRequests.push(config)
+      const models = Array.isArray(config.data) ? config.data : []
+      const model = isRecord(models[0]) ? models[0] : {}
+      const crud = isRecord(model['CrudModel']) ? model['CrudModel'] : {}
+      const added = Array.isArray(crud['Added']) ? crud['Added'].filter(isRecord) : []
+      const row = added[0]
+      if (!row) throw new Error('fixture save request has no added row')
+      this.savedRows.push(row)
+      if (this.failSave) throw new Error('fixture connection lost after save dispatch')
+      return { data: { Code: 200, Result: { maplistadd: [{ physical: [{ ...row }] }] } },
+        status: 200, statusText: 'OK', headers: {} }
+    }
+    this.requests.push(config)
+    const payload = isRecord(config.data) ? config.data : {}
+    const tables = Array.isArray(payload['Table']) ? payload['Table'] : []
+    const first = isRecord(tables[0]) ? tables[0] : {}
+    const modelName = typeof first['Name'] === 'string' ? first['Name'] : ''
+    const datasetRows = [{ rowid: 'DATASET-1', Name: '试点目录', Type: 'datasource', description: '目录', sysid: 'APP-1',
+        createuser: 'USER-ROW-1', createtime: '2026-10-07', _pk: 'DATASET-1', lingma_sys_key: 'DS-ROW',
+        lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } },
+      ...this.savedRows.map(row => ({ ...row, createuser: 'USER-ROW-1', createtime: '2026-10-07',
+        _pk: row['rowid'], lingma_sys_key: 'DS-CREATED', lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } }))]
+    const rows = modelName === 'Base_DataSet'
+      ? datasetRows
+      : modelName === 'Base_AppSystemList'
+        ? [{ rowid: 'APP-1', AppDesc: '试点应用', AppName: '试点应用', _pk: 'APP-1', lingma_sys_key: 'APP-ROW',
+          lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } }]
+        : [{ rowid: 'USER-ROW-1', ROWID: 'USER-ROW-1', ID: 'USER-1', UserName: '目录创建人', _pk: 'USER-1',
+          lingma_sys_key: 'USER-ROW', lingma_sys_params: { r: [], e: [], h: this.hideCreatorName ? ['UserName'] : [],
+            m: this.maskCreatorName ? ['UserName'] : [], d: false } }]
+    return { data: { Code: 200, Result: { primaryKeyField: modelName === 'Base_UserInfo' ? 'ID' : 'rowid',
+      allowAdd: this.allowAdd, lingma_sys_key: `TABLE-${modelName}`, data: { Items: rows, Count: rows.length } } },
+      status: 200, statusText: 'OK', headers: {} }
+  }
+}
+
+async function createCatalogScriptFixture(services: Partial<PageContext['$page']> = {}, configureHttp?: (http: CatalogFixtureHttpClient) => void) {
+  const pagedataText = readFileSync(resolve(pageRoot, 'pagedata.json'), 'utf8')
+  const scenarioConfig = new ScenarioViewConfig(scenarioId, pagedataText)
+  const rawTables = recordAt(scenarioConfig.toJSON()['tables'], 'scenario tables')
+  const runtimeConfig = new ScenarioViewConfig(scenarioId, JSON.stringify({ scenarioId, tables: {
+    Base_DataSet: rawTables['Base_DataSet'],
+    Base_AppSystemList: rawTables['Base_AppSystemList'],
+    Base_UserInfo: rawTables['Base_UserInfo'],
+  } }))
+  const http = new CatalogFixtureHttpClient()
+  configureHttp?.(http)
+  const runtime = new DataSpaceRuntimeApi({ http, readScope: () => ({ token: 'catalog-test-scope', headers: {} }) })
+  const assembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({
+    config: runtimeConfig, models: formalModels(), relations: [],
+  })
+  const tool = markRaw(new PageTool({ pageId }))
+  tool.hydrateFileText('rule.json', readFileSync(resolve(pageRoot, 'rule.json'), 'utf8'))
+  tool.hydrateFileText('script.js', readFileSync(resolve(pageRoot, 'script.js'), 'utf8'))
+  tool.hydrateFileText('style.css', readFileSync(resolve(pageRoot, 'style.css'), 'utf8'))
+  tool.markLoaded()
+  const pageRuntime = markRaw(new PageRuntime({ tool, scenarioIds: [scenarioId], mainScenarioId: scenarioId,
+    loadScenario: async () => assembly.dataSet }))
+  await pageRuntime.load()
+  const functions = compileFunctions(readFileSync(resolve(pageRoot, 'script.js'), 'utf8'), createPageContext(pageRuntime, services))
+  await functions['__init__']?.()
+  return { functions, pageRuntime, dataSet: assembly.dataSet, http }
+}
+
+function createPageContext(pageRuntime: PageRuntimeType, services: Partial<PageContext['$page']>): PageContext {
+  const pageService: PageContext['$page'] = {
+    getDataSet: (id) => pageRuntime.getDataSet(id),
+    resolveView: (binding) => pageRuntime.resolveView(binding) ?? undefined,
+    showMessage: () => undefined,
+    showConfirm: async () => true,
+    showPrompt: async () => null,
+    showDialog: async () => 'cancel',
+    selectEntities: async () => [],
+    browseFiles: async () => [],
+    uploadFiles: async () => [],
+    showAlert: async () => undefined,
+    showLoading: () => undefined,
+    navigate: () => undefined,
+    ...services,
+  }
+  return {
+    $route: routeSnapshot,
+    $el: () => null,
+    $query: () => null,
+    $queryAll: () => document.querySelectorAll('.catalog-test-none'),
+    $components: { get: () => null, list: () => [], getApi: () => null, getApisByType: () => [] },
+    $page: pageService,
+    SparkData,
+    h,
+    setTimeout: (handler, timeout) => window.setTimeout(handler, timeout),
+    clearTimeout: (id) => window.clearTimeout(id),
+    setInterval: (handler, timeout) => window.setInterval(handler, timeout),
+    clearInterval: (id) => window.clearInterval(id),
+    console,
+    $moduleContext: null,
+  }
+}
+
+function disableSparkRendererStub(): () => void {
+  const stubs = isRecord(testUtilsConfig.global.stubs) ? testUtilsConfig.global.stubs : {}
+  const hadPascal = Object.hasOwn(stubs, 'SparkComponentRenderer')
+  const hadKebab = Object.hasOwn(stubs, 'spark-component-renderer')
+  const previousPascal = stubs['SparkComponentRenderer']
+  const previousKebab = stubs['spark-component-renderer']
+  delete stubs['SparkComponentRenderer']
+  delete stubs['spark-component-renderer']
+  testUtilsConfig.global.stubs = stubs
+  return () => {
+    if (hadPascal && previousPascal !== undefined) stubs['SparkComponentRenderer'] = previousPascal
+    else delete stubs['SparkComponentRenderer']
+    if (hadKebab && previousKebab !== undefined) stubs['spark-component-renderer'] = previousKebab
+    else delete stubs['spark-component-renderer']
+    testUtilsConfig.global.stubs = stubs
+  }
+}
+
+describe('data-space four-file page', () => {
+  it('loads all four assets, validates scenario config, assembles a PageRuntime, and renders the list shell', async () => {
+    registerAllRenderers()
+    const ruleText = readFileSync(resolve(pageRoot, 'rule.json'), 'utf8')
+    const scriptText = readFileSync(resolve(pageRoot, 'script.js'), 'utf8')
+    const styleText = readFileSync(resolve(pageRoot, 'style.css'), 'utf8')
+    const pagedataText = readFileSync(resolve(pageRoot, 'pagedata.json'), 'utf8')
+    const scenarioConfig = new ScenarioViewConfig(scenarioId, pagedataText)
+    const rawTables = recordAt(scenarioConfig.toJSON()['tables'], 'scenario tables')
+    const runtimeConfig = new ScenarioViewConfig(scenarioId, JSON.stringify({ scenarioId, tables: {
+      Base_DataSet: rawTables['Base_DataSet'],
+      Base_AppSystemList: rawTables['Base_AppSystemList'],
+      Base_UserInfo: rawTables['Base_UserInfo'],
+    } }))
+    const http = new CatalogFixtureHttpClient()
+    const runtime = new DataSpaceRuntimeApi({ http, readScope: () => ({ token: 'catalog-test-scope', headers: {} }) })
+    const assembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({
+      config: runtimeConfig, models: formalModels(), relations: [],
+    })
+    const tool = markRaw(new PageTool({ pageId }))
+    tool.hydrateFileText('rule.json', ruleText)
+    tool.hydrateFileText('script.js', scriptText)
+    tool.hydrateFileText('style.css', styleText)
+    tool.markLoaded()
+    const pageRuntime = markRaw(new PageRuntime({ tool, scenarioIds: [scenarioId], mainScenarioId: scenarioId,
+      loadScenario: async () => assembly.dataSet }))
+    const router = createRouter({ history: createMemoryHistory(), routes: [
+      { path: '/__tool/test', component: defineComponent({ name: 'RouteStub', render: () => h('div') }) },
+    ] })
+    await router.push('/__tool/test')
+    await router.isReady()
+
+    const restore = disableSparkRendererStub()
+    try {
+      const runtimeErrors: string[] = []
+      const wrapper = mount(SparkPageRenderer, { props: { routeSnapshot, pageRuntime,
+        onRuntimeError: error => runtimeErrors.push(error.message) },
+        global: { plugins: [Spark.createPlugin(), router] } })
+      await flushPromises()
+      await flushPromises()
+
+      expect(wrapper.text()).toContain('数据空间目录')
+      expect(runtimeErrors).toEqual([])
+      expect(wrapper.find('.renderer-table-main').exists(), wrapper.html()).toBe(true)
+      expect(wrapper.html()).toContain('catalog-page')
+      expect(assembly.dataSet.getView('Base_DataSet', 'catalog')?.rows).toMatchObject([
+        { rowid: 'DATASET-1', Name: '试点目录', sysid: 'APP-1', createuser: 'USER-ROW-1' },
+      ])
+      expect(http.requests).toHaveLength(3)
+      wrapper.unmount()
+    } finally {
+      restore()
+    }
+  })
+
+  it('cancels before append and saves the generated row identity and datasource payload', async () => {
+    let unauthorizedPromptCalls = 0
+    const unauthorized = await createCatalogScriptFixture({
+      selectEntities: async () => { unauthorizedPromptCalls += 1; return [] },
+      showPrompt: async () => { unauthorizedPromptCalls += 1; return null },
+    }, http => { http.allowAdd = false })
+    await unauthorized.functions['addCatalogEntry']?.()
+    expect(unauthorizedPromptCalls).toBe(0)
+    expect(unauthorized.http.saveRequests).toHaveLength(0)
+
+    const cancelled = await createCatalogScriptFixture({ selectEntities: async () => [] })
+    const cancelledView = cancelled.dataSet.getView('Base_DataSet', 'catalog')
+    const before = cancelledView?.rows.length
+    await cancelled.functions['addCatalogEntry']?.()
+    expect(cancelledView?.rows).toHaveLength(before ?? -1)
+    expect(cancelled.http.saveRequests).toHaveLength(0)
+
+    const promptCancelled = await createCatalogScriptFixture({
+      selectEntities: async () => [{ value: 'APP-1', label: '试点应用' }],
+      showPrompt: async () => null,
+    })
+    const promptCancelledView = promptCancelled.dataSet.getView('Base_DataSet', 'catalog')
+    const promptCancelledBefore = promptCancelledView?.rows.length
+    await promptCancelled.functions['addCatalogEntry']?.()
+    expect(promptCancelledView?.rows).toHaveLength(promptCancelledBefore ?? -1)
+    expect(promptCancelled.http.saveRequests).toHaveLength(0)
+
+    const prompts = ['新增目录', '新增描述']
+    const created = await createCatalogScriptFixture({
+      selectEntities: async () => [{ value: 'APP-1', label: '试点应用' }],
+      showPrompt: async () => prompts.shift() ?? null,
+    })
+    await created.functions['addCatalogEntry']?.()
+    expect(created.http.saveRequests).toHaveLength(1)
+    const saved = created.http.savedRows[0]
+    expect(saved).toMatchObject({ Name: '新增目录', Type: 'datasource', description: '新增描述', sysid: 'APP-1' })
+    expect(typeof saved?.['rowid']).toBe('string')
+    expect(created.dataSet.getView('Base_DataSet', 'catalog')?.rows.some(row =>
+      created.dataSet.getView('Base_DataSet', 'catalog')?.getPkKey(row) === saved?.['rowid'])).toBe(true)
+  })
+
+  it('keeps a masked creator masked and does not resend a save with unknown outcome', async () => {
+    const creatorFixture = await createCatalogScriptFixture({}, http => { http.maskCreatorName = true })
+    const creatorRenderer = creatorFixture.functions['RenderCatalogCreator']
+    expect(creatorRenderer?.({ rowKey: 'DATASET-1' })).toMatchObject([{ children: '••••' }])
+    const hiddenCreator = await createCatalogScriptFixture({}, http => { http.hideCreatorName = true })
+    expect(hiddenCreator.functions['RenderCatalogCreator']?.({ rowKey: 'DATASET-1' }))
+      .toMatchObject([{ children: '' }])
+
+    const prompts = ['待确认目录', '待确认描述']
+    const uncertain = await createCatalogScriptFixture({
+      selectEntities: async () => [{ value: 'APP-1', label: '试点应用' }],
+      showPrompt: async () => prompts.shift() ?? null,
+    })
+    uncertain.http.failSave = true
+    await uncertain.functions['addCatalogEntry']?.()
+    await uncertain.functions['addCatalogEntry']?.()
+    expect(uncertain.http.saveRequests).toHaveLength(1)
+    expect(uncertain.http.savedRows[0]).toMatchObject({ Name: '待确认目录', Type: 'datasource',
+      description: '待确认描述', sysid: 'APP-1' })
+  })
+})

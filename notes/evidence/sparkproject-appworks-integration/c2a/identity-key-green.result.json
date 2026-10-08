@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts --maxWorkers=1 --reporter=dot -t \"exports the reserved system-page identity key through the spark-app package root\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:29:36.0531603+08:00",
+  "finishedAt": "2026-10-07T14:29:42.7350190+08:00",
+  "exitCode": 0,
+  "log": "identity-key-green.log"
+}

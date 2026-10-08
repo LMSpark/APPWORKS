@@ -1,0 +1,7 @@
+{
+  "finishedAtUtc": "2026-10-07T09:00:35.9573180Z",
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/application/project-navigation-guard.test.ts -t \"cancels an activation that completes|reselects and refreshes\"",
+  "exitCode": 1,
+  "startedAtUtc": "2026-10-07T09:00:29.3654180Z",
+  "cwd": "D:\\SPARK_AppWorks"
+}

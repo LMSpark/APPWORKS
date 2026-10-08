@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/ai/agent-workflow-bindings",
+    "sourcePath": "src/services/ai/agent-workflow-bindings.ts",
+    "sourceFile": "src/services/ai/agent-workflow-bindings.ts",
+    "packageName": "app",
+    "modulePath": "services/ai/agent-workflow-bindings",
+    "jsdoc": "@module app:services/ai/agent-workflow-bindings\n职责：组合 app 领域 binding 并把落盘 Agent Workflow Definition 激活到 spark-ai Host。\n边界：只做薄组合和解释器调用，不承载 pageDesign/projectPlanning 领域实现。\nAI用途：排查 app 层如何从 workflow definition 注册 AI Host 时，用本模块确认统一入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ActivatePageDesignAgentWorkflowOptions",
+      "ActivateProjectPlanningAgentWorkflowOptions",
+      "CreateAppAgentWorkflowRuntimeBindingsOptions"
+    ]
+  },
+  "$defs": {
+    "ActivatePageDesignAgentWorkflowOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActivatePageDesignAgentWorkflowOptions",
+      "properties": {
+        "host": {
+          "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHost"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ActivateProjectPlanningAgentWorkflowOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActivateProjectPlanningAgentWorkflowOptions",
+      "properties": {
+        "host": {
+          "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHost"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CreateAppAgentWorkflowRuntimeBindingsOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CreateAppAgentWorkflowRuntimeBindingsOptions",
+      "properties": {
+        "pageDesign": {
+          "$ref": "../page-design/page-design-agent-workflow-binding.ts.json#/$defs/PageDesignAgentWorkflowBindingOptions"
+        },
+        "projectPlanning": {
+          "$ref": "../project-planning/project-planning-agent-workflow-binding.ts.json#/$defs/ProjectPlanningAgentWorkflowBindingOptions"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T03:12:55.212Z",
+  "models": {
+    "ActivatePageDesignAgentWorkflowOptions": {
+      "name": "ActivatePageDesignAgentWorkflowOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageDesignAgentWorkflowBindingOptions & Readonly<{\n    host: AiAgentHost;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageDesignAgentWorkflowBindingOptions",
+            "targetName": "PageDesignAgentWorkflowBindingOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    host: AiAgentHost;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "host",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ActivateProjectPlanningAgentWorkflowOptions": {
+      "name": "ActivateProjectPlanningAgentWorkflowOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ProjectPlanningAgentWorkflowBindingOptions & Readonly<{\n    host: AiAgentHost;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ProjectPlanningAgentWorkflowBindingOptions",
+            "targetName": "ProjectPlanningAgentWorkflowBindingOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    host: AiAgentHost;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "host",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CreateAppAgentWorkflowRuntimeBindingsOptions": {
+      "name": "CreateAppAgentWorkflowRuntimeBindingsOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageDesign?: PageDesignAgentWorkflowBindingOptions;\n    projectPlanning?: ProjectPlanningAgentWorkflowBindingOptions;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageDesign?: PageDesignAgentWorkflowBindingOptions;\n    projectPlanning?: ProjectPlanningAgentWorkflowBindingOptions;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageDesign",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectPlanning",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

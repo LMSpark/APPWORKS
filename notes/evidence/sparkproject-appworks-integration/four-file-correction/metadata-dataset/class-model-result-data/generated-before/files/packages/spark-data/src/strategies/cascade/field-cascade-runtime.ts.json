@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/cascade/field-cascade-runtime",
+    "sourcePath": "packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts",
+    "sourceFile": "packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/cascade/field-cascade-runtime",
+    "jsdoc": "@spark-appworks/spark-data 的 strategies/cascade/field-cascade-runtime 模块。\n导出 DtsTypeDeclarationModel symbol: DataViewFieldCascadeRuntime（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataViewFieldCascadeRuntime"
+    ]
+  },
+  "$defs": {
+    "DataViewFieldCascadeRuntime": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFieldCascadeRuntime",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../dataset.ts.json#/$defs/DataSet"
+            },
+            "definitions": {
+              "type": "array",
+              "items": {
+                "$ref": "../../types.ts.json#/$defs/DataViewFieldCascade"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "$ref": "../../types.ts.json#/$defs/DataViewFieldCascadeAddress"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "$ref": "../../types.ts.json#/$defs/DataViewFieldCascadeState"
+        },
+        "method.onChange.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "(address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onChange.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "$ref": "../../types.ts.json#/$defs/DataViewFieldCascadeAddress"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<DataViewFieldCascadeState>"
+        },
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T20:23:58.960Z",
+  "models": {
+    "DataViewFieldCascadeRuntime": {
+      "name": "DataViewFieldCascadeRuntime",
+      "jsdoc": "级联按输入值快照执行；选项结果和子值写入共享同一代次。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet, definitions: readonly DataViewFieldCascade[])",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet",
+                "sourcePath": "packages/spark-data/src/dataset.ts"
+              }
+            },
+            {
+              "name": "definitions",
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataViewFieldCascade[]"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "getState",
+              "parameters": [
+                {
+                  "name": "address",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFieldCascadeAddress",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFieldCascadeState",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "onChange",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "address",
+                              "type": {
+                                "type": "reference",
+                                "name": "DataViewFieldCascadeAddress",
+                                "sourcePath": "packages/spark-data/src/types.ts"
+                              }
+                            },
+                            {
+                              "name": "state",
+                              "type": {
+                                "type": "reference",
+                                "name": "DataViewFieldCascadeState",
+                                "sourcePath": "packages/spark-data/src/types.ts"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "refresh",
+              "parameters": [
+                {
+                  "name": "address",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFieldCascadeAddress",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewFieldCascadeState",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "destroy",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

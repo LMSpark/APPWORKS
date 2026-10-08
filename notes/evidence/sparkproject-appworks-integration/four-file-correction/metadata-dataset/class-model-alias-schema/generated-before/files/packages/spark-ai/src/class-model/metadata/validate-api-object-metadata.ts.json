@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/metadata/validate-api-object-metadata",
+    "sourcePath": "packages/spark-ai/src/class-model/metadata/validate-api-object-metadata.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/metadata/validate-api-object-metadata.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/metadata/validate-api-object-metadata",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/metadata/validate-api-object-metadata\n职责：维护 @spark-appworks/spark-ai 中 class-model/metadata/validate-api-object-metadata 的 ApiObjectValidationFinding、AiApiObjectMetadataValidationError语义。\n边界：只服务 spark-ai 包内部的 Agent/DtsTypeDeclarationModel 能力，不直接耦合应用页面或 Vue 组件。\nAI用途：定位 spark-ai 公共 API、运行时协议或知识索引字段时，用本模块作为语义入口。\n\nclass-model/metadata · API 对象元数据校验\nFail-fast 校验 API 对象图，避免 LLM 看见无法执行的 action 契约。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApiObjectValidationFinding",
+      "AiApiObjectMetadataValidationError"
+    ]
+  },
+  "$defs": {
+    "ApiObjectValidationFinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiObjectValidationFinding",
+      "properties": {
+        "level": {
+          "enum": [
+            "error",
+            "warn"
+          ]
+        },
+        "rule": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "fix": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiApiObjectMetadataValidationError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiApiObjectMetadataValidationError",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ApiObjectValidationFinding"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string"
+            },
+            "findings": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ApiObjectValidationFinding"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-06-20T04:47:21.197Z",
+  "models": {
+    "ApiObjectValidationFinding": {
+      "name": "ApiObjectValidationFinding",
+      "jsdoc": "Api Object Validation Finding 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 严重程度：error 阻断注册，warn 仅告警。 */\n    level: 'error' | 'warn';\n    /** 校验规则标识，如 kind-required / action-name-duplicate / params-schema-invalid。 */\n    rule: string;\n    /** 面向开发者的可读错误描述。 */\n    message: string;\n    /** 建议修复方式；缺省表示无自动修复建议。 */\n    fix?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 严重程度：error 阻断注册，warn 仅告警。 */\n    level: 'error' | 'warn';\n    /** 校验规则标识，如 kind-required / action-name-duplicate / params-schema-invalid。 */\n    rule: string;\n    /** 面向开发者的可读错误描述。 */\n    message: string;\n    /** 建议修复方式；缺省表示无自动修复建议。 */\n    fix?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "level",
+              "jsdoc": "严重程度：error 阻断注册，warn 仅告警。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rule",
+              "jsdoc": "校验规则标识，如 kind-required / action-name-duplicate / params-schema-invalid。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "面向开发者的可读错误描述。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fix",
+              "jsdoc": "建议修复方式；缺省表示无自动修复建议。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiApiObjectMetadataValidationError": {
+      "name": "AiApiObjectMetadataValidationError",
+      "jsdoc": "Ai Api Object Metadata Validation Error 的错误信息。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Ai Api Object Metadata Validation Error 实例。",
+          "signatureText": "constructor(kind: string, findings: readonly ApiObjectValidationFinding[])",
+          "parameters": [
+            {
+              "name": "kind",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "findings",
+              "type": {
+                "type": "unknown",
+                "name": "readonly ApiObjectValidationFinding[]"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "findings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

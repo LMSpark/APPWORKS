@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.props",
+    "sourcePath": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.props\n职责：递归过滤分组的交互输入。边界：共享编辑器草稿与字段约束，不拥有查询；AI用途：可用此合同配置嵌套分组编辑。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FilterExpressionGroupProps"
+    ]
+  },
+  "$defs": {
+    "FilterExpressionGroupProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterExpressionGroupProps",
+      "properties": {
+        "group": {
+          "$ref": "../FilterExpressionEditor/FilterExpressionEditor.props.ts.json#/$defs/FilterExpressionEditorGroup"
+        },
+        "draft": {
+          "$ref": "../FilterExpressionEditor/FilterExpressionEditor.props.ts.json#/$defs/FilterExpressionEditorDraft"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterField"
+          }
+        },
+        "depth": {
+          "type": "number"
+        },
+        "maxDepth": {
+          "type": "number"
+        },
+        "maxRules": {
+          "type": "number"
+        },
+        "disabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "group",
+        "draft",
+        "fields",
+        "depth",
+        "maxDepth",
+        "maxRules"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T21:12:20.471Z",
+  "models": {
+    "FilterExpressionGroupProps": {
+      "name": "FilterExpressionGroupProps",
+      "jsdoc": "单个分组与共享草稿的递归渲染输入，深度和条件数限制由编辑器统一提供。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FilterExpressionGroup"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    group: FilterExpressionEditorGroup;\n    draft: FilterExpressionEditorDraft;\n    fields: readonly DataViewFilterField[];\n    depth: number;\n    maxDepth: number;\n    maxRules: number;\n    disabled?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "group",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "draft",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "depth",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "maxDepth",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "maxRules",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "disabled",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

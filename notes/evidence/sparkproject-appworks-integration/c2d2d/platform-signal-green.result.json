@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "startedAtUtc": "2026-10-07T08:58:49.1129938Z",
+  "command": "pnpm --dir packages/spark-lowcode-api exec vitest run src/platform/lowcode-platform-api.test.ts -t \"aborted|abort\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "finishedAtUtc": "2026-10-07T08:58:51.1052513Z"
+}

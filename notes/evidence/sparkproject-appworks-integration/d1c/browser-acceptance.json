@@ -1,0 +1,57 @@
+{
+  "at": "2026-10-07T10:27:53.181Z",
+  "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/data-set-management/ui/data-set-list-page?__sparkNavigationId=90A82E287930A234FEC3E687C94A93EA",
+  "firstPage": {
+    "rowCount": 10,
+    "creatorsMatchResponse": true,
+    "resolvedRows": 2,
+    "unresolvedRows": 8,
+    "notice": [
+      " 有 1 位创建人当前无法解析 "
+    ],
+    "userPrimaryKey": "ID",
+    "userFields": [
+      {
+        "Name": "ID",
+        "IsOutput": true
+      },
+      {
+        "Name": "ROWID",
+        "IsOutput": true
+      },
+      {
+        "Name": "UserName",
+        "IsOutput": true
+      }
+    ],
+    "onlyCurrentPageIds": true
+  },
+  "applicationFilter": {
+    "rowCount": 10,
+    "pagination": "共 68 条 每页 102050 条 上一页第 1 页下一页",
+    "allCreatorsNamed": true,
+    "unresolvedNoticeCount": 0
+  },
+  "page2": {
+    "allCreatorsNamed": true,
+    "pagination": "共 68 条 每页 102050 条 上一页第 2 页下一页",
+    "rowCount": 10
+  },
+  "realTabReturn": {
+    "allCreatorsNamed": true,
+    "pagination": "共 68 条 每页 102050 条 上一页第 2 页下一页",
+    "rowCount": 10,
+    "selected": "D99A1DCE9894698799101EFD70F8FC76"
+  },
+  "reset": {
+    "alertCount": 0,
+    "notices": [
+      " 有 1 位创建人当前无法解析 "
+    ],
+    "pagination": "共 1184 条 每页 102050 条 上一页第 1 页下一页",
+    "rowCount": 10,
+    "selected": ""
+  },
+  "consoleErrors": 0,
+  "limitation": "Admin read-only production preview; no restricted-account proof or writes. First failed contract retained separately."
+}

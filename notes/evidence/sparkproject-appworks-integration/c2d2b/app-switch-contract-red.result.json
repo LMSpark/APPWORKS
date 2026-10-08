@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/app/services/project/application-switch.test.ts --maxWorkers=1 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:22:02.8066394Z",
+  "finishedAtUtc": "2026-10-07T08:22:09.4697469Z",
+  "exitCode": 1
+}

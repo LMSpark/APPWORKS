@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/consistency",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/consistency.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/consistency.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/consistency",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/consistency\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 consistency 能力，围绕 ClassModelBuildConsistencyIssue 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/consistency 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ClassModelBuildConsistencyIssue"
+    ]
+  },
+  "$defs": {
+    "ClassModelBuildConsistencyIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelBuildConsistencyIssue",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-14T19:53:49.985Z",
+  "models": {
+    "ClassModelBuildConsistencyIssue": {
+      "name": "ClassModelBuildConsistencyIssue",
+      "jsdoc": "Class Model Build Consistency Issue 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 问题编码，当前固定为 'CLASS_MODEL_BUILD_CONSISTENCY_MISMATCH'，预留未来区分不同不一致类型。 */\n    code: string;\n    /** 不一致字段的点分路径，如 'module.kinds'、'{kind}.attributes.{name}.jsdoc'，用于定位差异位置。 */\n    path: string;\n    /** 人类可读的差异描述，格式：'源码反射与构建入口不一致: source=... buildEntry=...'。 */\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 问题编码，当前固定为 'CLASS_MODEL_BUILD_CONSISTENCY_MISMATCH'，预留未来区分不同不一致类型。 */\n    code: string;\n    /** 不一致字段的点分路径，如 'module.kinds'、'{kind}.attributes.{name}.jsdoc'，用于定位差异位置。 */\n    path: string;\n    /** 人类可读的差异描述，格式：'源码反射与构建入口不一致: source=... buildEntry=...'。 */\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "jsdoc": "问题编码，当前固定为 'CLASS_MODEL_BUILD_CONSISTENCY_MISMATCH'，预留未来区分不同不一致类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "不一致字段的点分路径，如 'module.kinds'、'{kind}.attributes.{name}.jsdoc'，用于定位差异位置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "人类可读的差异描述，格式：'源码反射与构建入口不一致: source=... buildEntry=...'。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

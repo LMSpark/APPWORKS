@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/app/services/project/application-switch.test.ts -t \"keeps the current real system-page instance while activation is pending and rejected\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "started": "2026-10-07T17:19:44.8007686+08:00",
+  "ended": "2026-10-07T17:19:51.5164772+08:00",
+  "exitCode": 0,
+  "stdoutFile": "notes\\evidence\\sparkproject-appworks-integration\\c2d2e\\green-activation-rejection.stdout.txt"
+}

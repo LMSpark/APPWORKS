@@ -5,8 +5,9 @@
  * AI用途：定位多场景调用的标签切换、导航取消和关闭规则。
  */
 import { onScopeDispose, ref, watch } from 'vue'
-import { useRoute, useRouter, type RouteLocationNormalizedLoaded } from 'vue-router'
+import { parseQuery, useRoute, useRouter, type RouteLocationNormalizedLoaded } from 'vue-router'
 import { getDynamicRouter } from './nav-access'
+import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigationItem } from './runtime-navigation'
 
 /** 一个已打开页面的标签投影；工具实例用 instanceId 定位，fullPath 保留调用参数。 */
 export type TabPage = {
@@ -16,6 +17,7 @@ export type TabPage = {
   icon?: string
   name?: string
   runtimeName?: string
+  systemPage?: boolean
   projectId?: string
   tenantId?: string
   closable: boolean
@@ -34,17 +36,43 @@ function toTab(route: RouteLocationNormalizedLoaded): TabPage | null {
   const title = route.meta['title']
   if (typeof title !== 'string' || !title) return null
   const owner = getDynamicRouter()
+  const systemPage = owner?.getSystemPageInstance(route)
+  if (route.meta['systemPageIdentityHost'] === true && systemPage === undefined) return null
   const runtime = owner?.getPageRuntime(route)
   const view = runtime ? owner?.getPageRuntimeView(route) : undefined
   const pageId = route.meta['pageId']
-  const home = owner?.getNavTree()?.homePath?.split(/[?#]/, 1)[0]
-  return { id: runtime?.instanceId ?? route.path, path: route.path, title,
+  const homePath = owner?.getNavTree()?.homePath
+  const home = homePath?.split(/[?#]/, 1)[0]
+  const nodeId = route.meta['nodeId']
+  const findHomeNodes = (nodes: readonly RuntimeNavigationItem[]): string[] => {
+    const matches: string[] = []
+    for (const item of nodes) {
+      if (item.path?.split(/[?#]/, 1)[0] === home) matches.push(item.id)
+      if (item.children) matches.push(...findHomeNodes(item.children))
+    }
+    return matches
+  }
+  const navTree = owner?.getNavTree()
+  const homeQueryIndex = homePath?.indexOf('?') ?? -1
+  const homeHashIndex = homePath?.indexOf('#') ?? -1
+  const homeQueryEnd = homeHashIndex < 0 ? undefined : homeHashIndex
+  const homeQuery = homeQueryIndex < 0 || homePath === undefined ? {} : parseQuery(homePath.slice(homeQueryIndex + 1, homeQueryEnd))
+  const homeMarker = homeQuery[SYSTEM_PAGE_NAVIGATION_ID_QUERY]
+  const homeNodeIds = typeof homeMarker === 'string' ? [homeMarker]
+    : navTree && home !== undefined ? findHomeNodes(navTree.items) : []
+  const routeNodeId = typeof nodeId === 'string' ? nodeId : undefined
+  const marker = route.query[SYSTEM_PAGE_NAVIGATION_ID_QUERY]
+  const isHomeIdentity = systemPage !== undefined && homeNodeIds.length === 1
+    && routeNodeId === homeNodeIds[0] && (marker === undefined || marker === routeNodeId)
+  const isLegacyHomePath = systemPage === undefined && home !== undefined && route.path.endsWith(home)
+  return { id: systemPage?.instanceId ?? runtime?.instanceId ?? route.path, path: route.path, title,
     ...(typeof route.params['projectId'] === 'string' ? { projectId: route.params['projectId'] } : {}),
     ...(typeof route.params['tenantId'] === 'string' ? { tenantId: route.params['tenantId'] } : {}),
     ...(typeof route.meta['icon'] === 'string' ? { icon: route.meta['icon'] } : {}),
     ...(typeof route.name === 'string' ? { name: route.name } : {}),
-    ...(view?.name ? { runtimeName: view.name } : {}),
-    closable: pageId !== 'dashboard' && pageId !== 'home' && (home === undefined || !route.path.endsWith(home)), fullPath: route.fullPath }
+    ...(systemPage?.componentName ? { runtimeName: systemPage.componentName } : view?.name ? { runtimeName: view.name } : {}),
+    ...(systemPage ? { systemPage: true } : {}),
+    closable: pageId !== 'dashboard' && pageId !== 'home' && !isHomeIdentity && !isLegacyHomePath, fullPath: route.fullPath }
 }
 
 function assertClean(candidates: readonly TabPage[]): void {
@@ -55,7 +83,10 @@ function assertClean(candidates: readonly TabPage[]): void {
   }
 }
 function release(candidates: readonly TabPage[]): void {
-  for (const tab of candidates) if (tab.runtimeName) getDynamicRouter()?.closePageRuntime(tab.id)
+  for (const tab of candidates) {
+    if (tab.systemPage) getDynamicRouter()?.closeSystemPageInstance(tab.id)
+    else if (tab.runtimeName) getDynamicRouter()?.closePageRuntime(tab.id)
+  }
   const ids = new Set(candidates.map(tab => tab.id))
   tabs.value = tabs.value.filter(tab => !ids.has(tab.id))
 }
@@ -75,16 +106,20 @@ export function useTabPages(options?: UseTabPagesOptions) {
       const previous = tabs.value.find(tab => tab.id === activeTab.value)
       if (previous) assertClean([previous])
     })
-    const stop = watch(() => route.fullPath, () => {
+    const stop = watch([() => route.fullPath, () => getDynamicRouter()?.systemPageRevision.value], () => {
       const owner = getDynamicRouter()
       const projectId = route.params['projectId']
       const tenantId = route.params['tenantId']
-      tabs.value = tabs.value.filter(item => (!item.runtimeName || owner?.getPageRuntimeById(item.id) !== undefined)
+      tabs.value = tabs.value.filter(item => (!item.systemPage || owner?.getSystemPageInstanceById(item.id) !== undefined)
+        && (item.runtimeName === undefined || item.systemPage === true || owner?.getPageRuntimeById(item.id) !== undefined)
         && (typeof projectId !== 'string' || item.projectId === undefined || (item.projectId === projectId && item.tenantId === tenantId)))
       const tab = toTab(router.currentRoute.value)
-      if (!tab) return
+      if (!tab) {
+        if (!tabs.value.some(item => item.id === activeTab.value)) activeTab.value = ''
+        return
+      }
       if (mode.value === 'single') {
-        const previous = tabs.value.filter(item => item.id !== tab.id && item.runtimeName !== undefined)
+        const previous = tabs.value.filter(item => item.id !== tab.id && (item.runtimeName !== undefined || item.systemPage === true))
         assertClean(previous)
         release(previous)
       }
@@ -93,7 +128,11 @@ export function useTabPages(options?: UseTabPagesOptions) {
       if (index < 0) tabs.value.push(tab)
       else tabs.value[index] = tab
     }, { immediate: true })
-    onScopeDispose(() => { stop(); removeGuard(); watchInstalled = false })
+    onScopeDispose(() => {
+      stop()
+      removeGuard()
+      watchInstalled = false
+    })
   }
 
   async function close(candidates: readonly TabPage[]): Promise<void> {

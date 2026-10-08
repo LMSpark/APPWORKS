@@ -1,0 +1,7 @@
+{
+  "command": "pnpm run typecheck",
+  "startedAt": "2026-10-07T13:25:07.9827043+08:00",
+  "finishedAt": "2026-10-07T13:25:32.0053977+08:00",
+  "exitCode": 0,
+  "head": "0b6c85d9979205cf733da8b0ba663c63e89ec395"
+}

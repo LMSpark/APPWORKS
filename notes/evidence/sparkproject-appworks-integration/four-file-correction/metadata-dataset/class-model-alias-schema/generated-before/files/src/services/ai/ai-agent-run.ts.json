@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/ai/ai-agent-run",
+    "sourcePath": "src/services/ai/ai-agent-run.ts",
+    "sourceFile": "src/services/ai/ai-agent-run.ts",
+    "packageName": "app",
+    "modulePath": "services/ai/ai-agent-run",
+    "jsdoc": "app 的 services/ai/ai-agent-run 模块。\n导出 DtsTypeDeclarationModel symbol: AiAgentRunTarget, AiAgentRunRequest, AiAgentRunPrepare（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "AiAgentRunTarget",
+      "AiAgentRunRequest",
+      "AiAgentRunPrepare"
+    ]
+  },
+  "$defs": {
+    "AiAgentRunTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRunTarget",
+      "$defs": {
+        "method.has.params": {
+          "type": "object",
+          "properties": {
+            "alias": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.has.return": {
+          "type": "boolean"
+        },
+        "method.dryRun.params": {
+          "type": "object",
+          "properties": {
+            "alias": {
+              "type": "string"
+            },
+            "args": true
+          },
+          "additionalProperties": false
+        },
+        "method.dryRun.return": {
+          "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHostDryRunResult"
+        },
+        "method.run.params": {
+          "type": "object",
+          "properties": {
+            "alias": {
+              "type": "string"
+            },
+            "args": {
+              "type": "object",
+              "title": "JsonParams"
+            },
+            "chat": {
+              "$ref": "../../../packages/spark-ai/src/agent/business/business-task.ts.json#/$defs/AiAgentTaskChatOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.run.return": {
+          "type": "object",
+          "title": "Promise<AiAgentHostRunResult>"
+        }
+      }
+    },
+    "AiAgentRunRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRunRequest",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.530Z",
+  "models": {
+    "AiAgentRunTarget": {
+      "name": "AiAgentRunTarget",
+      "jsdoc": "可由页面或自动化入口直接执行的前端 Agent 能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    has(alias: string): boolean;\n    dryRun(alias: string, args: unknown): AiAgentHostDryRunResult;\n    run(alias: string, args: JsonParams, chat?: AiAgentTaskChatOptions): Promise<AiAgentHostRunResult>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    has(alias: string): boolean;\n    dryRun(alias: string, args: unknown): AiAgentHostDryRunResult;\n    run(alias: string, args: JsonParams, chat?: AiAgentTaskChatOptions): Promise<AiAgentHostRunResult>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "has",
+              "parameters": [
+                {
+                  "name": "alias",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "dryRun",
+              "parameters": [
+                {
+                  "name": "alias",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "args",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "AiAgentHostDryRunResult"
+              }
+            },
+            {
+              "name": "run",
+              "parameters": [
+                {
+                  "name": "alias",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "args",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonParams"
+                  }
+                },
+                {
+                  "name": "chat",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentTaskChatOptions"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "AiAgentHostRunResult"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentRunRequest": {
+      "name": "AiAgentRunRequest",
+      "jsdoc": "前端 Agent 运行前的业务上下文，不代表任何后端传输协议。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    requestId: string;\n    alias: string;\n    args: Record<string, unknown>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    requestId: string;\n    alias: string;\n    args: Record<string, unknown>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "alias",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "args",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentRunPrepare": {
+      "name": "AiAgentRunPrepare",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(request: AiAgentRunRequest, target: TTarget) => AiAgentRunTarget | Promise<AiAgentRunTarget>",
+        "members": {}
+      }
+    }
+  }
+}

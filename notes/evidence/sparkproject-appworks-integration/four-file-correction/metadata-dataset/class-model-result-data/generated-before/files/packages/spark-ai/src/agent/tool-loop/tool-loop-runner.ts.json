@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/tool-loop/tool-loop-runner",
+    "sourcePath": "packages/spark-ai/src/agent/tool-loop/tool-loop-runner.ts",
+    "sourceFile": "packages/spark-ai/src/agent/tool-loop/tool-loop-runner.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/tool-loop/tool-loop-runner",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/tool-loop/tool-loop-runner\n职责：支撑 Agent tool loop 的 tool loop runner 能力，处理工具调用、结果映射、诊断事件或 payload 编解码。\n边界：只服务单次 turn 内的工具循环，不定义业务注册协议，也不直接管理 UI 或持久化页面状态。\nAI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiAgentToolLoopRunner"
+    ]
+  },
+  "$defs": {
+    "AiAgentToolLoopInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentToolLoopInput",
+      "properties": {
+        "registration": {
+          "$ref": "../business/registration-types.ts.json#/$defs/AiAgentRegistration"
+        },
+        "scope": {
+          "$ref": "../business/scope-types.ts.json#/$defs/AiAgentScope"
+        },
+        "request": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
+        },
+        "turn": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.clearSelected.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearSelected.return": true
+      }
+    },
+    "AiAgentToolLoopRunner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentToolLoopRunner",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "callbacks": {
+              "$ref": "../conversation/transport/transport-types.ts.json#/$defs/AiAgentTurnCallbacks"
+            },
+            "maxToolRounds": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.runToolLoop.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AiAgentToolLoopInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.runToolLoop.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.225Z",
+  "models": {
+    "AiAgentToolLoopInput": {
+      "name": "AiAgentToolLoopInput",
+      "jsdoc": "工具循环的输入参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 业务注册信息：包含系统提示词、工具列表、生命周期回调等 Agent 运行时所需的全部业务契约。 */\n    registration: AiAgentRegistration<TInput>;\n    /** 业务作用域：标识当前 businessRegistrationId + businessInstanceId，用于会话寻址和诊断。 */\n    scope: AiAgentScope;\n    /** 本次聊天请求：包含用户消息、AbortSignal、流式回调（onDelta / onReasoning / onUsage）等。 */\n    request: AiAgentChatRequest;\n    /** 当前轮次元数据：turnId / seq，用于后端消息关联和诊断事件标注。 */\n    turn: AiAgentTurnMeta;\n    /** 清除 session 选中缓存（业务切换时由 session 层传入） */\n    clearSelected: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 业务注册信息：包含系统提示词、工具列表、生命周期回调等 Agent 运行时所需的全部业务契约。 */\n    registration: AiAgentRegistration<TInput>;\n    /** 业务作用域：标识当前 businessRegistrationId + businessInstanceId，用于会话寻址和诊断。 */\n    scope: AiAgentScope;\n    /** 本次聊天请求：包含用户消息、AbortSignal、流式回调（onDelta / onReasoning / onUsage）等。 */\n    request: AiAgentChatRequest;\n    /** 当前轮次元数据：turnId / seq，用于后端消息关联和诊断事件标注。 */\n    turn: AiAgentTurnMeta;\n    /** 清除 session 选中缓存（业务切换时由 session 层传入） */\n    clearSelected: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "registration",
+              "jsdoc": "业务注册信息：包含系统提示词、工具列表、生命周期回调等 Agent 运行时所需的全部业务契约。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "业务作用域：标识当前 businessRegistrationId + businessInstanceId，用于会话寻址和诊断。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "request",
+              "jsdoc": "本次聊天请求：包含用户消息、AbortSignal、流式回调（onDelta / onReasoning / onUsage）等。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "当前轮次元数据：turnId / seq，用于后端消息关联和诊断事件标注。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "clearSelected",
+              "jsdoc": "清除 session 选中缓存（业务切换时由 session 层传入）",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentToolLoopRunner": {
+      "name": "AiAgentToolLoopRunner",
+      "jsdoc": "Ai Agent Tool Loop Runner 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Ai Agent Tool Loop Runner 实例。",
+          "signatureText": "constructor(callbacks: AiAgentTurnCallbacks, maxToolRounds: number | undefined)",
+          "parameters": [
+            {
+              "name": "callbacks",
+              "type": {
+                "type": "reference",
+                "name": "AiAgentTurnCallbacks",
+                "sourcePath": "packages/spark-ai/src/agent/conversation/transport/transport-types.ts"
+              }
+            },
+            {
+              "name": "maxToolRounds",
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "number"
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "runToolLoop",
+              "jsdoc": "执行工具循环主流程。\n每轮（round）：\n1. 读取 ClassModel 固定协议工具规约\n2. 发送 LLM 诊断事件（llm-request）\n3. 调用 turnCallbacks.executeTurn 获取 AI 响应\n4. 将 AI 文本回复写入 sessionStore\n5. 若无工具调用 → 自然结束\n6. 依次执行每个工具调用，收集 toolMessage 和 lifecycleDirective\n7. 若 lifecycleDirective ≠ 'continue' → 进入生命周期终止流程\n8. 否则把本轮消息 append 到 V4 后端会话，下一轮用空 messages 续写 session 历史",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentToolLoopInput",
+                    "sourcePath": "packages/spark-ai/src/agent/tool-loop/tool-loop-runner.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "TInput",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

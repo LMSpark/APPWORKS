@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/app/services/project/application-switch.test.ts -t 'checks the real switch receipt'",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:26:38.3515164Z",
+  "finishedAtUtc": "2026-10-07T08:26:45.4473718Z",
+  "exitCode": 1
+}

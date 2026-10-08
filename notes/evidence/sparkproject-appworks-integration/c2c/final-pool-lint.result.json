@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "cwd": "D:\\SPARK_AppWorks",
+  "command": "pnpm exec eslint packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts --max-warnings=0",
+  "startedAtUtc": "2026-10-07T07:45:06.9128652Z",
+  "finishedAtUtc": "2026-10-07T07:45:13.0443737Z"
+}

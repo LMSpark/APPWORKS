@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-08T11:08:57.879Z",
+  "targetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "stage": "complete",
+  "writes": 0,
+  "metadata": [
+    {
+      "name": "Base_DataModel",
+      "rows": 7
+    },
+    {
+      "name": "Base_DataModel_Field",
+      "rows": 119
+    },
+    {
+      "name": "Base_DataSet",
+      "rows": 1
+    },
+    {
+      "name": "Base_DataModel_Relation",
+      "rows": 0
+    }
+  ],
+  "computation": {
+    "tableName": "Base_DataSet",
+    "sourceField": "ReportID",
+    "valueMatched": true,
+    "readonly": true,
+    "strippedFromSubmission": true,
+    "originalRowRestored": true,
+    "fileUnchanged": true,
+    "extraRequests": 0
+  },
+  "disposed": true
+}

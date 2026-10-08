@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererTree/input",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/input.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTree/input.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererTree/input",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererTree/input\n职责：支撑 RendererTree（r-enderer-tree-input）在 table-level/data-view-container 中的运行时协作，补齐配置、状态或渲染器之间的连接逻辑。\n边界：只覆盖当前组件目录 containers/data-views 的局部能力，不定义全局页面模型，也不越级操作业务数据源。\nAI用途：需要判断 renderer tree 的组件分层、辅助类型或内部接线时，用本模块作为局部语义入口。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "RendererTree",
+    "componentType": "r-tree",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "RendererTreeInputProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererTreeInputProps",
+      "properties": {
+        "children": true,
+        "toolbar": {
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+        },
+        "actions": {
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+        },
+        "editor": {
+          "$ref": "../../zones/RendererEditor.types.ts.json#/$defs/REditorProps"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RendererTreeInputOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererTreeInputOptions",
+      "properties": {
+        "props": {
+          "$ref": "#/$defs/RendererTreeInputProps"
+        }
+      },
+      "required": [
+        "props"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:26.802Z",
+  "models": {
+    "RendererTreeInputProps": {
+      "name": "RendererTreeInputProps",
+      "jsdoc": "Renderer Tree Input Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTree",
+        "type": "r-enderer-tree-input",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 子节点集合。 */\n    children?: SparkNode['children'] | undefined;\n    /** toolbar 字段。 */\n    toolbar?: RToolbarProps | undefined;\n    /** actions 字段。 */\n    actions?: RToolbarProps | undefined;\n    /** editor 字段。 */\n    editor?: REditorProps | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "children",
+              "jsdoc": "子节点集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "toolbar 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actions",
+              "jsdoc": "actions 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editor",
+              "jsdoc": "editor 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RendererTreeInputOptions": {
+      "name": "RendererTreeInputOptions",
+      "jsdoc": "Renderer Tree Input Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTree",
+        "type": "r-tree",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 组件属性集合。 */\n    props: RendererTreeInputProps;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "props",
+              "jsdoc": "组件属性集合。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

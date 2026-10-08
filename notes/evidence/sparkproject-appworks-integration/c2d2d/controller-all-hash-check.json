@@ -1,0 +1,236 @@
+[
+  {
+    "path": "packages/spark-app/src/index.ts",
+    "expected": "BCAEE40F54E29C4FF6CA2E944A13AD9D09545C4998CB5CBB296783E41389406D",
+    "actual": "bcaee40f54e29c4ff6ca2e944a13ad9d09545c4998cb5cbb296783e41389406d",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/src/navigation/runtime-navigation.ts",
+    "expected": "8914C92B3D7AF31766F65022E37F7500DF8625CE0F333124DFCC20B3DE45550F",
+    "actual": "8914c92b3d7af31766f65022e37f7500df8625ce0f333124dfcc20b3de45550f",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/src/navigation/useNavigation.ts",
+    "expected": "BB973ACBD96DF02442EC2FEE4E204D026B2949310FBBBEE79D5E8155F27D1275",
+    "actual": "bb973acbd96df02442ec2fee4e204d026b2949310fbbbee79d5e8155f27d1275",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/src/navigation/useTabPages.ts",
+    "expected": "F402EC34F3FA516413E789489C3468E6FD12586039454F02C58CED312C71D362",
+    "actual": "f402ec34f3fa516413e789489c3468e6fd12586039454f02c58ced312c71d362",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/src/router/dynamic.ts",
+    "expected": "c33a961c88966ad8312b89134371b170c15776670c536d82a16e11aa05bd4119",
+    "actual": "c33a961c88966ad8312b89134371b170c15776670c536d82a16e11aa05bd4119",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
+    "expected": "CB58798C401E221FFC25F0BC26F157858F979A4BF0488BAD47A66E2543B3C992",
+    "actual": "cb58798c401e221ffc25f0bc26f157858f979a4bf0488bad47a66e2543b3c992",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
+    "expected": "CDA0B36D752665431C49125C6EA10259DF56A6F80489515CAFBABBEB4592567A",
+    "actual": "cda0b36d752665431c49125c6ea10259df56a6f80489515cafbabbeb4592567a",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue",
+    "expected": "BB4C6573DFDEFBD4090D667A78B38A1043D4207F847BBD918E320E2FB517AE9A",
+    "actual": "bb4c6573dfdefbd4090d667a78b38a1043d4207f847bbd918e320e2fb517ae9a",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/src/shell/plugins/__tests__/presets.test.ts",
+    "expected": "30F344D9008A986EF5D37942D7CAF9B7BE66B8AD5E530CA65F77353A337C465B",
+    "actual": "30f344d9008a986ef5d37942d7caf9b7be66b8ad5e530ca65f77353a337c465b",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/src/shell/plugins/presets.ts",
+    "expected": "A211D04F1737DF634FFD292BF61D3FAFFF51A45DB73806CF2EC853F9B8A396B0",
+    "actual": "a211d04f1737df634ffd292bf61d3fafff51a45db73806cf2ec853f9b8a396b0",
+    "match": true
+  },
+  {
+    "path": "packages/spark-app/vitest.config.ts",
+    "expected": "07FF29FB8F5A7530CF8A2E65BA4C16D5B33BFE8D1BC45C52893285517263BEC7",
+    "actual": "07ff29fb8f5a7530cf8a2e65ba4c16d5b33bfe8d1bc45c52893285517263bec7",
+    "match": true
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/index.ts",
+    "expected": "f7bd40ddcd45ec6faff6c585c19287d7660001e7823ac6cac7f3e89d41eab142",
+    "actual": "f7bd40ddcd45ec6faff6c585c19287d7660001e7823ac6cac7f3e89d41eab142",
+    "match": true
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+    "expected": "3d902f56660ac8f2a32da9761bb68b347e0b9dd4976fb1cd9b7f640ace026e8d",
+    "actual": "3d902f56660ac8f2a32da9761bb68b347e0b9dd4976fb1cd9b7f640ace026e8d",
+    "match": true
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+    "expected": "ef4a88c9e0b095fba90d31d2738c2c1f1f354092ed8c24291dab01ea68be645e",
+    "actual": "ef4a88c9e0b095fba90d31d2738c2c1f1f354092ed8c24291dab01ea68be645e",
+    "match": true
+  },
+  {
+    "path": "packages/vite-plugin-spark-catalog/src/scan-config.ts",
+    "expected": "A25E8BAFCDCF14D95C453CD70F0481157A8390C509C296FB255605F269ED3A58",
+    "actual": "a25e8bafcdcf14d95c453cd70f0481157a8390c509c296fb255605f269ed3a58",
+    "match": true
+  },
+  {
+    "path": "src/App.vue",
+    "expected": "9acc5948a595bddd4996b7d01126582fa1eec263b71a3dbaf8f1c0ab4fdb5c69",
+    "actual": "9acc5948a595bddd4996b7d01126582fa1eec263b71a3dbaf8f1c0ab4fdb5c69",
+    "match": true
+  },
+  {
+    "path": "src/components/page-loading/PageLoadError.vue",
+    "expected": "0E68299C158093F4E6DECED9C81B08BF9BBE374A74A0B66E7F734F8F92250497",
+    "actual": "0e68299c158093f4e6deced9c81b08bf9bbe374a74a0b66e7f734f8f92250497",
+    "match": true
+  },
+  {
+    "path": "src/layout/AppTabBar.vue",
+    "expected": "9e6afbae6dd55dab092057f41dc58b9bdff8d1e52690a06ff50933f6a4001b3a",
+    "actual": "9e6afbae6dd55dab092057f41dc58b9bdff8d1e52690a06ff50933f6a4001b3a",
+    "match": true
+  },
+  {
+    "path": "src/lowcode/lowcode-runtime.ts",
+    "expected": "210b3737bbb308bd7bdf4ff3fd907f982006de01bc6aeadcae202a02ce89db27",
+    "actual": "210b3737bbb308bd7bdf4ff3fd907f982006de01bc6aeadcae202a02ce89db27",
+    "match": true
+  },
+  {
+    "path": "src/main.ts",
+    "expected": "3cfb642d42273748e1b7afc38326c694fa42c100387eec949b64ee4b66430cc4",
+    "actual": "3cfb642d42273748e1b7afc38326c694fa42c100387eec949b64ee4b66430cc4",
+    "match": true
+  },
+  {
+    "path": "src/registries/vue-page-registry.ts",
+    "expected": "5E6BE0C30B920661180EE6354B893C59077584E737CBC1A221288EE491CE1EAF",
+    "actual": "5e6be0c30b920661180ee6354b893c59077584e737cbc1a221288ee491ce1eaf",
+    "match": true
+  },
+  {
+    "path": "src/services/project/navigation/project-navigation-guard.ts",
+    "expected": "9e96881aa559330eecc1e061e693080f1ba141f3db56ef94b63a21d6e5989076",
+    "actual": "9e96881aa559330eecc1e061e693080f1ba141f3db56ef94b63a21d6e5989076",
+    "match": true
+  },
+  {
+    "path": "src/services/project/project-shell.ts",
+    "expected": "755133ab9cf4f42d8f2b2028f9178fd6b59bc61329e6909cd2d1e25f86f1ff66",
+    "actual": "755133ab9cf4f42d8f2b2028f9178fd6b59bc61329e6909cd2d1e25f86f1ff66",
+    "match": true
+  },
+  {
+    "path": "src/views/platform/PlatformApps.vue",
+    "expected": "0c7f0395c774473bd51ce0376b8b828543d39e9df786d225c796be87fde14ad3",
+    "actual": "0c7f0395c774473bd51ce0376b8b828543d39e9df786d225c796be87fde14ad3",
+    "match": true
+  },
+  {
+    "path": "src/views/platform/PlatformTenantManagement.vue",
+    "expected": "114bdcb6703883ee6d2de95245c2d3bb3785e22669bccf8c110ccdf8fbe63219",
+    "actual": "114bdcb6703883ee6d2de95245c2d3bb3785e22669bccf8c110ccdf8fbe63219",
+    "match": true
+  },
+  {
+    "path": "src/views/tenant/AppList.vue",
+    "expected": "54d868d6e1adb7b7d6d88c46b4547786c1f3307dbb8ec08746abe0eff661ff55",
+    "actual": "54d868d6e1adb7b7d6d88c46b4547786c1f3307dbb8ec08746abe0eff661ff55",
+    "match": true
+  },
+  {
+    "path": "tests/app/config/spark-components-loading.test.ts",
+    "expected": "03D7CD58C0AA3E44A663DA78A5A3A89C37D8156FBEA9B83685E081B89FF4B0B3",
+    "actual": "03d7cd58c0aa3e44a663da78a5a3a89c37d8156fbea9b83685e081b89ff4b0b3",
+    "match": true
+  },
+  {
+    "path": "tests/app/config/vue-page-registry.test.ts",
+    "expected": "88E606C41EA20380684883965840E73689293727D05CC0BFD49695E8D4854937",
+    "actual": "88e606c41ea20380684883965840e73689293727d05cc0bfd49695e8d4854937",
+    "match": true
+  },
+  {
+    "path": "tests/app/dev/navigation-sync.test.ts",
+    "expected": "29921f363b81730467849f23f58850d2c3446025a40fd7e723c54de4fe00c6cd",
+    "actual": "29921f363b81730467849f23f58850d2c3446025a40fd7e723c54de4fe00c6cd",
+    "match": true
+  },
+  {
+    "path": "tests/app/services/project/application-switch.test.ts",
+    "expected": "d3adb2f1e3fd8878de99c39c5e57d98722ed5f3defb30c933817e7cfc40cb281",
+    "actual": "d3adb2f1e3fd8878de99c39c5e57d98722ed5f3defb30c933817e7cfc40cb281",
+    "match": true
+  },
+  {
+    "path": "tests/auth-nav/dynamic-router-platform-pages.test.ts",
+    "expected": "779FF43E0DDE1A09A16EB1CAC05231D6AC6A7B1026EC849A238F4EFEFEBF9F82",
+    "actual": "779ff43e0dde1a09a16eb1cac05231d6ac6a7b1026ec849a238f4efefebf9f82",
+    "match": true
+  },
+  {
+    "path": "tests/auth-nav/navigation-platform-paths.test.ts",
+    "expected": "CBF574F7364CB8AB2F389D813E5AB6C34B20C090D465FF5869DB0672F905B3DE",
+    "actual": "cbf574f7364cb8ab2f389d813e5ab6c34b20c090d465ff5869db0672f905b3de",
+    "match": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/application/project-navigation-guard.test.ts",
+    "expected": "1d988da828bda81fc8127b1b9732695916d48a6d928b7c5b891f884463372b3b",
+    "actual": "1d988da828bda81fc8127b1b9732695916d48a6d928b7c5b891f884463372b3b",
+    "match": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts",
+    "expected": "898D1CDB953B69218A2B1D1C5C10B45BF34808D0D149B622F10EAC433ABDFCEA",
+    "actual": "898d1cdb953b69218a2b1d1c5c10b45bf34808d0d149b622f10eac433abdfcea",
+    "match": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+    "expected": "438c05c260e507f3ea5578c9024b5f004c1d00107214fd7a0e50b5c35b49e27a",
+    "actual": "438c05c260e507f3ea5578c9024b5f004c1d00107214fd7a0e50b5c35b49e27a",
+    "match": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/navigation-platform-paths.test.ts",
+    "expected": "45D2B1A340E13411C8ABE676DEE7083FB3ABE3B4001597BA3115778216BA5AAA",
+    "actual": "45d2b1a340e13411c8abe676dee7083fb3abe3b4001597ba3115778216ba5aaa",
+    "match": true
+  },
+  {
+    "path": "tests/runtime/page/runtime/system-page-identity-tabs.test.ts",
+    "expected": "b76d4106cab4de86aa35b442811508091954da0426a0bb2f0baa52e8a54559a9",
+    "actual": "b76d4106cab4de86aa35b442811508091954da0426a0bb2f0baa52e8a54559a9",
+    "match": true
+  },
+  {
+    "path": "tools/vite-plugin-spark-components.ts",
+    "expected": "5F1CBEB234A546BEA73D6189C7D48B6DD3764827DA7763F54FBC574C86B0AA9F",
+    "actual": "5f1cbeb234a546bea73d6189c7d48b6dd3764827da7763f54fbc574c86b0aa9f",
+    "match": true
+  },
+  {
+    "path": "vite.config.ts",
+    "expected": "90F383DEF6ED389C818BFE9A2C083A7AEF9DF3F34B68B6D7B64E975AD0027726",
+    "actual": "90f383def6ed389c818bfe9a2c083a7aef9df3f34b68b6d7b64e975ad0027726",
+    "match": true
+  }
+]

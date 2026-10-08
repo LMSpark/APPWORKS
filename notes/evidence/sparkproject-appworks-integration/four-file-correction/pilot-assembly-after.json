@@ -1,0 +1,78 @@
+{
+  "ok": true,
+  "queries": [
+    {
+      "add": {},
+      "columns": [
+        "flowstate",
+        "createuser",
+        "Type",
+        "wfid",
+        "ReportID",
+        "description",
+        "createtime",
+        "sysid",
+        "updatetime",
+        "lingma_sys_is_delete",
+        "updateuser",
+        "rowid",
+        "Name",
+        "_pk"
+      ],
+      "name": "Base_DataSet",
+      "rowCount": 2,
+      "rowKeys": [
+        "flowstate",
+        "createuser",
+        "Type",
+        "wfid",
+        "ReportID",
+        "description",
+        "createtime",
+        "sysid",
+        "updatetime",
+        "lingma_sys_is_delete",
+        "updateuser",
+        "rowid",
+        "Name",
+        "_pk"
+      ]
+    },
+    {
+      "add": {},
+      "columns": [
+        "publisher_ent",
+        "AppDesc",
+        "AppName",
+        "rowid",
+        "_pk"
+      ],
+      "name": "Base_AppSystemList",
+      "rowCount": 1,
+      "rowKeys": [
+        "publisher_ent",
+        "AppDesc",
+        "AppName",
+        "rowid",
+        "_pk"
+      ]
+    },
+    {
+      "add": {},
+      "columns": [
+        "ROWID",
+        "ID",
+        "UserName",
+        "_pk"
+      ],
+      "name": "Base_UserInfo",
+      "rowCount": 2,
+      "rowKeys": [
+        "rowid",
+        "ID",
+        "UserName",
+        "_pk"
+      ]
+    }
+  ]
+}

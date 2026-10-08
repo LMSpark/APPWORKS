@@ -1,0 +1,751 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/knowledge/class-model-knowledge-service",
+    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/knowledge/class-model-knowledge-service",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/knowledge/class-model-knowledge-service\n职责：把 DtsTypeDeclarationModel surface 转成 query、modelGuide、attributeGuide 和 methodGuide 的可读知识结果。\n边界：只做知识检索和文本投影，不执行工具、不修改模型实例，也不读取生成文件系统。\nAI用途：LLM 需要按 kind/action/attribute 获取模型知识时，用本模块理解查询如何收敛到可见上下文。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ClassModelKnowledgeQueryInput",
+      "ClassModelModelGuideInput",
+      "ClassModelAttributeGuideInput",
+      "ClassModelMethodGuideInput",
+      "ClassModelKnowledgeProvider",
+      "ClassModelKnowledgeServiceOptions",
+      "ClassModelKnowledgeService"
+    ]
+  },
+  "$defs": {
+    "ClassModelKnowledgeQueryInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelKnowledgeQueryInput",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "keyword": {
+          "type": "string"
+        },
+        "componentName": {
+          "type": "string"
+        },
+        "componentType": {
+          "type": "string"
+        },
+        "componentLevel": {
+          "$ref": "../class-model/types.ts.json#/$defs/ComponentClassModelLevel"
+        },
+        "componentLayer": {
+          "$ref": "../class-model/types.ts.json#/$defs/ComponentClassModelLayer"
+        },
+        "componentDirectory": {
+          "type": "string"
+        },
+        "includeMembers": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelModelGuideInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelModelGuideInput",
+      "properties": {
+        "kind": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelAttributeGuideInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelAttributeGuideInput",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "attributeName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelMethodGuideInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelMethodGuideInput",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "methodName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelKnowledgeProvider": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelKnowledgeProvider",
+      "$defs": {
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {
+            "requestedClassName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelKnowledgeQueryInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+            },
+            {
+              "type": "object",
+              "title": "Promise<JsonValue>"
+            }
+          ]
+        },
+        "method.modelGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelModelGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.modelGuide.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "Promise<string>"
+            }
+          ]
+        },
+        "method.attributeGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelAttributeGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.attributeGuide.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "Promise<string>"
+            }
+          ]
+        },
+        "method.methodGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelMethodGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.methodGuide.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "Promise<string>"
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelKnowledgeServiceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelKnowledgeServiceOptions",
+      "properties": {
+        "document": {
+          "$ref": "../class-model/types.ts.json#/$defs/ClassModelDocument"
+        },
+        "surface": {
+          "$ref": "../class-model/dts-surface-types.ts.json#/$defs/DtsClassModelSurfaceDocument"
+        },
+        "rootClassName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelKnowledgeService": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelKnowledgeService",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ClassModelKnowledgeServiceOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelKnowledgeQueryInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+        },
+        "method.modelGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelModelGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.modelGuide.return": {
+          "type": "string"
+        },
+        "method.attributeGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelAttributeGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.attributeGuide.return": {
+          "type": "string"
+        },
+        "method.methodGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelMethodGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.methodGuide.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.233Z",
+  "models": {
+    "ClassModelKnowledgeQueryInput": {
+      "name": "ClassModelKnowledgeQueryInput",
+      "jsdoc": "Class Model Knowledge Query Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 限定查询的 DtsTypeDeclarationModel kind；省略则查可达闭包。 */\n    kind?: string;\n    /** 关键词过滤，匹配名称、摘要与成员文本。 */\n    keyword?: string;\n    /** 限定 SPARK 组件名。 */\n    componentName?: string;\n    /** 限定 SPARK 组件 type，如 r-table / r-text。 */\n    componentType?: string;\n    /** 限定 SPARK 组件层级，如 table-level / row-level / field-level。 */\n    componentLevel?: ComponentClassModelLevel;\n    /** 限定 SPARK 组件架构分层，如 data-view-container / row-scope / data-field。 */\n    componentLayer?: ComponentClassModelLayer;\n    /** 限定 SPARK 组件目录，如 containers/data-views。 */\n    componentDirectory?: string;\n    /** true 时在结果中包含 constructor/attributes/methods 摘要。 */\n    includeMembers: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 限定查询的 DtsTypeDeclarationModel kind；省略则查可达闭包。 */\n    kind?: string;\n    /** 关键词过滤，匹配名称、摘要与成员文本。 */\n    keyword?: string;\n    /** 限定 SPARK 组件名。 */\n    componentName?: string;\n    /** 限定 SPARK 组件 type，如 r-table / r-text。 */\n    componentType?: string;\n    /** 限定 SPARK 组件层级，如 table-level / row-level / field-level。 */\n    componentLevel?: ComponentClassModelLevel;\n    /** 限定 SPARK 组件架构分层，如 data-view-container / row-scope / data-field。 */\n    componentLayer?: ComponentClassModelLayer;\n    /** 限定 SPARK 组件目录，如 containers/data-views。 */\n    componentDirectory?: string;\n    /** true 时在结果中包含 constructor/attributes/methods 摘要。 */\n    includeMembers: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "限定查询的 DtsTypeDeclarationModel kind；省略则查可达闭包。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "keyword",
+              "jsdoc": "关键词过滤，匹配名称、摘要与成员文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "componentName",
+              "jsdoc": "限定 SPARK 组件名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "componentType",
+              "jsdoc": "限定 SPARK 组件 type，如 r-table / r-text。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "componentLevel",
+              "jsdoc": "限定 SPARK 组件层级，如 table-level / row-level / field-level。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "componentLayer",
+              "jsdoc": "限定 SPARK 组件架构分层，如 data-view-container / row-scope / data-field。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "componentDirectory",
+              "jsdoc": "限定 SPARK 组件目录，如 containers/data-views。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includeMembers",
+              "jsdoc": "true 时在结果中包含 constructor/attributes/methods 摘要。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelModelGuideInput": {
+      "name": "ClassModelModelGuideInput",
+      "jsdoc": "Class Model Model Guide Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 目标模型的 kind（className）。 */\n    kind: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 目标模型的 kind（className）。 */\n    kind: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "目标模型的 kind（className）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelAttributeGuideInput": {
+      "name": "ClassModelAttributeGuideInput",
+      "jsdoc": "Class Model Attribute Guide Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 属性所属模型的 kind。 */\n    kind: string;\n    /** 目标属性名。 */\n    attributeName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 属性所属模型的 kind。 */\n    kind: string;\n    /** 目标属性名。 */\n    attributeName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "属性所属模型的 kind。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attributeName",
+              "jsdoc": "目标属性名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelMethodGuideInput": {
+      "name": "ClassModelMethodGuideInput",
+      "jsdoc": "Class Model Method Guide Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 方法所属模型的 kind。 */\n    kind: string;\n    /** 目标方法名（action 名）。 */\n    methodName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 方法所属模型的 kind。 */\n    kind: string;\n    /** 目标方法名（action 名）。 */\n    methodName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "方法所属模型的 kind。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "methodName",
+              "jsdoc": "目标方法名（action 名）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelKnowledgeProvider": {
+      "name": "ClassModelKnowledgeProvider",
+      "jsdoc": "Class Model Knowledge Provider 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 可选刷新钩子，重新加载 surface 或 bundle。 */\n    refresh?: (requestedClassName?: string) => Promise<void>;\n    /** 按 kind/keyword 查询可达模型知识。 */\n    query(input: ClassModelKnowledgeQueryInput): JsonValue | Promise<JsonValue>;\n    /** 返回单个模型的完整 guide 文本。 */\n    modelGuide(input: ClassModelModelGuideInput): string | Promise<string>;\n    /** 返回单个属性的 guide 文本。 */\n    attributeGuide(input: ClassModelAttributeGuideInput): string | Promise<string>;\n    /** 返回单个方法的 guide 文本。 */\n    methodGuide(input: ClassModelMethodGuideInput): string | Promise<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 可选刷新钩子，重新加载 surface 或 bundle。 */\n    refresh?: (requestedClassName?: string) => Promise<void>;\n    /** 按 kind/keyword 查询可达模型知识。 */\n    query(input: ClassModelKnowledgeQueryInput): JsonValue | Promise<JsonValue>;\n    /** 返回单个模型的完整 guide 文本。 */\n    modelGuide(input: ClassModelModelGuideInput): string | Promise<string>;\n    /** 返回单个属性的 guide 文本。 */\n    attributeGuide(input: ClassModelAttributeGuideInput): string | Promise<string>;\n    /** 返回单个方法的 guide 文本。 */\n    methodGuide(input: ClassModelMethodGuideInput): string | Promise<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "refresh",
+              "jsdoc": "可选刷新钩子，重新加载 surface 或 bundle。",
+              "parameters": [
+                {
+                  "name": "requestedClassName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "query",
+              "jsdoc": "按 kind/keyword 查询可达模型知识。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelKnowledgeQueryInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "JsonValue"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "JsonValue"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "modelGuide",
+              "jsdoc": "返回单个模型的完整 guide 文本。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelModelGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "attributeGuide",
+              "jsdoc": "返回单个属性的 guide 文本。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelAttributeGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "methodGuide",
+              "jsdoc": "返回单个方法的 guide 文本。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelMethodGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelKnowledgeServiceOptions": {
+      "name": "ClassModelKnowledgeServiceOptions",
+      "jsdoc": "Class Model Knowledge Service Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 内存 ClassModelDocument 后端；与 surface 二选一。 */\n    document?: ClassModelDocument;\n    /** 预加载的 surface 文档后端；与 document 二选一。 */\n    surface?: DtsClassModelSurfaceDocument;\n    /** surface 模式的根 className，决定可达闭包起点。 */\n    rootClassName?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 内存 ClassModelDocument 后端；与 surface 二选一。 */\n    document?: ClassModelDocument;\n    /** 预加载的 surface 文档后端；与 document 二选一。 */\n    surface?: DtsClassModelSurfaceDocument;\n    /** surface 模式的根 className，决定可达闭包起点。 */\n    rootClassName?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "document",
+              "jsdoc": "内存 ClassModelDocument 后端；与 surface 二选一。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "surface",
+              "jsdoc": "预加载的 surface 文档后端；与 document 二选一。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootClassName",
+              "jsdoc": "surface 模式的根 className，决定可达闭包起点。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelKnowledgeService": {
+      "name": "ClassModelKnowledgeService",
+      "jsdoc": "Class Model Knowledge Service 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Class Model Knowledge Service 实例。",
+          "signatureText": "constructor(options: ClassModelKnowledgeServiceOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ClassModelKnowledgeServiceOptions",
+                "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "ClassModelKnowledgeProvider",
+            "targetName": "ClassModelKnowledgeProvider"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "query",
+              "jsdoc": "查询参数。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelKnowledgeQueryInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "JsonValue"
+              }
+            },
+            {
+              "name": "modelGuide",
+              "jsdoc": "执行 model Guide 操作。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelModelGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "attributeGuide",
+              "jsdoc": "执行 attribute Guide 操作。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelAttributeGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "methodGuide",
+              "jsdoc": "执行 method Guide 操作。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelMethodGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

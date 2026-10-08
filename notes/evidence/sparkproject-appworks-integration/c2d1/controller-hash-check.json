@@ -1,0 +1,66 @@
+{
+  "current": [
+    {
+      "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "matches": true
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "matches": true
+    },
+    {
+      "path": "src/lowcode/lowcode-runtime.ts",
+      "matches": true
+    },
+    {
+      "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+      "matches": true
+    }
+  ],
+  "priorC2c": [
+    {
+      "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
+      "matches": true
+    },
+    {
+      "path": "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue",
+      "matches": true
+    },
+    {
+      "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
+      "matches": true
+    },
+    {
+      "path": "packages/spark-app/src/router/dynamic.ts",
+      "matches": true
+    },
+    {
+      "path": "packages/spark-app/src/navigation/useTabPages.ts",
+      "matches": true
+    },
+    {
+      "path": "packages/spark-app/src/navigation/useNavigation.ts",
+      "matches": true
+    },
+    {
+      "path": "src/App.vue",
+      "matches": true
+    },
+    {
+      "path": "tests/runtime/page/runtime/system-page-identity-tabs.test.ts",
+      "matches": true
+    },
+    {
+      "path": "src/main.ts",
+      "matches": true
+    },
+    {
+      "path": "tests/runtime/auth-nav/navigation-platform-paths.test.ts",
+      "matches": true
+    },
+    {
+      "path": "tests/auth-nav/navigation-platform-paths.test.ts",
+      "matches": true
+    }
+  ]
+}

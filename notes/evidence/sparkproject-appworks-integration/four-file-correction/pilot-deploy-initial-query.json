@@ -1,0 +1,20 @@
+{
+  "precheckCorrection": "First attempt rejected before all writes: wrong CDP envelope level; unwrapped result.value and repeated exact comparisons",
+  "result": {
+    "type": "object",
+    "value": {
+      "at": "2026-10-07T18:00:26.124Z",
+      "matches": {
+        "design-pagedata.json": true,
+        "pagedata.json": true,
+        "rule.json": true,
+        "script.js": true,
+        "style.css": true
+      },
+      "ok": true,
+      "saved": [
+        "script.js"
+      ]
+    }
+  }
+}

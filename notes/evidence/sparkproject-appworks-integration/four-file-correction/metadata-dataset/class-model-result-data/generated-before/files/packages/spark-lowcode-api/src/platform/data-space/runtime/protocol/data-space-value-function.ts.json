@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-value-function",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-value-function.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-value-function.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/protocol/data-space-value-function",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-value-function\n职责：解析模型字段保存的单个 SPARK ValueFun JSON 定义。\n边界：不处理过滤树 wire envelope，也不执行或筛选值函数类型。\nAI用途：统一设计编辑与 DataView 投影对字段值函数的结构校验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T23:44:05.705Z",
+  "models": {}
+}

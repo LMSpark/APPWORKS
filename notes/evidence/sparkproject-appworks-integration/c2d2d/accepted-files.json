@@ -1,0 +1,32 @@
+{
+  "files": [
+    {
+      "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sha256": "ef4a88c9e0b095fba90d31d2738c2c1f1f354092ed8c24291dab01ea68be645e"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sha256": "3d902f56660ac8f2a32da9761bb68b347e0b9dd4976fb1cd9b7f640ace026e8d"
+    },
+    {
+      "path": "src/lowcode/lowcode-runtime.ts",
+      "sha256": "210b3737bbb308bd7bdf4ff3fd907f982006de01bc6aeadcae202a02ce89db27"
+    },
+    {
+      "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+      "sha256": "438c05c260e507f3ea5578c9024b5f004c1d00107214fd7a0e50b5c35b49e27a"
+    },
+    {
+      "path": "src/services/project/navigation/project-navigation-guard.ts",
+      "sha256": "9e96881aa559330eecc1e061e693080f1ba141f3db56ef94b63a21d6e5989076"
+    },
+    {
+      "path": "tests/runtime/auth-nav/application/project-navigation-guard.test.ts",
+      "sha256": "1d988da828bda81fc8127b1b9732695916d48a6d928b7c5b891f884463372b3b"
+    },
+    {
+      "path": "src/main.ts",
+      "sha256": "3cfb642d42273748e1b7afc38326c694fa42c100387eec949b64ee4b66430cc4"
+    }
+  ]
+}

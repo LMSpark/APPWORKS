@@ -121,6 +121,30 @@ export type LowcodeSession = Readonly<{
   enterprise: LowcodeEnterprise
 }>
 
+type ApplicationSelectionFence = Readonly<{
+  intent: number
+  sessionRevision: number
+  applicationRevision: number
+  signal?: AbortSignal
+}>
+
+type ApplicationSelectionExpectation = Readonly<{
+  applicationId: string
+  navigationRootId: string
+}> | null
+
+/** 同步校验某次应用选择或目录选择是否仍是平台当前意图。 */
+export type LowcodeApplicationSelectionReceipt = Readonly<{
+  assertCurrent(): void
+}>
+
+type LowcodeApplicationActivation = Readonly<{
+  application: LowcodeApplication
+  navigationRootId: string
+}> & LowcodeApplicationSelectionReceipt
+
+const STALE_APPLICATION_SELECTION = 'LOWCODE_APPLICATION_SELECTION_STALE: 应用选择已失效，请重新选择。'
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -220,6 +244,8 @@ function parseEnterprise(
 export class LowcodePlatformApi {
   private readonly client: LowcodeClient
   private refreshPromise: Promise<LowcodeSession> | null = null
+  private applicationSelectionIntent = 0
+  private pendingApplicationSelectionIntent: number | null = null
 
   public constructor(
     http: HttpClientBase,
@@ -231,6 +257,8 @@ export class LowcodePlatformApi {
 
   /** 企业域登录；响应须含 userinfo、entinfo、token、refreshToken、expire、refreshExpire，成功后清空应用上下文。 */
   public async login(credentials: LowcodeLoginCredentials): Promise<LowcodeSession> {
+    this.applicationSelectionIntent += 1
+    this.pendingApplicationSelectionIntent = null
     const result = await this.client.requestResult({
       path: '/api/LoginAuthority/UserLoginByEnt',
       method: 'POST',
@@ -393,6 +421,8 @@ export class LowcodePlatformApi {
 
   /** 登出；远端失败仍本地清空会话与应用上下文，避免残留凭据。 */
   public async logout(): Promise<void> {
+    this.applicationSelectionIntent += 1
+    this.pendingApplicationSelectionIntent = null
     const session = this.session.get()
     try {
       if (session !== null) {
@@ -434,8 +464,162 @@ export class LowcodePlatformApi {
 
   /** 选中应用并持久化应用上下文（含 navigationRootId）；返回解析到的导航根 id。 */
   public async selectApplication(application: LowcodeApplication): Promise<string> {
-    const navigationRootId = await this.resolveNavigationRootId(application.id)
-    this.application.save({ application, navigationRootId })
-    return navigationRootId
+    const fence = this.beginApplicationSelection()
+    try {
+      let activation: LowcodeApplicationActivation
+      try {
+        activation = await this.commitApplicationSelection(application, fence)
+      } catch (error: unknown) {
+        this.assertApplicationSelectionCurrent(fence)
+        throw error
+      }
+      activation.assertCurrent()
+      return activation.navigationRootId
+    } finally {
+      this.finishApplicationSelection(fence)
+    }
+  }
+
+  /** 拉取目录、解析唯一应用并提交应用+导航根；receipt用于await恢复后的同步复核。 */
+  public async activateApplication(applicationId: string, signal?: AbortSignal): Promise<LowcodeApplicationActivation> {
+    const fence = this.beginApplicationSelection(signal)
+    try {
+      const normalizedId = applicationId.trim()
+      if (!normalizedId) throw new LowcodeApiError(0, '应用 ID 不能为空')
+      let applications: readonly LowcodeApplication[]
+      try {
+        applications = await this.listApplications()
+      } catch (error: unknown) {
+        this.assertApplicationSelectionCurrent(fence)
+        throw error
+      }
+      this.assertApplicationSelectionCurrent(fence)
+      const matches = applications.filter(application => application.id === normalizedId)
+      if (matches.length === 0) throw new LowcodeApiError(0, `lowcode 应用不存在或无权访问：${normalizedId}`)
+      if (matches.length !== 1) throw new LowcodeApiError(0, `lowcode 应用目录包含重复应用 ID：${normalizedId}`)
+      const application = matches[0]
+      if (application === undefined) throw new LowcodeApiError(0, `lowcode 应用不存在或无权访问：${normalizedId}`)
+      let activation: LowcodeApplicationActivation
+      try {
+        activation = await this.commitApplicationSelection(application, fence)
+      } catch (error: unknown) {
+        this.assertApplicationSelectionCurrent(fence)
+        throw error
+      }
+      activation.assertCurrent()
+      return activation
+    } finally {
+      this.finishApplicationSelection(fence)
+    }
+  }
+
+  /** 开始目录意图、清除应用上下文，并返回可同步复核的当前性凭据。 */
+  public enterApplicationCatalog(): LowcodeApplicationSelectionReceipt {
+    const fence = this.beginApplicationSelection()
+    try {
+      this.application.clear()
+      return this.createApplicationSelectionReceipt(fence, null)
+    } finally {
+      this.finishApplicationSelection(fence)
+    }
+  }
+
+  /** 撤销仍在等待提交的应用选择；已提交选择和其 receipt 不受影响。 */
+  public cancelPendingApplicationSelection(): void {
+    if (this.pendingApplicationSelectionIntent === null) return
+    this.applicationSelectionIntent += 1
+    this.pendingApplicationSelectionIntent = null
+  }
+
+  private beginApplicationSelection(signal?: AbortSignal): ApplicationSelectionFence {
+    signal?.throwIfAborted()
+    const intent = ++this.applicationSelectionIntent
+    this.pendingApplicationSelectionIntent = null
+    const session = this.session.get()
+    if (session === null || !this.session.isAuthenticated()) {
+      throw new LowcodeApiError(401, '应用选择需要有效的 lowcode 会话')
+    }
+    this.pendingApplicationSelectionIntent = intent
+    return {
+      intent,
+      sessionRevision: this.session.revision,
+      applicationRevision: this.application.revision,
+      ...(signal === undefined ? {} : { signal }),
+    }
+  }
+
+  private finishApplicationSelection(fence: ApplicationSelectionFence): void {
+    if (this.pendingApplicationSelectionIntent === fence.intent) {
+      this.pendingApplicationSelectionIntent = null
+    }
+  }
+
+  private assertApplicationSelectionCurrent(fence: ApplicationSelectionFence): void {
+    fence.signal?.throwIfAborted()
+    if (this.applicationSelectionIntent !== fence.intent
+      || this.session.revision !== fence.sessionRevision
+      || this.application.revision !== fence.applicationRevision
+      || !this.session.isAuthenticated()) {
+      throw new Error(STALE_APPLICATION_SELECTION)
+    }
+  }
+
+  private async commitApplicationSelection(
+    application: LowcodeApplication,
+    fence: ApplicationSelectionFence,
+  ): Promise<LowcodeApplicationActivation> {
+    const selectedApplication: LowcodeApplication = Object.freeze({
+      id: application.id,
+      code: application.code,
+      name: application.name,
+      description: application.description,
+      enterpriseId: application.enterpriseId,
+      enterpriseShortName: application.enterpriseShortName,
+      isDefault: application.isDefault,
+    })
+    let navigationRootId: string
+    try {
+      navigationRootId = await this.resolveNavigationRootId(selectedApplication.id)
+    } catch (error: unknown) {
+      this.assertApplicationSelectionCurrent(fence)
+      throw error
+    }
+    this.assertApplicationSelectionCurrent(fence)
+    this.application.save({ application: selectedApplication, navigationRootId })
+    const currentReceipt = this.createApplicationSelectionReceipt(fence, {
+      applicationId: selectedApplication.id,
+      navigationRootId,
+    })
+    this.finishApplicationSelection(fence)
+    const receipt: LowcodeApplicationActivation = Object.freeze({
+      application: selectedApplication,
+      navigationRootId,
+      assertCurrent: currentReceipt.assertCurrent,
+    })
+    receipt.assertCurrent()
+    return receipt
+  }
+
+  private createApplicationSelectionReceipt(
+    fence: ApplicationSelectionFence,
+    expected: ApplicationSelectionExpectation,
+  ): LowcodeApplicationSelectionReceipt {
+    const committedApplicationRevision = this.application.revision
+    const assertCurrent = (): void => {
+      fence.signal?.throwIfAborted()
+      const current = this.application.get()
+      if (this.applicationSelectionIntent !== fence.intent
+        || this.session.revision !== fence.sessionRevision
+        || this.application.revision !== committedApplicationRevision
+        || !this.session.isAuthenticated()
+        || (expected === null
+          ? current !== null
+          : current?.application.id !== expected.applicationId || current.navigationRootId !== expected.navigationRootId)) {
+        throw new Error(STALE_APPLICATION_SELECTION)
+      }
+    }
+    const receipt: LowcodeApplicationSelectionReceipt = Object.freeze({ assertCurrent })
+    receipt.assertCurrent()
+    return receipt
   }
 }

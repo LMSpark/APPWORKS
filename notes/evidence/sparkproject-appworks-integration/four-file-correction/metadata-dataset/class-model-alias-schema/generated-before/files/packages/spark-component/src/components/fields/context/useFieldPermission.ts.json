@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/context/useFieldPermission",
+    "sourcePath": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/context/useFieldPermission",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useFieldPermission\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/useFieldPermission 的字段权限投影。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/useFieldPermission 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FieldPermissionProps"
+    ]
+  },
+  "$defs": {
+    "FieldPermissionProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldPermissionProps",
+      "properties": {
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UseFieldPermissionOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseFieldPermissionOptions",
+      "properties": {
+        "props": {
+          "$ref": "#/$defs/FieldPermissionProps"
+        },
+        "type": {
+          "type": "string"
+        },
+        "fallbackValue": {
+          "type": "object",
+          "title": "TValue"
+        }
+      },
+      "required": [
+        "props",
+        "type",
+        "fallbackValue"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.formatDisplay.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.formatDisplay.return": {
+          "type": "string"
+        },
+        "method.coerce.params": {
+          "type": "object",
+          "properties": {
+            "rawValue": true
+          },
+          "additionalProperties": false
+        },
+        "method.coerce.return": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "method.toSourceValue.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "object",
+              "title": "TValue"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.toSourceValue.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T20:10:09.465Z",
+  "models": {
+    "FieldPermissionProps": {
+      "name": "FieldPermissionProps",
+      "jsdoc": "Field Permission Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'label' | 'modelValue' | 'value'>, 'modelValue' | 'value'>> & {\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'label' | 'modelValue' | 'value'>, 'modelValue' | 'value'>>",
+            "targetName": "FieldComposableProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelValue",
+              "jsdoc": "model Value 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "当前值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "UseFieldPermissionOptions": {
+      "name": "UseFieldPermissionOptions",
+      "jsdoc": "Use Field Permission Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 组件属性集合。 */\n    props: FieldPermissionProps<TValue>;\n    /** 类型标识。 */\n    type: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown) => string;\n    /**\n     * 运行时类型校正函数。\n     *\n     * `sourceFieldValue` 从行数据中读取的原始值类型不可控（DataSet 行数据是 `unknown`），\n     * 此函数在赋给 `fieldValue` 之前统一做类型校正，避免非预期类型（如 boolean false）\n     * 流入 el-input / el-input-number 等的 :model-value，从而消除 Vue runtime prop 警告。\n     *\n     * 注意：仅对来自行数据的值应用；`props.modelValue` 显式传入时直接使用（调用方负责类型正确性）。\n     */\n    coerce: (rawValue: unknown) => TValue;\n    /** 控件值写入数据字段前的显式格式转换，仍经过当前字段权限。 */\n    toSourceValue?: (value: TValue) => unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "props",
+              "jsdoc": "组件属性集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fallbackValue",
+              "jsdoc": "fallback Value 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "formatDisplay",
+              "jsdoc": "format Display 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "coerce",
+              "jsdoc": "运行时类型校正函数。\n`sourceFieldValue` 从行数据中读取的原始值类型不可控（DataSet 行数据是 `unknown`），\n此函数在赋给 `fieldValue` 之前统一做类型校正，避免非预期类型（如 boolean false）\n流入 el-input / el-input-number 等的 :model-value，从而消除 Vue runtime prop 警告。\n注意：仅对来自行数据的值应用；`props.modelValue` 显式传入时直接使用（调用方负责类型正确性）。",
+              "parameters": [
+                {
+                  "name": "rawValue",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "TValue",
+                "refersToTypeParameter": true
+              }
+            },
+            {
+              "name": "toSourceValue",
+              "jsdoc": "控件值写入数据字段前的显式格式转换，仍经过当前字段权限。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "reference",
+                    "name": "TValue",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

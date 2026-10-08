@@ -69,15 +69,7 @@ constructor(private schema: DataSchema) {}
    * @returns 校验结果
    */
   validate(row: DataRow): ValidationResult {
-    const errors: ValidationError[] = []
-
-    // 1. 字段级校验（基于列定义）
-    for (const col of this.schema.columns) {
-      if (col.isComputed || col.computeExpression) continue
-      const value = row[col.name]
-      const fieldErrors = this.validateField(col, value)
-      errors.push(...fieldErrors)
-    }
+    const { errors } = this.validateColumns(row)
 
     // 2. 自定义行级校验
     if (this.schema.validate) {
@@ -91,6 +83,16 @@ constructor(private schema: DataSchema) {}
       valid: errors.length === 0,
       errors
     }
+  }
+
+  /** 仅执行原生列规则；fields 省略时检查全部非计算列。 */
+  validateColumns(row: DataRow, fields?: ReadonlySet<string>): ValidationResult {
+    const errors: ValidationError[] = []
+    for (const col of this.schema.columns) {
+      if (col.isComputed || col.computeExpression || (fields !== undefined && !fields.has(col.name))) continue
+      errors.push(...this.validateField(col, row[col.name]))
+    }
+    return { valid: errors.length === 0, errors }
   }
 
   /**

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/binding/build-page-children",
+    "sourcePath": "packages/spark-component/src/page/binding/build-page-children.ts",
+    "sourceFile": "packages/spark-component/src/page/binding/build-page-children.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/binding/build-page-children",
+    "jsdoc": "@module @spark-appworks/spark-component:page/binding/build-page-children\n职责：提供 build page children 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nSparkNode → page children 绑定器\n边界约束：\n- spark-project-model 负责提供声明式 SparkNode 树\n- spark-component 负责将其物化为运行时 children（SparkNode[]）\n绑定内容：\n- on / ActionDescriptor 绑定为可执行闭包\n- children 递归转换\n- props 内嵌 SparkNode 递归归并\n- 顶层 id 去重",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageScriptCaller",
+      "BuildPageChildrenOptions"
+    ]
+  },
+  "$defs": {
+    "PageScriptCaller": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageScriptCaller",
+      "additionalProperties": false
+    },
+    "BuildPageChildrenOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BuildPageChildrenOptions",
+      "properties": {
+        "callFunc": {
+          "$ref": "#/$defs/PageScriptCaller"
+        },
+        "callBeforeRender": {
+          "$ref": "#/$defs/PageScriptCaller"
+        },
+        "actionCtx": {
+          "type": "object",
+          "title": "ActionExecutionContext"
+        }
+      },
+      "required": [
+        "callFunc",
+        "actionCtx"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T19:02:40.964Z",
+  "models": {
+    "PageScriptCaller": {
+      "name": "PageScriptCaller",
+      "jsdoc": "页面脚本函数调用签名。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (functionName: string, ...args: unknown[]): unknown;\n}",
+        "members": {}
+      }
+    },
+    "BuildPageChildrenOptions": {
+      "name": "BuildPageChildrenOptions",
+      "jsdoc": "buildPageChildren 运行时依赖。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 脚本函数调用器，用于把字符串事件名绑定到真实脚本函数。 */\n    callFunc: PageScriptCaller;\n    /** 可选的纯渲染钩子调用器；未提供时沿用普通脚本调用器。 */\n    callBeforeRender?: PageScriptCaller;\n    /** 动作执行上下文，用于把声明式 action descriptor 绑定成可执行闭包。 */\n    actionCtx: ActionExecutionContext;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "callFunc",
+              "jsdoc": "脚本函数调用器，用于把字符串事件名绑定到真实脚本函数。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "callBeforeRender",
+              "jsdoc": "可选的纯渲染钩子调用器；未提供时沿用普通脚本调用器。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actionCtx",
+              "jsdoc": "动作执行上下文，用于把声明式 action descriptor 绑定成可执行闭包。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

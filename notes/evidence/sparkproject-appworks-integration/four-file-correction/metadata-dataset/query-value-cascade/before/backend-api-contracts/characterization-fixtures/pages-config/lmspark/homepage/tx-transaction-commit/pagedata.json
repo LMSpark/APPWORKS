@@ -1,0 +1,158 @@
+{
+    "dataSetName": "TxBackendCommitPageDataSet",
+    "saveChanges": {
+        "mode": "transaction",
+        "transaction": {
+            "endpoint": {
+                "url": "/data/transactions",
+                "method": "POST"
+            }
+        }
+    },
+    "resourceRelations": [
+        {
+            "parentTable": "SparkTxOrders",
+            "childTable": "SparkTxItems",
+            "parentField": "id",
+            "childField": "orderId",
+            "relationName": "SparkTxOrderItems"
+        }
+    ],
+    "viewCascades": [
+        {
+            "parentTable": "SparkTxOrders",
+            "parentViewId": "default",
+            "childTable": "SparkTxItems",
+            "childViewId": "default",
+            "filterBindings": [
+                {
+                    "sourceField": "id",
+                    "targetField": "orderId"
+                }
+            ],
+            "dependencyType": "currentRow",
+            "autoLoad": true
+        }
+    ],
+    "tables": {
+        "SparkTxOrders": {
+            "tableName": "SparkTxOrders",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "number",
+                    "isPrimaryKey": true,
+                    "label": "订单ID"
+                },
+                {
+                    "name": "orderNo",
+                    "type": "string",
+                    "label": "订单号"
+                },
+                {
+                    "name": "owner",
+                    "type": "string",
+                    "label": "负责人"
+                },
+                {
+                    "name": "status",
+                    "type": "string",
+                    "label": "状态"
+                }
+            ],
+            "api": {
+                "list": {
+                    "url": "/data/SparkTxOrders/query",
+                    "method": "POST"
+                },
+                "create": {
+                    "url": "/data/SparkTxOrders/records",
+                    "method": "POST"
+                },
+                "retrieve": {
+                    "url": "/data/SparkTxOrders/records/get",
+                    "method": "POST"
+                },
+                "update": {
+                    "url": "/data/SparkTxOrders/records/update",
+                    "method": "POST"
+                },
+                "delete": {
+                    "url": "/data/SparkTxOrders/records/delete",
+                    "method": "POST"
+                }
+            },
+            "views": {
+                "default": {
+                    "autoLoad": true,
+                    "autoCurrentFirst": true,
+                    "autoSelectFirst": false,
+                    "commitMode": "staged",
+                    "pageSize": 20,
+                    "rows": []
+                }
+            }
+        },
+        "SparkTxItems": {
+            "tableName": "SparkTxItems",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "number",
+                    "isPrimaryKey": true,
+                    "label": "明细ID"
+                },
+                {
+                    "name": "orderId",
+                    "type": "number",
+                    "label": "订单ID"
+                },
+                {
+                    "name": "sku",
+                    "type": "string",
+                    "label": "SKU"
+                },
+                {
+                    "name": "quantity",
+                    "type": "number",
+                    "label": "数量"
+                },
+                {
+                    "name": "status",
+                    "type": "string",
+                    "label": "状态"
+                }
+            ],
+            "api": {
+                "list": {
+                    "url": "/data/SparkTxItems/query",
+                    "method": "POST"
+                },
+                "create": {
+                    "url": "/data/SparkTxItems/records",
+                    "method": "POST"
+                },
+                "retrieve": {
+                    "url": "/data/SparkTxItems/records/get",
+                    "method": "POST"
+                },
+                "update": {
+                    "url": "/data/SparkTxItems/records/update",
+                    "method": "POST"
+                },
+                "delete": {
+                    "url": "/data/SparkTxItems/records/delete",
+                    "method": "POST"
+                }
+            },
+            "views": {
+                "default": {
+                    "autoLoad": true,
+                    "commitMode": "staged",
+                    "pageSize": 20,
+                    "rows": []
+                }
+            }
+        }
+    }
+}

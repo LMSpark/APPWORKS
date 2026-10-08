@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:core/json-types",
+    "sourcePath": "packages/spark-json-document/src/core/json-types.ts",
+    "sourceFile": "packages/spark-json-document/src/core/json-types.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "core/json-types",
+    "jsdoc": "@module @spark-appworks/spark-json-document:core/json-types\n职责：提供 JSON Document/schema 处理中的 json types 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "JsonValue",
+      "JsonObject",
+      "JsonDocument",
+      "JsonParams",
+      "JsonParamShape"
+    ]
+  },
+  "$defs": {
+    "JsonPrimitive": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "JsonPrimitive",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "JsonValue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "JsonValue",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "JsonPrimitive"
+        },
+        {
+          "type": "object",
+          "title": "JsonObject"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "JsonValue"
+          }
+        }
+      ]
+    },
+    "JsonObject": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "JsonObject",
+      "additionalProperties": false
+    },
+    "JsonDocument": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "JsonDocument",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "JsonObject"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "JsonValue"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-10T11:40:02.399Z",
+  "models": {
+    "JsonPrimitive": {
+      "name": "JsonPrimitive",
+      "jsdoc": "JSON 原始值",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "string | number | boolean | null",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          },
+          {
+            "kind": "union",
+            "typeText": "boolean"
+          },
+          {
+            "kind": "union",
+            "typeText": "null"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "JsonValue": {
+      "name": "JsonValue",
+      "jsdoc": "递归 JSON 值：原始值 | 对象 | 数组",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "JsonPrimitive | JsonObject | JsonValue[]",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "JsonPrimitive",
+            "targetName": "JsonPrimitive"
+          },
+          {
+            "kind": "union",
+            "typeText": "JsonObject",
+            "targetName": "JsonObject"
+          },
+          {
+            "kind": "union",
+            "typeText": "JsonValue[]"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "JsonObject": {
+      "name": "JsonObject",
+      "jsdoc": "JSON 对象：key → JsonValue 映射",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    [key: string]: JsonValue;\n}",
+        "members": {}
+      }
+    },
+    "JsonDocument": {
+      "name": "JsonDocument",
+      "jsdoc": "文档顶层：对象或数组",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "JsonObject | JsonValue[]",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "JsonObject",
+            "targetName": "JsonObject"
+          },
+          {
+            "kind": "union",
+            "typeText": "JsonValue[]"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "JsonParams": {
+      "name": "JsonParams",
+      "jsdoc": "函数/业务参数对象：运行时宽形态，key → JsonValue",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, JsonValue>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, JsonValue>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "JsonParamShape": {
+      "name": "JsonParamShape",
+      "jsdoc": "参数对象的具名字段形态。\n与 JsonParams 不同，本类型不引入 string 索引签名，避免 keyof 退化为 string。\n具体业务输入应使用它，以保留字段级约束。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<TShape>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<TShape>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

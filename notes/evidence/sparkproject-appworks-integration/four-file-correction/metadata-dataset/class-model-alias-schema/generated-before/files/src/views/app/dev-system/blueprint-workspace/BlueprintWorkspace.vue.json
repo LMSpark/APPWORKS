@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/blueprint-workspace/BlueprintWorkspace",
+    "sourcePath": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
+    "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/blueprint-workspace/BlueprintWorkspace",
+    "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/BlueprintWorkspace\n职责：编排选中正式节点的六阶段编辑、真实API保存与三文件交付。\n边界：节点分组是领域真源，远端回执不得覆盖等待期间的新编辑。\nAI用途：保存策划、原型、场景绑定、估算、交付或发布前定位实际控制链。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.628Z",
+  "models": {}
+}

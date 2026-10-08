@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/binding/index",
+    "sourcePath": "packages/spark-component/src/page/binding/index.ts",
+    "sourceFile": "packages/spark-component/src/page/binding/index.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/binding/index",
+    "jsdoc": "@module @spark-appworks/spark-component:page/binding/index\n职责：维护 @spark-appworks/spark-component 中 page/binding/index 的模块能力，围绕 模块入口、副作用注册或内部组合逻辑 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 page/binding/index 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:38:13.601Z",
+  "models": {}
+}

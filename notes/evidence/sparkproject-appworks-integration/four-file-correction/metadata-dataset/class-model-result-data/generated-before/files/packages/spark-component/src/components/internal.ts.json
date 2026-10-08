@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/internal",
+    "sourcePath": "packages/spark-component/src/components/internal.ts",
+    "sourceFile": "packages/spark-component/src/components/internal.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/internal",
+    "jsdoc": "@module @spark-appworks/spark-component:components/internal\n职责：提供 internal 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\ncomponents 内部桥接层。\n供 `components/containers/` 与 `components/fields/` 共享使用，\n统一收口组件层允许依赖的 core 层符号。\n只重导出 core 层的具名符号，不做命名空间聚合。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T19:58:50.847Z",
+  "models": {}
+}

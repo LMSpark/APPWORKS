@@ -1,0 +1,154 @@
+{
+  "at": "2026-10-08T22:47:33.428Z",
+  "stage": "complete",
+  "writes": 0,
+  "reads": 107,
+  "files": [
+    {
+      "scenarioId": "97DCB03F75AADEAE6B102B062DB71CEA",
+      "present": true,
+      "hash": "f86a7ff9cd155435d7a9c6a14f38e92a38b3e6f1eab04051fe8964fd2ba0c6b5",
+      "validation": "valid",
+      "cascades": [],
+      "modelCount": 7
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "present": true,
+      "hash": "86ccf1cd4ae3b0a792ff91458074a691dd738955ce99bd21e65033267881a0c1",
+      "validation": "valid",
+      "cascades": [],
+      "modelCount": 4
+    }
+  ],
+  "selections": [
+    {
+      "models": 2,
+      "options": 11,
+      "retainedTokens": 2,
+      "valueStatus": "valid",
+      "originalRowsUnchanged": true,
+      "overlayString": true
+    },
+    {
+      "models": 1,
+      "options": 7,
+      "retainedTokens": 1,
+      "valueStatus": "valid",
+      "originalRowsUnchanged": true,
+      "overlayString": true
+    },
+    {
+      "models": 0,
+      "options": 0,
+      "retainedTokens": 0,
+      "valueStatus": "empty",
+      "originalRowsUnchanged": true,
+      "overlayString": true
+    }
+  ],
+  "metadata": [
+    {
+      "name": "Base_DataModel",
+      "rows": 7,
+      "views": [
+        "default",
+        "modelOptions",
+        "apiInfoModels",
+        "designModels"
+      ]
+    },
+    {
+      "name": "Base_DataModel_Field",
+      "rows": 119,
+      "views": [
+        "default",
+        "modelFieldOptions",
+        "apiInfoFields",
+        "designFields"
+      ]
+    },
+    {
+      "name": "Base_DataSet",
+      "rows": 1,
+      "views": [
+        "default",
+        "designParameters"
+      ]
+    },
+    {
+      "name": "Base_DataModel_Relation",
+      "rows": 0,
+      "views": [
+        "default",
+        "designRelations"
+      ]
+    }
+  ],
+  "definition": [
+    {
+      "name": "shif",
+      "columns": 4,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "Json转数组",
+      "columns": 0,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "db_relation_show",
+      "columns": 0,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "View_TblList",
+      "columns": 0,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "TestJSON0819",
+      "columns": 6,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "copyTable",
+      "columns": 2,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "Base_DataSet",
+      "columns": 1,
+      "views": [
+        "default"
+      ]
+    }
+  ],
+  "targetPermission": {
+    "table": "Base_DataSet",
+    "field": "Name",
+    "access": {
+      "read": "visible",
+      "write": "allowed",
+      "component": "editable",
+      "required": false,
+      "writeMode": "editable"
+    }
+  },
+  "cancelRestored": true,
+  "independentDatabaseReadUnchanged": true,
+  "remoteUnchanged": true,
+  "candidateOnly": true
+}

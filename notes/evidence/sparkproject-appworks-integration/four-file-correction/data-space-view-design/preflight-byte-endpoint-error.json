@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-08T07:21:37.310Z",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "dataSpaceId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "stage": "read-space-views",
+  "failed": true,
+  "error": {
+    "name": "RequestError",
+    "message": "Request failed with status code 404"
+  }
+}

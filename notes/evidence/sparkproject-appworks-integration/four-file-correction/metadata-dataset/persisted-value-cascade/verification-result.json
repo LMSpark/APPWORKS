@@ -1,0 +1,82 @@
+{
+  "at": "2026-10-08T22:43:04.026Z",
+  "persist": true,
+  "stage": "complete",
+  "writes": 2,
+  "reads": 178,
+  "checks": [
+    {
+      "label": "candidate-before-upload",
+      "states": [
+        {
+          "selected": 1,
+          "options": 1,
+          "nativeValueArray": true,
+          "legacyValueString": true
+        },
+        {
+          "selected": 2,
+          "options": 2,
+          "nativeValueArray": true,
+          "legacyValueString": true
+        },
+        {
+          "selected": 1,
+          "options": 1,
+          "nativeValueArray": true,
+          "legacyValueString": true
+        },
+        {
+          "selected": 0,
+          "options": 0,
+          "nativeValueArray": true,
+          "legacyValueString": true
+        }
+      ],
+      "sameTable": true,
+      "defaultRowsUntouched": true,
+      "pointerOnlyNoRequest": true
+    },
+    {
+      "label": "fresh-workspace-after-save",
+      "states": [
+        {
+          "selected": 1,
+          "options": 1,
+          "nativeValueArray": true,
+          "legacyValueString": true
+        },
+        {
+          "selected": 2,
+          "options": 2,
+          "nativeValueArray": true,
+          "legacyValueString": true
+        },
+        {
+          "selected": 1,
+          "options": 1,
+          "nativeValueArray": true,
+          "legacyValueString": true
+        },
+        {
+          "selected": 0,
+          "options": 0,
+          "nativeValueArray": true,
+          "legacyValueString": true
+        }
+      ],
+      "sameTable": true,
+      "defaultRowsUntouched": true,
+      "pointerOnlyNoRequest": true
+    }
+  ],
+  "originalHash": "f86a7ff9cd155435d7a9c6a14f38e92a38b3e6f1eab04051fe8964fd2ba0c6b5",
+  "metadataHash": "86ccf1cd4ae3b0a792ff91458074a691dd738955ce99bd21e65033267881a0c1",
+  "candidateHash": "06b886c662a4fe1c167f06e92c70a5cb4012ca7743194c4fb8164bd286326139",
+  "saveConfirmed": true,
+  "reopened": true,
+  "restored": true,
+  "restoredHash": "f86a7ff9cd155435d7a9c6a14f38e92a38b3e6f1eab04051fe8964fd2ba0c6b5",
+  "remoteOriginal": true,
+  "metadataUnchanged": true
+}

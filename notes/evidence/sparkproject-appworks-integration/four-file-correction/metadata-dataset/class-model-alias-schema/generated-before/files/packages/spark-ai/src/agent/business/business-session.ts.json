@@ -1,0 +1,360 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/business/business-session",
+    "sourcePath": "packages/spark-ai/src/agent/business/business-session.ts",
+    "sourceFile": "packages/spark-ai/src/agent/business/business-session.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/business/business-session",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/business/business-session\n职责：编排一次业务会话的生命周期，把 registration、task、sessionStore、transport 回调和 tool loop 串成可运行 session。\n边界：负责 session 层启动、消息发送和状态保存，不定义业务输入契约，也不实现具体工具 schema。\nAI用途：排查用户消息进入工具循环、会话记录落库或 turn 回调触发顺序时，优先从本模块建立调用链。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiAgentRunCommand",
+      "AiAgentRunResult",
+      "AiAgentSession"
+    ]
+  },
+  "$defs": {
+    "AiAgentRunCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRunCommand",
+      "properties": {
+        "options": {
+          "$ref": "host/host-options.ts.json#/$defs/AiAgentOptions"
+        },
+        "kindID": {
+          "type": "string"
+        },
+        "input": {
+          "type": "object",
+          "title": "TInput"
+        },
+        "chat": {
+          "$ref": "business-task.ts.json#/$defs/AiAgentTaskChatOptions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentRunResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRunResult",
+      "properties": {
+        "task": {
+          "$ref": "business-task.ts.json#/$defs/AiAgentTask"
+        },
+        "session": {
+          "$ref": "#/$defs/AiAgentSession"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentSession",
+      "properties": {
+        "target": {
+          "$ref": "scope-types.ts.json#/$defs/AiAgentTarget"
+        },
+        "scope": {
+          "$ref": "scope-types.ts.json#/$defs/AiAgentScope"
+        },
+        "sessionId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "host/host-options.ts.json#/$defs/AiAgentOptions"
+            },
+            "targetInput": {
+              "$ref": "scope-types.ts.json#/$defs/AiAgentTarget"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.start.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.start.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.getSessionRecord.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getSessionRecord.return": {
+          "anyOf": [
+            {
+              "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentSessionRecord"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.stop.params": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stop.return": {
+          "type": "object",
+          "title": "Promise<AiAgentSessionRecord | null>"
+        },
+        "method.send.params": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.send.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.218Z",
+  "models": {
+    "AiAgentRunCommand": {
+      "name": "AiAgentRunCommand",
+      "jsdoc": "Ai Agent Run Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Host 配置（含 registry、turnCallbacks、maxToolRounds），用于创建 session 和 tool-loop。 */\n    options: AiAgentOptions<TInput>;\n    /** 业务注册 kindID，runAiAgent 据此从 registry 查找 AiAgentRegistration。 */\n    kindID: string;\n    /** 业务输入，经 inputContract.normalize 归一化后生成 task。 */\n    input: TInput;\n    /** 可选的额外对话选项（如额外 systemPrompt），与 task.toChatRequest 合并后传入 send。 */\n    chat?: AiAgentTaskChatOptions;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Host 配置（含 registry、turnCallbacks、maxToolRounds），用于创建 session 和 tool-loop。 */\n    options: AiAgentOptions<TInput>;\n    /** 业务注册 kindID，runAiAgent 据此从 registry 查找 AiAgentRegistration。 */\n    kindID: string;\n    /** 业务输入，经 inputContract.normalize 归一化后生成 task。 */\n    input: TInput;\n    /** 可选的额外对话选项（如额外 systemPrompt），与 task.toChatRequest 合并后传入 send。 */\n    chat?: AiAgentTaskChatOptions;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "options",
+              "jsdoc": "Host 配置（含 registry、turnCallbacks、maxToolRounds），用于创建 session 和 tool-loop。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kindID",
+              "jsdoc": "业务注册 kindID，runAiAgent 据此从 registry 查找 AiAgentRegistration。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "jsdoc": "业务输入，经 inputContract.normalize 归一化后生成 task。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "chat",
+              "jsdoc": "可选的额外对话选项（如额外 systemPrompt），与 task.toChatRequest 合并后传入 send。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentRunResult": {
+      "name": "AiAgentRunResult",
+      "jsdoc": "Ai Agent Run Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 已构造的 task，含归一化输入、scope、编排计划和 toChatRequest 方法。 */\n    task: AiAgentTask<TInput>;\n    /** 已启动并完成首轮 send 的业务会话，可用于后续 send/stop/getSessionRecord。 */\n    session: AiAgentSession;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 已构造的 task，含归一化输入、scope、编排计划和 toChatRequest 方法。 */\n    task: AiAgentTask<TInput>;\n    /** 已启动并完成首轮 send 的业务会话，可用于后续 send/stop/getSessionRecord。 */\n    session: AiAgentSession;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "task",
+              "jsdoc": "已构造的 task，含归一化输入、scope、编排计划和 toChatRequest 方法。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "session",
+              "jsdoc": "已启动并完成首轮 send 的业务会话，可用于后续 send/stop/getSessionRecord。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentSession": {
+      "name": "AiAgentSession",
+      "jsdoc": "业务会话。\n业务层推荐通过 AiAgent.run[alias](input) 进入；本类承载 Host 内部 session 状态。\n属性：\ntarget     — 业务定位\nscope      — 业务作用域\nsessionId  — 后端会话 ID（kind + 顶层实例 ID）",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Ai Agent Session 实例。",
+          "signatureText": "constructor(options: AiAgentOptions, targetInput: AiAgentTarget)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "AiAgentOptions",
+                "sourcePath": "packages/spark-ai/src/agent/business/host/host-options.ts"
+              }
+            },
+            {
+              "name": "targetInput",
+              "type": {
+                "type": "reference",
+                "name": "AiAgentTarget",
+                "sourcePath": "packages/spark-ai/src/agent/business/scope-types.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "target",
+              "jsdoc": "目标对象。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "业务作用域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionId",
+              "jsdoc": "session Id 标识。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "start",
+              "jsdoc": "启动会话：创建/接入 sessionStore 记录 + 生成工具规约",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getSessionRecord",
+              "jsdoc": "获取当前会话记录：Agent 能力诊断和再次接入会话的读取起点",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "AiAgentSessionRecord",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/session/session-types.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "stop",
+              "jsdoc": "停止当前业务会话：标记 sessionStore，并触发业务结束回调。",
+              "parameters": [
+                {
+                  "name": "reason",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "AiAgentSessionRecord",
+                        "sourcePath": "packages/spark-ai/src/agent/conversation/session/session-types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "send",
+              "jsdoc": "发送消息：提取用户输入 → AI 推理 → 工具调用",
+              "parameters": [
+                {
+                  "name": "request",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentChatRequest",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

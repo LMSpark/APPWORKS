@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-07T21:10:21.460Z",
+  "edit": "enabled",
+  "idRead": "visible",
+  "originalInputParams": null,
+  "parameterAccess": {
+    "component": "editable",
+    "read": "visible",
+    "required": false,
+    "write": "allowed",
+    "writeMode": "editable"
+  },
+  "targetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "total": 1
+}

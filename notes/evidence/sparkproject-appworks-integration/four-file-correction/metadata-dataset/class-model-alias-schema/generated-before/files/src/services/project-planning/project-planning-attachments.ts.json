@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project-planning/project-planning-attachments",
+    "sourcePath": "src/services/project-planning/project-planning-attachments.ts",
+    "sourceFile": "src/services/project-planning/project-planning-attachments.ts",
+    "packageName": "app",
+    "modulePath": "services/project-planning/project-planning-attachments",
+    "jsdoc": "@module app:services/project-planning-attachments\n职责：提供项目策划文档附件上传能力，只返回附件引用和元数据，不把正文带回前端。\n边界：附件正文由后端在 LLM turn 内临时解析注入，前端只持有 planningAttachmentRef。\nAI用途：排查 Word 需求文档到 projectPlanning 的数据链路时，从本模块确认上传契约。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectPlanningAttachmentUploadResult",
+      "UploadProjectPlanningAttachmentCommand"
+    ]
+  },
+  "$defs": {
+    "ProjectPlanningAttachmentUploadResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningAttachmentUploadResult",
+      "properties": {
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "originalFilename": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string"
+        },
+        "sizeBytes": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UploadProjectPlanningAttachmentCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UploadProjectPlanningAttachmentCommand",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "file": {
+          "type": "object",
+          "title": "File"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-09T22:51:40.575Z",
+  "models": {
+    "ProjectPlanningAttachmentUploadResult": {
+      "name": "ProjectPlanningAttachmentUploadResult",
+      "jsdoc": "@module app:services/project-planning-attachments\n职责：提供项目策划文档附件上传能力，只返回附件引用和元数据，不把正文带回前端。\n边界：附件正文由后端在 LLM turn 内临时解析注入，前端只持有 planningAttachmentRef。\nAI用途：排查 Word 需求文档到 projectPlanning 的数据链路时，从本模块确认上传契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    planningAttachmentRef: string;\n    originalFilename: string;\n    contentType?: string;\n    sizeBytes: number;\n    createdAt?: string;\n    updatedAt?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    planningAttachmentRef: string;\n    originalFilename: string;\n    contentType?: string;\n    sizeBytes: number;\n    createdAt?: string;\n    updatedAt?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "planningAttachmentRef",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalFilename",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contentType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sizeBytes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createdAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "updatedAt",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "UploadProjectPlanningAttachmentCommand": {
+      "name": "UploadProjectPlanningAttachmentCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tenantId: string;\n    projectId: string;\n    file: File;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tenantId: string;\n    projectId: string;\n    file: File;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "file",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

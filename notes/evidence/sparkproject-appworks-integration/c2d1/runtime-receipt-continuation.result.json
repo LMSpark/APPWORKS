@@ -1,0 +1,7 @@
+{
+  "cwd": "D:\\SPARK_AppWorks",
+  "exitCode": 0,
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts -t \"activation receipt after the runtime\" --maxWorkers=1 --reporter=dot",
+  "finishedAtUtc": "2026-10-07T08:02:33.4472744Z",
+  "startedAtUtc": "2026-10-07T08:02:26.5311531Z"
+}

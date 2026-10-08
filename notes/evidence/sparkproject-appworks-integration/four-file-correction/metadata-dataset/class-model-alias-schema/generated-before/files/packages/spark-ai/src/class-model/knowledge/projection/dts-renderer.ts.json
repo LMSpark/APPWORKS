@@ -1,0 +1,359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/knowledge/projection/dts-renderer",
+    "sourcePath": "packages/spark-ai/src/class-model/knowledge/projection/dts-renderer.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/knowledge/projection/dts-renderer.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/knowledge/projection/dts-renderer",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/knowledge/projection/dts-renderer\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 dts-renderer 能力，围绕 ModelGuideRenderInput、ModelGuide、AttributeGuideRenderInput 等 6 个公开契约 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/projection/dts-renderer 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ModelGuideRenderInput",
+      "ModelGuide",
+      "AttributeGuideRenderInput",
+      "AttributeGuide",
+      "MethodGuideRenderInput",
+      "MethodGuide"
+    ]
+  },
+  "$defs": {
+    "ModelGuideRenderInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelGuideRenderInput",
+      "properties": {
+        "document": {
+          "$ref": "../../class-model/types.ts.json#/$defs/ClassModelDocument"
+        },
+        "kind": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ModelGuide": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelGuide",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "declaration": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AttributeGuideRenderInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AttributeGuideRenderInput",
+      "properties": {
+        "document": {
+          "$ref": "../../class-model/types.ts.json#/$defs/ClassModelDocument"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "attributeName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AttributeGuide": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AttributeGuide",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "attributeName": {
+          "type": "string"
+        },
+        "declaration": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MethodGuideRenderInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MethodGuideRenderInput",
+      "properties": {
+        "document": {
+          "$ref": "../../class-model/types.ts.json#/$defs/ClassModelDocument"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "methodName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MethodGuide": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MethodGuide",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "methodName": {
+          "type": "string"
+        },
+        "declaration": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.690Z",
+  "models": {
+    "ModelGuideRenderInput": {
+      "name": "ModelGuideRenderInput",
+      "jsdoc": "Model Guide Render Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 完整 ClassModelDocument，供类型解析与签名渲染。 */\n    document: ClassModelDocument;\n    /** 目标模型的 kind（className）。 */\n    kind: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 完整 ClassModelDocument，供类型解析与签名渲染。 */\n    document: ClassModelDocument;\n    /** 目标模型的 kind（className）。 */\n    kind: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "document",
+              "jsdoc": "完整 ClassModelDocument，供类型解析与签名渲染。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "jsdoc": "目标模型的 kind（className）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ModelGuide": {
+      "name": "ModelGuide",
+      "jsdoc": "Model Guide 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 模型 kind 标识。 */\n    kind: string;\n    /** 模型声明头行（class/interface/type 前缀）。 */\n    declaration: string;\n    /** 含 JSDoc 与成员的完整 guide 文本。 */\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 模型 kind 标识。 */\n    kind: string;\n    /** 模型声明头行（class/interface/type 前缀）。 */\n    declaration: string;\n    /** 含 JSDoc 与成员的完整 guide 文本。 */\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "模型 kind 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "declaration",
+              "jsdoc": "模型声明头行（class/interface/type 前缀）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "jsdoc": "含 JSDoc 与成员的完整 guide 文本。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttributeGuideRenderInput": {
+      "name": "AttributeGuideRenderInput",
+      "jsdoc": "Attribute Guide Render Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 完整 ClassModelDocument，供类型解析与签名渲染。 */\n    document: ClassModelDocument;\n    /** 属性所属模型的 kind。 */\n    kind: string;\n    /** 目标属性名。 */\n    attributeName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 完整 ClassModelDocument，供类型解析与签名渲染。 */\n    document: ClassModelDocument;\n    /** 属性所属模型的 kind。 */\n    kind: string;\n    /** 目标属性名。 */\n    attributeName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "document",
+              "jsdoc": "完整 ClassModelDocument，供类型解析与签名渲染。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "jsdoc": "属性所属模型的 kind。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attributeName",
+              "jsdoc": "目标属性名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttributeGuide": {
+      "name": "AttributeGuide",
+      "jsdoc": "Attribute Guide 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 属性所属模型的 kind。 */\n    kind: string;\n    /** 目标属性名。 */\n    attributeName: string;\n    /** 属性单行声明（含 readonly 与类型）。 */\n    declaration: string;\n    /** 含模型 JSDoc 与属性声明的 guide 文本。 */\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 属性所属模型的 kind。 */\n    kind: string;\n    /** 目标属性名。 */\n    attributeName: string;\n    /** 属性单行声明（含 readonly 与类型）。 */\n    declaration: string;\n    /** 含模型 JSDoc 与属性声明的 guide 文本。 */\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "属性所属模型的 kind。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "attributeName",
+              "jsdoc": "目标属性名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "declaration",
+              "jsdoc": "属性单行声明（含 readonly 与类型）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "jsdoc": "含模型 JSDoc 与属性声明的 guide 文本。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "MethodGuideRenderInput": {
+      "name": "MethodGuideRenderInput",
+      "jsdoc": "Method Guide Render Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 完整 ClassModelDocument，供类型解析与签名渲染。 */\n    document: ClassModelDocument;\n    /** 方法所属模型的 kind。 */\n    kind: string;\n    /** 目标方法名。 */\n    methodName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 完整 ClassModelDocument，供类型解析与签名渲染。 */\n    document: ClassModelDocument;\n    /** 方法所属模型的 kind。 */\n    kind: string;\n    /** 目标方法名。 */\n    methodName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "document",
+              "jsdoc": "完整 ClassModelDocument，供类型解析与签名渲染。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "jsdoc": "方法所属模型的 kind。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "methodName",
+              "jsdoc": "目标方法名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "MethodGuide": {
+      "name": "MethodGuide",
+      "jsdoc": "Method Guide 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 方法所属模型的 kind。 */\n    kind: string;\n    /** 目标方法名。 */\n    methodName: string;\n    /** 方法单行签名声明。 */\n    declaration: string;\n    /** 含模型 JSDoc 与方法声明的 guide 文本。 */\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 方法所属模型的 kind。 */\n    kind: string;\n    /** 目标方法名。 */\n    methodName: string;\n    /** 方法单行签名声明。 */\n    declaration: string;\n    /** 含模型 JSDoc 与方法声明的 guide 文本。 */\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "方法所属模型的 kind。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "methodName",
+              "jsdoc": "目标方法名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "declaration",
+              "jsdoc": "方法单行签名声明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "jsdoc": "含模型 JSDoc 与方法声明的 guide 文本。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

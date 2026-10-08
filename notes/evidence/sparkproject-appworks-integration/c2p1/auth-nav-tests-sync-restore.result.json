@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav tests/auth-nav --maxWorkers=2 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:11:32.4562283+08:00",
+  "finishedAt": "2026-10-07T14:11:45.3542223+08:00",
+  "exitCode": 0,
+  "log": "auth-nav-tests-sync-restore.log"
+}

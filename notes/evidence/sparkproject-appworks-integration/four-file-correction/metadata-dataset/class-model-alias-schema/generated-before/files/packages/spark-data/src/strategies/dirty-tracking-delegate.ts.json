@@ -1,0 +1,1036 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/dirty-tracking-delegate",
+    "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts",
+    "sourceFile": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/dirty-tracking-delegate",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/dirty-tracking-delegate\n职责：提供 spark-data 数据管线中的 dirty tracking delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nDirtyTrackingDelegate — 本地变更追踪委托（三态：新增 / 编辑 / 待删除）\n## 背景\nDataView.rows 与 UI 双向绑定，增删改立即反映到界面，但不自动提交服务端。\n本 delegate 追踪三种\"本地-only\"操作，由 saveChanges() 统一提交。\n| DataView 方法      | 本地 rows | 服务端 | 追踪类型        |\n|--------------------|-----------|--------|-----------------|\n| addRow(data)       | 立即追加  | ❌     | pending create  |\n| editRowById(id, d) | 立即更新  | ❌     | dirty update    |\n| removeRow(id)      | 立即删除  | ❌     | pending delete  |\n## 行级状态机\n```\n[server-clean]\n├─ editRowById  → [dirty update]\n│     └─ removeRow → [pending delete]（清除 dirty）\n└─ removeRow    → [pending delete]\n[pending create]（本地新行，服务端不存在）\n├─ editRowById  → 无需额外标记（行本身就是最新状态）\n└─ removeRow    → 取消创建（不产生 server delete）\n```\n## 快照弱引用策略\n- **dirty update 快照** (`_dirtySnapshots`)：`WeakRef`——仅用于 diff/撤销，\n内存紧张时允许 GC 回收，saveChanges 降级为\"提交当前行数据\"。\n- **pending delete 快照** (`_deleteSnapshots`)：强引用——提交失败可将行还原回 UI。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FieldChange",
+      "RowDiff",
+      "SaveChangesData",
+      "DirtyTrackingDelegate"
+    ]
+  },
+  "$defs": {
+    "FieldChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldChange",
+      "properties": {
+        "from": true,
+        "to": true
+      },
+      "required": [
+        "from",
+        "to"
+      ],
+      "additionalProperties": false
+    },
+    "RowDiff": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RowDiff",
+      "additionalProperties": false
+    },
+    "SaveChangesData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveChangesData",
+      "properties": {
+        "createdCount": {
+          "type": "number"
+        },
+        "savedCount": {
+          "type": "number"
+        },
+        "deletedCount": {
+          "type": "number"
+        },
+        "failedCount": {
+          "type": "number"
+        },
+        "failedIds": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "failedErrors": {
+          "type": "object",
+          "title": "Record<string | number, string>"
+        }
+      },
+      "required": [
+        "createdCount",
+        "savedCount",
+        "deletedCount",
+        "failedCount",
+        "failedIds",
+        "failedErrors"
+      ],
+      "additionalProperties": false
+    },
+    "DirtyTrackingDelegate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DirtyTrackingDelegate",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "getColumns": {
+              "type": "object",
+              "title": "() => readonly DataColumn[] | undefined"
+            },
+            "getComputedColumnNames": {
+              "type": "object",
+              "title": "() => ReadonlySet<string>"
+            },
+            "getPrimaryKeyFields": {
+              "type": "object",
+              "title": "() => string[]"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.trackCreate.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.trackCreate.return": true,
+        "method.cancelCreate.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cancelCreate.return": {
+          "type": "boolean"
+        },
+        "method.markDirty.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "original": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.markDirty.return": true,
+        "method.clearDirty.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.clearDirty.return": true,
+        "method.trackDelete.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "snapshot": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.trackDelete.return": true,
+        "method.cancelDelete.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cancelDelete.return": true,
+        "method.clearAll.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearAll.return": true,
+        "method.hasPendingChanges.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasPendingChanges.return": {
+          "type": "boolean"
+        },
+        "method.isDirty.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isDirty.return": {
+          "type": "boolean"
+        },
+        "method.isPendingCreate.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isPendingCreate.return": {
+          "type": "boolean"
+        },
+        "method.isPendingDelete.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isPendingDelete.return": {
+          "type": "boolean"
+        },
+        "method.getPendingDeleteSnapshot.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPendingDeleteSnapshot.return": {
+          "$ref": "../types.ts.json#/$defs/DataRow"
+        },
+        "method.getOriginal.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getOriginal.return": {
+          "$ref": "../types.ts.json#/$defs/DataRow"
+        },
+        "method.getDiff.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "current": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getDiff.return": {
+          "$ref": "#/$defs/RowDiff"
+        },
+        "method.executeChanges.params": {
+          "type": "object",
+          "properties": {
+            "host": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "crud": {
+              "$ref": "crud-delegate.ts.json#/$defs/CrudDelegate"
+            },
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeChanges.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<SaveChangesData>>"
+        },
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T20:44:30.720Z",
+  "models": {
+    "FieldChange": {
+      "name": "FieldChange",
+      "jsdoc": "单字段变更记录（from → to）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 修改前的原始值 */\n    from: unknown;\n    /** 修改后的当前值 */\n    to: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "from",
+              "jsdoc": "修改前的原始值",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "to",
+              "jsdoc": "修改后的当前值",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RowDiff": {
+      "name": "RowDiff",
+      "jsdoc": "行级字段变更映射（字段名 → 变更）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    [field: string]: FieldChange;\n}",
+        "members": {}
+      }
+    },
+    "SaveChangesData": {
+      "name": "SaveChangesData",
+      "jsdoc": "saveChanges() 执行结果（三态统计）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 新增行成功提交数 */\n    createdCount: number;\n    /** 编辑行成功保存数 */\n    savedCount: number;\n    /** 删除行成功提交数 */\n    deletedCount: number;\n    /** 总失败数（三态合计） */\n    failedCount: number;\n    /** 失败的行主键列表（可用于精准重试或 UI 高亮） */\n    failedIds: Array<string | number>;\n    /** 失败行的错误详情映射（主键 → 错误消息，用于诊断和 UI 提示） */\n    failedErrors: Record<string | number, string>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "createdCount",
+              "jsdoc": "新增行成功提交数",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "savedCount",
+              "jsdoc": "编辑行成功保存数",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deletedCount",
+              "jsdoc": "删除行成功提交数",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "failedCount",
+              "jsdoc": "总失败数（三态合计）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "failedIds",
+              "jsdoc": "失败的行主键列表（可用于精准重试或 UI 高亮）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "failedErrors",
+              "jsdoc": "失败行的错误详情映射（主键 → 错误消息，用于诊断和 UI 提示）",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DirtyTrackingDelegate": {
+      "name": "DirtyTrackingDelegate",
+      "jsdoc": "Dirty Tracking Delegate 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Dirty Tracking Delegate 实例。",
+          "signatureText": "constructor(getColumns: () => readonly DataColumn[] | undefined, getComputedColumnNames: () => ReadonlySet<string>, getPrimaryKeyFields: () => string[])",
+          "parameters": [
+            {
+              "name": "getColumns",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "optional",
+                        "elementType": {
+                          "type": "unknown",
+                          "name": "readonly DataColumn[]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "getComputedColumnNames",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "reference",
+                        "name": "ReadonlySet",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "getPrimaryKeyFields",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "array",
+                        "elementType": {
+                          "type": "intrinsic",
+                          "name": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "trackCreate",
+              "jsdoc": "将行登记为\"待新增\"。\n特殊情况：若该 id 曾被登记为待删除（先删后撤销），则改为撤销删除，\n新行直接进入 clean 状态（仅还原，不重复追踪新增）。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancelCreate",
+              "jsdoc": "取消指定行的\"待新增\"登记。\n场景：pending create 行在未保存前被用户删除——无需 server delete，直接遗忘。\n@returns 该行是否确实是 pending create（false = 不是，无操作）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "markDirty",
+              "jsdoc": "标注指定行为手工编辑（dirty update）。\n- pending create 行：**忽略**（新行本身就是最终数据，无需记录\"编辑前\"快照）\n- 连续编辑同一行：**不覆盖快照**（diff 始终相对于服务端原始值）\n@param id 行主键\n@param original 编辑**前**的行对象（浅拷贝后以 WeakRef 包装）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "original",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clearDirty",
+              "jsdoc": "清除指定行（或全部）的 dirty-update 状态。\n@param id 不传则清除全部",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "trackDelete",
+              "jsdoc": "将行登记为\"待删除\"。\n特殊情况：若该行是 pending create（从未在服务端存在），\n直接取消新增，**不产生** server delete。\n@param id 行主键\n@param snapshot 被删除行的完整快照（强引用，提交失败时用于还原 UI）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "snapshot",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancelDelete",
+              "jsdoc": "撤销指定行（或全部）的 pending-delete 状态。\n注意：撤销仅清除追踪记录，**不**自动将行还原回 rows——\n由调用方（DataView）负责将快照 appendRow 回去。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clearAll",
+              "jsdoc": "清除全部三态追踪状态（视图全量刷新 / 销毁时调用）。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "hasPendingChanges",
+              "jsdoc": "是否存在任意未提交的本地变更（新增 / 编辑 / 待删除）。\n@param id 不传 → 整个视图；传入 id → 指定行（任意态）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isDirty",
+              "jsdoc": "是否有 dirty-update 未提交。\n@param id 不传 → 整体；传入 id → 指定行",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isPendingCreate",
+              "jsdoc": "指定行是否是待新增状态",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isPendingDelete",
+              "jsdoc": "指定行是否是待删除状态",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getPendingDeleteSnapshot",
+              "jsdoc": "获取 pending-delete 行的快照（提交失败时用于还原 UI）。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "getOriginal",
+              "jsdoc": "获取指定行在首次手工编辑**前**的快照（dirty update 专用）。\n@returns 快照；行不脏或弱引用已被 GC 回收时返回 undefined",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "getDiff",
+              "jsdoc": "计算指定行的字段级变更明细（dirty update 专用）。\n@param id 行主键\n@param current 当前行对象\n@returns 字段名 → `{ from, to }`；行不脏或快照已被 GC 回收时返回 `{}`",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "current",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "RowDiff",
+                "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+              }
+            },
+            {
+              "name": "executeChanges",
+              "jsdoc": "将所有待提交变更（新增 / 手工编辑 / 删除）逐条保存到服务端。\n提交顺序：**新增 → 更新 → 删除**（依赖关系最少）。\n任意单行失败**不中断**后续行；失败行保留对应追踪状态。\n@param host 提供行数据读写的宿主（DataView 实现此接口）\n@param crud CRUD 网络操作接口（通常为 CrudDelegate）\n@param ids 指定要保存的行主键列表；不传则保存全部待提交变更",
+              "parameters": [
+                {
+                  "name": "host",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "crud",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudDelegate",
+                    "sourcePath": "packages/spark-data/src/strategies/crud-delegate.ts"
+                  }
+                },
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "SaveChangesData",
+                        "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "销毁——清理所有内存状态",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

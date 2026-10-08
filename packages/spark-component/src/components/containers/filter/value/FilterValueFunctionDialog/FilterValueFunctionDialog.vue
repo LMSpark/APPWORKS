@@ -16,6 +16,10 @@ AI用途：接入过滤条件的值函数选择、参数编辑和校验交互。
           <el-option v-for="option in options(field)" :key="String(option.value)" :label="option.label" :value="option.value" :disabled="option.disabled" />
         </el-select>
         <el-checkbox v-else-if="field.control === 'checkbox'" :model-value="draft[field.key] === true" @update:model-value="update(field.key, $event)">{{ field.label }}</el-checkbox>
+        <template v-else-if="field.control === 'json'">
+          <el-input :model-value="jsonInput(field.key)" type="textarea" @update:model-value="updateJson(field.key, $event)" />
+          <p v-if="jsonError(field.key)" role="alert">{{ jsonError(field.key) }}</p>
+        </template>
         <el-input v-else :model-value="stringValue(field.key)" :type="field.control === 'textarea' ? 'textarea' : field.control === 'password' ? 'password' : 'text'" :show-password="field.control === 'password'" @update:model-value="update(field.key, $event)" />
       </div>
     </template>
@@ -33,11 +37,14 @@ import { DataViewFilter, getDataViewFilterFunctionDefinitions, type DataViewFilt
 import type { FilterValueFunctionDialogProps } from './FilterValueFunctionDialog.props'
 /** 单个函数类型的参数草稿；Type 固定标识当前定义，其余参数保留 JSON 值。 */
 type FunctionDraft = { [key: string]: DataViewFilterJsonValue; Type: string }
+type FunctionJsonDraftMap = Record<string, Record<string, string>>
 const props = defineProps<FilterValueFunctionDialogProps>()
 const emit = defineEmits<{ 'update:modelValue': [visible: boolean]; confirm: [value: DataViewFilterValueFunction] }>()
 const definitions = computed(() => getDataViewFilterFunctionDefinitions(props.context))
 const activeType = ref('')
 const drafts = reactive<Record<string, FunctionDraft>>({})
+const jsonInputs = reactive<FunctionJsonDraftMap>({})
+const jsonErrors = reactive<FunctionJsonDraftMap>({})
 const message = ref('')
 const definition = computed(() => definitions.value.find(item => item.type === activeType.value))
 const draft = computed(() => drafts[activeType.value])
@@ -48,6 +55,8 @@ function ensureDrafts(): void {
 watch(() => props.modelValue, visible => {
   if (!visible) return
   for (const key of Object.keys(drafts)) delete drafts[key]
+  for (const key of Object.keys(jsonInputs)) delete jsonInputs[key]
+  for (const key of Object.keys(jsonErrors)) delete jsonErrors[key]
   ensureDrafts()
   if (props.value) drafts[props.value.Type] = { ...props.value }
   activeType.value = props.value?.Type ?? definitions.value[0]?.type ?? ''
@@ -67,6 +76,61 @@ function stringValue(key: string): string {
   const value = draft.value?.[key]
   return typeof value === 'string' ? value : value === undefined ? '' : JSON.stringify(value)
 }
+function jsonInput(key: string): string {
+  const inputs = jsonInputs[activeType.value]
+  if (inputs && Object.hasOwn(inputs, key)) return inputs[key] ?? ''
+  const value = draft.value?.[key]
+  return value === undefined ? '' : JSON.stringify(value)
+}
+function jsonError(key: string): string {
+  return jsonErrors[activeType.value]?.[key] ?? ''
+}
+function updateJson(key: string, source: string): void {
+  if (!draft.value) return
+  const type = activeType.value
+  const inputs = jsonInputs[type] ?? (jsonInputs[type] = {})
+  inputs[key] = source
+  parseJsonValue(type, key, source)
+}
+function parseJsonValue(type: string, key: string, source: string): boolean {
+  const errors = jsonErrors[type] ?? (jsonErrors[type] = {})
+  const targetDraft = drafts[type]
+  if (!targetDraft) return false
+  let value: unknown
+  try { value = JSON.parse(source) } catch {
+    errors[key] = '请输入有效 JSON；字符串请使用双引号。'
+    return false
+  }
+  const parsed = DataViewFilter.parse({ field: 'value', operator: 'eq', value })
+  if (!parsed.ok) {
+    errors[key] = parsed.issues.map(issue => issue.message).join('\n')
+    return false
+  }
+  const tree = parsed.value.toJSON()
+  if (!('field' in tree) || tree.value === undefined) {
+    errors[key] = 'JSON 值不能是 undefined。'
+    return false
+  }
+  targetDraft[key] = tree.value
+  delete errors[key]
+  message.value = ''
+  return true
+}
+function validateVisibleJsonFields(): boolean {
+  if (!draft.value) return false
+  for (const field of visibleFields.value) {
+    if (field.control !== 'json') continue
+    const type = activeType.value
+    const inputs = jsonInputs[type] ?? (jsonInputs[type] = {})
+    const errors = jsonErrors[type] ?? (jsonErrors[type] = {})
+    const source = Object.hasOwn(inputs, field.key) ? inputs[field.key] ?? '' : jsonInput(field.key)
+    if (!parseJsonValue(type, field.key, source)) {
+      message.value = errors[field.key] ?? 'JSON 值不合法'
+      return false
+    }
+  }
+  return true
+}
 function update(key: string, value: unknown): void {
   if (!draft.value) return
   if (value === undefined) { delete draft.value[key]; return }
@@ -78,6 +142,7 @@ function update(key: string, value: unknown): void {
 }
 function confirm(): void {
   if (!definition.value || !draft.value) { message.value = '当前上下文没有可用的值函数定义'; return }
+  if (!validateVisibleJsonFields()) return
   const filter = DataViewFilter.condition({ field: 'value', operator: 'eq', value: draft.value })
   const issues = filter.validate({ fields: [{ name: 'value', type: 'text' }], valueFunctions: props.context })
   if (issues.length > 0) { message.value = issues.map(issue => issue.message).join('\n'); return }

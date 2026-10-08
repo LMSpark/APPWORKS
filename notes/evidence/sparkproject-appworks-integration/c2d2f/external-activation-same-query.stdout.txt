@@ -1,0 +1,47 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 D:/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > records an external activation commit after a same-app query navigation completes
+[DynamicRouter] ℹ️ 开始注册动态路由
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > records an external activation commit after a same-app query navigation completes
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts (32 tests | 1 failed | 31 skipped) 20ms
+     × records an external activation commit after a same-app query navigation completes 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > records an external activation commit after a same-app query navigation completes
+AssertionError: expected { Object (activationOutcome, url, ...) } to deeply equal { Object (activationOutcome, url, ...) }
+
+- Expected
++ Received
+
+  {
+    "activationOutcome": "committed",
+    "applicationId": "APP-B",
+-   "nativeInstanceId": "system-page-1",
++   "nativeInstanceId": "system-page-2",
+    "navigationProjectId": "APP-A",
+    "url": "/t/fixture-tenant/APP-A/dashboard?view=latest&__sparkNavigationId=dashboard",
+  }
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:333:22
+    331|       nativeInstanceId: dynamic.getSystemPageInstance(router.currentRo…
+    332|     }
+    333|     expect(observed).toEqual({
+       |                      ^
+    334|       activationOutcome: 'committed',
+    335|       url: `/t/fixture-tenant/APP-A/dashboard?view=latest&${SYSTEM_PAG…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 31 skipped (32)
+   Start at  17:22:41
+   Duration  5.57s (transform 3.41s, setup 88ms, import 4.67s, tests 20ms, environment 601ms)
+

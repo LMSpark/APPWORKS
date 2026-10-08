@@ -1,0 +1,75 @@
+{
+  "branch": "feat/agent-workflow-node-contract",
+  "capturedAt": "2026-10-07T07:00:25.1562373+08:00",
+  "description": "Post-validation observation only. Concurrent modifications continued during checks; hashes do not retroactively pin every test run.",
+  "trackedChanges": [
+    {
+      "path": "generated/dts-class-model/.dts-manifest.json",
+      "sha256": "608645f1f3af1d16fb4968754d4377564da20eb59d29e2313a76b4e90bbfec5a"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts.json",
+      "sha256": "88ff91542ccf96b3286437ee314139128a6a52f0ea912843bcb9122cdb718042"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-result.ts.json",
+      "sha256": "2fbf4dcba219383032bcd34485fba146a054d776884201c22245696e6f33398b"
+    },
+    {
+      "path": "generated/dts-class-model/files/src/services/ai/agent-workflow-bindings.ts.json",
+      "sha256": "be1916c2831a08aa82e6f893acb58463ccb99185fa3c58426ca3374861c66d8b"
+    },
+    {
+      "path": "generated/dts-class-model/files/src/services/page-design/page-design-agent-workflow-binding.ts.json",
+      "sha256": "14f5cac6113da29ad12c2b49d8924f678c507f4cdb59911373c955398159e5c0"
+    },
+    {
+      "path": "generated/dts-class-model/semantic-gaps.json",
+      "sha256": "4d031dc23c844663756f867625128d126cd1d325faa7d681c6f39109afaea1fb"
+    },
+    {
+      "path": "knowledge/class-model-system.md",
+      "sha256": "7dd0518395cd6729171a21c195345788816a7d5f1e31bd26c2df0c3dd415539f"
+    },
+    {
+      "path": "knowledge/monorepo-dependencies.md",
+      "sha256": "d56c0d3268be7a74c39f65f9600dec4f18c4334db75cecd3901de8cf4dfb46e8"
+    },
+    {
+      "path": "knowledge/vue-frontend.md",
+      "sha256": "3b7a610111c96a6a18eb2e406f925aa5f7f7b123a9df342a3df9fd91c6e89e26"
+    },
+    {
+      "path": "packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts",
+      "sha256": "f9f1ca108d91453f43badb3b05a46c6bc882504ea2a20871ef496590a73644eb"
+    },
+    {
+      "path": "packages/spark-ai/src/tests/agent-workflow-definition.test.ts",
+      "sha256": "9157991d59f7e188174eb191f977dfa101d7ae87aa9ac9b32d93b4c4ff1e9062"
+    },
+    {
+      "path": "packages/spark-component/src/tests/createSandbox.test.ts",
+      "sha256": "71ad770f9c18d565922f59436a89d5e5d81495cde9e1c841c2f94769686dc652"
+    },
+    {
+      "path": "packages/spark-utils/src/sandbox.ts",
+      "sha256": "b2a0a0ad6c58bac7e6818e6bdfb38afc5a83d5801b9ac928205fabca10f652e5"
+    },
+    {
+      "path": "src/services/ai/agent-workflow-bindings.ts",
+      "sha256": "956dbbfce0a374db21e09e2dfa4316f2ef0bda615b6b070ceefe87be978be2a6"
+    },
+    {
+      "path": "src/services/page-design/page-design-agent-workflow-binding.ts",
+      "sha256": "78dfbdbeb05e5ba34febc47c9269e12f4d448c31056d8424793f536b25879a65"
+    },
+    {
+      "path": "tests/page/page-design-sop.test.ts",
+      "sha256": "223da73cdd6b5313686eae323ebabc5f627e3cf0f4494b2ef6e01e454264c497"
+    }
+  ],
+  "head": "9c225cad78ddca2ac9e80fdb00782d90f3391590",
+  "deletedTracked": [
+    "tools/generate-workflow-design-data.mjs"
+  ]
+}

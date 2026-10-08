@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:metadata",
+    "sourcePath": "packages/spark-data/src/metadata.ts",
+    "sourceFile": "packages/spark-data/src/metadata.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "metadata",
+    "jsdoc": "@module @spark-appworks/spark-data:metadata\n职责：提供数据层 metadata 能力，围绕 TableMetadataLike 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 metadata 的数据语义。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "TableMetadataLike": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TableMetadataLike",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-05T19:49:37.394Z",
+  "models": {
+    "TableMetadataLike": {
+      "name": "TableMetadataLike",
+      "jsdoc": "Table Metadata Like 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<TableMetadata, 'tableName'> & {\n    /** 数据表名。 */\n    tableName?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<TableMetadata, 'tableName'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 数据表名。 */\n    tableName?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "数据表名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

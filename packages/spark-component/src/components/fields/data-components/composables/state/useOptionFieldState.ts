@@ -4,6 +4,7 @@
  * 边界：只服务 field-level/data-field 的 setup/runtime 组合，不直接声明页面配置，也不替代组件 props。
  * AI用途：需要理解 use option field state 的响应式状态来源、值转换或事件副作用时，使用本模块定位实际运行规则。
  */
+import { computed } from 'vue'
 import type { SparkOptionFieldProps } from '../../../../shared-types.js'
 import { useFieldControlState } from './useFieldControlState'
 import { useOptionField } from '../../../options/useFieldOptions'
@@ -69,7 +70,7 @@ export function useOptionFieldState<TValue>(options: UseOptionFieldStateOptions<
 
   return {
     optionResult,
-    fieldCtx,
+    fieldCtx: computed(() => ({...fieldCtx.value, error: optionResult.optionError.value})),
     handleControlledChange: handleOptionFieldChange,
   }
 }

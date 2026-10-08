@@ -1,0 +1,22 @@
+[
+  {
+    "path": "packages/spark-ai/src/class-model/class-model/dts-surface-to-runtime-api.ts",
+    "sha256": "C63A43E683DE90D37BF740B865F6A0ED78DADAB9C88FF3E2EACC562980876060"
+  },
+  {
+    "path": "packages/spark-ai/src/class-model/class-model/bundle/dts-class-model-bundle-loader.ts",
+    "sha256": "4F105C504058EEEF6C5A96F711C09D7F4EBBB9BD9AA60F1A659D2D7C6881F991"
+  },
+  {
+    "path": "packages/spark-ai/src/agent/native-runtime/native-script-context.ts",
+    "sha256": "17554B5109E3D0FFA957E8605E8673E5BB83C99C46BFF29D82E594BE7494B894"
+  },
+  {
+    "path": "packages/spark-ai/src/class-model/tests/dts-surface-to-runtime-api.test.ts",
+    "sha256": "EB56B296D7E699E6B3494DE5F364A22885F8AE24C75D113544AB0BFDEC6BF088"
+  },
+  {
+    "path": "packages/spark-ai/src/tests/script-runtime/ai-api-script-context.test.ts",
+    "sha256": "F220617DDF002DB4CD382CBA61095D9C0EA467852446D829901D5A89B38CA772"
+  }
+]

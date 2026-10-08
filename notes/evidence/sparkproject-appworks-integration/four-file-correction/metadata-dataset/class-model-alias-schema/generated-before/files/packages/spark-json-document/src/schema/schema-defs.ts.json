@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:schema/schema-defs",
+    "sourcePath": "packages/spark-json-document/src/schema/schema-defs.ts",
+    "sourceFile": "packages/spark-json-document/src/schema/schema-defs.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "schema/schema-defs",
+    "jsdoc": "@module @spark-appworks/spark-json-document:schema/schema-defs\n职责：提供 JSON Document/schema 处理中的 schema defs 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。\n\nJSON Schema $defs 工具。\n协议边界说明：\n- 反射/生成阶段允许 schema 片段临时携带本地 $defs。\n- 运行时文档应把这些定义集中到 document.$defs，再用 #/$defs/* 引用。\n- 本模块只处理标准 JSON Schema 引用关系，不理解 ClassModel 或 LLM 业务语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "JsonSchemaLocalDefsExtraction"
+    ]
+  },
+  "$defs": {
+    "JsonSchemaLocalDefsExtraction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "JsonSchemaLocalDefsExtraction",
+      "properties": {
+        "schema": true,
+        "defs": {
+          "type": "object",
+          "title": "Record<string, JsonSchema>"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-14T20:04:16.037Z",
+  "models": {
+    "JsonSchemaLocalDefsExtraction": {
+      "name": "JsonSchemaLocalDefsExtraction",
+      "jsdoc": "Json Schema Local Defs Extraction 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 移除 $defs 后的 schema 树（引用 #/$defs/* 的 $ref 仍保留原路径） */\n    schema: unknown;\n    /** 从 schema 树中抽出的所有本地 $defs 定义，按 key 字母序排列；供后续 attachJsonSchemaDefs 合并到文档根 */\n    defs: Readonly<Record<string, JsonSchema>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 移除 $defs 后的 schema 树（引用 #/$defs/* 的 $ref 仍保留原路径） */\n    schema: unknown;\n    /** 从 schema 树中抽出的所有本地 $defs 定义，按 key 字母序排列；供后续 attachJsonSchemaDefs 合并到文档根 */\n    defs: Readonly<Record<string, JsonSchema>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "schema",
+              "jsdoc": "移除 $defs 后的 schema 树（引用 #/$defs/* 的 $ref 仍保留原路径）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defs",
+              "jsdoc": "从 schema 树中抽出的所有本地 $defs 定义，按 key 字母序排列；供后续 attachJsonSchemaDefs 合并到文档根",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

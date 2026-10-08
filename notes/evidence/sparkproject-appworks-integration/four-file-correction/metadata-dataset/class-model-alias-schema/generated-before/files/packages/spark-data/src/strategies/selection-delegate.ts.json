@@ -1,0 +1,606 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/selection-delegate",
+    "sourcePath": "packages/spark-data/src/strategies/selection-delegate.ts",
+    "sourceFile": "packages/spark-data/src/strategies/selection-delegate.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/selection-delegate",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/selection-delegate\n职责：提供 spark-data 数据管线中的 selection delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SelectionDelegate"
+    ]
+  },
+  "$defs": {
+    "EmitCurrentRowChangedFn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EmitCurrentRowChangedFn",
+      "additionalProperties": false
+    },
+    "EmitSelectedRowsChangedFn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EmitSelectedRowsChangedFn",
+      "additionalProperties": false
+    },
+    "SelectionDelegate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SelectionDelegate",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "host": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "emitCurrentRowChanged": {
+              "$ref": "#/$defs/EmitCurrentRowChangedFn"
+            },
+            "emitSelectedRowsChanged": {
+              "$ref": "#/$defs/EmitSelectedRowsChangedFn"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyAutoFirst.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.applyAutoFirst.return": true,
+        "method.setCurrentRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "anyOf": [
+                {
+                  "$ref": "../types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "originatorId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setCurrentRow.return": true,
+        "method.setSelectedRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataRow"
+              }
+            },
+            "originatorId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setSelectedRows.return": true,
+        "method.setCurrentRowById.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "originatorId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setCurrentRowById.return": {
+          "type": "boolean"
+        },
+        "method.setSelectedRowsById.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "originatorId": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "strict": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setSelectedRowsById.return": {
+          "type": "number"
+        },
+        "method.clearSelectedRows.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearSelectedRows.return": true,
+        "method.addSelectedRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addSelectedRows.return": {
+          "type": "number"
+        },
+        "method.removeSelectedRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeSelectedRows.return": {
+          "type": "number"
+        },
+        "method.addSelectedRowsById.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "strict": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addSelectedRowsById.return": {
+          "type": "number"
+        },
+        "method.removeSelectedRowsById.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeSelectedRowsById.return": {
+          "type": "number"
+        },
+        "method.cleanupInvalidSelections.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cleanupInvalidSelections.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T18:34:23.826Z",
+  "models": {
+    "EmitCurrentRowChangedFn": {
+      "name": "EmitCurrentRowChangedFn",
+      "jsdoc": "Emit Current Row Changed Fn 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (originatorId?: string): void;\n}",
+        "members": {}
+      }
+    },
+    "EmitSelectedRowsChangedFn": {
+      "name": "EmitSelectedRowsChangedFn",
+      "jsdoc": "Emit Selected Rows Changed Fn 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (originatorId?: string): void;\n}",
+        "members": {}
+      }
+    },
+    "SelectionDelegate": {
+      "name": "SelectionDelegate",
+      "jsdoc": "Selection Delegate 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Selection Delegate 实例。",
+          "signatureText": "constructor(host: DataView, emitCurrentRowChanged: EmitCurrentRowChangedFn, emitSelectedRowsChanged: EmitSelectedRowsChangedFn)",
+          "parameters": [
+            {
+              "name": "host",
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "emitCurrentRowChanged",
+              "type": {
+                "type": "reference",
+                "name": "EmitCurrentRowChangedFn",
+                "sourcePath": "packages/spark-data/src/strategies/selection-delegate.ts"
+              }
+            },
+            {
+              "name": "emitSelectedRowsChanged",
+              "type": {
+                "type": "reference",
+                "name": "EmitSelectedRowsChangedFn",
+                "sourcePath": "packages/spark-data/src/strategies/selection-delegate.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "applyAutoFirst",
+              "jsdoc": "数据加载完成后应用 autoCurrentFirst / autoSelectFirst 逻辑。\nupdateFromServer() 替换了全部行引用，旧的 currentRow/selectedRows 指针已失效。\n先强制清零（无事件），再通过正式 setter 写入新值；setter 发射领域事件，\nDataSet.onAnyViewChange 订阅者（如 SparkPageRenderer）因此能正确收到事件。\nautoCurrentFirst / autoSelectFirst 彼此独立，各自触发自己的事件。\n单选模式下 setCurrentRow 内部会自动同步 selectedRows，这里用\n_suppressSelectionSync 抑制，让 autoSelectFirst 独立决定。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setCurrentRow",
+              "jsdoc": "设置当前行（通过行对象）\n内部提取 PK 后委托给 {@link _setCurrentId}。\n外部 UI 层推荐使用 {@link setCurrentRowById}。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "originatorId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setSelectedRows",
+              "jsdoc": "设置多选行（通过行对象数组）\n内部提取 PK 后委托给 {@link _setSelectedIds}。\n外部 UI 层推荐使用 {@link setSelectedRowsById}。",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                },
+                {
+                  "name": "originatorId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setCurrentRowById",
+              "jsdoc": "根据主键设置当前行\n@param id - 主键值，null 表示清空\n@param originatorId - UI 操作来源实例 ID（可选）\n@returns 是否成功（行不存在时返回 false；null 始终返回 true）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "originatorId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "setSelectedRowsById",
+              "jsdoc": "根据主键数组设置多选行\n@param ids - 主键值数组\n@param originatorId - UI 操作来源实例 ID（可选）\n@param options.strict - 严格模式：任何 ID 找不到则抛错（默认 false）\n@returns 成功找到的行数",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "originatorId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        strict?: boolean;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "clearSelectedRows",
+              "jsdoc": "清空选中行",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addSelectedRows",
+              "jsdoc": "添加行到选中集（去重）\n@returns 实际添加的行数",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "removeSelectedRows",
+              "jsdoc": "从选中集移除行\n@returns 实际移除的行数",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "addSelectedRowsById",
+              "jsdoc": "根据主键数组添加选中行\n@param options.strict - 严格模式：任何 ID 找不到则抛错\n@returns 实际添加的行数",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        strict?: boolean;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "removeSelectedRowsById",
+              "jsdoc": "根据主键数组移除选中行\n@returns 实际移除的行数",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "cleanupInvalidSelections",
+              "jsdoc": "清理已不在 rows 中的选中状态\n在 rows 被部分刷新（非整体替换）时调用，同步清理失效的指针。\n@returns 是否发生了清理",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

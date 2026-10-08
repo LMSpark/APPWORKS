@@ -1,0 +1,770 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/crud-delegate",
+    "sourcePath": "packages/spark-data/src/strategies/crud-delegate.ts",
+    "sourceFile": "packages/spark-data/src/strategies/crud-delegate.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/crud-delegate",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/crud-delegate\n职责：提供 spark-data 数据管线中的 crud delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CrudDelegate"
+    ]
+  },
+  "$defs": {
+    "EmitCrudLifecycleFn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EmitCrudLifecycleFn",
+      "additionalProperties": false
+    },
+    "MutatingFn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MutatingFn",
+      "additionalProperties": false
+    },
+    "CrudDelegate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CrudDelegate",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "host": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "emitCrudLifecycle": {
+              "$ref": "#/$defs/EmitCrudLifecycleFn"
+            },
+            "emitMutating": {
+              "$ref": "#/$defs/MutatingFn"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensureCrudService.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.ensureCrudService.return": {
+          "$ref": "crud-service.ts.json#/$defs/CrudService"
+        },
+        "method.getCrudConfig.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCrudConfig.return": {
+          "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+        },
+        "method.list.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "../types.ts.json#/$defs/QueryParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.list.return": {
+          "type": "object",
+          "title": "Promise<CrudResult>"
+        },
+        "method.retrieveRecord.params": {
+          "type": "object",
+          "properties": {
+            "pk": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.retrieveRecord.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<DataRow>>"
+        },
+        "method.createRecord.params": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createRecord.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<DataRow>>"
+        },
+        "method.updateRecord.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "data": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            },
+            "serverPk": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateRecord.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<DataRow>>"
+        },
+        "method.deleteRecord.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "serverPk": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteRecord.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<boolean>>"
+        },
+        "method.batchCreateRecords.params": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.batchCreateRecords.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<BatchResult>>"
+        },
+        "method.batchUpdateRecords.params": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.batchUpdateRecords.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<BatchResult>>"
+        },
+        "method.batchDeleteRecords.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.batchDeleteRecords.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<BatchResult>>"
+        },
+        "method.importData.params": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "object",
+              "title": "File"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.importData.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<{\n        imported: number;\n        failed: number;\n    }>>"
+        },
+        "method.exportData.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "../types.ts.json#/$defs/QueryParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.exportData.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<Blob>>"
+        },
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.245Z",
+  "models": {
+    "EmitCrudLifecycleFn": {
+      "name": "EmitCrudLifecycleFn",
+      "jsdoc": "Emit Crud Lifecycle Fn 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (event: CrudLifecycleEvent): void;\n}",
+        "members": {}
+      }
+    },
+    "MutatingFn": {
+      "name": "MutatingFn",
+      "jsdoc": "Mutating Fn 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (delta: 1 | -1, error?: Error | null): void;\n}",
+        "members": {}
+      }
+    },
+    "CrudDelegate": {
+      "name": "CrudDelegate",
+      "jsdoc": "CRUD 委托\n封装所有 CRUD 相关逻辑，包括数据校验、单条 & 批量操作、导入导出。\nCrudService 由 DataTable 持有，本委托通过 host.dataTable 获取。\n每个操作前后发射 crud:before / crud:after 事件，供业务脚本层拦截和联动。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Crud Delegate 实例。",
+          "signatureText": "constructor(host: DataView, emitCrudLifecycle: EmitCrudLifecycleFn, emitMutating: MutatingFn)",
+          "parameters": [
+            {
+              "name": "host",
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "emitCrudLifecycle",
+              "type": {
+                "type": "reference",
+                "name": "EmitCrudLifecycleFn",
+                "sourcePath": "packages/spark-data/src/strategies/crud-delegate.ts"
+              }
+            },
+            {
+              "name": "emitMutating",
+              "type": {
+                "type": "reference",
+                "name": "MutatingFn",
+                "sourcePath": "packages/spark-data/src/strategies/crud-delegate.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "ensureCrudService",
+              "jsdoc": "确保 CrudService 已初始化，否则抛出",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "CrudService",
+                "sourcePath": "packages/spark-data/src/strategies/crud-service.ts"
+              }
+            },
+            {
+              "name": "getCrudConfig",
+              "jsdoc": "获取 CRUD 操作配置（超时、重试等）",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "CrudOperationConfig",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "list",
+              "jsdoc": "执行列表查询",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "retrieveRecord",
+              "jsdoc": "查询单条记录，不修改本地 rows。",
+              "parameters": [
+                {
+                  "name": "pk",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createRecord",
+              "jsdoc": "新增记录，成功后追加至 rows",
+              "parameters": [
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateRecord",
+              "jsdoc": "更新记录，成功后刷新对应行\n@param id 本地主键值（用于本地 rows 更新）\n@param data 更新数据\n@param serverPk 服务端 PK payload（用于 HTTP 请求，可选，默认从 id 构建）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "serverPk",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteRecord",
+              "jsdoc": "删除记录，成功后从 rows 移除\n@param id 本地主键值\n@param serverPk 服务端 PK payload（用于 HTTP 请求，可选，默认从 id 构建）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "serverPk",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "batchCreateRecords",
+              "jsdoc": "批量新增",
+              "parameters": [
+                {
+                  "name": "items",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Partial",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "DataRow",
+                          "sourcePath": "packages/spark-data/src/types.ts"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "BatchResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "batchUpdateRecords",
+              "jsdoc": "批量更新（items 中必须包含主键字段，主键名由 host.primaryKey 决定）",
+              "parameters": [
+                {
+                  "name": "items",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Partial",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "DataRow",
+                          "sourcePath": "packages/spark-data/src/types.ts"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "BatchResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "batchDeleteRecords",
+              "jsdoc": "批量删除",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "BatchResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "importData",
+              "jsdoc": "导入文件，成功后重置状态并重新走完整编排",
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "reference",
+                    "name": "File"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        imported: number;\n        failed: number;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "exportData",
+              "jsdoc": "导出数据",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Blob"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "销毁 — CrudService 由 DataTable 管理，此处无需释放",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

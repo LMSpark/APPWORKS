@@ -1,0 +1,7 @@
+{
+  "command": "pnpm --dir packages/spark-lowcode-api exec vitest run src/platform/lowcode-platform-api.test.ts --maxWorkers=1 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:09:19.6911056Z",
+  "finishedAtUtc": "2026-10-07T08:09:21.8012600Z",
+  "exitCode": 0
+}

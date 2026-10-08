@@ -1,0 +1,84 @@
+{
+  "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "tables": {
+    "Base_DataModel": {
+      "modelBinding": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+        "modelName": "Base_DataModel"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false
+        },
+        "apiInfoModels": {
+          "autoLoad": false,
+          "pageSize": 500
+        },
+        "designModels": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "selectionDelimiter": "",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }]
+        }
+      }
+    },
+    "Base_DataModel_Field": {
+      "modelBinding": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp002",
+        "modelName": "Base_DataModel_Field"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false
+        },
+        "apiInfoFields": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
+        },
+        "designFields": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "selectionDelimiter": "",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }]
+        }
+      }
+    },
+    "Base_DataSet": {
+      "modelBinding": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+        "modelName": "Base_DataSet"
+      },
+      "views": {
+        "default": { "autoLoad": false },
+        "designParameters": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "selectionDelimiter": "",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }]
+        }
+      }
+    },
+    "Base_DataModel_Relation": {
+      "modelBinding": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp003",
+        "modelName": "Base_DataModel_Relation"
+      },
+      "views": {
+        "default": { "autoLoad": false },
+        "designRelations": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "selectionDelimiter": "",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }]
+        }
+      }
+    }
+  },
+  "viewCascades": []
+}

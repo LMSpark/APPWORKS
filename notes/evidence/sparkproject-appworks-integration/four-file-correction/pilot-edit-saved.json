@@ -1,0 +1,40 @@
+{
+  "capturedAt": "2026-10-07T14:23:21.653Z",
+  "hasMore": false,
+  "truncated": false,
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "models": [
+        {
+          "keys": [
+            "TableName",
+            "CrudModel"
+          ],
+          "crudKeys": [
+            "Added",
+            "Changed",
+            "Deleted"
+          ],
+          "changed": [
+            {
+              "keys": [
+                "rowid",
+                "description",
+                "Name",
+                "lingma_sys_key"
+              ],
+              "rowid": "97DCB03F75AADEAE6B102B062DB71CEA",
+              "Name": "四文件编辑验收-20261007",
+              "description": "四文件样板编辑验收：仅修改名称与描述，保留应用和类型。"
+            }
+          ],
+          "addedCount": 0,
+          "deletedCount": 0
+        }
+      ]
+    }
+  ],
+  "snapshot": "- banner:\n  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76\n  - navigation:\n    - generic: SPARK 工具\n    - generic: 数据库管理\n    - generic: 外部服务管理\n    - generic: 半结构化数据\n    - generic: 文件数据管理\n    - generic: 结构化配置\n    - generic: 数据空间管理\n    - generic: 业务流程管理\n    - generic: 业务报表管理\n    - generic: 安全防护管理\n    - generic: 应用系统管理\n    - generic: 人力资源管理\n    - generic: 系统支持管理\n    - generic: 企业管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 页面工具\n- generic: ×\n- main:\n  - heading \"数据空间目录\" [level=2]\n  - button \"新增数据空间\"\n  - textbox \"输入名称或 ID\": 四文件样板验收-20261007\n  - combobox:\n    - option \"全部应用\" [selected]\n    - option \"元数据管理\"\n  - button \"查询\"\n  - table:\n    - rowgroup:\n      - row \"Select all rows ID 名称 类型 描述 所属应用 创建人 创建时间\":\n        - columnheader \"Select all rows\":\n          - generic \"Select all rows\":\n            - checkbox \"Select all rows\" [disabled]\n        - columnheader \"ID\":\n          - generic: ID\n        - columnheader \"名称\":\n          - generic: 名称\n        - columnheader \"类型\":\n          - generic: 类型\n        - columnheader \"描述\":\n          - generic: 描述\n        - columnheader \"所属应用\":\n          - generic: 所属应用\n        - columnheader \"创建人\":\n          - generic: 创建人\n        - columnheader \"创建时间\":\n          - generic: 创建时间\n  - table:\n    - rowgroup\n  - generic: No Data\n  - generic: 0-0 / 0\n  - button \"上一页\" [disabled]\n  - generic: 第 1 页\n  - button \"下一页\" [disabled]\n  - combobox:\n    - option \"10 条/页\" [selected]\n    - option \"20 条/页\"\n    - option \"50 条/页\"\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场"
+}

@@ -1,0 +1,2619 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:node-tree/spark-node-tree",
+    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts",
+    "sourceFile": "packages/spark-data/src/node-tree/spark-node-tree.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "node-tree/spark-node-tree",
+    "jsdoc": "@module @spark-appworks/spark-data:node-tree/spark-node-tree\n职责：提供 spark-data 数据管线中的 spark node tree 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nSparkNodeTree - 组件节点树的不可变编辑模型。\n围绕单个 SparkNode 实例及其递归子树，提供查询、写入、undo/redo 等完整能力。\n是页面设计器中规则编辑能力的真实本体。\n┌──────────────────────────────────────────────────────┐\n│  类型分组（按树编辑生命周期）                          │\n│                                                      │\n│  1. 入口常量：  SPARK_PAGE_NODE_TYPE / SPARK_PAGE_ROOT_ID│\n│  2. JSON 输入： SparkNodeTreeJsonInput                │\n│                SparkNodeTreeRuleJsonInput             │\n│  3. 构造参数：  SparkNodeTreeRootParams               │\n│                SparkNodeTreeFromJsonOptions           │\n│  4. 查询参数：  SparkNodeTreeLookupParams             │\n│                SparkNodeTreeChildrenParams            │\n│                SparkNodeFindByTypeParams              │\n│  5. 写入参数：  SparkNodeTreeAddParams                │\n│                SparkNodeTreeAddNodesParams            │\n│                SparkNodeTreeMoveParams                │\n│                SparkNodeTreeSetPropsParams            │\n│                SparkNodeTreeSetPropsBatchParams       │\n│                SparkNodeTreeReplaceParams             │\n│                SparkNodeTreeReplaceNodesParams        │\n│                SparkNodeTreeRemoveParams              │\n│                SparkNodeTreeRemoveNodesParams         │\n│  6. 位置/结果：  SparkNodeLocation                    │\n│                SparkNodeAddResult / AddNodesResult    │\n│                SparkNodeMoveResult                    │\n│                SparkNodeSetPropsResult                │\n│                SparkNodeReplaceResult                 │\n│                SparkNodeRemoveResult                  │\n│                SparkNodeFindByTypeMatch/Result        │\n│  7. 方法名联合：SparkNodeTreeMethodKey                │\n└──────────────────────────────────────────────────────┘",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SparkNodeTreeJsonInput",
+      "SparkNodeTreeRuleJsonInput",
+      "SparkNodeTreeRootParams",
+      "SparkNodeTreeFromJsonOptions",
+      "SparkNodeTreeHistoryStats",
+      "SparkNodeTreeLookupParams",
+      "SparkNodeTreeChildrenParams",
+      "SparkNodeFindByTypeParams",
+      "SparkNodeTreeAddParams",
+      "SparkNodeTreeAddNodesParams",
+      "SparkNodeTreeMoveParams",
+      "SparkNodeTreeSetPropsParams",
+      "SparkNodeTreeSetPropsBatchItem",
+      "SparkNodeTreeSetPropsBatchParams",
+      "SparkNodeTreeReplaceParams",
+      "SparkNodeTreeReplaceNodesItem",
+      "SparkNodeTreeReplaceNodesParams",
+      "SparkNodeTreeRemoveParams",
+      "SparkNodeTreeRemoveNodesParams",
+      "SparkNodeLocation",
+      "SparkNodeAddResult",
+      "SparkNodeAddNodesResult",
+      "SparkNodeMoveResult",
+      "SparkNodeSetPropsResult",
+      "SparkNodeSetPropsBatchResult",
+      "SparkNodeReplaceResult",
+      "SparkNodeReplaceNodesResult",
+      "SparkNodeRemoveResult",
+      "SparkNodeRemoveNodesResult",
+      "SparkNodeFindByTypeMatch",
+      "SparkNodeFindByTypeResult",
+      "SparkNodeTreeMethodKey",
+      "SparkNodeTree"
+    ]
+  },
+  "$defs": {
+    "SparkNodeTreeJsonInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkNodeTreeJsonInput",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "SparkNode"
+        },
+        {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "SparkNodeTreeRuleJsonInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkNodeTreeRuleJsonInput",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "SparkNode"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "SparkNode"
+          }
+        },
+        {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "SparkNodeTreeRootParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeRootParams",
+      "properties": {
+        "root": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        },
+        "historyLimit": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "root"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeFromJsonOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeFromJsonOptions",
+      "properties": {
+        "historyLimit": {
+          "type": "number"
+        },
+        "fillMissingComponentId": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkNodeTreeHistoryStats": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeHistoryStats",
+      "properties": {
+        "length": {
+          "type": "number"
+        },
+        "cursor": {
+          "type": "number"
+        },
+        "canUndo": {
+          "type": "boolean"
+        },
+        "canRedo": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "length",
+        "cursor",
+        "canUndo",
+        "canRedo"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeLookupParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeLookupParams",
+      "properties": {
+        "componentId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "componentId"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeChildrenParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeChildrenParams",
+      "properties": {
+        "parentComponentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkNodeFindByTypeParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeFindByTypeParams",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "startComponentId": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeAddParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeAddParams",
+      "properties": {
+        "parentComponentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "node": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "node"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeAddNodesParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeAddNodesParams",
+      "properties": {
+        "parentComponentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "spark-node.ts.json#/$defs/SparkNode"
+          }
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "nodes"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeMoveParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeMoveParams",
+      "properties": {
+        "parentComponentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "componentId": {
+          "type": "string"
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "componentId"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeSetPropsParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeSetPropsParams",
+      "properties": {
+        "componentId": {
+          "type": "string"
+        },
+        "props": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "merge": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "componentId",
+        "props"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeSetPropsBatchItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeSetPropsBatchItem",
+      "properties": {
+        "componentId": {
+          "type": "string"
+        },
+        "props": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "merge": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "componentId",
+        "props"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeSetPropsBatchParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeSetPropsBatchParams",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SparkNodeTreeSetPropsBatchItem"
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeReplaceParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeReplaceParams",
+      "properties": {
+        "componentId": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        }
+      },
+      "required": [
+        "componentId",
+        "node"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeReplaceNodesItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeReplaceNodesItem",
+      "properties": {
+        "componentId": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        }
+      },
+      "required": [
+        "componentId",
+        "node"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeReplaceNodesParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeReplaceNodesParams",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SparkNodeTreeReplaceNodesItem"
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeRemoveParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeRemoveParams",
+      "properties": {
+        "componentId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "componentId"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeRemoveNodesParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTreeRemoveNodesParams",
+      "properties": {
+        "componentIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "componentIds"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeLocation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeLocation",
+      "properties": {
+        "node": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "spark-node.ts.json#/$defs/SparkNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "index": {
+          "type": "number"
+        },
+        "depth": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "node",
+        "parent",
+        "index",
+        "depth"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeAddResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeAddResult",
+      "properties": {
+        "node": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "node",
+        "index"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeAddNodesResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeAddNodesResult",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "spark-node.ts.json#/$defs/SparkNode"
+          }
+        },
+        "indexes": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "nodes",
+        "indexes"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeMoveResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeMoveResult",
+      "properties": {
+        "componentId": {
+          "type": "string"
+        },
+        "fromParentComponentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "toParentComponentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "previousIndex": {
+          "type": "number"
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "componentId",
+        "fromParentComponentId",
+        "toParentComponentId",
+        "previousIndex",
+        "index"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeSetPropsResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeSetPropsResult",
+      "properties": {
+        "node": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        }
+      },
+      "required": [
+        "node"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeSetPropsBatchResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeSetPropsBatchResult",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "spark-node.ts.json#/$defs/SparkNode"
+          }
+        }
+      },
+      "required": [
+        "nodes"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeReplaceResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeReplaceResult",
+      "properties": {
+        "node": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        },
+        "previous": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        }
+      },
+      "required": [
+        "node",
+        "previous"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeReplaceNodesResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeReplaceNodesResult",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SparkNodeReplaceResult"
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeRemoveResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeRemoveResult",
+      "properties": {
+        "removed": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "removed",
+        "index"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeRemoveNodesResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeRemoveNodesResult",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SparkNodeRemoveResult"
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeFindByTypeMatch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeFindByTypeMatch",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "parentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "depth",
+        "parentId"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeFindByTypeResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeFindByTypeResult",
+      "properties": {
+        "matches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SparkNodeFindByTypeMatch"
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "matches",
+        "total"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeTreeMethodKey": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkNodeTreeMethodKey",
+      "enum": [
+        "getNode",
+        "getLocation",
+        "hasNode",
+        "getParent",
+        "listChildren",
+        "countNodes",
+        "getAllData",
+        "collectDataViewKeys",
+        "collectHandlerNames",
+        "findByType",
+        "addNode",
+        "addNodes",
+        "moveNode",
+        "setProps",
+        "setPropsBatch",
+        "replaceNode",
+        "replaceNodes",
+        "removeNode",
+        "removeNodes"
+      ]
+    },
+    "SparkNodeTree": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeTree",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeRootParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromJson.params": {
+          "type": "object",
+          "properties": {
+            "json": {
+              "anyOf": [
+                {
+                  "$ref": "spark-node.ts.json#/$defs/SparkNode"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "options": {
+              "$ref": "#/$defs/SparkNodeTreeFromJsonOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromJson.return": {
+          "$ref": "#/$defs/SparkNodeTree"
+        },
+        "method.fromRuleJson.params": {
+          "type": "object",
+          "properties": {
+            "json": {
+              "$ref": "#/$defs/SparkNodeTreeRuleJsonInput"
+            },
+            "options": {
+              "$ref": "#/$defs/SparkNodeTreeFromJsonOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromRuleJson.return": {
+          "$ref": "#/$defs/SparkNodeTree"
+        },
+        "method.fromPageChildren.params": {
+          "type": "object",
+          "properties": {
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "spark-node.ts.json#/$defs/SparkNode"
+              }
+            },
+            "options": {
+              "$ref": "#/$defs/SparkNodeTreeFromJsonOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromPageChildren.return": {
+          "$ref": "#/$defs/SparkNodeTree"
+        },
+        "method.toJSON.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toJSON.return": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        },
+        "method.getAllData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getAllData.return": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        },
+        "method.undo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.undo.return": {
+          "anyOf": [
+            {
+              "$ref": "spark-node.ts.json#/$defs/SparkNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.redo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.redo.return": {
+          "anyOf": [
+            {
+              "$ref": "spark-node.ts.json#/$defs/SparkNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.clearHistory.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearHistory.return": true,
+        "method.estimateHistorySize.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.estimateHistorySize.return": {
+          "type": "number"
+        },
+        "method.getHistoryStats.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getHistoryStats.return": {
+          "$ref": "#/$defs/SparkNodeTreeHistoryStats"
+        },
+        "method.loadRoot.params": {
+          "type": "object",
+          "properties": {
+            "newRoot": {
+              "$ref": "spark-node.ts.json#/$defs/SparkNode"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadRoot.return": true,
+        "method.replaceRoot.params": {
+          "type": "object",
+          "properties": {
+            "newRoot": {
+              "$ref": "spark-node.ts.json#/$defs/SparkNode"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceRoot.return": true,
+        "method.getNode.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeLookupParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getNode.return": {
+          "anyOf": [
+            {
+              "$ref": "spark-node.ts.json#/$defs/SparkNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.getLocation.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeLookupParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getLocation.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SparkNodeLocation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.hasNode.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeLookupParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasNode.return": {
+          "type": "boolean"
+        },
+        "method.getParent.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeLookupParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getParent.return": {
+          "anyOf": [
+            {
+              "$ref": "spark-node.ts.json#/$defs/SparkNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.listChildren.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeChildrenParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listChildren.return": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "method.countNodes.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.countNodes.return": {
+          "type": "number"
+        },
+        "method.collectDataViewKeys.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.collectDataViewKeys.return": {
+          "type": "object",
+          "title": "Set<string>"
+        },
+        "method.collectHandlerNames.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.collectHandlerNames.return": {
+          "type": "object",
+          "title": "Set<string>"
+        },
+        "method.findByType.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeFindByTypeParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.findByType.return": {
+          "$ref": "#/$defs/SparkNodeFindByTypeResult"
+        },
+        "method.addNode.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeAddParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addNode.return": {
+          "$ref": "#/$defs/SparkNodeAddResult"
+        },
+        "method.addNodes.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeAddNodesParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addNodes.return": {
+          "$ref": "#/$defs/SparkNodeAddNodesResult"
+        },
+        "method.moveNode.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeMoveParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveNode.return": {
+          "$ref": "#/$defs/SparkNodeMoveResult"
+        },
+        "method.setProps.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeSetPropsParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setProps.return": {
+          "$ref": "#/$defs/SparkNodeSetPropsResult"
+        },
+        "method.setPropsBatch.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeSetPropsBatchParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setPropsBatch.return": {
+          "$ref": "#/$defs/SparkNodeSetPropsBatchResult"
+        },
+        "method.replaceNode.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeReplaceParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceNode.return": {
+          "$ref": "#/$defs/SparkNodeReplaceResult"
+        },
+        "method.replaceNodes.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeReplaceNodesParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceNodes.return": {
+          "$ref": "#/$defs/SparkNodeReplaceNodesResult"
+        },
+        "method.removeNode.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeRemoveParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeNode.return": {
+          "$ref": "#/$defs/SparkNodeRemoveResult"
+        },
+        "method.removeNodes.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/SparkNodeTreeRemoveNodesParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeNodes.return": {
+          "$ref": "#/$defs/SparkNodeRemoveNodesResult"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:51.014Z",
+  "models": {
+    "SparkNodeTreeJsonInput": {
+      "name": "SparkNodeTreeJsonInput",
+      "jsdoc": "fromJson 的输入：SparkNode 对象、任意对象或 JSON 字符串",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNode | Record<string, unknown> | string",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "SparkNode",
+            "targetName": "SparkNode"
+          },
+          {
+            "kind": "union",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          },
+          {
+            "kind": "union",
+            "typeText": "string"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkNodeTreeRuleJsonInput": {
+      "name": "SparkNodeTreeRuleJsonInput",
+      "jsdoc": "fromRuleJson 的输入：rule.json 的合法形态。\n可以是单个节点、节点数组、任意对象或数组、JSON 字符串。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNode | readonly SparkNode[] | Record<string, unknown> | ReadonlyArray<Record<string, unknown>> | string",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "SparkNode",
+            "targetName": "SparkNode"
+          },
+          {
+            "kind": "union",
+            "typeText": "readonly SparkNode[]"
+          },
+          {
+            "kind": "union",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          },
+          {
+            "kind": "union",
+            "typeText": "ReadonlyArray<Record<string, unknown>>",
+            "targetName": "ReadonlyArray"
+          },
+          {
+            "kind": "union",
+            "typeText": "string"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkNodeTreeRootParams": {
+      "name": "SparkNodeTreeRootParams",
+      "jsdoc": "创建 SparkNodeTree 实例的输入参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前被编辑的组件实例节点，可以是任意 SparkNode */\n    root: SparkNode;\n    /** 历史记录最大条目数，默认 50；设为 0 时禁用 undo/redo */\n    historyLimit?: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "root",
+              "jsdoc": "当前被编辑的组件实例节点，可以是任意 SparkNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "historyLimit",
+              "jsdoc": "历史记录最大条目数，默认 50；设为 0 时禁用 undo/redo",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeFromJsonOptions": {
+      "name": "SparkNodeTreeFromJsonOptions",
+      "jsdoc": "SparkNodeTree.fromJson 的可选参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 历史记录最大条目数 */\n    historyLimit?: number;\n    /** 是否在反序列化时为缺失 id 的节点自动补齐组件 id，默认 true */\n    fillMissingComponentId?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "historyLimit",
+              "jsdoc": "历史记录最大条目数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fillMissingComponentId",
+              "jsdoc": "是否在反序列化时为缺失 id 的节点自动补齐组件 id，默认 true",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeHistoryStats": {
+      "name": "SparkNodeTreeHistoryStats",
+      "jsdoc": "SparkNodeTree 历史栈状态摘要。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 历史快照条目数。 */\n    length: number;\n    /** 当前历史游标位置。 */\n    cursor: number;\n    /** 当前是否可以撤销。 */\n    canUndo: boolean;\n    /** 当前是否可以重做。 */\n    canRedo: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "length",
+              "jsdoc": "历史快照条目数。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "cursor",
+              "jsdoc": "当前历史游标位置。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "canUndo",
+              "jsdoc": "当前是否可以撤销。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "canRedo",
+              "jsdoc": "当前是否可以重做。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeLookupParams": {
+      "name": "SparkNodeTreeLookupParams",
+      "jsdoc": "按 componentId 查找节点的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 组件节点 ID */\n    componentId: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "componentId",
+              "jsdoc": "组件节点 ID",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeChildrenParams": {
+      "name": "SparkNodeTreeChildrenParams",
+      "jsdoc": "定位父节点 children 的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 父节点 ID，省略时表示当前根节点 */\n    parentComponentId?: string | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "parentComponentId",
+              "jsdoc": "父节点 ID，省略时表示当前根节点",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeFindByTypeParams": {
+      "name": "SparkNodeFindByTypeParams",
+      "jsdoc": "findByType 的查询参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 要搜索的组件类型名，精确匹配 */\n    type: string;\n    /** 可选，从哪个节点开始向下递归搜索，省略时从根节点开始 */\n    startComponentId?: string;\n    /** 可选，最多返回多少条匹配结果，默认不限制 */\n    limit?: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "要搜索的组件类型名，精确匹配",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "startComponentId",
+              "jsdoc": "可选，从哪个节点开始向下递归搜索，省略时从根节点开始",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "limit",
+              "jsdoc": "可选，最多返回多少条匹配结果，默认不限制",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeAddParams": {
+      "name": "SparkNodeTreeAddParams",
+      "jsdoc": "添加单个节点的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeTreeChildrenParams & {\n    /** 待添加的节点 */\n    node: SparkNode;\n    /** 插入位置索引，省略时追加到末尾 */\n    index?: number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeTreeChildrenParams",
+            "targetName": "SparkNodeTreeChildrenParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 待添加的节点 */\n    node: SparkNode;\n    /** 插入位置索引，省略时追加到末尾 */\n    index?: number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "jsdoc": "待添加的节点",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "index",
+              "jsdoc": "插入位置索引，省略时追加到末尾",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeAddNodesParams": {
+      "name": "SparkNodeTreeAddNodesParams",
+      "jsdoc": "批量添加节点的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeTreeChildrenParams & {\n    /** 待添加的节点列表 */\n    nodes: SparkNode[];\n    /** 起始插入位置索引 */\n    index?: number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeTreeChildrenParams",
+            "targetName": "SparkNodeTreeChildrenParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 待添加的节点列表 */\n    nodes: SparkNode[];\n    /** 起始插入位置索引 */\n    index?: number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodes",
+              "jsdoc": "待添加的节点列表",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "index",
+              "jsdoc": "起始插入位置索引",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeMoveParams": {
+      "name": "SparkNodeTreeMoveParams",
+      "jsdoc": "移动已有节点的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeTreeChildrenParams & {\n    /** 待移动节点的 ID */\n    componentId: string;\n    /** 目标插入位置索引 */\n    index?: number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeTreeChildrenParams",
+            "targetName": "SparkNodeTreeChildrenParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 待移动节点的 ID */\n    componentId: string;\n    /** 目标插入位置索引 */\n    index?: number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "componentId",
+              "jsdoc": "待移动节点的 ID",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "index",
+              "jsdoc": "目标插入位置索引",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeSetPropsParams": {
+      "name": "SparkNodeTreeSetPropsParams",
+      "jsdoc": "设置单个节点 props 的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeTreeLookupParams & {\n    /** 待设置的属性键值对 */\n    props: Record<string, unknown>;\n    /** 是否浅合并，false 时表示直接替换 */\n    merge?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeTreeLookupParams",
+            "targetName": "SparkNodeTreeLookupParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 待设置的属性键值对 */\n    props: Record<string, unknown>;\n    /** 是否浅合并，false 时表示直接替换 */\n    merge?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "props",
+              "jsdoc": "待设置的属性键值对",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "merge",
+              "jsdoc": "是否浅合并，false 时表示直接替换",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeSetPropsBatchItem": {
+      "name": "SparkNodeTreeSetPropsBatchItem",
+      "jsdoc": "批量设置节点 props 的单项参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeTreeLookupParams & {\n    /** 待设置的属性键值对 */\n    props: Record<string, unknown>;\n    /** 是否浅合并 */\n    merge?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeTreeLookupParams",
+            "targetName": "SparkNodeTreeLookupParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 待设置的属性键值对 */\n    props: Record<string, unknown>;\n    /** 是否浅合并 */\n    merge?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "props",
+              "jsdoc": "待设置的属性键值对",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "merge",
+              "jsdoc": "是否浅合并",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeSetPropsBatchParams": {
+      "name": "SparkNodeTreeSetPropsBatchParams",
+      "jsdoc": "批量设置节点 props 的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 批量设置项列表 */\n    items: SparkNodeTreeSetPropsBatchItem[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "jsdoc": "批量设置项列表",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeReplaceParams": {
+      "name": "SparkNodeTreeReplaceParams",
+      "jsdoc": "替换单个节点的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeTreeLookupParams & {\n    /** 用于替换的新节点 */\n    node: SparkNode;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeTreeLookupParams",
+            "targetName": "SparkNodeTreeLookupParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 用于替换的新节点 */\n    node: SparkNode;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "jsdoc": "用于替换的新节点",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeReplaceNodesItem": {
+      "name": "SparkNodeTreeReplaceNodesItem",
+      "jsdoc": "批量替换节点的单项参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeTreeLookupParams & {\n    /** 用于替换的新节点 */\n    node: SparkNode;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeTreeLookupParams",
+            "targetName": "SparkNodeTreeLookupParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 用于替换的新节点 */\n    node: SparkNode;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "jsdoc": "用于替换的新节点",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeReplaceNodesParams": {
+      "name": "SparkNodeTreeReplaceNodesParams",
+      "jsdoc": "批量替换节点的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 批量替换项列表 */\n    items: SparkNodeTreeReplaceNodesItem[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "jsdoc": "批量替换项列表",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeRemoveParams": {
+      "name": "SparkNodeTreeRemoveParams",
+      "jsdoc": "删除单个节点的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 待删除节点的 ID */\n    componentId: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "componentId",
+              "jsdoc": "待删除节点的 ID",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeRemoveNodesParams": {
+      "name": "SparkNodeTreeRemoveNodesParams",
+      "jsdoc": "批量删除节点的参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 待删除的节点 ID 列表 */\n    componentIds: string[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "componentIds",
+              "jsdoc": "待删除的节点 ID 列表",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeLocation": {
+      "name": "SparkNodeLocation",
+      "jsdoc": "节点在树中的位置信息",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 命中的节点本身 */\n    node: SparkNode;\n    /** 直接父节点，根节点时为 null */\n    parent: SparkNode | null;\n    /** 在父节点 children 中的索引，根节点时为 -1 */\n    index: number;\n    /** 深度，根节点为 0 */\n    depth: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "jsdoc": "命中的节点本身",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parent",
+              "jsdoc": "直接父节点，根节点时为 null",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "index",
+              "jsdoc": "在父节点 children 中的索引，根节点时为 -1",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "depth",
+              "jsdoc": "深度，根节点为 0",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeAddResult": {
+      "name": "SparkNodeAddResult",
+      "jsdoc": "addNode 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 已添加的节点 */\n    node: SparkNode;\n    /** 插入位置索引 */\n    index: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "jsdoc": "已添加的节点",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "index",
+              "jsdoc": "插入位置索引",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeAddNodesResult": {
+      "name": "SparkNodeAddNodesResult",
+      "jsdoc": "addNodes 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 已添加的节点列表 */\n    nodes: SparkNode[];\n    /** 各节点的插入位置索引 */\n    indexes: number[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "nodes",
+              "jsdoc": "已添加的节点列表",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "indexes",
+              "jsdoc": "各节点的插入位置索引",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeMoveResult": {
+      "name": "SparkNodeMoveResult",
+      "jsdoc": "moveNode 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 被移动的节点 ID */\n    componentId: string;\n    /** 原父节点 ID */\n    fromParentComponentId: string | null;\n    /** 新父节点 ID */\n    toParentComponentId: string | null;\n    /** 原位置索引 */\n    previousIndex: number;\n    /** 新位置索引 */\n    index: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "componentId",
+              "jsdoc": "被移动的节点 ID",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fromParentComponentId",
+              "jsdoc": "原父节点 ID",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toParentComponentId",
+              "jsdoc": "新父节点 ID",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "previousIndex",
+              "jsdoc": "原位置索引",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "index",
+              "jsdoc": "新位置索引",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeSetPropsResult": {
+      "name": "SparkNodeSetPropsResult",
+      "jsdoc": "setProps 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 设置属性后的节点 */\n    node: SparkNode;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "jsdoc": "设置属性后的节点",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeSetPropsBatchResult": {
+      "name": "SparkNodeSetPropsBatchResult",
+      "jsdoc": "setPropsBatch 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 设置属性后的节点列表 */\n    nodes: SparkNode[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "nodes",
+              "jsdoc": "设置属性后的节点列表",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeReplaceResult": {
+      "name": "SparkNodeReplaceResult",
+      "jsdoc": "replaceNode 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 替换后的新节点 */\n    node: SparkNode;\n    /** 被替换的旧节点 */\n    previous: SparkNode;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "jsdoc": "替换后的新节点",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "previous",
+              "jsdoc": "被替换的旧节点",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeReplaceNodesResult": {
+      "name": "SparkNodeReplaceNodesResult",
+      "jsdoc": "replaceNodes 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 各节点的替换结果 */\n    items: SparkNodeReplaceResult[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "jsdoc": "各节点的替换结果",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeRemoveResult": {
+      "name": "SparkNodeRemoveResult",
+      "jsdoc": "removeNode 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 被删除的节点 */\n    removed: SparkNode;\n    /** 被删除时的位置索引 */\n    index: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "removed",
+              "jsdoc": "被删除的节点",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "index",
+              "jsdoc": "被删除时的位置索引",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeRemoveNodesResult": {
+      "name": "SparkNodeRemoveNodesResult",
+      "jsdoc": "removeNodes 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 各节点的删除结果 */\n    items: SparkNodeRemoveResult[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "jsdoc": "各节点的删除结果",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeFindByTypeMatch": {
+      "name": "SparkNodeFindByTypeMatch",
+      "jsdoc": "findByType 单条匹配结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 节点的真实 id，未设置 id 时为 undefined */\n    id: string | undefined;\n    /** 组件类型名 */\n    type: string;\n    /** 节点在树中的深度 */\n    depth: number;\n    /** 直接父节点 id，根节点时为 null，父节点未设置 id 时为 undefined */\n    parentId: string | null | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "节点的真实 id，未设置 id 时为 undefined",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "jsdoc": "组件类型名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "depth",
+              "jsdoc": "节点在树中的深度",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parentId",
+              "jsdoc": "直接父节点 id，根节点时为 null，父节点未设置 id 时为 undefined",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeFindByTypeResult": {
+      "name": "SparkNodeFindByTypeResult",
+      "jsdoc": "findByType 的返回结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 按深度优先顺序排列的匹配结果 */\n    matches: SparkNodeFindByTypeMatch[];\n    /** 命中数；提供 limit 且提前终止时等于 matches.length */\n    total: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "matches",
+              "jsdoc": "按深度优先顺序排列的匹配结果",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "total",
+              "jsdoc": "命中数；提供 limit 且提前终止时等于 matches.length",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeTreeMethodKey": {
+      "name": "SparkNodeTreeMethodKey",
+      "jsdoc": "SparkNodeTree 公开方法键名联合类型",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'getNode' | 'getLocation' | 'hasNode' | 'getParent' | 'listChildren' | 'countNodes' | 'getAllData' | 'collectDataViewKeys' | 'collectHandlerNames' | 'findByType' | 'addNode' | 'addNodes' | 'moveNode' | 'setProps' | 'setPropsBatch' | 'replaceNode' | 'replaceNodes' | 'removeNode' | 'removeNodes'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'getNode'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'getLocation'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'hasNode'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'getParent'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'listChildren'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'countNodes'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'getAllData'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'collectDataViewKeys'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'collectHandlerNames'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'findByType'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'addNode'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'addNodes'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'moveNode'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'setProps'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'setPropsBatch'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'replaceNode'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'replaceNodes'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'removeNode'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'removeNodes'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkNodeTree": {
+      "name": "SparkNodeTree",
+      "jsdoc": "SparkNodeTree\n面向单个组件实例（SparkNode）及其子树的结构编辑核心。\n这里的 root 表示“当前被编辑的组件实例”。\n它既可以是页面组件，也可以是页面中的任意子组件；页面只是递归 SparkNode 模型里的一个更大组件。\n在上层设计里，SparkNodeTree 是设计时编辑能力的真实本体：\n1. 调用方先查询组件列表，选择合适的组件 type；\n2. 再根据组件规格构造一个 SparkNode 节点对象；\n3. 最后调用 SparkNodeTree 的公开方法，把该节点写入当前子树，或对已有节点做查询与修改。\n因此，这个类提供的不是“组件清单”，而是“树编辑能力集合”。\n上层的 tool catalog / function 列表，只是在此基础上做协议投影。\n当前公开能力大致可分为四类：\n1. 节点查询：getNode / getLocation / hasNode / getParent / listChildren / findByType。\n2. 子树统计：countNodes / collectDataViewKeys / collectHandlerNames。\n3. 节点写入：addNode / addNodes / moveNode / replaceNode / replaceNodes / removeNode / removeNodes。\n4. 属性写入：setProps / setPropsBatch。\n设计目标：\n1. 构造时绑定一个当前组件实例，后续所有方法都围绕该组件及其子树工作。\n2. 查询类方法不修改当前树状态。\n3. 写操作通过不可变重写生成新子树，并回写到实例内部 root。\n4. 全部公开方法只接受命名参数对象，不提供位置参数重载。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "使用一个当前组件实例节点创建树操作实例。\n构造时自动创建 version 0 作为初始快照。\n@param params 根节点和历史栈配置。",
+          "signatureText": "constructor(params: SparkNodeTreeRootParams)",
+          "parameters": [
+            {
+              "name": "params",
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeTreeRootParams",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "fromJson",
+              "jsdoc": "从 JSON 输入创建 SparkNodeTree。\n- 支持对象或 JSON 字符串输入\n- 默认会在反序列化过程中补齐缺失组件 id",
+              "parameters": [
+                {
+                  "name": "json",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "SparkNode",
+                        "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeFromJsonOptions",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeTree",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "fromRuleJson",
+              "jsdoc": "从 rule.json 输入创建页面树。\nrule.json 可以是：\n- 单个 SparkNode：作为页面唯一顶层组件\n- SparkNode[]：作为页面 children\n- spark-page 根节点：作为完整页面树\n进入 SparkNodeTree 后统一为单根 `spark-page`。",
+              "parameters": [
+                {
+                  "name": "json",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeRuleJsonInput",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeFromJsonOptions",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeTree",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "fromPageChildren",
+              "jsdoc": "从页面 children 创建单根页面树。",
+              "parameters": [
+                {
+                  "name": "children",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly SparkNode[]"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeFromJsonOptions",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeTree",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "toJSON",
+              "jsdoc": "导出当前组件实例子树快照。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "SparkNode",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+              }
+            },
+            {
+              "name": "getAllData",
+              "jsdoc": "获取当前绑定子树的完整数据快照。\n语义上等价于 toJSON()。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "SparkNode",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+              }
+            },
+            {
+              "name": "undo",
+              "jsdoc": "撤销最近一次写操作，还原到上一个快照。\n返回撤销后的 root；无可撤销时返回 null 不修改状态。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "SparkNode",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "redo",
+              "jsdoc": "重做最近一次被撤销的写操作。\n返回重做后的 root；无可重做时返回 null 不修改状态。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "SparkNode",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "clearHistory",
+              "jsdoc": "清空全部历史，仅保留当前快照。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "estimateHistorySize",
+              "jsdoc": "估算单个快照的节点数量，用于评估历史栈的相对内存占用。\n由于不可变树的结构共享特性，实际内存开销小于该值 × 历史长度。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "getHistoryStats",
+              "jsdoc": "返回历史栈的统计信息。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeTreeHistoryStats",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "loadRoot",
+              "jsdoc": "加载新的根节点，替换当前根并以新根作为历史基线重新开始。\n清空既有历史栈，等价于 DataSetCrudTool.replaceFromJson。\n@param newRoot 新的根节点。",
+              "parameters": [
+                {
+                  "name": "newRoot",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNode",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "replaceRoot",
+              "jsdoc": "替换当前根节点并将变更提交到历史（可 undo/redo）。\n用于“文本整体替换”等粗粒度写操作，保留既有历史栈。\n@param newRoot 新的根节点。",
+              "parameters": [
+                {
+                  "name": "newRoot",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNode",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getNode",
+              "jsdoc": "按 componentId 查找节点；未命中时返回 null。\n@param params 节点查找参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeLookupParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "SparkNode",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getLocation",
+              "jsdoc": "获取节点在树中的完整位置信息；未命中时返回 null。\n@param params 节点查找参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeLookupParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "SparkNodeLocation",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hasNode",
+              "jsdoc": "判断指定 componentId 是否存在。\n@param params 节点查找参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeLookupParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getParent",
+              "jsdoc": "获取目标节点的直接父节点；当前绑定 root 或未命中时返回 null。\n@param params 节点查找参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeLookupParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "SparkNode",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listChildren",
+              "jsdoc": "读取当前组件实例或指定子组件的直接 children。\n返回的是 children 的浅拷贝，避免调用方直接改写实例内部数组引用。\n@param params 子节点读取参数；省略时读取当前根节点 children。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeChildrenParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeChildren",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node.ts"
+              }
+            },
+            {
+              "name": "countNodes",
+              "jsdoc": "统计当前组件实例子树中的结构节点数量。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "collectDataViewKeys",
+              "jsdoc": "收集当前组件实例子树中出现过的全部唯一 DataView 定位键。\n包括容器、展示、动作、选项等 props.dataViewKey / props.optionDataViewKey。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Set",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "collectHandlerNames",
+              "jsdoc": "收集当前组件实例子树中 props.on 里声明过的全部唯一处理器名。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Set",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "findByType",
+              "jsdoc": "按组件类型名递归搜索子树，返回所有匹配节点的真实 id、深度和父 id。\n典型用法：当调用方知道目标组件类型（如 'r-tabs'）但不知道其节点 id 时，\n调用此方法可一步获取可直接用于 getNode / setProps / removeNode 的真实 id。\n@param params 组件类型查询参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeFindByTypeParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeFindByTypeResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "addNode",
+              "jsdoc": "向当前组件实例或指定子组件的 children 中添加一个新节点。\n这是“先构造 SparkNode，再放入 SparkNodeTree”这条链路的最直接入口。\n@param params 单节点添加参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeAddParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeAddResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "addNodes",
+              "jsdoc": "向同一个子组件容器批量插入多个新节点。\n- nodes 按传入顺序依次插入\n- index 省略时整体追加到末尾\n- index 提供时，从该位置开始连续插入\n@param params 批量节点添加参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeAddNodesParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeAddNodesResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "moveNode",
+              "jsdoc": "把已有节点移动到当前组件实例或指定子组件的 children 中。\n返回值只包含移动摘要，不回传完整节点子树，避免结果膨胀。\n@param params 节点移动参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeMoveParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeMoveResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "setProps",
+              "jsdoc": "设置目标节点的 props。\n- merge !== false 时，采用浅合并语义\n- merge === false 时，直接替换整个 props 对象\n这类方法承载的是“修改属性值”能力，而不是组件选择能力。\n@param params props 设置参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeSetPropsParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeSetPropsResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "setPropsBatch",
+              "jsdoc": "批量设置多个节点的 props。\n@param params 批量 props 设置参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeSetPropsBatchParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeSetPropsBatchResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "replaceNode",
+              "jsdoc": "用一个新的 SparkNode 完整替换目标节点。\n这类方法承载的是“修改节点结构”能力：节点 type、props、children 都可以整体替换。\n@param params 节点替换参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeReplaceParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeReplaceResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "replaceNodes",
+              "jsdoc": "批量替换多个节点。\n@param params 批量节点替换参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeReplaceNodesParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeReplaceNodesResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "removeNode",
+              "jsdoc": "删除当前组件实例子树内的指定节点。\n当前绑定的 root 自身不允许删除；调用方如果要整体替换当前组件实例，应直接创建新的实例或重建 root。\n@param params 节点删除参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeRemoveParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeRemoveResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            },
+            {
+              "name": "removeNodes",
+              "jsdoc": "批量删除多个节点。\n@param params 批量节点删除参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeRemoveNodesParams",
+                    "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeRemoveNodesResult",
+                "sourcePath": "packages/spark-data/src/node-tree/spark-node-tree.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

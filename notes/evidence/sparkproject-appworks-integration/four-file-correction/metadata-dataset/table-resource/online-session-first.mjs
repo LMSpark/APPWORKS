@@ -1,0 +1,112 @@
+import fs from 'node:fs'
+import {createServer} from 'vite'
+
+for (const key of ['log', 'info', 'debug', 'warn', 'error']) console[key] = () => {}
+const appId = 'D99A1DCE9894698799101EFD70F8FC76'
+const targetId = '97DCB03F75AADEAE6B102B062DB71CEA'
+const metadataId = '8D1AB14DD8277F3E7017CD38F77B09FD'
+const report = {at: new Date().toISOString(), targetId, stage: 'initialize', writes: 0}
+let server
+let session
+function check(value, message) { if (!value) throw new Error(message) }
+try {
+  const auth = JSON.parse(fs.readFileSync(0, 'utf8').replace(/^\uFEFF/, ''))
+  const storage = new Map()
+  Object.defineProperty(globalThis, 'localStorage', {configurable: true, value: {
+    getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value),
+    removeItem: key => storage.delete(key),
+  }})
+  server = await createServer({configFile: 'vitest.config.ts', logLevel: 'silent', server: {middlewareMode: true}})
+  const {lowcodeApi: api, lowcodeHttp: http} = await server.ssrLoadModule('/src/lowcode/lowcode-runtime.ts')
+  const {openLowcodeDataSpaceDesignSession} = await server.ssrLoadModule('/src/lowcode/data-space/lowcode-data-space-design.ts')
+  let loggedIn = false
+  report.requests = []
+  http.interceptors.request.use({onRequest: config => {
+    if (loggedIn) {
+      check(['/api/DataOperation/GetData', '/api/File/content/text'].includes(config.url), 'Unexpected non-read API')
+      report.requests.push({path: config.url})
+    }
+    return {...config, baseURL: 'http://127.0.0.1:5273'}
+  }})
+  report.stage = 'login'
+  const enterprises = (await api.platform.listEnterprises()).filter(item => item.name === auth.enterpriseName || item.shortName === auth.enterpriseName)
+  check(enterprises.length === 1, 'Enterprise identity is not unique')
+  auth.enterpriseName = enterprises[0].shortName
+  await api.platform.login(auth)
+  auth.password = ''
+  await api.platform.activateApplication(appId)
+  loggedIn = true
+  report.stage = 'open-single-target-session'
+  session = await openLowcodeDataSpaceDesignSession(targetId)
+  const metadata = session.metadataDataSet
+  const definition = session.definitionDataSet
+  check(session.targetId === targetId && metadata.scenarioId === metadataId, 'Metadata and target identity mismatch')
+  check(definition && definition.scenarioId === targetId && definition !== metadata, 'Target definition is not an independent native DataSet')
+  const targetView = metadata.getView('Base_DataSet', 'default')
+  const targetRow = targetView?.rows[0]
+  check(targetRow && targetView.fieldAccess(targetRow, 'Name').read === 'visible', 'Target formal name unreadable')
+  check(definition.dataSetName === targetRow.Name, 'Definition name differs from formal metadata row')
+  const metadataHeader = await api.dataSpace.design.readSpaceDefinition({designScenarioId:metadataId,dataSpaceId:metadataId})
+  check(metadata.dataSetName === metadataHeader.name, 'Metadata DataSet name differs from its own formal space')
+  check(metadata.getView('Base_DataSet','default').queryContext.formid === targetId, 'Target argument changed into metadata identity')
+  check(targetView.fieldAccess(targetRow,'inputParams').read === 'visible' && Object.hasOwn(targetRow,'inputParams'), 'Parameter declaration carrier lost')
+  report.names = {metadata:metadata.dataSetName,target:definition.dataSetName}
+  report.parameterDeclarations = {carrier:'Base_DataSet.inputParams',retained:true}
+  check(session.viewState.persisted && !session.viewState.dirty && session.viewState.scenarioId === targetId, 'File owner has not read the persisted target')
+  report.metadata = Object.entries(metadata.tables).map(([name, table]) => {
+    const view = table.views.default
+    check(view.rows.length === view.total, 'Incomplete metadata query')
+    check(view.rows.every(row => row[name === 'Base_DataSet' ? 'rowid' : 'dataSetId'] === targetId), 'Metadata escaped target scope')
+    return {name, rows: view.rows.length, views: Object.keys(table.views)}
+  })
+  const modelView = metadata.getView('Base_DataModel', 'default')
+  check(modelView, 'Missing formal model DataView')
+  const sourceTypes = new Map([
+    ['数据库表', 'database-table'], ['表', 'database-table'], ['table', 'database-table'],
+    ['数据库视图', 'database-view'], ['视图', 'logical-view'], ['字典', 'dictionary'],
+    ['接口', 'third-party-api'], ['JSON', 'json'], ['文件', 'file'],
+  ])
+  report.definitions = Object.entries(definition.tables).map(([tableName, table]) => {
+    check(table.modelBinding?.modelId && table.modelBinding?.modelName, 'Missing formal model binding')
+    check(Object.values(table.views).every(view => view.dataTable === table && view.dataSet === definition), 'Views detached from native hierarchy')
+    const rows = modelView.rows.filter(row => row.rowid === table.modelBinding.modelId)
+    check(rows.length === 1, 'Formal model identity is not unique')
+    const row = rows[0]
+    for (const field of ['rowid', 'Name', 'MetaName', 'Type']) {
+      check(modelView.fieldAccess(row, field).read === 'visible', 'Formal source identity unreadable')
+    }
+    check(row.Name === table.modelBinding.modelName, 'Query model identity changed')
+    check(sourceTypes.has(row.Type), 'Unexpected formal source type')
+    check(table.resourceType === sourceTypes.get(row.Type), 'Native resource type differs from formal source')
+    check(table.resourceId === row.MetaName, 'Native resource name differs from formal source')
+    check(table.resourceType !== 'static-data', 'Formal remote model treated as inline data')
+    const fileTable = session.viewState.config.tables[tableName]
+    check(!Object.hasOwn(fileTable, 'resourceType') && !Object.hasOwn(fileTable, 'resourceId'), 'File duplicates formal resource definition')
+    return {tableName, sourceType: row.Type, resourceType: table.resourceType,
+      resourceId: table.resourceId, modelName: table.modelBinding.modelName,
+      columns: table.columns.filter(column => !column.isComputed).length, views: Object.keys(table.views)}
+  })
+  for (const table of Object.values(metadata.toJson().tables)) {
+    for (const view of Object.values(table.views)) check(!Object.hasOwn(view, 'rows'), 'Remote rows leaked into definition serialization')
+  }
+  report.remoteRowsOmitted = true
+  check(report.metadata.length === 4 && report.definitions.length === 7, 'Unexpected model coverage')
+  session.dispose()
+  check(metadata.destroyed && definition.destroyed, 'Session did not release both DataSets')
+  session.dispose()
+  report.disposed = true
+  report.stage = 'complete'
+} catch (error) {
+  report.failed = true
+  report.error = String(error?.message ?? '').replace(/Bearer\s+\S+/gi, '[redacted]').replace(/eyJ[A-Za-z0-9_.-]+/g, '[redacted]').slice(0, 260)
+  process.exitCode = 1
+} finally {
+  session?.dispose()
+  await server?.close()
+  fs.writeFileSync(new URL('online-session-result.json', import.meta.url), `${JSON.stringify(report, null, 2)}\n`)
+  process.stdout.write(JSON.stringify({stage: report.stage, failed: Boolean(report.failed),
+    metadata: report.metadata?.map(item => ({name: item.name, rows: item.rows})),
+    models: report.definitions?.length, disposed: report.disposed, error: report.error}))
+}
+
+

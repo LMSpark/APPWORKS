@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:contracts/lowcode-wire-query",
+    "sourcePath": "packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "contracts/lowcode-wire-query",
+    "jsdoc": "lowcode-jdk17 数据查询 wire 字面量（排序方向 / 过滤操作符 / 分组聚合）。\n与 `backend-api-contracts/common.ts` 同形（`tools/verify-wire-query-parity.mjs`）。\n前端 DataView 使用 spark-data 的 `SortDirection` / `DataViewFilterOperator` / `AggregateType`，\n过滤由 API 独占 wire 转换；`AggregateType` 含客户端专用 `join`，不可硬合并。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "OrderType",
+      "WireFilterOperator",
+      "GroupFunType"
+    ]
+  },
+  "$defs": {
+    "OrderType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "OrderType",
+      "enum": [
+        "ascending",
+        "descending"
+      ]
+    },
+    "WireFilterOperator": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "WireFilterOperator",
+      "enum": [
+        "equal",
+        "notequal",
+        "greaterthan",
+        "greaterthanorequal",
+        "lessthan",
+        "lessthanorequal",
+        "isnull",
+        "isnotnull",
+        "contains",
+        "nolike",
+        "startswith",
+        "nostartswith",
+        "endswith",
+        "notendswith",
+        "in",
+        "notin",
+        "isempty",
+        "isnotempty"
+      ]
+    },
+    "GroupFunType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "GroupFunType",
+      "enum": [
+        "sum",
+        "avg",
+        "min",
+        "max",
+        "count"
+      ]
+    }
+  },
+  "generatedAt": "2026-10-06T05:30:40.467Z",
+  "models": {
+    "OrderType": {
+      "name": "OrderType",
+      "jsdoc": "wire 排序方向（Jackson OrderType）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'ascending' | 'descending'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'ascending'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'descending'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WireFilterOperator": {
+      "name": "WireFilterOperator",
+      "jsdoc": "wire 过滤操作符（Jackson Filter.Operator）。\n禁止与 spark-data `DataViewFilterOperator`（`eq`/`contains` 等）同名混用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'equal' | 'notequal' | 'greaterthan' | 'greaterthanorequal' | 'lessthan' | 'lessthanorequal' | 'isnull' | 'isnotnull' | 'contains' | 'nolike' | 'startswith' | 'nostartswith' | 'endswith' | 'notendswith' | 'in' | 'notin' | 'isempty' | 'isnotempty'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'equal'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'notequal'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'greaterthan'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'greaterthanorequal'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'lessthan'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'lessthanorequal'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'isnull'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'isnotnull'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'contains'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'nolike'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'startswith'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'nostartswith'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'endswith'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'notendswith'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'in'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'notin'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'isempty'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'isnotempty'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "GroupFunType": {
+      "name": "GroupFunType",
+      "jsdoc": "wire 分组聚合函数（Jackson GroupFunType）。\n禁止与 spark-data `AggregateType` 混用（后者额外含 `join`）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'sum' | 'avg' | 'min' | 'max' | 'count'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'sum'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'avg'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'min'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'max'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'count'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

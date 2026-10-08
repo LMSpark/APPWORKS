@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:navigation/nav-types",
+    "sourcePath": "packages/spark-app/src/navigation/nav-types.ts",
+    "sourceFile": "packages/spark-app/src/navigation/nav-types.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "navigation/nav-types",
+    "jsdoc": "@module @spark-appworks/spark-app:navigation/nav-types\n职责：提供应用壳层 nav-types 能力，围绕 NavigationContext 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/nav-types。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "NavigationContext"
+    ]
+  },
+  "$defs": {
+    "NavigationContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavigationContext",
+      "properties": {
+        "activePath": {
+          "type": "object",
+          "title": "ComputedRef<RuntimeNavigationItem[]>"
+        },
+        "regionItems": {
+          "type": "object",
+          "title": "ComputedRef<RuntimeNavigationRegionItems>"
+        },
+        "regionVisibility": {
+          "type": "object",
+          "title": "ComputedRef<RuntimeNavigationRegionVisibility>"
+        },
+        "moduleContext": {
+          "type": "object",
+          "title": "ComputedRef<RuntimeNavigationContextState | null>"
+        }
+      },
+      "required": [
+        "activePath",
+        "regionItems",
+        "regionVisibility",
+        "moduleContext"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.navigateTo.params": {
+          "type": "object",
+          "properties": {
+            "node": {
+              "$ref": "runtime-navigation.ts.json#/$defs/RuntimeNavigationItem"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.navigateTo.return": true,
+        "method.navigateToPath.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.navigateToPath.return": true,
+        "method.setContextValue.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setContextValue.return": true,
+        "method.isNodeActive.params": {
+          "type": "object",
+          "properties": {
+            "node": {
+              "$ref": "runtime-navigation.ts.json#/$defs/RuntimeNavigationItem"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isNodeActive.return": {
+          "type": "boolean"
+        },
+        "method.getBadge.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getBadge.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "method.setBadge.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setBadge.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T21:40:30.838Z",
+  "models": {
+    "NavigationContext": {
+      "name": "NavigationContext",
+      "jsdoc": "Navigation Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 从根到当前叶子的节点路径 */\n    activePath: ComputedRef<RuntimeNavigationItem[]>;\n    /** 各区域的导航项 */\n    regionItems: ComputedRef<RuntimeNavigationRegionItems>;\n    /** 各区域是否可见（有项为 true） */\n    regionVisibility: ComputedRef<RuntimeNavigationRegionVisibility>;\n    /** 当前模块的上下文选择器状态（null = 当前模块无上下文；作用域：模块下全部页面） */\n    moduleContext: ComputedRef<RuntimeNavigationContextState | null>;\n    /** 导航到指定节点（处理外部链接、重定向、首个叶子等） */\n    navigateTo: (node: RuntimeNavigationItem) => void;\n    /** 导航到指定路径（自动追加租户前缀） */\n    navigateToPath: (path: string) => void;\n    /** 设置当前模块上下文选择器的值 */\n    setContextValue: (value: string | number | null) => void;\n    /** 判断节点是否在活动路径上 */\n    isNodeActive: (node: RuntimeNavigationItem) => boolean;\n    /** 获取节点的角标（运行时动态设定） */\n    getBadge: (nodeId: string) => string | number | undefined;\n    /** 设置节点的角标（运行时 API） */\n    setBadge: (nodeId: string, value: string | number | undefined) => void;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "activePath",
+              "jsdoc": "从根到当前叶子的节点路径",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "regionItems",
+              "jsdoc": "各区域的导航项",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "regionVisibility",
+              "jsdoc": "各区域是否可见（有项为 true）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "moduleContext",
+              "jsdoc": "当前模块的上下文选择器状态（null = 当前模块无上下文；作用域：模块下全部页面）",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "navigateTo",
+              "jsdoc": "导航到指定节点（处理外部链接、重定向、首个叶子等）",
+              "parameters": [
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "RuntimeNavigationItem",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "navigateToPath",
+              "jsdoc": "导航到指定路径（自动追加租户前缀）",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setContextValue",
+              "jsdoc": "设置当前模块上下文选择器的值",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "isNodeActive",
+              "jsdoc": "判断节点是否在活动路径上",
+              "parameters": [
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "RuntimeNavigationItem",
+                    "sourcePath": "packages/spark-app/src/navigation/runtime-navigation.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getBadge",
+              "jsdoc": "获取节点的角标（运行时动态设定）",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setBadge",
+              "jsdoc": "设置节点的角标（运行时 API）",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "undefined"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

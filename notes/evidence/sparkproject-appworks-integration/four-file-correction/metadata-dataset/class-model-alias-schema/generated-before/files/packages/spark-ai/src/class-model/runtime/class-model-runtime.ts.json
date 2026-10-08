@@ -1,0 +1,442 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/runtime/class-model-runtime",
+    "sourcePath": "packages/spark-ai/src/class-model/runtime/class-model-runtime.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/runtime/class-model-runtime.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/runtime/class-model-runtime",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/runtime/class-model-runtime\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 class-model-runtime 能力，围绕 ClassModelScriptCommand、ClassModelRuntimeOptions、ClassModelToolArgs 等 8 个公开契约 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/runtime/class-model-runtime 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ClassModelScriptCommand",
+      "ClassModelRuntimeOptions",
+      "ClassModelToolArgs",
+      "ClassModelToolResult",
+      "ClassModelToolCheck",
+      "ClassModelScriptExecutorResult",
+      "ClassModelScriptExecutor",
+      "ClassModelRuntime"
+    ]
+  },
+  "$defs": {
+    "ClassModelScriptCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelScriptCommand",
+      "properties": {
+        "script": {
+          "type": "string"
+        },
+        "host": true
+      },
+      "additionalProperties": false
+    },
+    "ClassModelRuntimeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelRuntimeOptions",
+      "properties": {
+        "document": {
+          "$ref": "../class-model/types.ts.json#/$defs/ClassModelDocument"
+        },
+        "knowledge": {
+          "type": "object",
+          "title": "ClassModelKnowledgeProvider"
+        },
+        "scriptExecutor": {
+          "type": "object",
+          "title": "ClassModelScriptExecutor"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelToolResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelToolResult",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "data": {
+          "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ClassModelToolCheck"
+          }
+        },
+        "state": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelToolCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelToolCheck",
+      "properties": {
+        "level": {
+          "enum": [
+            "error",
+            "warn",
+            "info"
+          ]
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "hint": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelScriptExecutorResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ClassModelScriptExecutorResult",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "JsonValue"
+        },
+        {
+          "type": "object",
+          "title": "ClassModelToolResult"
+        }
+      ]
+    },
+    "ClassModelRuntime": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelRuntime",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ClassModelRuntimeOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getTools.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getTools.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../tools/class-model-tool-specs.ts.json#/$defs/ClassModelToolSpec"
+          }
+        },
+        "method.executeTool.params": {
+          "type": "object",
+          "properties": {
+            "toolName": {
+              "type": "string"
+            },
+            "rawArgs": {
+              "type": "object",
+              "title": "ClassModelToolArgs"
+            },
+            "host": true
+          },
+          "additionalProperties": false
+        },
+        "method.executeTool.return": {
+          "type": "object",
+          "title": "Promise<ClassModelToolResult>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.508Z",
+  "models": {
+    "ClassModelScriptCommand": {
+      "name": "ClassModelScriptCommand",
+      "jsdoc": "Class Model Script Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 待执行的 model_script 源码字符串。 */\n    script: string;\n    /** 可选 Host 上下文，注入 script 执行环境。 */\n    host?: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 待执行的 model_script 源码字符串。 */\n    script: string;\n    /** 可选 Host 上下文，注入 script 执行环境。 */\n    host?: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "script",
+              "jsdoc": "待执行的 model_script 源码字符串。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "host",
+              "jsdoc": "可选 Host 上下文，注入 script 执行环境。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelRuntimeOptions": {
+      "name": "ClassModelRuntimeOptions",
+      "jsdoc": "Class Model Runtime Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 内存 ClassModelDocument；未提供 knowledge 时用于默认 provider。 */\n    document?: ClassModelDocument;\n    /** 知识查询 provider；可替换为 Web Worker 远程实现。 */\n    knowledge?: ClassModelKnowledgeProvider;\n    /** script 工具的唯一执行入口，承接 model_script 调用。 */\n    scriptExecutor: ClassModelScriptExecutor;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 内存 ClassModelDocument；未提供 knowledge 时用于默认 provider。 */\n    document?: ClassModelDocument;\n    /** 知识查询 provider；可替换为 Web Worker 远程实现。 */\n    knowledge?: ClassModelKnowledgeProvider;\n    /** script 工具的唯一执行入口，承接 model_script 调用。 */\n    scriptExecutor: ClassModelScriptExecutor;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "document",
+              "jsdoc": "内存 ClassModelDocument；未提供 knowledge 时用于默认 provider。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "knowledge",
+              "jsdoc": "知识查询 provider；可替换为 Web Worker 远程实现。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scriptExecutor",
+              "jsdoc": "script 工具的唯一执行入口，承接 model_script 调用。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelToolArgs": {
+      "name": "ClassModelToolArgs",
+      "jsdoc": "Class Model Tool Args 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, JsonValue>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, JsonValue>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ClassModelToolResult": {
+      "name": "ClassModelToolResult",
+      "jsdoc": "Class Model Tool Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 工具是否执行成功。 */\n    ok: boolean;\n    /** 成功时的业务数据载荷。 */\n    data?: JsonValue;\n    /** 结构化检查项（error/warn/info），失败时通常非空。 */\n    checks?: readonly ClassModelToolCheck[];\n    /** 可选运行状态快照，供后续 turn 或 UI 读取。 */\n    state?: Readonly<Record<string, unknown>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 工具是否执行成功。 */\n    ok: boolean;\n    /** 成功时的业务数据载荷。 */\n    data?: JsonValue;\n    /** 结构化检查项（error/warn/info），失败时通常非空。 */\n    checks?: readonly ClassModelToolCheck[];\n    /** 可选运行状态快照，供后续 turn 或 UI 读取。 */\n    state?: Readonly<Record<string, unknown>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ok",
+              "jsdoc": "工具是否执行成功。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "成功时的业务数据载荷。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "checks",
+              "jsdoc": "结构化检查项（error/warn/info），失败时通常非空。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "jsdoc": "可选运行状态快照，供后续 turn 或 UI 读取。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelToolCheck": {
+      "name": "ClassModelToolCheck",
+      "jsdoc": "Class Model Tool Check 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 检查等级：error 阻断，warn/info 提示。 */\n    level: 'error' | 'warn' | 'info';\n    /** 稳定检查码，供恢复提示与 UI 识别。 */\n    code: string;\n    /** 面向用户或日志的检查说明。 */\n    message: string;\n    /** 可选修复提示。 */\n    hint?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 检查等级：error 阻断，warn/info 提示。 */\n    level: 'error' | 'warn' | 'info';\n    /** 稳定检查码，供恢复提示与 UI 识别。 */\n    code: string;\n    /** 面向用户或日志的检查说明。 */\n    message: string;\n    /** 可选修复提示。 */\n    hint?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "level",
+              "jsdoc": "检查等级：error 阻断，warn/info 提示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "jsdoc": "稳定检查码，供恢复提示与 UI 识别。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "面向用户或日志的检查说明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hint",
+              "jsdoc": "可选修复提示。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelScriptExecutorResult": {
+      "name": "ClassModelScriptExecutorResult",
+      "jsdoc": "Class Model Script Executor Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "JsonValue | ClassModelToolResult",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "JsonValue",
+            "targetName": "JsonValue"
+          },
+          {
+            "kind": "union",
+            "typeText": "ClassModelToolResult",
+            "targetName": "ClassModelToolResult"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ClassModelScriptExecutor": {
+      "name": "ClassModelScriptExecutor",
+      "jsdoc": "Class Model Script Executor 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(command: ClassModelScriptCommand) => ClassModelScriptExecutorResult | Promise<ClassModelScriptExecutorResult>",
+        "members": {}
+      }
+    },
+    "ClassModelRuntime": {
+      "name": "ClassModelRuntime",
+      "jsdoc": "DtsTypeDeclarationModel tool runtime。\n这是 DtsTypeDeclarationModel 的运行时投影，唯一执行入口由 scriptExecutor 承接。\nruntime 主要负责执行：暴露 7 个 OpenAI tools、校验参数、调度脚本执行器。\nDtsTypeDeclarationModel 查询、索引和 guide 投影属于 knowledge 边界，可替换成 Web Worker provider。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Class Model Runtime 实例。",
+          "signatureText": "constructor(options: ClassModelRuntimeOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ClassModelRuntimeOptions",
+                "sourcePath": "packages/spark-ai/src/class-model/runtime/class-model-runtime.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "getTools",
+              "jsdoc": "读取 Tools。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly ClassModelToolSpec[]"
+              }
+            },
+            {
+              "name": "executeTool",
+              "jsdoc": "执行 execute Tool 操作。",
+              "parameters": [
+                {
+                  "name": "toolName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "rawArgs",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelToolArgs",
+                    "sourcePath": "packages/spark-ai/src/class-model/runtime/class-model-runtime.ts"
+                  }
+                },
+                {
+                  "name": "host",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ClassModelToolResult",
+                    "sourcePath": "packages/spark-ai/src/class-model/runtime/class-model-runtime.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

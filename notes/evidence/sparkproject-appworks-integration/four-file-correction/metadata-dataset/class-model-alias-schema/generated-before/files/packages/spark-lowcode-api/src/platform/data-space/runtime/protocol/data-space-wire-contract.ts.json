@@ -1,0 +1,658 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-wire-contract",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/protocol/data-space-wire-contract",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-wire-contract\n职责：声明 SPARK 查询封包的协议字段。\n边界：只供协议转换使用，不替代公开过滤树和场景模型身份。\nAI用途：核对 Table、ValueFun 与分页树参数的实际请求形状。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceWireQueryOptions",
+      "DataSpaceWireFilter",
+      "DataSpaceWireQueryRequest"
+    ]
+  },
+  "$defs": {
+    "DataSpaceValueFunction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceValueFunction",
+      "properties": {
+        "Type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceWireQueryField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceWireQueryField",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "AsName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "IsOutput": {
+          "type": "boolean"
+        },
+        "Group": {
+          "type": "number"
+        },
+        "Expression": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "Order": {
+          "type": "number"
+        },
+        "OrderType": {
+          "anyOf": [
+            {
+              "$ref": "../../../../contracts/lowcode-wire-query.ts.json#/$defs/OrderType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ValueFun": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataSpaceValueFunction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceWireSort": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceWireSort",
+      "properties": {
+        "Field": {
+          "type": "string"
+        },
+        "OrderType": {
+          "$ref": "../../../../contracts/lowcode-wire-query.ts.json#/$defs/OrderType"
+        },
+        "Order": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceWireInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceWireInput",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "Value": true
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceWireTree": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceWireTree",
+      "properties": {
+        "keyField": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "nodeid": {
+          "type": "string"
+        },
+        "hasChildField": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "child",
+            "parent"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceWireQueryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceWireQueryOptions",
+      "properties": {
+        "filter": {
+          "$ref": "#/$defs/DataSpaceWireFilter"
+        },
+        "sortFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceWireSort"
+          }
+        },
+        "pageIndex": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        },
+        "allPages": {
+          "type": "boolean"
+        },
+        "maxRows": {
+          "type": "number"
+        },
+        "outputType": {
+          "type": "string"
+        },
+        "outputFieldMode": true,
+        "tree": {
+          "$ref": "#/$defs/DataSpaceWireTree"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceWireQueryField"
+          }
+        },
+        "inputParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceWireInput"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceWireFilter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceWireFilter",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "const": "cond"
+            },
+            "Field": {
+              "type": "string"
+            },
+            "Operator": {
+              "type": "object",
+              "title": "WireFilterOperator"
+            },
+            "Value": {
+              "type": "null"
+            },
+            "ValueFun": {
+              "type": "object",
+              "title": "DataSpaceValueFunction"
+            }
+          },
+          "required": [
+            "Type",
+            "Field",
+            "Operator",
+            "Value",
+            "ValueFun"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "enum": [
+                "and",
+                "or"
+              ]
+            },
+            "Filters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "DataSpaceWireFilter"
+              }
+            }
+          },
+          "required": [
+            "Type",
+            "Filters"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "DataSpaceWireQueryRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceWireQueryRequest",
+      "properties": {
+        "Table": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataSpaceWireQueryDescriptor"
+          }
+        },
+        "OutputFieldMode": true,
+        "PageParam": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "number"
+            },
+            "size": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "index",
+            "size"
+          ],
+          "additionalProperties": false
+        },
+        "keyField": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "nodeid": {
+          "type": "string"
+        },
+        "hasChildField": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "child",
+            "parent"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-08T16:19:00.645Z",
+  "models": {
+    "DataSpaceValueFunction": {
+      "name": "DataSpaceValueFunction",
+      "jsdoc": "协议值函数封包；Type 决定函数，JSON 扩展值原样传递。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Type: string;\n    [key: string]: DataViewFilterJsonValue;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    Type: string;\n    [key: string]: DataViewFilterJsonValue;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceWireQueryField": {
+      "name": "DataSpaceWireQueryField",
+      "jsdoc": "后端查询字段描述；Name 与 AsName 区分请求名和输出名。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Name: string;\n    AsName?: string | null;\n    IsOutput: boolean;\n    Group?: number;\n    Expression?: string | null;\n    Order?: number;\n    OrderType?: OrderType | null;\n    ValueFun?: DataSpaceValueFunction | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    Name: string;\n    AsName?: string | null;\n    IsOutput: boolean;\n    Group?: number;\n    Expression?: string | null;\n    Order?: number;\n    OrderType?: OrderType | null;\n    ValueFun?: DataSpaceValueFunction | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AsName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsOutput",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Group",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Expression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "OrderType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ValueFun",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceWireSort": {
+      "name": "DataSpaceWireSort",
+      "jsdoc": "协议排序字段及顺序，OrderType 使用后端枚举。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Field: string;\n    OrderType: OrderType;\n    Order: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    Field: string;\n    OrderType: OrderType;\n    Order: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "OrderType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Order",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceWireInput": {
+      "name": "DataSpaceWireInput",
+      "jsdoc": "协议输入参数的 Name/Value 封包。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Name: string;\n    Value: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    Name: string;\n    Value: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceWireTree": {
+      "name": "DataSpaceWireTree",
+      "jsdoc": "已规范化的树查询协议参数，明确节点、关系字段与方向。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    keyField: string;\n    parentField: string;\n    nodeid: string;\n    hasChildField: string;\n    type: 'child' | 'parent';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    keyField: string;\n    parentField: string;\n    nodeid: string;\n    hasChildField: string;\n    type: 'child' | 'parent';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "keyField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasChildField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceWireQueryOptions": {
+      "name": "DataSpaceWireQueryOptions",
+      "jsdoc": "已转换的内部查询选项，供查询表组装 SPARK 封包。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    filter?: DataSpaceWireFilter;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    filter?: DataSpaceWireFilter;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "filter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allPages",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputFieldMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tree",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParams",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceWireFilter": {
+      "name": "DataSpaceWireFilter",
+      "jsdoc": "协议条件使用 ValueFun 且 Value 固定为 null；组以 Filters 递归组合。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Type: 'cond';\n    Field: string;\n    Operator: WireFilterOperator;\n    Value: null;\n    ValueFun: DataSpaceValueFunction;\n}> | Readonly<{\n    Type: 'and' | 'or';\n    Filters: readonly DataSpaceWireFilter[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    Type: 'cond';\n    Field: string;\n    Operator: WireFilterOperator;\n    Value: null;\n    ValueFun: DataSpaceValueFunction;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    Type: 'and' | 'or';\n    Filters: readonly DataSpaceWireFilter[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceWireQueryDescriptor": {
+      "name": "DataSpaceWireQueryDescriptor",
+      "jsdoc": "查询表内部描述对象，由模型身份与已转换选项构造。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceWireQueryRequest": {
+      "name": "DataSpaceWireQueryRequest",
+      "jsdoc": "实际 GetData 请求体；场景身份由请求头 x-FormKey 携带。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Table: readonly DataSpaceWireQueryDescriptor[];\n    OutputFieldMode?: DataSpaceWireQueryOptions['outputFieldMode'];\n    PageParam?: Readonly<{\n        index: number;\n        size: number;\n    }>;\n    keyField?: string;\n    parentField?: string;\n    nodeid?: string;\n    hasChildField?: string;\n    type?: 'child' | 'parent';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    Table: readonly DataSpaceWireQueryDescriptor[];\n    OutputFieldMode?: DataSpaceWireQueryOptions['outputFieldMode'];\n    PageParam?: Readonly<{\n        index: number;\n        size: number;\n    }>;\n    keyField?: string;\n    parentField?: string;\n    nodeid?: string;\n    hasChildField?: string;\n    type?: 'child' | 'parent';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Table",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "OutputFieldMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "PageParam",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "keyField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasChildField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "path": "packages/spark-data/src/types.ts",
+    "sha256": "F6D356C1FCECFF0CC39318375E1657FD1E6E3A75ECF5BFDF31DF3C2EAF4D961C"
+  },
+  {
+    "path": "packages/spark-data/src/index.ts",
+    "sha256": "A8B0311EED3898000BFD398258934C02CBF25D11206CAC7898C5014480294F85"
+  },
+  {
+    "path": "packages/spark-data/src/core/utils.ts",
+    "sha256": "D3B879CE9E2959F3203E0569A97B47B1887489AA4CE75EB626C811D236010200"
+  },
+  {
+    "path": "packages/spark-data/src/dataset.ts",
+    "sha256": "46284154581F9654887561701AA0E772FEE22DA113C14C46850FF92691B03795"
+  },
+  {
+    "path": "packages/spark-data/src/data-view.ts",
+    "sha256": "8D9BFEF5EA579AD9B57CBD4A3966F76976D877BEF06AA797E06F5EE8BAE3FAA1"
+  },
+  {
+    "path": "packages/spark-data/src/dataset-crud-tool.ts",
+    "sha256": "7843FA0285A64F5ABFC9A854110CAE944B75DC526AF140026B9EF977EBE5393A"
+  },
+  {
+    "path": "packages/spark-data/src/strategies/cascade-delegate.ts",
+    "sha256": "13D71C1A4BBFBF2FAA68C9C9F3B5E052245C715FB7909899ACA617CE05CFB150"
+  },
+  {
+    "path": "packages/spark-data/src/strategies/cascade/field-cascade-binding.ts",
+    "sha256": "F0EAF2B5EE075B6D7EA67995E60F870034C2D3A86994D9E6E819702B7A31CE98"
+  },
+  {
+    "path": "packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts",
+    "sha256": "918BA4A78FB12F5BF2E30F14536479857421A77B51144558648430E4C12ED57C"
+  },
+  {
+    "path": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
+    "sha256": "4F2BF25E9453AD99A18E5A8B7B9EF97CAEBBD3B82DA407B00E680D12052CEAD7"
+  },
+  {
+    "path": "packages/spark-data/API.md",
+    "sha256": "3CB7BF018BDC5FF44EE165D34993D3AC2573019517D70DCABE5610B52CB3E601"
+  },
+  {
+    "path": "packages/spark-data/src/tests/cascade-event-filter.test.ts",
+    "sha256": "97697A4D80F2A762DDE227F7B14B314DE1BEE5574242F3C00B4A088DABB672A1"
+  },
+  {
+    "path": "packages/spark-data/src/tests/cascade-computed-tree.test.ts",
+    "sha256": "C9D0EB046C74FDF1934820E2BA6FD02D72AB69A596736E0336F883839B66C0F8"
+  },
+  {
+    "path": "packages/spark-data/src/tests/data-view/data-view-events.test.ts",
+    "sha256": "7FA513FFA78A4FE1C95D00C179003109011A557CEF85D6348B495D7E9277CE2B"
+  },
+  {
+    "path": "packages/spark-data/src/tests/crud/commit-mode.test.ts",
+    "sha256": "F5D65F6BFFCE98D33DF68F6B81BF0881FD275A9693EC88B44E1DC3F5FF59DB75"
+  },
+  {
+    "path": "packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts",
+    "sha256": "C32F20313E6B04A669B82C1127B90BD6B4E9E6F9C370C508A209ECE619430C0C"
+  },
+  {
+    "path": "packages/spark-data/src/tests/dataset/dataset-structure-crud.test.ts",
+    "sha256": "11F50998AC2E66F2126E2C32FF4A241DCB43A0644400801B6D3C1EA43D21B327"
+  },
+  {
+    "path": "packages/spark-data/src/tests/dataset/dataset-request-orchestration.test.ts",
+    "sha256": "61A8756BB5F0ABC23F6087559BAEECB39620BF3B10AB8516AC0CB6C9C9C0EE62"
+  },
+  {
+    "path": "packages/spark-data/src/tests/dataset/dataset-relation-rebuild.test.ts",
+    "sha256": "E81D83DEB7936CE4CB815E8190E10F3AA1BE41F4AD49D885D8C01F02B714DD58"
+  },
+  {
+    "path": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+    "sha256": "64BD47ED6D357C7167506D8E789383C2B60F8DFB388D9BD0BC0C5A5A31C4B993"
+  },
+  {
+    "path": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+    "sha256": "FE057173BA4F9055C4DC346CD90BF9F225A3A26D340210F6EE1142854B42504E"
+  },
+  {
+    "path": "tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts",
+    "sha256": "4DD36F97F4971AF40B77D8A4D3DC6D6FEA8CE35C5AA685514BF6F7E7ED6CB440"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts",
+    "sha256": "887DB65D86FBE4614FAA84F208AA57F5D863CFF7192748179F59A29D45FD7DCE"
+  },
+  {
+    "path": "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts",
+    "sha256": "A1D931FF32C122F832100D8B4D16A81F6A32690F8F95C771E308E221A70D26A4"
+  }
+]

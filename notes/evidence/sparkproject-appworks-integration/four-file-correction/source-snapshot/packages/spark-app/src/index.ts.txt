@@ -1,0 +1,210 @@
+/**
+ * @module @spark-appworks/spark-app:index
+ * 职责：提供 spark-app 应用壳中的 index 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。
+ * 边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。
+ * AI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。
+ */
+/**
+ * @spark-appworks/spark-app
+ * SPARK Application Layer - 应用层基础设施
+ */
+
+// 符号常量表（SPARK_REGISTRY_KEY 不在此转发；消费方直连 @spark-appworks/spark-component）
+export {
+  ErrorCodes,
+  DefaultConfig,
+  getErrorMessage,
+} from './constants'
+
+export type {
+  ErrorCode,
+} from './constants'
+
+// 核心命名空间
+export { SparkApp } from './namespace'
+
+// Start（高级 API - 推荐）
+export { start } from './app/start'
+export type { StartOptions, SparkOptions, PageNodeOptions } from './app/start'
+
+// Bootstrap（中级 API）
+export { bootstrap } from './app/bootstrap'
+export type { BootstrapAuthenticate, BootstrapOptions } from './types'
+
+// 插件管理系统
+export {
+  PluginManager,
+  PluginRegistry,
+  createPluginRegister,
+  createPluginRegistry,
+  getGlobalPluginRegistry,
+  registerBuiltinPlugins,
+  registerAllPresetPlugins
+} from './shell/plugins'
+
+export type {
+  PluginConfigItem,
+  PluginLoader,
+  PluginInstance
+} from './shell/plugins'
+
+// Logger
+export {
+  createAppLogger,
+  createLogger,
+  appLogger,
+  createBatchHttpTransport,
+  configureRemoteLogger,
+  addGlobalTransport,
+  clearGlobalTransports,
+  getGlobalTransportCount
+} from './logger'
+
+export type {
+  AppLoggerConfig,
+  AppLogTransport,
+  BatchTransportOptions
+} from './logger'
+
+// 主题服务
+export { createThemeService, useTheme, THEME_INJECTION_KEY } from './shell/theme'
+export type { ThemeServiceOptions, ThemeServiceReactive } from './shell/theme'
+
+// 类型导出
+export type {
+  AppContext,
+  AppConfig,
+  UserInfo,
+  TenantInfo,
+  BootstrapContext,  // 新增：Bootstrap 扩展 Context
+  // BootstrapOptions,  // 已在上面导出
+  RouterGuardOptions,
+  ErrorHandlerOptions,
+  AppEnvironment
+} from './types'
+
+// AppContext (内部使用)
+export {
+  createAppContext  // SparkApp 命名空间需要
+} from './app/app-context'
+
+// Router Guards
+export { setupRouterGuards, setupLoadingGuard } from './router/guards'
+
+// 动态路由
+export { DynamicRouter, createDynamicRouter } from './router/dynamic'
+export type { DynamicRouterOptions } from './router/dynamic'
+
+// Error Handler
+export { setupErrorHandler, createErrorBoundary } from './app/error-handler'
+
+// Config
+export { isFeatureEnabled } from './app/config'
+
+// Page UI Service
+export {
+  appPageUiState,
+  appPageUiService,
+  confirmAppDialog,
+  cancelAppDialog,
+  closeAppDialog,
+  confirmAppSelector,
+  cancelAppSelector,
+  closeAppSelector,
+} from './shell/page-ui/pageUiService'
+
+// 运行时组件注册辅助（可选，经典模式使用）
+export { setupAutoRegister } from './app/auto-register'
+export type { AutoRegisterOptions } from './app/auto-register'
+
+// Composables
+// ⚠️ DI 架构已统一到 SPARK 能力系统（管道 B）
+// - 推荐：使用 sparkConsume(PAGE_RUNTIME_SERVICES) 获取页面运行时服务
+// - Router：直接使用 vue-router 的 useRouter()
+// - Logger：使用 Logger('module') 工厂函数
+export {
+  useSparkRegistry
+} from './useServices'
+
+// ── Navigation Model ──
+export {
+  useNav,
+  useNavigation,
+} from './navigation/useNavigation'
+export {
+  normalizeNavRuntimePath,
+  resolveNavNodeRuntimeTarget,
+} from './navigation/runtime-target'
+export type {
+  NavNodeActionTarget,
+  NavNodeContainerTarget,
+  NavNodeExternalLinkMode,
+  NavNodeExternalTarget,
+  NavNodeRouteTarget,
+  NavNodeRouteTargetKind,
+  NavNodeRuntimeTarget,
+} from './navigation/runtime-target'
+export {
+  createNavigationActionRegistry,
+  NAVIGATION_ACTION_REGISTRY_KEY,
+} from './navigation/action-registry'
+export type {
+  NavigationActionContext,
+  NavigationActionHandler,
+  NavigationActionRegistry,
+} from './navigation/action-registry'
+export { useTabPages } from './navigation/useTabPages'
+export { useSystemPageIdentityLifecycle } from './router/system-page-identity/system-page-identity-lifecycle'
+export { useColorScheme, setColorSchemeStorageScope, PRIMARY_PRESETS, NAV_PRESETS, STYLE_PRESETS } from './navigation/useColorScheme'
+export { NAV_KEY } from './navigation/nav-types'
+export type { NavigationContext } from './navigation/nav-types'
+export type {
+  RuntimeNavigation,
+  RuntimeNavigationContextState,
+  RuntimeNavigationItem,
+  RuntimeNavigationRegionItems,
+  RuntimeNavigationRegionVisibility,
+} from './navigation/runtime-navigation'
+export { SYSTEM_PAGE_NAVIGATION_ID_QUERY } from './navigation/runtime-navigation'
+export type { TabPage, PageMode } from './navigation/useTabPages'
+export type { PrimaryPreset, NavPreset, NavColorSet, StylePreset, StyleColorSet } from './navigation/useColorScheme'
+
+// ── Navigation Access（DynamicRouter 同步读取接口） ──
+export {
+  setDynamicRouter,
+  getDynamicRouter,
+  refreshRoutes,
+  getNavTree,
+  getNavHomePath,
+} from './navigation/nav-access'
+
+// ── Page UI Host Component ──
+export { default as AppPageUiHost } from './shell/page-ui/AppPageUiHost.vue'
+
+// ── AI run adapter（headless） ──
+export {
+  createAiRunAdapter,
+  createAiToolApprovalBridge,
+  formatAiRunError,
+  noopTraceSink,
+} from './ai'
+
+export type {
+  AiRunAbortHandler,
+  AiRunAdapterCommand,
+  AiRunAdapterOptions,
+  AiRunAdapterRunStatus,
+  AiRunAdapterState,
+  AiRunBeforeFunctionCall,
+  AiRunErrorFormatter,
+  AiRunHost,
+  AiRunListener,
+  AiRunSnapshot,
+  AiRunTimelineEvent,
+  AiRunTraceSink,
+  AiToolApprovalBridgeListener,
+  AiToolApprovalBridgeOptions,
+  AiToolApprovalBridgeSnapshot,
+  AiToolApprovalRequest,
+  AiToolApprovalRequestIdFactory,
+} from './ai'

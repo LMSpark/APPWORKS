@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/index",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/index.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/index.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/index",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/index\n职责：作为 data-views（未注册组件类型）目录的公开导出入口，汇聚渲染器、props、类型和 zero-code 能力。\n边界：只维护 table-level/data-view-container 的模块出口，不新增业务行为，也不绕过具体实现文件的契约。\nAI用途：需要发现 data views 对外暴露哪些子模块时，从本模块进入，再跳到具体 props、Vue 或 zero-code 文件。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [],
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:38:13.378Z",
+  "models": {}
+}

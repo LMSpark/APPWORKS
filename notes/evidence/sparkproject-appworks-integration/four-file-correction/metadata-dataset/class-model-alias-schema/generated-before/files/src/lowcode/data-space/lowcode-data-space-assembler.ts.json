@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/lowcode-data-space-assembler",
+    "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "sourceFile": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/lowcode-data-space-assembler",
+    "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-assembler\n职责：将单场景视图配置与正式模型、关系装配为独立 DataSet。边界：场景文件不覆盖模型字段，每个命名视图绑定既有 query/save owner；AI 可用此入口装配 PageRuntime 的场景空间。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceAssemblerInput",
+      "LowcodeDataSpaceAssembly",
+      "LowcodeDataSpaceAssembler"
+    ]
+  },
+  "$defs": {
+    "FormalSpace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalSpace",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceAssemblerInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAssemblerInput",
+      "properties": {
+        "config": {
+          "$ref": "../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "space": {
+          "$ref": "#/$defs/FormalSpace"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "FormalModel"
+          }
+        },
+        "relations": {
+          "type": "object",
+          "title": "Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceAssembly": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAssembly",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceAssembler": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceAssembler",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "runtime": {
+              "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+            },
+            "http": {
+              "$ref": "../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assemble.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeDataSpaceAssemblerInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assemble.return": {
+          "$ref": "#/$defs/LowcodeDataSpaceAssembly"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T15:02:44.320Z",
+  "models": {
+    "FormalModel": {
+      "name": "FormalModel",
+      "jsdoc": "readModel 返回的正式模型定义，持有模型身份及规范输出字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FormalSpace": {
+      "name": "FormalSpace",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceAssemblerInput": {
+      "name": "LowcodeDataSpaceAssemblerInput",
+      "jsdoc": "装配输入：同场景视图配置与后端正式模型、关系，不从物理资源猜定义。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "space",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relations",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceAssembly": {
+      "name": "LowcodeDataSpaceAssembly",
+      "jsdoc": "独立场景运行空间及无法解析结构关系的诊断；空间生命周期归调用方。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    diagnostics: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "diagnostics",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceAssembler": {
+      "name": "LowcodeDataSpaceAssembler",
+      "jsdoc": "正式模型负责字段定义；场景文件只配置稳定表名和视图。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "注入已有模型查询保存 owner 和共享请求客户端；装配器不创建应用或租户 scope。",
+          "signatureText": "constructor(runtime: DataSpaceRuntimeApi, http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "runtime",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRuntimeApi"
+              }
+            },
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "assemble",
+              "jsdoc": "模型关系只生成结构映射；只有场景明确配置 viewCascades 才装配前端输入级联。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceAssemblerInput",
+                    "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceAssembly",
+                "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

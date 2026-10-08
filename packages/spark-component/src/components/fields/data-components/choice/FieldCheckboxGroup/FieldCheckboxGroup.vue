@@ -7,7 +7,7 @@ AI用途：需要理解 field checkbox group 的实际渲染结构、slot/toolba
 <template>
   <FieldContextRenderer v-bind="fieldCtx">
     <template #form>
-      <el-checkbox-group :model-value="displayValue" :disabled="!isCurrentFieldEditable" @update:model-value="handleChange">
+      <el-checkbox-group :model-value="fieldValue" :disabled="!isCurrentFieldEditable" @update:model-value="handleChange">
         <component
           :is="buttonStyle ? 'el-checkbox-button' : 'el-checkbox'"
           v-for="option in options"
@@ -26,7 +26,6 @@ AI用途：需要理解 field checkbox group 的实际渲染结构、slot/toolba
 /**
  * @description 复选框组字段，绑定数组值，可切换按钮样式。
  */
-import { computed } from 'vue'
 import { useOptionFieldState } from '../../composables/state/useOptionFieldState'
 import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coercePrimitiveOptionArray } from '../../composables/value/fieldValueCoercion'
@@ -48,22 +47,7 @@ const { optionResult, fieldCtx, handleControlledChange } = useOptionFieldState<C
   emitUpdate: value => emitFieldValueUpdate(emit, value),
 })
 
-const { options, fieldName, currentRow, fieldValue, isCurrentFieldEditable } = optionResult
-
-const displayValue = computed<CheckboxGroupMultiValue>(() => {
-  const boundField = fieldName.value
-  const rowValue = boundField ? currentRow.value?.[boundField] : undefined
-
-  if (rowValue !== undefined) {
-    return coercePrimitiveOptionArray(rowValue)
-  }
-
-  if (!boundField) {
-    return coercePrimitiveOptionArray(props.modelValue)
-  }
-
-  return coercePrimitiveOptionArray(fieldValue.value)
-})
+const { options, fieldValue, isCurrentFieldEditable } = optionResult
 
 async function handleChange(value: CheckboxGroupMultiValue): Promise<void> {
   await handleControlledChange(value)

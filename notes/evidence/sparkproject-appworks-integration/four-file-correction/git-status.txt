@@ -1,0 +1,50 @@
+## feat/agent-workflow-node-contract...origin/feat/agent-workflow-node-contract
+ M config/navigation/vue-pages.json
+ M packages/spark-app/src/index.ts
+ M packages/spark-app/src/navigation/runtime-navigation.ts
+ M packages/spark-app/src/navigation/useNavigation.ts
+ M packages/spark-app/src/navigation/useTabPages.ts
+ M packages/spark-app/src/router/dynamic.ts
+ M packages/spark-app/src/shell/plugins/presets.ts
+ M packages/spark-app/vitest.config.ts
+ M packages/spark-lowcode-api/src/index.ts
+ M packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts
+ M packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts
+ M packages/vite-plugin-spark-catalog/src/scan-config.ts
+ M src/App.vue
+ M src/layout/AppTabBar.vue
+ M src/lowcode/lowcode-runtime.ts
+ M src/main.ts
+ M src/registries/vue-page-registry.ts
+ M src/services/project/project-shell.ts
+ M src/views/platform/PlatformApps.vue
+ M src/views/platform/PlatformTenantManagement.vue
+ M src/views/tenant/AppList.vue
+ M tests/app/config/vue-page-registry.test.ts
+ M tests/app/dev/navigation-sync.test.ts
+ M tests/auth-nav/dynamic-router-platform-pages.test.ts
+ M tests/auth-nav/navigation-platform-paths.test.ts
+ M tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts
+ M tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts
+ M tests/runtime/auth-nav/navigation-platform-paths.test.ts
+ M tools/vite-plugin-spark-components.ts
+ M vite.config.ts
+?? notes/evidence/
+?? notes/plan-appworks-control-plane-integration.md
+?? notes/plan-appworks-four-file-integration.md
+?? notes/plan-data-space-create-lifecycle.md
+?? notes/plan-sparkproject-appworks-integration.md
+?? notes/research-appworks-four-file-integration.md
+?? notes/research-sparkproject-appworks-integration.md
+?? notes/validation-sparkproject-appworks-integration.md
+?? packages/spark-app/src/router/system-page-identity/
+?? packages/spark-app/src/shell/plugins/__tests__/presets.test.ts
+?? src/components/page-loading/
+?? src/lowcode/data-space/lowcode-data-space-catalog.ts
+?? src/services/project/navigation/
+?? src/views/app/control/
+?? tests/app/config/spark-components-loading.test.ts
+?? tests/app/services/project/
+?? tests/runtime/auth-nav/application/
+?? tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts
+?? tests/runtime/page/runtime/system-page-identity-tabs.test.ts

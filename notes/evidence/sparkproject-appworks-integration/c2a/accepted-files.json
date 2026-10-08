@@ -1,0 +1,58 @@
+{
+  "files": [
+    {
+      "sha256": "8914C92B3D7AF31766F65022E37F7500DF8625CE0F333124DFCC20B3DE45550F",
+      "path": "packages/spark-app/src/navigation/runtime-navigation.ts"
+    },
+    {
+      "sha256": "BCAEE40F54E29C4FF6CA2E944A13AD9D09545C4998CB5CBB296783E41389406D",
+      "path": "packages/spark-app/src/index.ts"
+    },
+    {
+      "sha256": "6317CF15E7E9E53AA96243F64B9941CC1A2C761B7CCD4F479697F9365899B65A",
+      "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts"
+    },
+    {
+      "sha256": "BB3118B42D0C26BEA440C11D8DEDB3DC95E39F24635D1091E8A97E9C35712761",
+      "path": "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue"
+    },
+    {
+      "sha256": "FB2AE374119F2F5C280D16B1343D21ABBEBF1C9E80893E7EBCD9F8150BF40346",
+      "path": "packages/spark-app/src/router/dynamic.ts"
+    },
+    {
+      "sha256": "CFE3C43D3D30B0F6E13E7EBDD1C3B25F3A67CBDB11DDA848171FFF34F4DC55A1",
+      "path": "packages/spark-app/src/navigation/useNavigation.ts"
+    },
+    {
+      "sha256": "17460A556BF95A4B30285AEB9DA5613F252F28741094E1F08DF608440C4B5376",
+      "path": "src/lowcode/lowcode-runtime.ts"
+    },
+    {
+      "sha256": "9FD7F096510ADB1C87B3DCAED9A58B38DC725322BB4E21463A30D5CEC2D748D8",
+      "path": "src/main.ts"
+    },
+    {
+      "sha256": "898D1CDB953B69218A2B1D1C5C10B45BF34808D0D149B622F10EAC433ABDFCEA",
+      "path": "tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts"
+    },
+    {
+      "sha256": "779FF43E0DDE1A09A16EB1CAC05231D6AC6A7B1026EC849A238F4EFEFEBF9F82",
+      "path": "tests/auth-nav/dynamic-router-platform-pages.test.ts"
+    },
+    {
+      "sha256": "97A1D2A9E0D2893AEC85A1AB9EAF734463C4F1522A99A3C290DC38F936C4AFD7",
+      "path": "tests/runtime/auth-nav/navigation-platform-paths.test.ts"
+    },
+    {
+      "sha256": "1A90EBA646DA19B189A162D80819617D1AA55DF0CCAE48A1F55047112238A044",
+      "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts"
+    },
+    {
+      "sha256": "07FF29FB8F5A7530CF8A2E65BA4C16D5B33BFE8D1BC45C52893285517263BEC7",
+      "path": "packages/spark-app/vitest.config.ts"
+    }
+  ],
+  "scope": "C2a accepted by controller",
+  "at": "2026-10-07T15:08:04.1679789+08:00"
+}

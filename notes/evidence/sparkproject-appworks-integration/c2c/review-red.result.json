@@ -1,0 +1,7 @@
+{
+  "exitCode": 1,
+  "command": "pnpm exec vitest run tests/runtime/page/runtime/system-page-identity-tabs.test.ts --maxWorkers=1 --reporter=dot",
+  "startedAtUtc": "2026-10-07T07:35:15.7208974Z",
+  "finishedAtUtc": "2026-10-07T07:35:22.3121082Z",
+  "cwd": "D:\\SPARK_AppWorks"
+}

@@ -1,0 +1,91 @@
+{
+  "created": {
+    "kind": "field",
+    "cascadeId": "city",
+    "tableName": "Orders",
+    "viewId": "edit",
+    "valueFormat": "selection-string",
+    "targetField": "city",
+    "parents": [
+      {
+        "tableName": "Orders",
+        "viewId": "edit",
+        "field": "country",
+        "parameter": "countryId"
+      }
+    ],
+    "optionsView": {
+      "tableName": "Cities",
+      "viewId": "choices"
+    },
+    "valuePolicy": {
+      "mode": "retain-valid",
+      "clearValue": ""
+    }
+  },
+  "reopened": {
+    "scenarioId": "CLASS_MODEL_PROBE",
+    "tables": {
+      "Orders": {
+        "modelBinding": {
+          "modelId": "FIXTURE_ORDERS",
+          "modelName": "Orders"
+        },
+        "views": {
+          "default": {},
+          "edit": {}
+        }
+      },
+      "Cities": {
+        "modelBinding": {
+          "modelId": "FIXTURE_CITIES",
+          "modelName": "Cities"
+        },
+        "views": {
+          "default": {},
+          "choices": {
+            "valueField": "code",
+            "selectionDelimiter": "|"
+          }
+        }
+      }
+    },
+    "viewCascades": [
+      {
+        "kind": "field",
+        "cascadeId": "city",
+        "tableName": "Orders",
+        "viewId": "edit",
+        "valueFormat": "selection-string",
+        "targetField": "city",
+        "parents": [
+          {
+            "tableName": "Orders",
+            "viewId": "edit",
+            "field": "country",
+            "parameter": "countryId"
+          }
+        ],
+        "optionsView": {
+          "tableName": "Cities",
+          "viewId": "choices"
+        },
+        "valuePolicy": {
+          "mode": "retain-valid",
+          "clearValue": ""
+        }
+      }
+    ]
+  },
+  "invalid": {
+    "ok": false,
+    "checks": [
+      {
+        "level": "error",
+        "code": "SCRIPT_EXECUTION_FAILED",
+        "message": "脚本执行失败: FIELD_CASCADE_CONFIG: viewCascades.field.rowMode 未知",
+        "hint": "检查脚本语法与 ClassModel 契约后重试。按 tool result RECOVERY_HINT 修正；契约见 model_action_guide / model_class_guide（ClassModel 知识索引）。"
+      }
+    ]
+  }
+}

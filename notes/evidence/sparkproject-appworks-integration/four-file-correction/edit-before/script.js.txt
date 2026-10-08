@@ -1,0 +1,274 @@
+var catalogSearchName = ''
+var catalogSearchApp = ''
+var catalogRequestError = ''
+var catalogSaveUncertain = false
+var catalogAddBusy = false
+var catalogUnknownId = ''
+
+async function loadCreatorRows() {
+  const data = $page.resolveView('Base_DataSet@catalog')
+  const users = $page.resolveView('Base_UserInfo@catalogUsers')
+  const ids = [...new Set(data.rows.flatMap((row) => {
+    if (data.fieldAccess(row, 'createuser').read !== 'visible') return []
+    const value = row.createuser
+    return value == null || String(value).trim() === '' ? [] : [String(value).trim()]
+  }))]
+  if (ids.length === 0) return
+  await users.loadFromServer({ fields: ['ID', 'ROWID', 'UserName'],
+    filter: { field: 'ROWID', operator: 'in', value: ids }, allPages: true })
+}
+
+async function __init__() {
+  const view = $page.resolveView('Base_DataSet@catalog')
+  const apps = $page.resolveView('Base_AppSystemList@catalogApps')
+  await apps.loadFromServer({ fields: ['rowid', 'AppDesc', 'AppName'], allPages: true })
+  await view.loadFromServer({ fields: ['rowid', 'Name', 'Type', 'description', 'sysid', 'createuser', 'createtime'] })
+  await loadCreatorRows()
+}
+
+async function applyCatalogFilter() {
+  const view = $page.resolveView('Base_DataSet@catalog')
+  const terms = []
+  if (catalogSearchName.trim()) {
+    terms.push({ logic: 'or', filters: [
+      { field: 'Name', operator: 'contains', value: catalogSearchName.trim() },
+      { field: 'rowid', operator: 'eq', value: catalogSearchName.trim() },
+    ] })
+  }
+  if (catalogSearchApp) terms.push({ field: 'sysid', operator: 'eq', value: catalogSearchApp })
+  const filter = terms.length > 1 ? { logic: 'and', filters: terms }
+    : terms.length === 1 ? terms[0] : undefined
+  try {
+    catalogRequestError = ''
+    await view.executeFilter(filter)
+    if (view.loadingError) throw new Error(view.loadingError)
+    await loadCreatorRows()
+  } catch (error) {
+    catalogRequestError = error instanceof Error ? error.message : String(error)
+    throw error
+  }
+}
+
+async function changeCatalogPage(page) {
+  const view = $page.resolveView('Base_DataSet@catalog')
+  try {
+    catalogRequestError = ''
+    await view.setPage(page)
+    if (view.loadingError) throw new Error(view.loadingError)
+    await loadCreatorRows()
+  } catch (error) {
+    catalogRequestError = error instanceof Error ? error.message : String(error)
+    throw error
+  }
+}
+
+async function changeCatalogPageSize(event) {
+  const view = $page.resolveView('Base_DataSet@catalog')
+  try {
+    catalogRequestError = ''
+    await view.setPageSize(Number(event.target.value))
+    if (view.loadingError) throw new Error(view.loadingError)
+    await loadCreatorRows()
+  } catch (error) {
+    catalogRequestError = error instanceof Error ? error.message : String(error)
+    throw error
+  }
+}
+
+async function addCatalogEntry() {
+  if (catalogAddBusy) return
+  catalogAddBusy = true
+  const view = $page.resolveView('Base_DataSet@catalog')
+  try {
+    if (catalogSaveUncertain) {
+      $page.showMessage(`上次保存结果未知（${catalogUnknownId}）。请刷新确认服务端状态后再新增。`, 'warning')
+      return
+    }
+    if (view.addActionState() !== 'enabled') {
+      $page.showMessage('当前没有数据空间新增权限', 'warning')
+      return
+    }
+    const apps = $page.resolveView('Base_AppSystemList@catalogApps')
+    const options = apps.rows.flatMap((row) => {
+      if (apps.fieldAccess(row, 'rowid').read !== 'visible') return []
+      const value = row.rowid
+      if (typeof value !== 'string' || !value.trim()) return []
+      let label = ''
+      for (const field of ['AppDesc', 'AppName']) {
+        const access = apps.fieldAccess(row, field)
+        if (access.read === 'masked') { label = '••••'; break }
+        if (access.read === 'visible' && row[field] != null && String(row[field]).trim()) {
+          label = String(row[field]).trim()
+          break
+        }
+      }
+      return [{ value: value.trim(), label: label || value.trim() }]
+    })
+    const selected = await $page.selectEntities({ title: '选择所属应用', entityName: '应用', searchable: true,
+      multiple: false, options })
+    if (selected.length === 0) return
+    const sysid = String(selected[0].value).trim()
+    if (!options.some((option) => option.value === sysid)) throw new Error('所选应用不在当前可读候选项中')
+    const name = await $page.showPrompt('请输入数据空间名称（最多100字）', '新增数据空间', { placeholder: '名称' })
+    if (name === null) return
+    const normalizedName = name.trim()
+    if (!normalizedName) {
+      $page.showMessage('数据空间名称不能为空', 'warning')
+      return
+    }
+    if (normalizedName.length > 100) {
+      $page.showMessage('数据空间名称不能超过100字', 'warning')
+      return
+    }
+    const description = await $page.showPrompt('请输入描述（最多500字）', '新增数据空间', { placeholder: '描述' })
+    if (description === null) return
+    const normalizedDescription = description.trim()
+    if (normalizedDescription.length > 500) {
+      $page.showMessage('数据空间描述不能超过500字', 'warning')
+      return
+    }
+    if (view.addActionState() !== 'enabled') {
+      $page.showMessage('新增权限已变化，请刷新后重试', 'warning')
+      return
+    }
+    const row = await view.addRow({ Name: normalizedName, Type: 'datasource',
+      description: normalizedDescription, sysid })
+    const id = view.getPkKey(row)
+    if (typeof id !== 'string' && typeof id !== 'number') throw new Error('新增数据空间缺少本地正式主键')
+    catalogUnknownId = String(id)
+    catalogSaveUncertain = true
+    try {
+      const result = await view.dataSet.saveChanges({ views: [{ tableName: 'Base_DataSet', viewId: 'catalog', ids: [id] }] })
+      if (!result.success) throw new Error('数据空间保存未确认成功')
+      catalogSaveUncertain = false
+      catalogUnknownId = ''
+    } catch (error) {
+      catalogRequestError = error instanceof Error ? error.message : String(error)
+      if (catalogSaveUncertain) {
+        $page.showMessage(`数据空间保存结果未知（${catalogUnknownId}）：${catalogRequestError}。请刷新确认后再操作。`, 'error')
+        return
+      }
+      throw error
+    }
+    try {
+      await view.refresh()
+      if (view.loadingError) throw new Error(view.loadingError)
+      await loadCreatorRows()
+      $page.showMessage('数据空间已保存', 'success')
+    } catch (error) {
+      catalogRequestError = error instanceof Error ? error.message : String(error)
+      $page.showMessage(`数据空间已保存，刷新失败：${catalogRequestError}`, 'error')
+    }
+  } catch (error) {
+    catalogRequestError = error instanceof Error ? error.message : String(error)
+    $page.showMessage(`新增数据空间失败：${catalogRequestError}`, 'error')
+  } finally {
+    catalogAddBusy = false
+  }
+}
+
+function RenderCatalogActions() {
+  const view = $page.resolveView('Base_DataSet@catalog')
+  if (view.addActionState() !== 'enabled') return []
+  return [h('button', { type: 'button', class: 'catalog-button catalog-add', disabled: catalogSaveUncertain || catalogAddBusy,
+    onClick: addCatalogEntry }, '新增数据空间')]
+}
+
+function RenderCatalogPaging() {
+  const view = $page.resolveView('Base_DataSet@catalog')
+  const start = view.total === 0 ? 0 : (view.page - 1) * view.pageSize + 1
+  const end = Math.min(view.page * view.pageSize, view.total)
+  return [h('div', { class: 'catalog-pager' }, [
+    h('span', {}, `${start}-${end} / ${view.total}`),
+    h('button', { type: 'button', disabled: view.page <= 1,
+      onClick: () => changeCatalogPage(view.page - 1) }, '上一页'),
+    h('span', {}, `第 ${view.page} 页`),
+    h('button', { type: 'button', disabled: end >= view.total,
+      onClick: () => changeCatalogPage(view.page + 1) }, '下一页'),
+    h('select', { value: view.pageSize, onChange: changeCatalogPageSize }, [10, 20, 50].map((size) =>
+      h('option', { value: size }, `${size} 条/页`))),
+  ]), catalogRequestError ? h('p', { class: 'catalog-error', role: 'alert' }, catalogRequestError) : null]
+}
+
+function findCurrentRow(view, rowKey) {
+  return view.rows.find((row) => String(view.getPkKey(row)) === String(rowKey)) || null
+}
+
+function RenderCatalogApp(props) {
+  const data = $page.resolveView('Base_DataSet@catalog')
+  const row = findCurrentRow(data, props.rowKey)
+  if (!row) return []
+  const access = data.fieldAccess(row, 'sysid')
+  if (access.read === 'masked') return [h('span', {}, '••••')]
+  if (access.read !== 'visible' || row.sysid == null || row.sysid === '') return [h('span', {}, '')]
+  const id = String(row.sysid)
+  const apps = $page.resolveView('Base_AppSystemList@catalogApps')
+  const matches = apps.rows.filter((item) => String(item.rowid ?? '') === id
+    && apps.fieldAccess(item, 'rowid').read === 'visible')
+  if (matches.length !== 1) return [h('span', {}, id)]
+  const item = matches[0]
+  for (const field of ['AppDesc', 'AppName']) {
+    const fieldAccess = apps.fieldAccess(item, field)
+    if (fieldAccess.read === 'masked') return [h('span', {}, '••••')]
+    if (fieldAccess.read === 'visible' && item[field] != null && String(item[field]).trim()) {
+      return [h('span', {}, String(item[field]).trim())]
+    }
+  }
+  return [h('span', {}, id)]
+}
+
+function RenderCatalogCreator(props) {
+  const data = $page.resolveView('Base_DataSet@catalog')
+  const row = findCurrentRow(data, props.rowKey)
+  if (!row) return []
+  const access = data.fieldAccess(row, 'createuser')
+  if (access.read === 'masked') return [h('span', {}, '••••')]
+  if (access.read !== 'visible' || row.createuser == null || row.createuser === '') return [h('span', {}, '')]
+  const id = String(row.createuser)
+  const users = $page.resolveView('Base_UserInfo@catalogUsers')
+  const matches = users.rows.filter((item) => {
+    if (users.getPkKey(item) !== item.ID || users.fieldAccess(item, 'ROWID').read !== 'visible'
+      || users.fieldAccess(item, 'rowid').read !== 'visible') return false
+    const outputId = Object.hasOwn(item, 'rowid') ? String(item.rowid ?? '') : ''
+    const formalId = Object.hasOwn(item, 'ROWID') ? String(item.ROWID ?? '') : ''
+    if (outputId && formalId && outputId !== formalId) return false
+    return (outputId || formalId) === id
+  })
+  if (matches.length !== 1) return [h('span', {}, '未解析用户')]
+  const item = matches[0]
+  const nameAccess = users.fieldAccess(item, 'UserName')
+  if (nameAccess.read === 'masked') return [h('span', {}, '••••')]
+  if (nameAccess.read !== 'visible') return [h('span', {}, '')]
+  const label = String(item.UserName ?? '').trim() || '未解析用户'
+  return [h('span', {}, label)]
+}
+
+function RenderCatalogSearch() {
+  const apps = $page.resolveView('Base_AppSystemList@catalogApps')
+  const options = apps.rows.filter((row) => apps.fieldAccess(row, 'rowid').read === 'visible')
+    .map((row) => {
+      let label = ''
+      for (const field of ['AppDesc', 'AppName']) {
+        const access = apps.fieldAccess(row, field)
+        if (access.read === 'masked') { label = '••••'; break }
+        if (access.read === 'visible' && row[field] != null && String(row[field]).trim()) {
+          label = String(row[field]).trim()
+          break
+        }
+      }
+      return { value: String(row.rowid), label: label || String(row.rowid) }
+    })
+  return [
+    h('div', { class: 'catalog-search-controls' }, [
+      h('input', { class: 'catalog-search-name', value: catalogSearchName, placeholder: '输入名称或 ID',
+        onInput: (event) => { catalogSearchName = event.target.value } }),
+      h('select', { class: 'catalog-search-app', value: catalogSearchApp,
+        onChange: (event) => { catalogSearchApp = event.target.value } }, [
+        h('option', { value: '' }, '全部应用'),
+        ...options.map((option) => h('option', { value: option.value }, option.label)),
+      ]),
+      h('button', { type: 'button', class: 'catalog-button', onClick: applyCatalogFilter }, '查询'),
+      catalogRequestError ? h('span', { class: 'catalog-error', role: 'alert' }, catalogRequestError) : null,
+    ]),
+  ]
+}

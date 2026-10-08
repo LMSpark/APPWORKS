@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-application",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/lowcode-application",
+    "jsdoc": "低代码应用目录与导航根查询：DataOperation.GetData 请求体构造与响应归一化。\nwire 行字段大小写混用（rowid/ROWID、AppName/appName 等），归一化层负责别名兼容。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeApplication"
+    ]
+  },
+  "$defs": {
+    "LowcodeApplication": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApplication",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "enterpriseId": {
+          "type": "string"
+        },
+        "enterpriseShortName": {
+          "type": "string"
+        },
+        "isDefault": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T07:31:54.146Z",
+  "models": {
+    "LowcodeApplication": {
+      "name": "LowcodeApplication",
+      "jsdoc": "归一化后的应用条目；id 为 Base_AppSystemList.rowid。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    code: string;\n    name: string;\n    description: string;\n    enterpriseId: string;\n    enterpriseShortName: string;\n    isDefault: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    code: string;\n    name: string;\n    description: string;\n    enterpriseId: string;\n    enterpriseShortName: string;\n    isDefault: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterpriseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enterpriseShortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDefault",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

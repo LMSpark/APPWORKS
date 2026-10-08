@@ -1,0 +1,26 @@
+{
+  "result": {
+    "type": "object",
+    "value": {
+      "files": [
+        {
+          "match": false,
+          "name": "rule.json"
+        },
+        {
+          "match": true,
+          "name": "script.js"
+        },
+        {
+          "match": true,
+          "name": "style.css"
+        },
+        {
+          "match": true,
+          "name": "pagedata.json"
+        }
+      ],
+      "ok": false
+    }
+  }
+}

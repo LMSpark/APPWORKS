@@ -1,0 +1,649 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:resource-relation/resource-relation-definition",
+    "sourcePath": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+    "sourceFile": "packages/spark-data/src/resource-relation/resource-relation-definition.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "resource-relation/resource-relation-definition",
+    "jsdoc": "@module @spark-appworks/spark-data:resource-relation/resource-relation-definition\n职责：归一化稳定模型关系表达式，并集中维护结构化条件引用。\n边界：本地只执行 DataViewFilterLocal 已支持的常量和当前行字段函数。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ResourceRelationDefinition"
+    ]
+  },
+  "$defs": {
+    "RelationMatcherOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RelationMatcherOptions",
+      "properties": {
+        "expression": {
+          "$ref": "../query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
+        "parentTable": {
+          "type": "string"
+        },
+        "childTable": {
+          "type": "string"
+        },
+        "parent": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "parentFields": {
+          "type": "object",
+          "title": "ReadonlySet<string>"
+        },
+        "childFields": {
+          "type": "object",
+          "title": "ReadonlySet<string>"
+        }
+      },
+      "required": [
+        "expression",
+        "parentTable",
+        "childTable",
+        "parent",
+        "parentFields",
+        "childFields"
+      ],
+      "additionalProperties": false
+    },
+    "RelationFieldReferenceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RelationFieldReferenceOptions",
+      "properties": {
+        "expression": {
+          "$ref": "../query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
+        "parentTable": {
+          "type": "string"
+        },
+        "childTable": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "fieldName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "expression",
+        "parentTable",
+        "childTable",
+        "tableName",
+        "fieldName"
+      ],
+      "additionalProperties": false
+    },
+    "RelationFieldRenameOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RelationFieldRenameOptions",
+      "properties": {
+        "expression": {
+          "$ref": "../query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
+        "parentTable": {
+          "type": "string"
+        },
+        "childTable": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "fieldName": {
+          "type": "string"
+        },
+        "newFieldName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "expression",
+        "parentTable",
+        "childTable",
+        "tableName",
+        "fieldName",
+        "newFieldName"
+      ],
+      "additionalProperties": false
+    },
+    "RelationTableRenameOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RelationTableRenameOptions",
+      "properties": {
+        "expression": {
+          "$ref": "../query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
+        "parentTable": {
+          "type": "string"
+        },
+        "childTable": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "newTableName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "expression",
+        "parentTable",
+        "childTable",
+        "tableName",
+        "newTableName"
+      ],
+      "additionalProperties": false
+    },
+    "RelationTableMetadata": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RelationTableMetadata",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "isPrimaryKey": {
+                "enum": [
+                  false,
+                  true
+                ]
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "ResourceRelationDefinition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResourceRelationDefinition",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.renameTable.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/RelationTableRenameOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.renameTable.return": {
+          "$ref": "../query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
+        "method.renameField.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/RelationFieldRenameOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.renameField.return": {
+          "$ref": "../query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
+        "method.referencesField.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/RelationFieldReferenceOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.referencesField.return": {
+          "type": "boolean"
+        },
+        "method.referencesTable.params": {
+          "type": "object",
+          "properties": {
+            "expression": {
+              "$ref": "../query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            },
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.referencesTable.return": {
+          "type": "boolean"
+        },
+        "method.createMatcher.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/RelationMatcherOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createMatcher.return": {
+          "type": "object",
+          "title": "(child: Readonly<Record<string, unknown>>) => boolean"
+        },
+        "method.normalize.params": {
+          "type": "object",
+          "properties": {
+            "value": true,
+            "tables": {
+              "type": "object",
+              "title": "Record<string, RelationTableMetadata>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.normalize.return": {
+          "$ref": "../types.ts.json#/$defs/DataResourceRelation"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T10:54:03.201Z",
+  "models": {
+    "RelationMatcherOptions": {
+      "name": "RelationMatcherOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    expression: DataViewFilterTree;\n    parentTable: string;\n    childTable: string;\n    parent: Readonly<Record<string, unknown>>;\n    parentFields: ReadonlySet<string>;\n    childFields: ReadonlySet<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    expression: DataViewFilterTree;\n    parentTable: string;\n    childTable: string;\n    parent: Readonly<Record<string, unknown>>;\n    parentFields: ReadonlySet<string>;\n    childFields: ReadonlySet<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "expression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parent",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childFields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RelationFieldReferenceOptions": {
+      "name": "RelationFieldReferenceOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    expression: DataViewFilterTree;\n    parentTable: string;\n    childTable: string;\n    tableName: string;\n    fieldName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    expression: DataViewFilterTree;\n    parentTable: string;\n    childTable: string;\n    tableName: string;\n    fieldName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "expression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RelationFieldRenameOptions": {
+      "name": "RelationFieldRenameOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "RelationFieldReferenceOptions & Readonly<{\n    newFieldName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "RelationFieldReferenceOptions",
+            "targetName": "RelationFieldReferenceOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    newFieldName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "newFieldName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RelationTableRenameOptions": {
+      "name": "RelationTableRenameOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    expression: DataViewFilterTree;\n    parentTable: string;\n    childTable: string;\n    tableName: string;\n    newTableName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    expression: DataViewFilterTree;\n    parentTable: string;\n    childTable: string;\n    tableName: string;\n    newTableName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "expression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "newTableName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RelationTableMetadata": {
+      "name": "RelationTableMetadata",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    columns: ReadonlyArray<Readonly<{\n        name: string;\n        isPrimaryKey?: boolean;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    columns: ReadonlyArray<Readonly<{\n        name: string;\n        isPrimaryKey?: boolean;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResourceRelationDefinition": {
+      "name": "ResourceRelationDefinition",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "renameTable",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "RelationTableRenameOptions",
+                    "sourcePath": "packages/spark-data/src/resource-relation/resource-relation-definition.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilterTree",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+              }
+            },
+            {
+              "name": "renameField",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "RelationFieldRenameOptions",
+                    "sourcePath": "packages/spark-data/src/resource-relation/resource-relation-definition.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilterTree",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+              }
+            },
+            {
+              "name": "referencesField",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "RelationFieldReferenceOptions",
+                    "sourcePath": "packages/spark-data/src/resource-relation/resource-relation-definition.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "referencesTable",
+              "parameters": [
+                {
+                  "name": "expression",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterTree",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                },
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "createMatcher",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "RelationMatcherOptions",
+                    "sourcePath": "packages/spark-data/src/resource-relation/resource-relation-definition.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [
+                        {
+                          "name": "child",
+                          "type": {
+                            "type": "reference",
+                            "name": "Readonly",
+                            "typeArguments": [
+                              {
+                                "type": "reference",
+                                "name": "Record",
+                                "typeArguments": [
+                                  {
+                                    "type": "intrinsic",
+                                    "name": "string"
+                                  },
+                                  {
+                                    "type": "intrinsic",
+                                    "name": "unknown"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "normalize",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "tables",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "reference",
+                            "name": "RelationTableMetadata",
+                            "sourcePath": "packages/spark-data/src/resource-relation/resource-relation-definition.ts"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataResourceRelation",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

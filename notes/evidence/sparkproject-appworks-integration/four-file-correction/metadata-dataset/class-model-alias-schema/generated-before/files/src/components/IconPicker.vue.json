@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:components/IconPicker",
+    "sourcePath": "src/components/IconPicker.vue",
+    "sourceFile": "src/components/IconPicker.vue",
+    "packageName": "app",
+    "modulePath": "components/IconPicker",
+    "jsdoc": "@module app:components/IconPicker\n职责：提供主应用 IconPicker 能力，围绕 Props 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 components/IconPicker。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Props": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Props",
+      "properties": {
+        "modelValue": {
+          "type": "string"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-09T13:03:06.976Z",
+  "models": {
+    "Props": {
+      "name": "Props",
+      "jsdoc": "图标选择器属性，描述当前图标值和输入外观。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前选中的图标名称。 */\n    modelValue?: string;\n    /** 未选择图标时的占位提示。 */\n    placeholder?: string;\n    /** 图标选择器输入框宽度。 */\n    width?: number | string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "modelValue",
+              "jsdoc": "当前选中的图标名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "jsdoc": "未选择图标时的占位提示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "图标选择器输入框宽度。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

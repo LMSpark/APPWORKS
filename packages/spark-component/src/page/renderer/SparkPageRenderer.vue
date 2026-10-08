@@ -1,7 +1,7 @@
 <!--
 @module @spark-appworks/spark-component:page/renderer/SparkPageRenderer
 职责：渲染 PageRuntime 物化定义并装载当前调用的场景、脚本和样式。
-边界：使用调用独立的注册表、路由快照和失效检查，释放时销毁其运行实例。
+边界：借用宿主拥有的页面运行实例；卸载只释放渲染资源，最终实例由创建者销毁。
 AI用途：接入页面调用渲染或检查多实例隔离、脚本响应更新和资源释放。
 -->
 <template>
@@ -79,6 +79,7 @@ const {scopedCss,setScopedCss} = useCssScope({enableScope:props.enableCssScope})
 sparkProvide(CSS_SCOPE,{inject(css:string){ setScopedCss(currentInstanceId.value,css) }})
 let activeRuntime:PageRuntime|undefined
 let controller:AbortController|undefined
+let releaseViewSubscriptions:(()=>void)[]=[]
 let pageContext:PageContext|undefined
 let functions:Record<string,(...args:unknown[])=>unknown> = {}
 let nodeTree:SparkNodeTree|null = null
@@ -189,8 +190,9 @@ function registerRenders(current:Record<string,(...args:unknown[])=>unknown>,ali
 }
 function release():void {
  controller?.abort();controller=undefined
+ for(const unsubscribe of releaseViewSubscriptions.splice(0))unsubscribe()
  componentRegistry.clearRenders();functions={};children.value=[];pageContext=undefined;nodeTree=null
- activeRuntime?.dispose();activeRuntime=undefined
+ activeRuntime=undefined
 }
 async function loadConfig():Promise<void> {
  const runtime=toRaw(props.pageRuntime)
@@ -198,7 +200,7 @@ async function loadConfig():Promise<void> {
  if(activeRuntime===runtime && runtime.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 页面存在未保存编辑')
  const token=++revision
  if(activeRuntime!==runtime)release()
- else {controller?.abort();componentRegistry.clearRenders()}
+ else {controller?.abort();for(const unsubscribe of releaseViewSubscriptions.splice(0))unsubscribe();componentRegistry.clearRenders()}
  activeRuntime=runtime;controller=new AbortController()
  const signal=controller.signal
  const alive=()=>token===revision && !signal.aborted && !runtime.destroyed && toRaw(props.pageRuntime)===runtime
@@ -211,13 +213,27 @@ async function loadConfig():Promise<void> {
   if(!current())return
   const definition=runtime.materialize()
   const route=props.routeSnapshot
+  const refresh=()=>{if(current())invalidate()}
+  releaseViewSubscriptions.push(runtime.onContentChange(refresh))
   for(const scenarioId of runtime.call.scenarioIds) {
    const ds=runtime.getDataSet(scenarioId)
    if(!ds)throw new Error(`页面场景尚未装载: ${scenarioId}`)
    ds.setAppServices(pageRuntimeServices);ds.setPageRoute(route)
+   releaseViewSubscriptions.push(ds.onAnyViewChange({
+    currentRowChanged:refresh,
+    selectedRowsChanged:refresh,
+    rowsChanged:refresh,
+    cleared:refresh,
+    configChanged:refresh,
+    requestStateChanged:refresh,
+    mutatingChanged:refresh,
+    editingChanged:refresh,
+    summaryChanged:refresh,
+    selectionSummaryChanged:refresh,
+   }))
   }
   sparkProvide(PAGE_RUNTIME,runtime)
-  pageContext=buildPageContext({pageRuntime:runtime,signal,pageRoute:route,pageContainer,pageService,getComponentRegistry:()=>componentRegistry,getModuleContext:()=>moduleContext?.getCurrent() ?? null})
+  pageContext=buildPageContext({pageRuntime:runtime,signal,pageRoute:route,pageContainer,pageService,dataSpaceLayout:pageRuntimeServices.dataSpaceLayout,dataSpaceDesign:pageRuntimeServices.dataSpaceDesign,getComponentRegistry:()=>componentRegistry,getModuleContext:()=>moduleContext?.getCurrent() ?? null})
   setScopedCss(runtime.instanceId,definition.css ?? '')
   try {functions=compileFunctions(definition.script ?? '',pageContext)}
   catch(errorLike){report('script-compile',runtime,errorLike);throw errorLike}
@@ -231,9 +247,19 @@ async function loadConfig():Promise<void> {
     invalidate();return result
    }catch(errorLike){if(current())report('script-function',runtime,errorLike);throw errorLike}
   }
+  const callBeforeRender=(name:string,...args:unknown[]):unknown=>{
+   renderRevision.value
+   if(!current())throw new Error('PAGE_RUNTIME_STALE: 页面脚本已失效')
+   const fn=currentFunctions[name];if(!fn)return undefined
+   try {
+    const result=fn(...args)
+    if(isPromiseLike(result))return Promise.resolve(result).catch(errorLike=>{if(current())report('script-function',runtime,errorLike);throw errorLike})
+    return result
+   }catch(errorLike){if(current())report('script-function',runtime,errorLike);throw errorLike}
+  }
   registerRenders(currentFunctions,current)
   nodeTree=SparkNodeTree.fromPageChildren(definition.rule)
-  children.value=buildPageChildren(getSparkNodeChildren(nodeTree.root.children),{callFunc,actionCtx:{
+  children.value=buildPageChildren(getSparkNodeChildren(nodeTree.root.children),{callFunc,callBeforeRender,actionCtx:{
    getDataSet(scenarioId:string){if(!current())throw new Error('PAGE_RUNTIME_STALE');return runtime.getDataSet(scenarioId) ?? null},
    resolveView(binding:string){if(!current())throw new Error('PAGE_RUNTIME_STALE');return runtime.resolveView(binding) ?? null},
    getPageService:()=>pageService,getRouter:()=>router,

@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/selection/data-view-selection-value",
+    "sourcePath": "packages/spark-data/src/strategies/selection/data-view-selection-value.ts",
+    "sourceFile": "packages/spark-data/src/strategies/selection/data-view-selection-value.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/selection/data-view-selection-value",
+    "jsdoc": "@spark-appworks/spark-data 的 strategies/selection/data-view-selection-value 模块。\n导出 DtsTypeDeclarationModel symbol: DataViewSelectionValue（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataViewSelectionValue"
+    ]
+  },
+  "$defs": {
+    "DataViewSelectionValue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSelectionValue",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.split.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "delimiter": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.split.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.join.params": {
+          "type": "object",
+          "properties": {
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "delimiter": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.join.return": {
+          "type": "string"
+        },
+        "method.token.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../types.ts.json#/$defs/DataRow"
+            },
+            "fields": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.token.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T18:32:15.535Z",
+  "models": {
+    "DataViewSelectionValue": {
+      "name": "DataViewSelectionValue",
+      "jsdoc": "DataView.value 与值绑定共用的既有字符串格式；不推断普通字段是否为多选。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "DataView.value 与值绑定共用的既有字符串格式；不推断普通字段是否为多选。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "split",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "undefined"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "delimiter",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "join",
+              "parameters": [
+                {
+                  "name": "values",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "delimiter",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "token",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                },
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "unknown",
+                        "name": "readonly string[]"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

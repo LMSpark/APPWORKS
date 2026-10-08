@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:ai-model",
+    "sourcePath": "packages/spark-utils/src/ai-model.ts",
+    "sourceFile": "packages/spark-utils/src/ai-model.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "ai-model",
+    "jsdoc": "@module @spark-appworks/spark-utils:ai-model\n职责：提供框架无关的 ai model 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SparkAIModel"
+    ]
+  },
+  "$defs": {
+    "SparkAIModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkAIModel",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "_options": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.toJson.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toJson.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-06-20T16:50:42.110Z",
+  "models": {
+    "SparkAIModel": {
+      "name": "SparkAIModel",
+      "jsdoc": "AI 可编辑模型协议基类。协议只强制 toJson；save/load/fromJson 由子类按需添加。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Spark AIModel 实例。",
+          "signatureText": "constructor(_options: Record<string, unknown>)",
+          "parameters": [
+            {
+              "name": "_options",
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "toJson",
+              "jsdoc": "执行 to Json 操作。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

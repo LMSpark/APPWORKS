@@ -53,7 +53,7 @@ function createMasterDetailStagedDataSet() {
   const ds = SparkData.createDataSet({
     dataSetName: 'MasterDetailDS',
     resourceRelations: [
-      { parentTable: 'Orders', childTable: 'Items', parentField: 'id', childField: 'orderId' },
+      { parentTable: 'Orders', childTable: 'Items', filterExpression: {logic: 'and', filters: [{field: 'orderId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]} },
     ],
     tables: {
       Orders: {
@@ -415,7 +415,7 @@ describe('unsaved change protection on data replacement', () => {
       },
       viewCascades: [{
         parentTable: 'Parents', parentViewId: 'default', childTable: 'Children', childViewId: 'default',
-        dependencyType: 'allRows', filterBindings: [{ sourceField: 'id', targetField: 'id' }], autoLoad: false,
+        filterBindings: [{ sourceField: 'id', targetField: 'id' }], autoLoad: false,
       }],
     })
     const parent = ds.getView('Parents', 'default')!

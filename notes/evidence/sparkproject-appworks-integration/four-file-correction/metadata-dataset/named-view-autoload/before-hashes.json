@@ -1,0 +1,18 @@
+[
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset.ts",
+    "Hash": "B3C562827AA1529056E7AD1FB1C9B7A4337D8E169EFB0AF45609834911ECD575"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\data-view.ts",
+    "Hash": "2095CE8B5851D6D6AF6655BD4D5D739F77DF7EEB2AF47A0B9B713C253731D10A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade-delegate.ts",
+    "Hash": "B2234849D3254B35E319D710DB51E08F35B92CD624FAD5F7342E032A8B8747A4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts",
+    "Hash": "7BDB7E4A335DE92860EF24C0FC069CF068F467281C3C32F22CA7DB99F64E389F"
+  }
+]

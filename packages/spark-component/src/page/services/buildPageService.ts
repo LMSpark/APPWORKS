@@ -220,6 +220,18 @@ export function buildPageService(
   const extension = overrides?.pageService
 
   return {
+    copyText: async (text) => {
+      if (typeof extension?.copyText === 'function') {
+        await extension.copyText(text)
+        return
+      }
+      const clipboard = typeof navigator === 'undefined' ? undefined : Reflect.get(navigator, 'clipboard')
+      if (!isRecord(clipboard) || typeof clipboard['writeText'] !== 'function') {
+        throw new Error('当前环境不支持剪贴板写入')
+      }
+      await Reflect.apply(clipboard['writeText'], clipboard, [text])
+    },
+
     showMessage: (message, type = 'info') => {
       try {
         const fn = overrides?.messageService?.[type]

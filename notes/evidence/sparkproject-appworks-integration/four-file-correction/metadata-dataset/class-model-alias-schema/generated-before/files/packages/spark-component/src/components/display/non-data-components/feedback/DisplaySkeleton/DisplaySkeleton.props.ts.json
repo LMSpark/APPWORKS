@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/display/non-data-components/feedback/DisplaySkeleton/DisplaySkeleton.props",
+    "sourcePath": "packages/spark-component/src/components/display/non-data-components/feedback/DisplaySkeleton/DisplaySkeleton.props.ts",
+    "sourceFile": "packages/spark-component/src/components/display/non-data-components/feedback/DisplaySkeleton/DisplaySkeleton.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/display/non-data-components/feedback/DisplaySkeleton/DisplaySkeleton.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/display/non-data-components/feedback/DisplaySkeleton/DisplaySkeleton.props\n职责：定义 DisplaySkeleton（r-skeleton）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 display/static-display 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 display skeleton 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RSkeletonProps"
+    ],
+    "componentName": "DisplaySkeleton",
+    "componentType": "r-skeleton",
+    "componentLevel": "display",
+    "componentLayer": "static-display",
+    "componentDirectory": "display/non-data-components"
+  },
+  "$defs": {
+    "RSkeletonProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RSkeletonProps",
+      "properties": {
+        "rows": {
+          "type": "number"
+        },
+        "count": {
+          "type": "number"
+        },
+        "loading": {
+          "type": "boolean"
+        },
+        "animated": {
+          "type": "boolean"
+        },
+        "throttle": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.145Z",
+  "models": {
+    "RSkeletonProps": {
+      "name": "RSkeletonProps",
+      "jsdoc": "RSkeleton Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DisplaySkeleton",
+        "type": "r-skeleton",
+        "level": "display",
+        "layer": "static-display",
+        "directory": "display/non-data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 骨架屏段落行数 */\n    rows?: number;\n    /** 渲染骨架屏的重复次数 */\n    count?: number;\n    /** 是否处于加载状态 */\n    loading?: boolean;\n    /** 是否启用动画效果 */\n    animated?: boolean;\n    /** 节流延迟（毫秒），低于该时长不显示骨架屏 */\n    throttle?: number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 骨架屏段落行数 */\n    rows?: number;\n    /** 渲染骨架屏的重复次数 */\n    count?: number;\n    /** 是否处于加载状态 */\n    loading?: boolean;\n    /** 是否启用动画效果 */\n    animated?: boolean;\n    /** 节流延迟（毫秒），低于该时长不显示骨架屏 */\n    throttle?: number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "jsdoc": "骨架屏段落行数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "count",
+              "jsdoc": "渲染骨架屏的重复次数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "loading",
+              "jsdoc": "是否处于加载状态",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "animated",
+              "jsdoc": "是否启用动画效果",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "throttle",
+              "jsdoc": "节流延迟（毫秒），低于该时长不显示骨架屏",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "appValues": [
+    "D99A1DCE9894698799101EFD70F8FC76"
+  ],
+  "catalogBindings": [
+    {
+      "FunName": "数据空间管理",
+      "NavigationUrl": "vue:/features/data-platform/data-set-management/ui/data-set-list-page",
+      "SysId": "D99A1DCE9894698799101EFD70F8FC76",
+      "conid": "90A82E287930A234FEC3E687C94A93EA",
+      "name": "DataSetManage",
+      "prowid": "D99A1DCE9894698799101EFD70F8FC76",
+      "rowid": "90A82E287930A234FEC3E687C94A93EA"
+    }
+  ],
+  "denied": 0,
+  "rows": 84,
+  "success": true,
+  "total": 84
+}

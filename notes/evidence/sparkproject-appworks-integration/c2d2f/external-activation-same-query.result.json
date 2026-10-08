@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts -t 'records an external activation commit after a same-app query navigation completes'",
+  "cwd": "D:\\SPARK_AppWorks",
+  "started": "2026-10-07T17:22:40.8272871+08:00",
+  "ended": "2026-10-07T17:22:47.4448098+08:00",
+  "exitCode": 1,
+  "stdoutFile": "notes\\evidence\\sparkproject-appworks-integration\\c2d2f\\external-activation-same-query.stdout.txt"
+}

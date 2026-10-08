@@ -262,6 +262,7 @@ describe('transaction validation page configs', () => {
       getDataSet: scenarioId => scenarioId === 'local-transaction-fixture' ? dataSet : null,
       resolveView: binding => {const [table, view = 'default'] = binding.split('@'); return table ? dataSet.getView(table, view) ?? null : null},
       getPageService: () => ({
+        copyText: vi.fn(async () => {}),
         showMessage: (message, type = 'info') => {
           messages.push({ type, message })
         },

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/workflow-designs/workflow-design-flow",
+    "sourcePath": "src/views/app/workflow-designs/workflow-design-flow.ts",
+    "sourceFile": "src/views/app/workflow-designs/workflow-design-flow.ts",
+    "packageName": "app",
+    "modulePath": "views/app/workflow-designs/workflow-design-flow",
+    "jsdoc": "@module app:views/app/workflow-designs/workflow-design-flow\n职责：WorkflowDesigns 画布的端口、连线路径、控制点几何与键盘移动等纯计算。\n边界：无响应式状态与副作用；不读写设计稿。\nAI用途：排查画布连线走向、端口映射或控制点命中时，从本模块定位。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:42:46.727Z",
+  "models": {}
+}

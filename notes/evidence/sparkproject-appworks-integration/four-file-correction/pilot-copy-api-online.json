@@ -1,0 +1,138 @@
+{
+  "at": "2026-10-07T17:51:13.910Z",
+  "status": "accepted for explicit dual-scenario tool entry",
+  "source": "ordinary search and row click after initial load; no redraw workaround",
+  "copiedText": "const DataSetId = '90A82E287930A234FEC3E687C94A93EA';\nconst DataModel_Base_NavigationInfo = 'Base_NavigationInfo';\nconst DataModel_Base_NavigationInfo_Type = '数据库表';\nconst DataModel_Base_NavigationInfo_PK = 'rowid';\nconst DataModel_Base_DataSet = 'Base_DataSet';\nconst DataModel_Base_DataSet_Type = '数据库表';\nconst DataModel_Base_DataSet_PK = 'rowid';\nconst DataModel_Base_UserInfo = 'Base_UserInfo';\nconst DataModel_Base_UserInfo_Type = '数据库表';\nconst DataModel_Base_UserInfo_PK = 'ID';\nconst DataModel_Base_DataModel_Field = 'Base_DataModel_Field';\nconst DataModel_Base_DataModel_Field_Type = '数据库表';\nconst DataModel_Base_DataModel_Field_PK = 'rowid';\nconst DataModel_Base_AppSystemList = 'Base_AppSystemList';\nconst DataModel_Base_AppSystemList_Type = '数据库表';\nconst DataModel_Base_AppSystemList_PK = 'rowid';\nconst DataModel_Base_DataModel = 'Base_DataModel';\nconst DataModel_Base_DataModel_Type = '数据库表';\nconst DataModel_Base_DataModel_PK = 'rowid';",
+  "sameTextAsPrevious": true,
+  "refreshRepeat": true,
+  "queries": [
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "90A82E287930A234FEC3E687C94A93EA"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "AsName": "rowid"
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "AsName": "Name"
+              },
+              {
+                "Name": "Type",
+                "IsOutput": true,
+                "AsName": "Type"
+              },
+              {
+                "Name": "dataSetId",
+                "IsOutput": true,
+                "AsName": "dataSetId"
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/DataOperation/GetData",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "query": {
+        "Table": [
+          {
+            "Name": "Base_DataModel_Field",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "dataSetId",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "90A82E287930A234FEC3E687C94A93EA"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true,
+                "AsName": "rowid",
+                "OrderType": "ascending",
+                "Order": 1
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "AsName": "Name"
+              },
+              {
+                "Name": "type",
+                "IsOutput": true,
+                "AsName": "type"
+              },
+              {
+                "Name": "IsPKey",
+                "IsOutput": true,
+                "AsName": "IsPKey"
+              },
+              {
+                "Name": "dataSetId",
+                "IsOutput": true,
+                "AsName": "dataSetId"
+              },
+              {
+                "Name": "dataModelId",
+                "IsOutput": true,
+                "AsName": "dataModelId"
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    }
+  ],
+  "responses": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "status": 200
+    }
+  ],
+  "errors": [],
+  "remaining": "initial loading query control race recorded separately; formal menu not switched"
+}

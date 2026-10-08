@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:navigation/runtime-target",
+    "sourcePath": "packages/spark-app/src/navigation/runtime-target.ts",
+    "sourceFile": "packages/spark-app/src/navigation/runtime-target.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "navigation/runtime-target",
+    "jsdoc": "@module @spark-appworks/spark-app:navigation/runtime-target\n职责：提供应用壳层 runtime-target 能力，围绕 NavNodeRouteTargetKind、NavNodeRouteTarget、NavNodeExternalTarget 等 7 个公开契约 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/runtime-target。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "NavNodeRouteTargetKind",
+      "NavNodeRouteTarget",
+      "NavNodeExternalLinkMode",
+      "NavNodeExternalTarget",
+      "NavNodeActionTarget",
+      "NavNodeContainerTarget",
+      "NavNodeRuntimeTarget"
+    ]
+  },
+  "$defs": {
+    "NavNodeRouteTargetKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "NavNodeRouteTargetKind",
+      "enum": [
+        "page",
+        "external-link",
+        "cross-project-ref"
+      ]
+    },
+    "NavNodeRouteTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavNodeRouteTarget",
+      "properties": {
+        "kind": {
+          "const": "route"
+        },
+        "routeKind": {
+          "$ref": "#/$defs/NavNodeRouteTargetKind"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "routeKind",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "NavNodeExternalTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavNodeExternalTarget",
+      "properties": {
+        "kind": {
+          "const": "external"
+        },
+        "mode": {
+          "type": "object",
+          "title": "NavNodeExternalLinkMode"
+        },
+        "href": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "mode",
+        "href"
+      ],
+      "additionalProperties": false
+    },
+    "NavNodeActionTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavNodeActionTarget",
+      "properties": {
+        "kind": {
+          "const": "action"
+        },
+        "command": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "command"
+      ],
+      "additionalProperties": false
+    },
+    "NavNodeContainerTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavNodeContainerTarget",
+      "properties": {
+        "kind": {
+          "const": "container"
+        },
+        "redirect": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "NavNodeRuntimeTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "NavNodeRuntimeTarget",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "NavNodeRouteTarget"
+        },
+        {
+          "type": "object",
+          "title": "NavNodeExternalTarget"
+        },
+        {
+          "type": "object",
+          "title": "NavNodeActionTarget"
+        },
+        {
+          "type": "object",
+          "title": "NavNodeContainerTarget"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-10T12:27:53.521Z",
+  "models": {
+    "NavNodeRouteTargetKind": {
+      "name": "NavNodeRouteTargetKind",
+      "jsdoc": "Nav Node Route Target Kind 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'page' | 'external-link' | 'cross-project-ref'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'page'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'external-link'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'cross-project-ref'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "NavNodeRouteTarget": {
+      "name": "NavNodeRouteTarget",
+      "jsdoc": "Nav Node Route Target 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 类型判别字段。 */\n    kind: 'route';\n    /** route Kind 字段。 */\n    routeKind: NavNodeRouteTargetKind;\n    /** 资源路径。 */\n    path: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "类型判别字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "routeKind",
+              "jsdoc": "route Kind 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "path",
+              "jsdoc": "资源路径。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "NavNodeExternalLinkMode": {
+      "name": "NavNodeExternalLinkMode",
+      "jsdoc": "外链打开方式；NavigationLinkTarget 去掉 iframe（iframe 走壳内路由宿主）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Exclude<NavigationLinkTarget, 'iframe'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Exclude<NavigationLinkTarget, 'iframe'>",
+            "targetName": "Exclude"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "NavNodeExternalTarget": {
+      "name": "NavNodeExternalTarget",
+      "jsdoc": "Nav Node External Target 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 类型判别字段。 */\n    kind: 'external';\n    /** mode 字段。 */\n    mode: NavNodeExternalLinkMode;\n    /** href 字段。 */\n    href: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "类型判别字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mode",
+              "jsdoc": "mode 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "href",
+              "jsdoc": "href 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "NavNodeActionTarget": {
+      "name": "NavNodeActionTarget",
+      "jsdoc": "Nav Node Action Target 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 类型判别字段。 */\n    kind: 'action';\n    /** command 字段。 */\n    command: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "类型判别字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "command",
+              "jsdoc": "command 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "NavNodeContainerTarget": {
+      "name": "NavNodeContainerTarget",
+      "jsdoc": "Nav Node Container Target 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 类型判别字段。 */\n    kind: 'container';\n    /** redirect 字段。 */\n    redirect?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "类型判别字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "redirect",
+              "jsdoc": "redirect 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NavNodeRuntimeTarget": {
+      "name": "NavNodeRuntimeTarget",
+      "jsdoc": "Nav Node Runtime Target 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NavNodeRouteTarget | NavNodeExternalTarget | NavNodeActionTarget | NavNodeContainerTarget",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "NavNodeRouteTarget",
+            "targetName": "NavNodeRouteTarget"
+          },
+          {
+            "kind": "union",
+            "typeText": "NavNodeExternalTarget",
+            "targetName": "NavNodeExternalTarget"
+          },
+          {
+            "kind": "union",
+            "typeText": "NavNodeActionTarget",
+            "targetName": "NavNodeActionTarget"
+          },
+          {
+            "kind": "union",
+            "typeText": "NavNodeContainerTarget",
+            "targetName": "NavNodeContainerTarget"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

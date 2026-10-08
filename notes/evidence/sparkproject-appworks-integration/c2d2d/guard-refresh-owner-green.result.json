@@ -1,0 +1,7 @@
+{
+  "finishedAtUtc": "2026-10-07T09:08:01.4370486Z",
+  "cwd": "D:\\SPARK_AppWorks",
+  "exitCode": 0,
+  "startedAtUtc": "2026-10-07T09:07:54.6725547Z",
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/application/project-navigation-guard.test.ts -t \"does not redirect over a newer same-path query/hash|cancels a stale refresh failure\""
+}

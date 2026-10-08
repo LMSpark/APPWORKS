@@ -1,0 +1,462 @@
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/delete-before/script.js.txt b/config/pages/data-platform/data-space-catalog/script.js
+index 6111e6c16..61dc3bdfa 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/delete-before/script.js.txt
++++ b/config/pages/data-platform/data-space-catalog/script.js
+@@ -277,6 +277,69 @@ async function editCatalogEntry(view, row) {
+   }
+ }
+ 
++async function deleteCatalogEntry(view, row) {
++  if (catalogOperationBusy || catalogSaveUncertain) return
++  catalogOperationBusy = true
++  const id = view.getPkKey(row)
++  let saveStarted = false
++  try {
++    if ((typeof id !== 'string' && typeof id !== 'number') || !catalogTargetIsCurrent(view, row, id)) return
++    if (view.deleteActionState(row) !== 'enabled') {
++      $page.showMessage('当前没有此数据空间的删除权限', 'warning')
++      return
++    }
++    const confirmed = await $page.showConfirm('确认删除当前数据空间？此操作无法撤销。', '删除数据空间',
++      { confirmText: '删除', cancelText: '取消', type: 'warning' })
++    if (!confirmed || !catalogTargetIsCurrent(view, row, id)) return
++    if (view.deleteActionState(row) !== 'enabled') {
++      $page.showMessage('删除权限已变化，请刷新后重试', 'warning')
++      return
++    }
++
++    const page = view.page
++    const onlyRowOnPage = view.rows.length === 1
++    const removed = await view.removeRow(id)
++    if (removed === false || (typeof removed === 'object' && !removed.success)) {
++      throw new Error('当前数据空间暂存删除失败')
++    }
++    catalogUnknownId = String(id)
++    catalogSaveUncertain = true
++    saveStarted = true
++    let result
++    try {
++      result = await view.dataSet.saveChanges({ views: [{ tableName: 'Base_DataSet', viewId: 'catalog', ids: [id] }] })
++      if (!result.success || result.data.deletedCount !== 1) throw new Error('删除回执未确认')
++    } catch {
++      catalogRequestError = '删除结果未知，请重新打开页面核对服务端状态后再操作'
++      $page.showMessage(catalogRequestError, 'error')
++      return
++    }
++    catalogSaveUncertain = false
++    catalogUnknownId = ''
++    try {
++      if (page > 1 && onlyRowOnPage) await view.setPage(page - 1)
++      else await view.refresh()
++      if (view.loadingError) throw new Error('refresh')
++      if (view.rows.some(item => view.getPkKey(item) === id)) {
++        catalogRequestError = '删除回执已确认，但刷新仍含原记录，回读不一致'
++        $page.showMessage(catalogRequestError, 'error')
++        return
++      }
++      await loadCreatorRows()
++      catalogRequestError = ''
++      $page.showMessage('数据空间已删除', 'success')
++    } catch (error) {
++      catalogRequestError = '数据空间已删除，刷新失败'
++      if (!catalogPageIsStale(error)) $page.showMessage(catalogRequestError, 'error')
++    }
++  } catch (error) {
++    catalogRequestError = saveStarted ? '删除结果未知，请重新打开页面核对服务端状态后再操作' : '数据空间删除失败'
++    if (!catalogPageIsStale(error)) $page.showMessage(catalogRequestError, 'error')
++  } finally {
++    catalogOperationBusy = false
++  }
++}
++
+ function RenderCatalogActions() {
+   const view = $page.resolveView('Base_DataSet@catalog')
+   const actions = []
+@@ -288,6 +351,10 @@ function RenderCatalogActions() {
+     actions.push(h('button', { type: 'button', class: 'catalog-button catalog-edit', disabled: catalogSaveUncertain || catalogOperationBusy,
+       onClick: () => editCatalogEntry(view, row) }, '编辑数据空间'))
+   }
++  if (row && view.deleteActionState(row) === 'enabled') {
++    actions.push(h('button', { type: 'button', class: 'catalog-button catalog-delete', disabled: catalogSaveUncertain || catalogOperationBusy,
++      onClick: () => deleteCatalogEntry(view, row) }, '删除数据空间'))
++  }
+   return [h('div', { class: 'catalog-actions' }, actions)]
+ }
+ 
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/delete-before/style.css.txt b/config/pages/data-platform/data-space-catalog/style.css
+index bf57ac752..64033577a 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/delete-before/style.css.txt
++++ b/config/pages/data-platform/data-space-catalog/style.css
+@@ -8,6 +8,7 @@
+ .catalog-button, .catalog-pager button { min-height: 32px; padding: 4px 12px; border: 1px solid var(--el-border-color, #dcdfe6); border-radius: var(--el-border-radius-base, 4px); background: var(--el-bg-color, #fff); color: var(--el-text-color-regular, #606266); cursor: pointer; }
+ .catalog-add { justify-self: start; border-color: var(--el-color-primary, #409eff); background: var(--el-color-primary, #409eff); color: var(--el-color-white, #fff); }
+ .catalog-edit { justify-self: start; }
++.catalog-delete { justify-self: start; border-color: var(--el-color-danger, #f56c6c); color: var(--el-color-danger, #f56c6c); }
+ .catalog-pager { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding-top: 12px; color: var(--el-text-color-secondary, #909399); }
+ .catalog-error { color: var(--el-color-danger, #f56c6c); }
+ .catalog-pager button:disabled, .catalog-button:disabled { cursor: not-allowed; opacity: .55; }
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/delete-before/data-space-four-file.test.ts.txt b/tests/runtime/page/catalog/data-space-four-file.test.ts
+index 3584df6e0..3ca448d4c 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/delete-before/data-space-four-file.test.ts.txt
++++ b/tests/runtime/page/catalog/data-space-four-file.test.ts
+@@ -66,10 +66,15 @@ class CatalogFixtureHttpClient extends HttpClientBase {
+   public readonly saveRequests: RequestConfig[] = []
+   public readonly savedRows: Record<string, unknown>[] = []
+   public readonly changedRows: Record<string, unknown>[] = []
++  public readonly deletedRows: Record<string, unknown>[] = []
+   public failSave = false
+   public maskCreatorName = false
+   public hideCreatorName = false
+   public allowAdd = true
++  public allowDelete = false
++  public datasetCount = 1
++  public failQuery = false
++  public keepDeletedRowsOnQueries = false
+   public editableFields: string[] = []
+   public requiredFields: string[] = []
+   public hiddenFields: string[] = []
+@@ -85,16 +90,20 @@ class CatalogFixtureHttpClient extends HttpClientBase {
+       const crud = isRecord(model['CrudModel']) ? model['CrudModel'] : {}
+       const added = Array.isArray(crud['Added']) ? crud['Added'].filter(isRecord) : []
+       const changed = Array.isArray(crud['Changed']) ? crud['Changed'].filter(isRecord) : []
++      const deleted = Array.isArray(crud['Deleted']) ? crud['Deleted'].filter(isRecord) : []
+       this.savedRows.push(...added)
+       this.changedRows.push(...changed)
++      this.deletedRows.push(...deleted)
+       if (this.failSave) throw new Error('fixture connection lost after save dispatch')
+       return { data: { Code: 200, Result: {
+         ...(added.length ? { maplistadd: [{ physical: added.map(row => ({ ...row })) }] } : {}),
+         ...(changed.length ? { maplistedit: [{ physical: changed.map(row => ({ ...row })) }] } : {}),
++        ...(deleted.length ? { maplistdelete: [{ physical: deleted.map(row => ({ ...row })) }] } : {}),
+       } },
+         status: 200, statusText: 'OK', headers: {} }
+     }
+     this.requests.push(config)
++    if (this.failQuery) throw new Error('fixture query failed')
+     const payload = isRecord(config.data) ? config.data : {}
+     const tables = Array.isArray(payload['Table']) ? payload['Table'] : []
+     const first = isRecord(tables[0]) ? tables[0] : {}
+@@ -102,31 +111,41 @@ class CatalogFixtureHttpClient extends HttpClientBase {
+     const firstDataset = { rowid: 'DATASET-1', Name: '试点目录', Type: 'datasource',
+         description: this.nullDescription ? null : '目录', sysid: 'APP-1',
+         createuser: 'USER-ROW-1', createtime: '2026-10-07', _pk: 'DATASET-1', lingma_sys_key: 'DS-ROW',
+-        lingma_sys_params: { r: this.requiredFields, e: this.editableFields, h: this.hiddenFields, m: [], d: false } }
+-    const baseRows = [firstDataset]
+-    if (this.includeSecondDataset) baseRows.push({ ...firstDataset, rowid: 'DATASET-2', Name: '第二目录', _pk: 'DATASET-2' })
+-    const datasetRows = [...baseRows.map(row => {
+-      const changes = this.changedRows.filter(item => item['rowid'] === row.rowid)
++        lingma_sys_params: { r: this.requiredFields, e: this.editableFields, h: this.hiddenFields, m: [], d: this.allowDelete } }
++    const baseRows: Record<string, unknown>[] = Array.from({ length: this.datasetCount }, (_, index) => index === 0 ? firstDataset
++      : { ...firstDataset, rowid: `DATASET-${index + 1}`, Name: `目录${index + 1}`, _pk: `DATASET-${index + 1}` })
++    if (this.includeSecondDataset && this.datasetCount === 1) {
++      baseRows.push({ ...firstDataset, rowid: 'DATASET-2', Name: '第二目录', _pk: 'DATASET-2' })
++    }
++    const datasetRows: Record<string, unknown>[] = [...baseRows.map(row => {
++      const changes = this.changedRows.filter(item => item['rowid'] === row['rowid'])
+         .reduce((result, item) => ({ ...result, ...item }), {})
+       return { ...row, ...changes }
+     }),
+       ...this.savedRows.map(row => ({ ...row, createuser: 'USER-ROW-1', createtime: '2026-10-07',
+         _pk: row['rowid'], lingma_sys_key: 'DS-CREATED', lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } }))]
+-    const rows = modelName === 'Base_DataSet'
++    let rows = modelName === 'Base_DataSet'
+       ? this.omitChangedRowsFromQueries
+         ? datasetRows.filter(row => {
+           const rowId = recordValue(row, 'rowid')
+           return !this.changedRows.some(changed => changed['rowid'] === rowId)
+         })
+-        : datasetRows
++        : datasetRows.filter(row => this.keepDeletedRowsOnQueries
++          || !this.deletedRows.some(deleted => deleted['rowid'] === row['rowid']))
+       : modelName === 'Base_AppSystemList'
+         ? [{ rowid: 'APP-1', AppDesc: '试点应用', AppName: '试点应用', _pk: 'APP-1', lingma_sys_key: 'APP-ROW',
+           lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } }]
+         : [{ rowid: 'USER-ROW-1', ROWID: 'USER-ROW-1', ID: 'USER-1', UserName: '目录创建人', _pk: 'USER-1',
+           lingma_sys_key: 'USER-ROW', lingma_sys_params: { r: [], e: [], h: this.hideCreatorName ? ['UserName'] : [],
+             m: this.maskCreatorName ? ['UserName'] : [], d: false } }]
++    const count = rows.length
++    const pageParam = recordValue(payload, 'PageParam')
++    if (isRecord(pageParam) && typeof pageParam['index'] === 'number' && typeof pageParam['size'] === 'number') {
++      const start = (pageParam['index'] - 1) * pageParam['size']
++      rows = rows.slice(start, start + pageParam['size'])
++    }
+     return { data: { Code: 200, Result: { primaryKeyField: modelName === 'Base_UserInfo' ? 'ID' : 'rowid',
+-      allowAdd: this.allowAdd, lingma_sys_key: `TABLE-${modelName}`, data: { Items: rows, Count: rows.length } } },
++      allowAdd: this.allowAdd, lingma_sys_key: `TABLE-${modelName}`, data: { Items: rows, Count: count } } },
+       status: 200, statusText: 'OK', headers: {} }
+   }
+ }
+@@ -185,6 +204,16 @@ function catalogActionHandler(node: CatalogActionNode | undefined): (() => unkno
+   return typeof onClick === 'function' ? () => onClick() : undefined
+ }
+ 
++function catalogPagingError(functions: Record<string, unknown>): string {
++  const render = functions['RenderCatalogPaging']
++  if (typeof render !== 'function') return ''
++  const nodes = render()
++  if (!Array.isArray(nodes)) return ''
++  const error = nodes.find(node => isRecord(node) && isRecord(node['props'])
++    && node['props']['class'] === 'catalog-error')
++  return isRecord(error) && typeof error['children'] === 'string' ? error['children'] : ''
++}
++
+ function createPageService(pageRuntime: PageRuntimeType, services: Partial<PageContext['$page']>): PageContext['$page'] {
+   const pageService: PageContext['$page'] = {
+     getDataSet: (id) => pageRuntime.getDataSet(id),
+@@ -339,6 +368,256 @@ describe('data-space four-file page', () => {
+       description: '待确认描述', sysid: 'APP-1' })
+   })
+ 
++  it('deletes only the authorized current row through the original save owner', async () => {
++    let confirmations = 0
++    const denied = await createCatalogScriptFixture({
++      showConfirm: async () => { confirmations += 1; return true },
++    })
++    expect(renderCatalogActionButtons(denied.functions).some(action => action['children'] === '删除数据空间')).toBe(false)
++    const deniedView = denied.dataSet.getView('Base_DataSet', 'catalog')
++    const deniedDelete = denied.functions['deleteCatalogEntry']
++    if (typeof deniedDelete !== 'function' || !deniedView?.currentRow) throw new Error('denied fixture has no current row')
++    await deniedDelete(deniedView, deniedView.currentRow)
++    expect(confirmations).toBe(0)
++    expect(denied.http.saveRequests).toHaveLength(0)
++
++    const messages: string[] = []
++    const fixture = await createCatalogScriptFixture({
++      showConfirm: async message => { confirmations += 1; expect(message).not.toContain('试点目录'); return true },
++      showMessage: message => { messages.push(message) },
++    }, http => { http.allowDelete = true })
++    const action = renderCatalogActionButtons(fixture.functions).find(item => item['children'] === '删除数据空间')
++    const onClick = catalogActionHandler(action)
++    if (!onClick) throw new Error('authorized delete action was not rendered')
++    await onClick()
++
++    expect(confirmations).toBe(1)
++    expect(fixture.http.saveRequests).toHaveLength(1)
++    expect(fixture.http.deletedRows).toMatchObject([{ rowid: 'DATASET-1', lingma_sys_key: 'DS-ROW' }])
++    expect(fixture.http.deletedRows[0]).not.toHaveProperty('_pk')
++    expect(fixture.http.deletedRows[0]).not.toHaveProperty('lingma_sys_params')
++    expect(fixture.http.savedRows).toHaveLength(0)
++    expect(fixture.http.changedRows).toHaveLength(0)
++    expect(fixture.dataSet.getView('Base_DataSet', 'catalog')?.rows).toHaveLength(0)
++    expect(fixture.dataSet.getView('Base_DataSet', 'catalog')?.dirtyTracking.pendingDeleteIds.size).toBe(0)
++    expect(messages.join('\\n')).toContain('数据空间已删除')
++  })
++
++  it('cancels a delete without staging and rejects a row that changes during confirmation', async () => {
++    let confirmations = 0
++    const cancelled = await createCatalogScriptFixture({
++      showConfirm: async () => { confirmations += 1; return false },
++    }, http => { http.allowDelete = true })
++    const cancelAction = renderCatalogActionButtons(cancelled.functions).find(item => item['children'] === '删除数据空间')
++    const cancelClick = catalogActionHandler(cancelAction)
++    if (!cancelClick) throw new Error('authorized delete action was not rendered')
++    await cancelClick()
++    expect(confirmations).toBe(1)
++    expect(cancelled.dataSet.getView('Base_DataSet', 'catalog')?.rows).toHaveLength(1)
++    expect(cancelled.dataSet.getView('Base_DataSet', 'catalog')?.dirtyTracking.pendingDeleteIds.size).toBe(0)
++    expect(cancelled.http.saveRequests).toHaveLength(0)
++
++    let release: ((value: boolean) => void) | undefined
++    let started: (() => void) | undefined
++    const confirmationStarted = new Promise<void>(resolve => { started = resolve })
++    const stale = await createCatalogScriptFixture({
++      showConfirm: async () => { started?.(); return new Promise(resolve => { release = resolve }) },
++    }, http => { http.allowDelete = true; http.includeSecondDataset = true })
++    const view = stale.dataSet.getView('Base_DataSet', 'catalog')
++    const action = renderCatalogActionButtons(stale.functions).find(item => item['children'] === '删除数据空间')
++    const onClick = catalogActionHandler(action)
++    if (!onClick || !view?.rows[1]) throw new Error('delete target fixture is incomplete')
++    const deleting = onClick()
++    await confirmationStarted
++    view.setCurrentRow(view.rows[1])
++    release?.(true)
++    await deleting
++    expect(view.currentRow).toMatchObject({ rowid: 'DATASET-2' })
++    expect(view.rows).toHaveLength(2)
++    expect(view.dirtyTracking.pendingDeleteIds.size).toBe(0)
++    expect(stale.http.saveRequests).toHaveLength(0)
++  })
++
++  it('blocks query re-entry during confirmation and stops if the page context becomes stale', async () => {
++    let release: ((value: boolean) => void) | undefined
++    let started: (() => void) | undefined
++    const confirmationStarted = new Promise<void>(resolve => { started = resolve })
++    const fixture = await createCatalogScriptFixture({
++      showConfirm: async () => { started?.(); return new Promise(resolve => { release = resolve }) },
++    }, http => { http.allowDelete = true })
++    const action = renderCatalogActionButtons(fixture.functions).find(item => item['children'] === '删除数据空间')
++    const onClick = catalogActionHandler(action)
++    if (!onClick) throw new Error('authorized delete action was not rendered')
++    const deleting = onClick()
++    await confirmationStarted
++    const requestCount = fixture.http.requests.length
++    await fixture.functions['applyCatalogFilter']?.()
++    await fixture.functions['changeCatalogPage']?.(2)
++    expect(fixture.http.requests).toHaveLength(requestCount)
++    release?.(false)
++    await deleting
++    expect(fixture.http.saveRequests).toHaveLength(0)
++
++    let releaseStale: ((value: boolean) => void) | undefined
++    let startedStale: (() => void) | undefined
++    const staleConfirmationStarted = new Promise<void>(resolve => { startedStale = resolve })
++    const stale = await createCatalogScriptFixture({
++      showConfirm: async () => { startedStale?.(); return new Promise(resolve => { releaseStale = resolve }) },
++    }, http => { http.allowDelete = true })
++    const staleAction = renderCatalogActionButtons(stale.functions).find(item => item['children'] === '删除数据空间')
++    const staleClick = catalogActionHandler(staleAction)
++    if (!staleClick) throw new Error('authorized delete action was not rendered')
++    const staleDelete = staleClick()
++    await staleConfirmationStarted
++    stale.invalidatePage()
++    releaseStale?.(true)
++    await staleDelete
++    expect(stale.dataSet.getView('Base_DataSet', 'catalog')?.rows).toHaveLength(1)
++    expect(stale.http.saveRequests).toHaveLength(0)
++  })
++
++  it('rejects the confirmed target after an external DataView query replaces its row', async () => {
++    for (const replace of ['executeFilter', 'refresh'] as const) {
++      let release: ((value: boolean) => void) | undefined
++      let started: (() => void) | undefined
++      const confirmationStarted = new Promise<void>(resolve => { started = resolve })
++      const fixture = await createCatalogScriptFixture({
++        showConfirm: async () => { started?.(); return new Promise(resolve => { release = resolve }) },
++      }, http => { http.allowDelete = true })
++      const view = fixture.dataSet.getView('Base_DataSet', 'catalog')
++      const original = view?.currentRow
++      const action = renderCatalogActionButtons(fixture.functions).find(item => item['children'] === '删除数据空间')
++      const onClick = catalogActionHandler(action)
++      if (!onClick || !view || !original) throw new Error('delete target fixture is incomplete')
++      const deleting = onClick()
++      await confirmationStarted
++      if (replace === 'executeFilter') await view.executeFilter(undefined)
++      else await view.refresh()
++      expect(view.currentRow).not.toBe(original)
++      release?.(true)
++      await deleting
++      expect(view.rows).toMatchObject([{ rowid: 'DATASET-1' }])
++      expect(view.dirtyTracking.pendingDeleteIds.size).toBe(0)
++      expect(fixture.http.saveRequests).toHaveLength(0)
++    }
++  })
++
++  it('keeps an unknown delete locked with a safe persistent message and does not resend', async () => {
++    const messages: string[] = []
++    const fixture = await createCatalogScriptFixture({
++      showConfirm: async message => { expect(message).not.toContain('试点目录'); return true },
++      showPrompt: async () => '更名',
++      selectEntities: async () => [{ value: 'APP-1', label: '试点应用' }],
++      showMessage: message => { messages.push(message) },
++    }, http => { http.allowDelete = true; http.editableFields = ['Name']; http.hiddenFields = ['rowid']; http.includeSecondDataset = true })
++    fixture.http.failSave = true
++    const deleteAction = renderCatalogActionButtons(fixture.functions).find(item => item['children'] === '删除数据空间')
++    const deleteClick = catalogActionHandler(deleteAction)
++    if (!deleteClick) throw new Error('authorized delete action was not rendered')
++    await deleteClick()
++    expect(fixture.http.saveRequests).toHaveLength(1)
++    expect(fixture.http.deletedRows).toMatchObject([{ rowid: 'DATASET-1', lingma_sys_key: 'DS-ROW' }])
++    const view = fixture.dataSet.getView('Base_DataSet', 'catalog')
++    if (!view?.rows[0]) throw new Error('second row is missing after staging the delete')
++    view.setCurrentRow(view.rows[0])
++    expect(view.currentRow).toMatchObject({ rowid: 'DATASET-2' })
++    expect(view.dirtyTracking.pendingDeleteIds.has('DATASET-1')).toBe(true)
++    expect(view.rows).toMatchObject([{ rowid: 'DATASET-2' }])
++    expect(catalogPagingError(fixture.functions)).toContain('删除结果未知')
++    expect(catalogPagingError(fixture.functions)).not.toContain('DATASET-1')
++    expect(messages.join('\n')).toContain('删除结果未知')
++    expect(messages.join('\n')).not.toContain('DATASET-1')
++    const latestActions = renderCatalogActionButtons(fixture.functions)
++    const addClick = catalogActionHandler(latestActions.find(item => item['children'] === '新增数据空间'))
++    const editClick = catalogActionHandler(latestActions.find(item => item['children'] === '编辑数据空间'))
++    const latestDeleteClick = catalogActionHandler(latestActions.find(item => item['children'] === '删除数据空间'))
++    if (!addClick || !editClick || !latestDeleteClick) throw new Error('unknown delete must retain all toolbar handlers')
++    await addClick()
++    await editClick()
++    await latestDeleteClick()
++    expect(messages).toHaveLength(1)
++    expect(fixture.http.saveRequests).toHaveLength(1)
++    expect(view.dirtyTracking.pendingDeleteIds.has('DATASET-1')).toBe(true)
++  })
++
++  it('reports refresh failure separately after a confirmed deletion', async () => {
++    const messages: string[] = []
++    const fixture = await createCatalogScriptFixture({
++      showConfirm: async () => true,
++      showMessage: message => { messages.push(message) },
++    }, http => { http.allowDelete = true })
++    fixture.http.failQuery = true
++    const action = renderCatalogActionButtons(fixture.functions).find(item => item['children'] === '删除数据空间')
++    const onClick = catalogActionHandler(action)
++    if (!onClick) throw new Error('authorized delete action was not rendered')
++    await onClick()
++    expect(fixture.http.saveRequests).toHaveLength(1)
++    expect(fixture.http.deletedRows).toMatchObject([{ rowid: 'DATASET-1' }])
++    expect(fixture.dataSet.getView('Base_DataSet', 'catalog')?.dirtyTracking.pendingDeleteIds.size).toBe(0)
++    expect(catalogPagingError(fixture.functions)).toBe('数据空间已删除，刷新失败')
++    expect(messages.join('\n')).toContain('数据空间已删除，刷新失败')
++    expect(messages.join('\n')).not.toContain('删除结果未知')
++  })
++
++  it('reports read-back inconsistency when a successful delete refresh still returns the target ID', async () => {
++    const messages: string[] = []
++    const fixture = await createCatalogScriptFixture({
++      showConfirm: async () => true,
++      showMessage: message => { messages.push(message) },
++    }, http => { http.allowDelete = true; http.keepDeletedRowsOnQueries = true })
++    const view = fixture.dataSet.getView('Base_DataSet', 'catalog')
++    if (!view) throw new Error('catalog view was not assembled')
++    const action = renderCatalogActionButtons(fixture.functions).find(item => item['children'] === '删除数据空间')
++    const onClick = catalogActionHandler(action)
++    if (!onClick) throw new Error('authorized delete action was not rendered')
++    await onClick()
++    expect(fixture.http.saveRequests).toHaveLength(1)
++    expect(fixture.http.deletedRows).toMatchObject([{ rowid: 'DATASET-1' }])
++    expect(view.dirtyTracking.pendingDeleteIds.size).toBe(0)
++    expect(view.rows).toMatchObject([{ rowid: 'DATASET-1' }])
++    expect(catalogPagingError(fixture.functions)).toContain('删除回执已确认，但刷新仍含原记录')
++    expect(messages.join('\n')).toContain('删除回执已确认，但刷新仍含原记录')
++    expect(messages.join('\n')).not.toContain('数据空间已删除')
++  })
++
++  it('uses query PageParam and Count to delete the last row of a later page and returns one page', async () => {
++    const fixture = await createCatalogScriptFixture({ showConfirm: async () => true }, http => {
++      http.allowDelete = true
++      http.datasetCount = 11
++    })
++    const view = fixture.dataSet.getView('Base_DataSet', 'catalog')
++    if (!view) throw new Error('catalog view was not assembled')
++    expect(view.total).toBe(11)
++    expect(view.rows).toHaveLength(10)
++    await view.setPage(2)
++    expect(view.page).toBe(2)
++    expect(view.rows).toMatchObject([{ rowid: 'DATASET-11' }])
++    const before = fixture.http.requests.filter(request => {
++      const payload = recordAt(request.data, 'query payload')
++      const tables = Array.isArray(payload['Table']) ? payload['Table'] : []
++      return recordValue(tables[0], 'Name') === 'Base_DataSet'
++    }).at(-1)
++    const beforePayload = recordAt(before?.data, 'last query payload')
++    expect(beforePayload['PageParam']).toMatchObject({ index: 2, size: 10 })
++
++    const action = renderCatalogActionButtons(fixture.functions).find(item => item['children'] === '删除数据空间')
++    const onClick = catalogActionHandler(action)
++    if (!onClick) throw new Error('authorized delete action was not rendered')
++    await onClick()
++    expect(fixture.http.deletedRows).toMatchObject([{ rowid: 'DATASET-11' }])
++    expect(view.page).toBe(1)
++    expect(view.total).toBe(10)
++    expect(view.rows).toHaveLength(10)
++    const after = fixture.http.requests.filter(request => {
++      const payload = recordAt(request.data, 'query payload')
++      const tables = Array.isArray(payload['Table']) ? payload['Table'] : []
++      return recordValue(tables[0], 'Name') === 'Base_DataSet'
++    }).at(-1)
++    const afterPayload = recordAt(after?.data, 'last refreshed payload')
++    expect(afterPayload['PageParam']).toMatchObject({ index: 1, size: 10 })
++    expect(view.rows.some(row => row['rowid'] === 'DATASET-11')).toBe(false)
++  })
++
+   it('renders an edit action only for rows authorized by the query result', async () => {
+     let deniedPrompts = 0
+     const denied = await createCatalogScriptFixture({

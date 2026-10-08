@@ -1,0 +1,81 @@
+{
+  "at": "2026-10-07T20:41:20.034Z",
+  "initialDOM": {
+    "bounds": {
+      "bottom": 679.984375,
+      "height": 320,
+      "left": 40,
+      "right": 1160,
+      "top": 359.984375,
+      "width": 1120,
+      "x": 40,
+      "y": 359.984375
+    },
+    "nodes": [
+      {
+        "id": "90A82E287930A234FEC3E687C94A93EAp000",
+        "text": "Base_DataSet数据空间定义表",
+        "transform": "translate(54px, 50px)"
+      },
+      {
+        "id": "90A82E287930A234FEC3E687C94A93EAp001",
+        "text": "Base_UserInfo用户基础信息表",
+        "transform": "translate(606px, 50px)"
+      },
+      {
+        "id": "a30f1b5b-4a2f-432c-aa71-1b597bc36e11",
+        "text": "Base_DataModel_Field数据模型字段",
+        "transform": "translate(882px, 50px)"
+      },
+      {
+        "id": "e9f6c362-9ec9-4d77-bf62-cdcb5d2c1bbb",
+        "text": "Base_DataModel数据模型定义表",
+        "transform": "translate(1158px, 50px)"
+      },
+      {
+        "id": "acb04903-043f-4c99-9a57-a8e9bc95ce72",
+        "text": "Base_AppSystemList应用系统注册表",
+        "transform": "translate(330px, 50px)"
+      },
+      {
+        "id": "44402ab3-7708-4a12-adaf-5d8a2e42b9ff",
+        "text": "Base_NavigationInfo导航配置主表",
+        "transform": "translate(1448px, 50px)"
+      }
+    ],
+    "viewport": null
+  },
+  "viewportHeight": 0,
+  "requests": [
+    {
+      "id": "9288.17132",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "id": "9288.17133",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "id": "9288.17134",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "id": "9288.17135",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "id": "9288.17136",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "id": "9288.17137",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    }
+  ]
+}

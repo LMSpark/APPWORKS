@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts --maxWorkers=1 --reporter=dot -t \"menu title and nested home path\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T06:45:06.7328611Z",
+  "finishedAt": "2026-10-07T06:45:13.4181561Z",
+  "exitCode": 0
+}

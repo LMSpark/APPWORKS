@@ -1,0 +1,7 @@
+{
+  "finishedAtUtc": "2026-10-07T08:05:17.7457241Z",
+  "startedAtUtc": "2026-10-07T08:05:14.1814613Z",
+  "exitCode": 0,
+  "cwd": "D:\\SPARK_AppWorks",
+  "command": "pnpm --dir packages/spark-lowcode-api run typecheck"
+}

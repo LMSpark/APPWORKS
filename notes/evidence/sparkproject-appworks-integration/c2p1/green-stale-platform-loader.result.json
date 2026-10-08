@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts --maxWorkers=1 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:07:45.8354877+08:00",
+  "finishedAt": "2026-10-07T14:07:48.7360361+08:00",
+  "exitCode": 0,
+  "log": "green-stale-platform-loader.log"
+}

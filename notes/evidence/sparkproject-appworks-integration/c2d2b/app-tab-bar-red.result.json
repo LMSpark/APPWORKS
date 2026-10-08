@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/app/services/project/application-switch.test.ts -t 'checks the receipt in the real AppTabBar'",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:36:02.6690662Z",
+  "finishedAtUtc": "2026-10-07T08:36:09.8692820Z",
+  "exitCode": 1
+}

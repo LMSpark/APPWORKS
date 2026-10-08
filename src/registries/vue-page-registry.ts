@@ -10,9 +10,10 @@
  * JSON config only declares pages. This registry binds those declarations to
  * Vite component loaders and exposes the derived route/navigation helpers.
  */
-import type { Component } from 'vue'
+import { defineAsyncComponent, defineComponent, h, type Component } from 'vue'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import vuePagesDocument from '../../config/navigation/vue-pages.json'
+import PageLoadError from '../components/page-loading/PageLoadError.vue'
 
 const VUE_PAGES_PROTOCOL = 'spark-appworks.vue-pages'
 const VUE_PAGES_SCHEMA_VERSION = 1
@@ -78,17 +79,33 @@ export function hasVuePage(path: string): boolean {
 /**
  * 构建 componentMap（路径 -> Vue 组件实例）。
  *
- * 在 main.ts 启动阶段调用，并行加载所有组件模块后返回扁平映射。
+ * 在 main.ts 启动阶段调用，按页面 source 建立惰性异步组件映射。
  */
-export async function buildComponentMap(): Promise<Record<string, Component>> {
-  const entries = Object.entries(VUE_PAGE_REGISTRY)
-  const modules = await Promise.all(
-    entries.map(async ([path, entry]) => {
-      const mod = await entry.load()
-      return [path, mod.default] as const
-    }),
-  )
-  return Object.fromEntries(modules)
+export function buildComponentMap(): Promise<Record<string, Component>> {
+  return Promise.resolve().then(() => {
+    const componentsBySource = new Map<string, Component>()
+    const componentMap: Record<string, Component> = {}
+    for (const [path, entry] of Object.entries(VUE_PAGE_REGISTRY)) {
+      let component = componentsBySource.get(entry.source)
+      if (component === undefined) {
+        const asyncPage = defineAsyncComponent({
+          loader: () => Promise.resolve().then(() => entry.load()).then(module => module.default),
+          errorComponent: PageLoadError,
+          delay: 0,
+        })
+        component = defineComponent({
+          name: 'VuePageRouteHost',
+          inheritAttrs: false,
+          setup(_props, { attrs, slots }) {
+            return () => h(asyncPage, attrs, slots)
+          },
+        })
+        componentsBySource.set(entry.source, component)
+      }
+      componentMap[path] = component
+    }
+    return componentMap
+  })
 }
 
 /**

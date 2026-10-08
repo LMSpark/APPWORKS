@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/composables/state/useHtmlEditorState",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useHtmlEditorState.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/composables/state/useHtmlEditorState",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/composables/state/useHtmlEditorState\n职责：提供 useHtmlEditorState（未注册组件类型）相关的组合式状态或行为封装，复用字段值、选项、权限、动作和交互控制逻辑。\n边界：只服务 field-level/data-field 的 setup/runtime 组合，不直接声明页面配置，也不替代组件 props。\nAI用途：需要理解 use html editor state 的响应式状态来源、值转换或事件副作用时，使用本模块定位实际运行规则。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {
+    "UseHtmlEditorStateOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseHtmlEditorStateOptions",
+      "properties": {
+        "editorRef": {
+          "type": "object",
+          "title": "Ref<HTMLElement | null>"
+        },
+        "fieldValue": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "isCurrentFieldEditable": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        }
+      },
+      "required": [
+        "editorRef",
+        "fieldValue",
+        "isCurrentFieldEditable"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.syncValue.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.syncValue.return": true,
+        "method.emitUpdate.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.emitUpdate.return": true,
+        "method.getRowRawValue.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getRowRawValue.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.190Z",
+  "models": {
+    "UseHtmlEditorStateOptions": {
+      "name": "UseHtmlEditorStateOptions",
+      "jsdoc": "Use Html Editor State Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** editor Ref 字段。 */\n    editorRef: Ref<HTMLElement | null>;\n    /** field Value 字段。 */\n    fieldValue: ValueRef<unknown>;\n    /** 是否 is Current Field Editable。 */\n    isCurrentFieldEditable: ValueRef<boolean>;\n    /** sync Value 回调。 */\n    syncValue: (value: string) => void;\n    /** emit Update 回调。 */\n    emitUpdate: (value: string) => void;\n    /** get Row Raw Value 回调。 */\n    getRowRawValue: (row: DataRow) => unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "editorRef",
+              "jsdoc": "editor Ref 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldValue",
+              "jsdoc": "field Value 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isCurrentFieldEditable",
+              "jsdoc": "是否 is Current Field Editable。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "syncValue",
+              "jsdoc": "sync Value 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "emitUpdate",
+              "jsdoc": "emit Update 回调。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getRowRawValue",
+              "jsdoc": "get Row Raw Value 回调。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

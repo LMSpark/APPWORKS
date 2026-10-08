@@ -1,11 +1,15 @@
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
 import { DataViewFilter, SparkData } from '@spark-appworks/spark-data'
+import type { DataView } from '@spark-appworks/spark-data'
 import { describe, expect, it, vi } from 'vitest'
 
 import { LowcodeApi } from '../../../lowcode-api.js'
 import { DataSpaceFrontendModel } from '../data-space.js'
+import type { DataSpaceDesignApi } from '../design/data-space-design-api.js'
 import type { LowcodeSession } from '../../lowcode-platform-api.js'
+import { DataSpaceQueryContext } from './query/data-space-query-context.js'
+import { DataSpaceQueryTable } from './protocol/data-space-query-table.js'
 
 class DataSpaceFixtureHttpClient extends HttpClientBase {
   public requestConfig: RequestConfig | null = null
@@ -263,6 +267,82 @@ describe('DataSpaceRuntimeApi', () => {
     expect(context).not.toHaveProperty('originalRows')
     expect(context).not.toHaveProperty('systemKey')
     expect(() => context.assertIdentity({ scenarioId: 'OTHER', metaName: '薪资前端模型' })).toThrow('SPARK_QUERY_CONTEXT_IDENTITY')
+  })
+
+  it('reads keyless query row visibility from the original runtime result row', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const wirePermissions = { e: ['name'], h: ['hidden'], m: ['masked'], d: true }
+    http.result = { primaryKeyField: null, allowAdd: true,
+      data: { Items: [{ rowid: 'BUSINESS-ID', name: 'Visible', masked: 'Masked', hidden: 'Hidden',
+        lingma_sys_params: wirePermissions }], Count: 1 } }
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: 'KeylessPicker' })
+    const row = context.rows[0]
+    if (!row) throw new Error('keyless fixture row missing')
+    wirePermissions.h.push('name')
+    expect(row).toEqual({ rowid: 'BUSINESS-ID', name: 'Visible', masked: 'Masked', hidden: 'Hidden' })
+    expect(context.rowKey(row)).toBeUndefined()
+    expect(context.fieldAccess('BUSINESS-ID', 'name').write).toBe('denied')
+    expect(context.editActionState('BUSINESS-ID')).toBe('hidden')
+    expect(context.deleteActionState('BUSINESS-ID')).toBe('hidden')
+    expect(context.viewActionState('BUSINESS-ID')).toBe('disabled')
+    expect(context.readFieldAccess(row, 'name')).toBe('visible')
+    expect(context.readFieldAccess(row, 'masked')).toBe('masked')
+    expect(context.readFieldAccess(row, 'hidden')).toBe('invisible')
+    expect(context.readFieldAccess({ ...row }, 'name')).toBe('invisible')
+    expect(() => context.prepareNewRow({ name: 'New' })).toThrow('SPARK_NEW_ROW_KEY')
+    expect(() => context.prepareSaveChanges({ changed: [{ ...row, name: 'Changed' }] }))
+      .toThrow('SPARK 保存缺少正式主键查询基线')
+    expect(() => context.prepareSaveChanges({ deleted: [row] })).toThrow('SPARK 保存缺少正式主键查询基线')
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity: { scenarioId: 'FORM-1', metaName: 'KeylessPicker' },
+      context, changes: { changed: [{ ...row, name: 'Changed' }] } }] }))
+      .rejects.toThrow('SPARK 保存缺少正式主键查询基线')
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
+
+    context.bindFormalModel({ id: 'MODEL', metaName: 'KeylessPicker', name: 'KeylessPicker', sourceName: 'dictionary',
+      sourceId: '', sourceType: '字典', primaryKey: '', businessMain: false, raw: {}, fields: [
+        { id: 'FIELD', modelId: 'MODEL', name: 'name', canonicalName: 'name', type: 'string', primaryKey: false,
+          description: '', output: true, computed: false, order: 0, orderType: '', raw: {} },
+      ] })
+    expect(context.rowKey(row)).toBeUndefined()
+    expect(context.allowAdd).toBe(false)
+    expect(context.addActionState()).toBe('hidden')
+    expect(context.readFieldAccess(row, 'name')).toBe('visible')
+    expect(() => context.prepareSaveChanges({ added: [{ name: 'New' }] })).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    expect(() => context.buildSaveRequest({ added: [{ name: 'New' }] })).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    expect(() => context.buildSaveRequest({ changed: [{ ...row, name: 'New' }] })).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    expect(() => context.buildSaveRequest({ deleted: [row] })).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+
+    const foreignHttp = new DataSpaceFixtureHttpClient()
+    foreignHttp.result = { primaryKeyField: null, allowAdd: true,
+      data: { Items: [{ rowid: 'BUSINESS-ID', name: 'Visible', lingma_sys_params: { e: ['name'] } }], Count: 1 } }
+    const foreign = await activeApi(foreignHttp).dataSpace.runtime.query({ scenarioId: 'FORM-1', metaName: 'KeylessPicker' })
+    const foreignRow = foreign.rows[0]
+    if (!foreignRow) throw new Error('foreign keyless fixture row missing')
+    expect(context.readFieldAccess(foreignRow, 'name')).toBe('invisible')
+
+    const application = api.application.get()
+    if (!application) throw new Error('fixture application missing')
+    api.application.save({ ...application, application: { ...application.application, id: 'APP-B' } })
+    expect(() => context.readFieldAccess(row, 'name')).toThrow('SPARK_QUERY_CONTEXT_STALE')
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
+  })
+
+  it.each([
+    ['deny', 'invisible'],
+    ['visible-readonly', 'visible'],
+  ] as const)('uses the explicit %s missing-auth policy for keyless row reads', (policy, expected) => {
+    const identity = { scenarioId: 'FORM-1', metaName: 'KeylessPicker' }
+    const snapshot = new DataSpaceQueryTable(identity).applyResult({ primaryKeyField: null,
+      data: { Items: [{ rowid: 'BUSINESS-ID', name: 'No permission payload' }], Count: 1 }, allowAdd: false })
+    const context = new DataSpaceQueryContext({ identity, snapshot, scope: 'scope', readScope: () => 'scope',
+      missingAuthPolicy: policy })
+    const row = context.rows[0]
+    if (!row) throw new Error('missing-auth fixture row missing')
+
+    expect(context.readFieldAccess(row, 'name')).toBe(expected)
   })
 
   it('uses the selected application ID in request headers after switching applications', async () => {
@@ -629,6 +709,10 @@ function connectedView(http: DataSpaceFixtureHttpClient, bind = true) {
   return { api, ds, view, executeQuery, executor }
 }
 
+function findRow(view: DataView, primaryKey: string | number) {
+  return view.rows.find(row => row[view.primaryKey] === primaryKey) ?? null
+}
+
 function connectedScenario(http: DataSpaceFixtureHttpClient, separateOwner = false) {
   const api = activeApi(http)
   const ds = SparkData.createDataSet({ dataSetName: 'Payroll', scenarioId: 'FORM-1', tables: {
@@ -844,6 +928,30 @@ describe('DataSet actual SPARK batch save', () => {
 })
 
 describe('DataView original query execution boundary', () => {
+  it('maps equivalent repeated output fields to one formal request field', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { api, ds, view } = connectedView(http)
+    const model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> = {
+      id: 'MODEL-1', metaName: 'Payroll', name: 'Payroll', sourceName: 'PayrollSalary', sourceId: 'RESOURCE-1',
+      sourceType: 'table', primaryKey: 'rowid', businessMain: true, raw: {}, fields: [
+        { id: 'KEY', modelId: 'MODEL-1', name: 'rowid', canonicalName: 'rowid', type: 'string', primaryKey: true,
+          description: '', output: true, computed: false, order: 0, orderType: '', raw: {} },
+        { id: 'SALARY', modelId: 'MODEL-1', name: 'salary', canonicalName: 'salary', type: 'number', primaryKey: false,
+          description: '', output: true, computed: false, order: 1, orderType: '', raw: {} },
+        { id: 'SALARY-DUP', modelId: 'MODEL-1', name: 'salary', canonicalName: 'salary', type: 'number', primaryKey: false,
+          description: '', output: true, computed: false, order: 1, orderType: '', raw: {} },
+      ],
+    }
+    api.dataSpace.runtime.bindModelView(view, model)
+
+    await view.loadFromServer({ fields: ['salary'] })
+
+    expect(http.queryRequests[0]?.data).toMatchObject({ OutputFieldMode: 'REQUEST',
+      Table: [{ Fields: [{ Name: 'salary' }, { Name: 'rowid' }] }] })
+    expect(JSON.stringify(http.queryRequests[0]?.data)).not.toContain('"AsName"')
+    ds.destroy()
+  })
+
   it.each(['update', 'delete'])('keeps %s pending instead of using a legacy CRUD endpoint', async operation => {
     const http = new DataSpaceFixtureHttpClient()
     const { ds, view } = connectedView(http)
@@ -977,6 +1085,189 @@ describe('DataView original query execution boundary', () => {
     expect(view.mutatingError).toBeInstanceOf(Error)
     expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
     expect(view.rows[0]?.['salary']).toBe(120)
+    ds.destroy()
+  })
+
+  it('locally discards an unknown save result then explicitly reads the owner’s current server value', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    http.saveResult = {}
+    await expect(view.saveChanges()).rejects.toThrow()
+
+    expect(view.mutating).toBe(false)
+    expect(view.rows[0]?.['salary']).toBe(120)
+    expect(view.discardPendingChanges()).toBe(1)
+    expect(view.rows[0]?.['salary']).toBe(100)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(1)
+
+    http.queryResults = [{ data: { Items: [] }, allowAdd: false }]
+    await view.refresh()
+    expect(view.rows[0]?.['salary']).toBe(100)
+    await expect(view.editRowById('ROW-1', { salary: 140 })).rejects.toThrow('DATA_VIEW_RESULT_STALE')
+
+    http.result = { primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE-KEY',
+      data: { Items: [{ rowid: 'ROW-1', salary: 130, lingma_sys_key: 'ROW-KEY',
+        lingma_sys_params: { r: ['salary'], e: ['salary'], h: ['secret'], m: ['bankAccount'], d: true } }], Count: 1 } }
+    await view.refresh()
+    expect(view.rows[0]?.['salary']).toBe(130)
+    expect(view.fieldAccess(view.rows[0] ?? null, 'salary')).toMatchObject({ read: 'visible', write: 'allowed' })
+    expect(http.queryRequests).toHaveLength(3)
+    expect(http.saveRequests).toHaveLength(1)
+    ds.destroy()
+  })
+
+  it('refuses pending discard while an owner query or save is active', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 120 })
+    let releaseSave: (() => void) | undefined
+    http.saveGate = new Promise<void>(resolve => { releaseSave = resolve })
+    const saveStarted = new Promise<void>(resolve => { http.saveStarted = resolve })
+    const save = view.saveChanges()
+    await saveStarted
+    expect(() => view.discardPendingChanges()).toThrow('DATA_VIEW_DISCARD_BUSY')
+    expect(view.rows[0]?.['salary']).toBe(120)
+    releaseSave?.()
+    await save
+
+    let releaseQuery: (() => void) | undefined
+    http.queryGate = new Promise<void>(resolve => { releaseQuery = resolve })
+    const queryStarted = new Promise<void>(resolve => { http.queryStarted = resolve })
+    const query = view.loadFromServer()
+    await queryStarted
+    expect(() => view.discardPendingChanges()).toThrow('DATA_VIEW_DISCARD_BUSY')
+    releaseQuery?.()
+    await query
+    ds.destroy()
+  })
+
+  it('discards only selected pending IDs and preserves remaining rows, selection, and permissions', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = { primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE-KEY',
+      data: { Items: [1, 2, 3].map(index => ({ rowid: `ROW-${index}`, salary: index * 100,
+        lingma_sys_key: `ROW-KEY-${index}`,
+        lingma_sys_params: { r: ['salary'], e: ['salary'], h: ['secret'], m: ['bankAccount'], d: true } })), Count: 3 } }
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    const second = findRow(view, 'ROW-2')
+    const third = findRow(view, 'ROW-3')
+    if (!second || !third) throw new Error('fixture rows missing')
+    view.setCurrentRowById('ROW-2')
+    view.setSelectedRows([second, third])
+    await view.editRowById('ROW-1', { salary: 150 })
+    await view.editRowById('ROW-2', { salary: 250 })
+    view.updateEditingValue('ROW-2', 'salary', 275)
+    await view.removeRow('ROW-3')
+    await view.addRow({ rowid: 'ROW-NEW', salary: 400 })
+
+    expect(view.discardPendingChanges([])).toBe(0)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(view.discardPendingChanges(['ROW-1', 'ROW-1'])).toBe(1)
+    expect(findRow(view, 'ROW-1')?.['salary']).toBe(100)
+    expect(view.dirtyTracking.isDirty('ROW-2')).toBe(true)
+    expect(view.getEditingPatch('ROW-2')).toEqual({ salary: 275 })
+    expect(view.currentRow?.['rowid']).toBe('ROW-2')
+    expect(view.selectedRows.map(row => row['rowid'])).toEqual(['ROW-2'])
+
+    expect(view.discardPendingChanges(['ROW-3', 'ROW-NEW'])).toBe(2)
+    expect(findRow(view, 'ROW-3')?.['salary']).toBe(300)
+    expect(findRow(view, 'ROW-NEW')).toBeNull()
+    expect(view.currentRow?.['rowid']).toBe('ROW-2')
+    expect(view.selectedRows.map(row => row['rowid'])).toEqual(['ROW-2'])
+    expect(view.discardPendingChanges()).toBe(1)
+    expect(findRow(view, 'ROW-2')?.['salary']).toBe(200)
+    expect(view.getEditingPatch('ROW-2')).toBeUndefined()
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.total).toBe(3)
+    expect(view.fieldAccess(findRow(view, 'ROW-2'), 'salary')).toMatchObject({ read: 'visible', write: 'allowed' })
+    expect(view.fieldAccess(findRow(view, 'ROW-2'), 'secret')).toMatchObject({ read: 'invisible', write: 'denied' })
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
+    ds.destroy()
+  })
+
+  it('validates every selected baseline before changing any pending row', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = { primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE-KEY',
+      data: { Items: [
+        { rowid: 'ROW-1', salary: 100, lingma_sys_key: 'KEY-1', lingma_sys_params: { e: ['salary'] } },
+        { rowid: 'ROW-2', salary: 200, lingma_sys_key: 'KEY-2A', lingma_sys_params: { e: ['salary'] } },
+        { rowid: 'ROW-2', salary: 201, lingma_sys_key: 'KEY-2B', lingma_sys_params: { e: ['salary'] } },
+      ], Count: 3 } }
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.editRowById('ROW-1', { salary: 150 })
+    await view.editRowById('ROW-2', { salary: 250 })
+    const pendingRows = view.rows.map(row => ({ ...row }))
+
+    expect(() => view.discardPendingChanges()).toThrow('DATA_VIEW_DISCARD_ROW')
+    expect(view.rows).toEqual(pendingRows)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    expect(view.dirtyTracking.isDirty('ROW-2')).toBe(true)
+    ds.destroy()
+  })
+
+  it('synchronizes the configured tree cache after locally discarding an edited parent link', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = { primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE-KEY',
+      data: { Items: [
+        { rowid: 'ROOT-A', parentId: null, salary: 1, lingma_sys_key: 'A', lingma_sys_params: { e: ['parentId'] } },
+        { rowid: 'ROOT-B', parentId: null, salary: 2, lingma_sys_key: 'B', lingma_sys_params: { e: ['parentId'] } },
+        { rowid: 'CHILD', parentId: 'ROOT-A', salary: 3, lingma_sys_key: 'C', lingma_sys_params: { e: ['parentId'] } },
+      ], Count: 3 } }
+    const { ds, view } = connectedView(http)
+    view.treeConfig = { idField: 'rowid', parentIdField: 'parentId' }
+    await view.loadFromServer()
+    await view.editRowById('CHILD', { parentId: 'ROOT-B' })
+    expect(view.treeManager?.getNode('CHILD')?.parentId).toBe('ROOT-B')
+
+    expect(view.discardPendingChanges(['CHILD'])).toBe(1)
+
+    expect(findRow(view, 'CHILD')?.['parentId']).toBe('ROOT-A')
+    expect(view.treeManager?.getNode('CHILD')?.parentId).toBe('ROOT-A')
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
+    ds.destroy()
+  })
+
+  it('rejects a pending delete when the same ID has reappeared in current rows', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.removeRow('ROW-1')
+    view.appendRow({ rowid: 'ROW-1', salary: 999 })
+    const currentRows = view.rows.map(row => ({ ...row }))
+
+    expect(() => view.discardPendingChanges(['ROW-1'])).toThrow('DATA_VIEW_DISCARD_ROW')
+
+    expect(view.rows).toEqual(currentRows)
+    expect(view.dirtyTracking.isPendingDelete('ROW-1')).toBe(true)
+    ds.destroy()
+  })
+
+  it('clears an overlay left on a removed pending create without touching another pending row', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { ds, view } = connectedView(http)
+    await view.loadFromServer()
+    await view.addRow({ rowid: 'ROW-NEW', salary: 300 })
+    view.updateEditingValue('ROW-NEW', 'salary', 350)
+    await view.removeRow('ROW-NEW')
+    await view.editRowById('ROW-1', { salary: 120 })
+
+    expect(view.discardPendingChanges(['ROW-NEW'])).toBe(1)
+
+    expect(view.rows.find(row => row['rowid'] === 'ROW-NEW')).toBeUndefined()
+    expect(view.hasEditingChanges('ROW-NEW')).toBe(false)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+    expect(findRow(view, 'ROW-1')?.['salary']).toBe(120)
+    expect(http.queryRequests).toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(0)
     ds.destroy()
   })
 
@@ -1135,13 +1426,13 @@ describe('DataView original query execution boundary', () => {
       value: '', valueFunction: JSON.stringify(valueFun), expression: '' }]
     await view.loadFromServer({ fields: ['salaryDisplay'], sort: 'salaryDisplay:desc', filter: {
       logic: 'or', filters: [{ field: 'Related.amount', operator: 'in', value: [false, 0, ''] },
-        { field: 'salary', operator: 'gt', value: { Type: 'GetInputParam', Name: 'minimum', Extra: valueFun } }],
+        { field: 'salary', operator: 'gt', value: { Type: 'GetApiPublicParam', Name: 'minimum', Extra: valueFun } }],
     } })
     expect(http.requestConfig?.data).toMatchObject({ Table: [{ Name: 'Payroll', Fields: [{
       Name: 'salary', AsName: 'salaryDisplay', Group: 1, ValueFun: valueFun, OrderType: 'descending',
     }], Filter: { Type: 'or', Filters: [
       { Field: 'Related.amount', Operator: 'in', ValueFun: { Type: 'GetConstValue', Value: [false, 0, ''] } },
-      { Field: 'salary', ValueFun: { Type: 'GetInputParam', Name: 'minimum', Extra: valueFun } },
+      { Field: 'salary', ValueFun: { Type: 'GetApiPublicParam', Name: 'minimum', Extra: valueFun } },
     ] } }] })
     ds.destroy()
   })

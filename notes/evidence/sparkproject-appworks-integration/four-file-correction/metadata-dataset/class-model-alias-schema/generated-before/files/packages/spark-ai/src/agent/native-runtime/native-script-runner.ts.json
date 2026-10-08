@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/native-runtime/native-script-runner",
+    "sourcePath": "packages/spark-ai/src/agent/native-runtime/native-script-runner.ts",
+    "sourceFile": "packages/spark-ai/src/agent/native-runtime/native-script-runner.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/native-runtime/native-script-runner",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/native-runtime/native-script-runner\n职责：执行 native script 命令，连接 schema defs、脚本上下文和运行结果，让 ClassModel 脚本在本地安全落地。\n边界：负责受控执行和结果包装，不负责 LLM 对话、不决定工具选择，也不保存会话。\nAI用途：排查 model_script 执行失败、参数 schema 或返回值映射时，用本模块定位运行链路。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiNativeRuntimeSchemaDefs",
+      "AiNativeScriptContextCommand",
+      "AiNativeScriptRunCommand"
+    ]
+  },
+  "$defs": {
+    "AiNativeScriptContextCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiNativeScriptContextCommand",
+      "properties": {
+        "instance": {
+          "type": "object",
+          "title": "TInstance"
+        },
+        "metadata": {
+          "type": "object",
+          "title": "AiRuntimeApiMetadataJson"
+        },
+        "host": {
+          "type": "object",
+          "title": "AiAgentRuntimeHostContext"
+        },
+        "schemaDefs": {
+          "type": "object",
+          "title": "AiNativeRuntimeSchemaDefs"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiNativeScriptRunCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiNativeScriptRunCommand",
+      "properties": {
+        "instance": {
+          "type": "object",
+          "title": "TInstance"
+        },
+        "metadata": {
+          "type": "object",
+          "title": "AiRuntimeApiMetadataJson"
+        },
+        "host": {
+          "type": "object",
+          "title": "AiAgentRuntimeHostContext"
+        },
+        "schemaDefs": {
+          "type": "object",
+          "title": "AiNativeRuntimeSchemaDefs"
+        },
+        "script": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.482Z",
+  "models": {
+    "AiNativeRuntimeSchemaDefs": {
+      "name": "AiNativeRuntimeSchemaDefs",
+      "jsdoc": "Ai Native Runtime Schema Defs 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, JsonSchema>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, JsonSchema>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AiNativeScriptContextCommand": {
+      "name": "AiNativeScriptContextCommand",
+      "jsdoc": "Ai Native Script Context Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 脚本执行时 this 绑定的业务根实例；脚本通过 this.xxx 访问实例上的 API 方法 */\n    instance: TInstance;\n    /** ClassModel API 元数据 JSON，声明脚本可调用的 API 对象及其方法签名 */\n    metadata: AiRuntimeApiMetadataJson;\n    /** 宿主运行上下文，提供平台级服务（如路径解析）注入；省略时脚本无宿主依赖 */\n    host?: AiAgentRuntimeHostContext;\n    /** 命名 JSON Schema 定义集，供脚本内校验函数按 $ref 引用；省略时校验不支持外部 schema */\n    schemaDefs?: AiNativeRuntimeSchemaDefs;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 脚本执行时 this 绑定的业务根实例；脚本通过 this.xxx 访问实例上的 API 方法 */\n    instance: TInstance;\n    /** ClassModel API 元数据 JSON，声明脚本可调用的 API 对象及其方法签名 */\n    metadata: AiRuntimeApiMetadataJson;\n    /** 宿主运行上下文，提供平台级服务（如路径解析）注入；省略时脚本无宿主依赖 */\n    host?: AiAgentRuntimeHostContext;\n    /** 命名 JSON Schema 定义集，供脚本内校验函数按 $ref 引用；省略时校验不支持外部 schema */\n    schemaDefs?: AiNativeRuntimeSchemaDefs;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "instance",
+              "jsdoc": "脚本执行时 this 绑定的业务根实例；脚本通过 this.xxx 访问实例上的 API 方法",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metadata",
+              "jsdoc": "ClassModel API 元数据 JSON，声明脚本可调用的 API 对象及其方法签名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "host",
+              "jsdoc": "宿主运行上下文，提供平台级服务（如路径解析）注入；省略时脚本无宿主依赖",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemaDefs",
+              "jsdoc": "命名 JSON Schema 定义集，供脚本内校验函数按 $ref 引用；省略时校验不支持外部 schema",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiNativeScriptRunCommand": {
+      "name": "AiNativeScriptRunCommand",
+      "jsdoc": "Ai Native Script Run Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "AiNativeScriptContextCommand<TInstance> & Readonly<{\n    /** LLM 生成的 JavaScript async function body，脚本沙箱直接执行此文本；禁止包含 TS/JSX/import/export/函数包裹 */\n    script: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "AiNativeScriptContextCommand<TInstance>",
+            "targetName": "AiNativeScriptContextCommand"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** LLM 生成的 JavaScript async function body，脚本沙箱直接执行此文本；禁止包含 TS/JSX/import/export/函数包裹 */\n    script: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "script",
+              "jsdoc": "LLM 生成的 JavaScript async function body，脚本沙箱直接执行此文本；禁止包含 TS/JSX/import/export/函数包裹",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

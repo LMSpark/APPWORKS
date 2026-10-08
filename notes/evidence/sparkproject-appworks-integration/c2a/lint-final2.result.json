@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "cwd": "D:\\SPARK_AppWorks",
+  "endedAt": "2026-10-07T14:54:29.6005542+08:00",
+  "command": "pnpm exec eslint packages/spark-app/src/navigation/runtime-navigation.ts packages/spark-app/src/index.ts packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts packages/spark-app/src/router/system-page-identity/system-page-route-host.vue packages/spark-app/src/router/dynamic.ts packages/spark-app/src/navigation/useNavigation.ts src/lowcode/lowcode-runtime.ts src/main.ts",
+  "startedAt": "2026-10-07T14:54:22.4024636+08:00"
+}

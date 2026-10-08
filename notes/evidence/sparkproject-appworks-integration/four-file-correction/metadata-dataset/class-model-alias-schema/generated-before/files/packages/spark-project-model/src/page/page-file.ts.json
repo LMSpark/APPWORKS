@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:page/page-file",
+    "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
+    "sourceFile": "packages/spark-project-model/src/page/page-file.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "page/page-file",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/page-file\n职责：提供项目模型和页面配置域中的 page file 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n页面三文件：路径常量、IO 类型、文本 parse/serialize。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageToolFileName",
+      "PageToolLoadOptions",
+      "PageContentLoadResult",
+      "PageToolFileVersionSummary",
+      "PageFileCreateOptions"
+    ]
+  },
+  "$defs": {
+    "PageToolLoadOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolLoadOptions",
+      "properties": {
+        "forceReload": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageContentLoadResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageContentLoadResult",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object",
+          "title": "T"
+        },
+        "error": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "source": {
+          "const": "remote"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "sourceTimestamp": {
+          "type": "string"
+        },
+        "fromCache": {
+          "type": "boolean"
+        },
+        "notModified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "success"
+      ],
+      "additionalProperties": false
+    },
+    "PageToolFileVersionSummary": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageToolFileVersionSummary",
+      "properties": {
+        "version": {
+          "type": "number"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "fileName",
+        "lastModified"
+      ],
+      "additionalProperties": false
+    },
+    "PageFileCreateOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageFileCreateOptions",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.360Z",
+  "models": {
+    "PageToolFileName": {
+      "name": "PageToolFileName",
+      "jsdoc": "页面工具只允许rule.json、script.js、style.css三文件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof PAGE_TOOL_FILE_NAMES[number]",
+        "members": {}
+      }
+    },
+    "PageToolLoadOptions": {
+      "name": "PageToolLoadOptions",
+      "jsdoc": "Page Tool Load Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** force Reload 字段。 */\n    forceReload?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "forceReload",
+              "jsdoc": "force Reload 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageContentLoadResult": {
+      "name": "PageContentLoadResult",
+      "jsdoc": "Page Content Load Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** success 字段。 */\n    success: boolean;\n    /** 业务数据载荷。 */\n    data?: T;\n    /** 错误对象或错误信息。 */\n    error?: string;\n    /** reason 字段。 */\n    reason?: string;\n    /** 来源对象。 */\n    source?: 'remote';\n    /** 事件时间戳。 */\n    timestamp?: number;\n    /** source Timestamp 字段。 */\n    sourceTimestamp?: string;\n    /** from Cache 字段。 */\n    fromCache?: boolean;\n    /** not Modified 字段。 */\n    notModified?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "success",
+              "jsdoc": "success 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "jsdoc": "业务数据载荷。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "错误对象或错误信息。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reason",
+              "jsdoc": "reason 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "来源对象。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timestamp",
+              "jsdoc": "事件时间戳。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceTimestamp",
+              "jsdoc": "source Timestamp 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fromCache",
+              "jsdoc": "from Cache 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notModified",
+              "jsdoc": "not Modified 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageToolFileVersionSummary": {
+      "name": "PageToolFileVersionSummary",
+      "jsdoc": "N__filename快照摘要；缺少修改时间为null，编号不代表发布引用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    version: number;\n    fileName: string;\n    lastModified: number | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lastModified",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PageFileCreateOptions": {
+      "name": "PageFileCreateOptions",
+      "jsdoc": "Page File Create Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 显示标题。 */\n    title?: string;\n    /** icon 字段。 */\n    icon?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "显示标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "icon 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,25 +1,31 @@
-import { describe, it, expect, vi } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import { SparkData } from '@spark-appworks/spark-data'
+import type { DataView } from '@spark-appworks/spark-data'
 import { RequestState } from '../../types'
 import { TreeManager } from '../../node-tree/tree-manager'
-import type { CrudResult, DataRow, QueryParams } from '../../types'
+import type { CrudResult, DataRow, QueryParams, DataViewCascadeFilterBinding } from '../../types'
 
 function viewCascade(
   parent: string,
   child: string,
-  state = 'allRows',
-  sourceField = 'id',
-  targetField = 'parentId',
+  binding: DataViewCascadeFilterBinding = { sourceField: 'id', targetField: 'parentId' },
 ) {
   return {
     parentTable: parent,
     parentViewId: 'default',
     childTable: child,
     childViewId: 'default',
-    filterBindings: [{ sourceField, targetField }],
-    dependencyType: state,
+    filterBindings: [binding],
   }
 }
+
+function readableInput(view: DataView): void {
+  vi.spyOn(view, 'fieldAccess').mockReturnValue({
+    read: 'visible', write: 'denied', required: false, component: 'readonly', writeMode: 'readonly',
+  })
+}
+
+afterEach(() => vi.restoreAllMocks())
 
 describe('DataView.requestData orchestration', () => {
   it.each(['editing', 'dirty'])('rejects nested tree queries before transport with %s changes', async change => {
@@ -274,7 +280,7 @@ describe('DataView.requestData orchestration', () => {
         Children: { tableName: 'Children', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [] } } }
       },
       resourceRelations: [
-        { parentTable: 'Parents', childTable: 'Children', childField: 'parentId' }
+        { parentTable: 'Parents', childTable: 'Children', filterExpression: {logic: 'and', filters: [{field: 'parentId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]} }
       ],
       viewCascades: [
         viewCascade('Parents', 'Children')
@@ -285,8 +291,10 @@ describe('DataView.requestData orchestration', () => {
     const cView = ds.getView('Children', 'default')!
 
     const pSpy = vi.spyOn(pView, 'loadFromServer').mockImplementation(async () => {
-      pView.rows.splice(0, pView.rows.length, { id: 11 })
+      readableInput(pView)
+      pView.updateFromServer([{ id: 11 }])
       pView.requestState = RequestState.Loaded
+      pView.setCurrentRow(pView.rows[0]!)
       return { success: true, data: pView.rows }
     })
 
@@ -319,7 +327,7 @@ describe('DataView.requestData orchestration', () => {
         Children: { tableName: 'Children', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [] } } }
       },
       resourceRelations: [
-        { parentTable: 'Parents', childTable: 'Children', childField: 'parentId' }
+        { parentTable: 'Parents', childTable: 'Children', filterExpression: {logic: 'and', filters: [{field: 'parentId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]} }
       ],
       viewCascades: [
         viewCascade('Parents', 'Children')
@@ -347,7 +355,7 @@ describe('DataView.requestData orchestration', () => {
     pSpy.mockRestore(); cSpy.mockRestore()
   })
 
-  it('respects relation parentField/childField mapping when building params', async () => {
+  it('uses the declared field value when building query params', async () => {
     const ds = SparkData.createDataSet({
       dataSetName: 'OrchDS3',
       tables: {
@@ -357,11 +365,11 @@ describe('DataView.requestData orchestration', () => {
       resourceRelations: [
         {
           parentTable: 'Parents', childTable: 'Children',
-          parentField: 'uuid', childField: 'parentUuid',
+          filterExpression: {logic: 'and', filters: [{field: 'parentUuid', operator: 'eq', value: {Type: 'GetTableField', Field: 'uuid'}}]},
         }
       ],
       viewCascades: [
-        viewCascade('Parents', 'Children', 'currentRow', 'uuid', 'parentUuid')
+        viewCascade('Parents', 'Children', { sourceField: 'uuid', targetField: 'parentUuid' })
       ],
     })
 
@@ -369,10 +377,10 @@ describe('DataView.requestData orchestration', () => {
     const cView = ds.getView('Children', 'default')!
 
     const pSpy = vi.spyOn(pView, 'loadFromServer').mockImplementation(async () => {
-      pView.rows.splice(0, pView.rows.length, { uuid: 'p-1' })
-      // 直接写 _currentRowId，避免 setCurrentRow 触发 currentRowChanged 干扰编排
-      pView._currentRowId = pView.getPkKey(pView.rows[0]!) ?? null
+      readableInput(pView)
+      pView.updateFromServer([{ uuid: 'p-1' }])
       pView.requestState = RequestState.Loaded
+      pView.setCurrentRow(pView.rows[0]!)
       return { success: true, data: pView.rows }
     })
 
@@ -392,7 +400,7 @@ describe('DataView.requestData orchestration', () => {
     pSpy.mockRestore(); cSpy.mockRestore()
   })
 
-  it('POST list endpoints should merge relation constraints into remote filter AST', async () => {
+  it('POST list endpoints merge selected values with the view filter AST', async () => {
     const ds = SparkData.createDataSet({
       dataSetName: 'OrchRemoteFilterAST',
       tables: {
@@ -423,17 +431,18 @@ describe('DataView.requestData orchestration', () => {
         },
       },
       resourceRelations: [
-        { parentTable: 'Parents', childTable: 'Children', parentField: 'id', childField: 'parentId' },
+        { parentTable: 'Parents', childTable: 'Children', filterExpression: {logic: 'and', filters: [{field: 'parentId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]} },
       ],
       viewCascades: [
-        viewCascade('Parents', 'Children'),
+        viewCascade('Parents', 'Children', { targetField: 'parentId' }),
       ],
     })
 
     const pView = ds.getView('Parents', 'default')!
     const cView = ds.getView('Children', 'default')!
 
-    pView.rows.splice(0, pView.rows.length, { id: 11 }, { id: 12 })
+    readableInput(pView)
+    pView.updateFromServer([{ id: 11 }, { id: 12 }])
     pView.requestState = RequestState.Loaded
 
     const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async (params?: QueryParams) => {
@@ -451,13 +460,14 @@ describe('DataView.requestData orchestration', () => {
       return { success: true, data: [] }
     })
 
+    pView.setSelectedRows(pView.rows)
     await cView.requestData()
 
     expect(cSpy).toHaveBeenCalledOnce()
     cSpy.mockRestore()
   })
 
-  it('step 4.4: triggers children BR after successful load (3-level cascade)', async () => {
+  it('propagates available values through a three-level query cascade', async () => {
     // 三层级联：A → B → C
     // 调用 A.requestData()
     // A 加载成功后 step 4.4 触发 B 的 C，B 成功后 step 4.4 触发 C 的 C
@@ -469,12 +479,12 @@ describe('DataView.requestData orchestration', () => {
         C: { tableName: 'C', columns: [{ name: 'id', type: 'number' }, { name: 'bId', type: 'number' }], views: { default: { rows: [] } }, api: { list: { url: '/test/c', method: 'GET' } } }
       },
       resourceRelations: [
-        { parentTable: 'A', childTable: 'B', childField: 'aId' },
-        { parentTable: 'B', childTable: 'C', childField: 'bId' },
+        { parentTable: 'A', childTable: 'B', filterExpression: {logic: 'and', filters: [{field: 'aId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]} },
+        { parentTable: 'B', childTable: 'C', filterExpression: {logic: 'and', filters: [{field: 'bId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]} },
       ],
       viewCascades: [
-        viewCascade('A', 'B', 'allRows', 'id', 'aId'),
-        viewCascade('B', 'C', 'allRows', 'id', 'bId'),
+        viewCascade('A', 'B', { sourceField: 'id', targetField: 'aId' }),
+        viewCascade('B', 'C', { sourceField: 'id', targetField: 'bId' }),
       ]
     })
 
@@ -483,18 +493,20 @@ describe('DataView.requestData orchestration', () => {
     const cView = ds.getView('C', 'default')!
 
     const aSpy = vi.spyOn(aView, 'loadFromServer').mockImplementation(async () => {
-      aView.rows.splice(0, aView.rows.length, { id: 1 })
+      readableInput(aView)
+      aView.updateFromServer([{ id: 1 }])
       aView.requestState = RequestState.Loaded
-      aView.events.emit('rowsChanged')
+      aView.setCurrentRow(aView.rows[0]!)
       return { success: true, data: aView.rows }
     })
 
     const bSpy = vi.spyOn(bView, 'loadFromServer').mockImplementation(async (params?: QueryParams) => {
       expect(params).toBeDefined()
       expect(params?.filter).toEqual({ field: 'aId', operator: 'eq', value: 1 })
-      bView.rows.splice(0, bView.rows.length, { id: 10, aId: 1 })
+      readableInput(bView)
+      bView.updateFromServer([{ id: 10, aId: 1 }])
       bView.requestState = RequestState.Loaded
-      bView.events.emit('rowsChanged')
+      bView.setCurrentRow(bView.rows[0]!)
       return { success: true, data: bView.rows }
     })
 

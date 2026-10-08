@@ -1,0 +1,846 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:io/page-file-api",
+    "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts",
+    "sourceFile": "packages/spark-project-model/src/io/page-file-api.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "io/page-file-api",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/page-file-api\n职责：三文件保存与编号快照语义网关。\n边界：能力由宿主注入，缺失即明确拒绝。\nAI用途：通过Workspace保存三文件或管理N__filename快照。\n\n页面文件写能力的注入式领域边界；项目模型不拥有服务器路径。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageFileCreateParams",
+      "ProjectPageFileGateway",
+      "PageFileApi"
+    ]
+  },
+  "$defs": {
+    "PageFileCreateParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageFileCreateParams",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pageId"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectPageFileGateway": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPageFileGateway",
+      "properties": {
+        "readPageFile": {
+          "type": "object",
+          "title": "PageFileReader"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.saveFileContent.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveFileContent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.createFiles.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/PageFileCreateParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createFiles.return": {
+          "type": "object",
+          "title": "Promise<Record<string, unknown>>"
+        },
+        "method.deleteFiles.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteFiles.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.listVersions.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listVersions.return": {
+          "type": "object",
+          "title": "Promise<PageToolFileVersionSummary[]>"
+        },
+        "method.restoreVersion.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            },
+            "version": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restoreVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.createVersion.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.deleteVersion.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            },
+            "version": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "PageFileApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageFileApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "gateway": {
+              "$ref": "#/$defs/ProjectPageFileGateway"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveFileContent.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveFileContent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.createFiles.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/PageFileCreateParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createFiles.return": {
+          "type": "object",
+          "title": "Promise<Record<string, unknown>>"
+        },
+        "method.deleteFiles.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteFiles.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.listVersions.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listVersions.return": {
+          "type": "object",
+          "title": "Promise<PageToolFileVersionSummary[]>"
+        },
+        "method.restoreVersion.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            },
+            "version": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restoreVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.createVersion.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.deleteVersion.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            },
+            "version": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.382Z",
+  "models": {
+    "PageFileCreateParams": {
+      "name": "PageFileCreateParams",
+      "jsdoc": "为明确pageId创建三工具文件的真实请求。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageFileCreateOptions & {\n    pageId: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageFileCreateOptions",
+            "targetName": "PageFileCreateOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    pageId: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPageFileGateway": {
+      "name": "ProjectPageFileGateway",
+      "jsdoc": "宿主真实三文件及编号快照能力；编号最大值不能视为正式发布。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageToolFileName, content: string) => Promise<void>;\n    createFiles?: (params: PageFileCreateParams) => Promise<Record<string, unknown>>;\n    deleteFiles?: (pageId: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readPageFile: PageFileReader;\n    saveFileContent?: (pageId: string, filename: PageToolFileName, content: string) => Promise<void>;\n    createFiles?: (params: PageFileCreateParams) => Promise<Record<string, unknown>>;\n    deleteFiles?: (pageId: string) => Promise<void>;\n    listVersions?: (pageId: string, filename: PageToolFileName) => Promise<PageToolFileVersionSummary[]>;\n    restoreVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n    createVersion?: (pageId: string, filename: PageToolFileName) => Promise<void>;\n    deleteVersion?: (pageId: string, filename: PageToolFileName, version: number) => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "readPageFile",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "saveFileContent",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                },
+                {
+                  "name": "content",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createFiles",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageFileCreateParams",
+                    "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteFiles",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listVersions",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageToolFileVersionSummary",
+                      "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "restoreVersion",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createVersion",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteVersion",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageFileApi": {
+      "name": "PageFileApi",
+      "jsdoc": "三文件及编号快照操作门面，真实IO由注入网关执行。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定宿主真实三文件能力，缺失操作明确失败。",
+          "signatureText": "constructor(gateway: ProjectPageFileGateway)",
+          "parameters": [
+            {
+              "name": "gateway",
+              "type": {
+                "type": "reference",
+                "name": "ProjectPageFileGateway",
+                "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "saveFileContent",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                },
+                {
+                  "name": "content",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createFiles",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageFileCreateParams",
+                    "sourcePath": "packages/spark-project-model/src/io/page-file-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteFiles",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listVersions",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageToolFileVersionSummary",
+                      "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "restoreVersion",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createVersion",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteVersion",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

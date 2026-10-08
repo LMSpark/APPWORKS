@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "command": "pnpm run verify:ai-codegen",
+  "log": "verify-ai-codegen.log"
+}

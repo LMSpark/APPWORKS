@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:logger",
+    "sourcePath": "packages/spark-utils/src/logger.ts",
+    "sourceFile": "packages/spark-utils/src/logger.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "logger",
+    "jsdoc": "@module @spark-appworks/spark-utils:logger\n职责：提供框架无关基础设施 logger 能力，围绕 LogLevel、LoggerApi、LogTransport 支撑 capability、HTTP、日志、脚本类型或历史快照。\n边界：保持底层工具包纯净，不依赖 Vue、spark-data 或应用壳层，也不承载业务配置。\nAI用途：需要跨包复用基础能力或确认底层协议时，用本模块理解 logger。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LogLevel",
+      "LoggerApi",
+      "LogTransport"
+    ]
+  },
+  "$defs": {
+    "LogLevel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LogLevel",
+      "enum": [
+        "debug",
+        "info",
+        "warn",
+        "error"
+      ]
+    },
+    "LoggerApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LoggerApi",
+      "$defs": {
+        "method.debug.params": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.debug.return": true,
+        "method.info.params": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.info.return": true,
+        "method.warn.params": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.warn.return": true,
+        "method.error.params": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.error.return": true
+      }
+    },
+    "LogTransport": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LogTransport",
+      "$defs": {
+        "method.send.params": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "$ref": "#/$defs/LogLevel"
+            },
+            "message": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.send.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T11:26:54.503Z",
+  "models": {
+    "LogLevel": {
+      "name": "LogLevel",
+      "jsdoc": "日志级别",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'debug' | 'info' | 'warn' | 'error'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'debug'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'info'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'warn'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'error'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LoggerApi": {
+      "name": "LoggerApi",
+      "jsdoc": "Logger API",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 输出调试级别日志；仅开发环境可见，用于排查内部状态流转。 */\n    debug(...args: unknown[]): void;\n    /** 输出信息级别日志；记录正常业务流程关键节点。 */\n    info(...args: unknown[]): void;\n    /** 输出警告级别日志；非致命异常或降级路径，需要关注但不阻断流程。 */\n    warn(...args: unknown[]): void;\n    /** 输出错误级别日志；业务失败或运行时异常，自动捕获调用栈并附带传输器诊断。 */\n    error(...args: unknown[]): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "debug",
+              "jsdoc": "输出调试级别日志；仅开发环境可见，用于排查内部状态流转。",
+              "parameters": [
+                {
+                  "name": "args",
+                  "type": {
+                    "type": "rest",
+                    "elementType": {
+                      "type": "array",
+                      "elementType": {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "info",
+              "jsdoc": "输出信息级别日志；记录正常业务流程关键节点。",
+              "parameters": [
+                {
+                  "name": "args",
+                  "type": {
+                    "type": "rest",
+                    "elementType": {
+                      "type": "array",
+                      "elementType": {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "warn",
+              "jsdoc": "输出警告级别日志；非致命异常或降级路径，需要关注但不阻断流程。",
+              "parameters": [
+                {
+                  "name": "args",
+                  "type": {
+                    "type": "rest",
+                    "elementType": {
+                      "type": "array",
+                      "elementType": {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "error",
+              "jsdoc": "输出错误级别日志；业务失败或运行时异常，自动捕获调用栈并附带传输器诊断。",
+              "parameters": [
+                {
+                  "name": "args",
+                  "type": {
+                    "type": "rest",
+                    "elementType": {
+                      "type": "array",
+                      "elementType": {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LogTransport": {
+      "name": "LogTransport",
+      "jsdoc": "日志传输器接口（SSoT）。应用壳批量传输见 spark-app `AppLogTransport`（额外 flush/destroy）。\nspark-utils 是最底层包，此接口定义为传输器的基础契约。\nspark-app 的 AppLogTransport 扩展了 `flush?()` / `destroy?()`，但 send 签名一致，\n因此同一个 transport 实例可同时注册到两个系统。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 将结构化日志发送到传输目标；实现同步或异步均可，异常不会影响日志主流程。 */\n    send(level: LogLevel, message: string, meta?: Record<string, unknown>): void | Promise<void>;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "send",
+              "jsdoc": "将结构化日志发送到传输目标；实现同步或异步均可，异常不会影响日志主流程。",
+              "parameters": [
+                {
+                  "name": "level",
+                  "type": {
+                    "type": "reference",
+                    "name": "LogLevel",
+                    "sourcePath": "packages/spark-utils/src/logger.ts"
+                  }
+                },
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "meta",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

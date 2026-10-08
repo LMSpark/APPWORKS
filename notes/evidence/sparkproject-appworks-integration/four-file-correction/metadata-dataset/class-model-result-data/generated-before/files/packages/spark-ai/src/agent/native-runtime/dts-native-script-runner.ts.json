@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/native-runtime/dts-native-script-runner",
+    "sourcePath": "packages/spark-ai/src/agent/native-runtime/dts-native-script-runner.ts",
+    "sourceFile": "packages/spark-ai/src/agent/native-runtime/dts-native-script-runner.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/native-runtime/dts-native-script-runner",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/native-runtime/dts-native-script-runner\n职责：定义 DTS ClassModel 脚本运行命令，让 native runtime 能在受控上下文中执行模型脚本。\n边界：只描述脚本调用输入输出，不负责生成脚本、不注册工具，也不直接访问页面配置文件。\nAI用途：需要把 model_script tool call 交给本地脚本执行器时，用本模块确认命令载荷形状。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DtsNativeScriptRunCommand"
+    ]
+  },
+  "$defs": {
+    "DtsNativeScriptRunCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DtsNativeScriptRunCommand",
+      "properties": {
+        "instance": {
+          "type": "object",
+          "title": "TInstance"
+        },
+        "manifestUrl": {
+          "type": "string"
+        },
+        "rootClassName": {
+          "type": "string"
+        },
+        "host": {
+          "type": "object",
+          "title": "AiAgentRuntimeHostContext"
+        },
+        "script": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.fetchJson.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fetchJson.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.222Z",
+  "models": {
+    "DtsNativeScriptRunCommand": {
+      "name": "DtsNativeScriptRunCommand",
+      "jsdoc": "Dts Native Script Run Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 脚本执行时 this 绑定的业务根实例；DTS 模型中 rootClassName 对应的运行时对象 */\n    instance: TInstance;\n    /** DTS ClassModel bundle 分片的 manifest.json 远程地址，用于加载元数据 */\n    manifestUrl: string;\n    /** 业务根 className，与 manifest 中的模型声明对应，决定 API 元数据投影起点 */\n    rootClassName: string;\n    /** 可选宿主上下文；提供运行时路径段和宿主回调，为脚本提供 sandbox 外部桥接 */\n    host?: AiAgentRuntimeHostContext;\n    /** 自定义远程 JSON 资源获取函数；未提供时使用内置默认 fetch */\n    fetchJson?: (url: string) => Promise<unknown>;\n    /** 待执行的 JavaScript async function body 字符串；禁止含 TypeScript/JSX/import/export 或函数包裹 */\n    script: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 脚本执行时 this 绑定的业务根实例；DTS 模型中 rootClassName 对应的运行时对象 */\n    instance: TInstance;\n    /** DTS ClassModel bundle 分片的 manifest.json 远程地址，用于加载元数据 */\n    manifestUrl: string;\n    /** 业务根 className，与 manifest 中的模型声明对应，决定 API 元数据投影起点 */\n    rootClassName: string;\n    /** 可选宿主上下文；提供运行时路径段和宿主回调，为脚本提供 sandbox 外部桥接 */\n    host?: AiAgentRuntimeHostContext;\n    /** 自定义远程 JSON 资源获取函数；未提供时使用内置默认 fetch */\n    fetchJson?: (url: string) => Promise<unknown>;\n    /** 待执行的 JavaScript async function body 字符串；禁止含 TypeScript/JSX/import/export 或函数包裹 */\n    script: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "instance",
+              "jsdoc": "脚本执行时 this 绑定的业务根实例；DTS 模型中 rootClassName 对应的运行时对象",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "manifestUrl",
+              "jsdoc": "DTS ClassModel bundle 分片的 manifest.json 远程地址，用于加载元数据",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootClassName",
+              "jsdoc": "业务根 className，与 manifest 中的模型声明对应，决定 API 元数据投影起点",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "host",
+              "jsdoc": "可选宿主上下文；提供运行时路径段和宿主回调，为脚本提供 sandbox 外部桥接",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "script",
+              "jsdoc": "待执行的 JavaScript async function body 字符串；禁止含 TypeScript/JSX/import/export 或函数包裹",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "fetchJson",
+              "jsdoc": "自定义远程 JSON 资源获取函数；未提供时使用内置默认 fetch",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts --maxWorkers=1 --reporter=dot -t \"same-path system-page owner\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T06:39:10.4866808Z",
+  "finishedAt": "2026-10-07T06:39:13.4533886Z",
+  "exitCode": 1
+}

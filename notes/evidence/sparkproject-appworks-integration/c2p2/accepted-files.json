@@ -1,0 +1,14 @@
+{
+  "scope": "C2p2 accepted after root suite and dev browser",
+  "at": "2026-10-07T14:26:41.8728277+08:00",
+  "files": [
+    {
+      "path": "src/lowcode/lowcode-runtime.ts",
+      "sha256": "AC003FC6268FE5A3B6E025DFEB859FBF007986DC3BF974838511A8197C15D38B"
+    },
+    {
+      "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+      "sha256": "CCE0AEEFEBC777FD2D2DF920F35BE7CCFDB53D3EEFE516549F606B1844D8266A"
+    }
+  ]
+}

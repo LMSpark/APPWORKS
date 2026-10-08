@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/workflow-designs/workflow-design-fields",
+    "sourcePath": "src/views/app/workflow-designs/workflow-design-fields.ts",
+    "sourceFile": "src/views/app/workflow-designs/workflow-design-fields.ts",
+    "packageName": "app",
+    "modulePath": "views/app/workflow-designs/workflow-design-fields",
+    "jsdoc": "@module app:views/app/workflow-designs/workflow-design-fields\n职责：WorkflowDesigns 属性面板的元数据行、变量默认值与结构化字段行的纯转换。\n边界：无响应式状态与副作用；输入输出均为普通数据。\nAI用途：排查属性面板字段回显或保存数据形状时，从本模块定位。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:42:46.729Z",
+  "models": {}
+}

@@ -1,0 +1,7 @@
+{
+  "command": "pnpm run build",
+  "exitCode": 0,
+  "startedAt": "2026-10-07T14:12:49.0411909+08:00",
+  "finishedAt": "2026-10-07T14:12:59.1618964+08:00",
+  "log": "build.log"
+}

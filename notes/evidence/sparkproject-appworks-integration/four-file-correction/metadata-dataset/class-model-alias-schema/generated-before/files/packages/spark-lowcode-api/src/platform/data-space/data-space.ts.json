@@ -1,0 +1,952 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/data-space",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/data-space",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/data-space\n职责：数据空间设计态资源、字段和关系合同及前端模型实体。边界：构造期校验身份和关系归属，运行查询字段由正式 readModel 定义；AI 可用此入口区分设计资源与查询模型。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataSpaceResourceType",
+      "DataSpaceDatabaseResourceType",
+      "DataSpaceResourceField",
+      "DataSpaceResourceReference",
+      "DataSpaceFieldReference",
+      "LowcodeModelRelationRecord",
+      "DataSpaceFrontendModelQuery",
+      "DataSpaceFrontendModelSnapshot",
+      "DataSpaceFrontendModel"
+    ]
+  },
+  "$defs": {
+    "DataSpaceResourceType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceResourceType",
+      "enum": [
+        "table",
+        "view",
+        "dictionary",
+        "interface",
+        "json",
+        "file"
+      ]
+    },
+    "DataSpaceResourceField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceResourceField",
+      "properties": {
+        "resourceFieldId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "dataType": {
+          "type": "string"
+        },
+        "dataTypeName": {
+          "type": "string"
+        },
+        "length": {
+          "type": "string"
+        },
+        "nullable": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "primaryKey": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "unique": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "system": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "defaultValue": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "order": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceResourceReference": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceResourceReference",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "databaseId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "resourceType": {
+          "$ref": "#/$defs/DataSpaceResourceType"
+        },
+        "primaryKeyField": {
+          "type": "string"
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceResourceField"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceFieldReference": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFieldReference",
+      "properties": {
+        "fieldId": {
+          "type": "string"
+        },
+        "resourceFieldId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "resourceField": {
+          "type": "string"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "fieldType": {
+          "type": "string"
+        },
+        "output": {
+          "type": "boolean"
+        },
+        "order": {
+          "type": "number"
+        },
+        "orderType": {
+          "anyOf": [
+            {
+              "$ref": "../../contracts/lowcode-wire-query.ts.json#/$defs/OrderType"
+            },
+            {
+              "const": ""
+            }
+          ]
+        },
+        "group": {
+          "type": "number"
+        },
+        "distinct": {
+          "type": "boolean"
+        },
+        "primaryKey": {
+          "type": "boolean"
+        },
+        "value": {
+          "type": "string"
+        },
+        "valueFunction": {
+          "type": "string"
+        },
+        "expression": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeModelRelationRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeModelRelationRecord",
+      "properties": {
+        "sourceRelationId": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "parentModelId": {
+          "type": "string"
+        },
+        "childModelId": {
+          "type": "string"
+        },
+        "parentResourceName": {
+          "type": "string"
+        },
+        "childResourceName": {
+          "type": "string"
+        },
+        "filterExpression": {
+          "type": "string"
+        },
+        "dependencyType": {
+          "type": "string"
+        },
+        "cascadeDelete": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceFrontendModelQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFrontendModelQuery",
+      "properties": {
+        "outputType": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "distinct": {
+          "type": "boolean"
+        },
+        "businessMain": {
+          "type": "boolean"
+        },
+        "joinType": {
+          "type": "string"
+        },
+        "joinFilter": {
+          "type": "string"
+        },
+        "parentModelId": {
+          "type": "string"
+        },
+        "requestComplete": {
+          "type": "string"
+        },
+        "hasChildField": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "foreignKeyFields": {
+          "type": "string"
+        },
+        "requestType": {
+          "type": "string"
+        },
+        "shortName": {
+          "type": "string"
+        },
+        "cacheType": {
+          "type": "string"
+        },
+        "items": {
+          "type": "string"
+        },
+        "selfType": {
+          "type": "string"
+        },
+        "topValue": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceFrontendModelSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFrontendModelSnapshot",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/$defs/DataSpaceResourceReference"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceFieldReference"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeModelRelationRecord"
+          }
+        },
+        "query": {
+          "$ref": "#/$defs/DataSpaceFrontendModelQuery"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceFrontendModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFrontendModel",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/$defs/DataSpaceResourceReference"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceFieldReference"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeModelRelationRecord"
+          }
+        },
+        "query": {
+          "$ref": "#/$defs/DataSpaceFrontendModelQuery"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "snapshot": {
+              "$ref": "#/$defs/DataSpaceFrontendModelSnapshot"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.snapshot.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.snapshot.return": {
+          "$ref": "#/$defs/DataSpaceFrontendModelSnapshot"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T21:07:56.023Z",
+  "models": {
+    "DataSpaceResourceType": {
+      "name": "DataSpaceResourceType",
+      "jsdoc": "数据资源 wire 类型；仅 table/view 可在设计态解析稳定目录身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'table' | 'view' | 'dictionary' | 'interface' | 'json' | 'file'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'table'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'view'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'dictionary'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'interface'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'json'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'file'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceDatabaseResourceType": {
+      "name": "DataSpaceDatabaseResourceType",
+      "jsdoc": "目录可解析的物理资源子集。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Extract<DataSpaceResourceType, 'table' | 'view'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Extract<DataSpaceResourceType, 'table' | 'view'>",
+            "targetName": "Extract"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceResourceField": {
+      "name": "DataSpaceResourceField",
+      "jsdoc": "物理资源字段快照；resourceFieldId 与 name 在同一资源内须唯一。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceFieldId: string;\n    name: string;\n    label: string;\n    dataType: string;\n    dataTypeName: string;\n    length: string;\n    nullable: boolean | null;\n    primaryKey: boolean | null;\n    unique: boolean | null;\n    system: boolean | null;\n    defaultValue: string;\n    description: string;\n    order: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceFieldId: string;\n    name: string;\n    label: string;\n    dataType: string;\n    dataTypeName: string;\n    length: string;\n    nullable: boolean | null;\n    primaryKey: boolean | null;\n    unique: boolean | null;\n    system: boolean | null;\n    defaultValue: string;\n    description: string;\n    order: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceFieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataTypeName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "length",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nullable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unique",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "system",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceResourceReference": {
+      "name": "DataSpaceResourceReference",
+      "jsdoc": "前端模型绑定的数据资源引用；primaryKeyField 须能在资源字段或模型字段中解析。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceId: string;\n    databaseId: string | null;\n    resourceName: string;\n    resourceType: DataSpaceResourceType;\n    primaryKeyField: string;\n    databaseName: string;\n    fields: readonly DataSpaceResourceField[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceId: string;\n    databaseId: string | null;\n    resourceName: string;\n    resourceType: DataSpaceResourceType;\n    primaryKeyField: string;\n    databaseName: string;\n    fields: readonly DataSpaceResourceField[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKeyField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceFieldReference": {
+      "name": "DataSpaceFieldReference",
+      "jsdoc": "前端模型输出字段引用；fieldId 在同一模型内须唯一。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fieldId: string;\n    resourceFieldId: string | null;\n    resourceField: string;\n    alias: string;\n    fieldType: string;\n    output: boolean;\n    order: number;\n    orderType: OrderType | '';\n    group: number;\n    distinct: boolean;\n    primaryKey: boolean;\n    value: string;\n    valueFunction: string;\n    expression: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fieldId: string;\n    resourceFieldId: string | null;\n    resourceField: string;\n    alias: string;\n    fieldType: string;\n    output: boolean;\n    order: number;\n    orderType: OrderType | '';\n    group: number;\n    distinct: boolean;\n    primaryKey: boolean;\n    value: string;\n    valueFunction: string;\n    expression: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceFieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "alias",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "output",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "orderType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "group",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "distinct",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFunction",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expression",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeModelRelationRecord": {
+      "name": "LowcodeModelRelationRecord",
+      "jsdoc": "lowcode Base_DataModel_Relation 的只读原始合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    sourceRelationId: string;\n    dataSpaceId: string;\n    parentModelId: string;\n    childModelId: string;\n    parentResourceName: string;\n    childResourceName: string;\n    filterExpression: string;\n    dependencyType: string;\n    cascadeDelete: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    sourceRelationId: string;\n    dataSpaceId: string;\n    parentModelId: string;\n    childModelId: string;\n    parentResourceName: string;\n    childResourceName: string;\n    filterExpression: string;\n    dependencyType: string;\n    cascadeDelete: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sourceRelationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentResourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childResourceName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterExpression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dependencyType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cascadeDelete",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceFrontendModelQuery": {
+      "name": "DataSpaceFrontendModelQuery",
+      "jsdoc": "前端模型查询/联接配置；filter/joinFilter 等字段为序列化 JSON 字符串。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    outputType: string;\n    filter: string;\n    distinct: boolean;\n    businessMain: boolean;\n    joinType: string;\n    joinFilter: string;\n    parentModelId: string;\n    requestComplete: string;\n    hasChildField: string;\n    parentField: string;\n    foreignKeyFields: string;\n    requestType: string;\n    shortName: string;\n    cacheType: string;\n    items: string;\n    selfType: string;\n    topValue: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    outputType: string;\n    filter: string;\n    distinct: boolean;\n    businessMain: boolean;\n    joinType: string;\n    joinFilter: string;\n    parentModelId: string;\n    requestComplete: string;\n    hasChildField: string;\n    parentField: string;\n    foreignKeyFields: string;\n    requestType: string;\n    shortName: string;\n    cacheType: string;\n    items: string;\n    selfType: string;\n    topValue: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "outputType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "distinct",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessMain",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "joinType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "joinFilter",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestComplete",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasChildField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "foreignKeyFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shortName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cacheType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "items",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selfType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "topValue",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceFrontendModelSnapshot": {
+      "name": "DataSpaceFrontendModelSnapshot",
+      "jsdoc": "{@link DataSpaceFrontendModel}构造输入；传入前不做不变量校验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    modelId: string;\n    name: string;\n    resource: DataSpaceResourceReference;\n    fields: readonly DataSpaceFieldReference[];\n    relations: readonly LowcodeModelRelationRecord[];\n    query: DataSpaceFrontendModelQuery;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    modelId: string;\n    name: string;\n    resource: DataSpaceResourceReference;\n    fields: readonly DataSpaceFieldReference[];\n    relations: readonly LowcodeModelRelationRecord[];\n    query: DataSpaceFrontendModelQuery;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "query",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceFrontendModel": {
+      "name": "DataSpaceFrontendModel",
+      "jsdoc": "前端模型领域实体：构造期校验 dataSpaceId、字段/关系唯一性与关系归属。\n关系须引用当前 modelId；跨 dataSpaceId 的关系会被拒绝。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "复制设计态输入并校验非空身份、字段唯一性及同场景关系归属；无效输入立即失败。",
+          "signatureText": "constructor(snapshot: DataSpaceFrontendModelSnapshot)",
+          "parameters": [
+            {
+              "name": "snapshot",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceFrontendModelSnapshot",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "query",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "snapshot",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceFrontendModelSnapshot",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "recordedAt": "2026-10-09T04:00:12.0467606+08:00",
+  "closure": "query-value-cascade",
+  "status": "accepted-local-closure",
+  "fullTaskComplete": false,
+  "files": 26,
+  "productionFiles": 11,
+  "testFiles": 12,
+  "configFiles": 2,
+  "apiDocs": 1,
+  "newSourceFiles": 1,
+  "finalHashesVerified": 26,
+  "baselineTypecheck": 0,
+  "finalTypecheck": 0,
+  "lint": {
+    "exit": 0,
+    "paths": 23
+  },
+  "aiCodegen": {
+    "exit": 0,
+    "files": 1022
+  },
+  "focusedBeforeFinalRaceFix": {
+    "suites": 15,
+    "exit": 0,
+    "passed": 365
+  },
+  "queryEventsFinal": {
+    "suites": 1,
+    "exit": 0,
+    "passed": 10
+  },
+  "fixturesFinal": {
+    "suites": 2,
+    "exit": 0,
+    "passed": 35
+  },
+  "firstRoot": {
+    "failed": 8,
+    "suites": 210,
+    "exit": 1,
+    "passed": 2743,
+    "durationSeconds": 219.1
+  },
+  "timeoutUnchangedRerun": {
+    "durationSeconds": 3.86,
+    "exit": 0,
+    "passed": 1,
+    "skipped": 101,
+    "testTimeoutMs": 5000
+  },
+  "finalRoot": {
+    "failed": 0,
+    "suites": 210,
+    "exit": 0,
+    "passed": 2751,
+    "durationSeconds": 197.14
+  },
+  "onlineWrites": 0,
+  "javaChanges": 0,
+  "uiChanges": 0,
+  "agents": 0,
+  "remaining": [
+    "ordinary option component consumption",
+    "ClassModel and designer integration",
+    "online obsolete query configuration audit",
+    "full AppWorks integration"
+  ]
+}

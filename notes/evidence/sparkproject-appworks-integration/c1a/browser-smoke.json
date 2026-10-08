@@ -1,0 +1,174 @@
+{
+  "startedAt": "2026-10-07T05:35:39.603Z",
+  "endedAt": "2026-10-07T05:37:34.897Z",
+  "checks": [
+    "homepage",
+    "authorized login",
+    "application catalog",
+    "DBMS registered server overview"
+  ],
+  "newWarningsAndErrors": [
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.064Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.064Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.065Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.066Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.066Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.066Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.066Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.066Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.066Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.066Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.066Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    },
+    {
+      "level": "warn",
+      "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+      "timestamp": "2026-10-07T05:36:44.066Z",
+      "url": "http://127.0.0.1:5273/@vite/client"
+    }
+  ]
+}

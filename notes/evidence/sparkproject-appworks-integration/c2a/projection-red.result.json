@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts --maxWorkers=1 --reporter=dot -t \"cfg tool target|native scene call parameters\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T06:40:13.0014915Z",
+  "finishedAt": "2026-10-07T06:40:20.4264612Z",
+  "exitCode": 1
+}

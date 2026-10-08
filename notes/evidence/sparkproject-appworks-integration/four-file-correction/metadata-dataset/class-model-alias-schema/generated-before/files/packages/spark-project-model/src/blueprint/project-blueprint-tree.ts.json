@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-tree",
+    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
+    "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-tree.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "blueprint/project-blueprint-tree",
+    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-tree\n职责：正式节点树定位、校验与交付投影。\n边界：不按URL猜业务种类，不装载页面文件。\nAI用途：从节点树解析明确cfg工具与位置。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "SummaryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SummaryOptions",
+      "properties": {
+        "descriptionContext": {
+          "type": "array",
+          "items": {
+            "$ref": "project-blueprint-node.ts.json#/$defs/ProjectDescriptionContext"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "TreeNodeLike": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TreeNodeLike",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "pid": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.toNodeData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toNodeData.return": {
+          "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.289Z",
+  "models": {
+    "SummaryOptions": {
+      "name": "SummaryOptions",
+      "jsdoc": "页面摘要的祖先策划说明上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    descriptionContext?: readonly ProjectDescriptionContext[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "descriptionContext",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "TreeNodeLike": {
+      "name": "TreeNodeLike",
+      "jsdoc": "内存树重建所需节点身份、父身份与正式数据出口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly id: string;\n    readonly pid: string;\n    toNodeData(): ProjectBlueprintTreeNodeData;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pid",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "toNodeData",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeNodeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

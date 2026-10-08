@@ -11,6 +11,7 @@ import { DataSpaceQueryTable } from './data-space-query-table'
 import type { DataSpaceQueryContext } from '../query/data-space-query-context'
 import { requireDataSpaceMutationInput, failDataSpaceMutationWithoutEffect } from '../save/data-space-save-guard'
 import { readDataSpaceSaveReceipt } from '../save/data-space-save-result'
+import { DataSpaceSaveConfig } from '../save/data-space-save-config'
 
 /** 实际 HTTP 通道及请求 scope 读取器，供请求前后核对执行域。 */
 type DataSpaceRequestOptions = Readonly<{
@@ -33,6 +34,7 @@ type DataSpaceRequestSaveChange = Readonly<{
 /** 同场景且模型不重复的批量保存目标；无实际变更不能提交。 */
 type DataSpaceRequestSaveCommand = Readonly<{
   changes: readonly DataSpaceRequestSaveChange[]
+  config?: DataSpaceSaveConfig
   signal?: AbortSignal
 }>
 /** 逐模型实际动作回执及新基线，不以 HTTP 成功代替保存确认。 */
@@ -132,11 +134,13 @@ export class DataSpaceRequest {
     const groups = prepared.map(target => target.context.buildSaveRequest(target.changes))
     for (const group of groups) requireDataSpaceMutationInput('保存', group.length)
     const data = groups.flat()
-    const headers = this.scenarioHeaders(scope, scenarioId)
+    const config = command.config ?? DataSpaceSaveConfig.resolve([])
+    const headers = config.mergeHeaders(this.scenarioHeaders(scope, scenarioId))
     this.assertCurrent(captured)
     try {
       const response = await this.#http.request<unknown>({
-        url: '/api/DataOperation/BatchTableOperateRequestByCRUD', method: 'POST', data, headers,
+        ...config.endpoint, method: 'POST', data, headers,
+        ...(config.timeout === undefined ? {} : {timeout: config.timeout}),
         retry: 0, cache: false, meta: { rawEnvelope: true },
         ...(command.signal === undefined ? {} : { signal: command.signal }),
       })

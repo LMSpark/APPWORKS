@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:scenario/scenario-view-config",
+    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
+    "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "scenario/scenario-view-config",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-config\n职责：单场景视图配置的校验和不可变值。\n边界：正式模型与运行数据不属于此文件。\nAI用途：校验modelBinding、命名视图与显式级联。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ScenarioViewConfig"
+    ]
+  },
+  "$defs": {
+    "ScenarioViewConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewConfig",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.toJSON.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toJSON.return": {
+          "type": "object",
+          "title": "ScenarioConfigObject"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T19:28:48.778Z",
+  "models": {
+    "ScenarioConfigObject": {
+      "name": "ScenarioConfigObject",
+      "jsdoc": "只读JSON配置对象，构造时校验并递归冻结。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ScenarioViewConfig": {
+      "name": "ScenarioViewConfig",
+      "jsdoc": "一个场景的配置文本合同；正式字段及运行数据不属于此文件，字段引用由正式模型装配时校验。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "校验明确场景的合法视图JSON，冻结配置且拒绝模型定义与运行数据。",
+          "signatureText": "constructor(scenarioId: string, text: string)",
+          "parameters": [
+            {
+              "name": "scenarioId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "text",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "toJSON",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ScenarioConfigObject",
+                "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

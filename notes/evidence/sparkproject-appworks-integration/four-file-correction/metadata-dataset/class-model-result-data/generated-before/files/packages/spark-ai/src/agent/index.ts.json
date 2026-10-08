@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/index",
+    "sourcePath": "packages/spark-ai/src/agent/index.ts",
+    "sourceFile": "packages/spark-ai/src/agent/index.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/index",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/index\n职责：作为 agent 域公共出口，按业务注册、会话、工具循环、transport 和运行时能力聚合导出。\n边界：只做稳定 API 汇总，不承载具体业务逻辑，也不引入 app 层或组件层依赖。\nAI用途：寻找 agent 层公开能力或判断某个类型是否应对外暴露时，先从本模块确认导出边界。\n\n═══════════════════════════════════════════════════════════════\nagent/index.ts — Agent 层公共入口\n═══════════════════════════════════════════════════════════════\n【导出策略】按功能域分组：\n1. 业务类型与注册（scope-types / registration-types）\n2. 业务作用域工厂（business-scope）\n3. 业务会话（business-session）\n4. ClassModel runtime（metadata -> script context / script execution）\n5. 聊天 DTO（chat-types）\n6. 会话存储（session-types / default-session-store）\n7. APP turn 回调契约与事件类型（transport-types / app-sse-events）\n8. 工具循环（tool-loop-runner / turn-event-collector）\n【设计原则】\n- class 用 export，type 用 export type（遵循 verbatimModuleSyntax）\n- 仅导出公共 API，内部实现细节不导出\n- 禁止 namespace 合并；公共类型从所属文件显式登记\n【消费方】@spark-appworks/spark-ai（src/index.ts）、spark-project-model、spark-app\n═══════════════════════════════════════════════════════════════",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:17:10.221Z",
+  "models": {}
+}

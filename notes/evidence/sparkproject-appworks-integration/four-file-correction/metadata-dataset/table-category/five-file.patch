@@ -1,0 +1,169 @@
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\packages__spark-project-model__src__scenario__scenario-view-config.ts" b/packages/spark-project-model/src/scenario/scenario-view-config.ts
+index 4eb749217..cec9663da 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\packages__spark-project-model__src__scenario__scenario-view-config.ts"
++++ b/packages/spark-project-model/src/scenario/scenario-view-config.ts
+@@ -81,7 +81,11 @@ export class ScenarioViewConfig {
+     for (const [tableName, inputTable] of Object.entries(tables)) {
+       name(tableName, 'tableName')
+       const table = record(inputTable, `tables.${tableName}`)
+-      keys(table, ['modelBinding', 'columns', 'views'], `tables.${tableName}`)
++      keys(table, ['modelBinding', 'businessCategory', 'columns', 'views'], `tables.${tableName}`)
++      if ('businessCategory' in table && (typeof table['businessCategory'] !== 'string'
++        || !table['businessCategory'].trim())) {
++        throw new Error(`tables.${tableName}.businessCategory 必须是非空字符串`)
++      }
+       const binding = record(table['modelBinding'], `${tableName}.modelBinding`)
+       keys(binding, ['modelId', 'modelName'], `${tableName}.modelBinding`)
+       name(binding['modelId'], `${tableName}.modelId`)
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\src__lowcode__data-space__lowcode-data-space-assembler.ts" b/src/lowcode/data-space/lowcode-data-space-assembler.ts
+index 4f6224c6a..788b51906 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\src__lowcode__data-space__lowcode-data-space-assembler.ts"
++++ b/src/lowcode/data-space/lowcode-data-space-assembler.ts
+@@ -129,7 +129,8 @@ export class LowcodeDataSpaceAssembler {
+     validateRemoteReferences(view, localNames, `${tableName}@${viewId}`)
+     views[viewId] = { page: 1, pageSize: 20, ...view }
+    }
+-   tables[tableName] = { tableName, modelBinding: {modelId: model.id, modelName: model.metaName}, columns: tableColumns, views }
++   tables[tableName] = { tableName, modelBinding: {modelId: model.id, modelName: model.metaName},
++    ...('businessCategory' in table ? {businessCategory: table['businessCategory']} : {}), columns: tableColumns, views }
+   }
+   const relations = new LowcodeModelRelationAdapter().adapt(input.relations, bindings)
+   const explicit = config['viewCascades']
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\packages__spark-project-model__tests__scenario__scenario-view-file.test.ts" b/packages/spark-project-model/tests/scenario/scenario-view-file.test.ts
+index 64643cf3c..f9d9887c7 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\packages__spark-project-model__tests__scenario__scenario-view-file.test.ts"
++++ b/packages/spark-project-model/tests/scenario/scenario-view-file.test.ts
+@@ -48,6 +48,38 @@ describe('ScenarioViewFile', () => {
+     } } } }, viewCascades: [{ autoLoad: false }] })
+   })
+ 
++  it('retains recommended and extended table business categories without normalizing their text', () => {
++    const input = JSON.parse(fixture())
++    input.tables.Orders.businessCategory = 'master'
++    input.tables.Items.businessCategory = '  partner-specific  '
++    const text = JSON.stringify(input)
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    file.setText(text)
++    expect(file.getText()).toBe(text)
++    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {businessCategory: 'master'},
++      Items: {businessCategory: '  partner-specific  '}}})
++  })
++
++  it('rejects invalid category edits atomically and allows clearing by deleting the property', () => {
++    const input = JSON.parse(fixture())
++    input.tables.Orders.businessCategory = 'child'
++    const valid = JSON.stringify(input)
++    const file = new ScenarioViewFile('UNIT-SCENE', valid)
++    const revision = file.revision
++    for (const value of [null, '', '  ', 0, false, {}]) {
++      input.tables.Orders.businessCategory = value
++      expect(() => file.setText(JSON.stringify(input))).toThrow('businessCategory')
++      expect(file.getText()).toBe(valid)
++      expect(file.revision).toBe(revision)
++      expect(file.canUndo).toBe(false)
++      expect(file.isDirty).toBe(false)
++    }
++    delete input.tables.Orders.businessCategory
++    file.setText(JSON.stringify(input))
++    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {views: {default: {}}}}})
++    expect(JSON.stringify(file.value.toJSON())).not.toContain('businessCategory')
++  })
++
+   it('retains native DataSet top-level configuration in the immutable file value', () => {
+     const configured = JSON.stringify({...JSON.parse(fixture()), schemaVersion: 3, version: 0,
+       saveChanges: {mode: 'perView'}, layout: {tablePositions: {Orders: {x: -1.5, y: 0}}}})
+@@ -130,7 +162,7 @@ describe('ScenarioViewFile', () => {
+     expect(() => new ScenarioViewFile('UNIT-SCENE', text)).toThrow()
+   })
+ 
+-  it.each(['rows', 'permissionSnapshot', 'resourceType', 'addApi'])('rejects formal definitions and runtime state in a model: %s', key => {
++  it.each(['rows', 'permissionSnapshot', 'resourceType', 'resourceId', 'addApi'])('rejects formal definitions and runtime state in a model: %s', key => {
+     const input = { scenarioId: 'UNIT-SCENE', tables: { Orders: {
+       modelBinding: { modelId: 'UNIT-MODEL', modelName: 'Orders' }, views: { default: {} }, [key]: [],
+     } } }
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\tests__runtime__auth-nav__data-space__lowcode-scenario-assembly.test.ts" b/tests/runtime/auth-nav/data-space/lowcode-scenario-assembly.test.ts
+index 1fcb37633..264f3df2f 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\tests__runtime__auth-nav__data-space__lowcode-scenario-assembly.test.ts"
++++ b/tests/runtime/auth-nav/data-space/lowcode-scenario-assembly.test.ts
+@@ -11,6 +11,24 @@ const config = new ScenarioViewConfig('SCENE', JSON.stringify({ scenarioId: 'SCE
+ const space = {dataSpaceId: 'SCENE', name: '订单正式空间'}
+ 
+ describe('formal scenario assembly', () => {
++ it('keeps business category separate from the formal business-main flag and preserves named views', () => {
++  const http = new NoRequest()
++  const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {}})})
++  const configured = new ScenarioViewConfig('SCENE', JSON.stringify({scenarioId: 'SCENE', tables: {
++   Orders: {modelBinding: {modelId: 'MODEL', modelName: 'QueryOrders'}, businessCategory: 'reference',
++    views: {default: {}, detail: {pageSize: 5}}},
++  }}))
++  const assembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({config: configured, space,
++   models: [formal], relations: []})
++  expect(formal.businessMain).toBe(true)
++  expect(assembly.dataSet.getTable('Orders')?.businessCategory).toBe('reference')
++  expect(assembly.dataSet.toJson().tables['Orders']?.businessCategory).toBe('reference')
++  expect(assembly.dataSet.getView('Orders', 'detail')?.pageSize).toBe(5)
++  assembly.dataSet.destroy()
++  const omitted = new LowcodeDataSpaceAssembler(runtime, http).assemble({config, space, models: [formal], relations: []})
++  expect(omitted.dataSet.getTable('Orders')?.businessCategory).toBeUndefined()
++  omitted.dataSet.destroy()
++ })
+  it('keeps local table name and every view with formal model output identity', () => {
+   const http = new NoRequest()
+   const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({ token: 'scope', headers: {} })})
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\tests__runtime__auth-nav__data-space__metadata__lowcode-data-space-design-session.test.ts" b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts
+index af21b71fd..aa3b862c5 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-category\\before\\tests__runtime__auth-nav__data-space__metadata__lowcode-data-space-design-session.test.ts"
++++ b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts
+@@ -91,6 +91,52 @@ function fixture(text: string | null = initial) {
+ const parent = {tableName: 'Parents', modelId: 'ParentModel', modelName: 'ParentModel', viewId: 'shared'}
+ 
+ describe('single-target data-space design session', () => {
++  it('persists table categories through definition and view edits, and clears only the selected table', async () => {
++    const storage = fixture()
++    const owner = storage.openOwner()
++    const session = await owner.service.openDesignSession(targetId)
++    const draft = JSON.parse(session.viewState!.text)
++    draft.tables.Parents.businessCategory = 'master'
++    draft.tables.Children.businessCategory = '  partner-specific  '
++    await session.stageDefinition({expectedText: session.viewState!.text, text: JSON.stringify(draft)})
++    expect(session.definitionDataSet?.getTable('Parents')?.businessCategory).toBe('master')
++    expect(session.definitionDataSet?.getTable('Children')?.businessCategory).toBe('  partner-specific  ')
++    await session.stageView({...parent, expectedText: session.viewState!.text, configuration: {pageSize: 22}})
++    expect(session.definitionDataSet?.getTable('Parents')?.businessCategory).toBe('master')
++    const stagedText = session.viewState!.text
++    const invalid = JSON.parse(stagedText)
++    invalid.tables.Parents.businessCategory = null
++    const projection = session.definitionDataSet
++    await expect(session.stageDefinition({expectedText: stagedText, text: JSON.stringify(invalid)}))
++      .rejects.toThrow('businessCategory')
++    expect(session.viewState!.text).toBe(stagedText)
++    expect(session.definitionDataSet).toBe(projection)
++    await session.saveViews()
++    expect(storage.stored.get(targetId)).toBe(stagedText)
++    session.dispose()
++
++    const reopened = storage.openOwner()
++    const again = await reopened.service.openDesignSession(targetId)
++    expect(again.definitionDataSet?.getTable('Parents')?.businessCategory).toBe('master')
++    expect(again.definitionDataSet?.getTable('Children')?.businessCategory).toBe('  partner-specific  ')
++    const table = again.definitionDataSet?.getTable('Parents')
++    if (!table) throw new Error('missing projection table')
++    table.businessCategory = 'reference'
++    await expect(again.saveViews()).rejects.toThrow('PROJECTION_EDIT')
++    await again.refresh()
++    const cleared = JSON.parse(again.viewState!.text)
++    delete cleared.tables.Parents.businessCategory
++    await again.stageDefinition({expectedText: again.viewState!.text, text: JSON.stringify(cleared)})
++    await again.saveViews()
++    again.dispose()
++
++    const last = storage.openOwner()
++    const verified = await last.service.openDesignSession(targetId)
++    expect(verified.definitionDataSet?.getTable('Parents')?.businessCategory).toBeUndefined()
++    expect(verified.definitionDataSet?.getTable('Children')?.businessCategory).toBe('  partner-specific  ')
++    expect(verified.definitionDataSet?.getView('Parents', 'shared')?.pageSize).toBe(22)
++    verified.dispose()
++  })
+   it('stages local display references but rejects remote computed references before changing the draft', async () => {
+     const config: unknown = JSON.parse(initial)
+     if (!isRecord(config) || !isRecord(config['tables']) || !isRecord(config['tables']['Parents'])) {

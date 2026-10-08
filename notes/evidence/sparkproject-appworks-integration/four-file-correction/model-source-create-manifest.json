@@ -1,0 +1,86 @@
+[
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-design.ts",
+    "preEditSha256": "1C16C424198CCEF03A7BA5103DB4BD7C302DBFB174C087DAB779569277BA61BB",
+    "finalSha256": "AFB30500BA4E5471E1C14A2CE3FA8221FC3D2384F8928CAFCA87876BC1A80DE5",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "packages/spark-component/src/runtime/app-services.ts",
+    "preEditSha256": "E3C8C275E15CBA33F6EE9187EECE970CB941DEAE2BE5BF05652D189A12E010BF",
+    "finalSha256": "5F5D01BCFA90B0E09EA389032769930BD929815F25C9521A0A3D16561C6F8302",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "packages/spark-component/src/runtime/script-context-types.ts",
+    "preEditSha256": "A95F7CEF9CF0ED7012365BF1643BE30907125150D47B42D579D13D798A84434A",
+    "finalSha256": "722F482F6910BF2FDC2EEFC2946E1142505D2663F2AED415ACAA62CD8AA26E74",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "packages/spark-component/src/page/context/buildPageContext.ts",
+    "preEditSha256": "281D6F6120A07EC3BA9A3E537FA90753AE3A66C653652979D166B15C2C3A42FA",
+    "finalSha256": "6CFB627E9D06F7EC2B316472F02AA2737F9F5D5BDE57CBFA9928CA5A52B6FE93",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "packages/spark-component/API.md",
+    "preEditSha256": "198B4E90B56B2D766E99A6B6637CDE67176B5A95717D3EAE2378A2806FD90AF5",
+    "finalSha256": "5D5B4832B3B1832317373E34A25BB12392B41E0C1E4B1D2AAF32A2F1C4EA8959",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "config/pages/data-platform/data-space-design/rule.json",
+    "preEditSha256": "E920BF387EAB58A631D309B458C6888D0B76ADEB994F8D5AC4670C302A9390E7",
+    "finalSha256": "6B3CA1C7C552BEA684DCAFFBE1FF91737E8BA501827956C29F90ABCA93CC9116",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "config/pages/data-platform/data-space-design/script.js",
+    "preEditSha256": "F1CBE88CF8E30FA2C7D426BFB5B0116DE45CAEFD32EE23EBDE8146AF0D6B68A4",
+    "finalSha256": "8E5B9CECB06AD9421F615E2FFF117854C15234DB97810301DAFAF6B431CC913B",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "tests/runtime/page/design/data-space-design-four-file.test.ts",
+    "preEditSha256": "7736A1F7F21294B402C8E2CF494B16F10DEAAF0EC63F4965C12BF415263AE11A",
+    "finalSha256": "264BF8A8B143268F075165DFA724A0184A84A7DBAA32E1ED71C310D157B20CB9",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "tests/runtime/page/runtime/page-script-lifetime.test.ts",
+    "preEditSha256": null,
+    "finalSha256": "81221C6617B08DDE93854D79382A47CEAF563471DD1E2C82BDB4201FE9A67C33",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "tests/runtime/page/catalog/data-space-four-file.test.ts",
+    "preEditSha256": null,
+    "finalSha256": "8A6F64FD2F14565BF318B5DB55A6A83175020A84517532497B25AA44A3CE9347",
+    "preEditBytesRetained": false,
+    "newInThisBatch": false
+  },
+  {
+    "path": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts",
+    "preEditSha256": null,
+    "finalSha256": "95D0EAD08724030770C29A14B066FD3240B42368ED9BEAAC83A42D93D45E4652",
+    "preEditBytesRetained": false,
+    "newInThisBatch": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/model-source/lowcode-data-space-model-source-reader.test.ts",
+    "preEditSha256": null,
+    "finalSha256": "6306E8F6FD0D0D54B35CEE3C1B4F3756E4A4B777B1CAB41C2BDC8383108253ED",
+    "preEditBytesRetained": false,
+    "newInThisBatch": true
+  }
+]

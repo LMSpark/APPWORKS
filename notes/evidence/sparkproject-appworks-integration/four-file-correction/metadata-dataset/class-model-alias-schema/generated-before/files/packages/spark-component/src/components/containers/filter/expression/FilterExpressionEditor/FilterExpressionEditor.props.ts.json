@@ -1,0 +1,610 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props",
+    "sourcePath": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props\n职责：完整过滤编辑器的输入和可保留不完整状态的草稿。边界：正式树解析与校验归 DataViewFilter；AI用途：可用此入口理解编辑与应用的区别。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FilterExpressionEditorProps",
+      "FilterExpressionEditorCondition",
+      "FilterExpressionEditorGroup",
+      "FilterExpressionEditorNode",
+      "FilterExpressionEditorDraft"
+    ]
+  },
+  "$defs": {
+    "FilterExpressionEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterExpressionEditorProps",
+      "properties": {
+        "modelValue": {
+          "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "functionContext": {
+          "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+        },
+        "maxDepth": {
+          "type": "number"
+        },
+        "maxRules": {
+          "type": "number"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "applyError": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "FilterExpressionEditorCondition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterExpressionEditorCondition",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "kind": {
+          "const": "condition"
+        },
+        "field": {
+          "type": "string"
+        },
+        "operator": {
+          "type": "object",
+          "title": "Data.DataViewFilterOperator"
+        },
+        "valueText": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "field",
+        "operator",
+        "valueText"
+      ],
+      "additionalProperties": false
+    },
+    "FilterExpressionEditorGroup": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterExpressionEditorGroup",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "kind": {
+          "const": "group"
+        },
+        "logic": {
+          "enum": [
+            "and",
+            "or"
+          ]
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FilterExpressionEditorNode"
+          }
+        },
+        "existing": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "logic",
+        "children",
+        "existing"
+      ],
+      "additionalProperties": false
+    },
+    "FilterExpressionEditorNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "FilterExpressionEditorNode",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "FilterExpressionEditorCondition"
+        },
+        {
+          "type": "object",
+          "title": "FilterExpressionEditorGroup"
+        }
+      ]
+    },
+    "FilterExpressionEditorCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "FilterExpressionEditorCheck",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "const": true
+            },
+            "tree": {
+              "type": "object",
+              "title": "Data.DataViewFilterTree"
+            }
+          },
+          "required": [
+            "ok",
+            "tree"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "const": false
+            },
+            "issues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Data.DataViewFilterIssue"
+              }
+            }
+          },
+          "required": [
+            "ok",
+            "issues"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "FilterExpressionEditorDraft": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterExpressionEditorDraft",
+      "properties": {
+        "root": {
+          "$ref": "#/$defs/FilterExpressionEditorGroup"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "tree": {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fields.params": {
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fields.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterField"
+          }
+        },
+        "method.addCondition.params": {
+          "type": "object",
+          "properties": {
+            "group": {
+              "$ref": "#/$defs/FilterExpressionEditorGroup"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addCondition.return": true,
+        "method.addGroup.params": {
+          "type": "object",
+          "properties": {
+            "group": {
+              "$ref": "#/$defs/FilterExpressionEditorGroup"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addGroup.return": true,
+        "method.countRules.params": {
+          "type": "object",
+          "properties": {
+            "node": {
+              "$ref": "#/$defs/FilterExpressionEditorNode"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.countRules.return": {
+          "type": "number"
+        },
+        "method.check.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterValidationContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.check.return": {
+          "$ref": "#/$defs/FilterExpressionEditorCheck"
+        },
+        "method.checkInput.params": {
+          "type": "object",
+          "properties": {
+            "source": true,
+            "context": {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterValidationContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.checkInput.return": {
+          "$ref": "#/$defs/FilterExpressionEditorCheck"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T21:12:20.469Z",
+  "models": {
+    "FilterExpressionEditorProps": {
+      "name": "FilterExpressionEditorProps",
+      "jsdoc": "完整过滤编辑输入；字段与函数上下文用于校验，应用错误由父级查询 owner 回传。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FilterExpressionEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    modelValue?: Data.DataViewFilterTree | undefined;\n    columns: readonly Data.DataColumn[];\n    functionContext?: Data.DataViewFilterFunctionContext;\n    maxDepth?: number;\n    maxRules?: number;\n    disabled?: boolean;\n    applyError?: string | null | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "functionContext",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxDepth",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRules",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applyError",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FilterExpressionEditorCondition": {
+      "name": "FilterExpressionEditorCondition",
+      "jsdoc": "条件编辑草稿；内部 id 定位节点，valueText 原样保留尚未合法的 JSON。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FilterExpressionEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: number;\n    kind: 'condition';\n    field: string;\n    operator: Data.DataViewFilterOperator;\n    /** 未输入与显式空字符串不同；文本保留无效 JSON 草稿。 */\n    valueText: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "operator",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "valueText",
+              "jsdoc": "未输入与显式空字符串不同；文本保留无效 JSON 草稿。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FilterExpressionEditorGroup": {
+      "name": "FilterExpressionEditorGroup",
+      "jsdoc": "AND/OR 分组草稿；区分原有空组与尚未补全的新组。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FilterExpressionEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: number;\n    kind: 'group';\n    logic: 'and' | 'or';\n    children: FilterExpressionEditorNode[];\n    /** 只允许已存在的空分组原样保存，新空分组须补全或显式删除。 */\n    existing: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "logic",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "existing",
+              "jsdoc": "只允许已存在的空分组原样保存，新空分组须补全或显式删除。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FilterExpressionEditorNode": {
+      "name": "FilterExpressionEditorNode",
+      "jsdoc": "递归编辑节点，由条件或分组组成，不能直接提交为正式过滤树。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FilterExpressionEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "FilterExpressionEditorCondition | FilterExpressionEditorGroup",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "FilterExpressionEditorCondition",
+            "targetName": "FilterExpressionEditorCondition"
+          },
+          {
+            "kind": "union",
+            "typeText": "FilterExpressionEditorGroup",
+            "targetName": "FilterExpressionEditorGroup"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FilterExpressionEditorCheck": {
+      "name": "FilterExpressionEditorCheck",
+      "jsdoc": "草稿检查结果；仅成功分支提供可应用的正式树，失败分支保留路径诊断。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FilterExpressionEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    ok: true;\n    tree: Data.DataViewFilterTree;\n} | {\n    ok: false;\n    issues: readonly Data.DataViewFilterIssue[];\n}",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "{\n    ok: true;\n    tree: Data.DataViewFilterTree;\n}"
+          },
+          {
+            "kind": "union",
+            "typeText": "{\n    ok: false;\n    issues: readonly Data.DataViewFilterIssue[];\n}"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FilterExpressionEditorDraft": {
+      "name": "FilterExpressionEditorDraft",
+      "jsdoc": "编辑草稿只负责交互及不完整状态；公开树校验始终由 DataViewFilter 执行。",
+      "declarationKind": "class",
+      "component": {
+        "name": "FilterExpressionEditor"
+      },
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "从已有正式树创建独立草稿；缺失树或单条件用临时根组承接编辑。",
+          "signatureText": "constructor(tree?: Data.DataViewFilterTree)",
+          "parameters": [
+            {
+              "name": "tree",
+              "type": {
+                "type": "reference",
+                "name": "Data.DataViewFilterTree"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "root",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "fields",
+              "parameters": [
+                {
+                  "name": "columns",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly Data.DataColumn[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly Data.DataViewFilterField[]"
+              }
+            },
+            {
+              "name": "addCondition",
+              "parameters": [
+                {
+                  "name": "group",
+                  "type": {
+                    "type": "reference",
+                    "name": "FilterExpressionEditorGroup",
+                    "sourcePath": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addGroup",
+              "parameters": [
+                {
+                  "name": "group",
+                  "type": {
+                    "type": "reference",
+                    "name": "FilterExpressionEditorGroup",
+                    "sourcePath": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "countRules",
+              "parameters": [
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "FilterExpressionEditorNode",
+                    "sourcePath": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "check",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "Data.DataViewFilterValidationContext"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "FilterExpressionEditorCheck",
+                "sourcePath": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts"
+              }
+            },
+            {
+              "name": "checkInput",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "Data.DataViewFilterValidationContext"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "FilterExpressionEditorCheck",
+                "sourcePath": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "result": {
+    "type": "object",
+    "value": [
+      {
+        "count": 1,
+        "denied": 0,
+        "metaName": "Base_DataSet",
+        "rows": [
+          {
+            "inputParams": null,
+            "rowid": "90A82E287930A234FEC3E687C94A93EA"
+          }
+        ],
+        "total": 1
+      },
+      {
+        "count": 0,
+        "denied": 0,
+        "metaName": "Base_DataModel_Relation",
+        "rows": [],
+        "total": 0
+      }
+    ]
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/actions/action-executor",
+    "sourcePath": "packages/spark-component/src/page/actions/action-executor.ts",
+    "sourceFile": "packages/spark-component/src/page/actions/action-executor.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/actions/action-executor",
+    "jsdoc": "@module @spark-appworks/spark-component:page/actions/action-executor\n职责：提供 action executor 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nAction Descriptor 执行引擎（单一真源）\n解析并执行声明式 action descriptor，提供框架无关的行为执行能力。\n由 normalizeRuleEvents（on 事件）、容器 wrapper 区域（如 r-toolbar）以及\nSparkNode 翻译器（nodeToActionDescriptor）共同使用。\n## 执行模型\n```\nexecuteActionDescriptor(descriptor, ctx, options?)\n├─ cancelDefault → control.cancel = true（通知容器跳过默认行为）\n├─ dispatchAction → 按 action 类型路由到具体执行器\n│    ├─ UI 类 → executeShowMessage / executeConfirm / executeAlert / executeNavigate / executeOpen\n│    └─ 数据类 → action-data.ts 各执行器\n├─ 异常捕获 → handleTopLevelError（拼接 errorMessage 文案，打日志）\n└─ then → 链式执行下一个 descriptor\n```",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ActionExecutionOptions"
+    ]
+  },
+  "$defs": {
+    "ActionExecutionOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActionExecutionOptions",
+      "properties": {
+        "eventArgs": {
+          "type": "array",
+          "items": true
+        },
+        "control": {
+          "$ref": "action-types.ts.json#/$defs/ActionExecutionControl"
+        },
+        "scope": {
+          "$ref": "action-types.ts.json#/$defs/ActionExecutionScope"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T19:51:52.983Z",
+  "models": {
+    "ActionExecutionOptions": {
+      "name": "ActionExecutionOptions",
+      "jsdoc": "Action Execution Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 原始事件参数（如行数据、CancellableControl 等） */\n    eventArgs?: unknown[];\n    /** 流程控制信号（cancelDefault 时置 cancel=true） */\n    control?: ActionExecutionControl;\n    /** 执行作用域（行内动作注入的当前行 + formApi 等） */\n    scope?: ActionExecutionScope;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "eventArgs",
+              "jsdoc": "原始事件参数（如行数据、CancellableControl 等）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "control",
+              "jsdoc": "流程控制信号（cancelDefault 时置 cancel=true）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "执行作用域（行内动作注入的当前行 + formApi 等）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

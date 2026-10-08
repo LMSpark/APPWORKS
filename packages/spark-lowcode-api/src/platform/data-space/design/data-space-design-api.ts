@@ -5,10 +5,13 @@
  * AI用途：装配场景视图或创建草稿时核对真实模型 Name、输出字段和关系归属。
  */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
-import { DataViewFilter } from '@spark-appworks/spark-data'
+import { DataViewFilter, type TableResourceType } from '@spark-appworks/spark-data'
 import type { DataSpaceRuntimeApi } from '../runtime/data-space-runtime-api.js'
 import type { DataSpaceRequestScope } from '../runtime/data-space-runtime-contract.js'
-import { decodeDataSpaceFilter } from '../runtime/protocol/data-space-filter.js'
+import { collectDataSpaceQueryPages } from '../runtime/protocol/data-space-pagination.js'
+import { decodeDataSpaceFilter, encodeDataSpaceFilter } from '../runtime/protocol/data-space-filter.js'
+import { parseDataSpaceValueFunction } from '../runtime/protocol/data-space-value-function.js'
+import type { DataViewFilterValueFunction } from '@spark-appworks/spark-data'
 
 import {
   LowcodeCatalogApi,
@@ -26,7 +29,7 @@ import {
   type DataSpaceResourceField,
   type DataSpaceResourceType,
 } from '../data-space.js'
-import { parseDataSpaceResourceType } from '../data-space-resource-type-wire.js'
+import { parseDataSpaceResourceType, parseNativeDataSpaceResourceType } from '../data-space-resource-type-wire.js'
 import type { OrderType } from '../../../contracts/lowcode-wire-query.js'
 import {
   prepareDataSpaceDesignMutation,
@@ -96,6 +99,8 @@ const DATA_SPACE_TABLE = 'Base_DataSet'
 const MODEL_TABLE = 'Base_DataModel'
 const FIELD_TABLE = 'Base_DataModel_Field'
 const RELATION_TABLE = 'Base_DataModel_Relation'
+const RELATION_DEPENDENCY_DICTIONARY = '数据关系依赖'
+const DICTIONARY_PAGE_SIZE = 500
 
 /** 正式元数据查询的消费行；保留字段原值，不包含可由调用方替换的查询凭据。 */
 type DataSpaceFormalRow = Readonly<Record<string, unknown>>
@@ -112,14 +117,16 @@ type DataSpaceFormalField = Readonly<{
   primaryKey: boolean; description: string; output: boolean; computed: boolean
   order: number; orderType: string; raw: DataSpaceFormalRow
 }>
-/** 正式模型输出合同；来源名与查询模型 Name 分离，不依赖物理目录投影。 */
+/** 正式模型输出合同；来源名与查询模型 Name 分离，primaryKey 空字符串表示无键只读。 */
 type DataSpaceFormalModel = Readonly<{
   id: string; metaName: string; name: string; sourceName: string; sourceId: string
   sourceType: string; primaryKey: string; businessMain: boolean
   fields: readonly DataSpaceFormalField[]; raw: DataSpaceFormalRow
 }>
+type DataSpaceFormalTableResource = Readonly<{ resourceType: TableResourceType; resourceId: string }>
 /** 单场景模型目录或关系读取身份；调用方 guard 与请求 scope 共同拒绝迟到结果。 */
 type DataSpaceFormalScenarioReadInput = Omit<DataSpaceFormalReadInput, 'metaName'>
+type DataSpaceFormalSpaceDefinition = Readonly<{ dataSpaceId: string; name: string }>
 /** 正式关系消费合同；过滤由唯一 codec 解码，视图和字段引用由场景装配验证。 */
 type DataSpaceFormalRelation = Omit<LowcodeModelRelationRecord, 'filterExpression'> & Readonly<{
   filterExpression: DataViewFilter
@@ -175,14 +182,28 @@ function formalField(row: DataSpaceFormalRow, sourcePrimaryKey: string): DataSpa
     orderType: formalText(row, ['OrderType', 'orderType', 'ordertype']), raw: row })
 }
 
-function sameFormalKey(left: DataSpaceFormalField, right: DataSpaceFormalField): boolean {
+function sameSemanticValue(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) return true
+  if (typeof left !== typeof right || left === null || right === null || typeof left !== 'object') return false
+  if (Array.isArray(left) || Array.isArray(right)) return Array.isArray(left) && Array.isArray(right)
+    && left.length === right.length && left.every((value, index) => sameSemanticValue(value, right[index]))
+  if (!isRecord(left) || !isRecord(right)) return false
+  const leftKeys = Object.keys(left).sort()
+  const rightKeys = Object.keys(right).sort()
+  return leftKeys.length === rightKeys.length && leftKeys.every((key, index) => key === rightKeys[index]
+    && sameSemanticValue(left[key], right[key]))
+}
+
+function sameFormalOutput(left: DataSpaceFormalField, right: DataSpaceFormalField): boolean {
   return left.name === right.name && left.canonicalName === right.canonicalName && left.type === right.type
-    && left.output === right.output && left.computed === right.computed
-    && ['Group', 'Value', 'ValueFun', 'Expression'].every(key => {
+    && left.primaryKey === right.primaryKey && left.description === right.description && left.output === right.output
+    && left.computed === right.computed && left.order === right.order && left.orderType === right.orderType
+    && ['Group', 'Value', 'ValueFun', 'Expression', 'Distinct'].every(key => {
       const read = (row: DataSpaceFormalRow) => Object.keys(row).find(name => name.toLowerCase() === key.toLowerCase())
       const leftKey = read(left.raw); const rightKey = read(right.raw)
-      if (leftKey === undefined || rightKey === undefined) return leftKey === rightKey
-      return JSON.stringify(left.raw[leftKey]) === JSON.stringify(right.raw[rightKey])
+      return leftKey === undefined || rightKey === undefined
+        ? leftKey === rightKey
+        : sameSemanticValue(left.raw[leftKey], right.raw[rightKey])
     })
 }
 
@@ -194,18 +215,20 @@ function projectFormalModel(row: DataSpaceFormalRow, fieldRows: readonly DataSpa
   const candidates = sourcePrimaryKey ? fields.filter(field => field.name === sourcePrimaryKey)
     : fields.filter(field => declared !== '' && (field.name === declared || field.canonicalName === declared))
   const key = candidates[0]
+  const keyless = !formalDatabaseTable(row) && sourcePrimaryKey === '' && declared === ''
+    && fields.every(field => !field.primaryKey)
   const declaredMatches = fields.filter(field => field.name === declared || field.canonicalName === declared)
-  if (!key || (sourcePrimaryKey === '' && candidates.length !== 1)
-    || candidates.some(field => !sameFormalKey(key, field) || !field.primaryKey || !field.output || field.computed
-      || field.name.toLowerCase() === 'lingma_sys_ent')
-    || fields.some(field => field.canonicalName === key.canonicalName && !candidates.includes(field))
+  if ((!key && !keyless) || (key && sourcePrimaryKey === '' && candidates.length !== 1)
+    || (key && candidates.some(field => !sameFormalOutput(key, field) || !field.primaryKey || !field.output || field.computed
+      || field.name.toLowerCase() === 'lingma_sys_ent'))
+    || (key && fields.some(field => field.canonicalName === key.canonicalName && !candidates.includes(field)))
     || (sourcePrimaryKey && declared && (!declaredMatches.length || declaredMatches.some(field => field.name !== sourcePrimaryKey)))) {
     throw new LowcodeApiError(0, `数据空间模型 ${metaName} 的正式主键无法映射到唯一有效输出字段`)
   }
   return Object.freeze({ id, metaName, name: metaName,
     sourceName: requiredText(formalText(row, ['MetaName', 'metaName', 'metaname']), '正式模型来源名'),
     sourceId: formalText(row, ['DbId', 'dbId', 'DBID', 'dbid', 'PId', 'pid']),
-    sourceType: formalText(row, ['Type', 'type']), primaryKey: key.canonicalName,
+    sourceType: formalText(row, ['Type', 'type']), primaryKey: key?.canonicalName ?? '',
     businessMain: binary(row['IsBusinessMain'] ?? row['isBusinessMain']), fields, raw: row })
 }
 
@@ -292,6 +315,48 @@ function resultRows(result: unknown): ReadonlyArray<Record<string, unknown>> {
     throw new LowcodeApiError(0, '数据空间设计响应 Items 不是对象数组')
   }
   return items
+}
+
+function dictionaryPage(result: unknown): Readonly<{ rows: readonly DataSpaceFormalRow[]; total: unknown }> {
+  if (!isRecord(result)) throw new LowcodeApiError(0, '数据关系依赖字典响应不是对象')
+  const data = result['data'] ?? result['Data']
+  if (!isRecord(data)) throw new LowcodeApiError(0, '数据关系依赖字典响应缺少 data')
+  const rows = data['Items'] ?? data['items'] ?? data['List'] ?? data['list']
+  if (!Array.isArray(rows) || !rows.every(isRecord)) {
+    throw new LowcodeApiError(0, '数据关系依赖字典 Items 不是对象数组')
+  }
+  const total = data['Count'] ?? data['Total'] ?? data['TotalCount'] ?? data['count'] ?? data['total'] ?? data['totalCount']
+  return { rows, total }
+}
+
+function isDictionaryScalar(value: unknown): value is string | number | boolean {
+  return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+}
+
+function relationDependencyOptions(rows: readonly DataSpaceFormalRow[]): ReadonlyArray<Readonly<{ label: string; value: string }>> {
+  const orders = rows.map(row => {
+    const raw = row['ordIdx']
+    if (raw === undefined || raw === null || raw === '') return undefined
+    const order = typeof raw === 'number' ? raw : Number(raw)
+    if (!Number.isFinite(order)) throw new LowcodeApiError(0, '数据关系依赖字典 ordIdx 不是有效数值')
+    return order
+  })
+  const orderedRows = orders.some(order => order === undefined) ? rows
+    : rows.map((row, index) => ({ row, order: orders[index], index }))
+      .sort((left, right) => (left.order ?? 0) - (right.order ?? 0) || left.index - right.index)
+      .map(item => item.row)
+  return Object.freeze(orderedRows.map((row, index) => {
+    const rawLabel = row['label'] ?? row['txt'] ?? row['Label'] ?? row['Text'] ?? row['name'] ?? row['Name']
+    const rawValue = row['value'] ?? row['val'] ?? row['Value'] ?? row['code'] ?? row['Code']
+    if (!isDictionaryScalar(rawLabel)) throw new LowcodeApiError(0, `数据关系依赖字典第 ${index + 1} 项 label 不是标量`)
+    if (!isDictionaryScalar(rawValue)) throw new LowcodeApiError(0, `数据关系依赖字典第 ${index + 1} 项 value 不是标量`)
+    const label = String(rawLabel).trim()
+    if (!label) throw new LowcodeApiError(0, `数据关系依赖字典第 ${index + 1} 项缺少 label`)
+    if (String(rawValue).trim() === '') {
+      throw new LowcodeApiError(0, `数据关系依赖字典第 ${index + 1} 项缺少 value`)
+    }
+    return Object.freeze({ label, value: String(rawValue) })
+  }))
 }
 
 function parseInputParameters(value: unknown): readonly DataSpaceInputParameter[] {
@@ -503,6 +568,73 @@ export class DataSpaceDesignApi {
     this.readScope = options.readScope
   }
 
+  /** Decodes the stored SPARK wire filter for structured model metadata editing. */
+  public static parseFilter(serialized: string | null | undefined): DataViewFilter | undefined {
+    if (serialized === null || serialized === undefined || serialized.trim() === '') return undefined
+    return decodeDataSpaceFilter(serialized)
+  }
+
+  /** Encodes a structured model filter using the established SPARK wire contract. */
+  public static serializeFilter(filter: DataViewFilter | undefined): string {
+    return filter === undefined ? '' : JSON.stringify(encodeDataSpaceFilter(filter))
+  }
+
+  /** Parses one serialized model-field ValueFun object without a filter wire envelope. */
+  public static parseValueFunction(serialized: string | null | undefined): DataViewFilterValueFunction | undefined {
+    if (serialized === null || serialized === undefined || serialized.trim() === '') return undefined
+    return parseDataSpaceValueFunction(serialized, 'ValueFun')
+  }
+
+  /** Resolves consumable output columns while preserving the complete formal field list. */
+  public static resolveOutputFields(model: DataSpaceFormalModel): readonly DataSpaceFormalField[] {
+    const outputs: DataSpaceFormalField[] = []
+    const byCanonicalName = new Map<string, DataSpaceFormalField>()
+    for (const field of model.fields) {
+      if (!field.output) continue
+      const existing = byCanonicalName.get(field.canonicalName)
+      if (existing === undefined) {
+        byCanonicalName.set(field.canonicalName, field)
+        outputs.push(field)
+      } else if (!sameFormalOutput(existing, field)) {
+        throw new LowcodeApiError(0, `正式模型输出字段重复: ${model.metaName}`)
+      }
+    }
+    return Object.freeze(outputs)
+  }
+
+  /** 正式来源名与原标签构成原生表资源语义，不替代查询模型绑定或来源调度身份。 */
+  public static resolveTableResource(model: DataSpaceFormalModel): DataSpaceFormalTableResource {
+    if (typeof model.sourceName !== 'string' || !model.sourceName.trim()) {
+      throw new LowcodeApiError(0, '正式模型来源名不能为空')
+    }
+    return Object.freeze({resourceType: parseNativeDataSpaceResourceType(model.sourceType), resourceId: model.sourceName})
+  }
+
+  /** 仅读取正式空间名称，不扩展模型、目录或输入参数。 */
+  public async readSpaceDefinition(input: DataSpaceFormalScenarioReadInput): Promise<DataSpaceFormalSpaceDefinition> {
+    const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
+    const dataSpaceId = requiredText(input.dataSpaceId, 'dataSpaceId')
+    const scope = this.readScope().token
+    const assertCurrent = () => {
+      input.assertCurrent?.()
+      if (this.readScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 正式空间读取身份已失效')
+    }
+    assertCurrent()
+    const result = await this.runtime.query({ scenarioId: designScenarioId, metaName: DATA_SPACE_TABLE }, {
+      filter: DataViewFilter.condition({ field: 'rowid', operator: 'eq', value: dataSpaceId }),
+      fields: ['rowid', 'Name'], page: { index: 1, size: 2 },
+    })
+    assertCurrent()
+    const row = result.rows[0]
+    if (!result.countReported || result.total !== 1 || result.rows.length !== 1 || row?.['rowid'] !== dataSpaceId
+      || typeof row['Name'] !== 'string' || !row['Name'].trim()
+      || result.readFieldAccess(row, 'rowid') !== 'visible' || result.readFieldAccess(row, 'Name') !== 'visible') {
+      throw new LowcodeApiError(0, `正式数据空间名称必须唯一且可读: ${dataSpaceId}`)
+    }
+    assertCurrent()
+    return Object.freeze({ dataSpaceId, name: row['Name'] })
+  }
+
   /** 以真实场景模型目录发现 Name，再复用正式单模型读取；不借物理 catalog 猜测字段。 */
   public async readModels(input: DataSpaceFormalScenarioReadInput): Promise<readonly DataSpaceFormalModel[]> {
     const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
@@ -595,6 +727,39 @@ export class DataSpaceDesignApi {
       filterExpression: decodeDataSpaceFilter(relation.filterExpression) }))
     assertCurrent()
     return Object.freeze(relations)
+  }
+
+  /** 读取应用级关系依赖字典；该资源不是场景注册模型，不携带 scenarioId。 */
+  public async readRelationDependencyOptions(): Promise<ReadonlyArray<Readonly<{ label: string; value: string }>>> {
+    const scope = this.readScope()
+    if (!scope.token.trim()) throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 关系依赖字典读取需要有效执行域')
+    if (!Object.entries(scope.headers).some(([key, value]) => key.toLowerCase() === 'x-appid'
+      && typeof value === 'string' && value.trim().length > 0)) {
+      throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 关系依赖字典读取需要明确选中应用')
+    }
+    const assertCurrent = () => {
+      if (this.readScope().token !== scope.token) {
+        throw new Error('SPARK_EXECUTION_SCOPE_STALE: 关系依赖字典读取身份已失效')
+      }
+    }
+    const headers = Object.fromEntries(Object.entries(scope.headers).filter(([key]) => key.toLowerCase() !== 'x-formkey'))
+    headers['x-FormKey'] = ''
+    const collection = await collectDataSpaceQueryPages(async page => {
+      assertCurrent()
+      const result = await this.client.requestResult({
+        path: '/api/DataOperation/GetData',
+        method: 'POST',
+        data: { Table: [{ Name: RELATION_DEPENDENCY_DICTIONARY, Type: '字典', PrimaryKeyFields: 'rowid',
+          OutputType: 'Table', Filter: null, inputParams: [], DISTINCT: false, IsBusinessMain: 1 }],
+          PageParam: page },
+        headers,
+      })
+      assertCurrent()
+      return dictionaryPage(result)
+    }, { pageSize: DICTIONARY_PAGE_SIZE, maxRows: 50_000, assertCurrent })
+    assertCurrent()
+    if (collection.rows.length === 0) throw new LowcodeApiError(0, `数据关系依赖字典 ${RELATION_DEPENDENCY_DICTIONARY} 为空`)
+    return relationDependencyOptions(collection.rows)
   }
 
   private async readFormalRows(command: DataSpaceFormalQueryCommand): Promise<readonly DataSpaceFormalRow[]> {

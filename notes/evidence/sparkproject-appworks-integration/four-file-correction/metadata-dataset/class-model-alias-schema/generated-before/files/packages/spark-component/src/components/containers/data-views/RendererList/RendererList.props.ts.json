@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererList/RendererList.props",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererList/RendererList.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererList/RendererList.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererList/RendererList.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererList/RendererList.props\n职责：定义 RendererList（r-list）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 table-level/data-view-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer list 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RListProps"
+    ],
+    "componentName": "RendererList",
+    "componentType": "r-list",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "RListProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RListProps",
+      "properties": {
+        "dataSource": {
+          "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "toolbar": {
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+        },
+        "actions": {
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+        },
+        "columns": {
+          "type": "number"
+        },
+        "minItemWidth": {
+          "type": "string"
+        },
+        "rowKey": {
+          "type": "string"
+        },
+        "emptyText": {
+          "type": "string"
+        },
+        "itemClass": {
+          "type": "string"
+        },
+        "itemStyle": {
+          "type": "object",
+          "title": "CSSProperties"
+        },
+        "useCard": {
+          "type": "boolean"
+        },
+        "cardShadow": {
+          "enum": [
+            "always",
+            "hover",
+            "never"
+          ]
+        },
+        "itemColSpan": {
+          "type": "number"
+        },
+        "itemRowSpan": {
+          "type": "number"
+        },
+        "onItemClick": {
+          "type": "object",
+          "title": "RowClickHandler"
+        },
+        "listProps": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "showPagination": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:26.798Z",
+  "models": {
+    "RListProps": {
+      "name": "RListProps",
+      "jsdoc": "r-list 组件公开属性接口。\n命名规范：组件 type `r-list` → 接口名 `RListProps`。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererList",
+        "type": "r-list",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {\n    /** 显式收窄为列表容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化列表项动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 列数 */\n    columns?: number;\n    /** 最小项宽度 */\n    minItemWidth?: string;\n    /** 行唯一键字段 */\n    rowKey?: string;\n    /** 空数据提示文案 */\n    emptyText?: string;\n    /** 列表项 CSS 类名 */\n    itemClass?: string;\n    /** 列表项行内样式 */\n    itemStyle?: CSSProperties;\n    /** 使用卡片包裹 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 项跨列数 */\n    itemColSpan?: number;\n    /** 项跨行数 */\n    itemRowSpan?: number;\n    /** 列表项点击回调 */\n    onItemClick?: RowClickHandler;\n    /** 透传给列表根节点的显式属性 */\n    listProps?: Record<string, unknown>;\n    /** 是否显示分页器。默认 true。 */\n    showPagination?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkCrudDataContainerProps",
+            "targetName": "SparkCrudDataContainerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkGridLayoutProps",
+            "targetName": "SparkGridLayoutProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 显式收窄为列表容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化列表项动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 列数 */\n    columns?: number;\n    /** 最小项宽度 */\n    minItemWidth?: string;\n    /** 行唯一键字段 */\n    rowKey?: string;\n    /** 空数据提示文案 */\n    emptyText?: string;\n    /** 列表项 CSS 类名 */\n    itemClass?: string;\n    /** 列表项行内样式 */\n    itemStyle?: CSSProperties;\n    /** 使用卡片包裹 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 项跨列数 */\n    itemColSpan?: number;\n    /** 项跨行数 */\n    itemRowSpan?: number;\n    /** 列表项点击回调 */\n    onItemClick?: RowClickHandler;\n    /** 透传给列表根节点的显式属性 */\n    listProps?: Record<string, unknown>;\n    /** 是否显示分页器。默认 true。 */\n    showPagination?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为列表容器使用的 DataView 数据线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actions",
+              "jsdoc": "结构化列表项动作（toolbar 结构）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "jsdoc": "列数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minItemWidth",
+              "jsdoc": "最小项宽度",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rowKey",
+              "jsdoc": "行唯一键字段",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "空数据提示文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "itemClass",
+              "jsdoc": "列表项 CSS 类名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "itemStyle",
+              "jsdoc": "列表项行内样式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "useCard",
+              "jsdoc": "使用卡片包裹",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cardShadow",
+              "jsdoc": "卡片阴影模式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "itemColSpan",
+              "jsdoc": "项跨列数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "itemRowSpan",
+              "jsdoc": "项跨行数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onItemClick",
+              "jsdoc": "列表项点击回调",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "listProps",
+              "jsdoc": "透传给列表根节点的显式属性",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showPagination",
+              "jsdoc": "是否显示分页器。默认 true。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

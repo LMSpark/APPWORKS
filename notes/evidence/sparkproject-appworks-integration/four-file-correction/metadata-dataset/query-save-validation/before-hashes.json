@@ -1,0 +1,18 @@
+[
+  {
+    "path": "packages/spark-data/src/validation/validation.ts",
+    "sha256": "083c3b30a2ebb49601b14f6a226b30c720d4b72b45365e84db53e8436ef0ef03"
+  },
+  {
+    "path": "packages/spark-data/src/data-view.ts",
+    "sha256": "2d546800772184677b6bb62dad8a652c2563a8a4fa353d2470fd29be4b7fb2f4"
+  },
+  {
+    "path": "packages/spark-data/src/dataset.ts",
+    "sha256": "6595f585d86e5d47b365c83abeeede87bee4c8ac4216b42287b74ddd68ee216e"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts",
+    "sha256": "15917dc2729fb7158f66bca172f08db793153d4a9cc15fe34c09ef47511aab31"
+  }
+]

@@ -1,0 +1,860 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/view-runtime-state",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/view-runtime-state",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/view-runtime-state\n职责：支撑 view-runtime-state（未注册组件类型）在 table-level/data-view-container 中的运行时协作，补齐配置、状态或渲染器之间的连接逻辑。\n边界：只覆盖当前组件目录 containers/data-views 的局部能力，不定义全局页面模型，也不越级操作业务数据源。\nAI用途：需要判断 view runtime state 的组件分层、辅助类型或内部接线时，用本模块作为局部语义入口。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataViewIdentityState",
+      "DataViewRowsState",
+      "DataViewDisplayState",
+      "DataViewPermissionState",
+      "DataViewRequestAndAggregateState",
+      "DataViewRuntimeState",
+      "ContainerDataViewContextState",
+      "DataViewState",
+      "AggregateResultState",
+      "ResolvedViewRef"
+    ],
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "DataViewIdentityState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewIdentityState",
+      "properties": {
+        "tableName": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "viewId": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "primaryKey": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "treeConfig": {
+          "type": "object",
+          "title": "ComputedRef<TreeConfig | undefined>"
+        }
+      },
+      "required": [
+        "tableName",
+        "viewId",
+        "primaryKey",
+        "treeConfig"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewRowsState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewRowsState",
+      "properties": {
+        "rows": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataRow[]>"
+        },
+        "columns": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataColumn[]>"
+        },
+        "currentRow": {
+          "type": "object",
+          "title": "ComputedRef<DataRow | null>"
+        },
+        "selectedRows": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataRow[]>"
+        },
+        "editingRows": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataRow[]>"
+        },
+        "isMultiSelect": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        }
+      },
+      "required": [
+        "rows",
+        "columns",
+        "currentRow",
+        "selectedRows",
+        "editingRows",
+        "isMultiSelect"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewDisplayState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewDisplayState",
+      "properties": {
+        "value": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "label": {
+          "type": "object",
+          "title": "ComputedRef<string | null>"
+        },
+        "labels": {
+          "type": "object",
+          "title": "ComputedRef<readonly string[]>"
+        }
+      },
+      "required": [
+        "value",
+        "label",
+        "labels"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewPermissionState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewPermissionState",
+      "additionalProperties": false
+    },
+    "DataViewRequestAndAggregateState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewRequestAndAggregateState",
+      "properties": {
+        "requestState": {
+          "type": "object",
+          "title": "ComputedRef<RequestState>"
+        },
+        "aggregateResult": {
+          "type": "object",
+          "title": "ComputedRef<AggregateResultState>"
+        },
+        "selectionAggregateResult": {
+          "type": "object",
+          "title": "ComputedRef<AggregateResultState>"
+        },
+        "total": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "page": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "pageSize": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "mutating": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "mutatingError": {
+          "type": "object",
+          "title": "ComputedRef<Error | null>"
+        },
+        "loadingError": {
+          "type": "object",
+          "title": "ComputedRef<Error | null>"
+        }
+      },
+      "required": [
+        "requestState",
+        "aggregateResult",
+        "selectionAggregateResult",
+        "total",
+        "page",
+        "pageSize",
+        "mutating",
+        "mutatingError",
+        "loadingError"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewRuntimeState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewRuntimeState",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "DataViewIdentityState"
+        },
+        {
+          "type": "object",
+          "title": "DataViewRowsState"
+        },
+        {
+          "type": "object",
+          "title": "DataViewPermissionState"
+        },
+        {
+          "type": "object",
+          "title": "DataViewDisplayState"
+        },
+        {
+          "type": "object",
+          "title": "DataViewRequestAndAggregateState"
+        }
+      ],
+      "properties": {
+        "tableName": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "viewId": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "primaryKey": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "treeConfig": {
+          "type": "object",
+          "title": "ComputedRef<TreeConfig | undefined>"
+        },
+        "rows": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataRow[]>"
+        },
+        "columns": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataColumn[]>"
+        },
+        "currentRow": {
+          "type": "object",
+          "title": "ComputedRef<DataRow | null>"
+        },
+        "selectedRows": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataRow[]>"
+        },
+        "editingRows": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataRow[]>"
+        },
+        "isMultiSelect": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "value": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "label": {
+          "type": "object",
+          "title": "ComputedRef<string | null>"
+        },
+        "labels": {
+          "type": "object",
+          "title": "ComputedRef<readonly string[]>"
+        },
+        "requestState": {
+          "type": "object",
+          "title": "ComputedRef<RequestState>"
+        },
+        "aggregateResult": {
+          "type": "object",
+          "title": "ComputedRef<AggregateResultState>"
+        },
+        "selectionAggregateResult": {
+          "type": "object",
+          "title": "ComputedRef<AggregateResultState>"
+        },
+        "total": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "page": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "pageSize": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "mutating": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "mutatingError": {
+          "type": "object",
+          "title": "ComputedRef<Error | null>"
+        },
+        "loadingError": {
+          "type": "object",
+          "title": "ComputedRef<Error | null>"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tableName",
+        "viewId",
+        "primaryKey",
+        "treeConfig",
+        "rows",
+        "columns",
+        "currentRow",
+        "selectedRows",
+        "editingRows",
+        "isMultiSelect",
+        "value",
+        "label",
+        "labels",
+        "requestState",
+        "aggregateResult",
+        "selectionAggregateResult",
+        "total",
+        "page",
+        "pageSize",
+        "mutating",
+        "mutatingError",
+        "loadingError"
+      ]
+    },
+    "ContainerDataViewContextState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContainerDataViewContextState",
+      "properties": {
+        "resolvedView": {
+          "type": "object",
+          "title": "ComputedRef<DataView | null>"
+        },
+        "resolvedDataRow": {
+          "type": "object",
+          "title": "ComputedRef<DataRow | null>"
+        }
+      },
+      "required": [
+        "resolvedView",
+        "resolvedDataRow"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewState",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "DataViewRuntimeState"
+        },
+        {
+          "type": "object",
+          "title": "ContainerDataViewContextState"
+        }
+      ],
+      "properties": {
+        "tableName": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "viewId": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "primaryKey": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "treeConfig": {
+          "type": "object",
+          "title": "ComputedRef<TreeConfig | undefined>"
+        },
+        "rows": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataRow[]>"
+        },
+        "columns": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataColumn[]>"
+        },
+        "currentRow": {
+          "type": "object",
+          "title": "ComputedRef<DataRow | null>"
+        },
+        "selectedRows": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataRow[]>"
+        },
+        "editingRows": {
+          "type": "object",
+          "title": "ComputedRef<readonly DataRow[]>"
+        },
+        "isMultiSelect": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "value": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "label": {
+          "type": "object",
+          "title": "ComputedRef<string | null>"
+        },
+        "labels": {
+          "type": "object",
+          "title": "ComputedRef<readonly string[]>"
+        },
+        "requestState": {
+          "type": "object",
+          "title": "ComputedRef<RequestState>"
+        },
+        "aggregateResult": {
+          "type": "object",
+          "title": "ComputedRef<AggregateResultState>"
+        },
+        "selectionAggregateResult": {
+          "type": "object",
+          "title": "ComputedRef<AggregateResultState>"
+        },
+        "total": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "page": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "pageSize": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "mutating": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "mutatingError": {
+          "type": "object",
+          "title": "ComputedRef<Error | null>"
+        },
+        "loadingError": {
+          "type": "object",
+          "title": "ComputedRef<Error | null>"
+        },
+        "resolvedView": {
+          "type": "object",
+          "title": "ComputedRef<DataView | null>"
+        },
+        "resolvedDataRow": {
+          "type": "object",
+          "title": "ComputedRef<DataRow | null>"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tableName",
+        "viewId",
+        "primaryKey",
+        "treeConfig",
+        "rows",
+        "columns",
+        "currentRow",
+        "selectedRows",
+        "editingRows",
+        "isMultiSelect",
+        "value",
+        "label",
+        "labels",
+        "requestState",
+        "aggregateResult",
+        "selectionAggregateResult",
+        "total",
+        "page",
+        "pageSize",
+        "mutating",
+        "mutatingError",
+        "loadingError",
+        "resolvedView",
+        "resolvedDataRow"
+      ]
+    },
+    "AggregateResultState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AggregateResultState",
+      "additionalProperties": false
+    },
+    "ResolvedViewRef": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolvedViewRef",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T13:59:00.570Z",
+  "models": {
+    "DataViewIdentityState": {
+      "name": "DataViewIdentityState",
+      "jsdoc": "DataView 标识态：来自 DataView 快照的静态元信息。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** DataView 所属表名，用于诊断和表级能力定位。 */\n    tableName: ComputedRef<string>;\n    /** DataView 的视图 id；缺省时表示使用表默认视图。 */\n    viewId: ComputedRef<string | undefined>;\n    /** 当前 DataView 的主键字段名。 */\n    primaryKey: ComputedRef<string | undefined>;\n    /** 树形 DataView 的层级字段配置；非树形视图为空。 */\n    treeConfig: ComputedRef<TreeConfig | undefined>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "DataView 所属表名，用于诊断和表级能力定位。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewId",
+              "jsdoc": "DataView 的视图 id；缺省时表示使用表默认视图。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primaryKey",
+              "jsdoc": "当前 DataView 的主键字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "treeConfig",
+              "jsdoc": "树形 DataView 的层级字段配置；非树形视图为空。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataViewRowsState": {
+      "name": "DataViewRowsState",
+      "jsdoc": "DataView 行数据态：当前视图下的行级数据与选择状态。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前页或当前视图范围内的行数据。 */\n    rows: ComputedRef<readonly DataRow[]>;\n    /** 当前视图可渲染的列定义。 */\n    columns: ComputedRef<readonly DataColumn[]>;\n    /** 当前行；表格高亮、详情容器和字段上下文共享该值。 */\n    currentRow: ComputedRef<DataRow | null>;\n    /** 当前已选择行集合。 */\n    selectedRows: ComputedRef<readonly DataRow[]>;\n    /** 当前处于编辑态的行集合。 */\n    editingRows: ComputedRef<readonly DataRow[]>;\n    /** 当前视图是否启用多选能力。 */\n    isMultiSelect: ComputedRef<boolean>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "jsdoc": "当前页或当前视图范围内的行数据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "columns",
+              "jsdoc": "当前视图可渲染的列定义。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentRow",
+              "jsdoc": "当前行；表格高亮、详情容器和字段上下文共享该值。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectedRows",
+              "jsdoc": "当前已选择行集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editingRows",
+              "jsdoc": "当前处于编辑态的行集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isMultiSelect",
+              "jsdoc": "当前视图是否启用多选能力。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataViewDisplayState": {
+      "name": "DataViewDisplayState",
+      "jsdoc": "DataView 显示态：用于下拉/选择器等展示场景的 value/label 信息。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前值字段的字符串化结果。 */\n    value: ComputedRef<string>;\n    /** 当前显示标签；没有当前行或标签字段时为空。 */\n    label: ComputedRef<string | null>;\n    /** 多选场景下的显示标签集合。 */\n    labels: ComputedRef<readonly string[]>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "当前值字段的字符串化结果。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "jsdoc": "当前显示标签；没有当前行或标签字段时为空。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "labels",
+              "jsdoc": "多选场景下的显示标签集合。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataViewPermissionState": {
+      "name": "DataViewPermissionState",
+      "jsdoc": "DataView 后端最终权限快照。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{}",
+        "members": {}
+      }
+    },
+    "DataViewRequestAndAggregateState": {
+      "name": "DataViewRequestAndAggregateState",
+      "jsdoc": "DataView 请求与聚合态：分页、加载状态、聚合结果等运行时动态信息。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前数据请求状态，用于 loading/empty/error 渲染。 */\n    requestState: ComputedRef<RequestState>;\n    /** 全量或当前查询条件下的聚合结果。 */\n    aggregateResult: ComputedRef<AggregateResultState>;\n    /** 已选择行集合的聚合结果。 */\n    selectionAggregateResult: ComputedRef<AggregateResultState>;\n    /** 当前查询结果总条数。 */\n    total: ComputedRef<number>;\n    /** 当前页码，从 1 开始。 */\n    page: ComputedRef<number>;\n    /** 当前分页大小。 */\n    pageSize: ComputedRef<number>;\n    /** 当前是否存在本地或远端变更中的写操作。 */\n    mutating: ComputedRef<boolean>;\n    /** 最近一次写操作错误。 */\n    mutatingError: ComputedRef<Error | null>;\n    /** 最近一次加载数据错误。 */\n    loadingError: ComputedRef<Error | null>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "requestState",
+              "jsdoc": "当前数据请求状态，用于 loading/empty/error 渲染。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "aggregateResult",
+              "jsdoc": "全量或当前查询条件下的聚合结果。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionAggregateResult",
+              "jsdoc": "已选择行集合的聚合结果。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "total",
+              "jsdoc": "当前查询结果总条数。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "page",
+              "jsdoc": "当前页码，从 1 开始。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageSize",
+              "jsdoc": "当前分页大小。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mutating",
+              "jsdoc": "当前是否存在本地或远端变更中的写操作。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mutatingError",
+              "jsdoc": "最近一次写操作错误。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadingError",
+              "jsdoc": "最近一次加载数据错误。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataViewRuntimeState": {
+      "name": "DataViewRuntimeState",
+      "jsdoc": "DataView 完整运行时投影（不含容器级解析上下文）。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "DataViewIdentityState & DataViewRowsState & DataViewPermissionState & DataViewDisplayState & DataViewRequestAndAggregateState",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataViewIdentityState",
+            "targetName": "DataViewIdentityState"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "DataViewRowsState",
+            "targetName": "DataViewRowsState"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "DataViewPermissionState",
+            "targetName": "DataViewPermissionState"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "DataViewDisplayState",
+            "targetName": "DataViewDisplayState"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "DataViewRequestAndAggregateState",
+            "targetName": "DataViewRequestAndAggregateState"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ContainerDataViewContextState": {
+      "name": "ContainerDataViewContextState",
+      "jsdoc": "容器级数据解析上下文（不属于 DataView 原始字段）。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 容器最终解析到的数据视图实例。 */\n    resolvedView: ComputedRef<DataView | null>;\n    /** 容器最终解析到的行上下文，优先来自 dataMember/dataField。 */\n    resolvedDataRow: ComputedRef<DataRow | null>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "resolvedView",
+              "jsdoc": "容器最终解析到的数据视图实例。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolvedDataRow",
+              "jsdoc": "容器最终解析到的行上下文，优先来自 dataMember/dataField。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataViewState": {
+      "name": "DataViewState",
+      "jsdoc": "五类容器共享顶层视图态。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "DataViewRuntimeState & ContainerDataViewContextState",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataViewRuntimeState",
+            "targetName": "DataViewRuntimeState"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ContainerDataViewContextState",
+            "targetName": "ContainerDataViewContextState"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AggregateResultState": {
+      "name": "AggregateResultState",
+      "jsdoc": "聚合结果运行时类型（key -> 聚合值）。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly [key: string]: unknown;\n}",
+        "members": {}
+      }
+    },
+    "ResolvedViewRef": {
+      "name": "ResolvedViewRef",
+      "jsdoc": "resolvedView 的标准只读 ref 形态。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前 DataView ref 值；为空表示容器还未解析到数据源。 */\n    readonly value: DataView | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "当前 DataView ref 值；为空表示容器还未解析到数据源。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

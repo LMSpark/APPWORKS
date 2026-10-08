@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-08T22:40:03.064Z",
+  "persist": false,
+  "stage": "failed",
+  "writes": 0,
+  "reads": 94,
+  "checks": [],
+  "originalHash": "f86a7ff9cd155435d7a9c6a14f38e92a38b3e6f1eab04051fe8964fd2ba0c6b5",
+  "metadataHash": "86ccf1cd4ae3b0a792ff91458074a691dd738955ce99bd21e65033267881a0c1",
+  "candidateHash": "d9f00cdf76115922498f1385ee0b32475b1ed49f71e8d7209a4cb51bb3cbf717",
+  "failed": true,
+  "error": "Expected values to be strictly equal:\n\n'' !== '0|1'\n",
+  "remoteOriginal": true,
+  "metadataUnchanged": true
+}

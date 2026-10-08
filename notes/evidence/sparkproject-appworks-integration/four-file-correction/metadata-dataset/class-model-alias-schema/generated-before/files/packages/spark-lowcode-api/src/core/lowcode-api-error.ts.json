@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:core/lowcode-api-error",
+    "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-api-error.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-api-error.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "core/lowcode-api-error",
+    "jsdoc": "lowcode 客户端统一业务/协议错误。\n`code` 取自 AjaxResult.Code；`0` 表示响应体不符合合同或本地校验失败，与 HTTP 状态码无关。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeApiError"
+    ]
+  },
+  "$defs": {
+    "LowcodeApiError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApiError",
+      "properties": {
+        "code": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "number"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T07:31:17.551Z",
+  "models": {
+    "LowcodeApiError": {
+      "name": "LowcodeApiError",
+      "jsdoc": "lowcode 客户端统一业务/协议错误。\n`code` 取自 AjaxResult.Code；`0` 表示响应体不符合合同或本地校验失败，与 HTTP 状态码无关。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(code: number, message: string)",
+          "parameters": [
+            {
+              "name": "code",
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "message",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/control/data-platform/data-space/design/expression/DataSpaceFilterEditor.props",
+    "sourcePath": "src/views/app/control/data-platform/data-space/design/expression/DataSpaceFilterEditor.props.ts",
+    "sourceFile": "src/views/app/control/data-platform/data-space/design/expression/DataSpaceFilterEditor.props.ts",
+    "packageName": "app",
+    "modulePath": "views/app/control/data-platform/data-space/design/expression/DataSpaceFilterEditor.props",
+    "jsdoc": "app 的 views/app/control/data-platform/data-space/design/expression/DataSpaceFilterEditor.props 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceFilterEditorProps, DataSpaceFilterEditorValidation（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceFilterEditorProps",
+      "DataSpaceFilterEditorValidation"
+    ]
+  },
+  "$defs": {
+    "DataSpaceFilterEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFilterEditorProps",
+      "properties": {
+        "contextKey": {
+          "type": "string"
+        },
+        "modelValue": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "functionContext": {
+          "$ref": "../../../../../../../../packages/spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "contextKey",
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceFilterEditorValidation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFilterEditorValidation",
+      "properties": {
+        "contextKey": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "valid": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "contextKey",
+        "value",
+        "valid",
+        "message"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-08T01:01:20.559Z",
+  "models": {
+    "DataSpaceFilterEditorProps": {
+      "name": "DataSpaceFilterEditorProps",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceFilterEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    contextKey: string;\n    modelValue?: string | null;\n    columns: readonly DataColumn[];\n    functionContext?: DataViewFilterFunctionContext;\n    disabled?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "contextKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "functionContext",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceFilterEditorValidation": {
+      "name": "DataSpaceFilterEditorValidation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceFilterEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    contextKey: string;\n    value: string | null | undefined;\n    valid: boolean;\n    message: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "contextKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "valid",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,525 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:navigation/useColorScheme",
+    "sourcePath": "packages/spark-app/src/navigation/useColorScheme.ts",
+    "sourceFile": "packages/spark-app/src/navigation/useColorScheme.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "navigation/useColorScheme",
+    "jsdoc": "@module @spark-appworks/spark-app:navigation/useColorScheme\n职责：提供应用壳层 useColorScheme 能力，围绕 PrimaryPreset、NavColorSet、NavPreset 等 5 个公开契约 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/useColorScheme。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "PrimaryPreset",
+      "NavColorSet",
+      "NavPreset",
+      "StyleColorSet",
+      "StylePreset"
+    ]
+  },
+  "$defs": {
+    "PrimaryPreset": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PrimaryPreset",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "color"
+      ],
+      "additionalProperties": false
+    },
+    "NavColorSet": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavColorSet",
+      "properties": {
+        "headerBg": {
+          "type": "string"
+        },
+        "sidebarBg": {
+          "type": "string"
+        },
+        "textColor": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "headerBg",
+        "sidebarBg",
+        "textColor"
+      ],
+      "additionalProperties": false
+    },
+    "NavPreset": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavPreset",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "light": {
+          "$ref": "#/$defs/NavColorSet"
+        },
+        "dark": {
+          "$ref": "#/$defs/NavColorSet"
+        }
+      },
+      "required": [
+        "name",
+        "color",
+        "light",
+        "dark"
+      ],
+      "additionalProperties": false
+    },
+    "StyleColorSet": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StyleColorSet",
+      "properties": {
+        "bg": {
+          "type": "string"
+        },
+        "page": {
+          "type": "string"
+        },
+        "overlay": {
+          "type": "string"
+        },
+        "soft": {
+          "type": "string"
+        },
+        "sunken": {
+          "type": "string"
+        },
+        "hover": {
+          "type": "string"
+        },
+        "selected": {
+          "type": "string"
+        },
+        "textPrimary": {
+          "type": "string"
+        },
+        "textRegular": {
+          "type": "string"
+        },
+        "textSecondary": {
+          "type": "string"
+        },
+        "textPlaceholder": {
+          "type": "string"
+        },
+        "border": {
+          "type": "string"
+        },
+        "borderLight": {
+          "type": "string"
+        },
+        "divider": {
+          "type": "string"
+        },
+        "chromeBorder": {
+          "type": "string"
+        },
+        "controlBg": {
+          "type": "string"
+        },
+        "controlBorder": {
+          "type": "string"
+        },
+        "controlBorderHover": {
+          "type": "string"
+        },
+        "shadow": {
+          "type": "string"
+        },
+        "shadowLight": {
+          "type": "string"
+        },
+        "shadowPanel": {
+          "type": "string"
+        },
+        "scrollbarThumb": {
+          "type": "string"
+        },
+        "scrollbarThumbHover": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "bg",
+        "page",
+        "overlay",
+        "soft",
+        "sunken",
+        "hover",
+        "selected",
+        "textPrimary",
+        "textRegular",
+        "textSecondary",
+        "textPlaceholder",
+        "border",
+        "borderLight",
+        "divider",
+        "chromeBorder",
+        "controlBg",
+        "controlBorder",
+        "controlBorderHover",
+        "shadow",
+        "shadowLight",
+        "shadowPanel",
+        "scrollbarThumb",
+        "scrollbarThumbHover"
+      ],
+      "additionalProperties": false
+    },
+    "StylePreset": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StylePreset",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "primaryColor": {
+          "type": "string"
+        },
+        "navIndex": {
+          "type": "number"
+        },
+        "light": {
+          "$ref": "#/$defs/StyleColorSet"
+        },
+        "dark": {
+          "$ref": "#/$defs/StyleColorSet"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "icon",
+        "primaryColor",
+        "navIndex",
+        "light",
+        "dark"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-05T10:07:52.883Z",
+  "models": {
+    "PrimaryPreset": {
+      "name": "PrimaryPreset",
+      "jsdoc": "Primary Preset 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 显示或业务名称。 */\n    name: string;\n    /** color 字段。 */\n    color: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "显示或业务名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "color",
+              "jsdoc": "color 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "NavColorSet": {
+      "name": "NavColorSet",
+      "jsdoc": "Nav Color Set 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** header Bg 字段。 */\n    headerBg: string;\n    /** sidebar Bg 字段。 */\n    sidebarBg: string;\n    /** text Color 字段。 */\n    textColor: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "headerBg",
+              "jsdoc": "header Bg 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sidebarBg",
+              "jsdoc": "sidebar Bg 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "textColor",
+              "jsdoc": "text Color 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "NavPreset": {
+      "name": "NavPreset",
+      "jsdoc": "Nav Preset 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 显示或业务名称。 */\n    name: string;\n    /** color 字段。 */\n    color: string;\n    /** light 字段。 */\n    light: NavColorSet;\n    /** dark 字段。 */\n    dark: NavColorSet;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "显示或业务名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "color",
+              "jsdoc": "color 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "light",
+              "jsdoc": "light 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dark",
+              "jsdoc": "dark 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "StyleColorSet": {
+      "name": "StyleColorSet",
+      "jsdoc": "Style Color Set 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** bg 字段。 */\n    bg: string;\n    /** 当前页码。 */\n    page: string;\n    /** overlay 字段。 */\n    overlay: string;\n    /** soft 字段。 */\n    soft: string;\n    /** sunken 字段。 */\n    sunken: string;\n    /** hover 字段。 */\n    hover: string;\n    /** selected 字段。 */\n    selected: string;\n    /** text Primary 字段。 */\n    textPrimary: string;\n    /** text Regular 字段。 */\n    textRegular: string;\n    /** text Secondary 字段。 */\n    textSecondary: string;\n    /** text Placeholder 字段。 */\n    textPlaceholder: string;\n    /** border 字段。 */\n    border: string;\n    /** border Light 字段。 */\n    borderLight: string;\n    /** divider 字段。 */\n    divider: string;\n    /** chrome Border 字段。 */\n    chromeBorder: string;\n    /** control Bg 字段。 */\n    controlBg: string;\n    /** control Border 字段。 */\n    controlBorder: string;\n    /** control Border Hover 字段。 */\n    controlBorderHover: string;\n    /** shadow 字段。 */\n    shadow: string;\n    /** shadow Light 字段。 */\n    shadowLight: string;\n    /** shadow Panel 字段。 */\n    shadowPanel: string;\n    /** scrollbar Thumb 字段。 */\n    scrollbarThumb: string;\n    /** scrollbar Thumb Hover 字段。 */\n    scrollbarThumbHover: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "bg",
+              "jsdoc": "bg 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "page",
+              "jsdoc": "当前页码。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "overlay",
+              "jsdoc": "overlay 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "soft",
+              "jsdoc": "soft 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sunken",
+              "jsdoc": "sunken 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hover",
+              "jsdoc": "hover 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selected",
+              "jsdoc": "selected 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "textPrimary",
+              "jsdoc": "text Primary 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "textRegular",
+              "jsdoc": "text Regular 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "textSecondary",
+              "jsdoc": "text Secondary 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "textPlaceholder",
+              "jsdoc": "text Placeholder 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "border",
+              "jsdoc": "border 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "borderLight",
+              "jsdoc": "border Light 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "divider",
+              "jsdoc": "divider 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "chromeBorder",
+              "jsdoc": "chrome Border 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "controlBg",
+              "jsdoc": "control Bg 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "controlBorder",
+              "jsdoc": "control Border 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "controlBorderHover",
+              "jsdoc": "control Border Hover 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "shadow",
+              "jsdoc": "shadow 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "shadowLight",
+              "jsdoc": "shadow Light 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "shadowPanel",
+              "jsdoc": "shadow Panel 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scrollbarThumb",
+              "jsdoc": "scrollbar Thumb 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scrollbarThumbHover",
+              "jsdoc": "scrollbar Thumb Hover 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "StylePreset": {
+      "name": "StylePreset",
+      "jsdoc": "Style Preset 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 显示或业务名称。 */\n    name: string;\n    /** description 字段。 */\n    description: string;\n    /** icon 字段。 */\n    icon: string;\n    /** primary Color 字段。 */\n    primaryColor: string;\n    /** nav Index 字段。 */\n    navIndex: number;\n    /** light 字段。 */\n    light: StyleColorSet;\n    /** dark 字段。 */\n    dark: StyleColorSet;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "显示或业务名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "description 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "icon",
+              "jsdoc": "icon 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primaryColor",
+              "jsdoc": "primary Color 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "navIndex",
+              "jsdoc": "nav Index 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "light",
+              "jsdoc": "light 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dark",
+              "jsdoc": "dark 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

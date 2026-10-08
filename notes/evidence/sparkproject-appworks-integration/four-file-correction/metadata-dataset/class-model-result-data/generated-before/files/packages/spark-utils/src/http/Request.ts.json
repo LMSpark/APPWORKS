@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:http/Request",
+    "sourcePath": "packages/spark-utils/src/http/Request.ts",
+    "sourceFile": "packages/spark-utils/src/http/Request.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "http/Request",
+    "jsdoc": "@module @spark-appworks/spark-utils:http/Request\n职责：提供框架无关的 Request 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。\n\nRequest — 基于 axios 的 HTTP 客户端\n继承 HttpClientBase（重试/缓存/拦截器/快捷方法），\n仅实现 axios 特有的：配置转换 + 请求执行 + 错误归一化。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "Request"
+    ]
+  },
+  "$defs": {
+    "Request": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Request",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "defaults": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeRequest.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeRequest.return": {
+          "type": "object",
+          "title": "Promise<HttpResponse<unknown>>"
+        },
+        "method.normalizeTransportError.params": {
+          "type": "object",
+          "properties": {
+            "err": true,
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.normalizeTransportError.return": {
+          "$ref": "types.ts.json#/$defs/RequestError"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:51.065Z",
+  "models": {
+    "Request": {
+      "name": "Request",
+      "jsdoc": "Request 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Request 实例。",
+          "signatureText": "constructor(defaults?: Partial<RequestConfig>)",
+          "parameters": [
+            {
+              "name": "defaults",
+              "type": {
+                "type": "reference",
+                "name": "Partial",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                ]
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "HttpClientBase",
+            "targetName": "HttpClientBase"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "executeRequest",
+              "jsdoc": "执行 execute Request 操作。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "HttpResponse",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "normalizeTransportError",
+              "jsdoc": "normalize Transport Error 错误信息。",
+              "parameters": [
+                {
+                  "name": "err",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "RequestError",
+                "sourcePath": "packages/spark-utils/src/http/types.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

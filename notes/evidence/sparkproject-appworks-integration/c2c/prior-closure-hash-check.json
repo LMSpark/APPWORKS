@@ -1,0 +1,66 @@
+[
+  {
+    "path": "src/registries/vue-page-registry.ts",
+    "matches": true
+  },
+  {
+    "path": "src/components/page-loading/PageLoadError.vue",
+    "matches": true
+  },
+  {
+    "path": "tests/app/config/vue-page-registry.test.ts",
+    "matches": true
+  },
+  {
+    "path": "tools/vite-plugin-spark-components.ts",
+    "matches": true
+  },
+  {
+    "path": "packages/vite-plugin-spark-catalog/src/scan-config.ts",
+    "matches": true
+  },
+  {
+    "path": "vite.config.ts",
+    "matches": true
+  },
+  {
+    "path": "tests/app/config/spark-components-loading.test.ts",
+    "matches": true
+  },
+  {
+    "path": "packages/spark-app/src/shell/plugins/presets.ts",
+    "matches": true
+  },
+  {
+    "path": "packages/spark-app/src/shell/plugins/__tests__/presets.test.ts",
+    "matches": true
+  },
+  {
+    "path": "packages/spark-app/src/navigation/runtime-navigation.ts",
+    "matches": true
+  },
+  {
+    "path": "packages/spark-app/src/index.ts",
+    "matches": true
+  },
+  {
+    "path": "src/lowcode/lowcode-runtime.ts",
+    "matches": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts",
+    "matches": true
+  },
+  {
+    "path": "tests/auth-nav/dynamic-router-platform-pages.test.ts",
+    "matches": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+    "matches": true
+  },
+  {
+    "path": "packages/spark-app/vitest.config.ts",
+    "matches": true
+  }
+]

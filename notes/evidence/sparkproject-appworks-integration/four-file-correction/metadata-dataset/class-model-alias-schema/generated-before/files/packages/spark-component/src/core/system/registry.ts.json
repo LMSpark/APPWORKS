@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:core/system/registry",
+    "sourcePath": "packages/spark-component/src/core/system/registry.ts",
+    "sourceFile": "packages/spark-component/src/core/system/registry.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "core/system/registry",
+    "jsdoc": "@module @spark-appworks/spark-component:core/system/registry\n职责：提供 registry 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nSPARK 组件注册表\n- `createComponentRegistry()` 创建隔离实例（测试/多实例）\n- `getGlobalRegistry()` 返回应用级单例",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:20:17.718Z",
+  "models": {}
+}

@@ -1,0 +1,51 @@
+- banner:
+  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76
+  - navigation:
+    - generic: SPARK 工具
+    - generic: 数据库管理
+    - generic: 外部服务管理
+    - generic: 半结构化数据
+    - generic: 文件数据管理
+    - generic: 结构化配置
+    - generic: 数据空间管理
+    - generic: 业务流程管理
+    - generic: 业务报表管理
+    - generic: 安全防护管理
+    - generic: 应用系统管理
+    - generic: 人力资源管理
+    - generic: 系统支持管理
+    - generic: 企业管理
+  - separator
+  - button "系 系统管理员":
+    - generic: 系
+    - generic: 系统管理员
+- generic: 页面工具
+- generic: ×
+- main:
+  - heading "数据空间设计" [level=2]
+  - status: 数据空间设计信息已加载
+  - button "返回目录":
+    - generic: 返回目录
+  - button "重新加载":
+    - generic: 重新加载
+  - button "编辑输入参数":
+    - generic: 编辑输入参数
+  - tablist:
+    - tab "概览"
+    - tab "模型"
+    - tab "字段"
+    - tab "关系"
+    - tab "关系图" [active] [selected]
+  - tabpanel "关系图":
+    - article:
+      - strong: copyTable
+      - generic: 复制表
+    - article:
+      - strong: Base_DataSet
+      - generic: 数据空间定义表
+    - button "保存布局" [disabled]:
+      - generic: 保存布局
+    - button "取消布局修改" [disabled]:
+      - generic: 取消布局修改
+- contentinfo:
+  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场

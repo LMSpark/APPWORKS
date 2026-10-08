@@ -1,0 +1,625 @@
+{
+  "at": "2026-10-07T07:21:32.879Z",
+  "kind": "read-only live runtime and formal model contract; no row values or credentials retained",
+  "query": {
+    "allowAdd": true,
+    "countReported": true,
+    "executionApplication": "D99A1DCE9894698799101EFD70F8FC76",
+    "identity": {
+      "metaName": "Base_DataSet",
+      "scenarioId": "90A82E287930A234FEC3E687C94A93EA"
+    },
+    "nodeId": "90A82E287930A234FEC3E687C94A93EA",
+    "nodeTitle": "数据空间管理",
+    "rowCount": 5,
+    "rows": [
+      {
+        "fieldAccess": {
+          "Name": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "Type": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createtime": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createuser": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "description": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "rowid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "sysid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          }
+        },
+        "fieldNames": [
+          "flowstate",
+          "createuser",
+          "Type",
+          "wfid",
+          "ReportID",
+          "description",
+          "createtime",
+          "sysid",
+          "updatetime",
+          "lingma_sys_is_delete",
+          "updateuser",
+          "rowid",
+          "Name"
+        ],
+        "keyEqualsRowid": true,
+        "keyPresent": true,
+        "keyType": "string"
+      },
+      {
+        "fieldAccess": {
+          "Name": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "Type": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createtime": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createuser": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "description": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "rowid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "sysid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          }
+        },
+        "fieldNames": [
+          "flowstate",
+          "createuser",
+          "Type",
+          "wfid",
+          "ReportID",
+          "description",
+          "createtime",
+          "sysid",
+          "updatetime",
+          "lingma_sys_is_delete",
+          "updateuser",
+          "rowid",
+          "Name"
+        ],
+        "keyEqualsRowid": true,
+        "keyPresent": true,
+        "keyType": "string"
+      },
+      {
+        "fieldAccess": {
+          "Name": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "Type": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createtime": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createuser": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "description": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "rowid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "sysid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          }
+        },
+        "fieldNames": [
+          "flowstate",
+          "createuser",
+          "Type",
+          "wfid",
+          "ReportID",
+          "description",
+          "createtime",
+          "sysid",
+          "updatetime",
+          "lingma_sys_is_delete",
+          "updateuser",
+          "rowid",
+          "Name"
+        ],
+        "keyEqualsRowid": true,
+        "keyPresent": true,
+        "keyType": "string"
+      },
+      {
+        "fieldAccess": {
+          "Name": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "Type": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createtime": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createuser": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "description": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "rowid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "sysid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          }
+        },
+        "fieldNames": [
+          "flowstate",
+          "createuser",
+          "Type",
+          "wfid",
+          "ReportID",
+          "description",
+          "createtime",
+          "sysid",
+          "updatetime",
+          "lingma_sys_is_delete",
+          "updateuser",
+          "rowid",
+          "Name"
+        ],
+        "keyEqualsRowid": true,
+        "keyPresent": true,
+        "keyType": "string"
+      },
+      {
+        "fieldAccess": {
+          "Name": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "Type": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createtime": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "createuser": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "description": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "rowid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "sysid": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          }
+        },
+        "fieldNames": [
+          "flowstate",
+          "createuser",
+          "Type",
+          "wfid",
+          "ReportID",
+          "description",
+          "createtime",
+          "sysid",
+          "updatetime",
+          "lingma_sys_is_delete",
+          "updateuser",
+          "rowid",
+          "Name"
+        ],
+        "keyEqualsRowid": true,
+        "keyPresent": true,
+        "keyType": "string"
+      }
+    ],
+    "total": 1184
+  },
+  "formalModel": {
+    "fields": [
+      {
+        "canonicalName": "isCheckLogin",
+        "computed": false,
+        "name": "isCheckLogin",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "flowstate",
+        "computed": false,
+        "name": "flowstate",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "createuser",
+        "computed": false,
+        "name": "createuser",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "Type",
+        "computed": false,
+        "name": "Type",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "wfid",
+        "computed": false,
+        "name": "wfid",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "ReportID",
+        "computed": false,
+        "name": "ReportID",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "Type",
+        "computed": false,
+        "name": "Type",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "inputParams",
+        "computed": false,
+        "name": "inputParams",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "wfid",
+        "computed": false,
+        "name": "wfid",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "createuser",
+        "computed": false,
+        "name": "createuser",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "description",
+        "computed": false,
+        "name": "description",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "inputParams",
+        "computed": false,
+        "name": "inputParams",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "ReportID",
+        "computed": false,
+        "name": "ReportID",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "createtime",
+        "computed": false,
+        "name": "createtime",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "sysid",
+        "computed": false,
+        "name": "sysid",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "createtime",
+        "computed": false,
+        "name": "createtime",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "updatetime",
+        "computed": false,
+        "name": "updatetime",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "flowstate",
+        "computed": false,
+        "name": "flowstate",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "lingma_sys_is_delete",
+        "computed": false,
+        "name": "lingma_sys_is_delete",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "lingma_sys_is_delete",
+        "computed": false,
+        "name": "lingma_sys_is_delete",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "updateuser",
+        "computed": false,
+        "name": "updateuser",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "updatetime",
+        "computed": false,
+        "name": "updatetime",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "rowid",
+        "computed": false,
+        "name": "rowid",
+        "output": true,
+        "primaryKey": true
+      },
+      {
+        "canonicalName": "updateuser",
+        "computed": false,
+        "name": "updateuser",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "Name",
+        "computed": false,
+        "name": "Name",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "Name",
+        "computed": false,
+        "name": "Name",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "DefaultPermission",
+        "computed": false,
+        "name": "DefaultPermission",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "sysid",
+        "computed": false,
+        "name": "sysid",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "rowid",
+        "computed": false,
+        "name": "rowid",
+        "output": true,
+        "primaryKey": true
+      },
+      {
+        "canonicalName": "DefaultPermission",
+        "computed": false,
+        "name": "DefaultPermission",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "description",
+        "computed": false,
+        "name": "description",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "isCheckLogin",
+        "computed": false,
+        "name": "isCheckLogin",
+        "output": false,
+        "primaryKey": false
+      }
+    ],
+    "metaName": "Base_DataSet",
+    "primaryKey": "rowid"
+  },
+  "filterAndPagination": {
+    "adminSampleReadStates": [
+      "visible"
+    ],
+    "noBusinessRowsRetained": true,
+    "pagination": {
+      "firstRows": 5,
+      "sameTotal": true,
+      "secondRows": 5,
+      "uniqueKeys": true
+    },
+    "search": {
+      "count": 1,
+      "rowidMatches": true,
+      "total": 1
+    }
+  },
+  "limits": [
+    "admin sample only, restricted-user behavior not proven",
+    "read only; CRUD not tested"
+  ]
+}

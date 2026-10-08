@@ -1,0 +1,596 @@
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/edit-before/script.js.txt b/config/pages/data-platform/data-space-catalog/script.js
+index 2d6c2d48d..6111e6c16 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/edit-before/script.js.txt
++++ b/config/pages/data-platform/data-space-catalog/script.js
+@@ -2,9 +2,18 @@ var catalogSearchName = ''
+ var catalogSearchApp = ''
+ var catalogRequestError = ''
+ var catalogSaveUncertain = false
+-var catalogAddBusy = false
++var catalogOperationBusy = false
+ var catalogUnknownId = ''
+ 
++function catalogTargetIsCurrent(view, row, id) {
++  return $page.resolveView('Base_DataSet@catalog') === view
++    && view.currentRow === row && view.rows.includes(row) && view.getPkKey(row) === id
++}
++
++function catalogPageIsStale(error) {
++  return error instanceof Error && error.message.startsWith('PAGE_RUNTIME_STALE:')
++}
++
+ async function loadCreatorRows() {
+   const data = $page.resolveView('Base_DataSet@catalog')
+   const users = $page.resolveView('Base_UserInfo@catalogUsers')
+@@ -27,6 +36,7 @@ async function __init__() {
+ }
+ 
+ async function applyCatalogFilter() {
++  if (catalogOperationBusy || catalogSaveUncertain) return
+   const view = $page.resolveView('Base_DataSet@catalog')
+   const terms = []
+   if (catalogSearchName.trim()) {
+@@ -50,6 +60,7 @@ async function applyCatalogFilter() {
+ }
+ 
+ async function changeCatalogPage(page) {
++  if (catalogOperationBusy || catalogSaveUncertain) return
+   const view = $page.resolveView('Base_DataSet@catalog')
+   try {
+     catalogRequestError = ''
+@@ -63,6 +74,7 @@ async function changeCatalogPage(page) {
+ }
+ 
+ async function changeCatalogPageSize(event) {
++  if (catalogOperationBusy || catalogSaveUncertain) return
+   const view = $page.resolveView('Base_DataSet@catalog')
+   try {
+     catalogRequestError = ''
+@@ -76,8 +88,8 @@ async function changeCatalogPageSize(event) {
+ }
+ 
+ async function addCatalogEntry() {
+-  if (catalogAddBusy) return
+-  catalogAddBusy = true
++  if (catalogOperationBusy || catalogSaveUncertain) return
++  catalogOperationBusy = true
+   const view = $page.resolveView('Base_DataSet@catalog')
+   try {
+     if (catalogSaveUncertain) {
+@@ -161,17 +173,122 @@ async function addCatalogEntry() {
+     }
+   } catch (error) {
+     catalogRequestError = error instanceof Error ? error.message : String(error)
+-    $page.showMessage(`新增数据空间失败：${catalogRequestError}`, 'error')
++    if (!catalogPageIsStale(error)) $page.showMessage(`新增数据空间失败：${catalogRequestError}`, 'error')
++  } finally {
++    catalogOperationBusy = false
++  }
++}
++
++async function editCatalogEntry(view, row) {
++  if (catalogOperationBusy || catalogSaveUncertain) return
++  catalogOperationBusy = true
++  const id = view.getPkKey(row)
++  try {
++    if ((typeof id !== 'string' && typeof id !== 'number') || !catalogTargetIsCurrent(view, row, id)) return
++    if (view.editActionState(row) !== 'enabled') {
++      $page.showMessage('当前没有此数据空间的编辑权限', 'warning')
++      return
++    }
++    const editable = ['Name', 'description'].filter(field => view.fieldAccess(row, field).write === 'allowed')
++    if (editable.length === 0) {
++      $page.showMessage('当前没有可编辑的数据空间字段', 'warning')
++      return
++    }
++    const input = {}
++    for (const field of editable) {
++      const access = view.fieldAccess(row, field)
++      const visibleValue = access.read === 'visible' ? row[field] : undefined
++      const defaultValue = visibleValue == null ? '' : String(visibleValue)
++      const title = field === 'Name' ? '编辑数据空间名称' : '编辑数据空间描述'
++      const label = field === 'Name' ? '名称' : '描述'
++      const value = await $page.showPrompt(`请输入${label}${field === 'Name' ? '（最多100字）' : '（最多500字）'}`, title,
++        { placeholder: label, ...(access.read === 'visible' ? { defaultValue } : {}) })
++      if (!catalogTargetIsCurrent(view, row, id)) return
++      if (value === null) return
++      const normalized = value.trim()
++      if (field === 'Name' && !normalized) {
++        $page.showMessage('数据空间名称不能为空', 'warning')
++        return
++      }
++      if (view.fieldAccess(row, field).required && !normalized) {
++        $page.showMessage(`数据空间${label}不能为空`, 'warning')
++        return
++      }
++      if (normalized.length > (field === 'Name' ? 100 : 500)) {
++        $page.showMessage(`数据空间${label}不能超过${field === 'Name' ? 100 : 500}字`, 'warning')
++        return
++      }
++      input[field] = normalized
++    }
++    if (!catalogTargetIsCurrent(view, row, id)) return
++    if (view.editActionState(row) !== 'enabled') {
++      $page.showMessage('编辑权限已变化，请刷新后重试', 'warning')
++      return
++    }
++    const patch = {}
++    for (const field of editable) {
++      if (view.fieldAccess(row, field).write !== 'allowed') {
++        $page.showMessage('字段编辑权限已变化，请刷新后重试', 'warning')
++        return
++      }
++      if (view.fieldAccess(row, field).read !== 'visible') {
++        patch[field] = input[field]
++        continue
++      }
++      const original = row[field]
++      if (field === 'description' && original == null && input[field] === '') continue
++      if (String(original ?? '') !== input[field]) patch[field] = input[field]
++    }
++    if (Object.keys(patch).length === 0) return
++    const updated = await view.editRowById(id, patch)
++    if (updated === false || (typeof updated === 'object' && !updated.success)) {
++      throw new Error(typeof updated === 'object' ? updated.message ?? '数据空间暂存编辑失败' : '目标数据空间已不存在')
++    }
++    catalogUnknownId = String(id)
++    catalogSaveUncertain = true
++    try {
++      const result = await view.dataSet.saveChanges({ views: [{ tableName: 'Base_DataSet', viewId: 'catalog', ids: [id] }] })
++      if (!result.success) throw new Error(result.message ?? '数据空间保存未确认成功')
++      catalogSaveUncertain = false
++      catalogUnknownId = ''
++    } catch (error) {
++      catalogRequestError = error instanceof Error ? error.message : String(error)
++      if (catalogSaveUncertain) {
++        $page.showMessage(`当前记录保存结果未知：${catalogRequestError}。请刷新确认后再操作。`, 'error')
++        return
++      }
++      throw error
++    }
++    try {
++      await view.refresh()
++      if (view.loadingError) throw new Error(view.loadingError)
++      const refreshed = view.rows.find(item => view.getPkKey(item) === id)
++      await loadCreatorRows()
++      $page.showMessage(refreshed ? '数据空间已保存' : '数据空间已保存，当前记录已不在列表中', 'success')
++    } catch (error) {
++      catalogRequestError = error instanceof Error ? error.message : String(error)
++      if (!catalogPageIsStale(error)) $page.showMessage(`数据空间已保存，刷新失败：${catalogRequestError}`, 'error')
++    }
++  } catch (error) {
++    catalogRequestError = error instanceof Error ? error.message : String(error)
++    if (!catalogPageIsStale(error)) $page.showMessage(`编辑数据空间失败：${catalogRequestError}`, 'error')
+   } finally {
+-    catalogAddBusy = false
++    catalogOperationBusy = false
+   }
+ }
+ 
+ function RenderCatalogActions() {
+   const view = $page.resolveView('Base_DataSet@catalog')
+-  if (view.addActionState() !== 'enabled') return []
+-  return [h('button', { type: 'button', class: 'catalog-button catalog-add', disabled: catalogSaveUncertain || catalogAddBusy,
+-    onClick: addCatalogEntry }, '新增数据空间')]
++  const actions = []
++  if (view.addActionState() === 'enabled') actions.push(h('button', { type: 'button', class: 'catalog-button catalog-add',
++    disabled: catalogSaveUncertain || catalogOperationBusy, onClick: addCatalogEntry }, '新增数据空间'))
++  const row = view.currentRow
++  if (row && view.editActionState(row) === 'enabled'
++    && ['Name', 'description'].some(field => view.fieldAccess(row, field).write === 'allowed')) {
++    actions.push(h('button', { type: 'button', class: 'catalog-button catalog-edit', disabled: catalogSaveUncertain || catalogOperationBusy,
++      onClick: () => editCatalogEntry(view, row) }, '编辑数据空间'))
++  }
++  return [h('div', { class: 'catalog-actions' }, actions)]
+ }
+ 
+ function RenderCatalogPaging() {
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/edit-before/style.css.txt b/config/pages/data-platform/data-space-catalog/style.css
+index 7c15a4ef4..bf57ac752 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/edit-before/style.css.txt
++++ b/config/pages/data-platform/data-space-catalog/style.css
+@@ -4,8 +4,10 @@
+ .catalog-search-name { width: min(360px, 45vw); }
+ .catalog-search-app { min-width: 190px; }
+ .catalog-search-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
++.catalog-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+ .catalog-button, .catalog-pager button { min-height: 32px; padding: 4px 12px; border: 1px solid var(--el-border-color, #dcdfe6); border-radius: var(--el-border-radius-base, 4px); background: var(--el-bg-color, #fff); color: var(--el-text-color-regular, #606266); cursor: pointer; }
+ .catalog-add { justify-self: start; border-color: var(--el-color-primary, #409eff); background: var(--el-color-primary, #409eff); color: var(--el-color-white, #fff); }
++.catalog-edit { justify-self: start; }
+ .catalog-pager { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding-top: 12px; color: var(--el-text-color-secondary, #909399); }
+ .catalog-error { color: var(--el-color-danger, #f56c6c); }
+ .catalog-pager button:disabled, .catalog-button:disabled { cursor: not-allowed; opacity: .55; }
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/edit-before/data-space-four-file.test.ts.txt b/tests/runtime/page/catalog/data-space-four-file.test.ts
+index 0c5091b35..3584df6e0 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/edit-before/data-space-four-file.test.ts.txt
++++ b/tests/runtime/page/catalog/data-space-four-file.test.ts
+@@ -1,7 +1,7 @@
+ import { config as testUtilsConfig, flushPromises, mount } from '@vue/test-utils'
+ import { readFileSync } from 'node:fs'
+ import { resolve } from 'node:path'
+-import { defineComponent, h, markRaw } from 'vue'
++import { defineComponent, h, markRaw, ref } from 'vue'
+ import { createMemoryHistory, createRouter } from 'vue-router'
+ import { describe, expect, it } from 'vitest'
+ import { registerAllRenderers, Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
+@@ -9,8 +9,8 @@ import { DataSpaceRuntimeApi, type DataSpaceDesignApi } from '@spark-appworks/sp
+ import { ScenarioViewConfig, PageRuntime, PageTool, type PageRuntime as PageRuntimeType } from '@spark-appworks/spark-project-model'
+ import { HttpClientBase, isRecord, type HttpResponse, type RequestConfig } from '@spark-appworks/spark-utils'
+ import { compileFunctions } from '../../../../packages/spark-component/src/page/createSandbox'
++import { buildPageContext } from '../../../../packages/spark-component/src/page/context/buildPageContext'
+ import type { PageContext } from '../../../../packages/spark-component/src/page/context/types'
+-import { SparkData } from '@spark-appworks/spark-data'
+ import { LowcodeDataSpaceAssembler } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
+ 
+ const pageId = 'data-space-catalog'
+@@ -26,6 +26,10 @@ function recordAt(value: unknown, path: string): Record<string, unknown> {
+   return value
+ }
+ 
++function recordValue(value: unknown, key: string): unknown {
++  return isRecord(value) ? value[key] : undefined
++}
++
+ function formalModel(input: TestFormalModelInput): FormalModel {
+   const fields = input.fields.map((field, order) => ({ ...field, modelId: input.id,
+     canonicalName: field.name, description: '', output: true, computed: false, order, orderType: '', raw: {} }))
+@@ -61,10 +65,17 @@ class CatalogFixtureHttpClient extends HttpClientBase {
+   public readonly requests: RequestConfig[] = []
+   public readonly saveRequests: RequestConfig[] = []
+   public readonly savedRows: Record<string, unknown>[] = []
++  public readonly changedRows: Record<string, unknown>[] = []
+   public failSave = false
+   public maskCreatorName = false
+   public hideCreatorName = false
+   public allowAdd = true
++  public editableFields: string[] = []
++  public requiredFields: string[] = []
++  public hiddenFields: string[] = []
++  public nullDescription = false
++  public includeSecondDataset = false
++  public omitChangedRowsFromQueries = false
+ 
+   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+     if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+@@ -73,11 +84,14 @@ class CatalogFixtureHttpClient extends HttpClientBase {
+       const model = isRecord(models[0]) ? models[0] : {}
+       const crud = isRecord(model['CrudModel']) ? model['CrudModel'] : {}
+       const added = Array.isArray(crud['Added']) ? crud['Added'].filter(isRecord) : []
+-      const row = added[0]
+-      if (!row) throw new Error('fixture save request has no added row')
+-      this.savedRows.push(row)
++      const changed = Array.isArray(crud['Changed']) ? crud['Changed'].filter(isRecord) : []
++      this.savedRows.push(...added)
++      this.changedRows.push(...changed)
+       if (this.failSave) throw new Error('fixture connection lost after save dispatch')
+-      return { data: { Code: 200, Result: { maplistadd: [{ physical: [{ ...row }] }] } },
++      return { data: { Code: 200, Result: {
++        ...(added.length ? { maplistadd: [{ physical: added.map(row => ({ ...row })) }] } : {}),
++        ...(changed.length ? { maplistedit: [{ physical: changed.map(row => ({ ...row })) }] } : {}),
++      } },
+         status: 200, statusText: 'OK', headers: {} }
+     }
+     this.requests.push(config)
+@@ -85,13 +99,26 @@ class CatalogFixtureHttpClient extends HttpClientBase {
+     const tables = Array.isArray(payload['Table']) ? payload['Table'] : []
+     const first = isRecord(tables[0]) ? tables[0] : {}
+     const modelName = typeof first['Name'] === 'string' ? first['Name'] : ''
+-    const datasetRows = [{ rowid: 'DATASET-1', Name: '试点目录', Type: 'datasource', description: '目录', sysid: 'APP-1',
++    const firstDataset = { rowid: 'DATASET-1', Name: '试点目录', Type: 'datasource',
++        description: this.nullDescription ? null : '目录', sysid: 'APP-1',
+         createuser: 'USER-ROW-1', createtime: '2026-10-07', _pk: 'DATASET-1', lingma_sys_key: 'DS-ROW',
+-        lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } },
++        lingma_sys_params: { r: this.requiredFields, e: this.editableFields, h: this.hiddenFields, m: [], d: false } }
++    const baseRows = [firstDataset]
++    if (this.includeSecondDataset) baseRows.push({ ...firstDataset, rowid: 'DATASET-2', Name: '第二目录', _pk: 'DATASET-2' })
++    const datasetRows = [...baseRows.map(row => {
++      const changes = this.changedRows.filter(item => item['rowid'] === row.rowid)
++        .reduce((result, item) => ({ ...result, ...item }), {})
++      return { ...row, ...changes }
++    }),
+       ...this.savedRows.map(row => ({ ...row, createuser: 'USER-ROW-1', createtime: '2026-10-07',
+         _pk: row['rowid'], lingma_sys_key: 'DS-CREATED', lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } }))]
+     const rows = modelName === 'Base_DataSet'
+-      ? datasetRows
++      ? this.omitChangedRowsFromQueries
++        ? datasetRows.filter(row => {
++          const rowId = recordValue(row, 'rowid')
++          return !this.changedRows.some(changed => changed['rowid'] === rowId)
++        })
++        : datasetRows
+       : modelName === 'Base_AppSystemList'
+         ? [{ rowid: 'APP-1', AppDesc: '试点应用', AppName: '试点应用', _pk: 'APP-1', lingma_sys_key: 'APP-ROW',
+           lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } }]
+@@ -127,12 +154,38 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
+   const pageRuntime = markRaw(new PageRuntime({ tool, scenarioIds: [scenarioId], mainScenarioId: scenarioId,
+     loadScenario: async () => assembly.dataSet }))
+   await pageRuntime.load()
+-  const functions = compileFunctions(readFileSync(resolve(pageRoot, 'script.js'), 'utf8'), createPageContext(pageRuntime, services))
++  const controller = new AbortController()
++  const context = buildPageContext({ pageRuntime, signal: controller.signal, pageRoute: routeSnapshot,
++    pageContainer: ref(null), pageService: createPageService(pageRuntime, services) })
++  const functions = compileFunctions(readFileSync(resolve(pageRoot, 'script.js'), 'utf8'), context)
+   await functions['__init__']?.()
+-  return { functions, pageRuntime, dataSet: assembly.dataSet, http }
++  return { functions, pageRuntime, dataSet: assembly.dataSet, http, invalidatePage: () => controller.abort() }
++}
++
++type CatalogActionNode = Record<string, unknown>
++
++function isCatalogActionNode(value: unknown): value is CatalogActionNode {
++  return isRecord(value) && (value['props'] === undefined || isRecord(value['props']))
++}
++
++function renderCatalogActionButtons(functions: Record<string, unknown>): CatalogActionNode[] {
++  const render = functions['RenderCatalogActions']
++  if (typeof render !== 'function') return []
++  const nodes = render()
++  if (!Array.isArray(nodes)) return []
++  const toolbar = nodes[0]
++  if (!isRecord(toolbar) || !Array.isArray(toolbar['children'])) return []
++  return toolbar['children'].filter(isCatalogActionNode)
++}
++
++function catalogActionHandler(node: CatalogActionNode | undefined): (() => unknown) | undefined {
++  const props = node?.['props']
++  if (!isRecord(props)) return undefined
++  const onClick = props['onClick']
++  return typeof onClick === 'function' ? () => onClick() : undefined
+ }
+ 
+-function createPageContext(pageRuntime: PageRuntimeType, services: Partial<PageContext['$page']>): PageContext {
++function createPageService(pageRuntime: PageRuntimeType, services: Partial<PageContext['$page']>): PageContext['$page'] {
+   const pageService: PageContext['$page'] = {
+     getDataSet: (id) => pageRuntime.getDataSet(id),
+     resolveView: (binding) => pageRuntime.resolveView(binding) ?? undefined,
+@@ -148,22 +201,7 @@ function createPageContext(pageRuntime: PageRuntimeType, services: Partial<PageC
+     navigate: () => undefined,
+     ...services,
+   }
+-  return {
+-    $route: routeSnapshot,
+-    $el: () => null,
+-    $query: () => null,
+-    $queryAll: () => document.querySelectorAll('.catalog-test-none'),
+-    $components: { get: () => null, list: () => [], getApi: () => null, getApisByType: () => [] },
+-    $page: pageService,
+-    SparkData,
+-    h,
+-    setTimeout: (handler, timeout) => window.setTimeout(handler, timeout),
+-    clearTimeout: (id) => window.clearTimeout(id),
+-    setInterval: (handler, timeout) => window.setInterval(handler, timeout),
+-    clearInterval: (id) => window.clearInterval(id),
+-    console,
+-    $moduleContext: null,
+-  }
++  return pageService
+ }
+ 
+ function disableSparkRendererStub(): () => void {
+@@ -300,4 +338,226 @@ describe('data-space four-file page', () => {
+     expect(uncertain.http.savedRows[0]).toMatchObject({ Name: '待确认目录', Type: 'datasource',
+       description: '待确认描述', sysid: 'APP-1' })
+   })
++
++  it('renders an edit action only for rows authorized by the query result', async () => {
++    let deniedPrompts = 0
++    const denied = await createCatalogScriptFixture({
++      showPrompt: async () => { deniedPrompts += 1; return null },
++    })
++    expect(renderCatalogActionButtons(denied.functions).some(action => action['children'] === '编辑数据空间')).toBe(false)
++    const deniedView = denied.dataSet.getView('Base_DataSet', 'catalog')
++    const directEdit = denied.functions['editCatalogEntry']
++    if (typeof directEdit !== 'function' || !deniedView?.currentRow) throw new Error('denied fixture has no current row')
++    await directEdit(deniedView, deniedView.currentRow)
++    expect(deniedPrompts).toBe(0)
++    expect(denied.http.saveRequests).toHaveLength(0)
++
++    const allowed = await createCatalogScriptFixture({}, http => {
++      http.editableFields = ['Name', 'description']
++    })
++    const actions = renderCatalogActionButtons(allowed.functions)
++    expect(actions).toMatchObject(expect.arrayContaining([
++      expect.objectContaining({ children: '编辑数据空间' }),
++    ]))
++  })
++
++  it('stages and saves only changed editable business fields for the selected row', async () => {
++    const prompts = ['更新后的目录', '更新后的描述']
++    const fixture = await createCatalogScriptFixture({
++      showPrompt: async () => prompts.shift() ?? null,
++    }, http => { http.editableFields = ['Name', 'description'] })
++    const editButton = renderCatalogActionButtons(fixture.functions)
++      .find(action => action['children'] === '编辑数据空间')
++    const onClick = catalogActionHandler(editButton)
++    if (!onClick) throw new Error('edit action has no handler')
++    await onClick()
++
++    expect(fixture.http.saveRequests).toHaveLength(1)
++    expect(fixture.http.changedRows).toMatchObject([{ rowid: 'DATASET-1', Name: '更新后的目录',
++      description: '更新后的描述' }])
++    expect(fixture.http.changedRows[0]).not.toHaveProperty('Type')
++    expect(fixture.http.changedRows[0]).not.toHaveProperty('sysid')
++    expect(fixture.dataSet.getView('Base_DataSet', 'catalog')?.rows).toMatchObject([
++      { rowid: 'DATASET-1', Name: '更新后的目录', description: '更新后的描述' },
++    ])
++  })
++
++  it('keeps unread writable values out of prompt defaults and honors field write permission independently', async () => {
++    const prompts: unknown[][] = []
++    const fixture = await createCatalogScriptFixture({
++      showPrompt: async (...args) => { prompts.push(args); return '仅提交名称' },
++    }, http => { http.editableFields = ['Name']; http.hiddenFields = ['Name'] })
++    const button = renderCatalogActionButtons(fixture.functions).find(action => action['children'] === '编辑数据空间')
++    const onClick = catalogActionHandler(button)
++    if (!onClick) throw new Error('authorized edit action was not rendered')
++    await onClick()
++
++    expect(prompts).toHaveLength(1)
++    expect(prompts[0]?.[2]).toMatchObject({ placeholder: '名称' })
++    expect(prompts[0]?.[2]).not.toHaveProperty('defaultValue')
++    expect(fixture.http.changedRows).toMatchObject([{ rowid: 'DATASET-1', Name: '仅提交名称' }])
++    expect(fixture.http.changedRows[0]).not.toHaveProperty('description')
++  })
++
++  it('submits an explicit empty value for an unread writable description whose original value is null', async () => {
++    const prompts: unknown[][] = []
++    const fixture = await createCatalogScriptFixture({
++      showPrompt: async (...args) => { prompts.push(args); return '' },
++    }, http => { http.editableFields = ['description']; http.hiddenFields = ['description']; http.nullDescription = true })
++    const button = renderCatalogActionButtons(fixture.functions).find(action => action['children'] === '编辑数据空间')
++    const onClick = catalogActionHandler(button)
++    if (!onClick) throw new Error('authorized edit action was not rendered')
++    await onClick()
++
++    expect(prompts).toHaveLength(1)
++    expect(prompts[0]?.[2]).not.toHaveProperty('defaultValue')
++    expect(fixture.http.changedRows).toMatchObject([{ rowid: 'DATASET-1', description: '' }])
++  })
++
++  it('rejects an empty value when the backend marks a writable description as required', async () => {
++    const fixture = await createCatalogScriptFixture({ showPrompt: async () => '' }, http => {
++      http.editableFields = ['description']
++      http.requiredFields = ['description']
++    })
++    const button = renderCatalogActionButtons(fixture.functions).find(action => action['children'] === '编辑数据空间')
++    const onClick = catalogActionHandler(button)
++    if (!onClick) throw new Error('authorized edit action was not rendered')
++    await onClick()
++    expect(fixture.http.saveRequests).toHaveLength(0)
++  })
++
++  it('does not write when the edit prompt is cancelled or all submitted values are unchanged', async () => {
++    const cancelled = await createCatalogScriptFixture({ showPrompt: async () => null }, http => {
++      http.editableFields = ['Name', 'description']
++    })
++    const cancelButton = renderCatalogActionButtons(cancelled.functions).find(action => action['children'] === '编辑数据空间')
++    const cancelClick = catalogActionHandler(cancelButton)
++    if (!cancelClick) throw new Error('authorized edit action was not rendered')
++    await cancelClick()
++    expect(cancelled.http.saveRequests).toHaveLength(0)
++
++    const unchanged = await createCatalogScriptFixture({
++      showPrompt: async message => message.includes('名称') ? ' 试点目录 ' : ' 目录 ',
++    }, http => { http.editableFields = ['Name', 'description'] })
++    const unchangedButton = renderCatalogActionButtons(unchanged.functions).find(action => action['children'] === '编辑数据空间')
++    const unchangedClick = catalogActionHandler(unchangedButton)
++    if (!unchangedClick) throw new Error('authorized edit action was not rendered')
++    await unchangedClick()
++    expect(unchanged.http.saveRequests).toHaveLength(0)
++  })
++
++  it('rejects stale rows after a query and blocks query re-entry while an edit is pending', async () => {
++    let release: ((value: string | null) => void) | undefined
++    let started: (() => void) | undefined
++    const promptStarted = new Promise<void>(resolve => { started = resolve })
++    const fixture = await createCatalogScriptFixture({
++      showPrompt: async () => { started?.(); return new Promise(resolve => { release = resolve }) },
++    }, http => { http.editableFields = ['Name', 'description'] })
++    const button = renderCatalogActionButtons(fixture.functions).find(action => action['children'] === '编辑数据空间')
++    const onClick = catalogActionHandler(button)
++    if (!onClick) throw new Error('authorized edit action was not rendered')
++    const edit = onClick()
++    await promptStarted
++    const requestsBeforeBlockedQuery = fixture.http.requests.length
++    await fixture.functions['applyCatalogFilter']?.()
++    expect(fixture.http.requests).toHaveLength(requestsBeforeBlockedQuery)
++    await fixture.dataSet.getView('Base_DataSet', 'catalog')?.executeFilter(undefined)
++    release?.('新名称')
++    await edit
++    expect(fixture.http.saveRequests).toHaveLength(0)
++  })
++
++  it('rejects the captured row when the current row changes during a prompt', async () => {
++    let release: ((value: string | null) => void) | undefined
++    let started: (() => void) | undefined
++    const promptStarted = new Promise<void>(resolve => { started = resolve })
++    const fixture = await createCatalogScriptFixture({
++      showPrompt: async () => { started?.(); return new Promise(resolve => { release = resolve }) },
++    }, http => { http.editableFields = ['Name', 'description']; http.includeSecondDataset = true })
++    const view = fixture.dataSet.getView('Base_DataSet', 'catalog')
++    const button = renderCatalogActionButtons(fixture.functions).find(action => action['children'] === '编辑数据空间')
++    const onClick = catalogActionHandler(button)
++    if (!onClick || !view?.rows[1]) throw new Error('current-row edit fixture is incomplete')
++    const edit = onClick()
++    await promptStarted
++    view.setCurrentRow(view.rows[1])
++    release?.('切换期间输入')
++    await edit
++    expect(view.currentRow).toMatchObject({ rowid: 'DATASET-2' })
++    expect(fixture.http.saveRequests).toHaveLength(0)
++  })
++
++  it('stops an edit when buildPageContext invalidates the script during a prompt', async () => {
++    let release: ((value: string | null) => void) | undefined
++    let started: (() => void) | undefined
++    const promptStarted = new Promise<void>(resolve => { started = resolve })
++    const fixture = await createCatalogScriptFixture({
++      showPrompt: async () => { started?.(); return new Promise(resolve => { release = resolve }) },
++    }, http => { http.editableFields = ['Name', 'description'] })
++    const button = renderCatalogActionButtons(fixture.functions).find(action => action['children'] === '编辑数据空间')
++    const onClick = catalogActionHandler(button)
++    if (!onClick) throw new Error('authorized edit action was not rendered')
++    const edit = onClick()
++    await promptStarted
++    fixture.invalidatePage()
++    release?.('页面失效后输入')
++    await edit
++    expect(fixture.http.saveRequests).toHaveLength(0)
++  })
++
++  it('does not resend an edit when the save outcome is unknown', async () => {
++    const promptValues = ['未知结果新名', '未知结果新描述']
++    const messages: string[] = []
++    const fixture = await createCatalogScriptFixture({
++      showPrompt: async () => promptValues.shift() ?? null,
++      showMessage: message => { messages.push(message) },
++    }, http => { http.editableFields = ['Name']; http.hiddenFields = ['rowid'] })
++    const button = renderCatalogActionButtons(fixture.functions).find(action => action['children'] === '编辑数据空间')
++    const onClick = catalogActionHandler(button)
++    if (!onClick) throw new Error('authorized edit action was not rendered')
++    fixture.http.failSave = true
++    await onClick()
++    expect(messages.join('\n')).not.toContain('DATASET-1')
++    const latestButtons = renderCatalogActionButtons(fixture.functions)
++    const latestEdit = latestButtons.find(action => action['children'] === '编辑数据空间')
++    const latestAdd = latestButtons.find(action => action['children'] === '新增数据空间')
++    const latestEditClick = catalogActionHandler(latestEdit)
++    const latestAddClick = catalogActionHandler(latestAdd)
++    if (!latestEditClick || !latestAddClick) throw new Error('latest toolbar actions were not rendered')
++    await latestEditClick()
++    await latestAddClick()
++    expect(fixture.http.saveRequests).toHaveLength(1)
++  })
++
++  it('keeps the active filter and reports success when the edited row leaves the refreshed result', async () => {
++    const messages: string[] = []
++    const fixture = await createCatalogScriptFixture({
++      showPrompt: async message => message.includes('名称') ? '已移出筛选结果' : '目录',
++      showMessage: message => { messages.push(message) },
++    }, http => { http.editableFields = ['Name']; http.omitChangedRowsFromQueries = true })
++    const view = fixture.dataSet.getView('Base_DataSet', 'catalog')
++    if (!view) throw new Error('catalog view was not assembled')
++    await view.executeFilter({ field: 'Name', operator: 'eq', value: '试点目录' })
++    const beforeRequest = fixture.http.requests.at(-1)
++    const beforePayload = isRecord(beforeRequest?.data) ? beforeRequest.data : {}
++    const beforeTables = Array.isArray(beforePayload['Table']) ? beforePayload['Table'] : []
++    const beforeTable = isRecord(beforeTables[0]) ? beforeTables[0] : {}
++    const beforeFilter = beforeTable['Filter']
++
++    const button = renderCatalogActionButtons(fixture.functions).find(action => action['children'] === '编辑数据空间')
++    const onClick = catalogActionHandler(button)
++    if (!onClick) throw new Error('authorized edit action was not rendered')
++    await onClick()
++
++    const afterRequest = fixture.http.requests.at(-1)
++    const afterPayload = isRecord(afterRequest?.data) ? afterRequest.data : {}
++    const afterTables = Array.isArray(afterPayload['Table']) ? afterPayload['Table'] : []
++    const afterTable = isRecord(afterTables[0]) ? afterTables[0] : {}
++    expect(afterTable['Filter']).toEqual(beforeFilter)
++    expect(view.rows).toHaveLength(0)
++    expect(fixture.http.saveRequests).toHaveLength(1)
++    expect(messages.join('\n')).toContain('数据空间已保存')
++    expect(messages.join('\n')).toContain('当前记录已不在列表中')
++    expect(messages.join('\n')).not.toContain('刷新失败')
++  })
+ })

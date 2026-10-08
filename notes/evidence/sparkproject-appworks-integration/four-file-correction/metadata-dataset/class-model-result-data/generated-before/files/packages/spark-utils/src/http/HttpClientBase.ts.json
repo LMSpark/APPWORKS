@@ -1,0 +1,1087 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:http/HttpClientBase",
+    "sourcePath": "packages/spark-utils/src/http/HttpClientBase.ts",
+    "sourceFile": "packages/spark-utils/src/http/HttpClientBase.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "http/HttpClientBase",
+    "jsdoc": "@module @spark-appworks/spark-utils:http/HttpClientBase\n职责：提供框架无关的 Http Client Base 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。\n\nHttpClientBase — HTTP 客户端抽象基类\n所有公共逻辑的**唯一来源**：\n- 重试循环（retry + exponential delay）\n- 内存缓存（TTL + LRU 淘汰）\n- 拦截器管理（request / response 双链）\n- HTTP 快捷方法（get/post/put/patch/delete）\n- 错误归一化（统一 RequestError）\n- 延时工具（重试用，支持 AbortSignal 取消）\n子类仅需实现：\n- `executeRequest(config): Promise<HttpResponse<unknown>>`  — 适配层核心\n- 需要识别适配器特定错误时，再覆盖 `normalizeTransportError`\n设计原则：\n- SRP：基类只管公共流程，子类只管传输适配\n- OCP：扩展新传输层只需新子类 + executeRequest()\n- DRY：重试、缓存、拦截器、快捷方法仅存一处",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "HttpClientBase"
+    ]
+  },
+  "$defs": {
+    "HttpClientBase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "HttpClientBase",
+      "properties": {
+        "defaults": {
+          "$ref": "types.ts.json#/$defs/RequestConfig"
+        },
+        "logger": {
+          "type": "object",
+          "title": "ReturnType<typeof Logger>"
+        },
+        "interceptors": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "object",
+              "properties": {
+                "use": {
+                  "type": "object",
+                  "title": "(interceptor: RequestInterceptor) => (() => void)"
+                }
+              },
+              "required": [
+                "use"
+              ],
+              "additionalProperties": false
+            },
+            "response": {
+              "type": "object",
+              "properties": {
+                "use": {
+                  "type": "object",
+                  "title": "(interceptor: ResponseInterceptor) => (() => void)"
+                }
+              },
+              "required": [
+                "use"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "request",
+            "response"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "defaults"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "defaults": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            },
+            "loggerName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeRequest.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeRequest.return": {
+          "type": "object",
+          "title": "Promise<HttpResponse<unknown>>"
+        },
+        "method.normalizeAdapterError.params": {
+          "type": "object",
+          "properties": {
+            "err": true,
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.normalizeAdapterError.return": {
+          "$ref": "types.ts.json#/$defs/RequestError"
+        },
+        "method.normalizeTransportError.params": {
+          "type": "object",
+          "properties": {
+            "err": true,
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.normalizeTransportError.return": {
+          "$ref": "types.ts.json#/$defs/RequestError"
+        },
+        "method.request.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.request.return": {
+          "type": "object",
+          "title": "Promise<T>"
+        },
+        "method.requestFull.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.requestFull.return": {
+          "type": "object",
+          "title": "Promise<HttpResponse<T>>"
+        },
+        "method.get.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "params": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "type": "object",
+          "title": "Promise<T>"
+        },
+        "method.post.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "data": true,
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.post.return": {
+          "type": "object",
+          "title": "Promise<T>"
+        },
+        "method.put.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "data": true,
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.put.return": {
+          "type": "object",
+          "title": "Promise<T>"
+        },
+        "method.patch.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "data": true,
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.patch.return": {
+          "type": "object",
+          "title": "Promise<T>"
+        },
+        "method.delete.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "params": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.delete.return": {
+          "type": "object",
+          "title": "Promise<T>"
+        },
+        "method.clearCache.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.clearCache.return": true,
+        "method.applyRequestInterceptors.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyRequestInterceptors.return": {
+          "type": "object",
+          "title": "Promise<RequestConfig>"
+        },
+        "method.applyResponseInterceptors.params": {
+          "type": "object",
+          "properties": {
+            "response": {
+              "$ref": "types.ts.json#/$defs/HttpResponse"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyResponseInterceptors.return": {
+          "type": "object",
+          "title": "Promise<HttpResponse<T>>"
+        },
+        "method.applyResponseErrorInterceptors.params": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "$ref": "types.ts.json#/$defs/RequestError"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyResponseErrorInterceptors.return": {
+          "type": "object",
+          "title": "Promise<RequestError>"
+        },
+        "method.mergeConfig.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.mergeConfig.return": {
+          "$ref": "types.ts.json#/$defs/RequestConfig"
+        },
+        "method.isRequestError.params": {
+          "type": "object",
+          "properties": {
+            "err": true
+          },
+          "additionalProperties": false
+        },
+        "method.isRequestError.return": true,
+        "method.buildRequestError.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "config": {
+              "$ref": "types.ts.json#/$defs/RequestConfig"
+            },
+            "opts": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "number"
+                },
+                "response": true
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.buildRequestError.return": {
+          "$ref": "types.ts.json#/$defs/RequestError"
+        },
+        "method.extractApiEnvelopeErrorMessage.params": {
+          "type": "object",
+          "properties": {
+            "body": true
+          },
+          "additionalProperties": false
+        },
+        "method.extractApiEnvelopeErrorMessage.return": {
+          "type": "string"
+        },
+        "method.delay.params": {
+          "type": "object",
+          "properties": {
+            "ms": {
+              "type": "number"
+            },
+            "signal": {
+              "type": "object",
+              "title": "AbortSignal"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.delay.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-05T10:07:52.906Z",
+  "models": {
+    "HttpClientBase": {
+      "name": "HttpClientBase",
+      "jsdoc": "Http Client Base 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Http Client Base 实例。",
+          "signatureText": "constructor(defaults?: Partial<RequestConfig>, loggerName?: string)",
+          "parameters": [
+            {
+              "name": "defaults",
+              "type": {
+                "type": "reference",
+                "name": "Partial",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                ]
+              },
+              "flags": {
+                "isOptional": true
+              }
+            },
+            {
+              "name": "loggerName",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "defaults",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "logger",
+              "jsdoc": "诊断日志接口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "interceptors",
+              "jsdoc": "interceptors 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "executeRequest",
+              "jsdoc": "执行单次 HTTP 请求并返回完整响应。\n- 不含重试、缓存、拦截器——这些由基类统一处理\n- 子类只负责\"发出请求 → 读取响应\"",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "HttpResponse",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "normalizeAdapterError",
+              "jsdoc": "将错误转换为统一 RequestError，保留已经归一化过的错误。",
+              "parameters": [
+                {
+                  "name": "err",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "RequestError",
+                "sourcePath": "packages/spark-utils/src/http/types.ts"
+              }
+            },
+            {
+              "name": "normalizeTransportError",
+              "jsdoc": "将适配器原始错误转换为统一 RequestError。适配器可覆盖以保留 status/code/response 等细节。",
+              "parameters": [
+                {
+                  "name": "err",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "RequestError",
+                "sourcePath": "packages/spark-utils/src/http/types.ts"
+              }
+            },
+            {
+              "name": "request",
+              "jsdoc": "请求对象。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "requestFull",
+              "jsdoc": "执行 request Full 操作。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "HttpResponse",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "get",
+              "jsdoc": "执行 get 操作。",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "RequestConfig",
+                        "sourcePath": "packages/spark-utils/src/http/types.ts"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "post",
+              "jsdoc": "执行 post 操作。",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "RequestConfig",
+                        "sourcePath": "packages/spark-utils/src/http/types.ts"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "put",
+              "jsdoc": "执行 put 操作。",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "RequestConfig",
+                        "sourcePath": "packages/spark-utils/src/http/types.ts"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "patch",
+              "jsdoc": "执行 patch 操作。",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "RequestConfig",
+                        "sourcePath": "packages/spark-utils/src/http/types.ts"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "delete",
+              "jsdoc": "执行 delete 操作。",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "RequestConfig",
+                        "sourcePath": "packages/spark-utils/src/http/types.ts"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "clearCache",
+              "jsdoc": "清空 Cache。",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "applyRequestInterceptors",
+              "jsdoc": "执行 apply Request Interceptors 操作。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "applyResponseInterceptors",
+              "jsdoc": "执行 apply Response Interceptors 操作。",
+              "parameters": [
+                {
+                  "name": "response",
+                  "type": {
+                    "type": "reference",
+                    "name": "HttpResponse",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "HttpResponse",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "applyResponseErrorInterceptors",
+              "jsdoc": "执行 apply Response Error Interceptors 操作。",
+              "parameters": [
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestError",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "RequestError",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "mergeConfig",
+              "jsdoc": "merge Config 配置。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "RequestConfig",
+                "sourcePath": "packages/spark-utils/src/http/types.ts"
+              }
+            },
+            {
+              "name": "isRequestError",
+              "jsdoc": "是否 is Request Error。",
+              "parameters": [
+                {
+                  "name": "err",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "err is RequestError"
+              }
+            },
+            {
+              "name": "buildRequestError",
+              "jsdoc": "build Request Error 错误信息。",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                },
+                {
+                  "name": "opts",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        code?: string;\n        status?: number;\n        response?: unknown;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "RequestError",
+                "sourcePath": "packages/spark-utils/src/http/types.ts"
+              }
+            },
+            {
+              "name": "extractApiEnvelopeErrorMessage",
+              "jsdoc": "执行 extract Api Envelope Error Message 操作。",
+              "parameters": [
+                {
+                  "name": "body",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "delay",
+              "jsdoc": "执行 delay 操作。",
+              "parameters": [
+                {
+                  "name": "ms",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                },
+                {
+                  "name": "signal",
+                  "type": {
+                    "type": "reference",
+                    "name": "AbortSignal"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

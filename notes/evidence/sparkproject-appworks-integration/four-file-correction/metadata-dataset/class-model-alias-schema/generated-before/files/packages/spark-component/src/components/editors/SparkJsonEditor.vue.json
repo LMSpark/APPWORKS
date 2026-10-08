@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/editors/SparkJsonEditor",
+    "sourcePath": "packages/spark-component/src/components/editors/SparkJsonEditor.vue",
+    "sourceFile": "packages/spark-component/src/components/editors/SparkJsonEditor.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/editors/SparkJsonEditor",
+    "jsdoc": "@module @spark-appworks/spark-component:components/editors/SparkJsonEditor\n职责：实现 SparkJsonEditor（json-editor）的 Vue 渲染入口，把配置 props、数据上下文和事件桥接成用户可见的组件界面。\n边界：负责 infrastructure/editor 的视图组合与事件转发，不定义跨组件数据模型，也不替代 zero-code 行为 API。\nAI用途：需要理解 spark json editor 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "SparkJsonEditor",
+    "componentType": "json-editor",
+    "componentLevel": "infrastructure",
+    "componentLayer": "editor",
+    "componentDirectory": "editors"
+  },
+  "$defs": {
+    "SparkJsonEditorMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkJsonEditorMode",
+      "enum": [
+        "text",
+        "tree",
+        "table"
+      ]
+    },
+    "Props": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Props",
+      "properties": {
+        "modelValue": {
+          "type": "string"
+        },
+        "readOnly": {
+          "type": "boolean"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "mode": {
+          "$ref": "#/$defs/SparkJsonEditorMode"
+        },
+        "indentation": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "tabSize": {
+          "type": "number"
+        },
+        "mainMenuBar": {
+          "type": "boolean"
+        },
+        "navigationBar": {
+          "type": "boolean"
+        },
+        "statusBar": {
+          "type": "boolean"
+        },
+        "askToFormat": {
+          "type": "boolean"
+        },
+        "schema": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "JSONSchema"
+        },
+        "schemaDefinitions": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "JSONSchemaDefinitions"
+        },
+        "enableSchemaValidation": {
+          "type": "boolean"
+        },
+        "enableSchemaEnumRenderer": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.519Z",
+  "models": {
+    "SparkJsonEditorMode": {
+      "name": "SparkJsonEditorMode",
+      "jsdoc": "JSON 编辑器支持的展示模式。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "SparkJsonEditor",
+        "type": "json-editor",
+        "level": "infrastructure",
+        "layer": "editor",
+        "directory": "editors"
+      },
+      "typeAlias": {
+        "declarationTypeText": "'text' | 'tree' | 'table'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'text'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'tree'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'table'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Props": {
+      "name": "Props",
+      "jsdoc": "SparkJsonEditor 组件属性，描述 JSON 内容、Schema 校验和编辑模式。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "SparkJsonEditor",
+        "type": "json-editor",
+        "level": "infrastructure",
+        "layer": "editor",
+        "directory": "editors"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** JSON 字符串内容 */\n    modelValue?: string;\n    /** 是否只读 */\n    readOnly?: boolean;\n    /** 编辑器高度 */\n    height?: number | string;\n    /** 编辑模式 */\n    mode?: SparkJsonEditorMode;\n    /** 缩进空格数 */\n    indentation?: number | string;\n    /** Tab 缩进空格数 */\n    tabSize?: number;\n    /** 是否显示主菜单栏 */\n    mainMenuBar?: boolean;\n    /** 是否显示导航栏 */\n    navigationBar?: boolean;\n    /** 是否显示状态栏 */\n    statusBar?: boolean;\n    /** 是否提示格式化 */\n    askToFormat?: boolean;\n    /** JSON Schema 校验规则 */\n    schema?: JSONSchema | null;\n    /** JSON Schema 定义引用 */\n    schemaDefinitions?: JSONSchemaDefinitions | null;\n    /** 是否启用 Schema 校验 */\n    enableSchemaValidation?: boolean;\n    /** 是否启用 Schema 枚举渲染 */\n    enableSchemaEnumRenderer?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "modelValue",
+              "jsdoc": "JSON 字符串内容",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readOnly",
+              "jsdoc": "是否只读",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "height",
+              "jsdoc": "编辑器高度",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "jsdoc": "编辑模式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "indentation",
+              "jsdoc": "缩进空格数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tabSize",
+              "jsdoc": "Tab 缩进空格数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mainMenuBar",
+              "jsdoc": "是否显示主菜单栏",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationBar",
+              "jsdoc": "是否显示导航栏",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "statusBar",
+              "jsdoc": "是否显示状态栏",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "askToFormat",
+              "jsdoc": "是否提示格式化",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schema",
+              "jsdoc": "JSON Schema 校验规则",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemaDefinitions",
+              "jsdoc": "JSON Schema 定义引用",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enableSchemaValidation",
+              "jsdoc": "是否启用 Schema 校验",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enableSchemaEnumRenderer",
+              "jsdoc": "是否启用 Schema 枚举渲染",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

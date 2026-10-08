@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererDetail/zero-code",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererDetail/zero-code.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererDetail/zero-code.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererDetail/zero-code",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererDetail/zero-code\n职责：封装 RendererDetail（r-detail）的 zero-code 行为层，向配置动作和脚本暴露稳定的组件操作 API。\n边界：只编排 table-level/data-view-container 的运行时能力、原生组件引用和事件控制，不声明视觉 props，也不持久化业务数据。\nAI用途：当动作、脚本或 ClassModel 需要调用 renderer detail 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [],
+    "componentName": "RendererDetail",
+    "componentType": "r-detail",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "RendererDetailZeroCodeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererDetailZeroCodeOptions",
+      "properties": {
+        "props": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "resolvedView": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "detailData": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "logger": {
+          "$ref": "../../../../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
+        }
+      },
+      "required": [
+        "props",
+        "resolvedView",
+        "detailData",
+        "logger"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.382Z",
+  "models": {
+    "RendererDetailZeroCodeOptions": {
+      "name": "RendererDetailZeroCodeOptions",
+      "jsdoc": "Renderer Detail Zero Code Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererDetail",
+        "type": "r-detail",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 组件属性集合。 */\n    props: Readonly<Record<string, unknown>>;\n    /** resolved View 字段。 */\n    resolvedView: ValueRef<DataView | null>;\n    /** detail Data 字段。 */\n    detailData: Record<string, unknown>;\n    /** 诊断日志接口。 */\n    logger: LoggerApi;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "props",
+              "jsdoc": "组件属性集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolvedView",
+              "jsdoc": "resolved View 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "detailData",
+              "jsdoc": "detail Data 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "logger",
+              "jsdoc": "诊断日志接口。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

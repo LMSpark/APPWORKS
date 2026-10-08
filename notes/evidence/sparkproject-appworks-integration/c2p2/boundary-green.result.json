@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts --maxWorkers=1 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:20:04.3919508+08:00",
+  "finishedAt": "2026-10-07T14:20:07.2923910+08:00",
+  "exitCode": 0,
+  "log": "boundary-green.log"
+}

@@ -1,0 +1,206 @@
+{
+  "scenarioId": "90A82E287930A234FEC3E687C94A93EA",
+  "tables": {
+    "Base_NavigationInfo": {
+      "modelBinding": {
+        "modelId": "44402ab3-7708-4a12-adaf-5d8a2e42b9ff",
+        "modelName": "Base_NavigationInfo"
+      },
+      "views": {
+        "default": {}
+      }
+    },
+    "Base_DataSet": {
+      "modelBinding": {
+        "modelId": "90A82E287930A234FEC3E687C94A93EAp000",
+        "modelName": "Base_DataSet"
+      },
+      "views": {
+        "default": {},
+        "catalog": {
+          "autoLoad": false,
+          "page": 1,
+          "pageSize": 10,
+          "commitMode": "staged",
+          "sortExpression": [
+            {
+              "field": "createtime",
+              "direction": "desc"
+            }
+          ],
+          "fieldProjection": [
+            {
+              "fieldId": "C29690D7067240CC840539CE0CBEE821",
+              "source": "resource",
+              "resourceFieldId": "C29690D7067240CC840539CE0CBEE821",
+              "resourceField": "rowid",
+              "viewField": "rowid",
+              "type": "varchar",
+              "label": "rowid",
+              "output": true,
+              "sortOrder": 0,
+              "sortDirection": null,
+              "group": 0,
+              "distinct": false,
+              "primaryKey": true,
+              "value": "",
+              "valueFunction": "",
+              "expression": ""
+            },
+            {
+              "fieldId": "C6F91361CC8C4C44A8F40259B52A19FE",
+              "source": "resource",
+              "resourceFieldId": "C6F91361CC8C4C44A8F40259B52A19FE",
+              "resourceField": "Name",
+              "viewField": "Name",
+              "type": "varchar",
+              "label": "Name",
+              "output": true,
+              "sortOrder": 1,
+              "sortDirection": null,
+              "group": 0,
+              "distinct": false,
+              "primaryKey": false,
+              "value": "",
+              "valueFunction": "",
+              "expression": ""
+            },
+            {
+              "fieldId": "1D6C7C64E56346ED83C27CC6C97C7BC8",
+              "source": "resource",
+              "resourceFieldId": "1D6C7C64E56346ED83C27CC6C97C7BC8",
+              "resourceField": "Type",
+              "viewField": "Type",
+              "type": "varchar",
+              "label": "Type",
+              "output": true,
+              "sortOrder": 2,
+              "sortDirection": null,
+              "group": 0,
+              "distinct": false,
+              "primaryKey": false,
+              "value": "",
+              "valueFunction": "",
+              "expression": ""
+            },
+            {
+              "fieldId": "6B5651FBDFD94754B341B298DC269185",
+              "source": "resource",
+              "resourceFieldId": "6B5651FBDFD94754B341B298DC269185",
+              "resourceField": "description",
+              "viewField": "description",
+              "type": "varchar",
+              "label": "description",
+              "output": true,
+              "sortOrder": 3,
+              "sortDirection": null,
+              "group": 0,
+              "distinct": false,
+              "primaryKey": false,
+              "value": "",
+              "valueFunction": "",
+              "expression": ""
+            },
+            {
+              "fieldId": "807184E820A348ECAA5FDEC9FA99E07F",
+              "source": "resource",
+              "resourceFieldId": "807184E820A348ECAA5FDEC9FA99E07F",
+              "resourceField": "sysid",
+              "viewField": "sysid",
+              "type": "varchar",
+              "label": "sysid",
+              "output": true,
+              "sortOrder": 4,
+              "sortDirection": null,
+              "group": 0,
+              "distinct": false,
+              "primaryKey": false,
+              "value": "",
+              "valueFunction": "",
+              "expression": ""
+            },
+            {
+              "fieldId": "19324DE8445D4985AD77F7595E1BF281",
+              "source": "resource",
+              "resourceFieldId": "19324DE8445D4985AD77F7595E1BF281",
+              "resourceField": "createuser",
+              "viewField": "createuser",
+              "type": "varchar",
+              "label": "createuser",
+              "output": true,
+              "sortOrder": 5,
+              "sortDirection": null,
+              "group": 0,
+              "distinct": false,
+              "primaryKey": false,
+              "value": "",
+              "valueFunction": "",
+              "expression": ""
+            },
+            {
+              "fieldId": "7CEB9A4ABABB47BFB5826C5DB3A662E8",
+              "source": "resource",
+              "resourceFieldId": "7CEB9A4ABABB47BFB5826C5DB3A662E8",
+              "resourceField": "createtime",
+              "viewField": "createtime",
+              "type": "datetime",
+              "label": "createtime",
+              "output": true,
+              "sortOrder": 6,
+              "sortDirection": null,
+              "group": 0,
+              "distinct": false,
+              "primaryKey": false,
+              "value": "",
+              "valueFunction": "",
+              "expression": ""
+            }
+          ]
+        }
+      }
+    },
+    "Base_UserInfo": {
+      "modelBinding": {
+        "modelId": "90A82E287930A234FEC3E687C94A93EAp001",
+        "modelName": "Base_UserInfo"
+      },
+      "views": {
+        "default": {},
+        "catalogUsers": {
+          "autoLoad": false
+        }
+      }
+    },
+    "Base_DataModel_Field": {
+      "modelBinding": {
+        "modelId": "a30f1b5b-4a2f-432c-aa71-1b597bc36e11",
+        "modelName": "Base_DataModel_Field"
+      },
+      "views": {
+        "default": {}
+      }
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {
+        "modelId": "acb04903-043f-4c99-9a57-a8e9bc95ce72",
+        "modelName": "Base_AppSystemList"
+      },
+      "views": {
+        "default": {},
+        "catalogApps": {
+          "autoLoad": false
+        }
+      }
+    },
+    "Base_DataModel": {
+      "modelBinding": {
+        "modelId": "e9f6c362-9ec9-4d77-bf62-cdcb5d2c1bbb",
+        "modelName": "Base_DataModel"
+      },
+      "views": {
+        "default": {}
+      }
+    }
+  },
+  "viewCascades": []
+}

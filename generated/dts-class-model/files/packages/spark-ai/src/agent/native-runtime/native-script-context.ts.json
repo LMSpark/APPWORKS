@@ -21,8 +21,7 @@
       "title": "ScriptActionArg",
       "anyOf": [
         {
-          "type": "object",
-          "title": "JsonParams"
+          "$ref": "../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonParams"
         },
         {
           "type": "object",
@@ -41,11 +40,11 @@
             "type": "string"
           }
         },
-        "host": {
-          "type": "object",
-          "title": "AiAgentRuntimeHostContext"
-        }
+        "host": true
       },
+      "required": [
+        "segments"
+      ],
       "additionalProperties": false
     },
     "AiApiScriptContextCommand": {
@@ -54,10 +53,7 @@
       "title": "AiApiScriptContextCommand",
       "properties": {
         "instance": true,
-        "api": {
-          "type": "object",
-          "title": "AiApiObjectMetadata"
-        },
+        "api": true,
         "ctx": {
           "$ref": "#/$defs/AiNativePathContext"
         },
@@ -65,6 +61,11 @@
           "$ref": "../../../../spark-json-document/src/schema/schema-validator.ts.json#/$defs/JsonSchemaValidateOptions"
         }
       },
+      "required": [
+        "instance",
+        "api",
+        "ctx"
+      ],
       "additionalProperties": false
     },
     "ExecuteAiApiActionCommand": {
@@ -73,10 +74,7 @@
       "title": "ExecuteAiApiActionCommand",
       "properties": {
         "target": true,
-        "action": {
-          "type": "object",
-          "title": "AiApiActionMetadata"
-        },
+        "action": true,
         "args": {
           "$ref": "#/$defs/ScriptActionArg"
         },
@@ -87,6 +85,12 @@
           "$ref": "../../../../spark-json-document/src/schema/schema-validator.ts.json#/$defs/JsonSchemaValidateOptions"
         }
       },
+      "required": [
+        "target",
+        "action",
+        "args",
+        "ctx"
+      ],
       "additionalProperties": false
     },
     "AiApiScriptActionFailure": {
@@ -120,7 +124,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T10:00:08.482Z",
+  "generatedAt": "2026-10-08T21:58:50.589Z",
   "models": {
     "ScriptCallback": {
       "name": "ScriptCallback",

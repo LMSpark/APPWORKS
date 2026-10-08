@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/DataViewMetaBar",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/DataViewMetaBar.vue",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/DataViewMetaBar.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/DataViewMetaBar",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/DataViewMetaBar\n职责：实现 DataViewMetaBar（未注册组件类型）的 Vue 渲染入口，把配置 props、数据上下文和事件桥接成用户可见的组件界面。\n边界：负责 table-level/data-view-container 的视图组合与事件转发，不定义跨组件数据模型，也不替代 zero-code 行为 API。\nAI用途：需要理解 data view meta bar 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:38:13.377Z",
+  "models": {}
+}

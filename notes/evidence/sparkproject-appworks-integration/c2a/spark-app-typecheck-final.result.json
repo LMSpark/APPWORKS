@@ -1,0 +1,7 @@
+{
+  "startedAt": "2026-10-07T14:57:00.2338895+08:00",
+  "exitCode": 0,
+  "endedAt": "2026-10-07T14:57:19.3652439+08:00",
+  "command": "pnpm --filter @spark-appworks/spark-app typecheck",
+  "cwd": "D:\\SPARK_AppWorks"
+}

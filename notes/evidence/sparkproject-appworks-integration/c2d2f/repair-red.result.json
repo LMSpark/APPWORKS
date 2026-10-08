@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts -t 'cancels a pending external activation when same-app query navigation takes ownership' --reporter=verbose --silent=false",
+  "cwd": "D:\\SPARK_AppWorks",
+  "started": "2026-10-07T17:26:50.3157319+08:00",
+  "ended": "2026-10-07T17:26:56.8782158+08:00",
+  "exitCode": 1,
+  "stdoutFile": "notes\\evidence\\sparkproject-appworks-integration\\c2d2f\\repair-red.stdout.txt"
+}

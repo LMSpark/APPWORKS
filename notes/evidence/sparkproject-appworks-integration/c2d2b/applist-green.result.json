@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/app/services/project/application-switch.test.ts -t 'waits for a current receipt'",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:25:33.5433011Z",
+  "finishedAtUtc": "2026-10-07T08:25:40.2622065Z",
+  "exitCode": 0
+}

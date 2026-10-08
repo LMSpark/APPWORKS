@@ -1,0 +1,14 @@
+{
+  "capturedAt": "2026-10-07T14:22:06.757Z",
+  "changed": [
+    "script.js",
+    "style.css"
+  ],
+  "matches": {
+    "pagedata.json": true,
+    "rule.json": true,
+    "script.js": true,
+    "style.css": true
+  },
+  "ok": true
+}

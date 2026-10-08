@@ -9,6 +9,7 @@ import {
   COMPONENT_EXCLUDE_PATTERNS,
   SYNC_COMPONENTS,
   ASYNC_COMPONENTS,
+  ASYNC_PATH_PREFIXES,
   SIZE_THRESHOLD
 } from './packages/vite-plugin-spark-catalog/src/scan-config'
 
@@ -136,6 +137,7 @@ export default defineConfig(({ command, mode }) => {
       patterns: [...COMPONENT_SCAN_PATTERNS],
       syncComponents: [...SYNC_COMPONENTS],
       asyncComponents: [...ASYNC_COMPONENTS],
+      asyncPathPrefixes: [...ASYNC_PATH_PREFIXES],
       sizeThreshold: SIZE_THRESHOLD,
       exclude: [...COMPONENT_EXCLUDE_PATTERNS],
       verbose: false
@@ -240,17 +242,6 @@ export default defineConfig(({ command, mode }) => {
             return 'spark-config'
           }
 
-          // ── 页面组件懒加载分组 ──
-          // 将大型页面组件分组，便于按需加载
-
-          // 数据密集型页面（包含大量图表/表格）
-          if (normalizedId.includes('views/app/Dashboard') || normalizedId.includes('views/app/CapabilityDemo')) {
-            return 'pages-data-heavy'
-          }
-          // 配置管理页面
-          if (normalizedId.includes('views/tenant/Settings') || normalizedId.includes('views/tenant/TenantConfig')) {
-            return 'pages-config'
-          }
           // ── 第三方库智能分组 ──
 
           // 表单和验证库

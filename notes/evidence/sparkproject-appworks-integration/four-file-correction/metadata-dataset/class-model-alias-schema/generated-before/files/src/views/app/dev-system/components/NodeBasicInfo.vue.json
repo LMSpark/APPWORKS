@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/components/NodeBasicInfo",
+    "sourcePath": "src/views/app/dev-system/components/NodeBasicInfo.vue",
+    "sourceFile": "src/views/app/dev-system/components/NodeBasicInfo.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/components/NodeBasicInfo",
+    "jsdoc": "@module app:views/app/dev-system/components/NodeBasicInfo\n职责：直接编辑正式kind及能力、导航、数据空间、原型四组草稿。\n边界：节点身份只读，模型名称是后端只读依赖投影，不保留旧平铺字段。\nAI用途：为选中节点配置四组领域信息并标记蓝图dirty。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.635Z",
+  "models": {}
+}

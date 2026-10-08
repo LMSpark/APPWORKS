@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/DevSystem",
+    "sourcePath": "src/views/app/dev-system/DevSystem.vue",
+    "sourceFile": "src/views/app/dev-system/DevSystem.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/DevSystem",
+    "jsdoc": "@module app:views/app/dev-system/DevSystem\n职责：提供 DevSystem 的 DevSystem 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/DevSystem。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T20:07:51.531Z",
+  "models": {}
+}

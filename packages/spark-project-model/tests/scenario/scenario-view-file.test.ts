@@ -9,7 +9,7 @@ function fixture(pageSize = 20): string {
         filterExpression: { field: 'active', operator: 'eq', value: false } } } },
     Items: { modelBinding: { modelId: 'UNIT-ITEMS', modelName: 'ItemsModel' }, views: { default: {}, detail: {} } },
   }, viewCascades: [{ parentTable: 'Orders', parentViewId: 'list', childTable: 'Items', childViewId: 'detail',
-    filterBindings: [{ sourceField: 'id', targetField: 'orderId' }], dependencyType: 'currentRow', autoLoad: false }] })
+    filterBindings: [{ sourceField: 'id', targetField: 'orderId' }], autoLoad: false }] })
 }
 
 const validProjection = { fieldId: 'MODEL-FIELD-1', source: 'resource', resourceFieldId: 'MODEL-FIELD-1',
@@ -24,6 +24,19 @@ function projectionFixture(field: Readonly<Record<string, unknown>>): string {
 }
 
 describe('ScenarioViewFile', () => {
+  it('notifies subscribers after valid edits, saved baselines, undo and reload', () => {
+    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+    const states: boolean[] = []
+    const unsubscribe = file.subscribe(() => states.push(file.isDirty))
+    file.setText(fixture(30))
+    file.markSaved(file.getText())
+    file.undo()
+    file.loadText(fixture(50))
+    expect(states).toEqual([true, false, true, false])
+    unsubscribe()
+    file.setText(fixture(60))
+    expect(states).toHaveLength(4)
+  })
   it('owns one scene with multiple named views and explicit cascades without runtime DataSet serialization', () => {
     const text = fixture()
     const file = new ScenarioViewFile('UNIT-SCENE', text)
@@ -33,6 +46,69 @@ describe('ScenarioViewFile', () => {
     expect(file.value.toJSON()).toMatchObject({ tables: { Orders: { views: { list: {
       autoCurrentFirst: false, selectionDelimiter: '', filterExpression: { value: false },
     } } } }, viewCascades: [{ autoLoad: false }] })
+  })
+
+  it('retains recommended and extended table business categories without normalizing their text', () => {
+    const input = JSON.parse(fixture())
+    input.tables.Orders.businessCategory = 'master'
+    input.tables.Items.businessCategory = '  partner-specific  '
+    const text = JSON.stringify(input)
+    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+    file.setText(text)
+    expect(file.getText()).toBe(text)
+    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {businessCategory: 'master'},
+      Items: {businessCategory: '  partner-specific  '}}})
+  })
+
+  it('rejects invalid category edits atomically and allows clearing by deleting the property', () => {
+    const input = JSON.parse(fixture())
+    input.tables.Orders.businessCategory = 'child'
+    const valid = JSON.stringify(input)
+    const file = new ScenarioViewFile('UNIT-SCENE', valid)
+    const revision = file.revision
+    for (const value of [null, '', '  ', 0, false, {}]) {
+      input.tables.Orders.businessCategory = value
+      expect(() => file.setText(JSON.stringify(input))).toThrow('businessCategory')
+      expect(file.getText()).toBe(valid)
+      expect(file.revision).toBe(revision)
+      expect(file.canUndo).toBe(false)
+      expect(file.isDirty).toBe(false)
+    }
+    delete input.tables.Orders.businessCategory
+    file.setText(JSON.stringify(input))
+    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {views: {default: {}}}}})
+    expect(JSON.stringify(file.value.toJSON())).not.toContain('businessCategory')
+  })
+
+  it('retains native DataSet top-level configuration in the immutable file value', () => {
+    const configured = JSON.stringify({...JSON.parse(fixture()), schemaVersion: 3, version: 0,
+      saveChanges: {mode: 'perView'}, layout: {tablePositions: {Orders: {x: -1.5, y: 0}}}})
+    const file = new ScenarioViewFile('UNIT-SCENE', configured)
+    expect(file.value.toJSON()).toMatchObject({schemaVersion: 3, version: 0,
+      saveChanges: {mode: 'perView'}, layout: {tablePositions: {Orders: {x: -1.5, y: 0}}}})
+    expect(Object.isFrozen(file.value.toJSON()['layout'])).toBe(true)
+  })
+
+  it('rejects invalid DataSet top-level edits before changing text or history', () => {
+    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+    const base: Record<string, unknown> = JSON.parse(fixture())
+    const invalid: Record<string, unknown>[] = [
+      {schemaVersion: 0}, {schemaVersion: 1.5}, {schemaVersion: Number.MAX_SAFE_INTEGER + 1},
+      {version: -1}, {version: 1.5}, {version: Number.MAX_SAFE_INTEGER + 1},
+      {layout: {tablePositions: {Unknown: {x: 0, y: 1}}}},
+      {layout: {tablePositions: {Orders: {x: null, y: 1}}}},
+      {layout: {tablePositions: {Orders: {x: 0, y: 1, z: 2}}}},
+      {layout: {graphVersion: 1, nodes: [], edges: []}},
+      {saveChanges: {mode: 'transaction'}}, {saveChanges: {mode: 'perView', transaction: {endpoint: {url: '/other'}}}},
+      {saveChanges: {mode: 'perView', unknown: true}},
+      {dataSetName: 'shadow'}, {pageId: 'PAGE'}, {resourceRelations: []},
+    ]
+    for (const change of invalid) {
+      expect(() => file.setText(JSON.stringify({...base, ...change}))).toThrow()
+      expect(file.getText()).toBe(fixture())
+      expect(file.canUndo).toBe(false)
+      expect(file.isDirty).toBe(false)
+    }
   })
 
   it('marks the submitted text saved while keeping edits made during saving dirty', () => {
@@ -86,11 +162,53 @@ describe('ScenarioViewFile', () => {
     expect(() => new ScenarioViewFile('UNIT-SCENE', text)).toThrow()
   })
 
-  it.each(['columns', 'rows', 'permissionSnapshot', 'resourceType', 'addApi'])('rejects formal definitions and runtime state in a model: %s', key => {
+  it.each(['rows', 'permissionSnapshot', 'resourceType', 'resourceId', 'addApi'])('rejects formal definitions and runtime state in a model: %s', key => {
     const input = { scenarioId: 'UNIT-SCENE', tables: { Orders: {
       modelBinding: { modelId: 'UNIT-MODEL', modelName: 'Orders' }, views: { default: {} }, [key]: [],
     } } }
     expect(() => new ScenarioViewFile('UNIT-SCENE', JSON.stringify(input))).toThrow(key)
+  })
+
+  it('keeps native column validation values and rejects invalid edits atomically', () => {
+    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+    const withColumns = (columns: unknown) => JSON.stringify({scenarioId: 'UNIT-SCENE', tables: {
+      Orders: {modelBinding: {modelId: 'UNIT-ORDERS', modelName: 'OrdersModel'}, columns, views: {default: {}}},
+    }})
+    const valid = withColumns([{name: 'title', required: false, minLength: 0, maxLength: 8,
+      min: 0, max: 10, pattern: '', patternMessage: ''}])
+    file.setText(valid)
+    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {columns: [{name: 'title',
+      required: false, minLength: 0, min: 0, pattern: '', patternMessage: ''}]}}})
+    const invalid = [
+      [{name: 'title', type: 'string'}], [{name: 'title', computeExpression: '1'}],
+      [{name: ' title'}], [{name: 'title'}, {name: 'title'}],
+      [{name: 'title', required: 0}], [{name: 'title', minLength: -1}],
+      [{name: 'title', minLength: 4, maxLength: 3}], [{name: 'title', min: 2, max: 1}],
+      [{name: 'title', max: null}], [{name: 'title', pattern: '['}],
+    ]
+    for (const columns of invalid) {
+      expect(() => file.setText(withColumns(columns))).toThrow()
+      expect(file.getText()).toBe(valid)
+    }
+    expect(file.undo()).toBe(true)
+    expect(file.getText()).toBe(fixture())
+    expect(file.canRedo).toBe(true)
+  })
+
+  it('retains a local computed column and rejects formal identity or control fields', () => {
+    const configured = (column: Record<string, unknown>) => JSON.stringify({scenarioId: 'UNIT-SCENE', tables: {
+      Orders: {modelBinding: {modelId: 'UNIT-ORDERS', modelName: 'OrdersModel'},
+        columns: [column], views: {default: {}}},
+    }})
+    const local = {name: 'total', type: 'number', label: 'Total', computeExpression: 'price * qty', min: 0}
+    const file = new ScenarioViewFile('UNIT-SCENE', configured(local))
+    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {columns: [local]}}})
+    for (const invalid of [
+      {...local, name: '_pk'}, {...local, name: 'lingma_sys_key'},
+      {...local, fieldId: 'DB-FIELD'}, {...local, isPrimaryKey: true},
+      {...local, computeExpression: ''}, {...local, type: ''},
+    ]) expect(() => file.setText(configured(invalid))).toThrow()
+    expect(file.getText()).toBe(configured(local))
   })
 
   it.each(['rows', 'total', 'dirty', 'permissionSnapshot', 'currentRow', 'scenarioId'])('rejects runtime or identity values inside a view: %s', key => {
@@ -103,6 +221,33 @@ describe('ScenarioViewFile', () => {
   it('rejects old filter dialect and unresolved cascade view references', () => {
     expect(() => new ScenarioViewFile('UNIT-SCENE', fixture().replace('"operator":"eq"', '"op":"eq"'))).toThrow('filterExpression')
     expect(() => new ScenarioViewFile('UNIT-SCENE', fixture().replace('"childViewId":"detail"', '"childViewId":"missing"'))).toThrow('missing')
+  })
+
+  it('retains a field cascade beside query cascades and rejects invalid edits atomically', () => {
+    const base = JSON.parse(fixture())
+    const field = {kind: 'field', cascadeId: 'city-by-region', tableName: 'Orders', viewId: 'list',
+      valueFormat: 'native', targetField: 'city',
+      parents: [{tableName: 'Orders', viewId: 'list', field: 'country', parameter: 'countryId'}, {tableName: 'Orders', viewId: 'list', field: 'province', parameter: 'provinceId'}],
+      optionsView: {tableName: 'Items', viewId: 'detail'},
+      valuePolicy: {mode: 'retain-valid', clearValue: null}}
+    const valid = JSON.stringify({...base, viewCascades: [...base.viewCascades, field]})
+    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+    file.setText(valid)
+    expect(file.value.toJSON()).toMatchObject({viewCascades: [expect.objectContaining({childTable: 'Items'}), field]})
+    expect(Object.isFrozen(file.value.toJSON()['viewCascades'])).toBe(true)
+    for (const invalid of [
+      {...field, unknown: 1}, {...field, rowMode: 'current-row'}, {...field, valuePolicy: undefined},
+      {...field, parents: [{tableName: 'Orders', viewId: 'list', field: 'country', parameter: 'x'}, {tableName: 'Orders', viewId: 'list', field: 'province', parameter: 'x'}]},
+      {...field, optionsView: {...field.optionsView, viewId: 'missing'}},
+      {...field, valuePolicy: {mode: 'clear'}},
+    ]) {
+      expect(() => file.setText(JSON.stringify({...base, viewCascades: [...base.viewCascades, invalid]}))).toThrow()
+      expect(file.getText()).toBe(valid)
+    }
+    const cycle = {...field, cascadeId: 'country-by-city', targetField: 'country',
+      parents: [{tableName: 'Orders', viewId: 'list', field: 'city', parameter: 'cityId'}], valuePolicy: {mode: 'retain'}}
+    expect(() => file.setText(JSON.stringify({...base, viewCascades: [field, cycle]}))).toThrow('FIELD_CASCADE_CYCLE')
+    expect(file.getText()).toBe(valid)
   })
 
   it('preserves the complete projection contract including false, zero and empty strings', () => {
@@ -157,6 +302,74 @@ function workspaceFixture() {
 }
 
 describe('ProjectWorkspace scenario files', () => {
+  it('retains an unknown first write across later edits and confirms its exact remote submission', async () => {
+    const { workspace, setRemote, writeText } = workspaceFixture()
+    setRemote(null)
+    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture(30) })
+    writeText.mockImplementationOnce(async (_id, text) => { setRemote(text); throw new Error('network after dispatch') })
+    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('network after dispatch')
+    expect(file.saveStatus).toBe('unknown')
+    expect(file.submittedText).toBe(fixture(30))
+    file.setText(fixture(40))
+    expect(await workspace.verifyScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBe('confirmed')
+    expect(file.isPersisted).toBe(true)
+    expect(file.isDirty).toBe(true)
+    expect(file.getText()).toBe(fixture(40))
+    expect(file.savedText).toBe(fixture(30))
+  })
+
+  it('keeps pre-dispatch failures out of unknown and can explicitly adopt remote content', async () => {
+    const { workspace, setRemote, writeText } = workspaceFixture()
+    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+    file.setText(fixture(30))
+    setRemote(fixture(40))
+    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('SCENARIO_VIEW_CONFLICT')
+    expect(file.saveStatus).toBe('idle')
+    expect(writeText).not.toHaveBeenCalled()
+    const revision = file.revision
+    const remote = await workspace.previewScenarioViewsRemote({ scenarioId: 'UNIT-SCENE' })
+    await workspace.adoptScenarioViews({ scenarioId: 'UNIT-SCENE', expectedRevision: revision, previewText: remote })
+    expect(file.getText()).toBe(fixture(40))
+    expect(file.isDirty).toBe(false)
+  })
+
+  it('invalidates a discarded missing-file draft so old consumers cannot edit it', async () => {
+    const { workspace, setRemote } = workspaceFixture()
+    setRemote(null)
+    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture(30) })
+    await workspace.adoptScenarioViews({ scenarioId: 'UNIT-SCENE', expectedRevision: file.revision, previewText: null })
+    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+    expect(() => file.setText(fixture(40))).toThrow('SCENARIO_VIEW_FILE_INVALID')
+  })
+  it('rejects an old remote adoption when the same file receives a save receipt while reading', async () => {
+    const { workspace, readText } = workspaceFixture()
+    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+    const revision = file.revision
+    const waiting = deferred<string | null>()
+    readText.mockImplementationOnce(async () => waiting.promise)
+    const adopting = workspace.adoptScenarioViews({ scenarioId: 'UNIT-SCENE', expectedRevision: revision, previewText: fixture() })
+    await vi.waitFor(() => expect(readText).toHaveBeenCalledTimes(2))
+    file.beginSave(fixture(30), fixture())
+    file.confirmSubmitted()
+    waiting.resolve(fixture())
+    await expect(adopting).rejects.toThrow('DRAFT_STALE')
+    expect(file.savedText).toBe(fixture(30))
+  })
+  it('does not dispatch a shared file save when the calling page expires during pre-read', async () => {
+    const {workspace, readText, writeText} = workspaceFixture()
+    const file = await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+    file.setText(fixture(30))
+    const waiting = deferred<string | null>()
+    readText.mockImplementationOnce(async () => waiting.promise)
+    let active = true
+    const saving = workspace.saveScenarioViews({scenarioId: 'UNIT-SCENE',
+      assertCurrent: () => {if (!active) throw new Error('PAGE_RUNTIME_STALE')}})
+    active = false
+    waiting.resolve(fixture())
+    await expect(saving).rejects.toThrow('PAGE_RUNTIME_STALE')
+    expect(writeText).not.toHaveBeenCalled()
+    expect(file.saveStatus).toBe('idle')
+  })
   it('requires explicit creation after verified absence and confirms its real first write', async () => {
     const { workspace, setRemote, writeText } = workspaceFixture()
     setRemote(null)
@@ -307,6 +520,8 @@ describe('ProjectWorkspace scenario files', () => {
     await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNCONFIRMED')
     expect(file.isDirty).toBe(true)
     file.undo()
+    expect(file.isDirty).toBe(true)
+    expect(await workspace.verifyScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBe('not-applied')
     expect(file.isDirty).toBe(false)
   })
 

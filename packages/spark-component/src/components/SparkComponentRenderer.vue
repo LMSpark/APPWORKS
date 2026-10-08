@@ -501,7 +501,7 @@ function toListenerPropName(eventName: string): string {
   let cached = _listenerNameCache.get(eventName)
   if (cached !== undefined) return cached
 
-  const normalized = eventName.replace(/[:\-]([a-zA-Z])/g, (_, char: string) => char.toUpperCase())
+  const normalized = eventName.replace(/-([a-zA-Z])/g, (_, char: string) => char.toUpperCase())
   cached = `on${normalized.charAt(0).toUpperCase()}${normalized.slice(1)}`
   _listenerNameCache.set(eventName, cached)
   return cached

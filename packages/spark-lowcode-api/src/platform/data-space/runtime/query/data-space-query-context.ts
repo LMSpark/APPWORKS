@@ -4,7 +4,7 @@
  * 边界：消费者不能替换凭据；保存回执创建独立基线，_pk 不提交。
  * AI用途：从实际查询行消费权限并构造可验证的保存请求。
  */
-import type { DataSpaceDesignApi } from '../../design/data-space-design-api'
+import { DataSpaceDesignApi } from '../../design/data-space-design-api'
 import type { DataSpaceQueryIdentity } from '../data-space-runtime-contract'
 import { DataSpaceRowPermission } from '../protocol/data-space-permission'
 import type { DataSpaceFieldAccess, DataSpaceMissingAuthPolicy } from '../protocol/data-space-permission'
@@ -69,6 +69,7 @@ export class DataSpaceQueryContext {
   readonly #missingAuthPolicy: DataSpaceQueryContextOptions['missingAuthPolicy']
   readonly #rows: readonly DataSpaceRow[]
   readonly #permissions = new Map<string, DataSpaceRowPermission | null>()
+  readonly #rowPermissions = new WeakMap<DataSpaceRow, DataSpaceRowPermission>()
   #invalid = false
   #model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> | undefined
 
@@ -81,22 +82,26 @@ export class DataSpaceQueryContext {
     this.#readScope = options.readScope
     this.#missingAuthPolicy = options.missingAuthPolicy
     this.#rows = Object.freeze(options.snapshot.rows.map(row => {
+      const permission = new DataSpaceRowPermission({ row,
+        ...(options.missingAuthPolicy === undefined ? {} : { missingAuthPolicy: options.missingAuthPolicy }) })
       const key = canonicalKey(this.rowKeyValue(row))
-      if (key) this.#permissions.set(key, this.#permissions.has(key) ? null : new DataSpaceRowPermission({ row,
-        ...(options.missingAuthPolicy === undefined ? {} : { missingAuthPolicy: options.missingAuthPolicy }) }))
+      if (key) this.#permissions.set(key, this.#permissions.has(key) ? null : permission)
       const consumer: Record<string, unknown> = {}
       for (const [field, value] of Object.entries(row)) {
         if (field !== 'lingma_sys_key' && field !== 'lingma_sys_params') consumer[field] = value
       }
-      return Object.freeze(consumer)
+      const publicRow = Object.freeze(consumer)
+      this.#rowPermissions.set(publicRow, permission)
+      return publicRow
     }))
     this.assertCurrent()
   }
 
   public bindFormalModel(model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>): void {
     this.assertIdentity({scenarioId: this.#identity.scenarioId, metaName: model.metaName})
-    const key = model.fields.find(field => field.canonicalName === model.primaryKey && field.primaryKey)
-    if (!key || ![key.name, key.canonicalName].includes(this.#snapshot.primaryKey)) {
+    const key = model.primaryKey === '' ? undefined : DataSpaceDesignApi.resolveOutputFields(model)
+      .find(field => field.canonicalName === model.primaryKey && field.primaryKey)
+    if (model.primaryKey !== '' && (!key || ![key.name, key.canonicalName].includes(this.#snapshot.primaryKey))) {
       throw new Error('SPARK_MODEL_PRIMARY_KEY: 原查询主键与正式模型不一致')
     }
     if (this.#model && JSON.stringify(this.#model) !== JSON.stringify(model)) {
@@ -116,7 +121,7 @@ export class DataSpaceQueryContext {
   public get rows(): readonly DataSpaceRow[] { this.assertCurrent(); return this.#rows }
   public get total(): number { this.assertCurrent(); return this.#snapshot.total }
   public get countReported(): boolean { this.assertCurrent(); return this.#snapshot.countReported }
-  public get allowAdd(): boolean { this.assertCurrent(); return this.#snapshot.allowAdd }
+  public get allowAdd(): boolean { this.assertCurrent(); return this.#model?.primaryKey === '' ? false : this.#snapshot.allowAdd }
 
   public prepareNewRow(input: DataSpaceRow): Record<string, unknown> {
     this.assertCurrent()
@@ -147,7 +152,7 @@ export class DataSpaceQueryContext {
 
   public addActionState(available = true): DataSpaceActionState {
     this.assertCurrent()
-    return this.#snapshot.allowAdd ? available ? 'enabled' : 'disabled' : 'hidden'
+    return this.allowAdd ? available ? 'enabled' : 'disabled' : 'hidden'
   }
 
   public editActionState(rowKey: unknown, available = true): DataSpaceActionState {
@@ -174,9 +179,16 @@ export class DataSpaceQueryContext {
     return permission ? permission.fieldAccess(fieldName) : denied
   }
 
+  /** Read only the captured read state for the exact public row returned by this query context. */
+  public readFieldAccess(row: DataSpaceRow, fieldName: string): DataSpaceFieldAccess['read'] {
+    this.assertCurrent()
+    return this.#rowPermissions.get(row)?.fieldAccess(fieldName).read ?? 'invisible'
+  }
+
   /** 原查询强引用基线决定更新差异和删除原行；业务候选值交后端强验证。 */
   public prepareSaveChanges(changes: DataSpaceSaveChanges): DataSpaceSaveChanges {
     this.assertCurrent()
+    this.assertModelSaveAllowed(changes)
     const changed = (changes.changed ?? []).flatMap(row => {
       const original = this.originalMutationRow(row)
       const keyField = this.keyField
@@ -246,10 +258,13 @@ export class DataSpaceQueryContext {
 
   private canonicalReceiptRow(row: DataSpaceRow): DataSpaceSaveRow {
     if (!this.#model) return this.consumerSaveRow(row)
+    const outputFields = DataSpaceDesignApi.resolveOutputFields(this.#model)
     const result: DataSpaceSaveRow = {}
     for (const [name, value] of Object.entries(row)) {
       if (name === '_pk' || name.startsWith('lingma_sys_')) continue
-      const field = this.#model.fields.find(candidate => candidate.name === name && candidate.output)
+      const matches = outputFields.filter(candidate => candidate.name === name)
+      if (matches.length > 1) throw new Error(`SPARK_MODEL_RECEIPT_FIELD: ${name}`)
+      const field = matches[0]
       result[field?.canonicalName ?? name] = value
     }
     return result
@@ -296,6 +311,7 @@ export class DataSpaceQueryContext {
   /** API 保存边界使用私有原查询凭据封包；不按前端权限集合裁剪业务值。 */
   public buildSaveRequest(changes: DataSpaceSaveChanges): DataSpaceSaveRequest[] {
     this.assertCurrent()
+    this.assertModelSaveAllowed(changes)
     const order = Object.hasOwn(changes, 'actionOrder') ? snapshotDataSpaceSaveActionOrder(changes.actionOrder) : undefined
     const added = (changes.added ?? []).map(row => this.prepareSaveRow(row, 'add'))
     const changed = (changes.changed ?? []).map(row => this.prepareSaveRow(row, 'change'))
@@ -323,6 +339,13 @@ export class DataSpaceQueryContext {
     return result
   }
 
+  private assertModelSaveAllowed(changes: DataSpaceSaveChanges): void {
+    if (this.#model?.primaryKey === '' && ((changes.added?.length ?? 0) > 0
+      || (changes.changed?.length ?? 0) > 0 || (changes.deleted?.length ?? 0) > 0)) {
+      throw new Error('SPARK_MODEL_KEYLESS_READONLY: 无正式主键模型不可保存行变更')
+    }
+  }
+
   private prepareSaveRow(row: DataSpaceRow, mode: 'add' | 'change' | 'delete'): DataSpaceSaveRow {
     const copy: DataSpaceSaveRow = structuredClone(row)
     delete copy['_pk']
@@ -337,11 +360,11 @@ export class DataSpaceQueryContext {
       token = originals[0]?.['lingma_sys_key']
     }
     const wire: DataSpaceSaveRow = {}
+    const outputFields = this.#model ? DataSpaceDesignApi.resolveOutputFields(this.#model) : undefined
     for (const [name, value] of Object.entries(copy)) {
       if (!this.#model) { wire[name] = value; continue }
-      const matches = this.#model.fields.filter(field => field.canonicalName === name && field.output)
-      const field = matches[0]
-      if (!field || matches.length !== 1 || field.computed) {
+      const field = outputFields?.find(candidate => candidate.canonicalName === name)
+      if (!field || field.computed) {
         if (mode === 'delete') continue
         throw new Error(`SPARK_MODEL_SAVE_FIELD: ${name}`)
       }
@@ -365,7 +388,8 @@ export class DataSpaceQueryContext {
     }
     const declared = canonicalKey(read('ParentField'))
     if (!declared) return this.#snapshot.systemKey
-    const parents = model.fields.filter(field => field.name.toLowerCase() === declared.toLowerCase())
+    const parents = DataSpaceDesignApi.resolveOutputFields(model)
+      .filter(field => field.name.toLowerCase() === declared.toLowerCase())
     const parentField = parents[0]
     if (parents.length !== 1 || parentField === undefined || !parentField.output || parentField.computed
       || parentField.canonicalName === this.keyField) {
@@ -391,6 +415,7 @@ export class DataSpaceQueryContext {
 
   private rowAction(keyValue: unknown, available: boolean, action: 'edit' | 'delete' | 'child'): DataSpaceActionState {
     this.assertCurrent()
+    if (this.#model?.primaryKey === '') return 'hidden'
     const key = canonicalKey(keyValue)
     if (!key) return 'disabled'
     const permission = this.#permissions.get(key)

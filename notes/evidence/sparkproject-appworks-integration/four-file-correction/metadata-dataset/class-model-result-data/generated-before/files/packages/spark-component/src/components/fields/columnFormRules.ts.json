@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/columnFormRules",
+    "sourcePath": "packages/spark-component/src/components/fields/columnFormRules.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/columnFormRules.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/columnFormRules",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/columnFormRules\n职责：提供 column Form Rules 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 field-level/data-field，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n列验证规则 → 渲染层表单规则转换\n将 spark-data 的框架无关 ColumnValidationRule 转换为渲染层可消费的 rules。\n仅在渲染层使用，spark-data 不依赖任何 UI 框架。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FormItemRule"
+    ]
+  },
+  "$defs": {
+    "FormItemRule": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormItemRule",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "trigger": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "type": {
+          "type": "string"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "pattern": {
+          "type": "object",
+          "title": "RegExp"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.validator.params": {
+          "type": "object",
+          "properties": {
+            "rule": true,
+            "value": true,
+            "callback": {
+              "type": "object",
+              "title": "(error?: Error) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validator.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:50.969Z",
+  "models": {
+    "FormItemRule": {
+      "name": "FormItemRule",
+      "jsdoc": "渲染层 FormItemRule 最小子集（避免引入具体实现类型依赖）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 是否必填。 */\n    required?: boolean;\n    /** 用户可读消息。 */\n    message?: string;\n    /** trigger 字段。 */\n    trigger?: string | string[];\n    /** 类型标识。 */\n    type?: string;\n    /** min 字段。 */\n    min?: number;\n    /** max 字段。 */\n    max?: number;\n    /** pattern 字段。 */\n    pattern?: RegExp;\n    /** validator 回调。 */\n    validator?: (rule: unknown, value: unknown, callback: (error?: Error) => void) => void;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "required",
+              "jsdoc": "是否必填。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "用户可读消息。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "trigger",
+              "jsdoc": "trigger 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "min",
+              "jsdoc": "min 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "max",
+              "jsdoc": "max 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pattern",
+              "jsdoc": "pattern 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "validator",
+              "jsdoc": "validator 回调。",
+              "parameters": [
+                {
+                  "name": "rule",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "callback",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "error",
+                              "type": {
+                                "type": "reference",
+                                "name": "Error"
+                              },
+                              "flags": {
+                                "isOptional": true
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

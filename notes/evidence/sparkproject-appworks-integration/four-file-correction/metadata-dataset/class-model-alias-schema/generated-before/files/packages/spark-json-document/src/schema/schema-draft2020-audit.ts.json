@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:schema/schema-draft2020-audit",
+    "sourcePath": "packages/spark-json-document/src/schema/schema-draft2020-audit.ts",
+    "sourceFile": "packages/spark-json-document/src/schema/schema-draft2020-audit.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "schema/schema-draft2020-audit",
+    "jsdoc": "@module @spark-appworks/spark-json-document:schema/schema-draft2020-audit\n职责：提供 JSON 文档和 schema 处理中的 schema-draft2020-audit 能力，围绕 Draft2020AuditIssue 管理 schema 标准化、解析、校验或树策略。\n边界：只处理 JSON/schema/tree 抽象，不依赖 SPARK 页面运行时，也不直接操作业务 DataSet。\nAI用途：生成或校验 JSON 配置结构时，用本模块确认 schema/schema-draft2020-audit 的 schema 语义。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "Draft2020AuditIssue"
+    ]
+  },
+  "$defs": {
+    "Draft2020AuditIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Draft2020AuditIssue",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "rule": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-14T20:01:36.839Z",
+  "models": {
+    "Draft2020AuditIssue": {
+      "name": "Draft2020AuditIssue",
+      "jsdoc": "Draft2020 Audit Issue 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 审计问题在 JSON Schema 中的路径，格式为 $.properties.fieldName 等。 */\n    path: string;\n    /** 违反的审计规则标识，如 INVALID_TYPE、REF_TARGET、REDUNDANT_CONST_TYPE 等。 */\n    rule: string;\n    /** 规则违反的详细说明，包含具体的违规内容（如非法类型名、多余字段列表等）。 */\n    detail: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 审计问题在 JSON Schema 中的路径，格式为 $.properties.fieldName 等。 */\n    path: string;\n    /** 违反的审计规则标识，如 INVALID_TYPE、REF_TARGET、REDUNDANT_CONST_TYPE 等。 */\n    rule: string;\n    /** 规则违反的详细说明，包含具体的违规内容（如非法类型名、多余字段列表等）。 */\n    detail: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "path",
+              "jsdoc": "审计问题在 JSON Schema 中的路径，格式为 $.properties.fieldName 等。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rule",
+              "jsdoc": "违反的审计规则标识，如 INVALID_TYPE、REF_TARGET、REDUNDANT_CONST_TYPE 等。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "detail",
+              "jsdoc": "规则违反的详细说明，包含具体的违规内容（如非法类型名、多余字段列表等）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

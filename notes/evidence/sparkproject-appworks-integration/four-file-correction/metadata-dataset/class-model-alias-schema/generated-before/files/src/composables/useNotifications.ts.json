@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:composables/useNotifications",
+    "sourcePath": "src/composables/useNotifications.ts",
+    "sourceFile": "src/composables/useNotifications.ts",
+    "packageName": "app",
+    "modulePath": "composables/useNotifications",
+    "jsdoc": "@module app:composables/useNotifications\n职责：提供主应用 useNotifications 能力，围绕 NotificationItem 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 composables/useNotifications。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "NotificationItem"
+    ]
+  },
+  "$defs": {
+    "NotificationItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NotificationItem",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "title": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "time": {
+          "type": "number"
+        },
+        "read": {
+          "type": "boolean"
+        },
+        "remoteId": {
+          "type": "string"
+        },
+        "level": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "actionUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "message",
+        "time",
+        "read"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.641Z",
+  "models": {
+    "NotificationItem": {
+      "name": "NotificationItem",
+      "jsdoc": "Notification Item 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 唯一标识。 */\n    id: number;\n    /** 显示标题。 */\n    title: string;\n    /** 用户可读消息。 */\n    message: string;\n    /** time 字段。 */\n    time: number;\n    /** read 字段。 */\n    read: boolean;\n    /** remote Id 标识。 */\n    remoteId?: string;\n    /** level 字段。 */\n    level?: string;\n    /** category 字段。 */\n    category?: string;\n    /** 来源对象。 */\n    source?: string;\n    /** action Url 地址。 */\n    actionUrl?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "唯一标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "显示标题。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "message",
+              "jsdoc": "用户可读消息。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "time",
+              "jsdoc": "time 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "read",
+              "jsdoc": "read 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "remoteId",
+              "jsdoc": "remote Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "level",
+              "jsdoc": "level 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "category",
+              "jsdoc": "category 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "来源对象。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actionUrl",
+              "jsdoc": "action Url 地址。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

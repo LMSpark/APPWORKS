@@ -1,0 +1,598 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:router/system-page-identity/system-page-identity-resolver",
+    "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
+    "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "router/system-page-identity/system-page-identity-resolver",
+    "jsdoc": "@spark-appworks/spark-app 的 router/system-page-identity/system-page-identity-resolver 模块。\n导出 DtsTypeDeclarationModel symbol: SystemPageIdentityScope, SystemPageIdentityOwner, SystemPageIdentityOwnerInput, SystemPageIdentityResolver（共 4 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "SystemPageIdentityScope",
+      "SystemPageIdentityOwner",
+      "SystemPageIdentityOwnerInput",
+      "SystemPageIdentityResolver"
+    ]
+  },
+  "$defs": {
+    "SystemPageIdentityScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SystemPageIdentityScope",
+      "enum": [
+        "public",
+        "tenant",
+        "platform"
+      ]
+    },
+    "SystemPageIdentityOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemPageIdentityOwner",
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/SystemPageIdentityScope"
+        },
+        "path": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "permissionMode": true,
+        "explicitQuery": {
+          "type": "object",
+          "title": "LocationQuery"
+        },
+        "blueprintScenarioId": {
+          "type": "string"
+        },
+        "component": {
+          "type": "object",
+          "title": "Component"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SystemPageIdentityOwnerInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemPageIdentityOwnerInput",
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/SystemPageIdentityScope"
+        },
+        "path": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "../../navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigationItem"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "component": {
+          "type": "object",
+          "title": "Component"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SystemPageIdentityResolver": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemPageIdentityResolver",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.forRouter.params": {
+          "type": "object",
+          "properties": {
+            "router": {
+              "type": "object",
+              "title": "Router"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.forRouter.return": {
+          "$ref": "#/$defs/SystemPageIdentityResolver"
+        },
+        "method.replaceOwners.params": {
+          "type": "object",
+          "properties": {
+            "owners": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/SystemPageIdentityOwner"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceOwners.return": true,
+        "method.getInstance.params": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "object",
+              "title": "RouteLocationNormalizedLoaded"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getInstance.return": {
+          "$ref": "system-page-identity-pool.ts.json#/$defs/SystemPageInstance"
+        },
+        "method.getInstanceById.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getInstanceById.return": {
+          "$ref": "system-page-identity-pool.ts.json#/$defs/SystemPageInstance"
+        },
+        "method.closeInstance.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.closeInstance.return": true,
+        "method.resetInstances.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resetInstances.return": true,
+        "method.createOwner.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SystemPageIdentityOwnerInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createOwner.return": {
+          "$ref": "#/$defs/SystemPageIdentityOwner"
+        },
+        "method.hostRouteName.params": {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "$ref": "#/$defs/SystemPageIdentityScope"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hostRouteName.return": {
+          "type": "string"
+        },
+        "method.hostRouteMeta.params": {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "$ref": "#/$defs/SystemPageIdentityScope"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hostRouteMeta.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.resolveComponent.params": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "object",
+              "title": "RouteLocationNormalizedLoaded"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveComponent.return": {
+          "type": "object",
+          "title": "Component"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T11:18:06.481Z",
+  "models": {
+    "SystemPageIdentityScope": {
+      "name": "SystemPageIdentityScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'public' | 'tenant' | 'platform'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'public'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'tenant'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'platform'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SystemPageIdentityOwner": {
+      "name": "SystemPageIdentityOwner",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    nodeId: string;\n    title: string;\n    pageId: string;\n    description?: string;\n    icon?: string;\n    permissionMode?: RuntimeNavigationItem['permissionMode'];\n    explicitQuery: LocationQuery;\n    blueprintScenarioId?: string;\n    component: Component;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    nodeId: string;\n    title: string;\n    pageId: string;\n    description?: string;\n    icon?: string;\n    permissionMode?: RuntimeNavigationItem['permissionMode'];\n    explicitQuery: LocationQuery;\n    blueprintScenarioId?: string;\n    component: Component;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionMode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "explicitQuery",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "component",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SystemPageIdentityOwnerInput": {
+      "name": "SystemPageIdentityOwnerInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    node: RuntimeNavigationItem;\n    pageId: string;\n    component: Component;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    node: RuntimeNavigationItem;\n    pageId: string;\n    component: Component;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "node",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "component",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SystemPageIdentityResolver": {
+      "name": "SystemPageIdentityResolver",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "forRouter",
+              "parameters": [
+                {
+                  "name": "router",
+                  "type": {
+                    "type": "reference",
+                    "name": "Router"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SystemPageIdentityResolver",
+                "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts"
+              }
+            },
+            {
+              "name": "replaceOwners",
+              "parameters": [
+                {
+                  "name": "owners",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly SystemPageIdentityOwner[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getInstance",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalizedLoaded"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "SystemPageInstance",
+                  "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts"
+                }
+              }
+            },
+            {
+              "name": "getInstanceById",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "SystemPageInstance",
+                  "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts"
+                }
+              }
+            },
+            {
+              "name": "closeInstance",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "resetInstances",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "createOwner",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SystemPageIdentityOwnerInput",
+                    "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SystemPageIdentityOwner",
+                "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts"
+              }
+            },
+            {
+              "name": "hostRouteName",
+              "parameters": [
+                {
+                  "name": "scope",
+                  "type": {
+                    "type": "reference",
+                    "name": "SystemPageIdentityScope",
+                    "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "hostRouteMeta",
+              "parameters": [
+                {
+                  "name": "scope",
+                  "type": {
+                    "type": "reference",
+                    "name": "SystemPageIdentityScope",
+                    "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resolveComponent",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalizedLoaded"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Component"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

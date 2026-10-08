@@ -1,0 +1,678 @@
+{
+  "at": "2026-10-08T08:59:23.150Z",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "stage": "complete",
+  "space": {
+    "rowid": "8D1AB14DD8277F3E7017CD38F77B09FD",
+    "description": null,
+    "inputParams": "[{\"Name\":\"formid\",\"Description\":\"表单key\",\"IsBusParam\":true,\"rowid\":\"f1e64838-ea34-471d-927e-68629b8390a7\",\"NodeName\":null}]"
+  },
+  "models": [
+    {
+      "id": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+      "metaName": "Base_DataSet",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "id": "0AA329DBE0F548D09829DE55C841EC66",
+          "name": "ReportID",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "20F6C675508643B38FEB98A58183D163",
+          "name": "rowid",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "242CCF1C94344B5A8A36E3A616FDDE86",
+          "name": "wfid",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "3217715E0FE14B6DBE9A4B05CBFF6BAF",
+          "name": "isCheckLogin",
+          "output": false,
+          "type": "int"
+        },
+        {
+          "id": "3D88F979B0E94B70B350CB555EF0F71F",
+          "name": "updateuser",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "4B6E744AFBA84177B9B1E72F741BF8F7",
+          "name": "createuser",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "7A406DA90A994165BFF95C32497BE6D3",
+          "name": "description",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "8349CC5F4D3D473A961886A3AFCC1C18",
+          "name": "Name",
+          "output": false,
+          "type": "varchar"
+        },
+        {
+          "id": "8B20D74F36454096A512398FB07A1E5F",
+          "name": "flowstate",
+          "output": true,
+          "type": "int"
+        },
+        {
+          "id": "8F4495A6E00A4D81B163CCC55F513C0F",
+          "name": "Type",
+          "output": false,
+          "type": "varchar"
+        },
+        {
+          "id": "962B633C102249BF91B66DACA1B35222",
+          "name": "DefaultPermission",
+          "output": false,
+          "type": "varchar"
+        },
+        {
+          "id": "9D6815A881744DE1A905D2568949B8E7",
+          "name": "updatetime",
+          "output": true,
+          "type": "datetime"
+        },
+        {
+          "id": "9FB025514C8A4F54A72C58FAEAD34391",
+          "name": "createtime",
+          "output": true,
+          "type": "datetime"
+        },
+        {
+          "id": "B54AD948F3444D38A2656B7F910C486C",
+          "name": "sysid",
+          "output": false,
+          "type": "varchar"
+        },
+        {
+          "id": "CEE667011FCD475A9F3B8AC0AEC3D06E",
+          "name": "lingma_sys_is_delete",
+          "output": true,
+          "type": "bigint"
+        },
+        {
+          "id": "E8CFE6441BC54DAA8E2AD12853BBA0A7",
+          "name": "inputParams",
+          "output": true,
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+      "metaName": "Base_DataModel",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "id": "0747F625FDD74C8DB0201C3C885274FC",
+          "name": "lingma_sys_ent",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "077285E781E6430BB31DC0DE1FBC30C7",
+          "name": "DbName",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "081E2C5966584BE5A89A8A78D11222E1",
+          "name": "addApi",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "0AFF5BE5D7204D01A82FA3D54109185B",
+          "name": "updateApi",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "1AC45CB0736B4D07973C24C16E1FCA76",
+          "name": "PId",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "277FA3EBA0FE4B9199F983E5BA21D60C",
+          "name": "ShortName",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "2C77665B0857479288793DBA781EE1AC",
+          "name": "updatetime",
+          "output": true,
+          "type": "DATETIME"
+        },
+        {
+          "id": "364C5C65ED3641519AFC42AB68F8EE37",
+          "name": "Filter",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "3CCBAF8DA5DD40188356CE8F80CB305B",
+          "name": "cacheType",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "3DF90595B320490CBEA3D8F15C33B3A9",
+          "name": "IsBusiness",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "4E9C64CB355B4A2E97E059270A5563D5",
+          "name": "topValue",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "5F45A594677449E7B38CF2AD58419446",
+          "name": "lingma_sys_is_delete",
+          "output": true,
+          "type": "BIGINT"
+        },
+        {
+          "id": "6140392D80B542CA86D308395758D414",
+          "name": "ReportID",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "64D6286576F244CB95FA50F1D757F701",
+          "name": "Type",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "69804C20898340EB9BE18C4456C21D99",
+          "name": "selfType",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "6DB1F164EE9E422497A092B481083CE7",
+          "name": "updateuser",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "6E253A32A48A4400AD5287FDC92AE49A",
+          "name": "MetaName",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "71779B4AA75A49268F3F68BA372EE839",
+          "name": "PrimaryKeyFields",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "7B66F699102A4466B60D9458A01C5142",
+          "name": "description",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "7D1F12604E7144139767748DF5AFD2A1",
+          "name": "wfid",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "9E9A52FD03B6416E8D9D70540BA09B1E",
+          "name": "JoinFilter",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "A771A996609A4FB4BD859CDC789D9D96",
+          "name": "flowstate",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "A89F01E65E83450F943CC32A23943F4A",
+          "name": "parentField",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "AC55361A86B04A3F97AFBDC18E3893EB",
+          "name": "dataSetId",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "BAFB975C82EF40BB88B54050A2744C1F",
+          "name": "RequestComplete",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "BD400C8D80CC43C7A2DA018E7C41ED01",
+          "name": "items",
+          "output": true,
+          "type": "TEXT"
+        },
+        {
+          "id": "C0E62AB26451413080D938B0C45E5DD9",
+          "name": "createtime",
+          "output": true,
+          "type": "DATETIME"
+        },
+        {
+          "id": "C19760935F7E45699A184AF2A99FA370",
+          "name": "OutputType",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "C58106F8B5F04AAAB7C612B62E3DD1B3",
+          "name": "JoinType",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "C7E864943B8145358496F41E4AE74D11",
+          "name": "ForeignKeyFields",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "C8D0DD9BBDCB4C82928D058B3CDC8DCC",
+          "name": "requestType",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "D993052E8720449C80FE6642C7930C8F",
+          "name": "Name",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "D9CCF821AB494DF9A059D4DC949530AD",
+          "name": "hasChildField",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "DCBDDA71A6AB49909ACCD3ACF1D373C4",
+          "name": "DISTINCT",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "E668EE2B5EAE4E9D9CB33DA4FE2E827B",
+          "name": "DbId",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "E98F4A891CE243CA93FE966DA8FF32AF",
+          "name": "deleteApi",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "ED8A685126D64BF08E8D93B223F33BFE",
+          "name": "IsBusinessMain",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "F94F8C70D6A94242A863AAB1F96102D2",
+          "name": "rowid",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "FB6538E0BF2C4F91BA913619185DD396",
+          "name": "createuser",
+          "output": true,
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "id": "8D1AB14DD8277F3E7017CD38F77B09FDp002",
+      "metaName": "Base_DataModel_Field",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "id": "0FA755DB0EB24C95894EA40AF9FB668A",
+          "name": "createuser",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "12126F012A1B409CB91B5E72D0C1BC5D",
+          "name": "Value",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "35E17B6F26F24E6F8195420AE9C8EF69",
+          "name": "rowid",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "53D69F0D89214EDCA054886578CE5D70",
+          "name": "IsOutput",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "58152AF510FB4A84A7BA0E268F65A13D",
+          "name": "dataSetId",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "59A7DECE6B2948A1AFD23FC0787B6CF1",
+          "name": "Expression",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "59DD1FD63F1B4FAB9A0FBEEFB9EB4B49",
+          "name": "ValueFun",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "65A829DB3FC141A9BF1A105C3F0B7C76",
+          "name": "allowAIAdd",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "663C930E4C044EF39CBF27DE0D2B673F",
+          "name": "AsName",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "7AC535C6490148B49C0EAE1400D02B3D",
+          "name": "IsPKey",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "7EA20FC1893B41A3A619834A1F05AB31",
+          "name": "ReportID",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "7ED3E890C4E24286AE43BB0C03ACC45E",
+          "name": "aiSort",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "82366FA8A9084ABEBA2AAEAF30A20C19",
+          "name": "dataModelId",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "99C65EAC94CF4DA49202BD088BC84FEE",
+          "name": "OrderType",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "A8BD8576B28149D38E21B8EFF36AAD14",
+          "name": "flowstate",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "A971EECE60DA4CF69E8CFA9853196DFB",
+          "name": "aiMemo",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "C2AF1294291549F988CD57D87670C5DF",
+          "name": "lingma_sys_ent",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "C6B9F3D1B412413D897787B0CA99CE4E",
+          "name": "Group",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "CDCAE01122C544BB8FD855BFE16B55A2",
+          "name": "FieldType",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "CF796FC30A1D433AA984EA2FD6BC44AA",
+          "name": "updateuser",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "D0DCF54E43AF479782D1EE72DCDBA7D2",
+          "name": "DISTINCT",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "D36B2CC2E0C548EDB219B5AB29243511",
+          "name": "wfid",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "D3C3C57A0F26429F94BE8B35AC4F7A24",
+          "name": "Name",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "D7B1576EFE7445B18C36F5350B6D97F2",
+          "name": "Order",
+          "output": true,
+          "type": "INT"
+        },
+        {
+          "id": "DD2CE92EE0E04E8FBE792912602C7F61",
+          "name": "updatetime",
+          "output": true,
+          "type": "DATETIME"
+        },
+        {
+          "id": "F37FD40D4EDB4C2E924CF7986F1FDDEA",
+          "name": "type",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "F8636539E603460FA9CC30E6B36A3995",
+          "name": "lingma_sys_is_delete",
+          "output": true,
+          "type": "BIGINT"
+        },
+        {
+          "id": "F8D9404F87EF428BA9D0669D74FD4F56",
+          "name": "description",
+          "output": true,
+          "type": "VARCHAR"
+        },
+        {
+          "id": "FD0D5CD946424FCEBFBC493526542E10",
+          "name": "createtime",
+          "output": true,
+          "type": "DATETIME"
+        }
+      ]
+    },
+    {
+      "id": "8D1AB14DD8277F3E7017CD38F77B09FDp003",
+      "metaName": "Base_DataModel_Relation",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "id": "0555771D7E5A42FC935A82E0835A8466",
+          "name": "childTable",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "132E1E90361347E78F2258A65CAA26FD",
+          "name": "updateuser",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "16402C39C20741BEA65F6B6F3CEE1730",
+          "name": "rowid",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "242582DEE3E5435AB467C67609174017",
+          "name": "dataSetId",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "28320AF973F740EF865D7E3D9883FCFD",
+          "name": "flowstate",
+          "output": true,
+          "type": "int"
+        },
+        {
+          "id": "2D246D1E89F34322A295C99241EC5224",
+          "name": "ReportID",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "429B2A76263A497D961ABCD260D3A183",
+          "name": "depType",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "4CBF11F327474734BE050BB523047FB1",
+          "name": "lingma_sys_is_delete",
+          "output": true,
+          "type": "bigint"
+        },
+        {
+          "id": "52D937A294224691AB955A6FC9267565",
+          "name": "cascadeDel",
+          "output": true,
+          "type": "int"
+        },
+        {
+          "id": "693D1539EE354986A045F688DF008C05",
+          "name": "updatetime",
+          "output": true,
+          "type": "datetime"
+        },
+        {
+          "id": "7A8E2685BAF44043B49E4262EF00F1C4",
+          "name": "filter",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "81F8EA7E210D4684B56DEBBBB39AAD23",
+          "name": "parentTable",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "8B4278A033D5482C96D9451C5B144FA6",
+          "name": "wfid",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "96444A0661C94AA88A84BC5056430DA7",
+          "name": "createuser",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "A355600B250040A792EBCA5672DC253C",
+          "name": "childModId",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "C9DBA06C9C9E4FAD8D286118AE424895",
+          "name": "description",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "F1B835E4B0E54A0F96F51A3C92492671",
+          "name": "parentModId",
+          "output": true,
+          "type": "varchar"
+        },
+        {
+          "id": "FFD501FF67884F46B7EDDA0BA8848976",
+          "name": "createtime",
+          "output": true,
+          "type": "datetime"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "sourceRelationId": "FB3CEC0D90334846830FE63E533312C9",
+      "dataSpaceId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "parentModelId": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+      "childModelId": "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+      "parentResourceName": "Base_DataSet",
+      "childResourceName": "Base_DataModel",
+      "filterExpression": {
+        "logic": "and",
+        "filters": [
+          {
+            "field": "dataSetId",
+            "operator": "eq",
+            "value": {
+              "Type": "GetTableField",
+              "Field": "Base_DataSet.rowid"
+            }
+          }
+        ]
+      },
+      "dependencyType": "CurrentRow",
+      "cascadeDelete": false
+    }
+  ]
+}

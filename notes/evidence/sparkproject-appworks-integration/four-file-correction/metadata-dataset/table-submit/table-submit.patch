@@ -1,0 +1,542 @@
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/packages__spark-data__src__data-view.ts b/packages/spark-data/src/data-view.ts
+index 2cee6bdcd..b5798c309 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/packages__spark-data__src__data-view.ts
++++ b/packages/spark-data/src/data-view.ts
+@@ -16,7 +16,7 @@ import { parseViewMetadataInput } from './metadata'
+ import type {
+   DataRow, ViewMetadata, SortExpression,
+   QueryParams, DataColumn, DataViewQueryCascade,
+-  CrudResult, CrudOperationConfig,
++  CrudResult, CrudOperationConfig, TableMetadata,
+   DataSource,
+   AggregateResultRow,
+   FlatTreeNode, TreePath, NestedTreeSearchResult, NestedTreeNode,
+@@ -154,6 +154,7 @@ type DataViewQuerySaveChanges = Readonly<{
+ /** 单模型保存输入，明确绑定原查询身份、私有上下文与当前变更。 */
+ type DataViewQuerySaveChange = Readonly<{
+   identity: DataViewQueryIdentity
++  tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>
+   context: DataViewQueryResult
+   changes: DataViewQuerySaveChanges
+ }>
+@@ -2212,7 +2213,11 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
+     active.forEach(({ view }) => view._trackMutating(1))
+     let failure: Error | null = null
+     try {
+-      const receipts = await save.call(executor, { changes: active.map(({ capture }) => ({ identity: capture.identity,
++      const receipts = await save.call(executor, { changes: active.map(({ view, capture }) => ({ identity: capture.identity,
++        ...(view.dataTable === null ? {} : {tableConfig: {
++          ...(view.dataTable.api === undefined ? {} : {api: view.dataTable.api}),
++          ...(view.dataTable.crudConfig === undefined ? {} : {crudConfig: view.dataTable.crudConfig}),
++        }}),
+         context: capture.context, changes: { added: capture.added.map(item => item.row),
+           changed: capture.changed.map(item => item.row), deleted: capture.deleted.map(item => item.row) } })) })
+       if (receipts.length !== active.length) throw new Error('DATA_VIEW_SAVE_RECEIPT: 模型回执不完整')
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/packages__spark-project-model__src__scenario__scenario-view-config.ts b/packages/spark-project-model/src/scenario/scenario-view-config.ts
+index cec9663da..bf5e64f98 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/packages__spark-project-model__src__scenario__scenario-view-config.ts
++++ b/packages/spark-project-model/src/scenario/scenario-view-config.ts
+@@ -81,7 +81,8 @@ export class ScenarioViewConfig {
+     for (const [tableName, inputTable] of Object.entries(tables)) {
+       name(tableName, 'tableName')
+       const table = record(inputTable, `tables.${tableName}`)
+-      keys(table, ['modelBinding', 'businessCategory', 'columns', 'views'], `tables.${tableName}`)
++      keys(table, ['modelBinding', 'businessCategory', 'columns', 'views', 'api', 'crudConfig'], `tables.${tableName}`)
++      this.validateSubmission(table, `tables.${tableName}`)
+       if ('businessCategory' in table && (typeof table['businessCategory'] !== 'string'
+         || !table['businessCategory'].trim())) {
+         throw new Error(`tables.${tableName}.businessCategory 必须是非空字符串`)
+@@ -118,6 +119,41 @@ export class ScenarioViewConfig {
+   public get scenarioId(): string { return this.#scenarioId }
+   public toJSON(): ScenarioConfigObject { return this.#config }
+ 
++  private validateSubmission(table: ScenarioConfigObject, path: string): void {
++    if ('api' in table) {
++      const api = record(table['api'], `${path}.api`)
++      keys(api, ['create', 'update', 'delete'], `${path}.api`)
++      for (const [operation, value] of Object.entries(api)) {
++        const endpoint = record(value, `${path}.api.${operation}`)
++        keys(endpoint, ['url', 'method', 'headers', 'params'], `${path}.api.${operation}`)
++        const url = name(endpoint['url'], `${path}.api.${operation}.url`)
++        if (url !== endpoint['url'] || !/^\/(?!\/)[^\\#{}\s]*$/.test(url)) throw new Error(`${path}.api 需要无模板的站内绝对路径`)
++        if ('method' in endpoint && endpoint['method'] !== 'POST') throw new Error(`${path}.api SPARK 提交只支持 POST`)
++        if ('params' in endpoint) record(endpoint['params'], `${path}.api.${operation}.params`)
++        if ('headers' in endpoint) {
++          const headers = record(endpoint['headers'], `${path}.api.${operation}.headers`)
++          const seen = new Set<string>()
++          for (const [key, header] of Object.entries(headers)) {
++            const normalized = key.toLowerCase()
++            if (!key.trim() || typeof header !== 'string' || seen.has(normalized)
++              || /authorization|cookie|token|^x-(formkey|appid|tenant|enterprise|user)/i.test(key)) {
++              throw new Error(`${path}.api 端点头无效或包含运行身份/凭据`)
++            }
++            seen.add(normalized)
++          }
++        }
++      }
++    }
++    if ('crudConfig' in table) {
++      const policy = record(table['crudConfig'], `${path}.crudConfig`)
++      keys(policy, ['timeout', 'retryCount', 'validateData'], `${path}.crudConfig`)
++      if ('timeout' in policy && (typeof policy['timeout'] !== 'number' || !Number.isSafeInteger(policy['timeout'])
++        || policy['timeout'] <= 0)) throw new Error(`${path}.crudConfig.timeout 必须是正安全整数`)
++      if ('retryCount' in policy && policy['retryCount'] !== 0) throw new Error(`${path}.crudConfig 正式保存不支持自动重试`)
++      if ('validateData' in policy && policy['validateData'] !== true) throw new Error(`${path}.crudConfig 正式保存不能关闭校验`)
++    }
++  }
++
+   private validateColumns(input: unknown, path: string): void {
+     if (!Array.isArray(input)) throw new Error(`${path} 必须是数组`)
+     const seen = new Set<string>()
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/src__lowcode__data-space__lowcode-data-space-assembler.ts b/src/lowcode/data-space/lowcode-data-space-assembler.ts
+index bac70abf4..d997f73f1 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/src__lowcode__data-space__lowcode-data-space-assembler.ts
++++ b/src/lowcode/data-space/lowcode-data-space-assembler.ts
+@@ -131,6 +131,8 @@ export class LowcodeDataSpaceAssembler {
+     views[viewId] = { page: 1, pageSize: 20, ...view }
+    }
+    tables[tableName] = { tableName, ...resource, modelBinding: {modelId: model.id, modelName: model.metaName},
++    ...('api' in table ? {api: structuredClone(table['api'])} : {}),
++    ...('crudConfig' in table ? {crudConfig: structuredClone(table['crudConfig'])} : {}),
+     ...('businessCategory' in table ? {businessCategory: table['businessCategory']} : {}), columns: tableColumns, views }
+   }
+   const relations = new LowcodeModelRelationAdapter().adapt(input.relations, bindings)
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/packages__spark-lowcode-api__src__platform__data-space__runtime__data-space-runtime-api.ts b/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts
+index e8fa3f6a0..e599ee5e0 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/packages__spark-lowcode-api__src__platform__data-space__runtime__data-space-runtime-api.ts
++++ b/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts
+@@ -5,7 +5,7 @@
+  * AI用途：把 DataView 查询与同场景模型保存接入实际运行 owner。
+  */
+ /** 数据空间运行态 API；按场景与模型 Name 拥有原查询、权限基线和统一保存。 */
+-import { DataViewFilter, type DataViewFilterTree, type DataView, type QueryParams } from '@spark-appworks/spark-data'
++import { DataViewFilter, type DataViewFilterTree, type DataView, type TableMetadata, type QueryParams } from '@spark-appworks/spark-data'
+ import type { HttpClientBase } from '@spark-appworks/spark-utils'
+ import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope } from './data-space-runtime-contract.js'
+ import { DataSpaceQueryCache } from './query/data-space-query-cache.js'
+@@ -14,6 +14,7 @@ import { DataSpaceQueryTable } from './protocol/data-space-query-table.js'
+ import { captureDataSpaceViewQuery } from './query/data-space-query-options.js'
+ import { DataSpaceDesignApi } from '../design/data-space-design-api.js'
+ import type { DataSpaceQueryContext } from './query/data-space-query-context.js'
++import { DataSpaceSaveConfig } from './save/data-space-save-config.js'
+ 
+ /** 运行 owner 的 HTTP 通道和请求身份读取器；scope 变更使旧基线失效。 */
+ type DataSpaceRuntimeApiOptions = Readonly<{
+@@ -21,7 +22,12 @@ type DataSpaceRuntimeApiOptions = Readonly<{
+   readScope: () => DataSpaceRequestScope
+ }>
+ /** 统一保存命令；每个目标携带本 owner 的原查询上下文与候选变更。 */
+-type DataSpaceRuntimeSaveCommand = Parameters<DataSpaceRequest['save']>[0]
++type DataSpaceRuntimeSaveChange = Parameters<DataSpaceRequest['save']>[0]['changes'][number]
++  & Readonly<{tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>}>
++type DataSpaceRuntimeSaveCommand = Readonly<{
++  changes: readonly DataSpaceRuntimeSaveChange[]
++  signal?: AbortSignal
++}>
+ /** 实际保存回执和推进后的独立上下文；失败不产生确认结果。 */
+ type DataSpaceRuntimeSaveResult = Awaited<ReturnType<DataSpaceRequest['save']>>
+ type DataSpaceRuntimeQueryFlight = Promise<DataSpaceQueryContext>
+@@ -77,6 +83,7 @@ export class DataSpaceRuntimeApi {
+       throw new Error('SPARK_VIEW_MODEL_IDENTITY: 视图与正式模型身份不一致')
+     }
+     const formal = new Set(DataSpaceDesignApi.resolveOutputFields(model).map(field => field.canonicalName))
++    DataSpaceSaveConfig.validate(table)
+     for (const column of table.columns) {
+       if (column.computeExpression && formal.has(column.name)) {
+         throw new Error(`SPARK_MODEL_COMPUTED_COLLISION: 本地计算列与正式输出字段重名: ${column.name}`)
+@@ -130,6 +137,7 @@ export class DataSpaceRuntimeApi {
+       identity: new DataSpaceQueryTable(change.identity).identity, changes: structuredClone(change.changes) }))
+     const keys = [...new Set(changes.map(change => this.resourceKey(scope, change.identity)))].sort()
+     changes.forEach(change => this.assertContextOwner(scope, change))
++    const config = DataSpaceSaveConfig.resolve(changes)
+     const previous = keys.map(key => this.#mutationFlights.get(key) ?? Promise.resolve())
+     const run = Promise.all(previous.map(flight => flight.catch(() => undefined))).then(async () => {
+       this.assertScope(scope)
+@@ -140,7 +148,7 @@ export class DataSpaceRuntimeApi {
+       }))
+       this.assertScope(scope)
+       changes.forEach(change => this.assertContextOwner(scope, change))
+-      const receipts = await this.#saveRequest.save({ changes, ...(signal === undefined ? {} : { signal }) })
++      const receipts = await this.#saveRequest.save({ changes, config, ...(signal === undefined ? {} : { signal }) })
+       this.assertScope(scope)
+       receipts.forEach((receipt, index) => {
+         const change = changes[index]
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/packages__spark-lowcode-api__src__platform__data-space__runtime__protocol__data-space-request.ts b/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts
+index c7a98bdc0..bc24595a4 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/packages__spark-lowcode-api__src__platform__data-space__runtime__protocol__data-space-request.ts
++++ b/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts
+@@ -11,6 +11,7 @@ import { DataSpaceQueryTable } from './data-space-query-table'
+ import type { DataSpaceQueryContext } from '../query/data-space-query-context'
+ import { requireDataSpaceMutationInput, failDataSpaceMutationWithoutEffect } from '../save/data-space-save-guard'
+ import { readDataSpaceSaveReceipt } from '../save/data-space-save-result'
++import { DataSpaceSaveConfig } from '../save/data-space-save-config'
+ 
+ /** 实际 HTTP 通道及请求 scope 读取器，供请求前后核对执行域。 */
+ type DataSpaceRequestOptions = Readonly<{
+@@ -33,6 +34,7 @@ type DataSpaceRequestSaveChange = Readonly<{
+ /** 同场景且模型不重复的批量保存目标；无实际变更不能提交。 */
+ type DataSpaceRequestSaveCommand = Readonly<{
+   changes: readonly DataSpaceRequestSaveChange[]
++  config?: DataSpaceSaveConfig
+   signal?: AbortSignal
+ }>
+ /** 逐模型实际动作回执及新基线，不以 HTTP 成功代替保存确认。 */
+@@ -132,11 +134,13 @@ export class DataSpaceRequest {
+     const groups = prepared.map(target => target.context.buildSaveRequest(target.changes))
+     for (const group of groups) requireDataSpaceMutationInput('保存', group.length)
+     const data = groups.flat()
+-    const headers = this.scenarioHeaders(scope, scenarioId)
++    const config = command.config ?? DataSpaceSaveConfig.resolve([])
++    const headers = config.mergeHeaders(this.scenarioHeaders(scope, scenarioId))
+     this.assertCurrent(captured)
+     try {
+       const response = await this.#http.request<unknown>({
+-        url: '/api/DataOperation/BatchTableOperateRequestByCRUD', method: 'POST', data, headers,
++        ...config.endpoint, method: 'POST', data, headers,
++        ...(config.timeout === undefined ? {} : {timeout: config.timeout}),
+         retry: 0, cache: false, meta: { rawEnvelope: true },
+         ...(command.signal === undefined ? {} : { signal: command.signal }),
+       })
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/empty b/packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-config.ts
+index e69de29bb..0868898a9 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/empty
++++ b/packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-config.ts
+@@ -0,0 +1,117 @@
++import type {DataTable, HttpEndpoint, TableMetadata} from '@spark-appworks/spark-data'
++import {isRecord} from '@spark-appworks/spark-utils'
++
++type DataSpaceSaveConfigChanges = Readonly<{added?: readonly unknown[]; changed?: readonly unknown[]; deleted?: readonly unknown[]}>
++type DataSpaceSaveTableConfig = Pick<TableMetadata, 'api' | 'crudConfig'>
++type DataSpaceSaveConfigInput = Readonly<{tableConfig?: DataSpaceSaveTableConfig; changes: DataSpaceSaveConfigChanges}>
++type DataSpaceSaveConfigEndpoints = Partial<Record<'create' | 'update' | 'delete', HttpEndpoint>>
++type DataSpaceSaveConfigTable = Readonly<{endpoints: DataSpaceSaveConfigEndpoints; timeout?: number}>
++
++const DEFAULT_ENDPOINT: HttpEndpoint = {url: '/api/DataOperation/BatchTableOperateRequestByCRUD', method: 'POST'}
++
++/** 表级端点只改变 SPARK 请求的投递位置；原查询凭据、动作封包及回执协议仍由正式 owner 执行。 */
++export class DataSpaceSaveConfig {
++  private constructor(readonly endpoint: HttpEndpoint, readonly timeout?: number) {}
++
++  public static validate(table: DataTable): void { this.readTable(table) }
++
++  public static resolve(inputs: readonly DataSpaceSaveConfigInput[]): DataSpaceSaveConfig {
++    let selected: DataSpaceSaveConfig | undefined
++    let key: string | undefined
++    for (const input of inputs) {
++      const config = this.readTable(input.tableConfig)
++      for (const operation of ['create', 'update', 'delete'] as const) {
++        const rows = operation === 'create' ? input.changes.added : operation === 'update' ? input.changes.changed : input.changes.deleted
++        if (!rows?.length) continue
++        const candidate = new DataSpaceSaveConfig(config.endpoints[operation] ?? {...DEFAULT_ENDPOINT}, config.timeout)
++        const candidateKey = JSON.stringify([this.copyJson(candidate.endpoint), candidate.timeout])
++        if (key !== undefined && key !== candidateKey) {
++          throw new Error('SPARK_SAVE_CONFIG_CONFLICT: 同次保存的活动操作端点或超时不同，尚不支持跨端点部分提交')
++        }
++        selected = candidate
++        key = candidateKey
++      }
++    }
++    return selected ?? new DataSpaceSaveConfig({...DEFAULT_ENDPOINT})
++  }
++
++  public mergeHeaders(scope: Record<string, string>): Record<string, string> {
++    const keys = new Set(Object.keys(scope).map(key => key.toLowerCase()))
++    for (const key of Object.keys(this.endpoint.headers ?? {})) {
++      if (keys.has(key.toLowerCase())) throw new Error('SPARK_SAVE_CONFIG_HEADERS: 表配置不能覆盖运行请求头')
++    }
++    return {...this.endpoint.headers, ...scope}
++  }
++
++  private static readTable(table?: DataSpaceSaveTableConfig): DataSpaceSaveConfigTable {
++    const endpoints: DataSpaceSaveConfigEndpoints = {}
++    if (table?.api !== undefined) {
++      const api = this.object(table.api, ['create', 'update', 'delete'], 'api')
++      for (const operation of ['create', 'update', 'delete'] as const) {
++        if (Object.hasOwn(api, operation)) endpoints[operation] = this.readEndpoint(api[operation])
++      }
++    }
++    let timeout: number | undefined
++    if (table?.crudConfig !== undefined) {
++      const policy = this.object(table.crudConfig, ['timeout', 'retryCount', 'validateData'], 'crudConfig')
++      if ('timeout' in policy) {
++        if (typeof policy['timeout'] !== 'number' || !Number.isSafeInteger(policy['timeout']) || policy['timeout'] <= 0) {
++          throw new Error('SPARK_SAVE_CONFIG: timeout 必须是正安全整数')
++        }
++        timeout = policy['timeout']
++      }
++      if ('retryCount' in policy && policy['retryCount'] !== 0) throw new Error('SPARK_SAVE_CONFIG: 正式保存不支持自动重试')
++      if ('validateData' in policy && policy['validateData'] !== true) throw new Error('SPARK_SAVE_CONFIG: 正式保存不能关闭校验')
++    }
++    return {endpoints, ...(timeout === undefined ? {} : {timeout})}
++  }
++
++  private static readEndpoint(input: unknown): HttpEndpoint {
++    const endpoint = this.object(input, ['url', 'method', 'headers', 'params'], 'endpoint')
++    const url = endpoint['url']
++    if (typeof url !== 'string' || url !== url.trim() || !/^\/(?!\/)[^\\#{}\s]*$/.test(url)) {
++      throw new Error('SPARK_SAVE_CONFIG: 提交端点必须是无模板的站内绝对路径')
++    }
++    if ('method' in endpoint && endpoint['method'] !== 'POST') throw new Error('SPARK_SAVE_CONFIG: SPARK 提交端点必须使用 POST')
++    const headers: Record<string, string> = {}
++    if ('headers' in endpoint) {
++      if (!isRecord(endpoint['headers'])) throw new Error('SPARK_SAVE_CONFIG: headers 必须是对象')
++      for (const [name, value] of Object.entries(endpoint['headers']).sort(([a], [b]) => a.localeCompare(b))) {
++        const key = name.toLowerCase()
++        if (!name.trim() || typeof value !== 'string' || Object.hasOwn(headers, key)
++          || /authorization|cookie|token|^x-(formkey|appid|tenant|enterprise|user)/i.test(key)) {
++          throw new Error('SPARK_SAVE_CONFIG_HEADERS: 端点头无效或包含运行身份/凭据')
++        }
++        Object.defineProperty(headers, key, {value, enumerable: true, writable: true, configurable: true})
++      }
++    }
++    const params = 'params' in endpoint ? this.copyJson(endpoint['params']) : undefined
++    if (params !== undefined && !isRecord(params)) throw new Error('SPARK_SAVE_CONFIG: params 必须是对象')
++    return {url, method: 'POST', ...(Object.keys(headers).length ? {headers} : {}),
++      ...(isRecord(params) && Object.keys(params).length ? {params} : {})}
++  }
++
++  private static object(input: unknown, allowed: readonly string[], path: string): Record<string, unknown> {
++    if (!isRecord(input) || Object.keys(input).some(key => !allowed.includes(key))) {
++      throw new Error(`SPARK_SAVE_CONFIG: ${path} 含未支持的配置`)
++    }
++    return input
++  }
++
++  private static copyJson(value: unknown, ancestors = new Set<object>()): unknown {
++    if (value === null || typeof value === 'string' || typeof value === 'boolean'
++      || (typeof value === 'number' && Number.isFinite(value))) return value
++    if (typeof value === 'object' && !ancestors.has(value)) {
++      ancestors.add(value)
++      try {
++        if (Array.isArray(value)) return value.map(item => this.copyJson(item, ancestors))
++        const prototype: unknown = Object.getPrototypeOf(value)
++        if (isRecord(value) && (prototype === Object.prototype || prototype === null)) {
++          return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))
++            .map(([key, item]) => [key, this.copyJson(item, ancestors)]))
++        }
++      } finally {ancestors.delete(value)}
++    }
++    throw new Error('SPARK_SAVE_CONFIG: 端点参数必须是 JSON 数据')
++  }
++}
+diff --git a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/empty b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts
+index e69de29bb..1b81b74f6 100644
+--- a/notes/evidence/sparkproject-appworks-integration/four-file-correction/metadata-dataset/table-submit/before/empty
++++ b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts
+@@ -0,0 +1,216 @@
++import {describe, expect, it} from 'vitest'
++import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
++import {ProjectWorkspace} from '@spark-appworks/spark-project-model'
++import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
++import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
++
++type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
++const model: FormalModel = {id: 'MODEL', name: 'Orders', metaName: 'Orders', sourceName: 'PhysicalOrders',
++  sourceId: 'DB', sourceType: 'table', primaryKey: 'id', businessMain: false, raw: {},
++  fields: ['id', 'title'].map(name => ({id: `FIELD-${name}`, modelId: 'MODEL', name, canonicalName: name,
++    type: 'string', primaryKey: name === 'id', description: name, output: true, computed: false,
++    order: 0, orderType: '', raw: {}}))}
++
++class SubmitHttp extends HttpClientBase {
++  readonly requests: RequestConfig[] = []
++  query: unknown = {primaryKeyField: 'id', allowAdd: false, data: {Items: [{id: 'A', title: 'Before',
++    lingma_sys_key: 'SIGNED', lingma_sys_params: {r: ['id', 'title'], e: ['title'], d: true}}], Count: 1}}
++  receipt: unknown = {maplistedit: [{PhysicalOrders: [{id: 'A', title: 'Accepted'}]}]}
++  protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
++    this.requests.push(config)
++    return {status: 200, statusText: 'OK', headers: {}, data: {Code: 200,
++      Result: config.url === '/api/DataOperation/GetData' ? this.query : this.receipt}}
++  }
++}
++
++type SubmitRuntime = Readonly<{http: SubmitHttp; runtime: DataSpaceRuntimeApi}>
++
++function fixture() {
++  let stored: string | null = null
++  const workspace = () => new ProjectWorkspace({projectId: 'APP',
++    pageFiles: {readPageFile: async () => {throw new Error('unexpected page file')}},
++    blueprint: {loadRoot: async () => ({children: []})},
++    scenarioViews: {readScope: () => 'SCOPE', readText: async () => stored,
++      writeText: async (_id, text) => {stored = text}},
++  })
++  const text = (configuration: Record<string, unknown> = {}) => JSON.stringify({scenarioId: 'SPACE', tables: {
++    Orders: {modelBinding: {modelId: 'MODEL', modelName: 'Orders'}, ...configuration,
++      views: {default: {commitMode: 'staged'}, detail: {commitMode: 'staged'}}},
++  }})
++  const reopen = async (shared?: SubmitRuntime) => {
++    const owner = workspace()
++    const file = await owner.loadScenarioViews({scenarioId: 'SPACE'})
++    const http = shared?.http ?? new SubmitHttp()
++    const runtime = shared?.runtime ?? new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {'X-AppId': 'APP'}})})
++    const {dataSet} = new LowcodeDataSpaceAssembler(runtime, http).assemble({config: file.value,
++      space: {dataSpaceId: 'SPACE', name: 'Orders space'}, models: [model], relations: []})
++    return {owner, file, http, runtime, dataSet, view: dataSet.getView('Orders', 'detail')!, table: dataSet.getTable('Orders')!}
++  }
++  const save = async (configuration: Record<string, unknown>) => {
++    const owner = workspace()
++    const file = await owner.createScenarioViews({scenarioId: 'SPACE', text: text(configuration)})
++    await owner.saveScenarioViews({scenarioId: 'SPACE'})
++    expect(file.isDirty).toBe(false)
++    return reopen()
++  }
++  return {save, reopen, text}
++}
++
++describe('persisted DataTable submission configuration', () => {
++  it('saves and reopens table configuration then uses it for an actual signed model update', async () => {
++    const storage = fixture()
++    const runtime = await storage.save({api: {update: {url: '/api/orders/save', method: 'POST',
++      headers: {'X-Save-Profile': 'editor'}, params: {source: 'design'}}}, crudConfig: {timeout: 4321}})
++    const other = await storage.reopen()
++    try {
++      expect(runtime.table.api?.update?.url).toBe('/api/orders/save')
++      expect(runtime.view.dataTable).toBe(runtime.dataSet.getView('Orders', 'default')?.dataTable)
++      expect(runtime.table.api).not.toBe(other.table.api)
++      await runtime.view.loadFromServer()
++      expect(await runtime.view.editRowById('A', {title: 'Changed'})).toBe(true)
++      await expect(runtime.view.saveChanges()).resolves.toMatchObject({success: true, data: {savedCount: 1}})
++      expect(runtime.http.requests.at(-1)).toMatchObject({url: '/api/orders/save', method: 'POST', timeout: 4321,
++        params: {source: 'design'}, headers: {'X-AppId': 'APP', 'x-FormKey': 'SPACE', 'x-save-profile': 'editor'},
++        retry: 0, cache: false,
++        data: [{TableName: 'Orders', CrudModel: {Added: [], Changed: [{id: 'A', title: 'Changed', lingma_sys_key: 'SIGNED'}], Deleted: []}}]})
++      expect(runtime.view.rows[0]?.['title']).toBe('Accepted')
++      expect(runtime.view.dirtyTracking.hasPendingChanges()).toBe(false)
++      expect(other.table.api?.update?.url).toBe('/api/orders/save')
++    } finally {runtime.dataSet.destroy(); other.dataSet.destroy()}
++  })
++
++  it.each(['create', 'delete'] as const)('uses the %s endpoint and its actual action receipt', async operation => {
++    const runtime = await fixture().save({api: {[operation]: {url: `/api/orders/${operation}`, method: 'POST'}}})
++    try {
++      runtime.http.query = {primaryKeyField: 'id', allowAdd: true, lingma_sys_key: 'TABLE-SIGNED',
++        data: {Items: [{id: 'A', title: 'Before', lingma_sys_key: 'SIGNED',
++          lingma_sys_params: {r: ['id', 'title'], e: ['title'], d: true}}], Count: 1}}
++      await runtime.view.loadFromServer()
++      if (operation === 'create') {
++        await runtime.view.addRow({id: 'B', title: 'Created'})
++        runtime.http.receipt = {maplistadd: [{PhysicalOrders: [{id: 'B', title: 'Created'}]}]}
++      } else {
++        await runtime.view.removeRow('A')
++        runtime.http.receipt = {maplistdelete: [{PhysicalOrders: [{id: 'A'}]}]}
++      }
++      await expect(runtime.dataSet.saveChanges()).resolves.toMatchObject({success: true,
++        data: operation === 'create' ? {createdCount: 1} : {deletedCount: 1}})
++      const request = runtime.http.requests.at(-1)
++      expect(request?.url).toBe(`/api/orders/${operation}`)
++      expect(JSON.stringify(request?.data)).toContain(operation === 'create' ? 'TABLE-SIGNED' : 'SIGNED')
++      expect(runtime.view.dirtyTracking.hasPendingChanges()).toBe(false)
++      expect(runtime.view.rows).toHaveLength(operation === 'create' ? 2 : 0)
++    } finally {runtime.dataSet.destroy()}
++  })
++
++  it('rejects incompatible active routes before any write and retains all pending changes', async () => {
++    const runtime = await fixture().save({api: {create: {url: '/api/create'}, update: {url: '/api/update'}}})
++    try {
++      runtime.http.query = {primaryKeyField: 'id', allowAdd: true, lingma_sys_key: 'TABLE-SIGNED',
++        data: {Items: [{id: 'A', title: 'Before', lingma_sys_key: 'SIGNED', lingma_sys_params: {e: ['title']}}], Count: 1}}
++      await runtime.view.loadFromServer()
++      await runtime.view.addRow({id: 'B', title: 'Created'})
++      await runtime.view.editRowById('A', {title: 'Changed'})
++      await expect(runtime.view.saveChanges()).rejects.toThrow('SPARK_SAVE_CONFIG_CONFLICT')
++      expect(runtime.http.requests).toHaveLength(1)
++      expect(runtime.view.dirtyTracking.isPendingCreate('B')).toBe(true)
++      expect(runtime.view.dirtyTracking.isDirty('A')).toBe(true)
++      runtime.table.setApi({create: {url: '/api/both'}, update: {url: '/api/both'}})
++      runtime.http.receipt = {maplistadd: [{PhysicalOrders: [{id: 'B', title: 'Created'}]}],
++        maplistedit: [{PhysicalOrders: [{id: 'A', title: 'Accepted'}]}]}
++      await expect(runtime.view.saveChanges()).resolves.toMatchObject({success: true, data: {createdCount: 1, savedCount: 1}})
++      expect(runtime.http.requests.at(-1)?.url).toBe('/api/both')
++    } finally {runtime.dataSet.destroy()}
++  })
++
++  it('uses the submitting table when two instances share an in-flight query context', async () => {
++    const storage = fixture()
++    const first = await storage.save({api: {update: {url: '/api/first'}}})
++    const second = await storage.reopen(first)
++    try {
++      second.table.setApi({update: {url: '/api/second'}})
++      await Promise.all([first.view.loadFromServer(), second.view.loadFromServer()])
++      expect(first.http.requests).toHaveLength(1)
++      await first.view.editRowById('A', {title: 'Changed'})
++      await first.view.saveChanges()
++      expect(first.http.requests.at(-1)?.url).toBe('/api/first')
++      expect(second.table.api?.update?.url).toBe('/api/second')
++    } finally {first.dataSet.destroy(); second.dataSet.destroy()}
++  })
++
++  it('keeps dirty changes after an invalid receipt and uses table configuration on a subsequent accepted baseline', async () => {
++    const runtime = await fixture().save({api: {update: {url: '/api/orders/save'}}, crudConfig: {retryCount: 0, validateData: true}})
++    try {
++      await runtime.view.loadFromServer()
++      await runtime.view.editRowById('A', {title: 'Changed'})
++      runtime.http.receipt = {}
++      await expect(runtime.view.saveChanges()).rejects.toThrow()
++      expect(runtime.http.requests).toHaveLength(2)
++      expect(runtime.view.dirtyTracking.isDirty('A')).toBe(true)
++      runtime.http.receipt = {maplistedit: [{PhysicalOrders: [{id: 'A', title: 'Accepted'}]}]}
++      await runtime.view.saveChanges()
++      runtime.table.setApi({update: {url: '/api/next'}})
++      await runtime.view.editRowById('A', {title: 'Next'})
++      runtime.http.receipt = {maplistedit: [{PhysicalOrders: [{id: 'A', title: 'Next'}]}]}
++      await runtime.view.saveChanges()
++      expect(runtime.http.requests.at(-1)?.url).toBe('/api/next')
++      expect(runtime.view.rows[0]?.['title']).toBe('Next')
++    } finally {runtime.dataSet.destroy()}
++  })
++
++  it('removes persisted submission configuration and restores the default owner route on reopen', async () => {
++    const storage = fixture()
++    const previous = await storage.save({api: {update: {url: '/api/custom'}}, crudConfig: {timeout: 1234}})
++    try {
++      previous.file.setText(storage.text())
++      await previous.owner.saveScenarioViews({scenarioId: 'SPACE'})
++      const current = await storage.reopen()
++      try {
++        expect(current.table.api).toBeUndefined()
++        expect(current.table.crudConfig).toBeUndefined()
++        await current.view.loadFromServer()
++        await current.view.editRowById('A', {title: 'Changed'})
++        await current.view.saveChanges()
++        expect(current.http.requests.at(-1)?.url).toBe('/api/DataOperation/BatchTableOperateRequestByCRUD')
++        expect(previous.table.api?.update?.url).toBe('/api/custom')
++      } finally {current.dataSet.destroy()}
++    } finally {previous.dataSet.destroy()}
++  })
++
++  it('captures request configuration before the async save queue and rejects non-JSON runtime parameters', async () => {
++    const runtime = await fixture().save({api: {update: {url: '/api/captured', params: {version: 1}}}})
++    try {
++      await runtime.view.loadFromServer()
++      await runtime.view.editRowById('A', {title: 'Changed'})
++      const saving = runtime.view.saveChanges()
++      runtime.table.setApi({update: {url: '/api/later', params: {version: 2}}})
++      await saving
++      expect(runtime.http.requests.at(-1)).toMatchObject({url: '/api/captured', params: {version: 1}})
++      await runtime.view.editRowById('A', {title: 'Later'})
++      runtime.table.setApi({update: {url: '/api/later', params: {date: new Date(0)}}})
++      await expect(runtime.view.saveChanges()).rejects.toThrow('JSON')
++      expect(runtime.http.requests).toHaveLength(2)
++      expect(runtime.view.dirtyTracking.isDirty('A')).toBe(true)
++    } finally {runtime.dataSet.destroy()}
++  })
++
++  it.each([
++    {api: {update: {url: 'https://external.invalid/save'}}},
++    {api: {update: {url: '/api/save', method: 'DELETE'}}},
++    {api: {update: {url: '/api/save', headers: {'x-AppId': 'OTHER'}}}},
++    {api: {update: {url: '/api/save', headers: {Authorization: 'credential'}}}},
++    {api: {transaction: {url: '/api/save'}}},
++    {crudConfig: {retryCount: 1}}, {crudConfig: {validateData: false}}, {crudConfig: {timeout: 0}},
++    {crudConfig: {transformRequest: 'function-code'}},
++  ])('rejects unsupported configuration without changing the file or runtime: %j', async invalid => {
++    const storage = fixture()
++    const runtime = await storage.save({})
++    try {
++      const original = runtime.file.getText()
++      expect(() => runtime.file.setText(storage.text(invalid))).toThrow()
++      expect(runtime.file.getText()).toBe(original)
++      expect(runtime.file.isDirty).toBe(false)
++      expect(runtime.http.requests).toHaveLength(0)
++    } finally {runtime.dataSet.destroy()}
++  })
++})

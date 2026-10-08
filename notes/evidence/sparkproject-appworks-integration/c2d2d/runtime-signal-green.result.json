@@ -1,0 +1,7 @@
+{
+  "finishedAtUtc": "2026-10-07T08:59:54.7515515Z",
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts -t \"forwards an aborted navigation signal|uses the local catalog without reading a request scope\"",
+  "exitCode": 0,
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:59:47.9347600Z"
+}

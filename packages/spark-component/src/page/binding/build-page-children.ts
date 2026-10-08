@@ -32,6 +32,8 @@ export type PageScriptCaller = {
 export type BuildPageChildrenOptions = {
   /** 脚本函数调用器，用于把字符串事件名绑定到真实脚本函数。 */
   callFunc: PageScriptCaller
+  /** 可选的纯渲染钩子调用器；未提供时沿用普通脚本调用器。 */
+  callBeforeRender?: PageScriptCaller
   /** 动作执行上下文，用于把声明式 action descriptor 绑定成可执行闭包。 */
   actionCtx: ActionExecutionContext}
 
@@ -49,7 +51,7 @@ export function buildPageChildren(
   rules: SparkNode[],
   options: BuildPageChildrenOptions,
 ): SparkNode[] {
-  const { callFunc, actionCtx } = options
+  const { callFunc, callBeforeRender, actionCtx } = options
 
   // 同一轮 build 内的 id 去重表。作用域只限当前规则树，避免跨页面污染。
   const usedIds = new Set<string>()
@@ -129,6 +131,11 @@ export function buildPageChildren(
     const propsObj = typeof normalized.props === 'object' && !Array.isArray(normalized.props)
       ? { ...normalized.props }
       : {}
+
+    const beforeRenderHandler = propsObj['onBeforeRender']
+    if (typeof beforeRenderHandler === 'string' && callBeforeRender) {
+      propsObj['onBeforeRender'] = (...args: unknown[]) => callBeforeRender(beforeRenderHandler, ...args)
+    }
 
     // props 内的 on / onXxx 先归一化，避免后续递归时把字符串事件名当普通值透传。
     normalizeOnProps(propsObj, callFunc, actionCtx)

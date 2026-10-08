@@ -124,9 +124,10 @@ type ScenarioViewGateway = Readonly<{
 /** 读取明确场景文件，强制重载不得覆盖dirty。 */
 type ScenarioViewLoadCommand = Readonly<{ scenarioId: string; forceReload?: boolean }>
 /** 用户显式新建的单场景合法文本，远端必须确认不存在。 */
-type ScenarioViewCreateCommand = Readonly<{ scenarioId: string; text: string }>
+type ScenarioViewCreateCommand = Readonly<{ scenarioId: string; text: string; assertCurrent?: () => void }>
 /** 保存已持有场景owner，写前比较基线并写后真实读回。 */
-type ScenarioViewSaveCommand = Readonly<{ scenarioId: string }>
+type ScenarioViewSaveCommand = Readonly<{ scenarioId: string; assertCurrent?: () => void }>
+type ScenarioViewAdoptCommand = Readonly<{ scenarioId: string; expectedRevision: number; previewText: string | null }>
 
 /** 场景编号快照操作，版本为非负安全整数，不是工具发布VersionId。 */
 type ScenarioViewVersionCommand = Readonly<{ scenarioId: string; version: number }>
@@ -225,6 +226,7 @@ constructor(options: ProjectWorkspaceOptions) {
     if (this.scenarioFiles.has(scenarioId) || this.scenarioLoads.has(scenarioId)) throw new Error('SCENARIO_VIEW_EXISTS: 场景文件已加载或正在加载')
     const remote = await this.requireScenarioGateway().readText(scenarioId)
     this.assertScenarioScope(scope)
+    command.assertCurrent?.()
     if (remote !== null || this.scenarioFiles.has(scenarioId) || this.scenarioLoads.has(scenarioId)) throw new Error('SCENARIO_VIEW_EXISTS: 场景文件已存在，请加载现有文件')
     this.scenarioFiles.set(scenarioId, file)
     return file
@@ -255,21 +257,68 @@ constructor(options: ProjectWorkspaceOptions) {
     if (write === undefined) throw new Error('当前平台未提供场景视图文件保存能力')
     const key = JSON.stringify([scope, scenarioId])
     if (this.scenarioSaves.has(key)) throw new Error('SCENARIO_VIEW_SAVE_PENDING: 该场景正在保存')
+    if (file.saveStatus !== 'idle') throw new Error('SCENARIO_VIEW_SAVE_PENDING: 须先核验上次保存')
     this.scenarioSaves.add(key)
     const submitted = file.getText()
+    let dispatched = false
     try {
       const preimage = await gateway.readText(scenarioId)
       this.assertScenarioScope(scope)
       if (preimage !== (file.isPersisted ? file.savedText : null)) throw new Error('SCENARIO_VIEW_CONFLICT: 远端场景配置已改变')
+      command.assertCurrent?.()
+      file.beginSave(submitted, preimage)
+      dispatched = true
       await write(scenarioId, submitted)
       this.assertScenarioScope(scope)
       const readback = await gateway.readText(scenarioId)
       this.assertScenarioScope(scope)
       if (readback !== submitted) throw new Error('SCENARIO_VIEW_SAVE_UNCONFIRMED: 写后原文回读不一致')
-      file.markSaved(submitted)
+      file.confirmSubmitted()
+    } catch (error) {
+      if (dispatched) file.markSaveUnknownIfPending()
+      throw error
     } finally {
       this.scenarioSaves.delete(key)
     }
+  }
+
+  public async verifyScenarioViews(command: ScenarioViewSaveCommand): Promise<'confirmed' | 'not-applied'> {
+    const scenarioId = this.requireScenarioId(command.scenarioId)
+    const scope = this.currentScenarioScope()
+    const file = this.scenarioFiles.get(scenarioId)
+    if (file?.saveStatus !== 'unknown' || !file.submission) throw new Error('SCENARIO_VIEW_SAVE_STATE: 无未知提交')
+    if (this.scenarioSaves.has(JSON.stringify([scope, scenarioId]))) throw new Error('SCENARIO_VIEW_SAVE_PENDING: 场景正在写入')
+    const submission = file.submission
+    const remote = await this.requireScenarioGateway().readText(scenarioId)
+    this.assertScenarioScope(scope)
+    if (this.scenarioFiles.get(scenarioId) !== file || file.submission !== submission) throw new Error('SCENARIO_VIEW_SAVE_STATE: 核验目标已变化')
+    if (remote === submission.text) { file.confirmSubmitted(); return 'confirmed' }
+    if (remote === submission.baseline) { file.confirmNotApplied(); return 'not-applied' }
+    throw new Error('SCENARIO_VIEW_CONFLICT: 远端与提交文本及写前基线均不一致')
+  }
+
+  public async previewScenarioViewsRemote(command: ScenarioViewSaveCommand): Promise<string | null> {
+    const scenarioId = this.requireScenarioId(command.scenarioId)
+    const scope = this.currentScenarioScope()
+    const remote = await this.requireScenarioGateway().readText(scenarioId)
+    this.assertScenarioScope(scope)
+    if (remote !== null) new ScenarioViewFile(scenarioId, remote)
+    return remote
+  }
+
+  public async adoptScenarioViews(command: ScenarioViewAdoptCommand): Promise<void> {
+    const scenarioId = this.requireScenarioId(command.scenarioId)
+    const scope = this.currentScenarioScope()
+    const file = this.scenarioFiles.get(scenarioId)
+    if (!file) throw new Error('SCENARIO_VIEW_FILE_MISSING: 场景文件尚未加载')
+    if (file.saveStatus === 'pending' || this.scenarioSaves.has(JSON.stringify([scope, scenarioId]))) throw new Error('SCENARIO_VIEW_SAVE_PENDING: 场景正在写入')
+    if (file.revision !== command.expectedRevision) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 本地配置已改变')
+    const remote = await this.requireScenarioGateway().readText(scenarioId)
+    this.assertScenarioScope(scope)
+    if (this.scenarioFiles.get(scenarioId) !== file || file.revision !== command.expectedRevision) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 接受远端期间配置已改变')
+    if (remote !== command.previewText) throw new Error('SCENARIO_VIEW_PREVIEW_CHANGED: 远端配置与已预览原文不一致')
+    if (remote === null) { file.invalidate(); this.scenarioFiles.delete(scenarioId); return }
+    file.loadText(remote)
   }
 
   /** 列出真实N__pagedata.json快照，编号不参与页面工具的发布引用。 */

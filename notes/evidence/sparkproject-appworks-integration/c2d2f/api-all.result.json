@@ -1,0 +1,6 @@
+{
+  "exitCode": 0,
+  "startedAtUtc": "2026-10-07T09:31:31.0425704Z",
+  "finishedAtUtc": "2026-10-07T09:31:38.3305738Z",
+  "command": "pnpm --filter @spark-appworks/spark-lowcode-api run test:run --maxWorkers=2 --reporter=dot"
+}

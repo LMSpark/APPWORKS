@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-07T09:50:30.595Z",
+  "issue": "sort omitted from real GetData body without explicit Fields; observed dates not descending",
+  "observedRequest": [
+    {
+      "url": "http://127.0.0.1:5274/api/DataOperation/GetData",
+      "body": {
+        "Table": [
+          {
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "Filter": null,
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 2,
+          "size": 10
+        }
+      }
+    }
+  ],
+  "explicitSevenFieldsProbe": {
+    "rowCount": 10,
+    "total": 1184,
+    "countReported": true,
+    "keysValid": true,
+    "fieldsPresent": true,
+    "datesDescending": true,
+    "datesNonempty": true
+  },
+  "decision": "fixed seven-column catalog must declare seven fields; retain shared no-projection contract"
+}

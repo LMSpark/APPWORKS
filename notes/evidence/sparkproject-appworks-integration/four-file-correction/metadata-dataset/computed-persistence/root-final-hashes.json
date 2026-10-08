@@ -1,0 +1,47 @@
+[
+  {
+    "path": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
+    "sha256": "F7C06AC0F0F6A62364A801422FBB619F433A8AFDA8E2AEA0F984FAD3E530800A",
+    "matched": true
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "sha256": "3BC0DB2FC8BE2B190864EE093413BAFB8560A95EE3A886CD64E4003824146B87",
+    "matched": true
+  },
+  {
+    "path": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+    "sha256": "B92257C9291031A3CCA89729EB9045C7FC00B6C9342F430CE120059134E84351",
+    "matched": true
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
+    "sha256": "7263F861CA41C1DF154EA106B0BB1FEB381A2D47A1442191A02ED63642246274",
+    "matched": true
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+    "sha256": "A166FA4CE163E58195749D0A66B0BE939FF392387585996BA8BF5CFB065E34B0",
+    "matched": true
+  },
+  {
+    "path": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+    "sha256": "4A9E8D921C4A132584267361520A7A290CA0E06B75D477A53A0937594FD2B71B",
+    "matched": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts",
+    "sha256": "36C0C8199A60FE85D46558CD9FE65F1CB0EB2A8A79C824CA93B69D8CB850B991",
+    "matched": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts",
+    "sha256": "2B185F0C3372E62C16A3E22E60842C79A140A134641C96CDF78D542BD93AF70D",
+    "matched": true
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+    "sha256": "F8734A6143315DF71639EEA011A358ED24C2D69D36C68BF9055B9EA80D507360",
+    "matched": true
+  }
+]

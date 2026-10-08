@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run src/shell/plugins/__tests__/registry.test.ts --maxWorkers=1 --reporter=dot",
+  "workingDirectory": "packages/spark-app",
+  "exitCode": 0,
+  "startedAt": "2026-10-07T13:56:53.3996438+08:00",
+  "finishedAt": "2026-10-07T13:56:55.4326360+08:00",
+  "log": "registry-test.log"
+}

@@ -1,0 +1,409 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:io/page-content-loader",
+    "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts",
+    "sourceFile": "packages/spark-project-model/src/io/page-content-loader.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "io/page-content-loader",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/page-content-loader\n职责：按项目与页面身份读取三文件，并维护当前前端会话内的内容缓存。\n边界：只依赖注入的语义读取器，不拥有任何服务器 URL 或认证协议。\nAI用途：经Workspace读取工具工作副本并确认缓存身份与失效规则。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageFileReadCommand",
+      "PageFileReader",
+      "PageContentLoaderOptions",
+      "PageContentLoader"
+    ]
+  },
+  "$defs": {
+    "PageFileReadCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageFileReadCommand",
+      "properties": {
+        "versionId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "object",
+          "title": "PageToolFileName"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageContentLoaderOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageContentLoaderOptions",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "readPageFile": {
+          "type": "object",
+          "title": "PageFileReader"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getProjectId.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getProjectId.return": {
+          "type": "string"
+        }
+      }
+    },
+    "PageContentLoader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageContentLoader",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageContentLoaderOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadPageFileContent.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            },
+            "options": {
+              "$ref": "../page/page-file.ts.json#/$defs/PageToolLoadOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadPageFileContent.return": {
+          "type": "object",
+          "title": "Promise<PageContentLoadResult<string>>"
+        },
+        "method.clearCache.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.clearCache.return": true,
+        "method.clearAllCache.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearAllCache.return": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "number"
+            },
+            "keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "size",
+            "keys"
+          ],
+          "additionalProperties": false
+        },
+        "method.getCacheStats.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCacheStats.return": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "number"
+            },
+            "keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "size",
+            "keys"
+          ],
+          "additionalProperties": false
+        },
+        "method.clearPageCache.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.clearPageCache.return": true,
+        "method.getPageFileReader.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPageFileReader.return": {
+          "type": "object",
+          "title": "PageFileReader"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.420Z",
+  "models": {
+    "PageFileReadCommand": {
+      "name": "PageFileReadCommand",
+      "jsdoc": "以项目和pageId读取一个工具文件；versionId发布指针省略时读取工作副本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    versionId?: string;\n    projectId: string;\n    pageId: string;\n    fileName: PageToolFileName;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    versionId?: string;\n    projectId: string;\n    pageId: string;\n    fileName: PageToolFileName;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "versionId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageFileReader": {
+      "name": "PageFileReader",
+      "jsdoc": "宿主提供的真实文本读取能力，失败不得回退本地空文件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(command: PageFileReadCommand) => Promise<string>",
+        "members": {}
+      }
+    },
+    "PageContentLoaderOptions": {
+      "name": "PageContentLoaderOptions",
+      "jsdoc": "注入项目身份读取器与三文件文本能力，缓存由本loader持有。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    getProjectId?: () => string;\n    projectId?: string;\n    readPageFile?: PageFileReader;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    getProjectId?: () => string;\n    projectId?: string;\n    readPageFile?: PageFileReader;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readPageFile",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getProjectId",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageContentLoader": {
+      "name": "PageContentLoader",
+      "jsdoc": "页面三文件加载器；远端合同由宿主注入，缓存不跨应用身份。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "注入项目身份和真实读取能力，缓存不跨项目或失效请求。",
+          "signatureText": "constructor(options?: PageContentLoaderOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "PageContentLoaderOptions",
+                "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "loadPageFileContent",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolLoadOptions",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageContentLoadResult",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "clearCache",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clearAllCache",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        size: number;\n        keys: string[];\n    }"
+              }
+            },
+            {
+              "name": "getCacheStats",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        size: number;\n        keys: string[];\n    }"
+              }
+            },
+            {
+              "name": "clearPageCache",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getPageFileReader",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PageFileReader",
+                  "sourcePath": "packages/spark-project-model/src/io/page-content-loader.ts"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

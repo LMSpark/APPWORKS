@@ -1,0 +1,18 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+    "sha256": "e52311fd1e01f102bbcfb2566d22570c8b42a1470e243ce83b23275f8e38d06e"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+    "sha256": "2cce44a017b880f17b723d19d2d9017b367295bf893c1e904a160a8ed59789d1"
+  },
+  {
+    "path": "src/lowcode/lowcode-runtime.ts",
+    "sha256": "20aea107a9685b3f9fc9d8f363e3e991e34412828ac9fb2acac430bb747213d9"
+  },
+  {
+    "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+    "sha256": "7f237cca1b58417b9d4c87e48242ee747a119160e4b36b54f74e79bdecf91d47"
+  }
+]

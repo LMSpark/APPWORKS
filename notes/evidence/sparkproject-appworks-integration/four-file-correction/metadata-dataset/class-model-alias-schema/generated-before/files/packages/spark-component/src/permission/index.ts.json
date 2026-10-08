@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:permission/index",
+    "sourcePath": "packages/spark-component/src/permission/index.ts",
+    "sourceFile": "packages/spark-component/src/permission/index.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "permission/index",
+    "jsdoc": "@module @spark-appworks/spark-component:permission/index\n职责：汇总导出 permission 的组件、props、types 和 zero-code 能力。\n边界：只维护目录级公开表面，不实现具体渲染逻辑，也不创建新的运行时状态。\nAI用途：判断某个组件能力是否应对外暴露或被注册表扫描时，用本模块确认导出入口。\n\n组件权限渲染入口\n## 定位\n字段和动作消费绑定 DataView 的原查询权限，不建立另一份授权模型。\n## 设计原则\n- usePermission 是 Vue composable 桥接，内部消费 DATA_SOURCE 和本地输入策略\n- 其他 composable 只能通过 usePermission() 访问权限数据，不允许直接 sparkConsume 权限能力",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T14:02:49.817Z",
+  "models": {}
+}

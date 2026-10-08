@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererTree/RendererTree.props",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/RendererTree.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTree/RendererTree.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererTree/RendererTree.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererTree/RendererTree.props\n职责：定义 RendererTree（r-tree）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 table-level/data-view-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer tree 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RTreeProps"
+    ],
+    "componentName": "RendererTree",
+    "componentType": "r-tree",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "RTreeProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RTreeProps",
+      "properties": {
+        "dataSource": {
+          "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "toolbar": {
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+        },
+        "actions": {
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+        },
+        "editor": {
+          "$ref": "../../zones/RendererEditor.types.ts.json#/$defs/REditorProps"
+        },
+        "nodeKey": {
+          "type": "string"
+        },
+        "currentKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expandToKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expandLevel": {
+          "type": "number"
+        },
+        "onNodeClick": {
+          "$ref": "zero-code.ts.json#/$defs/TreeEventHandler"
+        },
+        "onNodeExpand": {
+          "$ref": "zero-code.ts.json#/$defs/TreeEventHandler"
+        },
+        "onNodeCollapse": {
+          "$ref": "zero-code.ts.json#/$defs/TreeEventHandler"
+        },
+        "treeProps": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:26.801Z",
+  "models": {
+    "RTreeProps": {
+      "name": "RTreeProps",
+      "jsdoc": "r-tree 组件公开属性接口。\n命名规范：组件 type `r-tree` → 接口名 `RTreeProps`。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTree",
+        "type": "r-tree",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & {\n    /** 显式收窄为树容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化节点动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 结构化编辑区 */\n    editor?: REditorProps;\n    /** 节点主键字段名，默认取 treeConfig.idField */\n    nodeKey?: string;\n    /** 当前选中节点 ID */\n    currentKey?: string | number | null;\n    /** 初始化展开并定位到目标节点 ID */\n    expandToKey?: string | number | null;\n    /** 初始化自动展开到指定层级（根节点为第 1 层） */\n    expandLevel?: number;\n    /** 节点点击回调 */\n    onNodeClick?: TreeEventHandler;\n    /** 节点展开回调 */\n    onNodeExpand?: TreeEventHandler;\n    /** 节点折叠回调 */\n    onNodeCollapse?: TreeEventHandler;\n    /** 透传给 el-tree 的显式属性 */\n    treeProps?: Record<string, unknown>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkCrudDataContainerProps",
+            "targetName": "SparkCrudDataContainerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 显式收窄为树容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化节点动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 结构化编辑区 */\n    editor?: REditorProps;\n    /** 节点主键字段名，默认取 treeConfig.idField */\n    nodeKey?: string;\n    /** 当前选中节点 ID */\n    currentKey?: string | number | null;\n    /** 初始化展开并定位到目标节点 ID */\n    expandToKey?: string | number | null;\n    /** 初始化自动展开到指定层级（根节点为第 1 层） */\n    expandLevel?: number;\n    /** 节点点击回调 */\n    onNodeClick?: TreeEventHandler;\n    /** 节点展开回调 */\n    onNodeExpand?: TreeEventHandler;\n    /** 节点折叠回调 */\n    onNodeCollapse?: TreeEventHandler;\n    /** 透传给 el-tree 的显式属性 */\n    treeProps?: Record<string, unknown>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为树容器使用的 DataView 数据线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actions",
+              "jsdoc": "结构化节点动作（toolbar 结构）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editor",
+              "jsdoc": "结构化编辑区",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeKey",
+              "jsdoc": "节点主键字段名，默认取 treeConfig.idField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentKey",
+              "jsdoc": "当前选中节点 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expandToKey",
+              "jsdoc": "初始化展开并定位到目标节点 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expandLevel",
+              "jsdoc": "初始化自动展开到指定层级（根节点为第 1 层）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onNodeClick",
+              "jsdoc": "节点点击回调",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onNodeExpand",
+              "jsdoc": "节点展开回调",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onNodeCollapse",
+              "jsdoc": "节点折叠回调",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "treeProps",
+              "jsdoc": "透传给 el-tree 的显式属性",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

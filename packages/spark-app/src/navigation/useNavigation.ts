@@ -10,7 +10,7 @@ import { createRequest } from '@spark-appworks/spark-utils'
 import { readPrototypeProperty } from '@spark-appworks/spark-utils/internal'
 import type { NavigationContext } from './nav-types'
 import { NAV_KEY } from './nav-types'
-import { refreshRoutes } from './nav-access'
+import { getDynamicRouter, refreshRoutes } from './nav-access'
 import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../router/cross-project-ref-route'
 import { resolveNavNodeRuntimeTarget } from './runtime-target'
 import type { NavigationActionRegistry } from './action-registry'
@@ -26,6 +26,7 @@ import type {
   RuntimeNavigationRegionItems,
   RuntimeNavigationRegionVisibility,
 } from './runtime-navigation'
+import { SYSTEM_PAGE_NAVIGATION_ID_QUERY } from './runtime-navigation'
 
 /* ══════════════════════════════════════════════════════════
  * useNavigation — 应用导航核心 composable
@@ -37,6 +38,13 @@ import type {
 const CONTEXT_STORAGE_PREFIX = 'spark-nav-ctx:'
 const PLATFORM_PATH_PREFIX = '/platform'
 const _contextCache = new Map<string, ContextItem[]>()
+
+type NamedRoutePush = Readonly<{
+  routeName: string | symbol
+  routePath: string
+  inputPath: string
+  identityNodeId?: string
+}>
 
 function contextSourceKey(nodeId: string, source: string): string {
   return `${nodeId}::${source}`
@@ -186,10 +194,16 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
   }
 
   watch(
-    [() => route.path, () => navRoot.items],
+    [() => route.path, () => route.meta['nodeId'], () => route.meta['systemPageIdentityState'], () => navRoot.items,
+      () => getDynamicRouter()?.systemPageRevision.value],
     ([path]) => {
       const shortPath = stripWorkspacePrefix(path)
-      _activePath.value = findActivePath(navRoot.items, shortPath)
+      const isIdentityHost = route.meta['systemPageIdentityHost'] === true
+      const activeIdentityNodeId = route.meta['systemPageIdentityState'] === 'resolved'
+        && typeof route.meta['nodeId'] === 'string'
+        ? route.meta['nodeId']
+        : null
+      _activePath.value = findActivePath(navRoot.items, shortPath, isIdentityHost ? activeIdentityNodeId : undefined)
       syncModuleContext()
     },
     { immediate: true },
@@ -211,17 +225,21 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
    * 活动路径查找（DFS）
    * ──────────────────────────────────────────── */
 
-  function findActivePath(nodes: RuntimeNavigationItem[], targetPath: string): RuntimeNavigationItem[] {
+  function findActivePath(nodes: RuntimeNavigationItem[], targetPath: string, identityNodeId?: string | null): RuntimeNavigationItem[] {
     const normalizedTargetPath = normalizeComparablePath(targetPath)
 
     for (const node of sortNodes(nodes)) {
-      const nodePath = resolveNodeRoutePath(node)
-      if (nodePath !== null) {
-        const normalizedNodePath = normalizeComparablePath(nodePath)
-        if (normalizedNodePath === normalizedTargetPath) return [node]
+      if (identityNodeId !== undefined) {
+        if (identityNodeId !== null && node.id === identityNodeId) return [node]
+      } else {
+        const nodePath = resolveNodeRoutePath(node)
+        if (nodePath !== null) {
+          const normalizedNodePath = normalizeComparablePath(nodePath)
+          if (normalizedNodePath === normalizedTargetPath) return [node]
+        }
       }
       if (node.children?.length) {
-        const sub = findActivePath(node.children, targetPath)
+        const sub = findActivePath(node.children, targetPath, identityNodeId)
         if (sub.length > 0) return [node, ...sub]
       }
     }
@@ -429,11 +447,11 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
    * 导航操作
    * ──────────────────────────────────────────── */
 
-  function pushNamedRoute(routeName: string | symbol, routePath: string, inputPath: string): void {
+  function pushNamedRoute(command: NamedRoutePush): void {
     const tenantId = route.params['tenantId']
     const projectId = route.params['projectId']
     const params: Record<string, string> = {}
-    if (routePath.startsWith('/t/')) {
+    if (command.routePath.startsWith('/t/')) {
       if (typeof tenantId === 'string' && tenantId) {
         params['tenantId'] = tenantId
       }
@@ -441,10 +459,17 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
         params['projectId'] = projectId
       }
     }
-    const requested = router.resolve(inputPath)
+    const requested = router.resolve(command.inputPath)
+    const query = { ...requested.query }
+    if (command.identityNodeId !== undefined) {
+      if (Object.prototype.hasOwnProperty.call(query, SYSTEM_PAGE_NAVIGATION_ID_QUERY)) {
+        throw new Error(`系统页面目标使用保留身份参数：${command.identityNodeId}`)
+      }
+      query[SYSTEM_PAGE_NAVIGATION_ID_QUERY] = command.identityNodeId
+    }
     void router.push({
-      name: routeName,
-      query: requested.query,
+      name: command.routeName,
+      query,
       hash: requested.hash,
       ...(Object.keys(params).length > 0 ? { params } : {}),
     })
@@ -491,12 +516,27 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
    * 否则降级为 router.push(path)。
    * 不再依赖导航节点的 linkTarget 字段 —— 路由表是唯一权威。
    */
-  function navigateByPath(path: string): void {
+  function navigateByPath(path: string, identityNodeId?: string): void {
     // 跨应用导航：@app:projectId/path → 委托给外部回调
     if (path.startsWith('@app:') && _options?.onCrossAppNavigate) {
       const match = /^@app:([^/]+)(\/.*)?$/.exec(path)
       if (match?.[1]) {
         void _options.onCrossAppNavigate(match[1], match[2] ?? '/')
+        return
+      }
+    }
+
+    const targetPath = addTenantPrefix(path)
+    if (identityNodeId !== undefined) {
+      const resolvedTarget = router.resolve(targetPath)
+      const selectedRoute = router.getRoutes().find(routeRecord => routeRecord.name === resolvedTarget.name)
+      if (selectedRoute?.meta['systemPageIdentityHost'] === true && selectedRoute.name !== undefined) {
+        pushNamedRoute({
+          routeName: selectedRoute.name,
+          routePath: selectedRoute.path,
+          inputPath: targetPath,
+          identityNodeId,
+        })
         return
       }
     }
@@ -510,11 +550,10 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       )
 
     if (exactSystemRoute?.name !== undefined) {
-      pushNamedRoute(exactSystemRoute.name, exactSystemRoute.path, path)
+      pushNamedRoute({ routeName: exactSystemRoute.name, routePath: exactSystemRoute.path, inputPath: path })
       return
     }
 
-    const targetPath = addTenantPrefix(path)
     const targetComparablePath = normalizeComparablePath(targetPath.split(/[?#]/, 1)[0] ?? '')
 
     // 从路由表查找 vue-component 路由（路由注册时由 DynamicRouter 写入 meta.type）
@@ -526,7 +565,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       )
 
     if (vueRoute?.name !== undefined) {
-      pushNamedRoute(vueRoute.name, vueRoute.path, targetPath)
+      pushNamedRoute({ routeName: vueRoute.name, routePath: vueRoute.path, inputPath: targetPath })
       return
     }
 
@@ -538,7 +577,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
       )
 
     if (crossProjectRoute?.name !== undefined) {
-      pushNamedRoute(crossProjectRoute.name, crossProjectRoute.path, targetPath)
+      pushNamedRoute({ routeName: crossProjectRoute.name, routePath: crossProjectRoute.path, inputPath: targetPath })
       return
     }
 
@@ -610,7 +649,11 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
 
     // 叶子节点
     if (target.kind === 'route') {
-      navigateByPath(target.path)
+      if (target.routeKind === 'page') {
+        navigateByPath(target.path, node.id)
+      } else {
+        navigateByPath(target.path)
+      }
       return
     }
 
@@ -618,10 +661,7 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
     if (node.children?.length) {
       const leaf = findFirstLeaf(node.children)
       if (leaf !== undefined) {
-        const leafPath = resolveNodeRoutePath(leaf)
-        if (leafPath !== null) {
-          navigateByPath(leafPath)
-        }
+        navigateTo(leaf)
       }
     }
   }

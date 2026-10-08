@@ -1,0 +1,37 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
+    "before": "839cc64e11379125d2701194cca97b43efcca99d912e46c06eed665c895b6b62",
+    "after": "9ff1a013ae12d574f5ea8de5f217abe510a2506d9c5f238a97cac64dbd37c749"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+    "before": "eb786b3aa5985b72feff85effb316c2795224f054b9f6f000c333f08b10e80e4",
+    "after": "001384b0e0362a3fd80ef58dc548996ed3f790f4d0b06e87a137dfd5c32777da"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
+    "before": "7263f861ca41c1df154ea106b0bb1feb381a2d47a1442191a02ed63642246274",
+    "after": "8082645b15c08287416a048e5adc317074d30f950af089316969a85fcebe57e3"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
+    "before": "9fc821f7679ac680817dd3c7e95b74117972b1c8d2acff51c29fbe5a72830678",
+    "after": "311d4acceaa7c655ed6f6fd21664ea0b8af54230a024b47279f5bf23ad0709b1"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts",
+    "before": "712a0e2d41c2c251a4e53fb6239ee7f08da1444a3574311e7e039c897a66e7f0",
+    "after": "e63db9ab6bc11d94c9a358cb3c179786db959bd8aea14eaac802f15c43d29a75"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+    "before": "1277ee49fc91dc15b61733dddcbf1abf5b255c502588f572bc6e331be51dc35f",
+    "after": "5c2e84e66827c6ace451c52c271f1252aa6b0ffd0dce696f22e1fc05f58a8515"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
+    "before": "3e1f8e6db9e56ecdf5d11a051da9b0091ee982d4b095c3846fb50877eb078c23",
+    "after": "a3cab199bf480de58fdf4b81b2a8a2dd6e959ded084e8a7acde98bbb7e7f216a"
+  }
+]

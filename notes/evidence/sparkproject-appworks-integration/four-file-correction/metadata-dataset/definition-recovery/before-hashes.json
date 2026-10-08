@@ -1,0 +1,10 @@
+[
+  {
+    "path": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+    "before": "B92257C9291031A3CCA89729EB9045C7FC00B6C9342F430CE120059134E84351"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts",
+    "before": "DE585CEA94AF28CFEECAB5243BB7B146097B47C55AA028F69F849E435CE30B30"
+  }
+]

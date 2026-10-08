@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-08T05:46:22.374Z",
+  "mode": "inspect",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "toolId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "stage": "inspect",
+  "outcomes": [],
+  "failed": true,
+  "errorType": "LowcodeApiError",
+  "errorCode": 0,
+  "message": "文件下载响应不是 ArrayBuffer"
+}

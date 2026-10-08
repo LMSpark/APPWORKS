@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererTable/zero-code",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTable/zero-code.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/zero-code.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererTable/zero-code",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererTable/zero-code\n职责：封装 RendererTable（r-table）的 zero-code 行为层，向配置动作和脚本暴露稳定的组件操作 API。\n边界：只编排 table-level/data-view-container 的运行时能力、原生组件引用和事件控制，不声明视觉 props，也不持久化业务数据。\nAI用途：当动作、脚本或 ClassModel 需要调用 renderer table 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "NativeTableLike"
+    ],
+    "componentName": "RendererTable",
+    "componentType": "r-table",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "NativeTableLike": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NativeTableLike",
+      "$defs": {
+        "method.clearSelection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearSelection.return": true,
+        "method.toggleRowSelection.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            "selected": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.toggleRowSelection.return": true,
+        "method.setCurrentRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "anyOf": [
+                {
+                  "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setCurrentRow.return": true,
+        "method.doLayout.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.doLayout.return": true
+      }
+    },
+    "RendererTableZeroCodeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererTableZeroCodeOptions",
+      "properties": {
+        "props": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "resolvedView": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "nativeTableRef": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "currentRowOriginatorId": {
+          "type": "string"
+        },
+        "selectedRowsOriginatorId": {
+          "type": "string"
+        },
+        "logger": {
+          "$ref": "../../../../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
+        }
+      },
+      "required": [
+        "props",
+        "resolvedView",
+        "nativeTableRef",
+        "logger"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.396Z",
+  "models": {
+    "NativeTableLike": {
+      "name": "NativeTableLike",
+      "jsdoc": "r-table 运行时需要调用的 Element Plus table 原生能力集合。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTable",
+        "type": "r-table",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 清空 UI 层多选状态。 */\n    clearSelection?: () => void;\n    /** 设置指定行在 UI 层的选中状态。 */\n    toggleRowSelection?: (row: DataRow, selected?: boolean) => void;\n    /** 设置 UI 层当前行；传 null 清空当前行。 */\n    setCurrentRow?: (row: DataRow | null) => void;\n    /** 重新计算表格列宽和布局。 */\n    doLayout?: () => void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "clearSelection",
+              "jsdoc": "清空 UI 层多选状态。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "toggleRowSelection",
+              "jsdoc": "设置指定行在 UI 层的选中状态。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                },
+                {
+                  "name": "selected",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setCurrentRow",
+              "jsdoc": "设置 UI 层当前行；传 null 清空当前行。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "doLayout",
+              "jsdoc": "重新计算表格列宽和布局。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "RendererTableZeroCodeOptions": {
+      "name": "RendererTableZeroCodeOptions",
+      "jsdoc": "创建 r-table zero-code API 和事件桥接所需的运行时输入。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTable",
+        "type": "r-table",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** r-table 的组件属性集合，包含事件回调和配置透传。 */\n    props: Readonly<Record<string, unknown>>;\n    /** 当前解析出的 DataView。 */\n    resolvedView: ValueRef<DataView | null>;\n    /** Element Plus table 原生组件 ref。 */\n    nativeTableRef: ValueRef<NativeTableLike | null>;\n    /** 当前行变更的来源 id，用于避免 DataView selection 回环。 */\n    currentRowOriginatorId?: string;\n    /** 多选变更的来源 id，用于避免 DataView selection 回环。 */\n    selectedRowsOriginatorId?: string;\n    /** 表格运行时诊断日志。 */\n    logger: LoggerApi;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "props",
+              "jsdoc": "r-table 的组件属性集合，包含事件回调和配置透传。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolvedView",
+              "jsdoc": "当前解析出的 DataView。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nativeTableRef",
+              "jsdoc": "Element Plus table 原生组件 ref。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentRowOriginatorId",
+              "jsdoc": "当前行变更的来源 id，用于避免 DataView selection 回环。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectedRowsOriginatorId",
+              "jsdoc": "多选变更的来源 id，用于避免 DataView selection 回环。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "logger",
+              "jsdoc": "表格运行时诊断日志。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

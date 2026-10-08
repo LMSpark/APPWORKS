@@ -1,0 +1,54 @@
+{
+  "scope": "field-cascade-components",
+  "accepted": true,
+  "wholeGoalComplete": false,
+  "date": "2026-10-09T04:33:19+08:00",
+  "files": 14,
+  "typecheck": "passed",
+  "lintFiles": 12,
+  "lint": "passed",
+  "aiFiles": 1024,
+  "ai": "passed",
+  "diffCheck": "passed",
+  "componentTests": 15,
+  "focusedSuites": 20,
+  "focusedTests": 321,
+  "focusedScope": "before final view configuration invalidation fix",
+  "rootFirst": {
+    "testsFailed": 4,
+    "testsPassed": 2762,
+    "log": "root-first.log",
+    "suitesFailed": 1,
+    "suitesPassed": 210
+  },
+  "designRecheck": {
+    "timeoutChanged": false,
+    "log": "design-recheck.log",
+    "skipped": 97,
+    "passed": 5
+  },
+  "rootFinal": {
+    "suitesPassed": 211,
+    "maxWorkers": 2,
+    "seconds": 186.87,
+    "log": "root-final.log",
+    "command": "pnpm exec vitest run --maxWorkers=2",
+    "testsPassed": 2766
+  },
+  "hashesRechecked": true,
+  "onlineWrites": 0,
+  "javaChanges": 0,
+  "delegatedAgents": 0,
+  "businessUiRestored": false,
+  "evidence": [
+    "before-hashes.json",
+    "final-hashes.json",
+    "changes.patch",
+    "result.md"
+  ],
+  "remaining": [
+    "ClassModel and designer integration",
+    "online legacy cascade configuration audit",
+    "complete AppWorks integration"
+  ]
+}

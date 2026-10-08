@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run --maxWorkers=2 --reporter=dot",
+  "exitCode": 0,
+  "startedAt": "2026-10-07T13:42:46.4107482+08:00",
+  "finishedAt": "2026-10-07T13:45:06.6395235+08:00",
+  "log": "root-tests.log"
+}

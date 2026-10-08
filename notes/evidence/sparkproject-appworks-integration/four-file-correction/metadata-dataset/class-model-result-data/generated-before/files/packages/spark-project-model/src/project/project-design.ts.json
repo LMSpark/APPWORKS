@@ -1,0 +1,718 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:project/project-design",
+    "sourcePath": "packages/spark-project-model/src/project/project-design.ts",
+    "sourceFile": "packages/spark-project-model/src/project/project-design.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "project/project-design",
+    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-design\n职责：项目身份、节点索引和独立页面工具owner。\n边界：蓝图节点与工具不互相继承，工具dirty不随树重载丢弃。\nAI用途：经ProjectBlueprint编辑节点或打开明确pageId工具。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ProjectBlueprintDesignNodeEditResult",
+      "ProjectBlueprintDesign"
+    ]
+  },
+  "$defs": {
+    "ProjectBlueprintDesignNodeEditResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintDesignNodeEditResult",
+      "properties": {
+        "node": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+        },
+        "result": {
+          "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraftApplyResult"
+        }
+      },
+      "required": [
+        "node",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintDesign": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintDesign",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "project-types.ts.json#/$defs/ProjectBlueprintInitOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getChildNodes.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getChildNodes.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+          }
+        },
+        "method.forEachNode.params": {
+          "type": "object",
+          "properties": {
+            "callback": {
+              "type": "object",
+              "title": "(node: ProjectBlueprintNode) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.forEachNode.return": true,
+        "method.replaceProjectInfo.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "project-types.ts.json#/$defs/ProjectInfoInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceProjectInfo.return": {
+          "$ref": "project-types.ts.json#/$defs/ProjectInfo"
+        },
+        "method.replaceBlueprintTree.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceBlueprintTree.return": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "method.replaceBlueprintChildren.params": {
+          "type": "object",
+          "properties": {
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceBlueprintChildren.return": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "method.findNodeById.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.findNodeById.return": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.findNodeLocation.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.findNodeLocation.return": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeLocation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.findPageTool.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.findPageTool.return": {
+          "anyOf": [
+            {
+              "$ref": "../page/page-tool.ts.json#/$defs/PageTool"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.openPageDesign.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openPageDesign.return": {
+          "$ref": "../page/page-tool.ts.json#/$defs/PageTool"
+        },
+        "method.closePageDesign.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.closePageDesign.return": true,
+        "method.applyBlueprintNodeEdit.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraft"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyBlueprintNodeEdit.return": {
+          "$ref": "#/$defs/ProjectBlueprintDesignNodeEditResult"
+        },
+        "method.readPlanningProjection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readPlanningProjection.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectPageNodeSummary"
+          }
+        },
+        "method.addRootModule.params": {
+          "type": "object",
+          "properties": {
+            "createId": {
+              "type": "object",
+              "title": "() => string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addRootModule.return": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+        },
+        "method.addChildPage.params": {
+          "type": "object",
+          "properties": {
+            "createId": {
+              "type": "object",
+              "title": "() => string"
+            },
+            "parent": {
+              "anyOf": [
+                {
+                  "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addChildPage.return": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+        },
+        "method.removeNode.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeNode.return": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.refreshNavRefs.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshNavRefs.return": true,
+        "method.toTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toTree.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.387Z",
+  "models": {
+    "ProjectBlueprintDesignNodeEditResult": {
+      "name": "ProjectBlueprintDesignNodeEditResult",
+      "jsdoc": "实际编辑节点实体及其分组补丁诊断。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    node: ProjectBlueprintNode;\n    result: BlueprintNodeDraftApplyResult;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "result",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintDesign": {
+      "name": "ProjectBlueprintDesign",
+      "jsdoc": "固定项目身份下持有节点索引与独立PageTool集合，蓝图重载保留工具编辑态。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定明确项目身份，不捏造可保存蓝图根；节点由真实装载提供。",
+          "signatureText": "constructor(options: ProjectBlueprintInitOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintInitOptions",
+                "sourcePath": "packages/spark-project-model/src/project/project-types.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "getChildNodes",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "ProjectBlueprintNode",
+                  "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                }
+              }
+            },
+            {
+              "name": "forEachNode",
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "node",
+                              "type": {
+                                "type": "reference",
+                                "name": "ProjectBlueprintNode",
+                                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "replaceProjectInfo",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectInfoInput",
+                    "sourcePath": "packages/spark-project-model/src/project/project-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectInfo",
+                "sourcePath": "packages/spark-project-model/src/project/project-types.ts"
+              }
+            },
+            {
+              "name": "replaceBlueprintTree",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            },
+            {
+              "name": "replaceBlueprintChildren",
+              "parameters": [
+                {
+                  "name": "children",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ProjectBlueprintTreeNodeData",
+                      "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            },
+            {
+              "name": "findNodeById",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintNode",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "findNodeLocation",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeNodeLocation",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "findPageTool",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "PageTool",
+                    "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openPageDesign",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PageTool",
+                "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
+              }
+            },
+            {
+              "name": "closePageDesign",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "applyBlueprintNodeEdit",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "BlueprintNodeDraft",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintDesignNodeEditResult",
+                "sourcePath": "packages/spark-project-model/src/project/project-design.ts"
+              }
+            },
+            {
+              "name": "readPlanningProjection",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "ProjectPageNodeSummary",
+                  "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                }
+              }
+            },
+            {
+              "name": "addRootModule",
+              "parameters": [
+                {
+                  "name": "createId",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "string"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeNodeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            },
+            {
+              "name": "addChildPage",
+              "parameters": [
+                {
+                  "name": "createId",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "string"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "parent",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ProjectBlueprintTreeNodeData",
+                        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeNodeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            },
+            {
+              "name": "removeNode",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeNodeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refreshNavRefs",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "toTree",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "ProjectBlueprintTreeNodeData",
+                  "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

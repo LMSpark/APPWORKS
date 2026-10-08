@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/lowcode-data-space-layout",
+    "sourcePath": "src/lowcode/data-space/lowcode-data-space-layout.ts",
+    "sourceFile": "src/lowcode/data-space/lowcode-data-space-layout.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/lowcode-data-space-layout",
+    "jsdoc": "app 的 lowcode/data-space/lowcode-data-space-layout 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-08T02:53:13.838Z",
+  "models": {
+    "PageDataSpaceLayoutReader": {
+      "name": "PageDataSpaceLayoutReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceLayout']>['createReader']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceLayout']>['createReader']>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDataSpaceLayoutWriter": {
+      "name": "PageDataSpaceLayoutWriter",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<NonNullable<NonNullable<PageRuntimeServicesCapability['dataSpaceLayout']>['createWriter']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<NonNullable<NonNullable<PageRuntimeServicesCapability['dataSpaceLayout']>['createWriter']>>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

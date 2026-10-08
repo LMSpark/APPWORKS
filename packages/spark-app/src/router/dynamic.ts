@@ -12,6 +12,7 @@
 
 import type { Router, RouteRecordRaw, RouteLocationNormalizedLoaded } from 'vue-router'
 import type { Component } from 'vue'
+import type { Ref } from 'vue'
 import type {
   PageRuntime,
   PageFileReader,
@@ -23,6 +24,13 @@ import { CrossProjectRefPage, createCrossProjectRefRouteProps } from './cross-pr
 import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from './cross-project-ref-route'
 import { ExternalLinkFramePage } from './external-link-frame-page'
 import { InvalidSystemPage } from './invalid-system-page'
+import SystemPageRouteHost from './system-page-identity/system-page-route-host.vue'
+import {
+  SystemPageIdentityResolver,
+  type SystemPageIdentityOwner,
+  type SystemPageIdentityScope,
+} from './system-page-identity/system-page-identity-resolver'
+import type { SystemPageInstance } from './system-page-identity/system-page-identity-pool'
 import { resolveNavNodeRuntimeTarget } from '../navigation/runtime-target'
 import { resolveNavRoutePageId } from './route-helpers'
 import type { RuntimeNavigation, RuntimeNavigationItem } from '../navigation/runtime-navigation'
@@ -36,6 +44,8 @@ function isUnauthorizedError(error: unknown): boolean {
 const routerLogger = createLogger('DynamicRouter')
 export { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from './cross-project-ref-route'
 export type { RuntimeScenarioLoadCommand } from './page-runtime-pool'
+
+type SystemPageInstanceView = Pick<SystemPageInstance, 'instanceId' | 'componentName' | 'view'>
 
 function shouldLogDynamicRouteDetails(): boolean {
   if (typeof globalThis === 'undefined') return false
@@ -128,7 +138,11 @@ export type DynamicRouterOptions = {
 type RouteRegistrationOptions = {
   skipTenantPrefix?: boolean
   routePathPrefix?: string
-  routeNamePrefix?: string}
+  routeNamePrefix?: string
+  systemPageScope?: SystemPageIdentityScope
+  systemPageProjectId?: string
+  systemPageOwners?: SystemPageIdentityOwner[]
+}
 
 /**
  * 动态路由管理器
@@ -160,10 +174,13 @@ export class DynamicRouter {
   /** ProjectBlueprintTreeNodeData → 注册路由路径追踪（弱引用，导航树刷新后自动 GC） */
   private _navRouteMap = new WeakMap<RuntimeNavigationItem, string>()
   private readonly runtimePool: PageRuntimePool
+  private readonly systemPages: SystemPageIdentityResolver
+  private registrationGeneration = 0
 
     /** 创建 Dynamic Router 实例。 */
 constructor(options: DynamicRouterOptions) {
     this.router = options.router
+    this.systemPages = SystemPageIdentityResolver.forRouter(options.router)
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- pageComponent 结构可缺失
     if (options.pageComponent === undefined || options.pageComponent === null) {
@@ -203,6 +220,25 @@ constructor(options: DynamicRouterOptions) {
 
   getPageRuntime(route: RouteLocationNormalizedLoaded): PageRuntime | undefined {
     return this.runtimePool.getPageRuntime(route)
+  }
+
+  get systemPageRevision(): Readonly<Ref<number>> { return this.systemPages.revision }
+
+  getSystemPageInstance(route: RouteLocationNormalizedLoaded): SystemPageInstanceView | undefined {
+    return this.systemPages.getInstance(route)
+  }
+
+  getSystemPageInstanceById(instanceId: string): SystemPageInstanceView | undefined {
+    return this.systemPages.getInstanceById(instanceId)
+  }
+
+  closeSystemPageInstance(instanceId: string): void {
+    this.systemPages.closeInstance(instanceId)
+  }
+
+  resetSystemPageInstances(): void {
+    this.registrationGeneration += 1
+    this.systemPages.resetInstances()
   }
 
   getPageRuntimeView(route: RouteLocationNormalizedLoaded): Component | undefined {
@@ -301,6 +337,7 @@ constructor(options: DynamicRouterOptions) {
     const existing = this.router.getRoutes().find(route => route.name === CROSS_PROJECT_REF_HOST_ROUTE_NAME)
     const existingDefaultProps = readProperty(existing?.props, 'default')
     if (existing?.meta['crossProjectRefHost'] === true && typeof existingDefaultProps === 'function') {
+      this.registeredRoutes.add(routePath)
       return
     }
     if (existing?.name !== undefined) {
@@ -348,70 +385,132 @@ constructor(options: DynamicRouterOptions) {
   /** 注册所有路由（从导航树派生） */
   async registerRoutes(): Promise<void> {
     routerLogger.info('开始注册动态路由')
+    await this.loadAndCommitRoutes(false)
+  }
 
+  private async loadAndCommitRoutes(refresh: boolean): Promise<void> {
+    const generation = ++this.registrationGeneration
     const authenticated = this._isAuthenticated()
-
-    // preAuthNavTree 只服务未登录入口和 401 回退。登录后导航路由必须完全来自远端导航树。
-    if (!authenticated && this._preAuthNavTree) {
-      this.registerRoutesFromNav(this._preAuthNavTree.items, { skipTenantPrefix: true, routeNamePrefix: 'public' })
+    if (!authenticated || !this._loadNavigation) {
+      if (this._preAuthNavTree) this.commitNavigation(null, null, this._preAuthNavTree)
+      routerLogger.info('动态路由注册完成', { count: this.registeredRoutes.size })
+      return
     }
 
-    if (this._loadNavigation && authenticated) {
-      try {
-        await this.loadAndRegisterFromNav()
-        if (this._loadPlatformNavigation && this._isPlatformNavigationEnabled()) {
-          await this.loadAndRegisterPlatformNav()
-        }
-        this._navTree = this.activeNavTree()
-      } catch (error: unknown) {
-        if (isUnauthorizedError(error) && this._preAuthNavTree) {
-          routerLogger.warn('远程导航加载返回 401，回退到 preAuthNavTree', {
-            reason: 'unauthorized',
-            fallbackNodeCount: this._preAuthNavTree.items.length,
-          })
-          this._navTree = this._preAuthNavTree
-          this._navRouteMap = new WeakMap()
-          this.registerRoutesFromNav(this._preAuthNavTree.items, { skipTenantPrefix: true, routeNamePrefix: 'public' })
-        } else {
-          throw error
-        }
+    let tenantNavTree: RuntimeNavigation
+    let platformNavTree: RuntimeNavigation | null = null
+    const preAuthNavTree = this._preAuthNavTree
+    try {
+      tenantNavTree = await this._loadNavigation()
+      if (generation !== this.registrationGeneration) return
+      if (this._loadPlatformNavigation && this._isPlatformNavigationEnabled()) {
+        platformNavTree = await this._loadPlatformNavigation()
       }
-    } else if (this._preAuthNavTree) {
-      this._navTree = this._preAuthNavTree
-      this._navRouteMap = new WeakMap()
-      routerLogger.info('预认证运行导航路由注册完成', { nodeCount: this._preAuthNavTree.items.length })
+    } catch (error: unknown) {
+      const latest = generation === this.registrationGeneration
+      const unauthorizedFallback = latest && preAuthNavTree !== null && isUnauthorizedError(error)
+      if (unauthorizedFallback || (latest && preAuthNavTree !== null && refresh)) {
+        routerLogger.warn('远程导航加载失败，回退到 preAuthNavTree', {
+          reason: isUnauthorizedError(error) ? 'unauthorized' : 'refresh-failure',
+          fallbackNodeCount: preAuthNavTree.items.length,
+        })
+        this.commitNavigation(null, null, preAuthNavTree)
+      }
+      if (unauthorizedFallback) return
+      if (latest) {
+        routerLogger.error('路由注册失败', { error: String(error) })
+      }
+      throw error
     }
 
+    if (generation === this.registrationGeneration) {
+      try {
+        this.commitNavigation(tenantNavTree, platformNavTree, null)
+      } catch (error: unknown) {
+        if (refresh && generation === this.registrationGeneration && preAuthNavTree !== null) {
+          this.commitNavigation(null, null, preAuthNavTree)
+        }
+        throw error
+      }
+    }
     routerLogger.info('动态路由注册完成', { count: this.registeredRoutes.size })
   }
 
-  /** 从导航树加载并注册路由 */
-  private async loadAndRegisterFromNav(): Promise<void> {
-    if (!this._loadNavigation) {
-      throw new Error('[DynamicRouter] _loadNavigation not set')
+  private commitNavigation(tenantNavTree: RuntimeNavigation | null, platformNavTree: RuntimeNavigation | null, publicNavTree: RuntimeNavigation | null): void {
+    const previousRoutes = new Set(this.registeredRoutes)
+    const previousTenantNavTree = this._tenantNavTree
+    const previousPlatformNavTree = this._platformNavTree
+    const previousNavTree = this._navTree
+    const previousNavRouteMap = this._navRouteMap
+    const previousRouteSnapshots = this.snapshotManagedRoutes(previousRoutes)
+    const nextSystemPageOwners: SystemPageIdentityOwner[] = []
+    try {
+      this.registeredRoutes.clear()
+      this._tenantNavTree = tenantNavTree
+      this._platformNavTree = platformNavTree
+      this._navTree = publicNavTree ?? this.activeNavTree()
+      this._navRouteMap = new WeakMap()
+
+      if (publicNavTree !== null) {
+        this.registerRoutesFromNav(publicNavTree.items, { skipTenantPrefix: true, routeNamePrefix: 'public',
+          systemPageScope: 'public', systemPageOwners: nextSystemPageOwners })
+      } else {
+        if (tenantNavTree !== null) {
+          this.registerRoutesFromNav(tenantNavTree.items, {
+            systemPageScope: 'tenant',
+            ...(tenantNavTree.projectId === undefined ? {} : { systemPageProjectId: tenantNavTree.projectId }),
+            systemPageOwners: nextSystemPageOwners,
+          })
+          routerLogger.info('运行导航路由注册完成', { nodeCount: tenantNavTree.items.length })
+        }
+        if (platformNavTree !== null) {
+          this.registerRoutesFromNav(platformNavTree.items, {
+            routePathPrefix: this.platformPathPrefix,
+            routeNamePrefix: 'platform',
+            systemPageScope: 'platform',
+            systemPageOwners: nextSystemPageOwners,
+          })
+          routerLogger.info('平台导航树路由注册完成', {
+            nodeCount: platformNavTree.items.length,
+            prefix: this.platformPathPrefix,
+          })
+        }
+      }
+
+      for (const path of previousRoutes) {
+        if (this.registeredRoutes.has(path)) continue
+        const route = this.router.getRoutes().find(item => item.path === path)
+        if (route?.name !== undefined) this.router.removeRoute(route.name)
+      }
+      this.systemPages.replaceOwners(nextSystemPageOwners)
+    } catch (error: unknown) {
+      const affectedRoutes = new Set([...previousRoutes, ...this.registeredRoutes])
+      for (const path of affectedRoutes) {
+        const route = this.router.getRoutes().find(item => item.path === path)
+        if (route?.name !== undefined) this.router.removeRoute(route.name)
+      }
+      for (const route of previousRouteSnapshots) this.router.addRoute(route)
+      this.registeredRoutes.clear()
+      for (const path of previousRoutes) this.registeredRoutes.add(path)
+      this._tenantNavTree = previousTenantNavTree
+      this._platformNavTree = previousPlatformNavTree
+      this._navTree = previousNavTree
+      this._navRouteMap = previousNavRouteMap
+      throw error
     }
-    const navRoot = await this._loadNavigation()
-    this._tenantNavTree = navRoot
-    this._navTree = navRoot
-    this._navRouteMap = new WeakMap()
-    this.registerRoutesFromNav(navRoot.items)
-    routerLogger.info('运行导航路由注册完成', { nodeCount: navRoot.items.length })
   }
 
-  private async loadAndRegisterPlatformNav(): Promise<void> {
-    if (!this._loadPlatformNavigation) {
-      throw new Error('[DynamicRouter] _loadPlatformNavigation not set')
+  private snapshotManagedRoutes(paths: Set<string>): RouteRecordRaw[] {
+    const snapshots: RouteRecordRaw[] = []
+    for (const path of paths) {
+      const route = this.router.getRoutes().find(item => item.path === path)
+      if (!route) continue
+      if (route.name === undefined || route.components === undefined || route.components === null) {
+        throw new Error(`无法快照受管路由 ${path}`)
+      }
+      snapshots.push({ path: route.path, name: route.name, components: route.components, props: route.props, meta: route.meta })
     }
-    const navRoot = await this._loadPlatformNavigation()
-    this._platformNavTree = navRoot
-    this.registerRoutesFromNav(navRoot.items, {
-      routePathPrefix: this.platformPathPrefix,
-      routeNamePrefix: 'platform',
-    })
-    routerLogger.info('平台导航树路由注册完成', {
-      nodeCount: navRoot.items.length,
-      prefix: this.platformPathPrefix,
-    })
+    return snapshots
   }
 
   /**
@@ -470,7 +569,23 @@ constructor(options: DynamicRouterOptions) {
         : skipTenantPrefix
           ? relativePath
           : this.addTenantPrefix(relativePath)
-      const routeName = options.routeNamePrefix !== undefined
+      const isIdentityHost = target.routeKind === 'page' && component !== undefined
+      if (isIdentityHost) {
+        if (options.systemPageScope === undefined || options.systemPageOwners === undefined) {
+          throw new Error('system-page host 缺少导航身份作用域')
+        }
+        options.systemPageOwners.push(this.systemPages.createOwner({
+          scope: options.systemPageScope,
+          path: routePath,
+          ...(options.systemPageProjectId === undefined ? {} : { projectId: options.systemPageProjectId }),
+          node,
+          pageId,
+          component,
+        }))
+      }
+      const routeName = isIdentityHost && options.systemPageScope !== undefined
+        ? this.systemPages.hostRouteName(options.systemPageScope, routePath)
+        : options.routeNamePrefix !== undefined
         ? `nav-${options.routeNamePrefix}-${node.id}`
         : `nav-${node.id}`
       const expectedRouteType = isIframeNode
@@ -575,19 +690,26 @@ constructor(options: DynamicRouterOptions) {
           routerLogger.debug(`${isCrossProjectRefNode ? '跨项目引用' : '链接 iframe'} 路由已注册(nav): ${routePath}`)
         }
       } else if (useStaticComponent && component !== undefined) {
-          const route: RouteRecordRaw = {
-            path: routePath,
-            name: routeName,
-            component,
-            meta: {
-              type: 'system-page',
-              pageId,
-              title: node.title,
-              ...(node.description !== undefined && { description: node.description }),
-              ...(node.icon !== undefined && { icon: node.icon }),
-              ...(node.permissionMode !== undefined && { permissionMode: node.permissionMode }),
-            },
-          }
+          const route = isIdentityHost && options.systemPageScope !== undefined
+            ? {
+                path: routePath,
+                name: routeName,
+                component: SystemPageRouteHost,
+                meta: this.systemPages.hostRouteMeta(options.systemPageScope, routePath),
+              }
+            : {
+                path: routePath,
+                name: routeName,
+                component,
+                meta: {
+                  type: 'system-page',
+                  pageId,
+                  title: node.title,
+                  ...(node.description !== undefined && { description: node.description }),
+                  ...(node.icon !== undefined && { icon: node.icon }),
+                  ...(node.permissionMode !== undefined && { permissionMode: node.permissionMode }),
+                },
+              }
           this.router.addRoute(route)
           this.registeredRoutes.add(routePath)
           if (shouldLogDynamicRouteDetails()) {
@@ -665,35 +787,7 @@ constructor(options: DynamicRouterOptions) {
   /** 刷新路由（重新加载导航树，保留静态组件映射），返回加载后的导航树 */
   async refreshRoutes(): Promise<RuntimeNavigation | null> {
     routerLogger.info('刷新动态路由')
-
-    // 保存旧路由集合；先注册新路由再删除旧路由，避免 Vue Router 内部
-    // removeRoute() 触发重导航时因新路由尚未就绪而产生 "No match found" 警告。
-    const prevRoutes = new Set(this.registeredRoutes)
-    this.registeredRoutes.clear()
-
-    try {
-      await this.registerRoutes()
-    } catch (error) {
-      // 注册失败：回退到预认证导航树，确保至少有 login/home 路由可用
-      routerLogger.error('路由注册失败，回退到预认证导航树', { error: String(error) })
-      if (this._preAuthNavTree) {
-        this._navTree = this._preAuthNavTree
-        this._navRouteMap = new WeakMap()
-        this.registerRoutesFromNav(this._preAuthNavTree.items, { skipTenantPrefix: true, routeNamePrefix: 'public' })
-      }
-      throw error
-    }
-
-    // 移除新路由集合中不再存在的旧路由（此时新路由已全部就绪）
-    for (const path of prevRoutes) {
-      if (!this.registeredRoutes.has(path)) {
-        const route = this.router.getRoutes().find(r => r.path === path)
-        if (route?.name !== undefined) {
-          this.router.removeRoute(route.name)
-        }
-      }
-    }
-
+    await this.loadAndCommitRoutes(true)
     routerLogger.info('路由刷新完成')
     return this._navTree
   }

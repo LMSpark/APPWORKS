@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/types",
+    "sourcePath": "packages/spark-data/src/strategies/types.ts",
+    "sourceFile": "packages/spark-data/src/strategies/types.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/types",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/types\n职责：提供数据层 types 能力，围绕 CrudOperation、CrudLifecycleEvent、CrudLifecycleEventInput 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 strategies/types 的数据语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CrudOperation",
+      "CrudLifecycleEvent",
+      "CrudLifecycleEventInput"
+    ]
+  },
+  "$defs": {
+    "CrudOperation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "CrudOperation",
+      "enum": [
+        "retrieve",
+        "create",
+        "update",
+        "delete",
+        "batchCreate",
+        "batchUpdate",
+        "batchDelete",
+        "import"
+      ]
+    },
+    "CrudLifecycleEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CrudLifecycleEvent",
+      "properties": {
+        "operation": {
+          "$ref": "#/$defs/CrudOperation"
+        },
+        "phase": {
+          "enum": [
+            "before",
+            "after"
+          ]
+        },
+        "data": true,
+        "result": {
+          "$ref": "../types.ts.json#/$defs/CrudResult"
+        },
+        "cancelled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "cancelled"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true
+      }
+    },
+    "CrudLifecycleEventInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CrudLifecycleEventInput",
+      "properties": {
+        "operation": {
+          "$ref": "#/$defs/CrudOperation"
+        },
+        "phase": {
+          "enum": [
+            "before",
+            "after"
+          ]
+        },
+        "data": true,
+        "result": {
+          "$ref": "../types.ts.json#/$defs/CrudResult"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-14T20:21:04.432Z",
+  "models": {
+    "CrudOperation": {
+      "name": "CrudOperation",
+      "jsdoc": "CRUD 操作类型",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'retrieve' | 'create' | 'update' | 'delete' | 'batchCreate' | 'batchUpdate' | 'batchDelete' | 'import'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'retrieve'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'create'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'update'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'delete'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'batchCreate'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'batchUpdate'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'batchDelete'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'import'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "CrudLifecycleEvent": {
+      "name": "CrudLifecycleEvent",
+      "jsdoc": "CRUD 生命周期事件\n- `before` 阶段：业务脚本可调用 `cancel()` 取消操作（如弹窗确认、权限二次校验）\n- `after` 阶段：业务脚本可根据 result 执行联动（如刷新关联表、弹出提示）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** CRUD 操作类型。 */\n    readonly operation: CrudOperation;\n    /** 生命周期阶段：before=可取消，after=可读取结果执行联动。 */\n    readonly phase: 'before' | 'after';\n    /** 提交的数据（before 阶段为原始入参，after 阶段同前） */\n    readonly data: unknown;\n    /** 操作结果（仅 after 阶段） */\n    result?: CrudResult | undefined;\n    /** 是否已取消（仅 before 阶段有效） */\n    cancelled: boolean;\n    /** 取消操作（仅 before 阶段调用） */\n    cancel(): void;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "operation",
+              "jsdoc": "CRUD 操作类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "phase",
+              "jsdoc": "生命周期阶段：before=可取消，after=可读取结果执行联动。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "提交的数据（before 阶段为原始入参，after 阶段同前）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "result",
+              "jsdoc": "操作结果（仅 after 阶段）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancelled",
+              "jsdoc": "是否已取消（仅 before 阶段有效）",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "cancel",
+              "jsdoc": "取消操作（仅 before 阶段调用）",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CrudLifecycleEventInput": {
+      "name": "CrudLifecycleEventInput",
+      "jsdoc": "Crud Lifecycle Event Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** CRUD 操作类型：retrieve / create / update / delete / batchCreate / batchUpdate / batchDelete / import。 */\n    operation: CrudOperation;\n    /** 生命周期阶段：before=可取消，after=可读取结果执行联动。 */\n    phase: 'before' | 'after';\n    /** 提交的数据载荷（before 阶段为原始入参，after 阶段同前）。 */\n    data: unknown;\n    /** 操作结果（仅 after 阶段有效）。 */\n    result?: CrudResult | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** CRUD 操作类型：retrieve / create / update / delete / batchCreate / batchUpdate / batchDelete / import。 */\n    operation: CrudOperation;\n    /** 生命周期阶段：before=可取消，after=可读取结果执行联动。 */\n    phase: 'before' | 'after';\n    /** 提交的数据载荷（before 阶段为原始入参，after 阶段同前）。 */\n    data: unknown;\n    /** 操作结果（仅 after 阶段有效）。 */\n    result?: CrudResult | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "operation",
+              "jsdoc": "CRUD 操作类型：retrieve / create / update / delete / batchCreate / batchUpdate / batchDelete / import。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "phase",
+              "jsdoc": "生命周期阶段：before=可取消，after=可读取结果执行联动。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "提交的数据载荷（before 阶段为原始入参，after 阶段同前）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "result",
+              "jsdoc": "操作结果（仅 after 阶段有效）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

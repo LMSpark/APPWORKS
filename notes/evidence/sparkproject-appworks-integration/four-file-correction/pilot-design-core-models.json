@@ -1,0 +1,195 @@
+{
+  "result": {
+    "type": "object",
+    "value": [
+      {
+        "fields": [
+          {
+            "canonicalName": "ReportID",
+            "id": "0AA329DBE0F548D09829DE55C841EC66",
+            "name": "ReportID",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "rowid",
+            "id": "20F6C675508643B38FEB98A58183D163",
+            "name": "rowid",
+            "primaryKey": true
+          },
+          {
+            "canonicalName": "wfid",
+            "id": "242CCF1C94344B5A8A36E3A616FDDE86",
+            "name": "wfid",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "updateuser",
+            "id": "3D88F979B0E94B70B350CB555EF0F71F",
+            "name": "updateuser",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "createuser",
+            "id": "4B6E744AFBA84177B9B1E72F741BF8F7",
+            "name": "createuser",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "description",
+            "id": "7A406DA90A994165BFF95C32497BE6D3",
+            "name": "description",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "flowstate",
+            "id": "8B20D74F36454096A512398FB07A1E5F",
+            "name": "flowstate",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "updatetime",
+            "id": "9D6815A881744DE1A905D2568949B8E7",
+            "name": "updatetime",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "createtime",
+            "id": "9FB025514C8A4F54A72C58FAEAD34391",
+            "name": "createtime",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "lingma_sys_is_delete",
+            "id": "CEE667011FCD475A9F3B8AC0AEC3D06E",
+            "name": "lingma_sys_is_delete",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "inputParams",
+            "id": "E8CFE6441BC54DAA8E2AD12853BBA0A7",
+            "name": "inputParams",
+            "primaryKey": false
+          }
+        ],
+        "id": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+        "metaName": "Base_DataSet",
+        "primaryKey": "rowid"
+      },
+      {
+        "fields": [
+          {
+            "canonicalName": "childTable",
+            "id": "0555771D7E5A42FC935A82E0835A8466",
+            "name": "childTable",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "updateuser",
+            "id": "132E1E90361347E78F2258A65CAA26FD",
+            "name": "updateuser",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "rowid",
+            "id": "16402C39C20741BEA65F6B6F3CEE1730",
+            "name": "rowid",
+            "primaryKey": true
+          },
+          {
+            "canonicalName": "dataSetId",
+            "id": "242582DEE3E5435AB467C67609174017",
+            "name": "dataSetId",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "flowstate",
+            "id": "28320AF973F740EF865D7E3D9883FCFD",
+            "name": "flowstate",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "ReportID",
+            "id": "2D246D1E89F34322A295C99241EC5224",
+            "name": "ReportID",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "depType",
+            "id": "429B2A76263A497D961ABCD260D3A183",
+            "name": "depType",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "lingma_sys_is_delete",
+            "id": "4CBF11F327474734BE050BB523047FB1",
+            "name": "lingma_sys_is_delete",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "cascadeDel",
+            "id": "52D937A294224691AB955A6FC9267565",
+            "name": "cascadeDel",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "updatetime",
+            "id": "693D1539EE354986A045F688DF008C05",
+            "name": "updatetime",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "filter",
+            "id": "7A8E2685BAF44043B49E4262EF00F1C4",
+            "name": "filter",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "parentTable",
+            "id": "81F8EA7E210D4684B56DEBBBB39AAD23",
+            "name": "parentTable",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "wfid",
+            "id": "8B4278A033D5482C96D9451C5B144FA6",
+            "name": "wfid",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "createuser",
+            "id": "96444A0661C94AA88A84BC5056430DA7",
+            "name": "createuser",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "childModId",
+            "id": "A355600B250040A792EBCA5672DC253C",
+            "name": "childModId",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "description",
+            "id": "C9DBA06C9C9E4FAD8D286118AE424895",
+            "name": "description",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "parentModId",
+            "id": "F1B835E4B0E54A0F96F51A3C92492671",
+            "name": "parentModId",
+            "primaryKey": false
+          },
+          {
+            "canonicalName": "createtime",
+            "id": "FFD501FF67884F46B7EDDA0BA8848976",
+            "name": "createtime",
+            "primaryKey": false
+          }
+        ],
+        "id": "8D1AB14DD8277F3E7017CD38F77B09FDp003",
+        "metaName": "Base_DataModel_Relation",
+        "primaryKey": "rowid"
+      }
+    ]
+  }
+}

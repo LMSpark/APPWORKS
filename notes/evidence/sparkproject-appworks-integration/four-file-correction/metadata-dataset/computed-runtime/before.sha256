@@ -1,0 +1,4 @@
+1D54D90117583864BD5753BC47A1C74A6EF587CC26BAC7A97AFC3E9F903E771E  packages/spark-data/src/strategies/computed-column-delegate.ts
+5CEC82960AB50CCFF2EED9E492FB820B7FA0A5505110790EEBD0D43AD98421D3  packages/spark-data/src/data-view.ts
+009626426743A5BDFB62C688C5A51A3D78C23A4A34A2D84B97650C08B660F98F  packages/spark-data/src/resource-relation/resource-relation-definition.ts
+MISSING  packages/spark-data/src/tests/data-view/computed-query.test.ts

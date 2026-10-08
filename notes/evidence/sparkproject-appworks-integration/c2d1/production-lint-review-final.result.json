@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec eslint packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts src/lowcode/lowcode-runtime.ts --max-warnings=0",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:10:16.2378365Z",
+  "finishedAtUtc": "2026-10-07T08:10:24.0228648Z",
+  "exitCode": 0
+}

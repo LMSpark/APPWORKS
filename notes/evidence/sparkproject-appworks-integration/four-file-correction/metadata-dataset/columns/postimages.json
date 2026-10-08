@@ -1,0 +1,26 @@
+[
+  {
+    "path": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
+    "sha256": "413DF094DF48953C5F841B7D1BA916D5EC999CFA3C44CABE997BDB42C6278162"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "sha256": "82AABA92EEE67CB8B1FE0FE8F423BFE49436C52AAF3AB1C8828E29CD75915C15"
+  },
+  {
+    "path": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+    "sha256": "FC390BD6DD9BE3E8D8AA6DB3DC7F6AA96ECC4291C5E97C721078505EB44DF85F"
+  },
+  {
+    "path": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+    "sha256": "97BCA1D261F35A845FC121380CB7D82B8CD5991E9712E37A7C873C358775003C"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts",
+    "sha256": "8EC8643DFA542131140049AF10D2C9CBD5120418098BA4FA3746CBC14D16BD4D"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts",
+    "sha256": "32CE1F784F91714C77384F7189D15B0FE5E984AABD78AB76D5A56CB903AC3B7B"
+  }
+]

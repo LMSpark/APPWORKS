@@ -1,0 +1,7 @@
+{
+  "finishedAtUtc": "2026-10-07T09:04:37.4126185Z",
+  "cwd": "D:\\SPARK_AppWorks",
+  "exitCode": 0,
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts -t \"reinstalls the real target owner when navigation supersedes an activation just after platform commit\"",
+  "startedAtUtc": "2026-10-07T09:04:30.5332029Z"
+}

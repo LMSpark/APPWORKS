@@ -1,0 +1,204 @@
+{
+  "cases": [
+    {
+      "kind": "dict",
+      "snapshot": "- banner:\n  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76\n  - navigation:\n    - generic: SPARK 工具\n    - generic: 数据库管理\n    - generic: 外部服务管理\n    - generic: 半结构化数据\n    - generic: 文件数据管理\n    - generic: 结构化配置\n    - generic: 数据空间管理\n    - generic: 业务流程管理\n    - generic: 业务报表管理\n    - generic: 安全防护管理\n    - generic: 应用系统管理\n    - generic: 人力资源管理\n    - generic: 系统支持管理\n    - generic: 企业管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 页面工具\n- generic: ×\n- main:\n  - heading \"数据空间设计\" [level=2]\n  - status: 数据空间设计信息已加载\n  - button \"返回目录\":\n    - generic: 返回目录\n  - button \"重新加载\":\n    - generic: 重新加载\n  - button \"编辑输入参数\":\n    - generic: 编辑输入参数\n  - status: 布局写入已确认，请核对当前图\n  - tablist:\n    - tab \"概览\" [selected]\n    - tab \"模型\"\n    - tab \"字段\"\n    - tab \"关系\"\n    - tab \"关系图\"\n  - tabpanel \"概览\":\n    - table:\n      - rowgroup:\n        - row \"数据空间 ID 名称 类型 描述\":\n          - columnheader \"数据空间 ID\":\n            - generic: 数据空间 ID\n          - columnheader \"名称\":\n            - generic: 名称\n          - columnheader \"类型\":\n            - generic: 类型\n          - columnheader \"描述\":\n            - generic: 描述\n    - table:\n      - rowgroup:\n        - row \"97DCB03F75AADEAE6B102B062DB71CEA 四文件编辑验收-20261007 datasource 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n          - cell \"97DCB03F75AADEAE6B102B062DB71CEA\":\n            - generic: 97DCB03F75AADEAE6B102B062DB71CEA\n          - cell \"四文件编辑验收-20261007\":\n            - generic: 四文件编辑验收-20261007\n          - cell \"datasource\":\n            - generic: datasource\n          - cell \"四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n            - generic: 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\n    - heading \"输入参数\" [level=3]\n    - generic: 无输入参数\n    - heading \"布局\" [level=3]\n    - generic: 已保存布局\n    - generic: 版本：1\n    - generic: 模型节点：3\n    - generic: 关系边：0\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场"
+    },
+    {
+      "kind": "json",
+      "snapshot": "- banner:\n  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76\n  - navigation:\n    - generic: SPARK 工具\n    - generic: 数据库管理\n    - generic: 外部服务管理\n    - generic: 半结构化数据\n    - generic: 文件数据管理\n    - generic: 结构化配置\n    - generic: 数据空间管理\n    - generic: 业务流程管理\n    - generic: 业务报表管理\n    - generic: 安全防护管理\n    - generic: 应用系统管理\n    - generic: 人力资源管理\n    - generic: 系统支持管理\n    - generic: 企业管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 页面工具\n- generic: ×\n- main:\n  - heading \"数据空间设计\" [level=2]\n  - status: 数据空间设计信息已加载\n  - button \"返回目录\":\n    - generic: 返回目录\n  - button \"重新加载\":\n    - generic: 重新加载\n  - alert: JSON：TestJSON0819；初始字段 6 项。确认后写入正式模型与字段。\n  - button \"继续核验新增模型\" [disabled]:\n    - generic: 继续核验新增模型\n  - button \"接受当前正式结果并结束本次操作\" [disabled]:\n    - generic: 接受当前正式结果并结束本次操作\n  - status: 布局文件请求仍在途；页面运行实例正在等待实际结果\n  - button \"重新读取并采用远端布局\" [disabled]:\n    - generic: 重新读取并采用远端布局\n  - status: 布局正在保存；当前请求仍由页面运行实例收束\n  - tablist:\n    - tab \"概览\" [selected]\n    - tab \"模型\"\n    - tab \"字段\"\n    - tab \"关系\"\n    - tab \"关系图\"\n  - tabpanel \"概览\":\n    - table:\n      - rowgroup:\n        - row \"数据空间 ID 名称 类型 描述\":\n          - columnheader \"数据空间 ID\":\n            - generic: 数据空间 ID\n          - columnheader \"名称\":\n            - generic: 名称\n          - columnheader \"类型\":\n            - generic: 类型\n          - columnheader \"描述\":\n            - generic: 描述\n    - table:\n      - rowgroup:\n        - row \"97DCB03F75AADEAE6B102B062DB71CEA 四文件编辑验收-20261007 datasource 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n          - cell \"97DCB03F75AADEAE6B102B062DB71CEA\":\n            - generic: 97DCB03F75AADEAE6B102B062DB71CEA\n          - cell \"四文件编辑验收-20261007\":\n            - generic: 四文件编辑验收-20261007\n          - cell \"datasource\":\n            - generic: datasource\n          - cell \"四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n            - generic: 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\n    - heading \"输入参数\" [level=3]\n    - generic: 无输入参数\n    - heading \"布局\" [level=3]\n    - generic: 已保存布局\n    - generic: 版本：1\n    - generic: 模型节点：3\n    - generic: 关系边：0\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场"
+    },
+    {
+      "kind": "json-confirmed",
+      "snapshot": "- banner:\n  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76\n  - navigation:\n    - generic: SPARK 工具\n    - generic: 数据库管理\n    - generic: 外部服务管理\n    - generic: 半结构化数据\n    - generic: 文件数据管理\n    - generic: 结构化配置\n    - generic: 数据空间管理\n    - generic: 业务流程管理\n    - generic: 业务报表管理\n    - generic: 安全防护管理\n    - generic: 应用系统管理\n    - generic: 人力资源管理\n    - generic: 系统支持管理\n    - generic: 企业管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 页面工具\n- generic: ×\n- main:\n  - heading \"数据空间设计\" [level=2]\n  - status: 数据空间设计信息已加载\n  - button \"返回目录\":\n    - generic: 返回目录\n  - button \"重新加载\":\n    - generic: 重新加载\n  - button \"编辑输入参数\":\n    - generic: 编辑输入参数\n  - status: 布局写入已确认，请核对当前图\n  - tablist:\n    - tab \"概览\" [selected]\n    - tab \"模型\"\n    - tab \"字段\"\n    - tab \"关系\"\n    - tab \"关系图\"\n  - tabpanel \"概览\":\n    - table:\n      - rowgroup:\n        - row \"数据空间 ID 名称 类型 描述\":\n          - columnheader \"数据空间 ID\":\n            - generic: 数据空间 ID\n          - columnheader \"名称\":\n            - generic: 名称\n          - columnheader \"类型\":\n            - generic: 类型\n          - columnheader \"描述\":\n            - generic: 描述\n    - table:\n      - rowgroup:\n        - row \"97DCB03F75AADEAE6B102B062DB71CEA 四文件编辑验收-20261007 datasource 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n          - cell \"97DCB03F75AADEAE6B102B062DB71CEA\":\n            - generic: 97DCB03F75AADEAE6B102B062DB71CEA\n          - cell \"四文件编辑验收-20261007\":\n            - generic: 四文件编辑验收-20261007\n          - cell \"datasource\":\n            - generic: datasource\n          - cell \"四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n            - generic: 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\n    - heading \"输入参数\" [level=3]\n    - generic: 无输入参数\n    - heading \"布局\" [level=3]\n    - generic: 已保存布局\n    - generic: 版本：1\n    - generic: 模型节点：4\n    - generic: 关系边：0\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场"
+    },
+    {
+      "kind": "interface",
+      "snapshot": "- banner:\n  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76\n  - navigation:\n    - generic: SPARK 工具\n    - generic: 数据库管理\n    - generic: 外部服务管理\n    - generic: 半结构化数据\n    - generic: 文件数据管理\n    - generic: 结构化配置\n    - generic: 数据空间管理\n    - generic: 业务流程管理\n    - generic: 业务报表管理\n    - generic: 安全防护管理\n    - generic: 应用系统管理\n    - generic: 人力资源管理\n    - generic: 系统支持管理\n    - generic: 企业管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 页面工具\n- generic: ×\n- main:\n  - heading \"数据空间设计\" [level=2]\n  - status: 数据空间设计信息已加载\n  - button \"返回目录\":\n    - generic: 返回目录\n  - button \"重新加载\":\n    - generic: 重新加载\n  - button \"编辑输入参数\":\n    - generic: 编辑输入参数\n  - status: 布局写入已确认，请核对当前图\n  - tablist:\n    - tab \"概览\" [selected]\n    - tab \"模型\"\n    - tab \"字段\"\n    - tab \"关系\"\n    - tab \"关系图\"\n  - tabpanel \"概览\":\n    - table:\n      - rowgroup:\n        - row \"数据空间 ID 名称 类型 描述\":\n          - columnheader \"数据空间 ID\":\n            - generic: 数据空间 ID\n          - columnheader \"名称\":\n            - generic: 名称\n          - columnheader \"类型\":\n            - generic: 类型\n          - columnheader \"描述\":\n            - generic: 描述\n    - table:\n      - rowgroup:\n        - row \"97DCB03F75AADEAE6B102B062DB71CEA 四文件编辑验收-20261007 datasource 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n          - cell \"97DCB03F75AADEAE6B102B062DB71CEA\":\n            - generic: 97DCB03F75AADEAE6B102B062DB71CEA\n          - cell \"四文件编辑验收-20261007\":\n            - generic: 四文件编辑验收-20261007\n          - cell \"datasource\":\n            - generic: datasource\n          - cell \"四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n            - generic: 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\n    - heading \"输入参数\" [level=3]\n    - generic: 无输入参数\n    - heading \"布局\" [level=3]\n    - generic: 已保存布局\n    - generic: 版本：1\n    - generic: 模型节点：5\n    - generic: 关系边：0\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场"
+    },
+    {
+      "kind": "logicView",
+      "snapshot": "- banner:\n  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76\n  - navigation:\n    - generic: SPARK 工具\n    - generic: 数据库管理\n    - generic: 外部服务管理\n    - generic: 半结构化数据\n    - generic: 文件数据管理\n    - generic: 结构化配置\n    - generic: 数据空间管理\n    - generic: 业务流程管理\n    - generic: 业务报表管理\n    - generic: 安全防护管理\n    - generic: 应用系统管理\n    - generic: 人力资源管理\n    - generic: 系统支持管理\n    - generic: 企业管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 页面工具\n- generic: ×\n- main:\n  - heading \"数据空间设计\" [level=2]\n  - status: 数据空间设计信息已加载\n  - button \"返回目录\":\n    - generic: 返回目录\n  - button \"重新加载\":\n    - generic: 重新加载\n  - button \"编辑输入参数\":\n    - generic: 编辑输入参数\n  - status: 布局写入已确认，请核对当前图\n  - tablist:\n    - tab \"概览\" [selected]\n    - tab \"模型\"\n    - tab \"字段\"\n    - tab \"关系\"\n    - tab \"关系图\"\n  - tabpanel \"概览\":\n    - table:\n      - rowgroup:\n        - row \"数据空间 ID 名称 类型 描述\":\n          - columnheader \"数据空间 ID\":\n            - generic: 数据空间 ID\n          - columnheader \"名称\":\n            - generic: 名称\n          - columnheader \"类型\":\n            - generic: 类型\n          - columnheader \"描述\":\n            - generic: 描述\n    - table:\n      - rowgroup:\n        - row \"97DCB03F75AADEAE6B102B062DB71CEA 四文件编辑验收-20261007 datasource 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n          - cell \"97DCB03F75AADEAE6B102B062DB71CEA\":\n            - generic: 97DCB03F75AADEAE6B102B062DB71CEA\n          - cell \"四文件编辑验收-20261007\":\n            - generic: 四文件编辑验收-20261007\n          - cell \"datasource\":\n            - generic: datasource\n          - cell \"四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n            - generic: 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\n    - heading \"输入参数\" [level=3]\n    - generic: 无输入参数\n    - heading \"布局\" [level=3]\n    - generic: 已保存布局\n    - generic: 版本：1\n    - generic: 模型节点：6\n    - generic: 关系边：0\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场"
+    },
+    {
+      "kind": "databaseView",
+      "snapshot": "- banner:\n  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76\n  - navigation:\n    - generic: SPARK 工具\n    - generic: 数据库管理\n    - generic: 外部服务管理\n    - generic: 半结构化数据\n    - generic: 文件数据管理\n    - generic: 结构化配置\n    - generic: 数据空间管理\n    - generic: 业务流程管理\n    - generic: 业务报表管理\n    - generic: 安全防护管理\n    - generic: 应用系统管理\n    - generic: 人力资源管理\n    - generic: 系统支持管理\n    - generic: 企业管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 页面工具\n- generic: ×\n- main:\n  - heading \"数据空间设计\" [level=2]\n  - status: 数据空间设计信息已加载\n  - button \"返回目录\":\n    - generic: 返回目录\n  - button \"重新加载\":\n    - generic: 重新加载\n  - button \"编辑输入参数\":\n    - generic: 编辑输入参数\n  - status: 布局写入已确认，请核对当前图\n  - tablist:\n    - tab \"概览\" [selected]\n    - tab \"模型\"\n    - tab \"字段\"\n    - tab \"关系\"\n    - tab \"关系图\"\n  - tabpanel \"概览\":\n    - table:\n      - rowgroup:\n        - row \"数据空间 ID 名称 类型 描述\":\n          - columnheader \"数据空间 ID\":\n            - generic: 数据空间 ID\n          - columnheader \"名称\":\n            - generic: 名称\n          - columnheader \"类型\":\n            - generic: 类型\n          - columnheader \"描述\":\n            - generic: 描述\n    - table:\n      - rowgroup:\n        - row \"97DCB03F75AADEAE6B102B062DB71CEA 四文件编辑验收-20261007 datasource 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n          - cell \"97DCB03F75AADEAE6B102B062DB71CEA\":\n            - generic: 97DCB03F75AADEAE6B102B062DB71CEA\n          - cell \"四文件编辑验收-20261007\":\n            - generic: 四文件编辑验收-20261007\n          - cell \"datasource\":\n            - generic: datasource\n          - cell \"四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n            - generic: 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\n    - heading \"输入参数\" [level=3]\n    - generic: 无输入参数\n    - heading \"布局\" [level=3]\n    - generic: 已保存布局\n    - generic: 版本：1\n    - generic: 模型节点：7\n    - generic: 关系边：0\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场"
+    },
+    {
+      "kind": "reopened-overview",
+      "snapshot": "- banner:\n  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76\n  - navigation:\n    - generic: SPARK 工具\n    - generic: 数据库管理\n    - generic: 外部服务管理\n    - generic: 半结构化数据\n    - generic: 文件数据管理\n    - generic: 结构化配置\n    - generic: 数据空间管理\n    - generic: 业务流程管理\n    - generic: 业务报表管理\n    - generic: 安全防护管理\n    - generic: 应用系统管理\n    - generic: 人力资源管理\n    - generic: 系统支持管理\n    - generic: 企业管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 页面工具\n- generic: ×\n- main:\n  - heading \"数据空间设计\" [level=2]\n  - status: 数据空间设计信息已加载\n  - button \"返回目录\":\n    - generic: 返回目录\n  - button \"重新加载\":\n    - generic: 重新加载\n  - button \"编辑输入参数\":\n    - generic: 编辑输入参数\n  - tablist:\n    - tab \"概览\" [selected]\n    - tab \"模型\"\n    - tab \"字段\"\n    - tab \"关系\"\n    - tab \"关系图\"\n  - tabpanel \"概览\":\n    - table:\n      - rowgroup:\n        - row \"数据空间 ID 名称 类型 描述\":\n          - columnheader \"数据空间 ID\":\n            - generic: 数据空间 ID\n          - columnheader \"名称\":\n            - generic: 名称\n          - columnheader \"类型\":\n            - generic: 类型\n          - columnheader \"描述\":\n            - generic: 描述\n    - table:\n      - rowgroup:\n        - row \"97DCB03F75AADEAE6B102B062DB71CEA 四文件编辑验收-20261007 datasource 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n          - cell \"97DCB03F75AADEAE6B102B062DB71CEA\":\n            - generic: 97DCB03F75AADEAE6B102B062DB71CEA\n          - cell \"四文件编辑验收-20261007\":\n            - generic: 四文件编辑验收-20261007\n          - cell \"datasource\":\n            - generic: datasource\n          - cell \"四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\":\n            - generic: 四文件样板编辑验收：仅修改名称与描述，保留应用和类型。\n    - heading \"输入参数\" [level=3]\n    - generic: 无输入参数\n    - heading \"布局\" [level=3]\n    - generic: 已保存布局\n    - generic: 版本：1\n    - generic: 模型节点：7\n    - generic: 关系边：0\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场"
+    },
+    {
+      "kind": "reopened-models",
+      "snapshot": "- banner:\n  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76\n  - navigation:\n    - generic: SPARK 工具\n    - generic: 数据库管理\n    - generic: 外部服务管理\n    - generic: 半结构化数据\n    - generic: 文件数据管理\n    - generic: 结构化配置\n    - generic: 数据空间管理\n    - generic: 业务流程管理\n    - generic: 业务报表管理\n    - generic: 安全防护管理\n    - generic: 应用系统管理\n    - generic: 人力资源管理\n    - generic: 系统支持管理\n    - generic: 企业管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 页面工具\n- generic: ×\n- main:\n  - heading \"数据空间设计\" [level=2]\n  - status: 数据空间设计信息已加载\n  - button \"返回目录\":\n    - generic: 返回目录\n  - button \"重新加载\":\n    - generic: 重新加载\n  - button \"编辑输入参数\":\n    - generic: 编辑输入参数\n  - tablist:\n    - tab \"概览\"\n    - tab \"模型\" [active] [selected]\n    - tab \"字段\"\n    - tab \"关系\"\n    - tab \"关系图\"\n  - tabpanel \"模型\":\n    - button \"从来源新增模型\":\n      - generic: 从来源新增模型\n    - table:\n      - rowgroup:\n        - row \"模型 ID 注册名 来源名 描述 类型\":\n          - columnheader \"模型 ID\":\n            - generic: 模型 ID\n          - columnheader \"注册名\":\n            - generic: 注册名\n          - columnheader \"来源名\":\n            - generic: 来源名\n          - columnheader \"描述\":\n            - generic: 描述\n          - columnheader \"类型\":\n            - generic: 类型\n    - table:\n      - rowgroup:\n        - row \"23242F5DF24156A738D99A9270802B24 shif shif 是否 字典\":\n          - cell \"23242F5DF24156A738D99A9270802B24\":\n            - generic: 23242F5DF24156A738D99A9270802B24\n          - cell \"shif\":\n            - generic: shif\n          - cell \"shif\":\n            - generic: shif\n          - cell \"是否\":\n            - generic: 是否\n          - cell \"字典\":\n            - generic: 字典\n        - row \"2E2EE885581B4B21940479EBDC3402C9 Json转数组 Json转数组 接口\":\n          - cell \"2E2EE885581B4B21940479EBDC3402C9\":\n            - generic: 2E2EE885581B4B21940479EBDC3402C9\n          - cell \"Json转数组\":\n            - generic: Json转数组\n          - cell \"Json转数组\":\n            - generic: Json转数组\n          - cell\n          - cell \"接口\":\n            - generic: 接口\n        - row \"3A91837FD1EFF10F2B9FF90FF771989C db_relation_show db_relation_show 视图\":\n          - cell \"3A91837FD1EFF10F2B9FF90FF771989C\":\n            - generic: 3A91837FD1EFF10F2B9FF90FF771989C\n          - cell \"db_relation_show\":\n            - generic: db_relation_show\n          - cell \"db_relation_show\":\n            - generic: db_relation_show\n          - cell\n          - cell \"视图\":\n            - generic: 视图\n        - row \"49B82918D1DF5273C5EC752D208621EE View_TblList View_TblList 表表视图 数据库视图\":\n          - cell \"49B82918D1DF5273C5EC752D208621EE\":\n            - generic: 49B82918D1DF5273C5EC752D208621EE\n          - cell \"View_TblList\":\n            - generic: View_TblList\n          - cell \"View_TblList\":\n            - generic: View_TblList\n          - cell \"表表视图\":\n            - generic: 表表视图\n          - cell \"数据库视图\":\n            - generic: 数据库视图\n        - row \"4F2240B23F1F951EC6356AA576F28165 TestJSON0819 TestJSON0819 JSON\":\n          - cell \"4F2240B23F1F951EC6356AA576F28165\":\n            - generic: 4F2240B23F1F951EC6356AA576F28165\n          - cell \"TestJSON0819\":\n            - generic: TestJSON0819\n          - cell \"TestJSON0819\":\n            - generic: TestJSON0819\n          - cell\n          - cell \"JSON\":\n            - generic: JSON\n        - row \"536CACBAE8A723F65264B47003D15850 copyTable copyTable 复制表 数据库表\":\n          - cell \"536CACBAE8A723F65264B47003D15850\":\n            - generic: 536CACBAE8A723F65264B47003D15850\n          - cell \"copyTable\":\n            - generic: copyTable\n          - cell \"copyTable\":\n            - generic: copyTable\n          - cell \"复制表\":\n            - generic: 复制表\n          - cell \"数据库表\":\n            - generic: 数据库表\n        - row \"B7B0D0E8F824E9CBFA2BEBEE6A76F465 Base_DataSet Base_DataSet 数据空间定义表 数据库表\":\n          - cell \"B7B0D0E8F824E9CBFA2BEBEE6A76F465\":\n            - generic: B7B0D0E8F824E9CBFA2BEBEE6A76F465\n          - cell \"Base_DataSet\":\n            - generic: Base_DataSet\n          - cell \"Base_DataSet\":\n            - generic: Base_DataSet\n          - cell \"数据空间定义表\":\n            - generic: 数据空间定义表\n          - cell \"数据库表\":\n            - generic: 数据库表\n    - generic: 注册名\n    - textbox \"注册名\": shif\n    - generic: 来源名\n    - textbox \"来源名\": shif\n    - generic: 描述\n    - textbox \"描述\": 是否\n    - generic: 来源类型\n    - textbox \"来源类型\": 字典\n    - generic: 输出类型\n    - combobox \"输出类型\"\n    - generic: 单表查询\n    - generic: 父字段\n    - combobox \"父字段\"\n    - generic: 请选择\n    - generic: 是否包含子数据字段\n    - textbox \"是否包含子数据字段\"\n    - generic: 自引用输出类型\n    - combobox \"自引用输出类型\"\n    - generic: 直接子节点\n    - generic: 顶层父级 ID\n    - textbox \"顶层父级 ID\"\n    - generic: 缓存类型\n    - combobox \"缓存类型\"\n    - generic: 请选择\n    - generic: 请求完成配置\n    - textbox \"请求完成配置\"\n    - button \"编辑完整过滤\":\n      - generic: 编辑完整过滤\n    - group \"业务模型\":\n      - generic: 业务模型\n      - checkbox \"业务模型\"\n      - generic: 业务模型\n    - group \"主业务模型\":\n      - generic: 主业务模型\n      - checkbox \"主业务模型\"\n      - generic: 主业务模型\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场"
+    }
+  ],
+  "networkRetry": [
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3522",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3522",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3523",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3523",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3524",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3524",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3525",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3525",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3526",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3526",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3527",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3527",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3528",
+      "url": "http://127.0.0.1:5273/api/DataOperation/BatchTableOperateRequestByCRUD"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3528",
+      "url": "http://127.0.0.1:5273/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3529",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3529",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3530",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3530",
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3531",
+      "url": "http://127.0.0.1:5273/api/File/content/text"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3531",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3532",
+      "url": "http://127.0.0.1:5273/api/File/content/text"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3532",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3533",
+      "url": "http://127.0.0.1:5273/api/File/DownFile"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3533",
+      "url": "http://127.0.0.1:5273/api/File/DownFile",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3534",
+      "url": "http://127.0.0.1:5273/api/File/UploadFile"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3534",
+      "url": "http://127.0.0.1:5273/api/File/UploadFile",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3535",
+      "url": "http://127.0.0.1:5273/api/File/DownFile"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3535",
+      "url": "http://127.0.0.1:5273/api/File/DownFile",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "9064.3536",
+      "url": "http://127.0.0.1:5273/api/File/content/text"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "9064.3536",
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "status": 200
+    }
+  ],
+  "reopenNetworkFailures": []
+}

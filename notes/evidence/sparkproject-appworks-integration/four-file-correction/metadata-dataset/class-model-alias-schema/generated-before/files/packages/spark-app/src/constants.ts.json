@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:constants",
+    "sourcePath": "packages/spark-app/src/constants.ts",
+    "sourceFile": "packages/spark-app/src/constants.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "constants",
+    "jsdoc": "@module @spark-appworks/spark-app:constants\n职责：提供 spark-app 应用壳中的 constants 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ErrorCode"
+    ]
+  },
+  "$defs": {},
+  "generatedAt": "2026-08-10T11:57:35.268Z",
+  "models": {
+    "ErrorCode": {
+      "name": "ErrorCode",
+      "jsdoc": "Error Code 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof ErrorCodes[keyof typeof ErrorCodes]",
+        "members": {}
+      }
+    }
+  }
+}

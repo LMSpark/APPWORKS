@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/permission/permission-api",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/permission/permission-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/permission/permission-api",
+    "jsdoc": "权限根门面：按 design / runtime 分离入口，禁止跨态混用。\ndesign 读功能标签/数据对象策略/对象授权并 prepare 设计变更命令；runtime 读当前用户功能权限。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PermissionApi"
+    ]
+  },
+  "$defs": {
+    "PermissionApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionApi",
+      "properties": {
+        "design": {
+          "$ref": "design/permission-design-api.ts.json#/$defs/PermissionDesignApi"
+        },
+        "runtime": {
+          "$ref": "runtime/permission-runtime-api.ts.json#/$defs/PermissionRuntimeApi"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T07:32:07.299Z",
+  "models": {
+    "PermissionApi": {
+      "name": "PermissionApi",
+      "jsdoc": "权限 API 聚合根；{@link design}与 {@link runtime}各自持有独立 HTTP 客户端实例。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "design",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

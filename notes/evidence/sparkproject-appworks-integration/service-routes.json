@@ -1,0 +1,125 @@
+{
+  "routes": [
+    {
+      "metaName": "application.documentation",
+      "intent": "export-sdd",
+      "operation": "query",
+      "method": "GET",
+      "endpoint": "/File/exportSDD"
+    },
+    {
+      "metaName": "application.documentation",
+      "intent": "export-srs",
+      "operation": "query",
+      "method": "GET",
+      "endpoint": "/File/exportSRS"
+    },
+    {
+      "metaName": "application.lifecycle",
+      "intent": "initialize-enterprise",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Enterprise/initEnt"
+    },
+    {
+      "metaName": "designer.code",
+      "intent": "initialize-code-data",
+      "operation": "query",
+      "method": "GET",
+      "endpoint": "/Codeing/CodeInitDataList"
+    },
+    {
+      "metaName": "designer.code",
+      "intent": "test-code",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Codeing/TestGetCodeString/{{busTableRowid}}"
+    },
+    {
+      "metaName": "designer.execution",
+      "intent": "run-single-node-test",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Workflow/runSingleNodeTest"
+    },
+    {
+      "metaName": "designer.execution",
+      "intent": "run-workflow-test",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Workflow/runWorkflowTest"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "add-receiver",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Flow/FlowAddReceiveUser?stepId={{stepId}}&wfId={{wfId}}"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "back",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Flow/FlowBack"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "can-auto-submit-after",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Flow/CanAutoSubmitAfter"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "force-back",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Flow/FlowForceBack"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "get-execution-users",
+      "operation": "query",
+      "method": "GET",
+      "endpoint": "/Flow/GetExeUsers"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "get-option-actions",
+      "operation": "query",
+      "method": "GET",
+      "endpoint": "/Flow/GetOptionButtonHandleUserOptionData"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "get-step-history",
+      "operation": "query",
+      "method": "GET",
+      "endpoint": "/Flow/GetStepHistory"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "return-to-creator",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Flow/FlowToCreator"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "revoke",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Flow/FlowRevoke?curStepID={{curStepID}}&wfid={{wfid}}"
+    },
+    {
+      "metaName": "workflow.runtime",
+      "intent": "submit-or-start",
+      "operation": "create",
+      "method": "POST",
+      "endpoint": "/Flow/FlowSubmitOrStart"
+    }
+  ],
+  "source": "packages/data/spark-api/src/application/metadata-service-catalog.generated.ts",
+  "reference": "842dec4f11b333df904b9a4e26b6566b0802bab8"
+}

@@ -1,0 +1,113 @@
+import { afterEach, describe, expect, it } from 'vitest'
+import { mount, DOMWrapper, flushPromises } from '@vue/test-utils'
+import ElementPlus from 'element-plus'
+import { FilterExpressionEditor } from '@spark-appworks/spark-component'
+import DataSpaceFilterEditor from '@/views/app/control/data-platform/data-space/design/expression/DataSpaceFilterEditor.vue'
+
+const columns = [{ name: 'Name', type: 'string' }, { name: 'Owner', type: 'string' }] as const
+const nestedWire = JSON.stringify({ Type: 'or', Filters: [
+  { Type: 'cond', Field: 'Name', Operator: 'equal', Value: null, ValueFun: { Type: 'GetConstValue', Value: 'A' } },
+  { Type: 'and', Filters: [{ Type: 'cond', Field: 'Owner', Operator: 'equal', Value: null,
+    ValueFun: { Type: 'GetConstValue', Value: 'B' } }] },
+] })
+const wrappers: ReturnType<typeof mount>[] = []
+afterEach(() => { wrappers.splice(0).forEach(wrapper => wrapper.unmount()) })
+
+function editor(modelValue?: string | null) {
+  const wrapper = mount(DataSpaceFilterEditor, {
+    attachTo: document.body,
+    props: { ...(modelValue !== undefined ? { modelValue } : {}), columns },
+    global: { plugins: [ElementPlus] },
+  })
+  wrappers.push(wrapper)
+  return wrapper
+}
+
+describe('DataSpaceFilterEditor', () => {
+  it('opens and cancels without emitting, then applies nested filter and explicit clear', async () => {
+    const wrapper = editor(nestedWire)
+    const body = new DOMWrapper(document.body)
+    expect(wrapper.findComponent(FilterExpressionEditor).exists()).toBe(true)
+    await wrapper.get('[data-action="open"]').trigger('click')
+    await body.get('[data-action="cancel"]').trigger('click')
+    expect(wrapper.emitted('change')).toBeUndefined()
+
+    await wrapper.get('[data-action="open"]').trigger('click')
+    await body.get('[data-action="json"]').trigger('click')
+    const nestedTree = JSON.stringify({ logic: 'or', filters: [
+      { field: 'Name', operator: 'eq', value: 'A' },
+      { logic: 'and', filters: [{ field: 'Owner', operator: 'eq', value: 'B' }] },
+    ] })
+    await body.get('textarea[data-filter-json]').setValue(nestedTree)
+    await body.get('[data-action="apply"]').trigger('click')
+    expect(wrapper.emitted('change')?.[0]?.[0]).toBe(nestedWire)
+
+    await wrapper.get('[data-action="open"]').trigger('click')
+    await body.get('[data-action="clear"]').trigger('click')
+    expect(wrapper.emitted('change')?.[1]).toEqual([''])
+  })
+
+  it('preserves a damaged wire value and does not expose editing controls', async () => {
+    const damaged = '{"Type":"cond","Field":"Name","Operator":"unknown"}'
+    const wrapper = editor(damaged)
+    expect(wrapper.get('[role="alert"]').text()).toContain('过滤配置无法解析')
+    expect(wrapper.findComponent(FilterExpressionEditor).exists()).toBe(false)
+    expect(wrapper.emitted('change')).toBeUndefined()
+    await wrapper.setProps({ modelValue: null })
+    expect(wrapper.emitted('change')).toBeUndefined()
+  })
+
+  it('rebuilds a stale open draft when parent value or disabled state changes', async () => {
+    const wrapper = editor()
+    const body = new DOMWrapper(document.body)
+    await wrapper.get('[data-action="open"]').trigger('click')
+    await body.get('[data-action="json"]').trigger('click')
+    await body.get('textarea[data-filter-json]').setValue('{"field":"Name","operator":"eq","value":"stale"}')
+    await wrapper.setProps({ modelValue: nestedWire })
+    await flushPromises()
+    expect(body.find('[data-action="apply"]').exists()).toBe(false)
+    expect(wrapper.emitted('change')).toBeUndefined()
+
+    const staleChild = wrapper.findComponent(FilterExpressionEditor)
+    await wrapper.setProps({ columns: [{ name: 'Name', type: 'string' }] })
+    await flushPromises()
+    staleChild.vm.$emit('update:modelValue', { field: 'Name', operator: 'eq', value: 'old columns' })
+    expect(wrapper.emitted('change')).toBeUndefined()
+
+    const staleColumnsChild = wrapper.findComponent(FilterExpressionEditor)
+    await wrapper.setProps({ functionContext: { systemParams: [{ label: '用户', value: 'UserID' }] } })
+    await flushPromises()
+    staleColumnsChild.vm.$emit('update:modelValue', { field: 'Name', operator: 'eq', value: 'old context' })
+    expect(wrapper.emitted('change')).toBeUndefined()
+
+    await wrapper.get('[data-action="open"]').trigger('click')
+    const staleDisabledChild = wrapper.findComponent(FilterExpressionEditor)
+    await wrapper.setProps({ disabled: true })
+    await flushPromises()
+    expect(wrapper.get('[data-action="open"]').attributes('disabled')).toBeDefined()
+    expect(body.find('[data-action="apply"]').exists()).toBe(false)
+    await wrapper.setProps({ disabled: false })
+    await flushPromises()
+    staleDisabledChild.vm.$emit('update:modelValue', { field: 'Name', operator: 'eq', value: 'old disabled session' })
+    expect(wrapper.emitted('change')).toBeUndefined()
+  })
+
+  it('keeps ordinary function definitions and exposes only the department branch for user host', async () => {
+    const legacyRole = JSON.stringify({ Type: 'cond', Field: 'Owner', Operator: 'equal', Value: null,
+      ValueFun: { Type: 'GetUserMasterId', refType: 'role', roleClassId: 'old-category' } })
+    const wrapper = editor(legacyRole)
+    const context = wrapper.findComponent(FilterExpressionEditor).props('functionContext')
+    const definitions = context?.definitions ?? []
+    expect(definitions.some(item => item.type === 'SystemData')).toBe(true)
+    const userHost = definitions.find(item => item.type === 'GetUserMasterId')
+    expect(userHost?.fields.map(field => field.key)).toEqual(['refType', 'depLevel', 'getChildDep'])
+    expect(userHost?.fields[0]?.options).toEqual([{ label: '部门级别', value: 'dep' }])
+    expect(wrapper.text()).not.toContain('角色分类')
+
+    const body = new DOMWrapper(document.body)
+    await wrapper.get('[data-action="open"]').trigger('click')
+    await body.get('[data-action="apply"]').trigger('click')
+    expect(body.get('[role="alert"]').text()).toContain('已停用的角色分类分支')
+    expect(wrapper.emitted('change')).toBeUndefined()
+  })
+})

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:index",
+    "sourcePath": "packages/spark-utils/src/index.ts",
+    "sourceFile": "packages/spark-utils/src/index.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "index",
+    "jsdoc": "@module @spark-appworks/spark-utils:index\n职责：提供框架无关的 index 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。\n\nSPARK Utils - 纯基础设施工具库\n提供日志、HTTP 客户端、能力系统等核心工具",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-05T10:07:52.908Z",
+  "models": {}
+}

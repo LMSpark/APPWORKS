@@ -1,0 +1,852 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:ai/types",
+    "sourcePath": "packages/spark-component/src/ai/types.ts",
+    "sourceFile": "packages/spark-component/src/ai/types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "ai/types",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/types\n职责：定义 types 相关的内部类型契约，支撑渲染器、props、zero-code 和运行时状态协作。\n边界：只描述 component-runtime 的类型结构，不直接渲染界面，也不发起数据请求。\nAI用途：跨文件修改 types 行为或补齐配置类型时，用本模块确认共享类型边界。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ToolCallDisplayItem",
+      "ReasoningDisplayItem",
+      "StreamDisplayEntry",
+      "SparkAgentTimelineEvent",
+      "SessionDiagnosticIssue",
+      "SessionSummaryDisplayData",
+      "SessionTranscriptDisplayEntry",
+      "SessionDiagnosticsData",
+      "ToolApprovalDisplayItem"
+    ]
+  },
+  "$defs": {
+    "ToolCallDisplayItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ToolCallDisplayItem",
+      "properties": {
+        "toolName": {
+          "type": "string"
+        },
+        "argsPreview": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "round": {
+          "type": "number"
+        },
+        "callId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "enum": [
+            "success",
+            "error"
+          ]
+        },
+        "resultSummary": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "durationMs": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ReasoningDisplayItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReasoningDisplayItem",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "collapsed": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "StreamDisplayEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "StreamDisplayEntry",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "user-message"
+            },
+            "content": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "kind",
+            "content",
+            "timestamp"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "assistant-delta"
+            },
+            "content": {
+              "type": "string"
+            },
+            "turnId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "content",
+            "turnId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "assistant-complete"
+            },
+            "content": {
+              "type": "string"
+            },
+            "turnId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "content",
+            "turnId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "reasoning"
+            },
+            "item": {
+              "type": "object",
+              "title": "ReasoningDisplayItem"
+            }
+          },
+          "required": [
+            "kind",
+            "item"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "tool-call"
+            },
+            "item": {
+              "type": "object",
+              "title": "ToolCallDisplayItem"
+            }
+          },
+          "required": [
+            "kind",
+            "item"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "error"
+            },
+            "message": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "kind",
+            "message",
+            "timestamp"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "system-message"
+            },
+            "content": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "kind",
+            "content",
+            "timestamp"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "SparkAgentTimelineEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkAgentTimelineEvent",
+      "properties": {
+        "sequence": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "payloadPreview": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SessionDiagnosticIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionDiagnosticIssue",
+      "properties": {
+        "level": {
+          "enum": [
+            "error",
+            "warn",
+            "info"
+          ]
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "hint": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SessionSummaryDisplayData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionSummaryDisplayData",
+      "properties": {
+        "status": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "historyCount": {
+          "type": "number"
+        },
+        "messageCount": {
+          "type": "number"
+        },
+        "toolCallCount": {
+          "type": "number"
+        },
+        "failedToolCallCount": {
+          "type": "number"
+        },
+        "functionNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lastAssistantText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SessionTranscriptDisplayEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionTranscriptDisplayEntry",
+      "properties": {
+        "seq": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "message",
+            "functionCall",
+            "unknown"
+          ]
+        },
+        "direction": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "toolName": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "args": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SessionDiagnosticsData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionDiagnosticsData",
+      "properties": {
+        "summary": {
+          "$ref": "#/$defs/SessionSummaryDisplayData"
+        },
+        "transcript": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SessionTranscriptDisplayEntry"
+          }
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SessionDiagnosticIssue"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ToolApprovalDisplayItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ToolApprovalDisplayItem",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "toolName": {
+          "type": "string"
+        },
+        "argsPreview": {
+          "type": "string"
+        },
+        "moduleId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-20T04:47:21.246Z",
+  "models": {
+    "ToolCallDisplayItem": {
+      "name": "ToolCallDisplayItem",
+      "jsdoc": "工具调用展示条目：单次 function tool 调用在 UI 流视图中的投影",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 工具名称（如 model_script / module_action） */\n    toolName: string;\n    /** 调用参数的截断预览文本，用于 UI 展示而非完整参数还原 */\n    argsPreview: string;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** 工具循环轮次序号（从 1 开始） */\n    round: number;\n    /** OpenAI function call ID，可能为 null（非 function calling 场景） */\n    callId: string | null;\n    /** 调用结果状态：success=成功 / error=失败 */\n    status: 'success' | 'error';\n    /** 调用结果的截断摘要文本，可能为 null（调用尚未完成或无结果时） */\n    resultSummary: string | null;\n    /** 调用耗时（毫秒），从发起调用到收到结果 */\n    durationMs: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 工具名称（如 model_script / module_action） */\n    toolName: string;\n    /** 调用参数的截断预览文本，用于 UI 展示而非完整参数还原 */\n    argsPreview: string;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** 工具循环轮次序号（从 1 开始） */\n    round: number;\n    /** OpenAI function call ID，可能为 null（非 function calling 场景） */\n    callId: string | null;\n    /** 调用结果状态：success=成功 / error=失败 */\n    status: 'success' | 'error';\n    /** 调用结果的截断摘要文本，可能为 null（调用尚未完成或无结果时） */\n    resultSummary: string | null;\n    /** 调用耗时（毫秒），从发起调用到收到结果 */\n    durationMs: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "toolName",
+              "jsdoc": "工具名称（如 model_script / module_action）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "argsPreview",
+              "jsdoc": "调用参数的截断预览文本，用于 UI 展示而非完整参数还原",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "jsdoc": "所属轮次 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "round",
+              "jsdoc": "工具循环轮次序号（从 1 开始）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "callId",
+              "jsdoc": "OpenAI function call ID，可能为 null（非 function calling 场景）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "调用结果状态：success=成功 / error=失败",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultSummary",
+              "jsdoc": "调用结果的截断摘要文本，可能为 null（调用尚未完成或无结果时）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "durationMs",
+              "jsdoc": "调用耗时（毫秒），从发起调用到收到结果",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ReasoningDisplayItem": {
+      "name": "ReasoningDisplayItem",
+      "jsdoc": "推理过程展示条目：模型 reasoning 输出在 UI 流视图中的投影",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 推理文本内容 */\n    text: string;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** UI 是否默认折叠；轮次结束后自动折叠已完成的推理块 */\n    collapsed: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 推理文本内容 */\n    text: string;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** UI 是否默认折叠；轮次结束后自动折叠已完成的推理块 */\n    collapsed: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "text",
+              "jsdoc": "推理文本内容",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "jsdoc": "所属轮次 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "collapsed",
+              "jsdoc": "UI 是否默认折叠；轮次结束后自动折叠已完成的推理块",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "StreamDisplayEntry": {
+      "name": "StreamDisplayEntry",
+      "jsdoc": "流视图中的一条渲染条目。\n真正的状态机在 spark-ai，UI 只消费这个简版投影。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'user-message';\n    content: string;\n    timestamp: number;\n}> | Readonly<{\n    kind: 'assistant-delta';\n    content: string;\n    turnId: string;\n}> | Readonly<{\n    kind: 'assistant-complete';\n    content: string;\n    turnId: string;\n}> | Readonly<{\n    kind: 'reasoning';\n    item: ReasoningDisplayItem;\n}> | Readonly<{\n    kind: 'tool-call';\n    item: ToolCallDisplayItem;\n}> | Readonly<{\n    kind: 'error';\n    message: string;\n    timestamp: number;\n}> | Readonly<{\n    kind: 'system-message';\n    content: string;\n    timestamp: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'user-message';\n    content: string;\n    timestamp: number;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'assistant-delta';\n    content: string;\n    turnId: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'assistant-complete';\n    content: string;\n    turnId: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'reasoning';\n    item: ReasoningDisplayItem;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'tool-call';\n    item: ToolCallDisplayItem;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'error';\n    message: string;\n    timestamp: number;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'system-message';\n    content: string;\n    timestamp: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkAgentTimelineEvent": {
+      "name": "SparkAgentTimelineEvent",
+      "jsdoc": "AG-UI 事件 timeline 的展示投影：每条事件为摘要行，不含完整 payload",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 事件序号，从 1 开始递增 */\n    sequence: number;\n    /** AG-UI 事件类型标识（如 TextMessageStart / ToolCallStart 等） */\n    type: string;\n    /** 事件时间戳（Unix 毫秒） */\n    timestamp: number;\n    /** 事件 payload 的截断预览文本，超出 360 字符自动截断 */\n    payloadPreview: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 事件序号，从 1 开始递增 */\n    sequence: number;\n    /** AG-UI 事件类型标识（如 TextMessageStart / ToolCallStart 等） */\n    type: string;\n    /** 事件时间戳（Unix 毫秒） */\n    timestamp: number;\n    /** 事件 payload 的截断预览文本，超出 360 字符自动截断 */\n    payloadPreview: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sequence",
+              "jsdoc": "事件序号，从 1 开始递增",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "AG-UI 事件类型标识（如 TextMessageStart / ToolCallStart 等）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timestamp",
+              "jsdoc": "事件时间戳（Unix 毫秒）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "payloadPreview",
+              "jsdoc": "事件 payload 的截断预览文本，超出 360 字符自动截断",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SessionDiagnosticIssue": {
+      "name": "SessionDiagnosticIssue",
+      "jsdoc": "单条诊断问题：session 级别的错误/警告/信息，由 runtime inspect 产出",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 诊断级别：error=阻断性 / warn=风险 / info=信息 */\n    level: 'error' | 'warn' | 'info';\n    /** 诊断代码标识，用于程序化匹配（如 MISSING_TOOL / INVALID_SCHEMA） */\n    code: string;\n    /** 人类可读诊断消息 */\n    message: string;\n    /** 可选的修复建议，引导用户解决该问题 */\n    hint?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 诊断级别：error=阻断性 / warn=风险 / info=信息 */\n    level: 'error' | 'warn' | 'info';\n    /** 诊断代码标识，用于程序化匹配（如 MISSING_TOOL / INVALID_SCHEMA） */\n    code: string;\n    /** 人类可读诊断消息 */\n    message: string;\n    /** 可选的修复建议，引导用户解决该问题 */\n    hint?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "level",
+              "jsdoc": "诊断级别：error=阻断性 / warn=风险 / info=信息",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "code",
+              "jsdoc": "诊断代码标识，用于程序化匹配（如 MISSING_TOOL / INVALID_SCHEMA）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "人类可读诊断消息",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hint",
+              "jsdoc": "可选的修复建议，引导用户解决该问题",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SessionSummaryDisplayData": {
+      "name": "SessionSummaryDisplayData",
+      "jsdoc": "会话摘要展示投影；组件包不依赖 spark-ai 内部 session 类型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    status: string | null;\n    historyCount: number;\n    messageCount: number;\n    toolCallCount: number;\n    failedToolCallCount: number;\n    functionNames: readonly string[];\n    lastAssistantText: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    status: string | null;\n    historyCount: number;\n    messageCount: number;\n    toolCallCount: number;\n    failedToolCallCount: number;\n    functionNames: readonly string[];\n    lastAssistantText: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "historyCount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "messageCount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolCallCount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "failedToolCallCount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "functionNames",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lastAssistantText",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SessionTranscriptDisplayEntry": {
+      "name": "SessionTranscriptDisplayEntry",
+      "jsdoc": "会话转写展示投影；只保留诊断面板实际展示需要的字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    seq: number | null;\n    id: string;\n    timestamp: string | null;\n    kind: 'message' | 'functionCall' | 'unknown';\n    direction: string;\n    role?: string;\n    source?: string;\n    toolName?: string;\n    status?: string;\n    content?: string;\n    args?: string;\n    result?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    seq: number | null;\n    id: string;\n    timestamp: string | null;\n    kind: 'message' | 'functionCall' | 'unknown';\n    direction: string;\n    role?: string;\n    source?: string;\n    toolName?: string;\n    status?: string;\n    content?: string;\n    args?: string;\n    result?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "seq",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timestamp",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "direction",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "role",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "args",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "result",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SessionDiagnosticsData": {
+      "name": "SessionDiagnosticsData",
+      "jsdoc": "诊断数据——永远有值（非 null）。\n由外部 runtime/diagnostics 层生成；UI 只渲染摘要投影，不读取完整 session。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 会话摘要（含状态、开始/结束时间等） */\n    summary: SessionSummaryDisplayData;\n    /** 完整的会话交互记录列表 */\n    transcript: readonly SessionTranscriptDisplayEntry[];\n    /** 诊断问题列表，由 runtime inspect 产出 */\n    issues: readonly SessionDiagnosticIssue[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 会话摘要（含状态、开始/结束时间等） */\n    summary: SessionSummaryDisplayData;\n    /** 完整的会话交互记录列表 */\n    transcript: readonly SessionTranscriptDisplayEntry[];\n    /** 诊断问题列表，由 runtime inspect 产出 */\n    issues: readonly SessionDiagnosticIssue[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "summary",
+              "jsdoc": "会话摘要（含状态、开始/结束时间等）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "transcript",
+              "jsdoc": "完整的会话交互记录列表",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "issues",
+              "jsdoc": "诊断问题列表，由 runtime inspect 产出",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ToolApprovalDisplayItem": {
+      "name": "ToolApprovalDisplayItem",
+      "jsdoc": "待审批工具调用的展示条目。\n只包含调用方映射后的展示字段，不依赖上游包类型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 审批条目唯一标识，用于 UI 匹配审批状态 */\n    id: string;\n    /** 待审批的工具名称 */\n    toolName: string;\n    /** 调用参数的截断预览文本 */\n    argsPreview: string;\n    /** 工具所属业务模块标识，用于定位工具来源 */\n    moduleId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 审批条目唯一标识，用于 UI 匹配审批状态 */\n    id: string;\n    /** 待审批的工具名称 */\n    toolName: string;\n    /** 调用参数的截断预览文本 */\n    argsPreview: string;\n    /** 工具所属业务模块标识，用于定位工具来源 */\n    moduleId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "审批条目唯一标识，用于 UI 匹配审批状态",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolName",
+              "jsdoc": "待审批的工具名称",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "argsPreview",
+              "jsdoc": "调用参数的截断预览文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "moduleId",
+              "jsdoc": "工具所属业务模块标识，用于定位工具来源",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

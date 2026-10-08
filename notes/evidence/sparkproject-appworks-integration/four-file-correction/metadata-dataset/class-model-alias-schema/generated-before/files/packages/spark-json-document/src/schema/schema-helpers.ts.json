@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:schema/schema-helpers",
+    "sourcePath": "packages/spark-json-document/src/schema/schema-helpers.ts",
+    "sourceFile": "packages/spark-json-document/src/schema/schema-helpers.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "schema/schema-helpers",
+    "jsdoc": "@module @spark-appworks/spark-json-document:schema/schema-helpers\n职责：提供 JSON Document/schema 处理中的 schema helpers 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "StringSchemaOptions",
+      "NumberSchemaOptions",
+      "BooleanSchemaOptions",
+      "EnumSchemaOptions",
+      "ObjectSchemaOptions"
+    ]
+  },
+  "$defs": {
+    "StringSchemaOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StringSchemaOptions",
+      "properties": {
+        "nullable": {
+          "type": "boolean"
+        },
+        "minLength": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "NumberSchemaOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NumberSchemaOptions",
+      "properties": {
+        "nullable": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BooleanSchemaOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BooleanSchemaOptions",
+      "properties": {
+        "nullable": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "EnumSchemaOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EnumSchemaOptions",
+      "properties": {
+        "type": {
+          "enum": [
+            "string",
+            "number"
+          ]
+        },
+        "nullable": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ObjectSchemaOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ObjectSchemaOptions",
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "additionalProperties": {
+          "$ref": "schema-types.ts.json#/$defs/JsonSchema"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-14T22:54:04.791Z",
+  "models": {
+    "StringSchemaOptions": {
+      "name": "StringSchemaOptions",
+      "jsdoc": "String Schema Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 是否允许 null 值（type 变为 ['string', 'null']）。 */\n    nullable?: boolean;\n    /** 最小字符串长度约束。 */\n    minLength?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 是否允许 null 值（type 变为 ['string', 'null']）。 */\n    nullable?: boolean;\n    /** 最小字符串长度约束。 */\n    minLength?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nullable",
+              "jsdoc": "是否允许 null 值（type 变为 ['string', 'null']）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minLength",
+              "jsdoc": "最小字符串长度约束。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NumberSchemaOptions": {
+      "name": "NumberSchemaOptions",
+      "jsdoc": "Number Schema Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 是否允许 null 值（type 变为 ['number', 'null']）。 */\n    nullable?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 是否允许 null 值（type 变为 ['number', 'null']）。 */\n    nullable?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nullable",
+              "jsdoc": "是否允许 null 值（type 变为 ['number', 'null']）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BooleanSchemaOptions": {
+      "name": "BooleanSchemaOptions",
+      "jsdoc": "Boolean Schema Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 是否允许 null 值（type 变为 ['boolean', 'null']）。 */\n    nullable?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 是否允许 null 值（type 变为 ['boolean', 'null']）。 */\n    nullable?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nullable",
+              "jsdoc": "是否允许 null 值（type 变为 ['boolean', 'null']）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "EnumSchemaOptions": {
+      "name": "EnumSchemaOptions",
+      "jsdoc": "Enum Schema Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 枚举值的 JSON Schema 类型（默认按 values 推断）。 */\n    type?: 'string' | 'number';\n    /** 是否允许 null 值（enum 追加 null）。 */\n    nullable?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 枚举值的 JSON Schema 类型（默认按 values 推断）。 */\n    type?: 'string' | 'number';\n    /** 是否允许 null 值（enum 追加 null）。 */\n    nullable?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "枚举值的 JSON Schema 类型（默认按 values 推断）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nullable",
+              "jsdoc": "是否允许 null 值（enum 追加 null）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ObjectSchemaOptions": {
+      "name": "ObjectSchemaOptions",
+      "jsdoc": "Object Schema Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 必填属性名列表。 */\n    required?: readonly string[];\n    /** schema 描述文本。 */\n    description?: string;\n    /** 额外属性的 schema 约束（false 表示禁止额外属性）。 */\n    additionalProperties?: JsonSchema;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 必填属性名列表。 */\n    required?: readonly string[];\n    /** schema 描述文本。 */\n    description?: string;\n    /** 额外属性的 schema 约束（false 表示禁止额外属性）。 */\n    additionalProperties?: JsonSchema;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "required",
+              "jsdoc": "必填属性名列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "schema 描述文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "additionalProperties",
+              "jsdoc": "额外属性的 schema 约束（false 表示禁止额外属性）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

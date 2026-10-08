@@ -1,0 +1,171 @@
+{
+  "at": "2026-10-08T09:49:45.665Z",
+  "targetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "stage": "complete",
+  "writes": 0,
+  "requests": [
+    {
+      "path": "/api/File/content/text"
+    },
+    {
+      "path": "/api/File/DownFile"
+    },
+    {
+      "path": "/api/File/content/text"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/File/content/text"
+    }
+  ],
+  "filePresent": true,
+  "sha256": "f86a7ff9cd155435d7a9c6a14f38e92a38b3e6f1eab04051fe8964fd2ba0c6b5",
+  "binaryTransport": "node-buffer-normalized-to-arraybuffer",
+  "uploadRecoveryVerified": true,
+  "reopened": true,
+  "tables": [
+    {
+      "tableName": "shif",
+      "columns": 4,
+      "native": "DataTable",
+      "views": [
+        {
+          "viewId": "default",
+          "configurationKeys": [],
+          "native": "DataView"
+        }
+      ]
+    },
+    {
+      "tableName": "Json转数组",
+      "columns": 0,
+      "native": "DataTable",
+      "views": [
+        {
+          "viewId": "default",
+          "configurationKeys": [],
+          "native": "DataView"
+        }
+      ]
+    },
+    {
+      "tableName": "db_relation_show",
+      "columns": 0,
+      "native": "DataTable",
+      "views": [
+        {
+          "viewId": "default",
+          "configurationKeys": [],
+          "native": "DataView"
+        }
+      ]
+    },
+    {
+      "tableName": "View_TblList",
+      "columns": 0,
+      "native": "DataTable",
+      "views": [
+        {
+          "viewId": "default",
+          "configurationKeys": [],
+          "native": "DataView"
+        }
+      ]
+    },
+    {
+      "tableName": "TestJSON0819",
+      "columns": 6,
+      "native": "DataTable",
+      "views": [
+        {
+          "viewId": "default",
+          "configurationKeys": [],
+          "native": "DataView"
+        }
+      ]
+    },
+    {
+      "tableName": "copyTable",
+      "columns": 2,
+      "native": "DataTable",
+      "views": [
+        {
+          "viewId": "default",
+          "configurationKeys": [],
+          "native": "DataView"
+        }
+      ]
+    },
+    {
+      "tableName": "Base_DataSet",
+      "columns": 1,
+      "native": "DataTable",
+      "views": [
+        {
+          "viewId": "default",
+          "configurationKeys": [],
+          "native": "DataView"
+        }
+      ]
+    }
+  ],
+  "resourceRelations": 0,
+  "viewCascades": 0,
+  "diagnostics": []
+}

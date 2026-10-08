@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:ai/components/session/SessionChatBubble/SessionChatBubble.props",
+    "sourcePath": "packages/spark-component/src/ai/components/session/SessionChatBubble/SessionChatBubble.props.ts",
+    "sourceFile": "packages/spark-component/src/ai/components/session/SessionChatBubble/SessionChatBubble.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "ai/components/session/SessionChatBubble/SessionChatBubble.props",
+    "jsdoc": "@module @spark-appworks/spark-component:ai/components/session/SessionChatBubble/SessionChatBubble.props\n职责：维护 @spark-appworks/spark-component 中 ai/components/SessionChatBubble.props 的模块能力，围绕 SessionChatBubbleProps 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 ai/components/SessionChatBubble.props 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SessionChatBubbleProps"
+    ]
+  },
+  "$defs": {
+    "SessionChatBubbleProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionChatBubbleProps",
+      "properties": {
+        "role": {
+          "enum": [
+            "user",
+            "assistant",
+            "system",
+            "error"
+          ]
+        },
+        "content": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "isTyping": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.097Z",
+  "models": {
+    "SessionChatBubbleProps": {
+      "name": "SessionChatBubbleProps",
+      "jsdoc": "Session Chat Bubble Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "SessionChatBubble"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 消息角色：user=用户输入，assistant=AI 回复，system=系统通知，error=错误展示。 */\n    role: 'user' | 'assistant' | 'system' | 'error';\n    /** 消息正文内容。 */\n    content: string;\n    /** 消息发送时间的 Unix 毫秒时间戳。 */\n    timestamp?: number;\n    /** 是否正在流式输出中（显示打字动画）。 */\n    isTyping?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 消息角色：user=用户输入，assistant=AI 回复，system=系统通知，error=错误展示。 */\n    role: 'user' | 'assistant' | 'system' | 'error';\n    /** 消息正文内容。 */\n    content: string;\n    /** 消息发送时间的 Unix 毫秒时间戳。 */\n    timestamp?: number;\n    /** 是否正在流式输出中（显示打字动画）。 */\n    isTyping?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "role",
+              "jsdoc": "消息角色：user=用户输入，assistant=AI 回复，system=系统通知，error=错误展示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "消息正文内容。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timestamp",
+              "jsdoc": "消息发送时间的 Unix 毫秒时间戳。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isTyping",
+              "jsdoc": "是否正在流式输出中（显示打字动画）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

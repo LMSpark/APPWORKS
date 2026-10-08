@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/navigation/RendererSteps/zero-code",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererSteps/zero-code.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/navigation/RendererSteps/zero-code.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/navigation/RendererSteps/zero-code",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/navigation/RendererSteps/zero-code\n职责：封装 RendererSteps（r-steps）的 zero-code 行为层，向配置动作和脚本暴露稳定的组件操作 API。\n边界：只编排 container/layout-container 的运行时能力、原生组件引用和事件控制，不声明视觉 props，也不持久化业务数据。\nAI用途：当动作、脚本或 ClassModel 需要调用 renderer steps 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [],
+    "componentName": "RendererSteps",
+    "componentType": "r-steps",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "StepsEmit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StepsEmit",
+      "additionalProperties": false
+    },
+    "RendererStepsZeroCodeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererStepsZeroCodeOptions",
+      "properties": {
+        "emit": {
+          "$ref": "#/$defs/StepsEmit"
+        },
+        "stepConfigs": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "activeStepName": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "activeStepIndex": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "onStepChange": {
+          "type": "object",
+          "title": "(value: string | number, step: SparkNode, index: number) => void"
+        }
+      },
+      "required": [
+        "emit",
+        "stepConfigs",
+        "activeStepName",
+        "activeStepIndex",
+        "onStepChange"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.getStepName.params": {
+          "type": "object",
+          "properties": {
+            "step": {
+              "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getStepName.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.117Z",
+  "models": {
+    "StepsEmit": {
+      "name": "StepsEmit",
+      "jsdoc": "Steps Emit 的语义模型。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererSteps",
+        "type": "r-steps",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    (event: 'update:modelValue', value: string | number): void;\n}",
+        "members": {}
+      }
+    },
+    "RendererStepsZeroCodeOptions": {
+      "name": "RendererStepsZeroCodeOptions",
+      "jsdoc": "Renderer Steps Zero Code Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererSteps",
+        "type": "r-steps",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** emit 字段。 */\n    emit: StepsEmit;\n    /** step Configs 字段。 */\n    stepConfigs: ValueRef<SparkNode[]>;\n    /** active Step Name 名称。 */\n    activeStepName: ValueRef<string | number | undefined>;\n    /** active Step Index 字段。 */\n    activeStepIndex: ValueRef<number>;\n    /** get Step Name 名称。 */\n    getStepName: (step: SparkNode, index: number) => string | number;\n    /** on Step Change 事件回调。 */\n    onStepChange: ((value: string | number, step: SparkNode, index: number) => void) | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "emit",
+              "jsdoc": "emit 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "stepConfigs",
+              "jsdoc": "step Configs 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "activeStepName",
+              "jsdoc": "active Step Name 名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "activeStepIndex",
+              "jsdoc": "active Step Index 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "onStepChange",
+              "jsdoc": "on Step Change 事件回调。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "getStepName",
+              "jsdoc": "get Step Name 名称。",
+              "parameters": [
+                {
+                  "name": "step",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNode"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "command": "pnpm run verify:ai-codegen",
+  "exitCode": 1,
+  "startedAt": "2026-10-07T14:57:00.2019798+08:00",
+  "cwd": "D:\\SPARK_AppWorks",
+  "endedAt": "2026-10-07T14:57:08.0355992+08:00"
+}

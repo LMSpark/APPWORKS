@@ -1,0 +1,7 @@
+{
+  "command": "pnpm run verify:dirs",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:15:16.7902198Z",
+  "finishedAtUtc": "2026-10-07T08:15:18.7281106Z",
+  "exitCode": 0
+}

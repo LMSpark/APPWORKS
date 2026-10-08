@@ -1,0 +1,368 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/permission/design/permission-design-mutation",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/permission/design/permission-design-mutation",
+    "jsdoc": "权限设计态 mutation 命令 prepare：只 prepare 命令，不自动执行线上写入。\n调用方须持 preimage、journal 与 readback 后再由 provision 层执行；remove 能力须 preimage 存在目标。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "PermissionDesignMutationInput",
+      "PermissionDesignMutationCommand"
+    ]
+  },
+  "$defs": {
+    "PermissionDesignMutationBase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionDesignMutationBase",
+      "properties": {
+        "formKey": {
+          "type": "string"
+        },
+        "idempotencyKey": {
+          "type": "string"
+        },
+        "preimage": {
+          "$ref": "permission-design-api.ts.json#/$defs/PermissionDesignSnapshot"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PermissionDesignMutationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PermissionDesignMutationInput",
+      "anyOf": [
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "PermissionDesignMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "upsert-feature-tag"
+                },
+                "change": {
+                  "type": "object",
+                  "title": "PermissionFeatureTag"
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "PermissionDesignMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "upsert-data-object-policy"
+                },
+                "change": {
+                  "type": "object",
+                  "title": "PermissionDataObjectPolicy"
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "PermissionDesignMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "upsert-object-grant"
+                },
+                "change": {
+                  "type": "object",
+                  "title": "PermissionObjectGrant"
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "PermissionDesignMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "enum": [
+                    "remove-feature-tag",
+                    "remove-data-object-policy",
+                    "remove-object-grant"
+                  ]
+                },
+                "targetId": {
+                  "type": "string"
+                },
+                "change": {
+                  "type": "object",
+                  "properties": {
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "capability",
+                "targetId",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      ]
+    },
+    "PermissionDesignMutationCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionDesignMutationCommand",
+      "properties": {
+        "kind": {
+          "const": "permission-design-mutation"
+        },
+        "formKey": {
+          "type": "string"
+        },
+        "capability": true,
+        "targetId": {
+          "type": "string"
+        },
+        "idempotencyKey": {
+          "type": "string"
+        },
+        "preimage": {
+          "$ref": "permission-design-api.ts.json#/$defs/PermissionDesignSnapshot"
+        },
+        "change": true,
+        "risk": {
+          "const": "high"
+        },
+        "journal": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "const": true
+            }
+          },
+          "required": [
+            "required"
+          ],
+          "additionalProperties": false
+        },
+        "readback": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "const": true
+            },
+            "formKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "required",
+            "formKey"
+          ],
+          "additionalProperties": false
+        },
+        "compensation": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "restore-permission-design-snapshot"
+            },
+            "preimage": {
+              "$ref": "permission-design-api.ts.json#/$defs/PermissionDesignSnapshot"
+            }
+          },
+          "required": [
+            "kind",
+            "preimage"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T07:32:17.613Z",
+  "models": {
+    "PermissionDesignMutationBase": {
+      "name": "PermissionDesignMutationBase",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    formKey: string;\n    idempotencyKey: string;\n    preimage: PermissionDesignSnapshot;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    formKey: string;\n    idempotencyKey: string;\n    preimage: PermissionDesignSnapshot;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idempotencyKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preimage",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PermissionDesignMutationInput": {
+      "name": "PermissionDesignMutationInput",
+      "jsdoc": "权限设计态 mutation 输入；capability 决定 change 形状与 targetId 解析规则。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(PermissionDesignMutationBase & Readonly<{\n    capability: 'upsert-feature-tag';\n    change: PermissionFeatureTag;\n}>) | (PermissionDesignMutationBase & Readonly<{\n    capability: 'upsert-data-object-policy';\n    change: PermissionDataObjectPolicy;\n}>) | (PermissionDesignMutationBase & Readonly<{\n    capability: 'upsert-object-grant';\n    change: PermissionObjectGrant;\n}>) | (PermissionDesignMutationBase & Readonly<{\n    capability: 'remove-feature-tag' | 'remove-data-object-policy' | 'remove-object-grant';\n    targetId: string;\n    change: Readonly<{\n        reason: string;\n    }>;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "(PermissionDesignMutationBase & Readonly<{\n    capability: 'upsert-feature-tag';\n    change: PermissionFeatureTag;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(PermissionDesignMutationBase & Readonly<{\n    capability: 'upsert-data-object-policy';\n    change: PermissionDataObjectPolicy;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(PermissionDesignMutationBase & Readonly<{\n    capability: 'upsert-object-grant';\n    change: PermissionObjectGrant;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(PermissionDesignMutationBase & Readonly<{\n    capability: 'remove-feature-tag' | 'remove-data-object-policy' | 'remove-object-grant';\n    targetId: string;\n    change: Readonly<{\n        reason: string;\n    }>;\n}>)"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PermissionDesignMutationCommand": {
+      "name": "PermissionDesignMutationCommand",
+      "jsdoc": "权限设计态 mutation 命令；risk 固定 high，journal/readback/compensation 均为强制约束。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'permission-design-mutation';\n    formKey: string;\n    capability: PermissionDesignMutationInput['capability'];\n    targetId: string;\n    idempotencyKey: string;\n    preimage: PermissionDesignSnapshot;\n    change: PermissionDesignMutationInput['change'];\n    risk: 'high';\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        formKey: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-permission-design-snapshot';\n        preimage: PermissionDesignSnapshot;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'permission-design-mutation';\n    formKey: string;\n    capability: PermissionDesignMutationInput['capability'];\n    targetId: string;\n    idempotencyKey: string;\n    preimage: PermissionDesignSnapshot;\n    change: PermissionDesignMutationInput['change'];\n    risk: 'high';\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        formKey: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-permission-design-snapshot';\n        preimage: PermissionDesignSnapshot;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "capability",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idempotencyKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preimage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "change",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "risk",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "journal",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readback",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "compensation",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

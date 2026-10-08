@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/index",
+    "sourcePath": "packages/spark-component/src/components/containers/index.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/index.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/index",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/index\n职责：汇总导出 components/containers 的组件、props、types 和 zero-code 能力。\n边界：只维护目录级公开表面，不实现具体渲染逻辑，也不创建新的运行时状态。\nAI用途：判断某个组件能力是否应对外暴露或被注册表扫描时，用本模块确认导出入口。\n\n容器组件统一分类入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:30:26.804Z",
+  "models": {}
+}

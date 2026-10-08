@@ -8,7 +8,9 @@ import { computed } from 'vue'
 import type { ComputedRef } from 'vue'
 import type { SparkOptionFieldProps } from '../../shared-types.js'
 import { PAGE_RUNTIME, useSparkConsume } from '../../internal'
-import { DataMember, resolveDataViewMember } from '@spark-appworks/spark-data'
+import { DataMember, DataViewSelectionValue, resolveDataViewMember } from '@spark-appworks/spark-data'
+import { isRecord } from '@spark-appworks/spark-utils'
+import { useFieldCascadeOptions } from './useFieldCascadeOptions'
 import { useFieldPermission } from '../context/useFieldPermission'
 import type { FieldPermissionProps } from '../context/useFieldPermission'
 import type { FieldComposableProps } from '../context/field-composable-props'
@@ -34,7 +36,7 @@ disabled?: boolean}
 /** Field Option Props 的属性契约。 */
 type FieldOptionProps = FieldComposableProps<Pick<
   SparkOptionFieldProps,
-  'options'
+  'field' | 'options'
   | 'optionLabelField'
   | 'optionValueField'
   | 'optionDisabledField'
@@ -43,7 +45,7 @@ type FieldOptionProps = FieldComposableProps<Pick<
   | 'optionDataMember'
   | 'optionDataField'
   | 'valueSeparator'
->>
+>> & {multiple?: boolean | undefined}
 
 /** Use Field Options Return 的语义模型。 */
 type UseFieldOptionsReturn = {
@@ -62,7 +64,12 @@ formatOptionValue: (value: unknown) => string
     /** format Cascader Value 回调。 */
 formatCascaderValue: (value: unknown) => string
     /** transfer Data 字段。 */
-transferData: ComputedRef<FieldTransferOption[]>}
+transferData: ComputedRef<FieldTransferOption[]>
+  optionError: ComputedRef<string | undefined>
+  optionsAvailable: ComputedRef<boolean>
+  toControlValue: (value: unknown, multiple: boolean) => unknown
+  toSourceValue: (value: unknown) => unknown
+}
 
 /** Use Option Field Options 的调用配置。 */
 type UseOptionFieldOptions<TValue> = {
@@ -78,13 +85,28 @@ coerce: (rawValue: unknown) => TValue
 formatDisplay?: (value: unknown, helpers: UseFieldOptionsReturn) => string}
 
 export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn {
+  const cascade = useFieldCascadeOptions(props)
   const resolvedOptionDataViewKey = computed(() => props.optionDataViewKey)
   const resolvedOptionDataMember = computed(() => props.optionDataMember ?? DataMember.Rows)
   const { sparkConsume } = useSparkConsume()
   const runtime = sparkConsume(PAGE_RUNTIME)
 
   const optionDataView = computed(() => {
+    cascade.configuration.value
     const key = resolvedOptionDataViewKey.value
+    const spec = cascade.definition.value
+    if (spec) {
+      const view = cascade.view.value
+      if (!view) throw new Error('FIELD_CASCADE_OPTIONS: 选项视图不存在')
+      if ((key !== undefined && runtime?.resolveView(key) !== view)
+        || resolvedOptionDataMember.value !== DataMember.Rows || props.optionDataField !== undefined
+        || (props.optionValueField !== undefined && props.optionValueField !== view.valueField)
+        || (props.optionLabelField !== undefined && props.optionLabelField !== view.labelField)
+        || (props.valueSeparator !== undefined && props.valueSeparator !== view.selectionDelimiter)) {
+        throw new Error('FIELD_CASCADE_OPTIONS: 组件选项配置与数据空间定义冲突')
+      }
+      return view
+    }
     if (key === undefined) return null
     if (!runtime) throw new Error('PAGE_RUNTIME_MISSING')
     const view = runtime.resolveView(key)
@@ -92,31 +114,39 @@ export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn 
     return view
   })
 
+  const optionConfig = computed(() => {
+    cascade.configuration.value
+    const view = optionDataView.value
+    return {labelField: view?.labelField, valueField: view?.valueField, primaryKey: view?.primaryKey,
+      treeConfig: view?.treeConfig, selectionDelimiter: view?.selectionDelimiter}
+  })
   const optionLabelField = computed(() =>
     props.optionLabelField
-    ?? optionDataView.value?.labelField
-    ?? optionDataView.value?.treeConfig?.textField
+    ?? optionConfig.value.labelField
+    ?? optionConfig.value.treeConfig?.textField
     ?? 'label'
   )
   const optionValueField = computed(() =>
     props.optionValueField
-    ?? (typeof optionDataView.value?.valueField === 'string' ? optionDataView.value.valueField : undefined)
-    ?? optionDataView.value?.primaryKey
-    ?? optionDataView.value?.treeConfig?.idField
+    ?? (typeof optionConfig.value.valueField === 'string' ? optionConfig.value.valueField : undefined)
+    ?? optionConfig.value.primaryKey
+    ?? optionConfig.value.treeConfig?.idField
     ?? 'value'
   )
   const optionDisabledField = computed(() => props.optionDisabledField ?? 'disabled')
   const optionChildrenField = computed(() => props.optionChildrenField ?? 'children')
-  const valueSeparator = computed(() => props.valueSeparator ?? optionDataView.value?.selectionDelimiter ?? ',')
+  const valueSeparator = computed(() => props.valueSeparator ?? optionConfig.value.selectionDelimiter ?? ',')
 
   const options = computed<FieldOption[]>(() => {
     const view = optionDataView.value
     if (view) {
-      const source = resolvedOptionDataMember.value === DataMember.Rows
+      const source = cascade.definition.value
+        ? buildOptionSourceFromView(view, {labelField: optionLabelField.value, childrenField: optionChildrenField.value,
+            rows: cascade.bound.value && cascade.state.value.status === 'ready' ? cascade.state.value.options : []})
+        : resolvedOptionDataMember.value === DataMember.Rows
         ? buildOptionSourceFromView(
             view,
-            optionLabelField.value,
-            optionChildrenField.value,
+            {labelField: optionLabelField.value, childrenField: optionChildrenField.value},
           )
         : resolveDataViewMember({
             dataViewKey: `${view.tableName}@${view.viewId}`,
@@ -131,8 +161,19 @@ export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn 
         childrenField: optionChildrenField.value,
         disabledField: optionDisabledField.value,
       }
+      const valueFields = view.valueField ?? view.primaryKey
+      function encodeSelectionRow(row: unknown): unknown {
+        if (!isRecord(row)) return row
+        const token = DataViewSelectionValue.token(row, valueFields)
+        if (token === undefined) throw new Error('FIELD_CASCADE_VALUE: 选项缺少序列化值')
+        const children = row[optionFields.childrenField] ?? row['children'] ?? row['items'] ?? row['nodes']
+        return {...row, [optionFields.valueField]: token,
+          ...(Array.isArray(children) ? {[optionFields.childrenField]: children.map(encodeSelectionRow)} : {})}
+      }
+      const encode = cascade.definition.value !== undefined
+        && (cascade.definition.value.valueFormat === 'selection-string' || Array.isArray(view.valueField))
       return rows
-        .map(row => normalizeOption(row, optionFields))
+        .map(row => normalizeOption(encode ? encodeSelectionRow(row) : row, optionFields))
         .filter((item): item is FieldOption => item !== null)
     }
     const source = props.options ?? []
@@ -156,7 +197,35 @@ export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn 
   }
 
   function normalizeOptionValues(value: unknown): Array<string | number | boolean> {
+    if (cascade.definition.value?.valueFormat === 'native') {
+      return normalizeMultiValue(Array.isArray(value) ? value : value === null || value === undefined ? [] : [value], valueSeparator.value)
+    }
     return normalizeMultiValue(value, valueSeparator.value)
+  }
+
+  const optionsAvailable = computed(() => !cascade.definition.value
+    || (cascade.bound.value && cascade.state.value.status === 'ready'))
+  const optionError = computed(() => cascade.definition.value ? cascade.state.value.error : undefined)
+
+  function toControlValue(value: unknown, multiple: boolean): unknown {
+    if (cascade.definition.value?.valueFormat !== 'selection-string') return value
+    if (value !== null && value !== undefined && typeof value !== 'string') throw new Error('FIELD_CASCADE_VALUE: 选中字符串格式不匹配')
+    const tokens = DataViewSelectionValue.split(value, valueSeparator.value)
+    return multiple ? tokens : (tokens[0] ?? '')
+  }
+
+  function toSourceValue(value: unknown): unknown {
+    if (!cascade.definition.value) return value
+    if (!optionsAvailable.value) throw new Error('FIELD_CASCADE_VALUE: 当前选项尚不可用')
+    if (cascade.definition.value.valueFormat !== 'selection-string') return value
+    const values: unknown[] = Array.isArray(value) ? value : value === null || value === undefined ? [] : [value]
+    const tokens = values.map(item => {
+      if (typeof item !== 'string' && typeof item !== 'number' && typeof item !== 'boolean') {
+        throw new Error('FIELD_CASCADE_VALUE: 选中字符串只接受标量选项值')
+      }
+      return String(item)
+    })
+    return DataViewSelectionValue.join(tokens, valueSeparator.value)
   }
 
   function findOptionLabels(value: unknown): string[] {
@@ -209,6 +278,10 @@ export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn 
     formatOptionValue,
     formatCascaderValue,
     transferData,
+    optionError,
+    optionsAvailable,
+    toControlValue,
+    toSourceValue,
   }
 }
 
@@ -218,7 +291,9 @@ export function useOptionField<TValue>(options: UseOptionFieldOptions<TValue>) {
     props: options.props,
     type: options.type,
     fallbackValue: options.fallbackValue,
-    coerce: options.coerce,
+    coerce: value => options.coerce(optionHelpers.toControlValue(value,
+      Array.isArray(options.fallbackValue) || options.props.multiple === true)),
+    toSourceValue: optionHelpers.toSourceValue,
     formatDisplay: (value: unknown) => options.formatDisplay
       ? options.formatDisplay(value, optionHelpers)
       : optionHelpers.formatOptionValue(value),
@@ -227,5 +302,6 @@ export function useOptionField<TValue>(options: UseOptionFieldOptions<TValue>) {
   return {
     ...optionHelpers,
     ...permissionHelpers,
+    isCurrentFieldEditable: computed(() => permissionHelpers.isCurrentFieldEditable.value && optionHelpers.optionsAvailable.value),
   }
 }

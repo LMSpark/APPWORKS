@@ -61,7 +61,10 @@ const dataSet = SparkData.createDataSet({
     {
       parentTable: 'Departments',
       childTable: 'Users',
-      childField: 'departmentId',
+      filterExpression: {
+        logic: 'and',
+        filters: [{ field: 'departmentId', operator: 'eq', value: { Type: 'GetTableField', Field: 'id' } }],
+      },
       cascadeDelete: true,
       relationName: 'dept-users'
     }
@@ -75,7 +78,6 @@ const dataSet = SparkData.createDataSet({
       filterBindings: [
         { sourceField: 'id', targetField: 'departmentId' }
       ],
-      dependencyType: 'currentRow',
       autoLoad: true,
     }
   ]
@@ -86,7 +88,7 @@ const dataSet = SparkData.createDataSet({
 
 ### 数据资源关系与 DataView 输入级联
 
-`DataResourceRelation` 和 `DataViewCascade` 是两条独立的合同：前者描述数据资源之间的字段关系，后者描述两个明确 DataView 之间的运行时输入级联。框架不会从其中一条自动推导另一条。
+`DataResourceRelation` 和 `DataViewCascade` 分别表达模型关系与运行输入级联，框架不会相互推导。值级联消费父输入值，选项查询结果按配置约束子字段值；当前行仅用于绑定层定位字段，不是级联端点。
 
 #### DataResourceRelation 配置
 
@@ -96,23 +98,18 @@ type DataResourceRelation = {
   sourceRelationId?: string
   parentTable: string
   childTable: string
-  parentField?: string
-  childField?: string
-  fieldMappings?: readonly {
-    parentResourceField: string
-    childResourceField: string
-  }[]
+  filterExpression: DataViewFilterTree
   cascadeUpdate?: boolean
   cascadeDelete?: boolean
 }
 ```
 
-`parentTable` / `childTable` 是 DataTable 资源标识。单字段关系可使用 `parentField` / `childField`；复合字段关系使用 `fieldMappings`。
+`parentTable` / `childTable` 是 DataTable 资源标识。`filterExpression` 是运行与序列化的唯一条件真源：条件 `field` 指向子表字段，值中的 `GetTableField.Field` 指向父表字段。历史输入的 `parentField` / `childField` / `fieldMappings` 只在 DataSet 归一入口转换为等价表达式；输出不保留这些字段，旧占位 `condition` 会被拒绝。正式字段即使不属于当前输出投影也会保留在关系定义中。`DataViewFilterLocal` 仅执行其支持的常量与当前行字段函数；服务端值函数可原样保存，但本地聚合消费会通过现有计算错误通道返回 `undefined` 并在开发环境记录日志。无法解析的值函数引用会阻止相关结构改名/删除。
 
 #### DataViewCascade 配置
 
 ```typescript
-type DataViewCascade = {
+type DataViewQueryCascade = {
   cascadeId?: string
   sourceRelationId?: string
   parentTable: string
@@ -120,15 +117,46 @@ type DataViewCascade = {
   childTable: string
   childViewId: string
   filterBindings: readonly {
-    sourceField: string
+    sourceField?: string
     targetField: string
   }[]
-  dependencyType?: 'currentRow' | 'selectedRows' | 'allRows' | 'pagedRows'
   autoLoad?: boolean
 }
 ```
 
-`filterBindings` 是 DataView 输入合同。运行时按 `dependencyType` 读取源 DataView 的行，把 `sourceField` 值转换为目标 DataView 的 `targetField` 查询条件。
+query 和 field 共享原生 `DataMember.Value` 输入绑定。query 的 `sourceField` 指定字段时读取字段值（含编辑覆盖），省略时读取选中主键数组；标量生成 `eq`，数组生成 `in`，空数组保持空约束，普通字符串不拆分。多个绑定、多个父输入和目标视图自身过滤条件共同约束查询。等待父查询结束后统一读取最新输入值；等值换指针不重查，迟到响应不得覆盖新结果。
+
+旧 query 的 `dependencyType` 已删除，配置解析明确拒绝该属性；`allRows` / `pagedRows` 不会被猜测转换成选择值。配置迁移须明确实际输入。模型关系保持原有过滤表达式，不随前端值变化。两种级联均通过当次数据查询的字段权限读取输入，未绑定或父查询失败时不发起无约束查询。
+
+字段值级联使用 `DataViewFieldCascade`，与 query 共处 `viewCascades`：
+
+```typescript
+{
+  kind: 'field', cascadeId: 'city-by-region',
+  tableName: 'Orders', viewId: 'edit', targetField: 'city',
+  valueFormat: 'selection-string',
+  parents: [
+    { tableName: 'Orders', viewId: 'edit', field: 'country', parameter: 'countryId' },
+    { tableName: 'Regions', viewId: 'grid', parameter: 'regionIds' },
+  ],
+  optionsView: { tableName: 'Cities', viewId: 'choices' },
+  valuePolicy: { mode: 'retain-valid', clearValue: '' },
+}
+```
+
+带 `field` 的父绑定取字段原值及编辑覆盖；不带时取选中主键数组，包括空数组。输入传入选项查询 context，由选项视图自己的过滤表达式消费，不推断字段对字段等值关系。只有最终值改变才自动查询；指针换行但输入相等不重查，未绑定或查询不可用时不发起扩大范围的查询。
+
+选项值、标签、分隔符只在选项 DataView 的 `valueField`、`labelField`、`selectionDelimiter` 中配置。目标 `valueFormat` 必须明确：`native` 保留标量/数组类型，`selection-string` 复用 `DataView.value` 的字符串格式。普通字符串不会按外观拆分；主键不能代替 `valueField` 对应的业务值。旧 `rowMode` 和运行地址 `rowId` 已从此分支移除。
+
+`retain` 不写子值；`clear` 使用显式 `clearValue`；`retain-valid` 保留有效值，多选保留有效子集，无有效值时使用 `clearValue`。`refreshFieldCascade({tableName, viewId, field})` 手动核验选项而不写值；后续父值变化才自动应用策略。`getFieldCascadeState`/`onFieldCascadeChange` 提供独立选项状态。查询失败、旧响应、取消编辑、目标指针改变或用户中途修改子值，不得覆盖该子值；读取和写入均受正式查询权限限制。子值实际变化继续触发其下游值级联。
+
+此分支通过 `queryOptionRows` 完整读取独立选项结果，不替换共享选项 DataView 的 rows；消费方须读取级联状态，不能把共享 rows 当作该绑定的查询结果。树选项同时查询其配置的身份、父身份及文本字段，仍逐字段检查正式读取权限。`spark-component` 的共用选项字段链按 DATA_SOURCE 和 field 自动消费这个状态；组件初次挂载仅核验，父值改变后的子值策略仍由 DataSet 执行。
+
+`DataViewSelectionValue` 从包根显式导出，供绑定边界复用现有字符串编码：`split(value, delimiter)` 解码已有选中值；`join(tokens, delimiter)` 按原格式写回；`token(row, valueField)` 按业务值字段构造选项编码。这些方法不把普通字段推断成多选值，也不改变原生 `DataMember.Value` 的类型。组件的 selection-string 多选在控制层使用 token 数组，写入编辑覆盖前恢复字符串；native 数组保持数组。
+
+`DataSetCrudTool.listCascades()` 包含所有级联；`{kind:'field'}` 或 `{kind:'query'}` 显式筛选。字段级联的 `parentTable` 过滤匹配任一父输入，`childTable` 匹配子选项视图所属表。统一使用 `getCascade({cascadeId})`、`updateCascade({cascadeId, updates})`、`deleteCascade({cascadeId})` 维护，创建用 `createCascade({cascade})`。返回值为 `DataViewCascade` 联合，读取类型专有属性前按 `kind` 区分。
+
+DataSet 的 `getCascade/addCascade/updateCascade/removeCascade` 是同一校验入口；add/update 返回已接受的定义。字段更新仍执行完整引用、唯一目标和无环校验，不能改换 kind 或混入旧查询字段。失败保持原配置、运行视图及工具历史；成功支持撤销重做。既有 query 完整端点选择器继续支持，多命中明确报错；附带 ID 时两者必须同时匹配。`selection-string` 和选项视图配置原样保存到所属场景文件，仅回写配置，不把运行 DataSet 整体持久化。
 
 #### `SparkData.fromJson(json)`
 
@@ -199,6 +227,8 @@ const treeManager = SparkData.createTreeManager(
 宿主数据空间装配器已直接安装实际 API owner，查询输入进入同一原 SPARK 查询链；组件与脚本统一消费 DataView 的原查询权限入口。正式模型输出装配和多空间页面实例仍在切换中。当前测试使用模拟传输，不代表页面整体或真实后端联调完成。
 
 已绑定原查询 owner 的视图不会因旧 CRUD 地址或 `commitMode: 'immediate'` 直接提交行修改，而是保留本地待提交状态。`DataView.saveChanges(ids?)` 已用当前私有已接纳上下文调用实际 owner.save，剔除计算列和 `_pk`，不执行旧逐行 CRUD。没有原上下文或保存能力时明确报 `DATA_VIEW_SAVE_OWNER`。返回后按实际字段回执更新未再次编辑的值；未返回字段、保存期间新修改及编辑草稿保留。新强基线接纳后重建对应行的 dirty 比较，不以旧 WeakRef 清整行；改回基线的选中行不发送无效更新。新增用实际返回身份，期间再次修改或移除仍分别保留为待更新或待删除；删除后本地已恢复的行保留为待新增。保存过程维护 mutating/mutatingError，失败保留 pending。DataSet 同场景多模型调用由 DataView.saveQueryViews 在 class 内捕获各私有基线，统一发送一次 owner.save；先验证全部回执和当前身份，再逐视图接纳，不公开查询上下文。
+
+`DataView.discardPendingChanges(ids?)` 只对保留了原 query owner 与强 query baseline 的视图开放，用于用户明确丢弃尚未确认的本地 pending create/update/delete 及 editor overlay。省略 ids 只处理当前 pending ID 集合；传入 `[]` 为无操作；传 ID 时只处理其 pending 状态。调用前会验证非保存/查询中、原身份仍有效，且所有目标都唯一映射到强 baseline（新增行可没有 baseline）；校验失败时不部分修改。它只恢复本地原查询值、清理对应追踪并重算/发出行状态事件，不发请求。调用方如需核对服务器现状，必须随后显式调用 `refresh()`：成功结果取代本地 baseline；失败按查询失败合同保留当前恢复后的本地 baseline 并标记 stale/不可写。回执未知时这不是服务端回滚，服务器可能已经应用写入；不自动重试保存。没有 query owner/baseline 的本地 CRUD view 显式失败；`discardEditingRows()` 仍只清理 editor overlay，不恢复 business rows。
 
 `DataSet.saveChanges` 的 SPARK 场景预检在应用编辑草稿和拆装级联前执行：事务模式明确拒绝；本次选中的有变更视图必须属于当前 DataSet 运行实例，并有场景和正式模型绑定，同一模型 ID 或查询 Name 不能对应多个待保存视图。调用方须明确选择一个视图；`ids: []` 不扩大为全部行，`applyEditingRows: false` 不把未选中的编辑草稿纳入本次提交。拒绝时保留编辑与 pending 状态。通过预检后先应用选中草稿，未成功应用草稿的视图保留失败统计；其余选中视图的有效变更统一一次 SPARK save，无差异模型不要求回执。跨 owner 拒绝，失败保留待提交状态。原本地未绑定场景的 CRUD 保存仍使用本地路径，不作为 SPARK 保存的后备。
 
@@ -394,6 +424,10 @@ resolveDataViewMember({
 
 读取 DataView 成员，可选 `dataField` 继续读取对象型成员内部字段。
 
+`dataMember: 'value'` 读取原生绑定值：指定 `dataField` 时，它是视图输出字段的完整名称，返回指针定位的数据及编辑覆盖后的字段值；省略时返回选中行的主键值数组，空选择为 `[]`。数值、布尔、null、数组及普通字符串保持原类型，返回独立快照。取值依据该视图当前正式查询的读取权限，不可读或来源已销毁会明确失败；`diagnoseDataViewMember` 返回对应诊断。
+
+这个绑定值不经过 `DataView.value`。后者继续按 `valueField` / `selectionDelimiter` 读写序列化字符串，兼容原有消费者与持久化。例如 valueField=code 时，已有字符串可能为 `"A|B"`，原生选中值仍是对应的主键数组 `["01", "02"]`。普通字段字符串不被猜测拆分；本入口提供取值，不自动发起级联或写入子字段。
+
 #### `buildDataViewKey(tableName, viewId?, scope?): string`
 
 构建标准化 DataView 定位键。viewId 为 `'default'` 时也会显式输出。
@@ -412,6 +446,7 @@ buildDataViewKey('Users', 'grid', 'Shared')  // → '#Shared@Users@grid'
 
 ```typescript
 enum DataMember {
+  Value = 'value',
   Rows = 'rows',
   Columns = 'columns',
   CurrentRow = 'currentRow',

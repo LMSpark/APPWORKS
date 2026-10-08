@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/non-data-components/TreeNodeSummary.props",
+    "sourcePath": "packages/spark-component/src/components/fields/non-data-components/TreeNodeSummary.props.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/non-data-components/TreeNodeSummary.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/non-data-components/TreeNodeSummary.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/non-data-components/TreeNodeSummary.props\n职责：定义 TreeNodeSummary（r-tree-node-summary）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 field-level/field-support 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 tree node summary 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RTreeNodeSummaryProps"
+    ],
+    "componentName": "TreeNodeSummary",
+    "componentType": "r-tree-node-summary",
+    "componentLevel": "field-level",
+    "componentLayer": "field-support",
+    "componentDirectory": "fields/non-data-components"
+  },
+  "$defs": {
+    "RTreeNodeSummaryProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RTreeNodeSummaryProps",
+      "properties": {
+        "nameField": {
+          "type": "string"
+        },
+        "typeField": {
+          "type": "string"
+        },
+        "statusField": {
+          "type": "string"
+        },
+        "ownerField": {
+          "type": "string"
+        },
+        "metaField": {
+          "type": "string"
+        },
+        "extraField": {
+          "type": "string"
+        },
+        "showType": {
+          "type": "boolean"
+        },
+        "showStatus": {
+          "type": "boolean"
+        },
+        "showOwner": {
+          "type": "boolean"
+        },
+        "showMeta": {
+          "type": "boolean"
+        },
+        "showExtra": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.592Z",
+  "models": {
+    "RTreeNodeSummaryProps": {
+      "name": "RTreeNodeSummaryProps",
+      "jsdoc": "RTree Node Summary Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "TreeNodeSummary",
+        "type": "r-tree-node-summary",
+        "level": "field-level",
+        "layer": "field-support",
+        "directory": "fields/non-data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 名称字段名 */\n    nameField?: string;\n    /** 类型字段名 */\n    typeField?: string;\n    /** 状态字段名 */\n    statusField?: string;\n    /** 负责人字段名 */\n    ownerField?: string;\n    /** 元信息字段名 */\n    metaField?: string;\n    /** 扩展字段名 */\n    extraField?: string;\n    /** 是否展示类型 */\n    showType?: boolean;\n    /** 是否展示状态 */\n    showStatus?: boolean;\n    /** 是否展示负责人 */\n    showOwner?: boolean;\n    /** 是否展示元信息 */\n    showMeta?: boolean;\n    /** 是否展示扩展信息 */\n    showExtra?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 名称字段名 */\n    nameField?: string;\n    /** 类型字段名 */\n    typeField?: string;\n    /** 状态字段名 */\n    statusField?: string;\n    /** 负责人字段名 */\n    ownerField?: string;\n    /** 元信息字段名 */\n    metaField?: string;\n    /** 扩展字段名 */\n    extraField?: string;\n    /** 是否展示类型 */\n    showType?: boolean;\n    /** 是否展示状态 */\n    showStatus?: boolean;\n    /** 是否展示负责人 */\n    showOwner?: boolean;\n    /** 是否展示元信息 */\n    showMeta?: boolean;\n    /** 是否展示扩展信息 */\n    showExtra?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nameField",
+              "jsdoc": "名称字段名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "typeField",
+              "jsdoc": "类型字段名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "statusField",
+              "jsdoc": "状态字段名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ownerField",
+              "jsdoc": "负责人字段名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaField",
+              "jsdoc": "元信息字段名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "extraField",
+              "jsdoc": "扩展字段名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showType",
+              "jsdoc": "是否展示类型",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showStatus",
+              "jsdoc": "是否展示状态",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOwner",
+              "jsdoc": "是否展示负责人",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showMeta",
+              "jsdoc": "是否展示元信息",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showExtra",
+              "jsdoc": "是否展示扩展信息",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

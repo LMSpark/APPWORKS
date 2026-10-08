@@ -1,0 +1,221 @@
+import { DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
+import { RequestState } from '@spark-appworks/spark-data'
+import { isRecord } from '@spark-appworks/spark-utils'
+import type { ProjectWorkspace, ScenarioViewFile } from '@spark-appworks/spark-project-model'
+import type { PageRuntimeServicesCapability } from '@spark-appworks/spark-component'
+import type { LowcodeDataSpaceAssembly } from '../lowcode-data-space-assembler'
+
+type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
+type PageDataSpaceViewDesignReader = NonNullable<ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>['viewDesign']>
+type PageDataSpaceViewModelInput = Parameters<PageDataSpaceViewDesignReader['readModel']>[0]
+type PageDataSpaceViewSelection = Parameters<PageDataSpaceViewDesignReader['preview']>[0]
+type PageDataSpaceViewStage = Parameters<PageDataSpaceViewDesignReader['stage']>[0]
+type PageDataSpaceViewState = Awaited<ReturnType<PageDataSpaceViewDesignReader['save']>>
+type PageDataSpaceViewAdopt = Parameters<PageDataSpaceViewDesignReader['adopt']>[0]
+type ViewDesignOptions = Readonly<{
+  workspace: ProjectWorkspace
+  readModel(input: PageDataSpaceViewModelInput): Promise<FormalModel>
+  assemble(scenarioId: string, file: ScenarioViewFile): Promise<LowcodeDataSpaceAssembly>
+  assertScope(): void
+}>
+
+function record(value: unknown, label: string): Record<string, unknown> {
+  if (!isRecord(value)) throw new Error(`${label} 配置无效`)
+  return value
+}
+
+function viewName(value: string, label: string): string {
+  const name = value.trim()
+  if (!name || name.includes('@') || name.startsWith('#')) throw new Error(`${label} 身份非法`)
+  return name
+}
+
+function state(file: ScenarioViewFile): PageDataSpaceViewState {
+  return { scenarioId: file.scenarioId, text: file.getText(), config: file.value.toJSON(),
+    persisted: file.isPersisted, dirty: file.isDirty, revision: file.revision,
+    saveStatus: file.saveStatus, submittedText: file.submittedText }
+}
+
+export class LowcodeDataSpaceViewDesign implements PageDataSpaceViewDesignReader {
+  constructor(private readonly options: ViewDesignOptions) {}
+
+  private currentFile(scenarioId: string): ScenarioViewFile {
+    this.options.assertScope()
+    const file = this.options.workspace.getScenarioViews(viewName(scenarioId, '空间'))
+    if (!file) throw new Error('SCENARIO_VIEW_FILE_MISSING: 请先加载或显式创建视图配置')
+    return file
+  }
+
+  async open(scenarioId: string) {
+    this.options.assertScope()
+    const file = await this.options.workspace.loadScenarioViews({ scenarioId: viewName(scenarioId, '空间') })
+    this.options.assertScope()
+    return { state: state(file), dirtySource: file }
+  }
+
+  async readModel(input: PageDataSpaceViewModelInput) {
+    this.options.assertScope()
+    const model = await this.options.readModel(input)
+    this.options.assertScope()
+    if (model.id !== input.modelId || model.metaName !== input.modelName) throw new Error('SCENARIO_VIEW_MODEL_IDENTITY: 正式模型身份已变化')
+    return { id: model.id, name: model.metaName, fields: DataSpaceDesignApi.resolveOutputFields(model)
+      .map(field => ({ name: field.canonicalName, label: field.description || field.canonicalName })) }
+  }
+
+  async create(input: PageDataSpaceViewSelection, assertCurrent?: () => void) {
+    const scenarioId = viewName(input.scenarioId, '空间')
+    const tableName = viewName(input.tableName, '表')
+    const viewId = viewName(input.viewId, '视图')
+    await this.readModel(input)
+    assertCurrent?.()
+    const views: Record<string, Record<string, unknown>> = { default: {} }
+    if (viewId !== 'default') views[viewId] = {}
+    const text = JSON.stringify({ scenarioId, tables: { [tableName]: {
+      modelBinding: { modelId: input.modelId, modelName: input.modelName }, views,
+    } }, viewCascades: [] })
+    this.options.assertScope()
+    const file = await this.options.workspace.createScenarioViews({ scenarioId, text,
+      ...(assertCurrent ? {assertCurrent} : {}) })
+    this.options.assertScope()
+    return { state: state(file), dirtySource: file }
+  }
+
+  async stage(input: PageDataSpaceViewStage, assertCurrent?: () => void): Promise<PageDataSpaceViewState> {
+    const file = this.currentFile(input.scenarioId)
+    const before = file.getText()
+    if (before !== input.expectedText) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 配置已被其他编辑改变')
+    const tableName = viewName(input.tableName, '表')
+    const viewId = viewName(input.viewId, '视图')
+    const model = await this.readModel(input)
+    assertCurrent?.()
+    this.options.assertScope()
+    if (this.currentFile(input.scenarioId) !== file || file.getText() !== before) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 字段读取期间配置已改变')
+    const config = structuredClone(file.value.toJSON())
+    const tables = record(config['tables'], 'tables')
+    const old = tables[tableName] === undefined ? undefined : record(tables[tableName], 'table')
+    const binding = old ? record(old['modelBinding'], 'modelBinding') : undefined
+    if (binding && (binding['modelId'] !== model.id || binding['modelName'] !== model.name)) {
+      throw new Error('SCENARIO_VIEW_MODEL_BINDING: 已存在表不能改绑正式模型')
+    }
+    const views = old ? record(old['views'], 'views') : { default: {} }
+    const existing = views[viewId] === undefined ? {} : record(views[viewId], 'view')
+    const configuration = record(input.configuration, 'configuration')
+    const allowed = new Set(['fieldProjection', 'queryContext', 'filterExpression', 'sortExpression',
+      'autoCurrentFirst', 'autoSelectFirst', 'page', 'pageSize', 'treeConfig', 'valueField',
+      'labelField', 'selectionDelimiter', 'autoLoad', 'commitMode', 'aggregates'])
+    for (const key of Object.keys(configuration)) {
+      if (!allowed.has(key)) throw new Error(`SCENARIO_VIEW_CONFIGURATION: ${key} 不属于视图配置`)
+    }
+    const clear = new Set<string>(input.clear ?? [])
+    for (const key of clear) {
+      if (!allowed.has(key) || Object.hasOwn(configuration, key)) {
+        throw new Error(`SCENARIO_VIEW_CLEAR: ${key} 不能清除`)
+      }
+    }
+    const updated = Object.fromEntries(Object.entries({ ...existing, ...configuration })
+      .filter(([key]) => !clear.has(key)))
+    this.validateFieldReferences(updated, new Set(model.fields.map(field => field.name)))
+    views[viewId] = updated
+    tables[tableName] = { ...old, modelBinding: { modelId: model.id, modelName: model.name }, views }
+    assertCurrent?.()
+    file.setText(JSON.stringify(config))
+    return state(file)
+  }
+
+  private validateFieldReferences(view: Record<string, unknown>, fields: ReadonlySet<string>): void {
+    const check = (name: unknown, path: string): void => {
+      if (name === '' && (path === 'valueField' || path === 'labelField')) return
+      if (typeof name !== 'string' || !fields.has(name)) {
+        throw new Error(`SCENARIO_VIEW_FIELD: ${path} 不是当前正式输出字段`)
+      }
+    }
+    const valueField = view['valueField']
+    if (typeof valueField === 'string') check(valueField, 'valueField')
+    else if (Array.isArray(valueField)) valueField.forEach((name, index) => check(name, `valueField[${index}]`))
+    if (view['labelField'] !== undefined) check(view['labelField'], 'labelField')
+    const sort = view['sortExpression']
+    if (Array.isArray(sort)) sort.forEach((item, index) => {
+      if (isRecord(item)) check(item['field'], `sortExpression[${index}].field`)
+    })
+    const tree = view['treeConfig']
+    if (isRecord(tree)) for (const key of ['idField', 'parentIdField', 'textField']) {
+      if (tree[key] !== undefined) check(tree[key], `treeConfig.${key}`)
+    }
+    const aggregates = view['aggregates']
+    if (isRecord(aggregates)) for (const [name, value] of Object.entries(aggregates)) {
+      if (isRecord(value)) check(value['field'] ?? name, `aggregates.${name}.field`)
+    }
+  }
+
+  async save(scenarioId: string, assertCurrent?: () => void): Promise<PageDataSpaceViewState> {
+    const file = this.currentFile(scenarioId)
+    if (file.saveStatus !== 'idle') throw new Error('SCENARIO_VIEW_SAVE_PENDING: 须先核验上次保存')
+    const submitted = file.getText()
+    if (!file.isDirty) return state(file)
+    const assembled = await this.options.assemble(scenarioId, file)
+    assembled.dataSet.destroy()
+    this.options.assertScope()
+    assertCurrent?.()
+    if (this.currentFile(scenarioId) !== file || file.getText() !== submitted) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 保存前配置已改变')
+    await this.options.workspace.saveScenarioViews({ scenarioId, ...(assertCurrent ? {assertCurrent} : {}) })
+    this.options.assertScope()
+    return state(file)
+  }
+
+  async verify(scenarioId: string) {
+    const file = this.currentFile(scenarioId)
+    const outcome = await this.options.workspace.verifyScenarioViews({ scenarioId })
+    this.options.assertScope()
+    return { outcome, state: state(file) }
+  }
+
+  async previewRemote(scenarioId: string): Promise<string | null> {
+    this.options.assertScope()
+    const text = await this.options.workspace.previewScenarioViewsRemote({ scenarioId })
+    this.options.assertScope()
+    return text
+  }
+
+  async adopt(input: PageDataSpaceViewAdopt): Promise<PageDataSpaceViewState | null> {
+    this.options.assertScope()
+    await this.options.workspace.adoptScenarioViews(input)
+    this.options.assertScope()
+    const file = this.options.workspace.getScenarioViews(input.scenarioId)
+    return file ? state(file) : null
+  }
+
+  async preview(input: PageDataSpaceViewSelection) {
+    const file = this.currentFile(input.scenarioId)
+    const text = file.getText()
+    const tableName = viewName(input.tableName, '表')
+    const viewId = viewName(input.viewId, '视图')
+    const tables = record(file.value.toJSON()['tables'], 'tables')
+    const table = record(tables[tableName], 'table')
+    const binding = record(table['modelBinding'], 'modelBinding')
+    if (binding['modelId'] !== input.modelId || binding['modelName'] !== input.modelName) {
+      throw new Error('SCENARIO_VIEW_MODEL_BINDING: 预览选择与正式模型绑定不一致')
+    }
+    if (!Object.hasOwn(record(table['views'], 'views'), viewId)) throw new Error('SCENARIO_VIEW_PREVIEW_VIEW: 视图不存在')
+    const assembled = await this.options.assemble(input.scenarioId, file)
+    try {
+      this.options.assertScope()
+      if (this.currentFile(input.scenarioId) !== file || file.getText() !== text) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 预览配置已改变')
+      const view = assembled.dataSet.getView(tableName, viewId)
+      if (!view) throw new Error('SCENARIO_VIEW_PREVIEW_VIEW: 视图不存在')
+      await view.requestData()
+      this.options.assertScope()
+      if (this.currentFile(input.scenarioId) !== file || file.getText() !== text) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 预览期间配置已改变')
+      if (view.requestState !== RequestState.Loaded) throw view.loadingError ?? new Error('SCENARIO_VIEW_PREVIEW_QUERY: 正式查询未完成')
+      const fields = view.columns.map(column => column.name).filter(name => name !== '_pk')
+      return { total: view.total, fields, rows: view.rows.map(row => {
+        const safe: Record<string, unknown> = {}
+        for (const field of fields) {
+          const access = view.fieldAccess(row, field)
+          if (access.read === 'visible') safe[field] = row[field]
+          else if (access.read === 'masked') safe[field] = '••••'
+        }
+        return safe
+      }) }
+    } finally { assembled.dataSet.destroy() }
+  }
+}

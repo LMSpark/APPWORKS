@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:http/guards",
+    "sourcePath": "packages/spark-utils/src/http/guards.ts",
+    "sourceFile": "packages/spark-utils/src/http/guards.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "http/guards",
+    "jsdoc": "@module @spark-appworks/spark-utils:http/guards\n职责：提供框架无关基础设施 guards 能力，围绕 模块入口、副作用注册或内部组合逻辑 支撑 capability、HTTP、日志、脚本类型或历史快照。\n边界：保持底层工具包纯净，不依赖 Vue、spark-data 或应用壳层，也不承载业务配置。\nAI用途：需要跨包复用基础能力或确认底层协议时，用本模块理解 http/guards。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:38:13.632Z",
+  "models": {}
+}

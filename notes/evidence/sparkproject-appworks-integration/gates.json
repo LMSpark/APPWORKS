@@ -1,0 +1,42 @@
+[
+  {
+    "check": "verify:arch",
+    "exit": 0,
+    "log": "verify-arch.log"
+  },
+  {
+    "check": "verify:deps",
+    "exit": 0,
+    "log": "verify-deps.log"
+  },
+  {
+    "check": "verify:pages-config",
+    "exit": 0,
+    "log": "verify-pages-config.log"
+  },
+  {
+    "check": "verify:ai-codegen",
+    "exit": 0,
+    "log": "verify-ai-codegen.log"
+  },
+  {
+    "check": "verify:project-blueprint-ssot",
+    "exit": 0,
+    "log": "verify-project-blueprint-ssot.log"
+  },
+  {
+    "check": "verify:wire-query-parity",
+    "exit": 0,
+    "log": "verify-wire-query-parity.log"
+  },
+  {
+    "check": "verify:ajax-result-parity",
+    "exit": 0,
+    "log": "verify-ajax-result-parity.log"
+  },
+  {
+    "check": "verify:lowcode-contracts",
+    "exit": 0,
+    "log": "verify-lowcode-contracts.log"
+  }
+]

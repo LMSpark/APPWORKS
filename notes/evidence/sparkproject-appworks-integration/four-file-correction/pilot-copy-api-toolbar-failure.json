@@ -1,0 +1,21 @@
+{
+  "observedAt": "2026-10-07T17:38:26.736Z",
+  "steps": [
+    "query catalog ID 90A82E287930A234FEC3E687C94A93EA",
+    "click ID cell"
+  ],
+  "observed": {
+    "currentRowId": "90A82E287930A234FEC3E687C94A93EA",
+    "inRows": true,
+    "rowidRead": "visible",
+    "renderRevision": 3,
+    "buttons": [
+      "新增数据空间",
+      "查询",
+      "上一页",
+      "下一页"
+    ]
+  },
+  "control": "Typing trailing space into search input caused all current-row toolbar actions to appear without another query",
+  "conclusion": "DataView currentRow change is not observed by script Render invalidation"
+}

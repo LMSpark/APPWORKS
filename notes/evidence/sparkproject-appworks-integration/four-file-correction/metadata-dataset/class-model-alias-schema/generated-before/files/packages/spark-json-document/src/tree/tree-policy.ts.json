@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:tree/tree-policy",
+    "sourcePath": "packages/spark-json-document/src/tree/tree-policy.ts",
+    "sourceFile": "packages/spark-json-document/src/tree/tree-policy.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "tree/tree-policy",
+    "jsdoc": "@module @spark-appworks/spark-json-document:tree/tree-policy\n职责：提供 JSON Document/schema 处理中的 tree policy 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。\n\n═══════════════════════════════════════════════════════════════\ntree/tree-policy.ts — 策略解析与默认实现\n═══════════════════════════════════════════════════════════════",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:48:51.043Z",
+  "models": {
+    "ResolvedPolicy": {
+      "name": "ResolvedPolicy",
+      "jsdoc": "Resolved Policy 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Required<JsonTreePolicy>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Required<JsonTreePolicy>",
+            "targetName": "Required"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

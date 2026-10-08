@@ -1,0 +1,7 @@
+{
+  "finishedAtUtc": "2026-10-07T07:59:28.4733183Z",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T07:59:21.6997354Z",
+  "exitCode": 1,
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts -t \"late application catalog\" --maxWorkers=1 --reporter=dot"
+}

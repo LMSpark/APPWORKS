@@ -1,0 +1,544 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:core/types",
+    "sourcePath": "packages/spark-component/src/core/types.ts",
+    "sourceFile": "packages/spark-component/src/core/types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "core/types",
+    "jsdoc": "@module @spark-appworks/spark-component:core/types\n职责：定义 types 相关的内部类型契约，支撑渲染器、props、zero-code 和运行时状态协作。\n边界：只描述 component-runtime 的类型结构，不直接渲染界面，也不发起数据请求。\nAI用途：跨文件修改 types 行为或补齐配置类型时，用本模块确认共享类型边界。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ComponentDefinition",
+      "ComponentChildrenMode",
+      "FilterItemConfig",
+      "ComponentRegistry",
+      "ComponentRegistrationInput",
+      "ComponentRegistrationArgs"
+    ]
+  },
+  "$defs": {
+    "ComponentDefinition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ComponentDefinition",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "component": true,
+        "meta": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "required": [
+        "type",
+        "component"
+      ],
+      "additionalProperties": false
+    },
+    "ComponentChildrenMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ComponentChildrenMode",
+      "enum": [
+        "auto",
+        "prop",
+        "slot"
+      ]
+    },
+    "FilterItemConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterItemConfig",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "component": {
+          "anyOf": [
+            {
+              "const": "text"
+            },
+            {
+              "const": "select"
+            },
+            {
+              "const": "date"
+            },
+            {
+              "const": "date-range"
+            },
+            {
+              "const": "number"
+            },
+            {
+              "const": "number-range"
+            },
+            {
+              "const": "checkbox"
+            },
+            {
+              "const": "radio"
+            },
+            {
+              "allOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false
+                }
+              ]
+            }
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": true
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "optionLabelField": {
+          "type": "string"
+        },
+        "optionValueField": {
+          "type": "string"
+        },
+        "logic": {
+          "enum": [
+            "and",
+            "or"
+          ]
+        },
+        "span": {
+          "type": "number"
+        },
+        "componentProps": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "additionalProperties": false
+    },
+    "ComponentRegistry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ComponentRegistry",
+      "$defs": {
+        "method.register.params": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "$ref": "#/$defs/ComponentRegistrationArgs"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.register.return": true,
+        "method.get.params": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "$ref": "#/$defs/ComponentDefinition"
+        },
+        "method.has.params": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.has.return": {
+          "type": "boolean"
+        },
+        "method.unregister.params": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.unregister.return": {
+          "type": "boolean"
+        },
+        "method.getAll.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getAll.return": {
+          "type": "object",
+          "title": "ReadonlyMap<string, ComponentDefinition>"
+        }
+      }
+    },
+    "ComponentRegistrationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ComponentRegistrationInput",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "component": true,
+        "meta": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "silent": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "ComponentRegistrationArgs": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ComponentRegistrationArgs",
+      "anyOf": [
+        {
+          "type": "array",
+          "prefixItems": [
+            true
+          ]
+        },
+        {
+          "type": "array",
+          "prefixItems": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-10T11:27:03.460Z",
+  "models": {
+    "ComponentDefinition": {
+      "name": "ComponentDefinition",
+      "jsdoc": "组件定义 - Registry 中的条目",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 组件类型（kebab-case，如 'r-table'） */\n    type: string;\n    /** Vue 组件实现 */\n    component: unknown;\n    /** 扩展元数据 */\n    meta?: Record<string, unknown>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "组件类型（kebab-case，如 'r-table'）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "component",
+              "jsdoc": "Vue 组件实现",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "meta",
+              "jsdoc": "扩展元数据",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ComponentChildrenMode": {
+      "name": "ComponentChildrenMode",
+      "jsdoc": "组件 children 传输策略（Registry meta.childrenMode）\n- `auto`：渲染器按组件声明自动判断；声明了 `children` prop 则走 prop，否则走默认 slot\n- `prop`：强制将 SparkNode.children 作为 `children` prop 传给组件\n- `slot`：强制将 SparkNode.children 作为默认 slot 递归渲染",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'auto' | 'prop' | 'slot'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'auto'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'prop'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'slot'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FilterItemConfig": {
+      "name": "FilterItemConfig",
+      "jsdoc": "单个筛选项配置\n简写：直接写字段名字符串，等价于 `{ field: 'xxx', component: 'text' }`。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 字段名（映射到数据源字段） */\n    field: string;\n    /** 显示标签（省略则用字段名） */\n    label?: string;\n    /**\n     * 输入组件类型（默认 `text`）\n     *\n     * 内置：`text` | `select` | `date` | `date-range` | `number` | `number-range` | `checkbox` | `radio`\n     * 扩展：传任意组件 type 字符串\n     */\n    component?: 'text' | 'select' | 'date' | 'date-range' | 'number' | 'number-range' | 'checkbox' | 'radio' | (string & {});\n    /** 可选项列表（`component = select / radio / checkbox` 时使用） */\n    options?: Array<{\n        label: string;\n        value: unknown;\n    }>;\n    /** 选项字段映射（options 来自 DataView 成员时使用） */\n    optionLabelField?: string;\n    /** option Value Field 字段。 */\n    optionValueField?: string;\n    /** 与其他条件的逻辑关系（覆盖全局 filter.logic，默认继承） */\n    logic?: 'and' | 'or';\n    /** 跨列数（覆盖全局 filter.itemSpan） */\n    span?: number;\n    /** 透传到筛选组件的原生 props（如 placeholder、clearable 等） */\n    componentProps?: Record<string, unknown>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "jsdoc": "字段名（映射到数据源字段）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "jsdoc": "显示标签（省略则用字段名）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "component",
+              "jsdoc": "输入组件类型（默认 `text`）\n内置：`text` | `select` | `date` | `date-range` | `number` | `number-range` | `checkbox` | `radio`\n扩展：传任意组件 type 字符串",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "jsdoc": "可选项列表（`component = select / radio / checkbox` 时使用）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionLabelField",
+              "jsdoc": "选项字段映射（options 来自 DataView 成员时使用）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionValueField",
+              "jsdoc": "option Value Field 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "logic",
+              "jsdoc": "与其他条件的逻辑关系（覆盖全局 filter.logic，默认继承）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "span",
+              "jsdoc": "跨列数（覆盖全局 filter.itemSpan）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "componentProps",
+              "jsdoc": "透传到筛选组件的原生 props（如 placeholder、clearable 等）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ComponentRegistry": {
+      "name": "ComponentRegistry",
+      "jsdoc": "Component Registry 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 注册一个或多个组件定义到注册表。 */\n    register(...args: ComponentRegistrationArgs): void;\n    /** 按 type 获取组件定义。 */\n    get(type: string): ComponentDefinition | undefined;\n    /** 检查注册表是否包含指定 type。 */\n    has(type: string): boolean;\n    /** 从注册表移除指定 type，返回是否成功。 */\n    unregister(type: string): boolean;\n    /** 获取全部已注册组件定义的只读映射。 */\n    getAll(): ReadonlyMap<string, ComponentDefinition>;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "register",
+              "jsdoc": "注册一个或多个组件定义到注册表。",
+              "parameters": [
+                {
+                  "name": "args",
+                  "type": {
+                    "type": "rest",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ComponentRegistrationArgs",
+                      "sourcePath": "packages/spark-component/src/core/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "get",
+              "jsdoc": "按 type 获取组件定义。",
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "ComponentDefinition",
+                  "sourcePath": "packages/spark-component/src/core/types.ts"
+                }
+              }
+            },
+            {
+              "name": "has",
+              "jsdoc": "检查注册表是否包含指定 type。",
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "unregister",
+              "jsdoc": "从注册表移除指定 type，返回是否成功。",
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getAll",
+              "jsdoc": "获取全部已注册组件定义的只读映射。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReadonlyMap",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "ComponentDefinition",
+                    "sourcePath": "packages/spark-component/src/core/types.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ComponentRegistrationInput": {
+      "name": "ComponentRegistrationInput",
+      "jsdoc": "Component Registration Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 组件类型标识（kebab-case）。 */\n    type: string;\n    /** Vue 组件实现。 */\n    component: unknown;\n    /** 扩展元数据（如 childrenMode）。 */\n    meta?: Record<string, unknown> | undefined;\n    /** 注册选项（如 silent 静默模式）。 */\n    options?: {\n        silent?: boolean;\n    } | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 组件类型标识（kebab-case）。 */\n    type: string;\n    /** Vue 组件实现。 */\n    component: unknown;\n    /** 扩展元数据（如 childrenMode）。 */\n    meta?: Record<string, unknown> | undefined;\n    /** 注册选项（如 silent 静默模式）。 */\n    options?: {\n        silent?: boolean;\n    } | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "组件类型标识（kebab-case）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "component",
+              "jsdoc": "Vue 组件实现。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "meta",
+              "jsdoc": "扩展元数据（如 childrenMode）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "jsdoc": "注册选项（如 silent 静默模式）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ComponentRegistrationArgs": {
+      "name": "ComponentRegistrationArgs",
+      "jsdoc": "Component Registration Args 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "readonly [input: ComponentRegistrationInput] | readonly [\n    type: string,\n    component: unknown,\n    meta?: Record<string, unknown>,\n    options?: {\n        silent?: boolean;\n    }\n]",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "readonly [input: ComponentRegistrationInput]"
+          },
+          {
+            "kind": "union",
+            "typeText": "readonly [\n    type: string,\n    component: unknown,\n    meta?: Record<string, unknown>,\n    options?: {\n        silent?: boolean;\n    }\n]"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

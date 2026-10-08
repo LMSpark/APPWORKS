@@ -1,0 +1,7 @@
+{
+  "cwd": "D:\\SPARK_AppWorks",
+  "exitCode": 0,
+  "finishedAtUtc": "2026-10-07T07:46:56.1799129Z",
+  "startedAtUtc": "2026-10-07T07:46:31.9822929Z",
+  "command": "pnpm --dir packages/spark-app run test:run --maxWorkers=1 --reporter=dot"
+}

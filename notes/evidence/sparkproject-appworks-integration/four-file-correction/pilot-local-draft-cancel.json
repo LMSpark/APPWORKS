@@ -1,0 +1,13 @@
+{
+  "after": {
+    "pendingCreate": 0,
+    "pendingDelete": 0
+  },
+  "before": {
+    "keyGenerated": true,
+    "pendingCreate": 1
+  },
+  "countRestored": true,
+  "ok": true,
+  "removed": true
+}

@@ -1,0 +1,3291 @@
+{
+  "command": "pnpm exec vite build --outDir notes/evidence/sparkproject-appworks-integration/build --emptyOutDir false",
+  "exit": 0,
+  "artifactDirectory": "D:\\UserCache\\Temp\\spark-appworks-integration-build-983a5ea1f99345229b5ae51ffb2ce6e1",
+  "files": [
+    {
+      "path": "dev-login.html",
+      "bytes": 874
+    },
+    {
+      "path": "favicon.ico",
+      "bytes": 8
+    },
+    {
+      "path": "favicon.svg",
+      "bytes": 258
+    },
+    {
+      "path": "index.html",
+      "bytes": 994
+    },
+    {
+      "path": "README.md",
+      "bytes": 935
+    },
+    {
+      "path": "config\\default-avatar.svg",
+      "bytes": 563
+    },
+    {
+      "path": "config\\default-product.svg",
+      "bytes": 733
+    },
+    {
+      "path": "config\\tenants\\tenant-demo.json",
+      "bytes": 702
+    },
+    {
+      "path": "config\\tenants\\tenant-enterprise.json",
+      "bytes": 739
+    },
+    {
+      "path": "css\\About-JWZsPNWd.css",
+      "bytes": 2085
+    },
+    {
+      "path": "css\\AppList-CIV1Gw-Z.css",
+      "bytes": 659
+    },
+    {
+      "path": "css\\AppProjectSettingsDialog-D76vCKwO.css",
+      "bytes": 113
+    },
+    {
+      "path": "css\\BlueprintWorkspace-RQi5wDV3.css",
+      "bytes": 748
+    },
+    {
+      "path": "css\\CacheManager-b2Wf-r_i.css",
+      "bytes": 228
+    },
+    {
+      "path": "css\\CustomRTableDemo-BtPxIlkp.css",
+      "bytes": 2007
+    },
+    {
+      "path": "css\\DBMS-CYYwODhA.css",
+      "bytes": 17429
+    },
+    {
+      "path": "css\\DeliveryPane-DcUBXreB.css",
+      "bytes": 272
+    },
+    {
+      "path": "css\\DevDataSetDesigner-CsKIekph.css",
+      "bytes": 234
+    },
+    {
+      "path": "css\\DevFileEditor-CaSeJNwR.css",
+      "bytes": 3379
+    },
+    {
+      "path": "css\\DevNodeProps-CqENCQf8.css",
+      "bytes": 2874
+    },
+    {
+      "path": "css\\DevPreviewTab-Cyi4atCC.css",
+      "bytes": 750
+    },
+    {
+      "path": "css\\DevSystem-BSMl_6tX.css",
+      "bytes": 4063
+    },
+    {
+      "path": "css\\element-plus-BDTeg99L.css",
+      "bytes": 359376
+    },
+    {
+      "path": "css\\HomePage-Oj3c1R-S.css",
+      "bytes": 10716
+    },
+    {
+      "path": "css\\IconPicker-D2TS0StY.css",
+      "bytes": 1148
+    },
+    {
+      "path": "css\\index-CJPt6MOe.css",
+      "bytes": 34586
+    },
+    {
+      "path": "css\\LoginView-1cKpzmO0.css",
+      "bytes": 1260
+    },
+    {
+      "path": "css\\ModuleContextBadge-BALn3kfJ.css",
+      "bytes": 79
+    },
+    {
+      "path": "css\\pages-config-CB3nv_cd.css",
+      "bytes": 32932
+    },
+    {
+      "path": "css\\pages-data-heavy-ZOxCXym3.css",
+      "bytes": 4497
+    },
+    {
+      "path": "css\\PlatformApps-vs_i7pn9.css",
+      "bytes": 453
+    },
+    {
+      "path": "css\\PlatformTenantManagement-CppEZpnb.css",
+      "bytes": 467
+    },
+    {
+      "path": "css\\ProjectBlueprintTree-CnqIXuBl.css",
+      "bytes": 1229
+    },
+    {
+      "path": "css\\ProjectPlanningDocumentImportDialog-73i-Rm6Y.css",
+      "bytes": 2051
+    },
+    {
+      "path": "css\\RFormCompareDemo-Bs-i-Sll.css",
+      "bytes": 3529
+    },
+    {
+      "path": "css\\spark-component-BnAGv8jY.css",
+      "bytes": 2604
+    },
+    {
+      "path": "css\\TemplateDslDemo-DF-ONf0K.css",
+      "bytes": 379
+    },
+    {
+      "path": "css\\TenantConfigPanel-CEAgSEdo.css",
+      "bytes": 1535
+    },
+    {
+      "path": "css\\vendor-_6XKS09t.css",
+      "bytes": 6669
+    },
+    {
+      "path": "css\\vendor-forms-Cs1c_RRX.css",
+      "bytes": 136040
+    },
+    {
+      "path": "css\\WorkflowDesigns-DxO_22cp.css",
+      "bytes": 17836
+    },
+    {
+      "path": "dts-class-model\\.dts-manifest.json",
+      "bytes": 234304
+    },
+    {
+      "path": "dts-class-model\\manifest.json",
+      "bytes": 1326445
+    },
+    {
+      "path": "dts-class-model\\semantic-gaps.json",
+      "bytes": 1197211
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\index.ts.json",
+      "bytes": 1091
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\index.ts.json",
+      "bytes": 2328
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\ag-ui\\ag-ui-mapper.ts.json",
+      "bytes": 1160
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\ag-ui\\ag-ui-types.ts.json",
+      "bytes": 7217
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\ag-ui\\index.ts.json",
+      "bytes": 782
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\ai-host.ts.json",
+      "bytes": 43813
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\business-kit.ts.json",
+      "bytes": 11660
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\business-registry.ts.json",
+      "bytes": 6605
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\business-scope.ts.json",
+      "bytes": 1015
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\business-session.ts.json",
+      "bytes": 13174
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\business-task.ts.json",
+      "bytes": 19709
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\class-model-agent-adapter.ts.json",
+      "bytes": 60350
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\host-options.ts.json",
+      "bytes": 3883
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\lifecycle-types.ts.json",
+      "bytes": 16091
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\registration-types.ts.json",
+      "bytes": 33164
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\scope-types.ts.json",
+      "bytes": 11910
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\chat\\chat-types.ts.json",
+      "bytes": 27512
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\dts-native-script-runner.ts.json",
+      "bytes": 6279
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\index.ts.json",
+      "bytes": 1090
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\native-script-context.ts.json",
+      "bytes": 12614
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\native-script-runner.ts.json",
+      "bytes": 7154
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\native-script-sandbox.ts.json",
+      "bytes": 1982
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\session\\default-session-store.ts.json",
+      "bytes": 12501
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\session\\session-diagnostics.ts.json",
+      "bytes": 14259
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\session\\session-run-trace.ts.json",
+      "bytes": 31381
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\session\\session-types.ts.json",
+      "bytes": 51071
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\diagnostic-events.ts.json",
+      "bytes": 7188
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\function-call-recovery-enricher.ts.json",
+      "bytes": 6925
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\payload-codec.ts.json",
+      "bytes": 3679
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\result-mapper.ts.json",
+      "bytes": 1035
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\tool-call-executor.ts.json",
+      "bytes": 11487
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\tool-loop-runner.ts.json",
+      "bytes": 8795
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\turn-event-collector.ts.json",
+      "bytes": 6218
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-runtime\\index.ts.json",
+      "bytes": 1076
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-runtime\\tool-runtime-types.ts.json",
+      "bytes": 38755
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\transport\\app-sse-events.ts.json",
+      "bytes": 8772
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\transport\\transport-turn.ts.json",
+      "bytes": 3618
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\transport\\transport-types.ts.json",
+      "bytes": 34527
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\agent-workflow-definition.ts.json",
+      "bytes": 76541
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\agent-workflow-dry-run.ts.json",
+      "bytes": 12414
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\agent-workflow-runtime.ts.json",
+      "bytes": 19465
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\agent-workflow-validation.ts.json",
+      "bytes": 2068
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\index.ts.json",
+      "bytes": 905
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\index.ts.json",
+      "bytes": 1211
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\build-dts-class-model-bundle.ts.json",
+      "bytes": 14987
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\build-index.ts.json",
+      "bytes": 1014
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\class-model-emit-fs.ts.json",
+      "bytes": 2803
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\class-model-emit-path.ts.json",
+      "bytes": 1412
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\class-model-json-schema-def-keys.ts.json",
+      "bytes": 1119
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\class-model-schema-projection.ts.json",
+      "bytes": 1143
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\class-model-to-json-schema.ts.json",
+      "bytes": 6270
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\consistency.ts.json",
+      "bytes": 3799
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-ast-utils.ts.json",
+      "bytes": 1079
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-bundle-types.ts.json",
+      "bytes": 54716
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-bundle-url.ts.json",
+      "bytes": 1033
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-class-model-bundle-loader.ts.json",
+      "bytes": 19317
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-enum-schema.ts.json",
+      "bytes": 3409
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-jsdoc-reader.ts.json",
+      "bytes": 1041
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-surface-to-runtime-api.ts.json",
+      "bytes": 1157
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-surface-types.ts.json",
+      "bytes": 8081
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-type-meta-ops.ts.json",
+      "bytes": 1066
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-type-schema.ts.json",
+      "bytes": 1018
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\from-runtime-metadata.ts.json",
+      "bytes": 3284
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\index.ts.json",
+      "bytes": 1111
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\json-schema-emit.ts.json",
+      "bytes": 1069
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\json-schema-to-type.ts.json",
+      "bytes": 1203
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\model-json-schema-ref.ts.json",
+      "bytes": 1062
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\model-projection.ts.json",
+      "bytes": 1182
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\project-from-declarations.ts.json",
+      "bytes": 3992
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\read-dts-class-model-bundle-json.ts.json",
+      "bytes": 1189
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\reflection-connectivity.ts.json",
+      "bytes": 3917
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\signature-renderer.ts.json",
+      "bytes": 1200
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\types.ts.json",
+      "bytes": 87436
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\class-model-knowledge-service.ts.json",
+      "bytes": 27585
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\dts-bundle-class-model-knowledge-service.ts.json",
+      "bytes": 20342
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\index.ts.json",
+      "bytes": 1097
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\worker-knowledge-api.ts.json",
+      "bytes": 15153
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\worker-knowledge-client.ts.json",
+      "bytes": 14064
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\worker-knowledge-handler.ts.json",
+      "bytes": 5181
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\ai-api-object-metadata-schema.ts.json",
+      "bytes": 36545
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\index.ts.json",
+      "bytes": 1090
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\json-schema-dereference.ts.json",
+      "bytes": 1165
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\metadata-graph.ts.json",
+      "bytes": 8686
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\resolve-api-object-metadata.ts.json",
+      "bytes": 3638
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\validate-api-object-metadata.ts.json",
+      "bytes": 6247
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\projection\\dts-renderer.ts.json",
+      "bytes": 13339
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\projection\\index.ts.json",
+      "bytes": 1104
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\recovery\\class-model-failure-mode-recovery.ts.json",
+      "bytes": 6505
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\recovery\\index.ts.json",
+      "bytes": 1090
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\runtime\\class-model-runtime.ts.json",
+      "bytes": 16458
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\runtime\\index.ts.json",
+      "bytes": 1083
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\tools\\class-model-tool-schema-recovery.ts.json",
+      "bytes": 1262
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\tools\\class-model-tool-specs.ts.json",
+      "bytes": 3807
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\tools\\index.ts.json",
+      "bytes": 1069
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\tools\\tool-names.ts.json",
+      "bytes": 1425
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\app-context.ts.json",
+      "bytes": 974
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\auto-register.ts.json",
+      "bytes": 2150
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\bootstrap.ts.json",
+      "bytes": 2043
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\constants.ts.json",
+      "bytes": 1205
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\env.ts.json",
+      "bytes": 3386
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\error-handler.ts.json",
+      "bytes": 989
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\index.ts.json",
+      "bytes": 967
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\namespace.ts.json",
+      "bytes": 913
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\start.ts.json",
+      "bytes": 18534
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\types.ts.json",
+      "bytes": 31723
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\useServices.ts.json",
+      "bytes": 1592
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\ai\\ai-run-adapter.ts.json",
+      "bytes": 34877
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\ai\\index.ts.json",
+      "bytes": 940
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\ai\\tool-approval-bridge.ts.json",
+      "bytes": 15551
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\config\\index.ts.json",
+      "bytes": 995
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\logger\\index.ts.json",
+      "bytes": 29511
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\action-registry.ts.json",
+      "bytes": 10437
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\nav-access.ts.json",
+      "bytes": 2392
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\nav-types.ts.json",
+      "bytes": 11275
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\page-cache-access.ts.json",
+      "bytes": 1150
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\page-cache.ts.json",
+      "bytes": 8399
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\runtime-navigation.ts.json",
+      "bytes": 15289
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\runtime-target.ts.json",
+      "bytes": 9598
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\useColorScheme.ts.json",
+      "bytes": 15954
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\useNavigation.ts.json",
+      "bytes": 4589
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\navigation\\useTabPages.ts.json",
+      "bytes": 6088
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\page-ui\\AppPageUiHost.vue.json",
+      "bytes": 1035
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\page-ui\\pageUiService.ts.json",
+      "bytes": 1033
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\plugins\\index.ts.json",
+      "bytes": 957
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\plugins\\presets.ts.json",
+      "bytes": 941
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\plugins\\registry.ts.json",
+      "bytes": 23814
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\router\\cross-project-ref-page.ts.json",
+      "bytes": 1796
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\router\\cross-project-ref-route.ts.json",
+      "bytes": 1093
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\router\\dynamic.ts.json",
+      "bytes": 23072
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\router\\external-link-frame-page.ts.json",
+      "bytes": 1104
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\router\\guards.ts.json",
+      "bytes": 1125
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\router\\invalid-system-page.ts.json",
+      "bytes": 1069
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\router\\route-helpers.ts.json",
+      "bytes": 1023
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-app\\src\\theme\\index.ts.json",
+      "bytes": 7460
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\index.ts.json",
+      "bytes": 914
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\index.ts.json",
+      "bytes": 948
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\types.ts.json",
+      "bytes": 29806
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\AiSessionTracePanel.props.ts.json",
+      "bytes": 4765
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\AiSessionTracePanel.vue.json",
+      "bytes": 1129
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\AiToolApprovalCard.props.ts.json",
+      "bytes": 5344
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\AiToolApprovalCard.vue.json",
+      "bytes": 1122
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\AiToolApprovalPanel.props.ts.json",
+      "bytes": 3294
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\AiToolApprovalPanel.vue.json",
+      "bytes": 1129
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionChatBubble.props.ts.json",
+      "bytes": 3923
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionChatBubble.vue.json",
+      "bytes": 1115
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionDiagnosticsPanel.props.ts.json",
+      "bytes": 3306
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionDiagnosticsPanel.vue.json",
+      "bytes": 1157
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionReasoningBlock.props.ts.json",
+      "bytes": 3692
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionReasoningBlock.vue.json",
+      "bytes": 1143
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionStreamView.props.ts.json",
+      "bytes": 3976
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionStreamView.vue.json",
+      "bytes": 1115
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionToolCallCard.props.ts.json",
+      "bytes": 2715
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SessionToolCallCard.vue.json",
+      "bytes": 1129
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SparkAgentPanel.props.ts.json",
+      "bytes": 6068
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SparkAgentPanel.vue.json",
+      "bytes": 953
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\create-passthrough.ts.json",
+      "bytes": 2305
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\index.ts.json",
+      "bytes": 1044
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\internal.ts.json",
+      "bytes": 1197
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\register-renderers.ts.json",
+      "bytes": 1099
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\shared-types.ts.json",
+      "bytes": 109308
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\SparkComponentRenderer.vue.json",
+      "bytes": 3344
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\index.ts.json",
+      "bytes": 1019
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\data-row-utils.ts.json",
+      "bytes": 1344
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\DataViewMetaBar.vue.json",
+      "bytes": 1361
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\index.ts.json",
+      "bytes": 1266
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\view-data-source.ts.json",
+      "bytes": 17990
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\view-runtime-state.ts.json",
+      "bytes": 28059
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\view-tree-state.ts.json",
+      "bytes": 8511
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\zero-code-shared.ts.json",
+      "bytes": 3350
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\index.ts.json",
+      "bytes": 1409
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\RendererDetail.props.ts.json",
+      "bytes": 6889
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\RendererDetail.vue.json",
+      "bytes": 1486
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\types.ts.json",
+      "bytes": 4676
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\zero-code.ts.json",
+      "bytes": 3812
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\index.ts.json",
+      "bytes": 1389
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\RendererForm.props.ts.json",
+      "bytes": 6290
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\RendererForm.vue.json",
+      "bytes": 1456
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\types.ts.json",
+      "bytes": 9340
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\zero-code.ts.json",
+      "bytes": 4161
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\index.ts.json",
+      "bytes": 1389
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\RendererList.props.ts.json",
+      "bytes": 9350
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\RendererList.vue.json",
+      "bytes": 1456
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\types.ts.json",
+      "bytes": 4057
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\zero-code.ts.json",
+      "bytes": 3381
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\index.ts.json",
+      "bytes": 1399
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\RendererTable.props.ts.json",
+      "bytes": 8846
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\RendererTable.vue.json",
+      "bytes": 1471
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\types.ts.json",
+      "bytes": 29848
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\zero-code.ts.json",
+      "bytes": 9352
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\index.ts.json",
+      "bytes": 1389
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\input.ts.json",
+      "bytes": 4684
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\RendererTree.props.ts.json",
+      "bytes": 8500
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\RendererTree.vue.json",
+      "bytes": 1456
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\types.ts.json",
+      "bytes": 26153
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\zero-code.ts.json",
+      "bytes": 32412
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\index.ts.json",
+      "bytes": 1462
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\RendererVirtualCard.props.ts.json",
+      "bytes": 14323
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\RendererVirtualCard.vue.json",
+      "bytes": 1564
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\types.ts.json",
+      "bytes": 10921
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\virtual-card-paging.ts.json",
+      "bytes": 15545
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\zero-code.ts.json",
+      "bytes": 8667
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\expression\\FilterExpressionEditor\\FilterExpressionEditor.props.ts.json",
+      "bytes": 19445
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\expression\\FilterExpressionEditor\\FilterExpressionEditor.vue.json",
+      "bytes": 1139
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\expression\\FilterExpressionGroup\\FilterExpressionGroup.props.ts.json",
+      "bytes": 3858
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\expression\\FilterExpressionGroup\\FilterExpressionGroup.vue.json",
+      "bytes": 1132
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\value\\FilterValueFunctionDialog\\FilterValueFunctionDialog.props.ts.json",
+      "bytes": 2942
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\value\\FilterValueFunctionDialog\\FilterValueFunctionDialog.vue.json",
+      "bytes": 1212
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\index.ts.json",
+      "bytes": 1224
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererAnchor.props.ts.json",
+      "bytes": 5078
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererAnchor.vue.json",
+      "bytes": 1377
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererAnchorLink.props.ts.json",
+      "bytes": 3182
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererAnchorLink.vue.json",
+      "bytes": 1420
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererButton.props.ts.json",
+      "bytes": 24117
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererButton.vue.json",
+      "bytes": 1377
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererCard.props.ts.json",
+      "bytes": 4148
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererCard.vue.json",
+      "bytes": 1357
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererCollapseItem.vue.json",
+      "bytes": 5644
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDivider.props.ts.json",
+      "bytes": 4300
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDivider.vue.json",
+      "bytes": 1387
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDropdown.props.ts.json",
+      "bytes": 7740
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDropdown.vue.json",
+      "bytes": 1397
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererLink.props.ts.json",
+      "bytes": 4505
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererLink.vue.json",
+      "bytes": 1357
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererPageHeader.props.ts.json",
+      "bytes": 3057
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererPageHeader.vue.json",
+      "bytes": 1420
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererPopconfirm.props.ts.json",
+      "bytes": 6764
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererPopconfirm.vue.json",
+      "bytes": 1417
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererPopover.props.ts.json",
+      "bytes": 4397
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererPopover.vue.json",
+      "bytes": 1387
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSpace.props.ts.json",
+      "bytes": 4575
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSpace.vue.json",
+      "bytes": 1367
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererStepItem.vue.json",
+      "bytes": 6269
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTabPane.vue.json",
+      "bytes": 6289
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererToolbar.types.ts.json",
+      "bytes": 7724
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererToolbar.vue.json",
+      "bytes": 1387
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTooltip.props.ts.json",
+      "bytes": 3886
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTooltip.vue.json",
+      "bytes": 1387
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTour.props.ts.json",
+      "bytes": 8252
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTour.vue.json",
+      "bytes": 1357
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\state.ts.json",
+      "bytes": 7269
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\useActionButtonRuntime.ts.json",
+      "bytes": 9010
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererCollapse\\index.ts.json",
+      "bytes": 1395
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererCollapse\\RendererCollapse.props.ts.json",
+      "bytes": 6242
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererCollapse\\RendererCollapse.vue.json",
+      "bytes": 1482
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererCollapse\\types.ts.json",
+      "bytes": 10018
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererCollapse\\zero-code.ts.json",
+      "bytes": 8081
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDialog\\index.ts.json",
+      "bytes": 1375
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDialog\\RendererDialog.props.ts.json",
+      "bytes": 4739
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDialog\\RendererDialog.vue.json",
+      "bytes": 1452
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDialog\\zero-code.ts.json",
+      "bytes": 1442
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDrawer\\index.ts.json",
+      "bytes": 1375
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDrawer\\RendererDrawer.props.ts.json",
+      "bytes": 4730
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDrawer\\RendererDrawer.vue.json",
+      "bytes": 1452
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererDrawer\\zero-code.ts.json",
+      "bytes": 1442
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSection\\index.ts.json",
+      "bytes": 1385
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSection\\RendererSection.props.ts.json",
+      "bytes": 7773
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSection\\RendererSection.vue.json",
+      "bytes": 1467
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSection\\types.ts.json",
+      "bytes": 4214
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSection\\zero-code.ts.json",
+      "bytes": 3012
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSteps\\index.ts.json",
+      "bytes": 1365
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSteps\\RendererSteps.props.ts.json",
+      "bytes": 5588
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSteps\\RendererSteps.vue.json",
+      "bytes": 1437
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSteps\\types.ts.json",
+      "bytes": 8471
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererSteps\\zero-code.ts.json",
+      "bytes": 6557
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTabs\\index.ts.json",
+      "bytes": 1355
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTabs\\RendererTabs.props.ts.json",
+      "bytes": 7469
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTabs\\RendererTabs.vue.json",
+      "bytes": 1422
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTabs\\types.ts.json",
+      "bytes": 6222
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\RendererTabs\\zero-code.ts.json",
+      "bytes": 6077
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\container-filter.ts.json",
+      "bytes": 16281
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\container-form-detail.ts.json",
+      "bytes": 10756
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\container-layout.ts.json",
+      "bytes": 17086
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\container-ui.ts.json",
+      "bytes": 13485
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\index.ts.json",
+      "bytes": 1137
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\useDataViewEventBridge.ts.json",
+      "bytes": 44953
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\base-container-api.ts.json",
+      "bytes": 22927
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\base-crud-methods.ts.json",
+      "bytes": 1262
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\crud-defaults.ts.json",
+      "bytes": 1193
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\crud-result-helpers.ts.json",
+      "bytes": 1248
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\index.ts.json",
+      "bytes": 1137
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\interactionControl.ts.json",
+      "bytes": 6852
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\RendererActions.types.ts.json",
+      "bytes": 6975
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\RendererFieldScope.vue.json",
+      "bytes": 6781
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\RendererHostScope.vue.json",
+      "bytes": 1424
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\row-mirror-sync.ts.json",
+      "bytes": 1207
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\scopeFactories.ts.json",
+      "bytes": 2698
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\useEventDefaults.ts.json",
+      "bytes": 6725
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\visibility-container-zero-code.ts.json",
+      "bytes": 4747
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererEditor.types.ts.json",
+      "bytes": 4844
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererEditor.vue.json",
+      "bytes": 1367
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererFilter.types.ts.json",
+      "bytes": 11087
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererFilter.vue.json",
+      "bytes": 1367
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererFooter.types.ts.json",
+      "bytes": 4436
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererFooter.vue.json",
+      "bytes": 1367
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererHeader.types.ts.json",
+      "bytes": 4436
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererHeader.vue.json",
+      "bytes": 1367
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererTail.types.ts.json",
+      "bytes": 4397
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererTail.vue.json",
+      "bytes": 1347
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\useDisplayDataSource.ts.json",
+      "bytes": 4377
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayAvatar.props.ts.json",
+      "bytes": 5860
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayAvatar.vue.json",
+      "bytes": 1405
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayBadge.props.ts.json",
+      "bytes": 7160
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayBadge.vue.json",
+      "bytes": 1395
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayImage.props.ts.json",
+      "bytes": 7930
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayImage.vue.json",
+      "bytes": 1395
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayPagination.props.ts.json",
+      "bytes": 5667
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayPagination.vue.json",
+      "bytes": 1445
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayProgress.props.ts.json",
+      "bytes": 8011
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayProgress.vue.json",
+      "bytes": 1425
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayStatistic.props.ts.json",
+      "bytes": 5298
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayStatistic.vue.json",
+      "bytes": 1435
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayTag.props.ts.json",
+      "bytes": 7627
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayTag.vue.json",
+      "bytes": 1375
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayText.props.ts.json",
+      "bytes": 5742
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayText.vue.json",
+      "bytes": 1389
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\index.ts.json",
+      "bytes": 1266
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayAlert.props.ts.json",
+      "bytes": 5360
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayAlert.vue.json",
+      "bytes": 1423
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayBreadcrumb.props.ts.json",
+      "bytes": 3473
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayBreadcrumb.vue.json",
+      "bytes": 1473
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayBreadcrumbItem.props.ts.json",
+      "bytes": 3949
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayBreadcrumbItem.vue.json",
+      "bytes": 1516
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayCalendar.props.ts.json",
+      "bytes": 3549
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayCalendar.vue.json",
+      "bytes": 1453
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayCountdown.props.ts.json",
+      "bytes": 4878
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayCountdown.vue.json",
+      "bytes": 1463
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayDescriptions.props.ts.json",
+      "bytes": 4882
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayDescriptions.vue.json",
+      "bytes": 1493
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayDescriptionsItem.props.ts.json",
+      "bytes": 6015
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayDescriptionsItem.vue.json",
+      "bytes": 1536
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayEmpty.props.ts.json",
+      "bytes": 3582
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayEmpty.vue.json",
+      "bytes": 1423
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayIcon.props.ts.json",
+      "bytes": 3754
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayIcon.vue.json",
+      "bytes": 1413
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayResult.props.ts.json",
+      "bytes": 3664
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayResult.vue.json",
+      "bytes": 1433
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplaySkeleton.props.ts.json",
+      "bytes": 4461
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplaySkeleton.vue.json",
+      "bytes": 1453
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayTimeline.vue.json",
+      "bytes": 1453
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayTimelineItem.props.ts.json",
+      "bytes": 5994
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayTimelineItem.vue.json",
+      "bytes": 1496
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\index.ts.json",
+      "bytes": 1302
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\editors\\index.ts.json",
+      "bytes": 1156
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\editors\\JsonTreeEditor.vue.json",
+      "bytes": 12934
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\editors\\SparkCodeEditor.vue.json",
+      "bytes": 4071
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\editors\\SparkJsonEditor.vue.json",
+      "bytes": 7767
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\columnFormRules.ts.json",
+      "bytes": 6191
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\createPickerPreset.ts.json",
+      "bytes": 3019
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\actions\\useFieldActionMode.ts.json",
+      "bytes": 5554
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\actions\\useFileFieldActions.ts.json",
+      "bytes": 2603
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\actions\\useSelectorFieldActions.ts.json",
+      "bytes": 2655
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\dataViewEditing.ts.json",
+      "bytes": 16374
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\field-composable-props.ts.json",
+      "bytes": 1214
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\tableColumnContext.ts.json",
+      "bytes": 1200
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\useActiveFieldRow.ts.json",
+      "bytes": 1197
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\useFieldContext.ts.json",
+      "bytes": 16756
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\useFieldPermission.ts.json",
+      "bytes": 7313
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\useResolvedFieldContext.ts.json",
+      "bytes": 1239
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldAutocomplete.props.ts.json",
+      "bytes": 6537
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldAutocomplete.vue.json",
+      "bytes": 2122
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldCascader.props.ts.json",
+      "bytes": 5367
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldCascader.vue.json",
+      "bytes": 1395
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldCheckbox.props.ts.json",
+      "bytes": 3943
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldCheckbox.vue.json",
+      "bytes": 1395
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldCheckboxGroup.props.ts.json",
+      "bytes": 3986
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldCheckboxGroup.vue.json",
+      "bytes": 1448
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldCheckTag.props.ts.json",
+      "bytes": 3157
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldCheckTag.vue.json",
+      "bytes": 1398
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldColor.props.ts.json",
+      "bytes": 2645
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldColor.vue.json",
+      "bytes": 1365
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldDate.props.ts.json",
+      "bytes": 5400
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldDate.vue.json",
+      "bytes": 1355
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldDeptPicker.vue.json",
+      "bytes": 1418
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldEntityPicker.props.ts.json",
+      "bytes": 4263
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldEntityPicker.vue.json",
+      "bytes": 1438
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldFileBrowser.props.ts.json",
+      "bytes": 2742
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldFileBrowser.vue.json",
+      "bytes": 1428
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldFilePath.props.ts.json",
+      "bytes": 2688
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldFilePath.vue.json",
+      "bytes": 1398
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldHtmlEditor.props.ts.json",
+      "bytes": 2744
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldHtmlEditor.vue.json",
+      "bytes": 1418
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldIcon.props.ts.json",
+      "bytes": 3083
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldIcon.vue.json",
+      "bytes": 1355
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldImage.props.ts.json",
+      "bytes": 2629
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldImage.vue.json",
+      "bytes": 1365
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldMention.props.ts.json",
+      "bytes": 17120
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldMention.vue.json",
+      "bytes": 1385
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldMultiSelect.props.ts.json",
+      "bytes": 5224
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldMultiSelect.vue.json",
+      "bytes": 1428
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldNumber.props.ts.json",
+      "bytes": 3221
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldNumber.vue.json",
+      "bytes": 1375
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldProductPicker.vue.json",
+      "bytes": 1448
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldRadio.props.ts.json",
+      "bytes": 2688
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldRadio.vue.json",
+      "bytes": 1365
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldRate.props.ts.json",
+      "bytes": 3033
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldRate.vue.json",
+      "bytes": 1355
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldSegmented.props.ts.json",
+      "bytes": 3763
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldSegmented.vue.json",
+      "bytes": 1405
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldSelect.props.ts.json",
+      "bytes": 2682
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldSelect.vue.json",
+      "bytes": 1375
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldSlider.props.ts.json",
+      "bytes": 3395
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldSlider.vue.json",
+      "bytes": 1375
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldSwitch.props.ts.json",
+      "bytes": 3501
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldSwitch.vue.json",
+      "bytes": 1375
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldText.props.ts.json",
+      "bytes": 2627
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldText.vue.json",
+      "bytes": 1355
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTextarea.props.ts.json",
+      "bytes": 4393
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTextarea.vue.json",
+      "bytes": 1395
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTimePicker.props.ts.json",
+      "bytes": 3573
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTimePicker.vue.json",
+      "bytes": 1418
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTimeSelect.props.ts.json",
+      "bytes": 4616
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTimeSelect.vue.json",
+      "bytes": 1418
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTransfer.props.ts.json",
+      "bytes": 5208
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTransfer.vue.json",
+      "bytes": 1395
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTreeSelect.props.ts.json",
+      "bytes": 3840
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldTreeSelect.vue.json",
+      "bytes": 1418
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldUpload.props.ts.json",
+      "bytes": 4391
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldUpload.vue.json",
+      "bytes": 1375
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\FieldUserPicker.vue.json",
+      "bytes": 1418
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\index.ts.json",
+      "bytes": 1264
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\fieldValueCoercion.ts.json",
+      "bytes": 1417
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useBasicFieldState.ts.json",
+      "bytes": 7886
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useChoiceFieldState.ts.json",
+      "bytes": 5038
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useControlledFieldChange.ts.json",
+      "bytes": 8748
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useEntityPickerState.ts.json",
+      "bytes": 18196
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useFieldControlState.ts.json",
+      "bytes": 16956
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useFileFieldState.ts.json",
+      "bytes": 26192
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useHtmlEditorState.ts.json",
+      "bytes": 5910
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useOptionFieldState.ts.json",
+      "bytes": 9262
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useRangeFilterMode.ts.json",
+      "bytes": 1422
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\useSwitchNullValue.ts.json",
+      "bytes": 6223
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\non-data-components\\FieldContextRenderer.vue.json",
+      "bytes": 13430
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\non-data-components\\index.ts.json",
+      "bytes": 1302
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\non-data-components\\TreeNodeSummary.props.ts.json",
+      "bytes": 6477
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\non-data-components\\TreeNodeSummary.vue.json",
+      "bytes": 1460
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\options\\index.ts.json",
+      "bytes": 1109
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\options\\option-normalization.ts.json",
+      "bytes": 5090
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\options\\option-source.ts.json",
+      "bytes": 1165
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\options\\useFieldOptions.ts.json",
+      "bytes": 14567
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\support\\beforeRender.ts.json",
+      "bytes": 8341
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\components\\support\\UnregisteredNodeFallback.vue.json",
+      "bytes": 2959
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\core\\capability-context.ts.json",
+      "bytes": 2849
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\core\\capability-keys.ts.json",
+      "bytes": 26307
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\core\\index.ts.json",
+      "bytes": 1000
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\core\\types.ts.json",
+      "bytes": 18589
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\core\\useSparkComponent.ts.json",
+      "bytes": 17030
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\createSandbox.ts.json",
+      "bytes": 917
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\index.ts.json",
+      "bytes": 991
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\action-data.ts.json",
+      "bytes": 1700
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\action-executor.ts.json",
+      "bytes": 3693
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\action-types.ts.json",
+      "bytes": 87509
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\button-templates.ts.json",
+      "bytes": 7613
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\executor-helpers.ts.json",
+      "bytes": 13894
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\index.ts.json",
+      "bytes": 1022
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\node-to-descriptor.ts.json",
+      "bytes": 1602
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\binding\\bind-normalize.ts.json",
+      "bytes": 2539
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\binding\\build-page-children.ts.json",
+      "bytes": 3503
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\binding\\index.ts.json",
+      "bytes": 1018
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\context\\buildPageContext.ts.json",
+      "bytes": 5941
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\context\\page-component-registry.ts.json",
+      "bytes": 1144
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\context\\types.ts.json",
+      "bytes": 16300
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\renderer\\scopeCSS.ts.json",
+      "bytes": 2114
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\renderer\\SparkPageRenderer.vue.json",
+      "bytes": 9888
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\renderer\\useCssScope.ts.json",
+      "bytes": 1859
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\renderer\\useRendererSetup.ts.json",
+      "bytes": 9789
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\services\\buildPageService.ts.json",
+      "bytes": 4498
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\services\\pageLogger.ts.json",
+      "bytes": 1064
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\page\\services\\providePageRuntimeServices.ts.json",
+      "bytes": 1246
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\permission\\index.ts.json",
+      "bytes": 1270
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\permission\\PermissionResolver.ts.json",
+      "bytes": 1189
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\permission\\usePermission.ts.json",
+      "bytes": 8481
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\runtime\\app-services.ts.json",
+      "bytes": 49721
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\runtime\\index.ts.json",
+      "bytes": 983
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\runtime\\script-context-types.ts.json",
+      "bytes": 20132
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\system\\index.ts.json",
+      "bytes": 976
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\system\\keys.ts.json",
+      "bytes": 969
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\system\\plugin.ts.json",
+      "bytes": 1897
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\system\\registry.ts.json",
+      "bytes": 1093
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-component\\src\\system\\spark.ts.json",
+      "bytes": 5433
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\column-validation.ts.json",
+      "bytes": 5154
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\crud-service.ts.json",
+      "bytes": 30674
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\data-table.ts.json",
+      "bytes": 28190
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\data-view.ts.json",
+      "bytes": 154158
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\dataset-crud-tool.ts.json",
+      "bytes": 130670
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\dataset-history.ts.json",
+      "bytes": 17717
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\dataset.ts.json",
+      "bytes": 58025
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\index.ts.json",
+      "bytes": 1350
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\metadata.ts.json",
+      "bytes": 2123
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\script-types.ts.json",
+      "bytes": 4722
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\spark-data.ts.json",
+      "bytes": 999
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\tree-manager.ts.json",
+      "bytes": 40751
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\types.ts.json",
+      "bytes": 240595
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\validation.ts.json",
+      "bytes": 11362
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\core\\data-row-guards.ts.json",
+      "bytes": 1045
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\core\\data-view-key.ts.json",
+      "bytes": 23762
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\core\\event-emitter.ts.json",
+      "bytes": 1027
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\core\\primary-key-generator.ts.json",
+      "bytes": 12063
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\core\\url-template.ts.json",
+      "bytes": 2486
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\core\\utils.ts.json",
+      "bytes": 962
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\node-tree\\index.ts.json",
+      "bytes": 1005
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\node-tree\\spark-node-tree.ts.json",
+      "bytes": 87677
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\node-tree\\spark-node.ts.json",
+      "bytes": 4523
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\query\\filter\\data-view-filter-catalog.ts.json",
+      "bytes": 896
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\query\\filter\\data-view-filter-contract.ts.json",
+      "bytes": 36542
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\query\\filter\\data-view-filter-local.ts.json",
+      "bytes": 4584
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\query\\filter\\data-view-filter.ts.json",
+      "bytes": 8497
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\aggregate-delegate.ts.json",
+      "bytes": 10632
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\cascade-delegate.ts.json",
+      "bytes": 4136
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\computed-column-delegate.ts.json",
+      "bytes": 9828
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\crud-delegate.ts.json",
+      "bytes": 25081
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\dirty-tracking-delegate.ts.json",
+      "bytes": 34112
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\index.ts.json",
+      "bytes": 987
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\local-mutation-delegate.ts.json",
+      "bytes": 13683
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\primary-key-delegate.ts.json",
+      "bytes": 20152
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\selection-delegate.ts.json",
+      "bytes": 19900
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-data\\src\\strategies\\types.ts.json",
+      "bytes": 8615
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\index.ts.json",
+      "bytes": 1405
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\core\\coercion.ts.json",
+      "bytes": 1746
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\core\\index.ts.json",
+      "bytes": 983
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\core\\json-path.ts.json",
+      "bytes": 1746
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\core\\json-result-path.ts.json",
+      "bytes": 989
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\core\\json-types.ts.json",
+      "bytes": 5630
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\core\\parse.ts.json",
+      "bytes": 1356
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\index.ts.json",
+      "bytes": 1068
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-attach.ts.json",
+      "bytes": 1059
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-defs.ts.json",
+      "bytes": 3356
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-dereference.ts.json",
+      "bytes": 1707
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-draft2020-audit.ts.json",
+      "bytes": 3512
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-helpers.ts.json",
+      "bytes": 8896
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-resolution.ts.json",
+      "bytes": 3499
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-standardize.ts.json",
+      "bytes": 9859
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-types.ts.json",
+      "bytes": 13076
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-validator.ts.json",
+      "bytes": 11822
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\with-meta.ts.json",
+      "bytes": 1506
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\index.ts.json",
+      "bytes": 972
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-build.ts.json",
+      "bytes": 1399
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-flatten.ts.json",
+      "bytes": 1402
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-mutation.ts.json",
+      "bytes": 1431
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-policy.ts.json",
+      "bytes": 1849
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-types.ts.json",
+      "bytes": 32825
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-utils.ts.json",
+      "bytes": 1389
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\index.ts.json",
+      "bytes": 715
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\lowcode-api.ts.json",
+      "bytes": 7348
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\catalog\\lowcode-catalog-api.ts.json",
+      "bytes": 28647
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\contracts\\lowcode-send-code.ts.json",
+      "bytes": 4559
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\contracts\\lowcode-wire-query.ts.json",
+      "bytes": 5649
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\core\\lowcode-api-error.ts.json",
+      "bytes": 2531
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\core\\lowcode-client.ts.json",
+      "bytes": 5488
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\design\\lowcode-design-api.ts.json",
+      "bytes": 16229
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\design\\lowcode-design-file-upload.ts.json",
+      "bytes": 8978
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-application-store.ts.json",
+      "bytes": 7362
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-application.ts.json",
+      "bytes": 3246
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-enterprise.ts.json",
+      "bytes": 11154
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-navigation.ts.json",
+      "bytes": 9548
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-platform-api.ts.json",
+      "bytes": 37808
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-session-store.ts.json",
+      "bytes": 10375
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\data-space-api.ts.json",
+      "bytes": 2983
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\data-space-resource-type-wire.ts.json",
+      "bytes": 2189
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\data-space.ts.json",
+      "bytes": 28744
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\design\\data-space-design-api.ts.json",
+      "bytes": 29106
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\design\\data-space-design-mutation.ts.json",
+      "bytes": 13143
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\data-space-runtime-api.ts.json",
+      "bytes": 11551
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\data-space-runtime-contract.ts.json",
+      "bytes": 17661
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-filter.ts.json",
+      "bytes": 1004
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-pagination.ts.json",
+      "bytes": 6836
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-permission.ts.json",
+      "bytes": 9626
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-query-table.ts.json",
+      "bytes": 6816
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-request.ts.json",
+      "bytes": 13232
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-wire-contract.ts.json",
+      "bytes": 19636
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-cache.ts.json",
+      "bytes": 5443
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-context.ts.json",
+      "bytes": 32218
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-options.ts.json",
+      "bytes": 2475
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-resource.ts.json",
+      "bytes": 6967
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-tree.ts.json",
+      "bytes": 1000
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\save\\data-space-save-guard.ts.json",
+      "bytes": 2020
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\save\\data-space-save-order.ts.json",
+      "bytes": 1277
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\save\\data-space-save-result.ts.json",
+      "bytes": 5568
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\permission-api.ts.json",
+      "bytes": 2503
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\permission-wire.ts.json",
+      "bytes": 3894
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\design\\permission-design-api.ts.json",
+      "bytes": 19677
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\design\\permission-design-mutation.ts.json",
+      "bytes": 12656
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\runtime\\permission-runtime-api.ts.json",
+      "bytes": 4878
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\project-blueprint-api.ts.json",
+      "bytes": 16759
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\project-blueprint-file-version.ts.json",
+      "bytes": 3030
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\project-blueprint-wire.ts.json",
+      "bytes": 1122
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\project-blueprint.ts.json",
+      "bytes": 14432
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\outputs\\document\\project-blueprint-document.ts.json",
+      "bytes": 6771
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-lowcode-api\\src\\realtime\\lowcode-realtime-api.ts.json",
+      "bytes": 30576
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\index.ts.json",
+      "bytes": 1069
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\blueprint\\project-blueprint-edit.ts.json",
+      "bytes": 4508
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\blueprint\\project-blueprint-index.ts.json",
+      "bytes": 9845
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\blueprint\\project-blueprint-node.ts.json",
+      "bytes": 31103
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\blueprint\\project-blueprint-tree.ts.json",
+      "bytes": 3463
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\io\\http.ts.json",
+      "bytes": 1001
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\io\\page-content-loader.ts.json",
+      "bytes": 12441
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\io\\page-file-api.ts.json",
+      "bytes": 26059
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\io\\project-blueprint-client.ts.json",
+      "bytes": 12639
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\io\\project-reference-client.ts.json",
+      "bytes": 11619
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\page\\compile-files.ts.json",
+      "bytes": 999
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\page\\page-file.ts.json",
+      "bytes": 8083
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\page\\page-tool.ts.json",
+      "bytes": 18749
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\page\\runtime-page.ts.json",
+      "bytes": 12881
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\page\\content\\rule-file.ts.json",
+      "bytes": 9697
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\page\\content\\text-file.ts.json",
+      "bytes": 7085
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-blueprint.ts.json",
+      "bytes": 51204
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-design.ts.json",
+      "bytes": 23014
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-session.ts.json",
+      "bytes": 15895
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-types.ts.json",
+      "bytes": 34583
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-workspace.ts.json",
+      "bytes": 79324
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\scenario\\scenario-view-config.ts.json",
+      "bytes": 3422
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-project-model\\src\\scenario\\scenario-view-file.ts.json",
+      "bytes": 6899
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\ai-model.ts.json",
+      "bytes": 3167
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\clone.ts.json",
+      "bytes": 921
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\error-utils.ts.json",
+      "bytes": 927
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\index.ts.json",
+      "bytes": 994
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\logger.ts.json",
+      "bytes": 10242
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\navigation-surface.ts.json",
+      "bytes": 4440
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\permission-mode.ts.json",
+      "bytes": 1231
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\project-blueprint-node-kind.ts.json",
+      "bytes": 1294
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\sandbox.ts.json",
+      "bytes": 903
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\script-types.ts.json",
+      "bytes": 7553
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\snapshot-history.ts.json",
+      "bytes": 5425
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\capability\\core.ts.json",
+      "bytes": 9103
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\capability\\helpers.ts.json",
+      "bytes": 1132
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\capability\\index.ts.json",
+      "bytes": 1280
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\http\\beacon.ts.json",
+      "bytes": 958
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\http\\FileLoader.ts.json",
+      "bytes": 44744
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\http\\guards.ts.json",
+      "bytes": 962
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\http\\HttpClientBase.ts.json",
+      "bytes": 34050
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\http\\HttpClientFactory.ts.json",
+      "bytes": 1035
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\http\\index.ts.json",
+      "bytes": 1169
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\http\\Request.ts.json",
+      "bytes": 5435
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\http\\types.ts.json",
+      "bytes": 51569
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\internal\\guards.ts.json",
+      "bytes": 942
+    },
+    {
+      "path": "dts-class-model\\files\\packages\\spark-utils\\src\\internal\\index.ts.json",
+      "bytes": 978
+    },
+    {
+      "path": "dts-class-model\\files\\src\\App.vue.json",
+      "bytes": 790
+    },
+    {
+      "path": "dts-class-model\\files\\src\\main.ts.json",
+      "bytes": 1936
+    },
+    {
+      "path": "dts-class-model\\files\\src\\class-model-artifacts\\artifact-urls.ts.json",
+      "bytes": 838
+    },
+    {
+      "path": "dts-class-model\\files\\src\\components\\ErrorFallback.vue.json",
+      "bytes": 926
+    },
+    {
+      "path": "dts-class-model\\files\\src\\components\\IconPicker.vue.json",
+      "bytes": 2456
+    },
+    {
+      "path": "dts-class-model\\files\\src\\components\\ModuleContextBadge.vue.json",
+      "bytes": 2435
+    },
+    {
+      "path": "dts-class-model\\files\\src\\components\\NavIcon.vue.json",
+      "bytes": 884
+    },
+    {
+      "path": "dts-class-model\\files\\src\\composables\\useNotifications.ts.json",
+      "bytes": 4347
+    },
+    {
+      "path": "dts-class-model\\files\\src\\composables\\useTenantRouter.ts.json",
+      "bytes": 944
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\AppBreadcrumb.vue.json",
+      "bytes": 902
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\AppFooter.vue.json",
+      "bytes": 874
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\AppHeader.vue.json",
+      "bytes": 874
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\AppLayout.vue.json",
+      "bytes": 874
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\AppSidebar.vue.json",
+      "bytes": 881
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\AppSidebarNode.vue.json",
+      "bytes": 909
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\AppTabBar.vue.json",
+      "bytes": 874
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\NavContextSelector.vue.json",
+      "bytes": 937
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\NavHeaderBar.vue.json",
+      "bytes": 895
+    },
+    {
+      "path": "dts-class-model\\files\\src\\layout\\ThemeConfigurator.vue.json",
+      "bytes": 930
+    },
+    {
+      "path": "dts-class-model\\files\\src\\lowcode\\lowcode-runtime.ts.json",
+      "bytes": 8128
+    },
+    {
+      "path": "dts-class-model\\files\\src\\lowcode\\data-space\\lowcode-data-space-assembler.ts.json",
+      "bytes": 9562
+    },
+    {
+      "path": "dts-class-model\\files\\src\\lowcode\\data-space\\lowcode-data-space-runtime.ts.json",
+      "bytes": 3047
+    },
+    {
+      "path": "dts-class-model\\files\\src\\lowcode\\data-space\\lowcode-model-relation-adapter.ts.json",
+      "bytes": 5391
+    },
+    {
+      "path": "dts-class-model\\files\\src\\registries\\vue-page-registry.ts.json",
+      "bytes": 8617
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\class-model-knowledge.worker.ts.json",
+      "bytes": 1017
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\sse-events.ts.json",
+      "bytes": 11207
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\tenant-scope.ts.json",
+      "bytes": 2082
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\workflow-designs.ts.json",
+      "bytes": 54356
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\ai\\agent-workflow-bindings.ts.json",
+      "bytes": 5300
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\ai\\ai-agent-run.ts.json",
+      "bytes": 7076
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\ai\\ai-delivery-port.ts.json",
+      "bytes": 14850
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\ai\\ai-turn-bridge.ts.json",
+      "bytes": 4110
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\page-design\\page-design-agent-run-provider.ts.json",
+      "bytes": 7765
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\page-design\\page-design-agent-workflow-binding.ts.json",
+      "bytes": 10861
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\page-design\\page-design-ai-runner.ts.json",
+      "bytes": 14913
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\page-design\\page-design-gates.ts.json",
+      "bytes": 19846
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\page-design\\page-design-headless.ts.json",
+      "bytes": 2090
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\project\\project-settings.ts.json",
+      "bytes": 14516
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\project\\project-shell.ts.json",
+      "bytes": 5108
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\project-model-artifacts\\index.ts.json",
+      "bytes": 1097
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\project-model-artifacts\\rule-editor.ts.json",
+      "bytes": 1118
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\project-planning\\project-planning-agent-run-provider.ts.json",
+      "bytes": 3424
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\project-planning\\project-planning-agent-workflow-binding.ts.json",
+      "bytes": 24088
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\project-planning\\project-planning-ai-runner.ts.json",
+      "bytes": 12904
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\project-planning\\project-planning-attachments.ts.json",
+      "bytes": 5207
+    },
+    {
+      "path": "dts-class-model\\files\\src\\services\\project-planning\\project-planning-headless.ts.json",
+      "bytes": 4635
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\CapabilityDemo.vue.json",
+      "bytes": 927
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\CustomRTableDemo.vue.json",
+      "bytes": 941
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\Dashboard.vue.json",
+      "bytes": 892
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\DBMS.vue.json",
+      "bytes": 857
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\RFormCompareDemo.vue.json",
+      "bytes": 941
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\TemplateDslDemo.vue.json",
+      "bytes": 934
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\WorkflowDesigns.vue.json",
+      "bytes": 1924
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\childPlacementLabels.ts.json",
+      "bytes": 816
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\DevDataSetDesigner.vue.json",
+      "bytes": 879
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\DevFileEditor.vue.json",
+      "bytes": 1013
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\DevNodeProps.vue.json",
+      "bytes": 1006
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\DevPreviewTab.vue.json",
+      "bytes": 1013
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\DevSystem.vue.json",
+      "bytes": 985
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\ProjectBlueprintTree.vue.json",
+      "bytes": 987
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\ProjectPlanningDocumentImportDialog.vue.json",
+      "bytes": 1023
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\useDevState.ts.json",
+      "bytes": 6961
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\useDevSystem.ts.json",
+      "bytes": 1455
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\BlueprintWorkspace.vue.json",
+      "bytes": 978
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\DataPlanningPane.vue.json",
+      "bytes": 935
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\DeliveryPane.vue.json",
+      "bytes": 904
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\EstimatePane.vue.json",
+      "bytes": 893
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\PlanningPane.vue.json",
+      "bytes": 878
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\PrototypePane.vue.json",
+      "bytes": 851
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\ReleasePane.vue.json",
+      "bytes": 898
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\components\\NodeBasicInfo.vue.json",
+      "bytes": 887
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\components\\NodeLayoutConfig.vue.json",
+      "bytes": 1100
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\components\\NodeStateConfig.vue.json",
+      "bytes": 856
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\components\\NodeTargetConfig.vue.json",
+      "bytes": 894
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\composables\\useDevFileEditor.ts.json",
+      "bytes": 1100
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\app\\dev-system\\composables\\useNodeKindFlags.ts.json",
+      "bytes": 844
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\platform\\About.vue.json",
+      "bytes": 894
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\platform\\HomePage.vue.json",
+      "bytes": 915
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\platform\\LoginView.vue.json",
+      "bytes": 922
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\platform\\PlatformApps.vue.json",
+      "bytes": 943
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\platform\\PlatformTenantManagement.vue.json",
+      "bytes": 1027
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\platform\\TenantConfigPanel.vue.json",
+      "bytes": 978
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\tenant\\AppList.vue.json",
+      "bytes": 896
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\tenant\\AppProjectSettingsDialog.vue.json",
+      "bytes": 1015
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\tenant\\CacheManager.vue.json",
+      "bytes": 931
+    },
+    {
+      "path": "dts-class-model\\files\\src\\views\\tenant\\Settings.vue.json",
+      "bytes": 903
+    },
+    {
+      "path": "fonts\\iconfont.1781876895482-BllfKX1O.ttf",
+      "bytes": 8632
+    },
+    {
+      "path": "fonts\\iconfont.1781876895482-D9epzWxu.woff",
+      "bytes": 4856
+    },
+    {
+      "path": "js\\_virtual_spark-components-DCJRSAkf.js",
+      "bytes": 10523
+    },
+    {
+      "path": "js\\About-DOAeKNhJ.js",
+      "bytes": 4149
+    },
+    {
+      "path": "js\\AppList-DsCpYPnE.js",
+      "bytes": 5489
+    },
+    {
+      "path": "js\\AppProjectSettingsDialog-CwB49eMk.js",
+      "bytes": 3541
+    },
+    {
+      "path": "js\\artifact-urls-DZq5GTiH.js",
+      "bytes": 24745
+    },
+    {
+      "path": "js\\BlueprintWorkspace-B8nl6M3O.js",
+      "bytes": 7610
+    },
+    {
+      "path": "js\\CacheManager-B6bzVitG.js",
+      "bytes": 6706
+    },
+    {
+      "path": "js\\childPlacementLabels-BjQRHeTI.js",
+      "bytes": 207
+    },
+    {
+      "path": "js\\CustomRTableDemo-BVqN6VuE.js",
+      "bytes": 4590
+    },
+    {
+      "path": "js\\DataPlanningPane-DFdHy1p8.js",
+      "bytes": 1318
+    },
+    {
+      "path": "js\\DBMS-CgshAFH5.js",
+      "bytes": 41586
+    },
+    {
+      "path": "js\\DeliveryPane-BIUpcCd2.js",
+      "bytes": 1524
+    },
+    {
+      "path": "js\\DevDataSetDesigner-CjuQHOkf.js",
+      "bytes": 6318
+    },
+    {
+      "path": "js\\DevFileEditor-DquY_-PG.js",
+      "bytes": 13338
+    },
+    {
+      "path": "js\\DevNodeProps-CSHtv6hb.js",
+      "bytes": 1854
+    },
+    {
+      "path": "js\\DevPreviewTab-BMXJLXyV.js",
+      "bytes": 4424
+    },
+    {
+      "path": "js\\DevSystem-DECymyT9.js",
+      "bytes": 57309
+    },
+    {
+      "path": "js\\element-plus-components-a-i-v7DIwDjy.js",
+      "bytes": 747781
+    },
+    {
+      "path": "js\\element-plus-components-j-r-CnIl9utZ.js",
+      "bytes": 80163
+    },
+    {
+      "path": "js\\element-plus-components-s-z-BqWehQcy.js",
+      "bytes": 302422
+    },
+    {
+      "path": "js\\element-plus-core-DicGYQt2.js",
+      "bytes": 19671
+    },
+    {
+      "path": "js\\element-plus-CPEpUTE4.js",
+      "bytes": 93
+    },
+    {
+      "path": "js\\EstimatePane-CZWFvC1J.js",
+      "bytes": 1958
+    },
+    {
+      "path": "js\\HomePage-BMsaOKUo.js",
+      "bytes": 9286
+    },
+    {
+      "path": "js\\IconPicker-CfBQ1tnM.js",
+      "bytes": 2265
+    },
+    {
+      "path": "js\\index-5maUg5aV.js",
+      "bytes": 66263
+    },
+    {
+      "path": "js\\LoginView-BAne6TTO.js",
+      "bytes": 12499
+    },
+    {
+      "path": "js\\ModuleContextBadge-DskpuSlO.js",
+      "bytes": 941
+    },
+    {
+      "path": "js\\NodeBasicInfo-C84NaT4h.js",
+      "bytes": 4847
+    },
+    {
+      "path": "js\\NodeLayoutConfig-GUtv4p8Q.js",
+      "bytes": 1174
+    },
+    {
+      "path": "js\\NodeStateConfig-DTx7TpTm.js",
+      "bytes": 1590
+    },
+    {
+      "path": "js\\NodeTargetConfig-OC_aFKXI.js",
+      "bytes": 3375
+    },
+    {
+      "path": "js\\pages-config-BmeO85zP.js",
+      "bytes": 1433386
+    },
+    {
+      "path": "js\\pages-data-heavy-Co2DgPsT.js",
+      "bytes": 9923
+    },
+    {
+      "path": "js\\PlanningPane-Dqmh1J9t.js",
+      "bytes": 871
+    },
+    {
+      "path": "js\\PlatformApps-6ex8QAzb.js",
+      "bytes": 5185
+    },
+    {
+      "path": "js\\PlatformTenantManagement-B6_acBbc.js",
+      "bytes": 7776
+    },
+    {
+      "path": "js\\ProjectBlueprintTree-BW-57M3c.js",
+      "bytes": 4250
+    },
+    {
+      "path": "js\\ProjectPlanningDocumentImportDialog-DIB6f5uL.js",
+      "bytes": 4122
+    },
+    {
+      "path": "js\\PrototypePane-D7XRLx2s.js",
+      "bytes": 866
+    },
+    {
+      "path": "js\\ReleasePane-rNhrbg3Y.js",
+      "bytes": 1202
+    },
+    {
+      "path": "js\\RFormCompareDemo-BvTCAVA3.js",
+      "bytes": 6328
+    },
+    {
+      "path": "js\\rolldown-runtime-Cyuzqnbw.js",
+      "bytes": 826
+    },
+    {
+      "path": "js\\spark-ai-D4aUK0W_.js",
+      "bytes": 327639
+    },
+    {
+      "path": "js\\spark-component-hRJ3HThU.js",
+      "bytes": 25527
+    },
+    {
+      "path": "js\\spark-json-document-CblRcrt9.js",
+      "bytes": 68
+    },
+    {
+      "path": "js\\TemplateDslDemo-BuHu2qCF.js",
+      "bytes": 893
+    },
+    {
+      "path": "js\\TenantConfigPanel-B9fsUkSR.js",
+      "bytes": 8329
+    },
+    {
+      "path": "js\\useNodeKindFlags-CqBTufS5.js",
+      "bytes": 344
+    },
+    {
+      "path": "js\\vendor-CTVeoLsv.js",
+      "bytes": 409550
+    },
+    {
+      "path": "js\\vendor-editor-CowRvDX2.js",
+      "bytes": 91918
+    },
+    {
+      "path": "js\\vendor-forms-BAq91MUQ.js",
+      "bytes": 453263
+    },
+    {
+      "path": "js\\vendor-jsoneditor-DE5r7LQs.js",
+      "bytes": 501704
+    },
+    {
+      "path": "js\\WorkflowDesigns-CIRYz8ty.js",
+      "bytes": 116166
+    }
+  ]
+}

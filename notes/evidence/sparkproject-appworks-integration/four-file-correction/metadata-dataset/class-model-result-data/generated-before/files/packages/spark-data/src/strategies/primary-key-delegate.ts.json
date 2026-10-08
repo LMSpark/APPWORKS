@@ -1,0 +1,515 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/primary-key-delegate",
+    "sourcePath": "packages/spark-data/src/strategies/primary-key-delegate.ts",
+    "sourceFile": "packages/spark-data/src/strategies/primary-key-delegate.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/primary-key-delegate",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/primary-key-delegate\n职责：提供 spark-data 数据管线中的 primary key delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nPrimaryKeyDelegate — 主键管理委托\n封装 DataView 中所有主键相关的状态和逻辑：\n- 单列主键 / 多列合成主键（_pk）\n- `_pk` 统一计算列：无论单列还是多列主键，所有行均自动计算 `_pk` 字段\n- 主键值强转（coercePkValue）\n- 主键生成器（PrimaryKeyGenerator）\nDataView 通过构造函数注入四个轻量回调持有对 DataView 资源的引用，\n避免循环依赖和双向耦合。\n## `_pk` 统一计算列\n所有 PK 配置（单列 / 多列 / 默认 'id'）均注册 `_pk` 计算列，由\n`ensurePkColumn()` 统一管理。`getPkKey(row)` 优先读取预计算的 `row._pk`，\n避免每次调用时的类型强转开销。\n- 单列 PK：`_pk = coercePkValue(row[field], col)` — 预计算 + 类型强转\n- 多列 PK：`_pk = fields.map(f => String(row[f])).join('+')` — 拼接字符串\n- `primaryKey` getter 仍返回逻辑字段名（供级联、事件元数据等使用）\n- `_pk` 是保留字段名，业务表不应使用",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PrimaryKeyDelegate"
+    ]
+  },
+  "$defs": {
+    "PrimaryKeyDelegate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PrimaryKeyDelegate",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "_getColumns": {
+              "type": "object",
+              "title": "() => DataColumn[]"
+            },
+            "_getColumnMap": {
+              "type": "object",
+              "title": "() => Map<string, DataColumn> | undefined"
+            },
+            "_getRows": {
+              "type": "object",
+              "title": "() => DataRow[]"
+            },
+            "_registerComputed": {
+              "type": "object",
+              "title": "(name: string, fn: (row: DataRow) => unknown) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensurePkColumn.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.ensurePkColumn.return": true,
+        "method.getPkColumnMeta.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPkColumnMeta.return": {
+          "$ref": "../types.ts.json#/$defs/DataColumn"
+        },
+        "method.resetPrimaryKey.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resetPrimaryKey.return": true,
+        "method.getPkKey.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPkKey.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "method.buildServerPk.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.buildServerPk.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.isSamePrimaryKey.params": {
+          "type": "object",
+          "properties": {
+            "row1": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            },
+            "row2": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isSamePrimaryKey.return": {
+          "type": "boolean"
+        },
+        "method.setPrimaryKeyGenerator.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "../core/primary-key-generator.ts.json#/$defs/PrimaryKeyGeneratorConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setPrimaryKeyGenerator.return": true,
+        "method.removePrimaryKeyGenerator.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.removePrimaryKeyGenerator.return": true,
+        "method.generatePrimaryKey.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.generatePrimaryKey.return": {
+          "$ref": "../types.ts.json#/$defs/DataRow"
+        },
+        "method.ensurePrimaryKey.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensurePrimaryKey.return": {
+          "$ref": "../types.ts.json#/$defs/DataRow"
+        },
+        "method.getPrimaryKeyGeneratorConfig.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPrimaryKeyGeneratorConfig.return": {
+          "$ref": "../core/primary-key-generator.ts.json#/$defs/PrimaryKeyGeneratorConfig"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:51.022Z",
+  "models": {
+    "PrimaryKeyDelegate": {
+      "name": "PrimaryKeyDelegate",
+      "jsdoc": "Primary Key Delegate 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "@param _getColumns 获取当前 DataTable 的列定义（用于推导主键）\n@param _getColumnMap 获取列名→列定义 Map（用于 _coercePkValue O(1) 查找）\n@param _getRows 获取当前行数组（用于主键生成器 / 补计算触发点）\n@param _registerComputed 向 ComputedColumnDelegate 注册计算列（用于合成 _pk）",
+          "signatureText": "constructor(_getColumns: () => DataColumn[], _getColumnMap: () => Map<string, DataColumn> | undefined, _getRows: () => DataRow[], _registerComputed: (name: string, fn: (row: DataRow) => unknown) => void)",
+          "parameters": [
+            {
+              "name": "_getColumns",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "array",
+                        "elementType": {
+                          "type": "reference",
+                          "name": "DataColumn",
+                          "sourcePath": "packages/spark-data/src/types.ts"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "_getColumnMap",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "optional",
+                        "elementType": {
+                          "type": "reference",
+                          "name": "Map",
+                          "typeArguments": [
+                            {
+                              "type": "intrinsic",
+                              "name": "string"
+                            },
+                            {
+                              "type": "reference",
+                              "name": "DataColumn",
+                              "sourcePath": "packages/spark-data/src/types.ts"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "_getRows",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "array",
+                        "elementType": {
+                          "type": "reference",
+                          "name": "DataRow",
+                          "sourcePath": "packages/spark-data/src/types.ts"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "_registerComputed",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [
+                        {
+                          "name": "name",
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "string"
+                          }
+                        },
+                        {
+                          "name": "fn",
+                          "type": {
+                            "type": "reflection",
+                            "declaration": {
+                              "signatures": [
+                                {
+                                  "parameters": [
+                                    {
+                                      "name": "row",
+                                      "type": {
+                                        "type": "reference",
+                                        "name": "DataRow",
+                                        "sourcePath": "packages/spark-data/src/types.ts"
+                                      }
+                                    }
+                                  ],
+                                  "type": {
+                                    "type": "intrinsic",
+                                    "name": "unknown"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "ensurePkColumn",
+              "jsdoc": "统一注册 `_pk` 计算列——无论单列还是多列主键。\n调用时机：\n- `dataTable` setter（列定义变更时）\n- `primaryKey` setter（显式覆盖时）\n幺等：字段列表不变时跳过重新注册。\n补计算（`_computedDelegate.apply(rows)`）由调用方负责。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getPkColumnMeta",
+              "jsdoc": "返回 `_pk` 列的元数据（DataColumn）。\n类型推导规则：\n- 单列 PK 且有列定义 → 继承源列 type\n- 多列 PK / 无列定义 → `'string'`",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataColumn",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "resetPrimaryKey",
+              "jsdoc": "清除显式覆盖，恢复从 DataTable 列定义自动推导主键。\n同时清除 `_pk` 计算列注册状态，下次 `ensurePkColumn()` 时重新注册。\n@example view.primaryKey = 'uuid'  // 显式覆盖\nview.resetPrimaryKey()    // 恢复列推导",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getPkKey",
+              "jsdoc": "获取行的主键值（标量）。\n**快速路径**：若 `_pk` 计算列已注册（`ensurePkColumn()` 已调用），\n直接读取预计算的 `row._pk`——O(1) 字段读取，无类型强转。\n**未注册路径**：若 `_pk` 尚未注册（非托管行 / 初始化前调用），\n回退到 `row[primaryKey]` + `coercePkValue` 运行时强转。\n所有内部 Map/Set/`===` 比较均使用此方法。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "buildServerPk",
+              "jsdoc": "从行数据构建服务端 PK payload（用于 CRUD HTTP 请求）。\n对于自动合成 _pk 的多列主键，返回原始字段的 Record：\n`{ orderId: 1, productId: 10 }`\n对于单列主键，返回单字段 Record：\n`{ id: 42 }`\n@internal 供 saveChanges / CrudDelegate 等构建服务端请求使用",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "isSamePrimaryKey",
+              "jsdoc": "检查两行是否有相同的主键。\n优先使用 `_pk`（预计算）进行比较，否则回退到 `isSameRow`。",
+              "parameters": [
+                {
+                  "name": "row1",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                },
+                {
+                  "name": "row2",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "setPrimaryKeyGenerator",
+              "jsdoc": "配置主键生成器\n@param config 主键生成器配置\n@example ```ts\n// UUID生成器\nview.setPrimaryKeyGenerator({ strategy: 'uuid', fields: 'id' })\n// 自增ID\nview.setPrimaryKeyGenerator({ strategy: 'auto-increment', fields: 'id', startValue: 1000 })\n```",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "PrimaryKeyGeneratorConfig",
+                    "sourcePath": "packages/spark-data/src/core/primary-key-generator.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "removePrimaryKeyGenerator",
+              "jsdoc": "移除主键生成器",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "generatePrimaryKey",
+              "jsdoc": "为新记录生成主键值\n@throws 如果未配置主键生成器",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataRow",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "ensurePrimaryKey",
+              "jsdoc": "为新记录生成主键值（如果配置了生成器且行中缺少主键）\n@param row 部分数据行\n@returns 包含主键的数据行（如果需要生成）或原始数据（如果已有主键）",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataRow",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "getPrimaryKeyGeneratorConfig",
+              "jsdoc": "获取主键生成器配置",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "reference",
+                      "name": "PrimaryKeyGeneratorConfig",
+                      "sourcePath": "packages/spark-data/src/core/primary-key-generator.ts"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

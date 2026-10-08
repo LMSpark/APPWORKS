@@ -20,6 +20,8 @@ import { DataSet } from '@spark-appworks/spark-data'
 import { DataTable } from '../data-table'
 import type { DataRow, AggregateColumnConfig } from '@spark-appworks/spark-data'
 import { requireNumber } from './test-type-helpers'
+import { ResourceRelationDefinition } from '../resource-relation/resource-relation-definition'
+import { DataViewFilter } from '../query/filter/data-view-filter'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 共享工具
@@ -354,6 +356,59 @@ describe('动态行操作自动求值', () => {
 // 6. 聚合函数 — DataSet 关联
 // ─────────────────────────────────────────────────────────────────────────────
 describe('聚合函数', () => {
+  it('consumes nested relation filters in computed aggregation and recomputes after relation update', () => {
+    const {ds, orders} = makeTestDS([{name: 'total', type: 'number', computeExpression: "$sum('Items', 'amount')"}])
+    expect(f(orders.rows[0], 'total')).toBe(350)
+    ds.updateResourceRelation({parentTable: 'Orders', childTable: 'Items', parentField: 'id', childField: 'orderId'}, {
+      filterExpression: DataViewFilter.group({logic: 'and', filters: [
+        DataViewFilter.condition({field: 'Items.orderId', operator: 'eq', value: {Type: 'GetTableField', Field: 'Orders.id'}}).toJSON(),
+        DataViewFilter.group({logic: 'or', filters: [
+          DataViewFilter.condition({field: 'Items.amount', operator: 'gt', value: {Type: 'GetConstValue', Value: 100}}).toJSON(),
+          DataViewFilter.condition({field: 'Items.amount', operator: 'eq', value: {Type: 'GetConstValue', Value: 50}}).toJSON(),
+        ]}).toJSON(),
+      ]}).toJSON(),
+    })
+    expect(f(orders.rows[0], 'total')).toBe(250)
+  })
+
+  it('validates unsupported relation functions even when the child view has no rows', () => {
+    const filter = DataViewFilter.condition({field: 'Items.orderId', operator: 'eq', value: {Type: 'GetRefData', RefTableName: 'Orders'}}).toJSON()
+    expect(() => ResourceRelationDefinition.createMatcher({expression: filter, parentTable: 'Orders', childTable: 'Items', parent: {id: 1}, parentFields: new Set(['id']), childFields: new Set(['orderId'])}))
+      .toThrow(/静态视图无法执行值函数 GetRefData/)
+  })
+
+  it('keeps legacy field-mapping null keys unassociated while explicit filter trees retain null equality', () => {
+    const legacy = ResourceRelationDefinition.normalize({parentTable: 'Orders', childTable: 'Items', childField: 'orderId'}, {
+      Orders: {columns: [{name: 'id', isPrimaryKey: true}]}, Items: {columns: [{name: 'orderId'}]},
+    })
+    const legacyMatches = ResourceRelationDefinition.createMatcher({expression: legacy.filterExpression!, parentTable: 'Orders', childTable: 'Items', parent: {id: null}, parentFields: new Set(['id']), childFields: new Set(['orderId'])})
+    expect(legacyMatches({orderId: null})).toBe(false)
+
+    const explicit = DataViewFilter.condition({field: 'orderId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}).toJSON()
+    const explicitMatches = ResourceRelationDefinition.createMatcher({expression: explicit, parentTable: 'Orders', childTable: 'Items', parent: {id: null}, parentFields: new Set(['id']), childFields: new Set(['orderId'])})
+    expect(explicitMatches({orderId: null})).toBe(true)
+  })
+
+  it('validates qualified parent and child references before rows can short-circuit diagnostics', () => {
+    const expression = DataViewFilter.condition({field: 'Items.orderId', operator: 'eq', value: {Type: 'GetTableField', Field: 'Orders.id'}}).toJSON()
+    expect(() => ResourceRelationDefinition.createMatcher({expression, parentTable: 'Orders', childTable: 'Items', parent: {}, parentFields: new Set(['id']), childFields: new Set(['orderId'])}))
+      .toThrow(/父行缺少字段 "id"/)
+    const matches = ResourceRelationDefinition.createMatcher({expression, parentTable: 'Orders', childTable: 'Items', parent: {id: null}, parentFields: new Set(['id']), childFields: new Set(['orderId'])})
+    expect(() => matches({})).toThrow(/子行缺少字段 "orderId"/)
+    expect(matches({orderId: null})).toBe(true)
+  })
+
+  it('rejects ancestor GetTableField without a row context and leaves computed aggregates unset', () => {
+    const {ds, orders} = makeTestDS([{name: 'total', type: 'number', computeExpression: "$sum('Items', 'amount')"}])
+    const expression = DataViewFilter.condition({field: 'Items.orderId', operator: 'eq', value: {Type: 'GetTableField', Field: 'Ancestor.id'}}).toJSON()
+    ds.updateResourceRelation({parentTable: 'Orders', childTable: 'Items', parentField: 'id', childField: 'orderId'}, {filterExpression: expression})
+    expect(() => ResourceRelationDefinition.createMatcher({expression, parentTable: 'Orders', childTable: 'Items',
+      parent: {id: 1}, parentFields: new Set(['id']), childFields: new Set(['orderId'])}))
+      .toThrow(/关系过滤字段限定名不匹配: Ancestor.id/)
+    expect(f(orders.rows[0], 'total')).toBeUndefined()
+    expect(f(orders.rows[1], 'total')).toBeUndefined()
+  })
+
   it('$sum — 累计子行字段', () => {
     const { orders } = makeTestDS([{ name: 'total', type: 'number', computeExpression: "$sum('Items', 'amount')" }])
     expect(f(orders.rows[0], 'total')).toBe(350) // 100+200+50

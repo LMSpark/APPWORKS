@@ -16,7 +16,7 @@
  * aggregateResult.
  */
 
-import { isRecord } from '@spark-appworks/spark-utils'
+import { deepClone, isRecord } from '@spark-appworks/spark-utils'
 import type { DataView } from '../data-view'
 import { isDataRow } from './data-row-guards'
 import type {
@@ -29,6 +29,8 @@ import type {
 
 /** Data Member 的语义模型。 */
 export enum DataMember {
+  /** 原生绑定值：有 dataField 时为字段值，无 dataField 时为选中主键数组；不使用 DataView.value 的字符串序列化。 */
+  Value = 'value',
     /** Rows 字段。 */
 Rows = 'rows',
     /** Columns 字段。 */
@@ -176,8 +178,35 @@ function normalizeDataViewMemberValue(value: unknown): DataViewMemberValue {
   }
 }
 
-function getDataViewMemberValue(view: DataView, dataMember: DataMember): DataViewMemberValue {
+function readDataViewInputValue(view: DataView, field?: string): DataViewMemberValue {
+  if (view.destroyed) throw new Error('DATA_VIEW_VALUE_SOURCE: 视图已销毁')
+  if (field !== undefined) {
+    if (!view.columns.some(column => column.name === field)) {
+      throw new Error(`DATA_VIEW_VALUE_FIELD: 字段不存在 ${field}`)
+    }
+    const pointer = view.currentRow
+    if (!pointer) return undefined
+    const key = view.getPkKey(pointer)
+    const row = key === undefined ? pointer : view.getEditingRow(key)
+    if (!row) return undefined
+    if (view.fieldAccess(row, field).read !== 'visible') {
+      throw new Error(`DATA_VIEW_VALUE_READ: 字段不可读 ${field}`)
+    }
+    return normalizeDataViewMemberValue(deepClone(row[field]))
+  }
+  return view.selectedRows.map(row => {
+    if (view.effectivePkFields.some(key => view.fieldAccess(row, key).read !== 'visible')) {
+      throw new Error('DATA_VIEW_VALUE_READ: 选中主键不可读')
+    }
+    const key = view.getPkKey(row)
+    if (key === undefined) throw new Error('DATA_VIEW_VALUE_KEY: 选中值缺少主键')
+    return key
+  })
+}
+
+function getDataViewMemberValue(view: DataView, dataMember: DataMember, dataField?: string): DataViewMemberValue {
   switch (dataMember) {
+    case DataMember.Value: return readDataViewInputValue(view, dataField)
     case DataMember.Rows: return view.rows
     case DataMember.Columns: return view.columns
     case DataMember.CurrentRow: return view.currentRow
@@ -199,6 +228,7 @@ function resolveValueWithField(
   dataMember: DataMember,
   dataField: string | undefined,
 ): DataViewMemberValue {
+  if (dataMember === DataMember.Value) return value
   if (dataField === undefined) return value
   if (!FIELD_ADDRESSABLE_MEMBERS.has(dataMember)) return undefined
   if (!isRecord(value)) return undefined
@@ -270,7 +300,7 @@ export function resolveDataViewMember(
   const view = dataSet.getView(descriptor.tableName, descriptor.viewId)
   if (!view) return undefined
   return resolveValueWithField(
-    getDataViewMemberValue(view, descriptor.dataMember),
+    getDataViewMemberValue(view, descriptor.dataMember, descriptor.dataField),
     descriptor.dataMember,
     descriptor.dataField,
   )
@@ -297,7 +327,7 @@ export function resolveDataViewMemberBinding(
   const view = dataSet.getView(descriptor.tableName, descriptor.viewId)
   if (!view) return null
   const value = resolveValueWithField(
-    getDataViewMemberValue(view, descriptor.dataMember),
+    getDataViewMemberValue(view, descriptor.dataMember, descriptor.dataField),
     descriptor.dataMember,
     descriptor.dataField,
   )
@@ -338,6 +368,7 @@ export type DataViewMemberDiagnosticStatus =
   | 'empty-selection'
   | 'missing-field'
   | 'unsupported-data-field'
+  | 'value-unavailable'
 
 /** Data View Member Diagnostic 的诊断信息。 */
 export type DataViewMemberDiagnostic = {
@@ -448,6 +479,23 @@ export function diagnoseDataViewMember(
     return dataViewMemberDiagnostic({ status: 'missing-view', rawKey, descriptor, message: `DataViewKey 视图不存在: ${descriptor.tableName}@${descriptor.viewId}` })
   }
 
+  if (descriptor.dataMember === DataMember.Value) {
+    const field = descriptor.dataField
+    if (field !== undefined && !view.columns.some(column => column.name === field)) {
+      return dataViewMemberDiagnostic({status: 'missing-field', rawKey, descriptor, message: `dataField 字段不存在: ${field}`})
+    }
+    try {
+      const value = readDataViewInputValue(view, field)
+      if (field !== undefined && value === undefined) {
+        return dataViewMemberDiagnostic({status: view.currentRow ? 'missing-field' : 'empty-current-row',
+          rawKey, descriptor, message: `绑定字段值尚不可用: ${rawKey}.${field}`})
+      }
+    } catch (error) {
+      return dataViewMemberDiagnostic({status: 'value-unavailable', rawKey, descriptor,
+        message: error instanceof Error ? error.message : '绑定值不可用'})
+    }
+    return dataViewMemberDiagnostic({status: 'ok', rawKey, descriptor, message: `绑定值可解析: ${rawKey}`})
+  }
   const value = getDataViewMemberValue(view, descriptor.dataMember)
   if (descriptor.dataMember === DataMember.CurrentRow && value === null) {
     return dataViewMemberDiagnostic({ status: 'empty-current-row', rawKey, descriptor, message: `DataMember 当前行为空: ${rawKey}` })
@@ -507,6 +555,6 @@ export function resolveDataViewCapabilities(
 
   return {
     dataSource: view,
-    dataRow: isDataRow(value) ? value : null,
+    dataRow: input.dataMember !== DataMember.Value && isDataRow(value) ? value : null,
   }
 }

@@ -55,5 +55,7 @@ export type DataSpaceQueryOptions = Readonly<{
   inputParams?: readonly DataSpaceQueryInput[]
   singleFlight?: boolean
   fields?: ReadonlyArray<string | DataSpaceQueryField>
+  /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */
+  outputFieldMode?: 'MODEL' | 'REQUEST'
   outputType?: string
 }>

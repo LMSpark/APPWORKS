@@ -3,9 +3,9 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defineComponent, h, markRaw, ref, type App, type Component } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { describe, expect, it, vi } from 'vitest'
-import { Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
-import { SparkData, type DataSet, type SparkNode } from '@spark-appworks/spark-data'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { PAGE_RUNTIME_SERVICES, Spark, SparkComponentRenderer, SparkPageRenderer, useSparkComponent, type PageRuntimeServicesCapability } from '@spark-appworks/spark-component'
+import { DataSet, RequestState, SparkData, type SparkNode } from '@spark-appworks/spark-data'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import {
   compileRule,
@@ -30,6 +30,16 @@ type TestPageRuntimeOptions = {
 }
 
 const routeSnapshot: PageRoute = { path: '/pages/test', fullPath: '/pages/test', name: 'test', params: {}, query: {}, hash: '' }
+const testOwnedRuntimes: PageRuntime[] = []
+
+function trackPageRuntime(runtime: PageRuntime): PageRuntime {
+  testOwnedRuntimes.push(runtime)
+  return runtime
+}
+
+afterEach(() => {
+  for (const runtime of testOwnedRuntimes.splice(0)) if (!runtime.destroyed) runtime.dispose()
+})
 
 function createPageRuntime(config: TestPageContentConfig, options?: TestPageRuntimeOptions): PageRuntime {
   const tool = markRaw(new PageTool({ pageId: options?.pageId ?? config.pageId ?? 'test-page' }))
@@ -37,10 +47,10 @@ function createPageRuntime(config: TestPageContentConfig, options?: TestPageRunt
   tool.hydrateFileText('script.js', config.script ?? '')
   tool.hydrateFileText('style.css', config.css ?? '')
   tool.markLoaded()
-  return markRaw(new PageRuntime({ tool, scenarioIds: ['test-scene'], mainScenarioId: 'test-scene',
+  return trackPageRuntime(markRaw(new PageRuntime({ tool, scenarioIds: ['test-scene'], mainScenarioId: 'test-scene',
     loadScenario: async scenarioId => SparkData.createDataSet({ ...config.data.toJson(), scenarioId }),
     ...(options?.load === undefined ? {} : { loadTool: async () => { await options.load?.(); return tool } }),
-  }))
+  })))
 }
 
 function requireRecord(value: unknown, message: string): Record<string, unknown> {
@@ -676,6 +686,228 @@ describe('SparkPageRenderer root props aggregation', () => {
     }
   })
 
+  it('refreshes page script Render output after an external DataView selection change', async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/pages/render-view-change', component: defineComponent({ render: () => h('div') }) }],
+    })
+    await router.push('/pages/render-view-change')
+    await router.isReady()
+
+    const restoreSparkRendererStub = disableSparkComponentRendererStub()
+    const pageRuntime = createPageRuntime({
+      ...createPageContentConfig('view change'),
+      pageId: 'render-view-change',
+      rule: [{ type: 'RenderCurrentRowProbe' }],
+      data: SparkData.createDataSet({
+        dataSetName: 'PageData',
+        tables: {
+          Users: {
+            tableName: 'Users',
+            columns: [{ name: 'id', type: 'string' }],
+            views: { default: { rows: [{ id: 'u-1' }, { id: 'u-2' }] } },
+          },
+        },
+      }),
+      script: `function RenderCurrentRowProbe() {
+        var view = $page.getDataSet('test-scene').tables.Users.getView('default')
+        return h('div', { class: 'current-row-probe' }, (view.currentRow?.id ?? 'none') + ':' + view.rows.length + ':' + view.requestState)
+      }`,
+    })
+
+    try {
+      const wrapper = mount(SparkPageRenderer, {
+        props: { routeSnapshot, pageRuntime },
+        global: { plugins: [Spark.createPlugin(), router] },
+      })
+      await flushPromises()
+
+      const view = pageRuntime.getDataSet('test-scene')?.tables['Users']?.getView('default')
+      expect(view).toBeDefined()
+      expect(wrapper.find('.current-row-probe').text()).toBe('u-1:2:0')
+
+      view?.setCurrentRow(view.rows[1] ?? null)
+      await flushPromises()
+
+      expect(wrapper.find('.current-row-probe').text()).toBe('u-2:2:0')
+
+      view?.replaceRows([{ id: 'u-2' }, { id: 'u-3' }, { id: 'u-4' }])
+      await flushPromises()
+
+      expect(wrapper.find('.current-row-probe').text()).toBe('u-2:3:0')
+
+      if (view) {
+        view.requestState = RequestState.Loading
+        view.events.emit('requestStateChanged', RequestState.Loading)
+      }
+      await flushPromises()
+
+      expect(wrapper.find('.current-row-probe').text()).toBe('u-2:3:2')
+      wrapper.unmount()
+    } finally {
+      restoreSparkRendererStub()
+    }
+  })
+
+  it('subscribes to views created later and releases subscriptions on same-runtime reload and unmount', async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/pages/render-late-view', component: defineComponent({ render: () => h('div') }) }],
+    })
+    await router.push('/pages/render-late-view')
+    await router.isReady()
+
+    const restoreSparkRendererStub = disableSparkComponentRendererStub()
+    const tool = markRaw(new PageTool({ pageId: 'render-late-view' }))
+    tool.hydrateFileText('rule.json', JSON.stringify([{ type: 'RenderLateViewProbe' }]))
+    tool.hydrateFileText('script.js', `function RenderLateViewProbe() {
+        var view = $page.getDataSet('extra-scene').tables.Users.getView('late')
+        return h('div', { class: 'late-view-probe' }, view?.currentRow?.id ?? 'none')
+      }`)
+    tool.hydrateFileText('style.css', '')
+    tool.markLoaded()
+    const pageRuntime = trackPageRuntime(markRaw(new PageRuntime({
+      tool,
+      scenarioIds: ['test-scene', 'extra-scene'],
+      mainScenarioId: 'test-scene',
+      loadScenario: async scenarioId => SparkData.createDataSet({
+        dataSetName: 'PageData',
+        scenarioId,
+        tables: {
+          Users: {
+            tableName: 'Users',
+            columns: [{ name: 'id', type: 'string' }],
+            views: { default: { rows: [{ id: 'u-1' }] } },
+          },
+        },
+      }),
+    })))
+    // DataSet 自有级联订阅属于 runtime；这里只计 renderer 的注册与释放。
+    await pageRuntime.load()
+    const originalSubscribe = DataSet.prototype.onAnyViewChange
+    const unsubscribe = vi.fn()
+    const subscribe = vi.spyOn(DataSet.prototype, 'onAnyViewChange').mockImplementation(function (this: DataSet, handlers) {
+      const release = originalSubscribe.call(this, handlers)
+      return () => { unsubscribe(); release() }
+    })
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      wrapper = mount(SparkPageRenderer, {
+        props: { routeSnapshot, pageRuntime },
+        global: { plugins: [Spark.createPlugin(), router] },
+      })
+      await flushPromises()
+
+      const dataSet = pageRuntime.getDataSet('extra-scene')
+      expect(dataSet).toBeDefined()
+
+      const lateView = dataSet?.tables['Users']?.getOrCreateView('late')
+      lateView?.replaceRows([{ id: 'late-1' }])
+      lateView?.setCurrentRow(lateView.rows[0] ?? null)
+      await flushPromises()
+
+      expect(wrapper.find('.late-view-probe').text()).toBe('late-1')
+
+      const exposed = wrapper.vm.$.exposed
+      if (!isRecord(exposed)) throw new Error('Expected SparkPageRenderer exposed methods')
+      const reload = requireFunction(exposed['reload'], 'Expected SparkPageRenderer reload method')
+      await reload()
+      await flushPromises()
+      expect(subscribe).toHaveBeenCalledTimes(4)
+      expect(unsubscribe).toHaveBeenCalledTimes(2)
+      expect(pageRuntime.getDataSet('extra-scene')).toBe(dataSet)
+      lateView?.replaceRows([{ id: 'late-2' }])
+      lateView?.setCurrentRow(lateView.rows[0] ?? null)
+      await flushPromises()
+      expect(wrapper.find('.late-view-probe').text()).toBe('late-2')
+
+      wrapper.unmount()
+      wrapper = undefined
+      expect(unsubscribe).toHaveBeenCalledTimes(4)
+      expect(pageRuntime.destroyed).toBe(false)
+      expect(dataSet?.destroyed).toBe(false)
+      pageRuntime.dispose()
+      expect(dataSet?.destroyed).toBe(true)
+    } finally {
+      wrapper?.unmount()
+      subscribe.mockRestore()
+      restoreSparkRendererStub()
+    }
+  })
+
+  it('keeps view refresh subscriptions isolated between page instances and releases them on removal', async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/pages/render-isolated-views', component: defineComponent({ render: () => h('div') }) }],
+    })
+    await router.push('/pages/render-isolated-views')
+    await router.isReady()
+
+    const createRuntime = () => createPageRuntime({
+      ...createPageContentConfig('isolated view'),
+      pageId: 'render-isolated-views',
+      rule: [{ type: 'RenderIsolatedViewProbe' }],
+      data: SparkData.createDataSet({
+        dataSetName: 'PageData',
+        tables: {
+          Users: {
+            tableName: 'Users',
+            columns: [{ name: 'id', type: 'string' }],
+            views: { default: { rows: [{ id: 'u-1' }, { id: 'u-2' }] } },
+          },
+        },
+      }),
+      script: `function RenderIsolatedViewProbe() {
+        var view = $page.getDataSet('test-scene').tables.Users.getView('default')
+        return h('div', { class: 'isolated-view-probe' }, $route.query.owner + ':' + view.currentRow?.id)
+      }`,
+    })
+    const a = createRuntime()
+    const b = createRuntime()
+    const showA = ref(true)
+    const restoreSparkRendererStub = disableSparkComponentRendererStub()
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      const Parent = defineComponent({ render: () => h('div', [
+        ...(showA.value ? [h('section', { class: 'view-call-a', key: a.instanceId }, [h(SparkPageRenderer, {
+          pageRuntime: a,
+          routeSnapshot: { ...routeSnapshot, query: { owner: 'A' } },
+        })])] : []),
+        h('section', { class: 'view-call-b', key: b.instanceId }, [h(SparkPageRenderer, {
+          pageRuntime: b,
+          routeSnapshot: { ...routeSnapshot, query: { owner: 'B' } },
+        })]),
+      ]) })
+      wrapper = mount(Parent, { global: { plugins: [Spark.createPlugin(), router] } })
+      await flushPromises()
+
+      expect(wrapper.find('.view-call-a .isolated-view-probe').text()).toBe('A:u-1')
+      expect(wrapper.find('.view-call-b .isolated-view-probe').text()).toBe('B:u-1')
+
+      const viewA = a.getDataSet('test-scene')?.tables['Users']?.getView('default')
+      viewA?.setCurrentRow(viewA.rows[1] ?? null)
+      await flushPromises()
+
+      expect(wrapper.find('.view-call-a .isolated-view-probe').text()).toBe('A:u-2')
+      expect(wrapper.find('.view-call-b .isolated-view-probe').text()).toBe('B:u-1')
+
+      showA.value = false
+      await flushPromises()
+      expect(a.destroyed).toBe(false)
+      expect(b.destroyed).toBe(false)
+
+      const viewB = b.getDataSet('test-scene')?.tables['Users']?.getView('default')
+      viewB?.setCurrentRow(viewB.rows[1] ?? null)
+      await flushPromises()
+      expect(wrapper.find('.view-call-b .isolated-view-probe').text()).toBe('B:u-2')
+      a.dispose()
+      expect(a.destroyed).toBe(true)
+    } finally {
+      wrapper?.unmount()
+      restoreSparkRendererStub()
+    }
+  })
+
   it('isolates two calls of the same tool and same Render name without app-global registration', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/pages/shared', component: defineComponent({ render: () => h('div') }) }] })
     await router.push('/pages/shared')
@@ -683,7 +915,7 @@ describe('SparkPageRenderer root props aggregation', () => {
     const a = createPageRuntime({ ...createPageContentConfig('shared'), pageId: 'shared', rule: [{ type: 'RenderActions' }],
       script: `let count = 0; function RenderActions() { return h('button', { class: 'shared-render', onClick: function() { count++ } }, $route.query.owner + ':' + count) }`,
     })
-    const b = markRaw(new PageRuntime({ tool: a.tool, scenarioIds: [], loadScenario: async () => { throw new Error('no scene expected') } }))
+    const b = trackPageRuntime(markRaw(new PageRuntime({ tool: a.tool, scenarioIds: [], loadScenario: async () => { throw new Error('no scene expected') } })))
     const showA = ref(true)
     const registrations: Record<string, number> = {}
     const restore = disableSparkComponentRendererStub()
@@ -705,13 +937,16 @@ describe('SparkPageRenderer root props aggregation', () => {
       expect(wrapper.find('.call-a [data-page]').attributes('data-page')).not.toBe(wrapper.find('.call-b [data-page]').attributes('data-page'))
       showA.value = false
       await flushPromises()
-      expect(a.destroyed).toBe(true)
+      expect(a.destroyed).toBe(false)
       expect(b.destroyed).toBe(false)
       await wrapper.find('.call-b .shared-render').trigger('click')
       await flushPromises()
       expect(wrapper.find('.call-b .shared-render').text()).toBe('B:1')
       expect(registrations).toEqual({})
+      a.dispose()
+      expect(a.destroyed).toBe(true)
     } finally { wrapper?.unmount(); restore() }
+    b.dispose()
     expect(b.destroyed).toBe(true)
   })
 
@@ -774,6 +1009,303 @@ describe('SparkPageRenderer root props aggregation', () => {
       expect(registrationCounts['RenderActions'] ?? 0).toBe(0)
       expect(registrationCounts['renderActions'] ?? 0).toBe(0)
     } finally {
+      restoreSparkRendererStub()
+    }
+  })
+
+  it('passes the inherited layout reader from the app capability into page scripts', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/pages/test', component: defineComponent({ render: () => h('div') }) }] })
+    await router.push('/pages/test')
+    await router.isReady()
+    const readDataSpaceLayout = vi.fn(async () => 'layout-source')
+    const services: PageRuntimeServicesCapability = { dataSpaceLayout: {
+      scenarioId: 'test-scene', createReader: () => ({ readDataSpaceLayout }),
+    } }
+    const pageRuntime = createPageRuntime({ ...createPageContentConfig('layout'), rule: [],
+      script: "async function __init__() { await $page.readDataSpaceLayout('DS-1') }" })
+    const Parent = defineComponent({ setup() {
+      const { sparkProvide } = useSparkComponent({ type: 'layout-test-host' })
+      sparkProvide(PAGE_RUNTIME_SERVICES, services)
+      return () => h(SparkPageRenderer, { pageRuntime, routeSnapshot })
+    } })
+    const wrapper = mount(Parent, { global: { plugins: [Spark.createPlugin(), router] } })
+    await flushPromises()
+    await flushPromises()
+    expect(readDataSpaceLayout).toHaveBeenCalledOnce()
+    expect(readDataSpaceLayout).toHaveBeenCalledWith('DS-1')
+    wrapper.unmount()
+  })
+
+  it('refreshes nested declaration hooks after initialization, events, and DataView state changes', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/pages/before-render', component: defineComponent({ render: () => h('div') }) }] })
+    await router.push('/pages/before-render')
+    await router.isReady()
+    const restoreSparkRendererStub = disableSparkComponentRendererStub()
+    let finishConfirm: (() => void) | undefined
+    try {
+      const pageRuntime = createPageRuntime({
+        ...createPageContentConfig('before render'),
+        rule: [
+          { type: 'div', props: { class: 'hook-parent' }, children: [
+            { type: 'div', props: { class: 'hook-child-a', visible: false, onBeforeRender: 'renderChildA' }, children: ['ready'] },
+            { type: 'div', props: { class: 'hook-child-b', visible: false, onBeforeRender: 'renderChildB' }, children: ['ready'] },
+          ] },
+          { type: 'button', props: { class: 'hook-toggle', onClick: 'toggleReady' }, children: ['toggle'] },
+        ],
+        script: `
+          let ready = false
+          let hookCallsA = 0
+          let hookCallsB = 0
+          async function __init__() { await $page.showConfirm('wait'); ready = true }
+          function toggleReady() { ready = !ready }
+          function renderChildA() {
+            hookCallsA++
+            const view = $page.getDataSet('test-scene').tables.Users.getView('default')
+            return { visible: ready && view.requestState === 3, props: { 'data-state': String(view.requestState), 'data-hook-calls': String(hookCallsA) } }
+          }
+          function renderChildB() {
+            hookCallsB++
+            const view = $page.getDataSet('test-scene').tables.Users.getView('default')
+            return { visible: ready && view.requestState === 3, props: { 'data-state': String(view.requestState), 'data-hook-calls': String(hookCallsB) } }
+          }
+        `,
+      })
+      const wrapper = mount(SparkPageRenderer, {
+        props: {
+          routeSnapshot,
+          pageRuntime,
+          confirmService: {
+            confirm: async () => new Promise(resolve => { finishConfirm = () => resolve(true) }),
+            alert: async () => undefined,
+          },
+        },
+        global: { plugins: [Spark.createPlugin(), router] },
+      })
+
+      await flushPromises()
+      expect(finishConfirm).toBeTypeOf('function')
+      expect(wrapper.find('.hook-child-a').exists()).toBe(false)
+      expect(wrapper.find('.hook-child-b').exists()).toBe(false)
+
+      const view = pageRuntime.getDataSet('test-scene')?.tables['Users']?.getView('default')
+      expect(view).toBeDefined()
+      if (!view) throw new Error('Expected the page DataView')
+      view.requestState = RequestState.Loaded
+      view.events.emit('requestStateChanged', RequestState.Loaded)
+      await flushPromises()
+      expect(wrapper.find('.hook-child-a').exists()).toBe(false)
+      expect(wrapper.find('.hook-child-b').exists()).toBe(false)
+
+      finishConfirm?.()
+      await flushPromises()
+      expect(wrapper.find('.hook-child-a').attributes('data-state')).toBe(String(RequestState.Loaded))
+      expect(wrapper.find('.hook-child-b').attributes('data-state')).toBe(String(RequestState.Loaded))
+
+      const stableCallsA = wrapper.find('.hook-child-a').attributes('data-hook-calls')
+      const stableCallsB = wrapper.find('.hook-child-b').attributes('data-hook-calls')
+      await flushPromises()
+      await flushPromises()
+      expect(wrapper.find('.hook-child-a').attributes('data-hook-calls')).toBe(stableCallsA)
+      expect(wrapper.find('.hook-child-b').attributes('data-hook-calls')).toBe(stableCallsB)
+
+      view.requestState = RequestState.Loading
+      view.events.emit('requestStateChanged', RequestState.Loading)
+      await flushPromises()
+      expect(wrapper.find('.hook-child-a').exists()).toBe(false)
+      expect(wrapper.find('.hook-child-b').exists()).toBe(false)
+      view.requestState = RequestState.Failed
+      view.events.emit('requestStateChanged', RequestState.Failed)
+      await flushPromises()
+      expect(wrapper.find('.hook-child-a').exists()).toBe(false)
+      expect(wrapper.find('.hook-child-b').exists()).toBe(false)
+
+      view.requestState = RequestState.Loaded
+      view.events.emit('requestStateChanged', RequestState.Loaded)
+      await flushPromises()
+      expect(wrapper.find('.hook-child-a').exists()).toBe(true)
+      expect(wrapper.find('.hook-child-b').exists()).toBe(true)
+      await wrapper.find('.hook-toggle').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('.hook-child-a').exists()).toBe(false)
+      expect(wrapper.find('.hook-child-b').exists()).toBe(false)
+      await wrapper.find('.hook-toggle').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('.hook-child-a').exists()).toBe(true)
+      expect(wrapper.find('.hook-child-b').exists()).toBe(true)
+      const eventCallsA = wrapper.find('.hook-child-a').attributes('data-hook-calls')
+      const eventCallsB = wrapper.find('.hook-child-b').attributes('data-hook-calls')
+      await flushPromises()
+      await flushPromises()
+      expect(wrapper.find('.hook-child-a').attributes('data-hook-calls')).toBe(eventCallsA)
+      expect(wrapper.find('.hook-child-b').attributes('data-hook-calls')).toBe(eventCallsB)
+      wrapper.unmount()
+    } finally {
+      restoreSparkRendererStub()
+    }
+  })
+
+  it('isolates declaration hooks between same-tool page instances and rejects a replaced instance hook', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/pages/hook-isolation', component: defineComponent({ render: () => h('div') }) }] })
+    await router.push('/pages/hook-isolation')
+    await router.isReady()
+    const restoreSparkRendererStub = disableSparkComponentRendererStub()
+    const pendingConfirms: Array<() => void> = []
+    const confirmService = {
+      confirm: async () => new Promise<boolean>(resolve => pendingConfirms.push(() => resolve(true))),
+      alert: async () => undefined,
+    }
+    const createRuntime = () => createPageRuntime({
+      ...createPageContentConfig('same-tool-hook'),
+      pageId: 'same-tool-hook',
+      rule: [
+        { type: 'div', props: { class: 'instance-hook', visible: false, onBeforeRender: 'renderHook' }, children: ['ready'] },
+        { type: 'button', props: { class: 'instance-toggle', onClick: 'toggleReady' }, children: ['toggle'] },
+      ],
+      script: `
+        let ready = false
+        let hookCalls = 0
+        async function __init__() {
+          if ($route.query.owner === 'A') await $page.showConfirm('gate')
+          ready = true
+        }
+        function toggleReady() { ready = !ready }
+        function renderHook() {
+          hookCalls++
+          const view = $page.getDataSet('test-scene').tables.Users.getView('default')
+          return { visible: ready && view.requestState === 3, props: { 'data-hook-calls': String(hookCalls) } }
+        }
+      `,
+    })
+    const runtimeA = ref(createRuntime())
+    const runtimeB = createRuntime()
+    const ownerRoute = (owner: string): PageRoute => ({ ...routeSnapshot, query: { owner } })
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      expect(runtimeA.value).not.toBe(runtimeB)
+      expect(runtimeA.value.pageId).toBe(runtimeB.pageId)
+
+      const InstanceA = defineComponent({
+        components: { SparkPageRenderer },
+        setup: () => ({ runtimeA, routeSnapshot: ownerRoute('A'), confirmService }),
+        template: '<SparkPageRenderer :page-runtime="runtimeA" :route-snapshot="routeSnapshot" :confirm-service="confirmService" />',
+      })
+      const InstanceB = defineComponent({
+        components: { SparkPageRenderer },
+        setup: () => ({ runtimeB, routeSnapshot: ownerRoute('B'), confirmService }),
+        template: '<SparkPageRenderer :page-runtime="runtimeB" :route-snapshot="routeSnapshot" :confirm-service="confirmService" />',
+      })
+      const Parent = defineComponent({ render: () => h('div', [
+        h('section', { class: 'instance-a' }, [h(InstanceA, { key: 'A' })]),
+        h('section', { class: 'instance-b' }, [h(InstanceB, { key: 'B' })]),
+      ]) })
+      wrapper = mount(Parent, { global: { plugins: [Spark.createPlugin(), router] } })
+      await flushPromises()
+      expect(pendingConfirms).toHaveLength(1)
+
+      const viewA = runtimeA.value.getDataSet('test-scene')?.tables['Users']?.getView('default')
+      const viewB = runtimeB.getDataSet('test-scene')?.tables['Users']?.getView('default')
+      expect(viewA).toBeDefined()
+      expect(viewB).toBeDefined()
+      if (!viewA || !viewB) throw new Error('Expected both page instances to own their DataViews')
+
+      viewB.requestState = RequestState.Loaded
+      viewB.events.emit('requestStateChanged', RequestState.Loaded)
+      await flushPromises()
+      expect(wrapper.find('.instance-b .instance-hook').exists()).toBe(true)
+      const bCallsAfterLoad = wrapper.find('.instance-b .instance-hook').attributes('data-hook-calls')
+
+      viewA.requestState = RequestState.Loaded
+      viewA.events.emit('requestStateChanged', RequestState.Loaded)
+      await flushPromises()
+      expect(wrapper.find('.instance-a .instance-hook').exists()).toBe(false)
+      expect(wrapper.find('.instance-b .instance-hook').exists()).toBe(true)
+      expect(wrapper.find('.instance-b .instance-hook').attributes('data-hook-calls')).toBe(bCallsAfterLoad)
+
+      pendingConfirms[0]?.()
+      await flushPromises()
+      expect(wrapper.find('.instance-a .instance-hook').exists()).toBe(true)
+      expect(wrapper.find('.instance-b .instance-hook').exists()).toBe(true)
+      expect(wrapper.find('.instance-b .instance-hook').attributes('data-hook-calls')).toBe(bCallsAfterLoad)
+
+      await wrapper.find('.instance-a .instance-toggle').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('.instance-a .instance-hook').exists()).toBe(false)
+      expect(wrapper.find('.instance-b .instance-hook').exists()).toBe(true)
+      expect(wrapper.find('.instance-b .instance-hook').attributes('data-hook-calls')).toBe(bCallsAfterLoad)
+
+      await wrapper.find('.instance-a .instance-toggle').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('.instance-a .instance-hook').exists()).toBe(true)
+      viewA.requestState = RequestState.Loading
+      viewA.events.emit('requestStateChanged', RequestState.Loading)
+      await flushPromises()
+      expect(wrapper.find('.instance-a .instance-hook').exists()).toBe(false)
+      expect(wrapper.find('.instance-b .instance-hook').exists()).toBe(true)
+      expect(wrapper.find('.instance-b .instance-hook').attributes('data-hook-calls')).toBe(bCallsAfterLoad)
+
+      const hookNode = wrapper.findAllComponents(SparkComponentRenderer)
+        .map(candidate => candidate.props('config'))
+        .find(candidate => isRecord(candidate) && isRecord(candidate['props']) && candidate['props']['class'] === 'instance-hook')
+      if (!isRecord(hookNode) || !isRecord(hookNode['props'])) throw new Error('Expected A bound declaration hook node')
+      const staleHook = requireFunction(hookNode['props']['onBeforeRender'], 'Expected bound before-render function')
+      const oldRuntime = runtimeA.value
+      const getDataSet = vi.spyOn(oldRuntime, 'getDataSet')
+      runtimeA.value = createRuntime()
+      await flushPromises()
+      expect(oldRuntime.destroyed).toBe(false)
+      expect(pendingConfirms).toHaveLength(2)
+
+      const callsBeforeStaleHook = getDataSet.mock.calls.length
+      expect(staleHook).toThrow('PAGE_RUNTIME_STALE')
+      expect(getDataSet).toHaveBeenCalledTimes(callsBeforeStaleHook)
+      expect(wrapper.find('.instance-b .instance-hook').exists()).toBe(true)
+      expect(wrapper.find('.instance-b .instance-hook').attributes('data-hook-calls')).toBe(bCallsAfterLoad)
+      oldRuntime.dispose()
+      expect(oldRuntime.destroyed).toBe(true)
+
+      pendingConfirms[1]?.()
+      await flushPromises()
+    } finally {
+      wrapper?.unmount()
+      restoreSparkRendererStub()
+    }
+  })
+
+  it('keeps a real DataView edit with its externally owned runtime after renderer unmount', async () => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/pages/runtime-owner', component: defineComponent({ render: () => h('div') }) }] })
+    await router.push('/pages/runtime-owner')
+    await router.isReady()
+    const config = createPageContentConfig('runtime owner')
+    config.rule = [{ type: 'div', props: { class: 'runtime-owner-hook', onBeforeRender: 'renderHook' } }]
+    config.script = 'function renderHook() { return { props: {} } }'
+    const runtime = createPageRuntime(config)
+    const restoreSparkRendererStub = disableSparkComponentRendererStub()
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      wrapper = mount(SparkPageRenderer, { props: { routeSnapshot, pageRuntime: runtime }, global: { plugins: [Spark.createPlugin(), router] } })
+      await flushPromises()
+      const view = runtime.getDataSet('test-scene')?.tables['Users']?.getView('default')
+      if (!view) throw new Error('Expected the page DataView')
+      view.updateEditingValue('u-1', 'name', 'unsaved draft')
+      expect(runtime.isDirty).toBe(true)
+      const hookNode = wrapper.findAllComponents(SparkComponentRenderer)
+        .map(candidate => candidate.props('config'))
+        .find(candidate => isRecord(candidate) && isRecord(candidate['props']) && candidate['props']['class'] === 'runtime-owner-hook')
+      if (!isRecord(hookNode) || !isRecord(hookNode['props'])) throw new Error('Expected the runtime hook config')
+      const staleHook = requireFunction(hookNode['props']['onBeforeRender'], 'Expected a bound runtime hook')
+      wrapper.unmount()
+      wrapper = undefined
+      expect(runtime.destroyed).toBe(false)
+      expect(runtime.getDataSet('test-scene')?.tables['Users']?.getView('default')).toBe(view)
+      expect(view.getEditingPatch('u-1')).toEqual({ name: 'unsaved draft' })
+      expect(staleHook).toThrow('PAGE_RUNTIME_STALE')
+      wrapper = mount(SparkPageRenderer, { props: { routeSnapshot, pageRuntime: runtime }, global: { plugins: [Spark.createPlugin(), router] } })
+      await flushPromises()
+      expect(runtime.getDataSet('test-scene')?.tables['Users']?.getView('default')).toBe(view)
+      expect(view.getEditingPatch('u-1')).toEqual({ name: 'unsaved draft' })
+    } finally {
+      wrapper?.unmount()
+      runtime.dispose()
       restoreSparkRendererStub()
     }
   })

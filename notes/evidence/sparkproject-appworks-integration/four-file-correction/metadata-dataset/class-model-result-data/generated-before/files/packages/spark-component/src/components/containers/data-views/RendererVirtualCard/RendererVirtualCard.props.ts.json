@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererVirtualCard/RendererVirtualCard.props",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererVirtualCard/RendererVirtualCard.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererVirtualCard/RendererVirtualCard.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererVirtualCard/RendererVirtualCard.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererVirtualCard/RendererVirtualCard.props\n职责：定义 RendererVirtualCard（r-virtual-card）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 table-level/data-view-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer virtual card 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RVirtualCardProps"
+    ],
+    "componentName": "RendererVirtualCard",
+    "componentType": "r-virtual-card",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "RVirtualCardProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RVirtualCardProps",
+      "properties": {
+        "dataSource": {
+          "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "toolbar": {
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+        },
+        "rowKey": {
+          "type": "string"
+        },
+        "emptyText": {
+          "type": "string"
+        },
+        "pageHeight": {
+          "type": "number"
+        },
+        "mobilePageHeight": {
+          "type": "number"
+        },
+        "mobileBreakpoint": {
+          "type": "number"
+        },
+        "viewportHeight": {
+          "type": "string"
+        },
+        "minViewportHeight": {
+          "type": "string"
+        },
+        "overscanPages": {
+          "type": "number"
+        },
+        "prefetchPages": {
+          "type": "number"
+        },
+        "maxCachedPages": {
+          "type": "number"
+        },
+        "columns": {
+          "type": "number"
+        },
+        "mobileColumns": {
+          "type": "number"
+        },
+        "settleDelay": {
+          "type": "number"
+        },
+        "wheelStepPx": {
+          "type": "number"
+        },
+        "maxWheelJumpPages": {
+          "type": "number"
+        },
+        "itemClass": {
+          "type": "string"
+        },
+        "itemStyle": {
+          "type": "object",
+          "title": "CSSProperties"
+        },
+        "showHeader": {
+          "type": "boolean"
+        },
+        "showHud": {
+          "type": "boolean"
+        },
+        "showPageMeta": {
+          "type": "boolean"
+        },
+        "onItemClick": {
+          "type": "object",
+          "title": "RowClickHandler"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onPageChange.params": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onPageChange.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:26.803Z",
+  "models": {
+    "RVirtualCardProps": {
+      "name": "RVirtualCardProps",
+      "jsdoc": "RVirtual Card Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererVirtualCard",
+        "type": "r-virtual-card",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {\n    /** 显式收窄为虚拟卡片容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏。 */\n    toolbar?: RToolbarProps;\n    /** 行唯一键字段。 */\n    rowKey?: string;\n    /** 空数据提示文案。 */\n    emptyText?: string;\n    /** 单个虚拟页块高度，单位 px。 */\n    pageHeight?: number;\n    /** 移动端单个虚拟页块高度，单位 px。 */\n    mobilePageHeight?: number;\n    /** 移动端断点，单位 px。 */\n    mobileBreakpoint?: number;\n    /** 视口高度 CSS 值。 */\n    viewportHeight?: string;\n    /** 视口最小高度 CSS 值。 */\n    minViewportHeight?: string;\n    /** 前后额外渲染的虚拟页数。 */\n    overscanPages?: number;\n    /** 本地全量 rows 模式下，预热目标页前后的页数；远端 DataView 仍只加载目标页。 */\n    prefetchPages?: number;\n    /** 最多保留的页缓存数量。 */\n    maxCachedPages?: number;\n    /** 每页卡片网格列数。 */\n    columns?: number;\n    /** 移动端每页卡片网格列数。 */\n    mobileColumns?: number;\n    /** 停稳后触发 DataView 页加载的延迟，单位 ms。 */\n    settleDelay?: number;\n    /** 滚轮距离换算为页数的基础像素值。 */\n    wheelStepPx?: number;\n    /** 单次滚轮最多跳转页数。 */\n    maxWheelJumpPages?: number;\n    /** 列表项 CSS 类名。 */\n    itemClass?: string;\n    /** 列表项行内样式。 */\n    itemStyle?: CSSProperties;\n    /** 是否显示顶部标题与进度。 */\n    showHeader?: boolean;\n    /** 是否显示悬浮页码提示。 */\n    showHud?: boolean;\n    /** 是否显示每个页块的页状态。 */\n    showPageMeta?: boolean;\n    /** 卡片点击回调。 */\n    onItemClick?: RowClickHandler;\n    /** 页加载回调。 */\n    onPageChange?: (page: number) => void | Promise<void>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkCrudDataContainerProps",
+            "targetName": "SparkCrudDataContainerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkGridLayoutProps",
+            "targetName": "SparkGridLayoutProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 显式收窄为虚拟卡片容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏。 */\n    toolbar?: RToolbarProps;\n    /** 行唯一键字段。 */\n    rowKey?: string;\n    /** 空数据提示文案。 */\n    emptyText?: string;\n    /** 单个虚拟页块高度，单位 px。 */\n    pageHeight?: number;\n    /** 移动端单个虚拟页块高度，单位 px。 */\n    mobilePageHeight?: number;\n    /** 移动端断点，单位 px。 */\n    mobileBreakpoint?: number;\n    /** 视口高度 CSS 值。 */\n    viewportHeight?: string;\n    /** 视口最小高度 CSS 值。 */\n    minViewportHeight?: string;\n    /** 前后额外渲染的虚拟页数。 */\n    overscanPages?: number;\n    /** 本地全量 rows 模式下，预热目标页前后的页数；远端 DataView 仍只加载目标页。 */\n    prefetchPages?: number;\n    /** 最多保留的页缓存数量。 */\n    maxCachedPages?: number;\n    /** 每页卡片网格列数。 */\n    columns?: number;\n    /** 移动端每页卡片网格列数。 */\n    mobileColumns?: number;\n    /** 停稳后触发 DataView 页加载的延迟，单位 ms。 */\n    settleDelay?: number;\n    /** 滚轮距离换算为页数的基础像素值。 */\n    wheelStepPx?: number;\n    /** 单次滚轮最多跳转页数。 */\n    maxWheelJumpPages?: number;\n    /** 列表项 CSS 类名。 */\n    itemClass?: string;\n    /** 列表项行内样式。 */\n    itemStyle?: CSSProperties;\n    /** 是否显示顶部标题与进度。 */\n    showHeader?: boolean;\n    /** 是否显示悬浮页码提示。 */\n    showHud?: boolean;\n    /** 是否显示每个页块的页状态。 */\n    showPageMeta?: boolean;\n    /** 卡片点击回调。 */\n    onItemClick?: RowClickHandler;\n    /** 页加载回调。 */\n    onPageChange?: (page: number) => void | Promise<void>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为虚拟卡片容器使用的 DataView 数据线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rowKey",
+              "jsdoc": "行唯一键字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "空数据提示文案。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageHeight",
+              "jsdoc": "单个虚拟页块高度，单位 px。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mobilePageHeight",
+              "jsdoc": "移动端单个虚拟页块高度，单位 px。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mobileBreakpoint",
+              "jsdoc": "移动端断点，单位 px。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewportHeight",
+              "jsdoc": "视口高度 CSS 值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minViewportHeight",
+              "jsdoc": "视口最小高度 CSS 值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "overscanPages",
+              "jsdoc": "前后额外渲染的虚拟页数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prefetchPages",
+              "jsdoc": "本地全量 rows 模式下，预热目标页前后的页数；远端 DataView 仍只加载目标页。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxCachedPages",
+              "jsdoc": "最多保留的页缓存数量。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "jsdoc": "每页卡片网格列数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mobileColumns",
+              "jsdoc": "移动端每页卡片网格列数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "settleDelay",
+              "jsdoc": "停稳后触发 DataView 页加载的延迟，单位 ms。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "wheelStepPx",
+              "jsdoc": "滚轮距离换算为页数的基础像素值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxWheelJumpPages",
+              "jsdoc": "单次滚轮最多跳转页数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "itemClass",
+              "jsdoc": "列表项 CSS 类名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "itemStyle",
+              "jsdoc": "列表项行内样式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showHeader",
+              "jsdoc": "是否显示顶部标题与进度。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showHud",
+              "jsdoc": "是否显示悬浮页码提示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showPageMeta",
+              "jsdoc": "是否显示每个页块的页状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onItemClick",
+              "jsdoc": "卡片点击回调。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onPageChange",
+              "jsdoc": "页加载回调。",
+              "parameters": [
+                {
+                  "name": "page",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

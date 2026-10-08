@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/business/business-kit",
+    "sourcePath": "packages/spark-ai/src/agent/business/business-kit.ts",
+    "sourceFile": "packages/spark-ai/src/agent/business/business-kit.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/business/business-kit",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/business/business-kit\n职责：构建业务级 AI 输入契约，把 businessId、paramsSchema、identity/message 字段、systemPrompt、title 和 readonlySteps 标准化成 AiAgentInputContract。\n边界：只处理输入校验、scope 创建和 orchestration 文案组装，不创建会话、不执行工具，也不持久化业务状态。\nAI用途：注册新的业务模块入口时，用本模块确认输入字段如何转成会话 scope、用户消息和系统提示。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiBusinessIdOptions",
+      "AiBusinessInputOptions",
+      "CreateSimpleInputContractOptions"
+    ]
+  },
+  "$defs": {
+    "AiBusinessIdOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiBusinessIdOptions",
+      "properties": {
+        "businessId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiBusinessInputOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiBusinessInputOptions",
+      "properties": {
+        "paramsSchema": {
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+        },
+        "identityField": {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "TInput"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "messageField": {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "TInput"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "systemPrompt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "(input: TInput) => string"
+            }
+          ]
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "(input: TInput) => string | undefined"
+            }
+          ]
+        },
+        "readonlySteps": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "object",
+              "title": "(input: TInput) => readonly string[] | undefined"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.normalize.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "JsonParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.normalize.return": {
+          "type": "object",
+          "title": "TInput"
+        }
+      }
+    },
+    "CreateSimpleInputContractOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "CreateSimpleInputContractOptions",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "AiBusinessIdOptions"
+        },
+        {
+          "type": "object",
+          "title": "AiBusinessInputOptions<TInput>"
+        }
+      ],
+      "properties": {
+        "businessId": {
+          "type": "string"
+        },
+        "paramsSchema": {
+          "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+        },
+        "identityField": {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "TInput"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "messageField": {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "TInput"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "systemPrompt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "(input: TInput) => string"
+            }
+          ]
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "title": "(input: TInput) => string | undefined"
+            }
+          ]
+        },
+        "readonlySteps": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "object",
+              "title": "(input: TInput) => readonly string[] | undefined"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.474Z",
+  "models": {
+    "AiBusinessIdOptions": {
+      "name": "AiBusinessIdOptions",
+      "jsdoc": "Ai Business Id Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 业务模块唯一标识，对应 scope.businessRegistrationId，与 registration.moduleId 一致。 */\n    businessId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 业务模块唯一标识，对应 scope.businessRegistrationId，与 registration.moduleId 一致。 */\n    businessId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "businessId",
+              "jsdoc": "业务模块唯一标识，对应 scope.businessRegistrationId，与 registration.moduleId 一致。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiBusinessInputOptions": {
+      "name": "AiBusinessInputOptions",
+      "jsdoc": "Ai Business Input Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 输入参数的 JSON Schema，用于 normalize 前后双次校验。 */\n    paramsSchema: JsonSchemaObject;\n    /** 实体标识字段名，其值用于生成 scope.businessInstanceId。 */\n    identityField: keyof TInput & string;\n    /** 用户消息字段名，其值作为 LLM 首轮 user message 内容。 */\n    messageField: keyof TInput & string;\n    /** 自定义归一化函数；不传则默认 require 输入已通过 paramsSchema 校验。 */\n    normalize?: (input: JsonParams) => TInput;\n    /** 系统提示，支持静态文本或从输入动态生成；空串会 throw。 */\n    systemPrompt: string | ((input: TInput) => string);\n    /** 可选 turn 标题，支持静态文本或从输入动态生成。 */\n    title?: string | ((input: TInput) => string | undefined);\n    /** 可选只读步骤列表，支持静态数组或从输入动态生成。 */\n    readonlySteps?: readonly string[] | ((input: TInput) => readonly string[] | undefined);\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 输入参数的 JSON Schema，用于 normalize 前后双次校验。 */\n    paramsSchema: JsonSchemaObject;\n    /** 实体标识字段名，其值用于生成 scope.businessInstanceId。 */\n    identityField: keyof TInput & string;\n    /** 用户消息字段名，其值作为 LLM 首轮 user message 内容。 */\n    messageField: keyof TInput & string;\n    /** 自定义归一化函数；不传则默认 require 输入已通过 paramsSchema 校验。 */\n    normalize?: (input: JsonParams) => TInput;\n    /** 系统提示，支持静态文本或从输入动态生成；空串会 throw。 */\n    systemPrompt: string | ((input: TInput) => string);\n    /** 可选 turn 标题，支持静态文本或从输入动态生成。 */\n    title?: string | ((input: TInput) => string | undefined);\n    /** 可选只读步骤列表，支持静态数组或从输入动态生成。 */\n    readonlySteps?: readonly string[] | ((input: TInput) => readonly string[] | undefined);\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "paramsSchema",
+              "jsdoc": "输入参数的 JSON Schema，用于 normalize 前后双次校验。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "identityField",
+              "jsdoc": "实体标识字段名，其值用于生成 scope.businessInstanceId。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "messageField",
+              "jsdoc": "用户消息字段名，其值作为 LLM 首轮 user message 内容。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "systemPrompt",
+              "jsdoc": "系统提示，支持静态文本或从输入动态生成；空串会 throw。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "可选 turn 标题，支持静态文本或从输入动态生成。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonlySteps",
+              "jsdoc": "可选只读步骤列表，支持静态数组或从输入动态生成。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "normalize",
+              "jsdoc": "自定义归一化函数；不传则默认 require 输入已通过 paramsSchema 校验。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonParams"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "TInput",
+                "refersToTypeParameter": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CreateSimpleInputContractOptions": {
+      "name": "CreateSimpleInputContractOptions",
+      "jsdoc": "Create Simple Input Contract Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "AiBusinessIdOptions & AiBusinessInputOptions<TInput>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "AiBusinessIdOptions",
+            "targetName": "AiBusinessIdOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "AiBusinessInputOptions<TInput>",
+            "targetName": "AiBusinessInputOptions"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

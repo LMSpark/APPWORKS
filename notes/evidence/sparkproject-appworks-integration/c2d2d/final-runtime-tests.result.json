@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+  "finishedAtUtc": "2026-10-07T09:08:29.6118383Z",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T09:08:22.5572757Z",
+  "exitCode": 0
+}

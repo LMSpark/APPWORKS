@@ -1,0 +1,2751 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:project/project-workspace",
+    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts",
+    "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "project/project-workspace",
+    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-workspace\n职责：提供项目模型和页面配置域中的 project workspace 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectWorkspace — 持有 ProjectBlueprint 并提交 IO（设计即编辑）。\n领域状态、事件与投影属于 ProjectBlueprint；谁 new 谁负责生命周期。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectPageLoadOptions",
+      "CreatePageForSelectedNodeParams",
+      "PageNodeCreateMountedResult",
+      "PageNodeRemoveMountedResult",
+      "ProjectWorkspaceOptions",
+      "ProjectWorkspace"
+    ]
+  },
+  "$defs": {
+    "ProjectPageLoadOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPageLoadOptions",
+      "properties": {
+        "forceReload": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CreatePageForSelectedNodeParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CreatePageForSelectedNodeParams",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pageId"
+      ],
+      "additionalProperties": false
+    },
+    "CreateMountedPageParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CreateMountedPageParams",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+        },
+        "parentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "index": {
+          "type": "number"
+        },
+        "rollbackPageOnBlueprintFailure": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "pageId"
+      ],
+      "additionalProperties": false
+    },
+    "CreatePageFilesParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CreatePageFilesParams",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pageId"
+      ],
+      "additionalProperties": false
+    },
+    "PageNodeCreateMountedResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageNodeCreateMountedResult",
+      "properties": {
+        "page": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "node": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+        }
+      },
+      "required": [
+        "page",
+        "node"
+      ],
+      "additionalProperties": false
+    },
+    "PageNodeRemoveMountedResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageNodeRemoveMountedResult",
+      "properties": {
+        "deletedNode": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deletedFiles": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "deletedNode",
+        "deletedFiles"
+      ],
+      "additionalProperties": false
+    },
+    "RemoveMountedPageParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RemoveMountedPageParams",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "deleteFiles": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "pageId"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioViewGateway": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewGateway",
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "string"
+        },
+        "method.readText.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readText.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.writeText.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.writeText.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.listVersions.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listVersions.return": {
+          "type": "object",
+          "title": "Promise<PageToolFileVersionSummary[]>"
+        },
+        "method.readVersion.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "version": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readVersion.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.createVersion.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createVersion.return": {
+          "type": "object",
+          "title": "Promise<PageToolFileVersionSummary>"
+        },
+        "method.restoreVersion.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "version": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restoreVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "ScenarioViewLoadCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewLoadCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "forceReload": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ScenarioViewCreateCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewCreateCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ScenarioViewSaveCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewSaveCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ScenarioViewAdoptCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewAdoptCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "expectedRevision": {
+          "type": "number"
+        },
+        "previewText": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ScenarioViewVersionCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewVersionCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ScenarioViewRestoreCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioViewRestoreCommand",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "previewText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectWorkspaceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectWorkspaceOptions",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "pageFiles": {
+          "$ref": "../io/page-file-api.ts.json#/$defs/ProjectPageFileGateway"
+        },
+        "blueprint": {
+          "$ref": "../io/project-blueprint-client.ts.json#/$defs/ProjectBlueprintGateway"
+        },
+        "projectReferences": {
+          "$ref": "../io/project-reference-client.ts.json#/$defs/ProjectReferenceGateway"
+        },
+        "scenarioViews": {
+          "$ref": "#/$defs/ScenarioViewGateway"
+        }
+      },
+      "required": [
+        "projectId",
+        "pageFiles",
+        "blueprint"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectWorkspace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectWorkspace",
+      "properties": {
+        "project": {
+          "$ref": "project-blueprint.ts.json#/$defs/ProjectBlueprint"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ProjectWorkspaceOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getScenarioViews.return": {
+          "anyOf": [
+            {
+              "$ref": "../scenario/scenario-view-file.ts.json#/$defs/ScenarioViewFile"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.loadScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewLoadCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<ScenarioViewFile>"
+        },
+        "method.createScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewCreateCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<ScenarioViewFile>"
+        },
+        "method.saveScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verifyScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<'confirmed' | 'not-applied'>"
+        },
+        "method.previewScenarioViewsRemote.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewScenarioViewsRemote.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.adoptScenarioViews.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewAdoptCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adoptScenarioViews.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.listScenarioVersions.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listScenarioVersions.return": {
+          "type": "object",
+          "title": "Promise<PageToolFileVersionSummary[]>"
+        },
+        "method.previewScenarioVersion.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewVersionCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewScenarioVersion.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.createScenarioVersion.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewSaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createScenarioVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.restoreScenarioVersion.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/ScenarioViewRestoreCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restoreScenarioVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.getActivePageTool.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getActivePageTool.return": {
+          "anyOf": [
+            {
+              "$ref": "../page/page-tool.ts.json#/$defs/PageTool"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.loadPageTool.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "options": {
+              "$ref": "#/$defs/ProjectPageLoadOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadPageTool.return": {
+          "type": "object",
+          "title": "Promise<PageTool>"
+        },
+        "method.loadBlueprint.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadBlueprint.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeData>"
+        },
+        "method.ingestBlueprintTree.params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "selectedNodeId": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ingestBlueprintTree.return": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "method.selectPage.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ProjectPageLoadOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectPage.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.saveProjectLayout.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "object",
+              "properties": {
+                "skipReload": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveProjectLayout.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.saveSelectedBlueprintNode.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "object",
+              "properties": {
+                "skipReload": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveSelectedBlueprintNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.ensureActivePageFilesLoaded.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ProjectPageLoadOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensureActivePageFilesLoaded.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadPageFile.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "object",
+              "title": "PageToolFileName"
+            },
+            "options": {
+              "$ref": "#/$defs/ProjectPageLoadOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadPageFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.savePageFile.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.savePageFile.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.saveDirtyPageFiles.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveDirtyPageFiles.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.saveAll.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveAll.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.addBlueprintNode.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "type": "object",
+              "properties": {
+                "parentId": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "node": {
+                  "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+                },
+                "index": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "node"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addBlueprintNode.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeNodeData>"
+        },
+        "method.deleteNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteNode.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeNodeData | null>"
+        },
+        "method.createPageForSelectedNode.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/CreatePageForSelectedNodeParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createPageForSelectedNode.return": {
+          "type": "object",
+          "title": "Promise<PageNodeCreateMountedResult>"
+        },
+        "method.createMountedPage.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/CreateMountedPageParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createMountedPage.return": {
+          "type": "object",
+          "title": "Promise<PageNodeCreateMountedResult>"
+        },
+        "method.createPageFiles.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/CreatePageFilesParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createPageFiles.return": {
+          "type": "object",
+          "title": "Promise<Record<string, unknown>>"
+        },
+        "method.deletePageFiles.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deletePageFiles.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.removeMountedPage.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/RemoveMountedPageParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeMountedPage.return": {
+          "type": "object",
+          "title": "Promise<PageNodeRemoveMountedResult>"
+        },
+        "method.moveMountedPage.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "newParentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveMountedPage.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeNodeData>"
+        },
+        "method.listRemotePageVersions.params": {
+          "type": "object",
+          "properties": {
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listRemotePageVersions.return": {
+          "type": "object",
+          "title": "Promise<PageToolFileVersionSummary[]>"
+        },
+        "method.restoreRemotePageVersion.params": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "number"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restoreRemotePageVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.createRemotePageVersion.params": {
+          "type": "object",
+          "properties": {
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createRemotePageVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.deleteRemotePageVersion.params": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "number"
+            },
+            "filename": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteRemotePageVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.notifyPageFileChanged.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "filename": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "title": "PageToolFileName"
+                },
+                {
+                  "const": "__created"
+                },
+                {
+                  "const": "__deleted"
+                },
+                {
+                  "const": "__bulk"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.notifyPageFileChanged.return": true,
+        "method.probeLink.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.probeLink.return": {
+          "type": "object",
+          "title": "Promise<{\n        embeddable: boolean;\n        reason: string;\n    }>"
+        },
+        "method.listReferenceProjects.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listReferenceProjects.return": {
+          "type": "object",
+          "title": "Promise<ProjectSummary[]>"
+        },
+        "method.listReferenceProjectPages.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listReferenceProjectPages.return": {
+          "type": "object",
+          "title": "Promise<ProjectPageReference[]>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T08:09:16.819Z",
+  "models": {
+    "ProjectPageLoadOptions": {
+      "name": "ProjectPageLoadOptions",
+      "jsdoc": "Project Page Load Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** force Reload 字段。 */\n    forceReload?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "forceReload",
+              "jsdoc": "force Reload 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CreatePageForSelectedNodeParams": {
+      "name": "CreatePageForSelectedNodeParams",
+      "jsdoc": "为当前正式节点创建明确pageId工具并绑定cfg目标。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** 显示标题。 */\n    title?: string;\n    /** icon 字段。 */\n    icon?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "page Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "显示标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "icon 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CreateMountedPageParams": {
+      "name": "CreateMountedPageParams",
+      "jsdoc": "工具创建与蓝图节点挂载命令；补偿删除仅在明确启用时执行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** 显示标题。 */\n    title?: string;\n    /** icon 字段。 */\n    icon?: string;\n    /** node 字段。 */\n    node?: ProjectBlueprintTreeNodeData;\n    /** parent Id 标识。 */\n    parentId?: string | null;\n    /** index 字段。 */\n    index?: number;\n    /** 蓝图节点挂载失败时是否补偿删除已创建的页面文件。 */\n    rollbackPageOnBlueprintFailure?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "page Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "显示标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "icon 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "node",
+              "jsdoc": "node 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentId",
+              "jsdoc": "parent Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "index 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rollbackPageOnBlueprintFailure",
+              "jsdoc": "蓝图节点挂载失败时是否补偿删除已创建的页面文件。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CreatePageFilesParams": {
+      "name": "CreatePageFilesParams",
+      "jsdoc": "明确工具身份的三文件创建请求。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageFileCreateOptions & {\n    /** page Id 标识。 */\n    pageId: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageFileCreateOptions",
+            "targetName": "PageFileCreateOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "page Id 标识。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PageNodeCreateMountedResult": {
+      "name": "PageNodeCreateMountedResult",
+      "jsdoc": "Page Node Create Mounted Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前页码。 */\n    page: Record<string, unknown>;\n    /** node 字段。 */\n    node: ProjectBlueprintTreeNodeData;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "page",
+              "jsdoc": "当前页码。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "node",
+              "jsdoc": "node 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PageNodeRemoveMountedResult": {
+      "name": "PageNodeRemoveMountedResult",
+      "jsdoc": "Page Node Remove Mounted Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** deleted Node 字段。 */\n    deletedNode: ProjectBlueprintTreeNodeData | null;\n    /** deleted Files 字段。 */\n    deletedFiles: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "deletedNode",
+              "jsdoc": "deleted Node 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deletedFiles",
+              "jsdoc": "deleted Files 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RemoveMountedPageParams": {
+      "name": "RemoveMountedPageParams",
+      "jsdoc": "节点解绑及是否删除工具文件的明确命令。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** node Id 标识。 */\n    nodeId?: string;\n    /** delete Files 字段。 */\n    deleteFiles?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "page Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "node Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleteFiles",
+              "jsdoc": "delete Files 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewGateway": {
+      "name": "ScenarioViewGateway",
+      "jsdoc": "按不透明请求scope读写共享场景文件；null仅表示宿主已确认文件不存在。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    writeText?: (scenarioId: string, text: string) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string) => Promise<PageToolFileVersionSummary>;\n    restoreVersion?: (scenarioId: string, version: number) => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    writeText?: (scenarioId: string, text: string) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string) => Promise<PageToolFileVersionSummary>;\n    restoreVersion?: (scenarioId: string, version: number) => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "readText",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "writeText",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listVersions",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageToolFileVersionSummary",
+                      "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readVersion",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createVersion",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageToolFileVersionSummary",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "restoreVersion",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewLoadCommand": {
+      "name": "ScenarioViewLoadCommand",
+      "jsdoc": "读取明确场景文件，强制重载不得覆盖dirty。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    forceReload?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    forceReload?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "forceReload",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewCreateCommand": {
+      "name": "ScenarioViewCreateCommand",
+      "jsdoc": "用户显式新建的单场景合法文本，远端必须确认不存在。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    text: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    text: string;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewSaveCommand": {
+      "name": "ScenarioViewSaveCommand",
+      "jsdoc": "保存已持有场景owner，写前比较基线并写后真实读回。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewAdoptCommand": {
+      "name": "ScenarioViewAdoptCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previewText",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewVersionCommand": {
+      "name": "ScenarioViewVersionCommand",
+      "jsdoc": "场景编号快照操作，版本为非负安全整数，不是工具发布VersionId。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    version: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioViewRestoreCommand": {
+      "name": "ScenarioViewRestoreCommand",
+      "jsdoc": "用户预览并明确选择的恢复动作，执行前必须再次确认快照原文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ScenarioViewVersionCommand & Readonly<{\n    previewText: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ScenarioViewVersionCommand",
+            "targetName": "ScenarioViewVersionCommand"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    previewText: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "previewText",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectWorkspaceOptions": {
+      "name": "ProjectWorkspaceOptions",
+      "jsdoc": "Project Workspace Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n    /** 页面三文件语义网关。 */\n    pageFiles: ProjectPageFileGateway;\n    /** 项目蓝图语义网关。 */\n    blueprint: ProjectBlueprintGateway;\n    /** 跨项目引用语义网关。 */\n    projectReferences?: ProjectReferenceGateway;\n    /** 场景文件 IO 与不透明请求代次；缺少能力时明确拒绝，不回退页面文件。 */\n    scenarioViews?: ScenarioViewGateway;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "jsdoc": "project Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageFiles",
+              "jsdoc": "页面三文件语义网关。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprint",
+              "jsdoc": "项目蓝图语义网关。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectReferences",
+              "jsdoc": "跨项目引用语义网关。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioViews",
+              "jsdoc": "场景文件 IO 与不透明请求代次；缺少能力时明确拒绝，不回退页面文件。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectWorkspace": {
+      "name": "ProjectWorkspace",
+      "jsdoc": "项目 IO 编排层：将 ProjectBlueprint 的操作委托到远端 API。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "固定项目身份与真实IO能力，持有场景scope缓存并编排可验证保存。",
+          "signatureText": "constructor(options: ProjectWorkspaceOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ProjectWorkspaceOptions",
+                "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "project",
+              "jsdoc": "project 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getScenarioViews",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewFile",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewLoadCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewFile",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewCreateCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewFile",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verifyScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "confirmed"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "not-applied"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewScenarioViewsRemote",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "adoptScenarioViews",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewAdoptCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listScenarioVersions",
+              "jsdoc": "列出真实N__pagedata.json快照，编号不参与页面工具的发布引用。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageToolFileVersionSummary",
+                      "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewScenarioVersion",
+              "jsdoc": "读取并校验用户将要恢复的单场景快照，不改变工作文件或本地owner。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewVersionCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createScenarioVersion",
+              "jsdoc": "仅为真实已保存且干净的工作文件建立快照，并核对快照原文。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewSaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "restoreScenarioVersion",
+              "jsdoc": "按已预览快照显式恢复；dirty或等待期间的新编辑均不得被远端回执覆盖。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewRestoreCommand",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getActivePageTool",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "PageTool",
+                    "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadPageTool",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectPageLoadOptions",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageTool",
+                    "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadBlueprint",
+              "jsdoc": "加载项目蓝图。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ingestBlueprintTree",
+              "parameters": [
+                {
+                  "name": "root",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        selectedNodeId?: string | null;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectBlueprintTreeData",
+                "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+              }
+            },
+            {
+              "name": "selectPage",
+              "jsdoc": "按指定 pageId 选择并加载页面文件。",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectPageLoadOptions",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectPage",
+              "jsdoc": "按当前项目蓝图选中节点选择并加载页面文件。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectPageLoadOptions",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveProjectLayout",
+              "jsdoc": "保存 Project Layout。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        skipReload?: boolean;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveSelectedBlueprintNode",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        skipReload?: boolean;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ensureActivePageFilesLoaded",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectPageLoadOptions",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadPageFile",
+              "jsdoc": "加载 Page File。",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectPageLoadOptions",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "savePageFile",
+              "jsdoc": "保存 Page File。",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveDirtyPageFiles",
+              "jsdoc": "保存 Dirty Page Files。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveAll",
+              "jsdoc": "保存 All。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addBlueprintNode",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        parentId?: string | null;\n        node: ProjectBlueprintTreeNodeData;\n        index?: number;\n    }"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeNodeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteNode",
+              "jsdoc": "删除 Node。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ProjectBlueprintTreeNodeData",
+                        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createPageForSelectedNode",
+              "jsdoc": "创建 Page For Selected Node。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "CreatePageForSelectedNodeParams",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageNodeCreateMountedResult",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createMountedPage",
+              "jsdoc": "创建 Mounted Page。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "CreateMountedPageParams",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageNodeCreateMountedResult",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createPageFiles",
+              "jsdoc": "创建 Page Files。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "CreatePageFilesParams",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deletePageFiles",
+              "jsdoc": "删除 Page Files。",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeMountedPage",
+              "jsdoc": "删除 Mounted Page。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "RemoveMountedPageParams",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageNodeRemoveMountedResult",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "moveMountedPage",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "newParentId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeNodeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listRemotePageVersions",
+              "parameters": [
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageToolFileVersionSummary",
+                      "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "restoreRemotePageVersion",
+              "parameters": [
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createRemotePageVersion",
+              "jsdoc": "创建 Remote Page Version。",
+              "parameters": [
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteRemotePageVersion",
+              "jsdoc": "删除 Remote Page Version。",
+              "parameters": [
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "notifyPageFileChanged",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "filename",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "PageToolFileName",
+                        "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "__created"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "__deleted"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "__bulk"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "probeLink",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        embeddable: boolean;\n        reason: string;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listReferenceProjects",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ProjectSummary",
+                      "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listReferenceProjectPages",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ProjectPageReference",
+                      "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

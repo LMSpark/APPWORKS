@@ -1,0 +1,236 @@
+{
+  "at": "2026-10-07T20:49:01.815Z",
+  "initialFit": {
+    "count": 6,
+    "height": 478,
+    "inside": true,
+    "transform": "transform: translate(16.1919px, 170.132px) scale(0.626076);"
+  },
+  "viewportAfterInteraction": "transform: translate(-373.542px, 62.1702px) scale(1.24799);",
+  "tabReturn": {
+    "height": 478,
+    "transform": "transform: translate(-373.542px, 62.1702px) scale(1.24799);"
+  },
+  "viewportPreserved": true,
+  "interactionApi": [],
+  "reload": {
+    "count": 6,
+    "height": 478,
+    "inside": true,
+    "transform": "transform: translate(16.1919px, 170.132px) scale(0.626076);"
+  },
+  "layoutLength": 7911,
+  "layoutUnchanged": true,
+  "apiRequests": [
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/FormDesign/GetNavigationMenus/D99A1DCE9894698799101EFD70F8FC76/D99A1DCE9894698799101EFD70F8FC76",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/sse/connect",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    }
+  ],
+  "failedResponses": [],
+  "consoleErrors": []
+}

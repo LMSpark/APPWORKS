@@ -1,0 +1,100 @@
+{
+  "created": {
+    "kind": "field",
+    "cascadeId": "city",
+    "tableName": "Orders",
+    "viewId": "edit",
+    "valueFormat": "selection-string",
+    "targetField": "city",
+    "parents": [
+      {
+        "tableName": "Orders",
+        "viewId": "edit",
+        "field": "country",
+        "parameter": "countryId"
+      }
+    ],
+    "optionsView": {
+      "tableName": "Cities",
+      "viewId": "choices"
+    },
+    "valuePolicy": {
+      "mode": "clear",
+      "clearValue": ""
+    }
+  },
+  "reopened": {
+    "scenarioId": "CLASS_MODEL_PROBE",
+    "tables": {
+      "Orders": {
+        "modelBinding": {
+          "modelId": "FIXTURE_ORDERS",
+          "modelName": "Orders"
+        },
+        "views": {
+          "default": {},
+          "edit": {}
+        }
+      },
+      "Cities": {
+        "modelBinding": {
+          "modelId": "FIXTURE_CITIES",
+          "modelName": "Cities"
+        },
+        "views": {
+          "default": {},
+          "choices": {
+            "valueField": "code",
+            "selectionDelimiter": "|"
+          }
+        }
+      }
+    },
+    "viewCascades": [
+      {
+        "kind": "field",
+        "cascadeId": "city",
+        "tableName": "Orders",
+        "viewId": "edit",
+        "valueFormat": "selection-string",
+        "targetField": "city",
+        "parents": [
+          {
+            "tableName": "Orders",
+            "viewId": "edit",
+            "field": "country",
+            "parameter": "countryId"
+          }
+        ],
+        "optionsView": {
+          "tableName": "Cities",
+          "viewId": "choices"
+        },
+        "valuePolicy": {
+          "mode": "clear",
+          "clearValue": ""
+        }
+      }
+    ]
+  },
+  "invalid": {
+    "ok": false,
+    "checks": [
+      {
+        "level": "error",
+        "code": "SCHEMA_VALIDATION_FAILED",
+        "message": "createCascade 参数不符合 paramsSchema: 缺少必填字段; 缺少必填字段; 缺少必填字段; 缺少必填字段; 缺少必填字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 必须等于 \"query\"; 未声明的字段; must match a schema in anyOf",
+        "hint": "先读取 model_action_guide 或脚本上下文对应方法的 paramsSchema，再按 schema 修正参数。"
+      },
+      {
+        "level": "error",
+        "code": "SCRIPT_EXECUTION_FAILED",
+        "message": "脚本第 1 行链式调用失败: SCHEMA_VALIDATION_FAILED: createCascade 参数不符合 paramsSchema: 缺少必填字段; 缺少必填字段; 缺少必填字段; 缺少必填字段; 缺少必填字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 未声明的字段; 必须等于 \"query\"; 未声明的字段; must match a schema in anyOf",
+        "hint": "脚本第 1 行的链式调用返回业务失败；先按原始错误码修正参数或业务状态。"
+      }
+    ],
+    "state": {
+      "scriptLine": 1
+    }
+  }
+}

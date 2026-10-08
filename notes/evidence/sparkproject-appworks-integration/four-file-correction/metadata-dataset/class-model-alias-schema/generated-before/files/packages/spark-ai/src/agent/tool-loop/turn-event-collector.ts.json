@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/tool-loop/turn-event-collector",
+    "sourcePath": "packages/spark-ai/src/agent/tool-loop/turn-event-collector.ts",
+    "sourceFile": "packages/spark-ai/src/agent/tool-loop/turn-event-collector.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/tool-loop/turn-event-collector",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/tool-loop/turn-event-collector\n职责：支撑 Agent tool loop 的 turn event collector 能力，处理工具调用、结果映射、诊断事件或 payload 编解码。\n边界：只服务单次 turn 内的工具循环，不定义业务注册协议，也不直接管理 UI 或持久化页面状态。\nAI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "TurnEventCollector"
+    ]
+  },
+  "$defs": {
+    "TurnEventCollectorInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TurnEventCollectorInput",
+      "properties": {
+        "input": {
+          "$ref": "../conversation/transport/transport-types.ts.json#/$defs/AiAgentStreamTurnInput"
+        },
+        "source": {
+          "$ref": "../conversation/transport/transport-types.ts.json#/$defs/AiAgentAppSseEventSource"
+        },
+        "timeoutMs": {
+          "type": "number"
+        },
+        "idleTimeoutMs": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TurnEventCollector": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TurnEventCollector",
+      "properties": {
+        "result": {
+          "type": "object",
+          "title": "Promise<AiAgentStreamTurnResult>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.close.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.close.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.225Z",
+  "models": {
+    "TurnEventCollectorInput": {
+      "name": "TurnEventCollectorInput",
+      "jsdoc": "收集器的构造输入",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** SSE 流轮次输入：sessionId / turn / signal / onDelta / onReasoning / onStreamEvent 等流式回调。 */\n    input: AiAgentStreamTurnInput;\n    /** APP SSE 事件源：提供 on(event, handler) 订阅 llm-frame 事件。 */\n    source: AiAgentAppSseEventSource;\n    /** 绝对上限：整轮 turn 最长等待时间。 */\n    timeoutMs?: number;\n    /** 空闲上限：连续无 SSE 帧超过该毫秒则 fail-fast。 */\n    idleTimeoutMs?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** SSE 流轮次输入：sessionId / turn / signal / onDelta / onReasoning / onStreamEvent 等流式回调。 */\n    input: AiAgentStreamTurnInput;\n    /** APP SSE 事件源：提供 on(event, handler) 订阅 llm-frame 事件。 */\n    source: AiAgentAppSseEventSource;\n    /** 绝对上限：整轮 turn 最长等待时间。 */\n    timeoutMs?: number;\n    /** 空闲上限：连续无 SSE 帧超过该毫秒则 fail-fast。 */\n    idleTimeoutMs?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "input",
+              "jsdoc": "SSE 流轮次输入：sessionId / turn / signal / onDelta / onReasoning / onStreamEvent 等流式回调。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "APP SSE 事件源：提供 on(event, handler) 订阅 llm-frame 事件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timeoutMs",
+              "jsdoc": "绝对上限：整轮 turn 最长等待时间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idleTimeoutMs",
+              "jsdoc": "空闲上限：连续无 SSE 帧超过该毫秒则 fail-fast。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "TurnEventCollector": {
+      "name": "TurnEventCollector",
+      "jsdoc": "AI turn 事件收集器接口",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 轮次结果 Promise：resolve 得到 text / reasoning / toolCalls，reject 表示超时/错误/abort。 */\n    result: Promise<AiAgentStreamTurnResult>;\n    /** 主动关闭收集器：停止监听 SSE 事件，释放定时器和监听器。 */\n    close(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 轮次结果 Promise：resolve 得到 text / reasoning / toolCalls，reject 表示超时/错误/abort。 */\n    result: Promise<AiAgentStreamTurnResult>;\n    /** 主动关闭收集器：停止监听 SSE 事件，释放定时器和监听器。 */\n    close(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "result",
+              "jsdoc": "轮次结果 Promise：resolve 得到 text / reasoning / toolCalls，reject 表示超时/错误/abort。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "close",
+              "jsdoc": "主动关闭收集器：停止监听 SSE 事件，释放定时器和监听器。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

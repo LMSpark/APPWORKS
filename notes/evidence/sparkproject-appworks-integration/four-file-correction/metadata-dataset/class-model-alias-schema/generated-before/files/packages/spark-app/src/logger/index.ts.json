@@ -1,0 +1,912 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:logger/index",
+    "sourcePath": "packages/spark-app/src/logger/index.ts",
+    "sourceFile": "packages/spark-app/src/logger/index.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "logger/index",
+    "jsdoc": "@module @spark-appworks/spark-app:logger/index\n职责：提供 spark-app 应用壳中的 index 能力，连接路由、导航、认证、插件、页面 UI 或 AI 桥接。\n边界：负责应用层编排，不下沉实现底层数据模型，也不直接改写组件包的渲染协议。\nAI用途：排查页面打开、导航状态、权限上下文或应用侧 AI 接线时，用本模块确认 app 层入口。\n\n日志级别（与 spark-utils 共享；本模块只 import 使用，不再 re-export）",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AppLoggerApi",
+      "AppLoggerConfig",
+      "AppLogTransport",
+      "BatchTransportOptions"
+    ]
+  },
+  "$defs": {
+    "AppLoggerApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AppLoggerApi",
+      "$defs": {
+        "method.debug.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.debug.return": true,
+        "method.info.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.info.return": true,
+        "method.warn.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.warn.return": true,
+        "method.error.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "title": "Error"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.error.return": true,
+        "method.success.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.success.return": true
+      }
+    },
+    "AppLoggerConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AppLoggerConfig",
+      "properties": {
+        "level": {
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LogLevel"
+        },
+        "enableColors": {
+          "type": "boolean"
+        },
+        "showTimestamp": {
+          "type": "boolean"
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "suppressErrorConsoleTrace": {
+          "type": "boolean"
+        },
+        "remoteEndpoint": {
+          "type": "string"
+        },
+        "minRemoteLevel": {
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LogLevel"
+        },
+        "batchSize": {
+          "type": "number"
+        },
+        "flushInterval": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AppLogTransport": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AppLogTransport",
+      "$defs": {
+        "method.flush.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.flush.return": true,
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true
+      }
+    },
+    "BatchTransportOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BatchTransportOptions",
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        },
+        "minLevel": {
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LogLevel"
+        },
+        "batchSize": {
+          "type": "number"
+        },
+        "flushInterval": {
+          "type": "number"
+        },
+        "sessionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "endpoint"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.getPageId.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPageId.return": {
+          "type": "string"
+        }
+      }
+    },
+    "AppLogger": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AppLogger",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "#/$defs/AppLoggerConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addTransport.params": {
+          "type": "object",
+          "properties": {
+            "transport": {
+              "$ref": "#/$defs/AppLogTransport"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addTransport.return": true,
+        "method.debug.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.debug.return": true,
+        "method.info.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.info.return": true,
+        "method.warn.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.warn.return": true,
+        "method.error.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "title": "Error"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.error.return": true,
+        "method.success.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "meta": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.success.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T11:26:11.323Z",
+  "models": {
+    "AppLoggerApi": {
+      "name": "AppLoggerApi",
+      "jsdoc": "应用层 Logger API 接口\n与 spark-utils 的 LoggerApi 是不同的接口：\n- spark-utils LoggerApi: 轻量级，(...args: unknown[]) => void\n- AppLoggerApi: 结构化参数，(message: string, meta?) => void",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 输出调试级别日志，仅开发环境可见；用于流程跟踪和变量检查 */\n    debug(message: string, meta?: Record<string, unknown>): void;\n    /** 输出信息级别日志，标记正常业务流程关键节点（启动、切换、完成） */\n    info(message: string, meta?: Record<string, unknown>): void;\n    /** 输出警告级别日志，标记可恢复的异常或需要关注的退化情况 */\n    warn(message: string, meta?: Record<string, unknown>): void;\n    /** 输出错误级别日志，自动捕获调用栈；用于不可恢复异常和需要排查的失败 */\n    error(message: string, error?: Error | Record<string, unknown>): void;\n    /** 输出成功标记日志（实际按 info 级别输出，带成功图标），用于关键操作完成确认 */\n    success(message: string, meta?: Record<string, unknown>): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "debug",
+              "jsdoc": "输出调试级别日志，仅开发环境可见；用于流程跟踪和变量检查",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "meta",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "info",
+              "jsdoc": "输出信息级别日志，标记正常业务流程关键节点（启动、切换、完成）",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "meta",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "warn",
+              "jsdoc": "输出警告级别日志，标记可恢复的异常或需要关注的退化情况",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "meta",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "error",
+              "jsdoc": "输出错误级别日志，自动捕获调用栈；用于不可恢复异常和需要排查的失败",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "Error"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "success",
+              "jsdoc": "输出成功标记日志（实际按 info 级别输出，带成功图标），用于关键操作完成确认",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "meta",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AppLoggerConfig": {
+      "name": "AppLoggerConfig",
+      "jsdoc": "日志配置",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 最小日志级别 */\n    level?: LogLevel;\n    /** 是否启用颜色 */\n    enableColors?: boolean;\n    /** 是否显示时间戳 */\n    showTimestamp?: boolean;\n    /** 日志前缀 */\n    prefix?: string;\n    /** error 级别是否避免使用 console.error 输出，防止浏览器自动展开调用栈 */\n    suppressErrorConsoleTrace?: boolean;\n    /** 远程日志端点 */\n    remoteEndpoint?: string;\n    /** 远程上报的最小日志级别（默认 'debug'，即上报所有级别） */\n    minRemoteLevel?: LogLevel;\n    /** 批量上传：队列大小阈值（达到后立即 flush，默认 50） */\n    batchSize?: number;\n    /** 批量上传：定时 flush 间隔（毫秒，默认 5000） */\n    flushInterval?: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "level",
+              "jsdoc": "最小日志级别",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enableColors",
+              "jsdoc": "是否启用颜色",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showTimestamp",
+              "jsdoc": "是否显示时间戳",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prefix",
+              "jsdoc": "日志前缀",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "suppressErrorConsoleTrace",
+              "jsdoc": "error 级别是否避免使用 console.error 输出，防止浏览器自动展开调用栈",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "remoteEndpoint",
+              "jsdoc": "远程日志端点",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minRemoteLevel",
+              "jsdoc": "远程上报的最小日志级别（默认 'debug'，即上报所有级别）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "batchSize",
+              "jsdoc": "批量上传：队列大小阈值（达到后立即 flush，默认 50）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flushInterval",
+              "jsdoc": "批量上传：定时 flush 间隔（毫秒，默认 5000）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AppLogTransport": {
+      "name": "AppLogTransport",
+      "jsdoc": "日志传输器接口\n继承 spark-utils LogTransport（SSoT）并补充批量传输需要的 flush/destroy。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "BaseLogTransport & {\n    /** 立即刷新队列中的日志（批量传输器可选实现） */\n    flush?(): void;\n    /** 销毁传输器，释放定时器等资源 */\n    destroy?(): void;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "BaseLogTransport",
+            "targetName": "BaseLogTransport"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 立即刷新队列中的日志（批量传输器可选实现） */\n    flush?(): void;\n    /** 销毁传输器，释放定时器等资源 */\n    destroy?(): void;\n}"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "flush",
+              "jsdoc": "立即刷新队列中的日志（批量传输器可选实现）",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "销毁传输器，释放定时器等资源",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BatchTransportOptions": {
+      "name": "BatchTransportOptions",
+      "jsdoc": "Batch Transport Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 远程端点 URL */\n    endpoint: string;\n    /** 上报的最小日志级别（默认 'debug'） */\n    minLevel?: LogLevel;\n    /** 队列大小阈值（默认 50） */\n    batchSize?: number;\n    /** 定时 flush 间隔 ms（默认 5000） */\n    flushInterval?: number;\n    /** 获取当前页面 ID（每条日志自动附带） */\n    getPageId?: () => string | undefined;\n    /** 会话 ID（整个浏览器生命周期不变，用于日志关联） */\n    sessionId?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "endpoint",
+              "jsdoc": "远程端点 URL",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "minLevel",
+              "jsdoc": "上报的最小日志级别（默认 'debug'）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "batchSize",
+              "jsdoc": "队列大小阈值（默认 50）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flushInterval",
+              "jsdoc": "定时 flush 间隔 ms（默认 5000）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionId",
+              "jsdoc": "会话 ID（整个浏览器生命周期不变，用于日志关联）",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getPageId",
+              "jsdoc": "获取当前页面 ID（每条日志自动附带）",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AppLogger": {
+      "name": "AppLogger",
+      "jsdoc": "应用层 Logger 实现",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 App Logger 实例。",
+          "signatureText": "constructor(config?: AppLoggerConfig)",
+          "parameters": [
+            {
+              "name": "config",
+              "type": {
+                "type": "reference",
+                "name": "AppLoggerConfig",
+                "sourcePath": "packages/spark-app/src/logger/index.ts"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "addTransport",
+              "jsdoc": "添加实例级传输器",
+              "parameters": [
+                {
+                  "name": "transport",
+                  "type": {
+                    "type": "reference",
+                    "name": "AppLogTransport",
+                    "sourcePath": "packages/spark-app/src/logger/index.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "debug",
+              "jsdoc": "Debug 日志",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "meta",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "info",
+              "jsdoc": "Info 日志",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "meta",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "warn",
+              "jsdoc": "Warning 日志",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "meta",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "error",
+              "jsdoc": "Error 日志",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "Error"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "success",
+              "jsdoc": "Success 日志（扩展）",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "meta",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

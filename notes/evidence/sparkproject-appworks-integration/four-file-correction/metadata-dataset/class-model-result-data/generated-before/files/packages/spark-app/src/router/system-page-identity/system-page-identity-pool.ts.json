@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:router/system-page-identity/system-page-identity-pool",
+    "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
+    "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "router/system-page-identity/system-page-identity-pool",
+    "jsdoc": "@spark-appworks/spark-app 的 router/system-page-identity/system-page-identity-pool 模块。\n导出 DtsTypeDeclarationModel symbol: SystemPageInstance, SystemPageIdentityPool（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "SystemPageInstance",
+      "SystemPageIdentityPool"
+    ]
+  },
+  "$defs": {
+    "SystemPageInstance": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemPageInstance",
+      "properties": {
+        "instanceId": {
+          "type": "string"
+        },
+        "componentName": {
+          "type": "string"
+        },
+        "view": {
+          "type": "object",
+          "title": "Component"
+        }
+      },
+      "required": [
+        "instanceId",
+        "componentName",
+        "view"
+      ],
+      "additionalProperties": false
+    },
+    "SystemPageIdentityPool": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemPageIdentityPool",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.get.params": {
+          "type": "object",
+          "properties": {
+            "route": {
+              "type": "object",
+              "title": "RouteLocationNormalizedLoaded"
+            },
+            "owner": {
+              "$ref": "system-page-identity-resolver.ts.json#/$defs/SystemPageIdentityOwner"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "$ref": "#/$defs/SystemPageInstance"
+        },
+        "method.getById.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getById.return": {
+          "$ref": "#/$defs/SystemPageInstance"
+        },
+        "method.close.params": {
+          "type": "object",
+          "properties": {
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.close.return": {
+          "type": "boolean"
+        },
+        "method.reconcile.params": {
+          "type": "object",
+          "properties": {
+            "owners": {
+              "type": "array",
+              "items": {
+                "$ref": "system-page-identity-resolver.ts.json#/$defs/SystemPageIdentityOwner"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.reconcile.return": {
+          "type": "boolean"
+        },
+        "method.reset.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reset.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T11:18:04.185Z",
+  "models": {
+    "SystemPageInstance": {
+      "name": "SystemPageInstance",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    instanceId: string;\n    componentName: string;\n    view: Component;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    instanceId: string;\n    componentName: string;\n    view: Component;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "instanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "componentName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SystemPageIdentityPool": {
+      "name": "SystemPageIdentityPool",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "get",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalizedLoaded"
+                  }
+                },
+                {
+                  "name": "owner",
+                  "type": {
+                    "type": "reference",
+                    "name": "SystemPageIdentityOwner",
+                    "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "SystemPageInstance",
+                "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts"
+              }
+            },
+            {
+              "name": "getById",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "SystemPageInstance",
+                  "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts"
+                }
+              }
+            },
+            {
+              "name": "close",
+              "parameters": [
+                {
+                  "name": "instanceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "reconcile",
+              "parameters": [
+                {
+                  "name": "owners",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly SystemPageIdentityOwner[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "reset",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

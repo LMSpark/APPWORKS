@@ -1,0 +1,50 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+    "sha256": "89FEEF517D441374A3A45063C86DE4D1651A5638FB5A5156C00A09D1A3D91341",
+    "bytes": 40460,
+    "snapshot": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
+    "sha256": "DACD1E9BF386BF5CD70749B1906CE0F4ED52B51B857F08EF307C3A5B8E98EBFA",
+    "bytes": 22169,
+    "snapshot": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+  },
+  {
+    "path": "packages/spark-data/src/data-view.ts",
+    "sha256": "ECBC0E3B9D5D0D7D0FCD8AA523151C1BDA7062EEEF61545DE26064FE3628677E",
+    "bytes": 117435,
+    "snapshot": "packages/spark-data/src/data-view.ts"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "sha256": "B55D655312CBAD82C540036E3A04423B37AEC448C5C7F9F3112BA3B37C94A475",
+    "bytes": 5620,
+    "snapshot": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
+    "sha256": "E219892CFEF1E55BC51CC5D5F1519E62F59E3F9613D75BEB3D3D1F88B6882A95",
+    "bytes": 36510,
+    "snapshot": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
+    "sha256": "E115D3BFD35F197F8FFE70FB8FF4138D5EFD7DD36A74B9FF6AD6C62151A2229E",
+    "bytes": 83896,
+    "snapshot": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts"
+  },
+  {
+    "path": "tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts",
+    "sha256": "1C1FCDA117D6F938CA87BB118576B6037ECC749AC406F728FD0DB5383C9954E4",
+    "bytes": 42399,
+    "snapshot": "tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts"
+  },
+  {
+    "path": "tests/runtime/data-view/dataview-crud-bridge.test.ts",
+    "sha256": "C3440D30C5DCFC8C8DBE354CF51964BEC5ABA9178A3A3E21D34DE394E033F585",
+    "bytes": 24743,
+    "snapshot": "tests/runtime/data-view/dataview-crud-bridge.test.ts"
+  }
+]

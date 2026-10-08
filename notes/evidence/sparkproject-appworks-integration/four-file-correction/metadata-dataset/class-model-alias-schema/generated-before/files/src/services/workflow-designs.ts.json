@@ -1,0 +1,2006 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/workflow-designs",
+    "sourcePath": "src/services/workflow-designs.ts",
+    "sourceFile": "src/services/workflow-designs.ts",
+    "packageName": "app",
+    "modulePath": "services/workflow-designs",
+    "jsdoc": "@module app:services/workflow-designs\n职责：提供 workflow 设计稿的 JSON 文件读写与 Dify-like graph 节点解析能力。\n边界：只处理编辑态 workflow design，不执行 Agent workflow 运行时。\nAI用途：排查 workflow design、业务节点、ClassModel model context 或边投影时，用本模块确认前端接线。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "JsonRecord",
+      "WorkflowDesignSummary",
+      "WorkflowDesignWriteResult",
+      "WorkflowDesignReadResult",
+      "WorkflowDefinitionReadResult",
+      "WorkflowDesignDeleteResult",
+      "WorkflowDesignDocument",
+      "WorkflowDesignVariable",
+      "WorkflowDesignCapability",
+      "WorkflowDesignGraph",
+      "WorkflowDesignGraphNode",
+      "WorkflowDesignLineEndpoint",
+      "WorkflowDesignLineType",
+      "WorkflowDesignLineControlPoint",
+      "WorkflowDesignLineVisual",
+      "WorkflowDesignLineData",
+      "WorkflowDesignGraphLine",
+      "WorkflowDesignNodeData",
+      "WorkflowDesignNestedGraphCarrier",
+      "WorkflowDesignSparkNodeMeta",
+      "WorkflowDesignNodeView",
+      "WorkflowDesignGraphView",
+      "WorkflowDesignLineView",
+      "WorkflowDesignNodeCreateKind",
+      "WorkflowDesignNodeCreateInput",
+      "WorkflowDesignNodeRemoveResult",
+      "WorkflowDesignLinePatch",
+      "WorkflowDesignAutoLayoutGraphResult",
+      "WorkflowDesignAutoLayoutResult",
+      "CreateAgentWorkflowDefinitionFromDesignOptions"
+    ]
+  },
+  "$defs": {
+    "WorkflowDesignSummary": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignSummary",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflowId",
+        "filename",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignWriteResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignWriteResult",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ok",
+        "workflowId",
+        "filename",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignReadResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignReadResult",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "document": {
+          "$ref": "#/$defs/WorkflowDesignDocument"
+        },
+        "notModified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "workflowId",
+        "filename",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDefinitionReadResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDefinitionReadResult",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "definition": {
+          "$ref": "../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowDefinition"
+        },
+        "notModified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "workflowId",
+        "filename",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignDeleteResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignDeleteResult",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "ok",
+        "workflowId",
+        "deleted"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignDocument": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignDocument",
+      "properties": {
+        "kind": {
+          "const": "agent.workflow.design"
+        },
+        "version": {
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "workflow": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "version": {
+              "type": "number"
+            },
+            "variables": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/WorkflowDesignVariable"
+              }
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/WorkflowDesignCapability"
+              }
+            },
+            "runtimeBinding": {
+              "$ref": "../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeRuntimeBinding"
+            },
+            "graph": {
+              "$ref": "#/$defs/WorkflowDesignGraph"
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "graph"
+          ],
+          "additionalProperties": false
+        },
+        "x_spark": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "type": "string"
+            },
+            "designer": {
+              "type": "object",
+              "title": "JsonRecord"
+            },
+            "draft": {
+              "type": "object",
+              "title": "JsonRecord"
+            },
+            "validation": {
+              "type": "object",
+              "title": "JsonRecord"
+            },
+            "history": {
+              "type": "object",
+              "title": "JsonRecord"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "kind",
+        "version",
+        "id",
+        "workflow",
+        "x_spark"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignVariable": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignVariable",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "schema": {
+          "type": "object",
+          "title": "JsonRecord"
+        },
+        "defaultValue": true
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignCapability": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignCapability",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "inputs": {
+          "type": "object",
+          "title": "JsonRecord"
+        },
+        "outputs": {
+          "type": "object",
+          "title": "JsonRecord"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "scope",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignGraph": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignGraph",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignGraphNode"
+          }
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignGraphLine"
+          }
+        },
+        "viewport": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "zoom": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "nodes",
+        "lines"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignGraphNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignGraphNode",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "position": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "data": {
+          "$ref": "#/$defs/WorkflowDesignNodeData"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignLineEndpoint": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignLineEndpoint",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "memberName": {
+          "type": "string"
+        },
+        "dock": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "nodeId",
+        "modelId",
+        "memberName"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignLineType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "WorkflowDesignLineType",
+      "enum": [
+        "orthogonal",
+        "straight",
+        "bezier"
+      ]
+    },
+    "WorkflowDesignLineControlPoint": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignLineControlPoint",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDesignLineVisual": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignLineVisual",
+      "properties": {
+        "lineType": {
+          "$ref": "#/$defs/WorkflowDesignLineType"
+        },
+        "controlPoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignLineControlPoint"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDesignLineData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignLineData",
+      "properties": {
+        "visual": {
+          "$ref": "#/$defs/WorkflowDesignLineVisual"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDesignGraphLine": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignGraphLine",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "from": {
+          "$ref": "#/$defs/WorkflowDesignLineEndpoint"
+        },
+        "to": {
+          "$ref": "#/$defs/WorkflowDesignLineEndpoint"
+        },
+        "type": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/$defs/WorkflowDesignLineData"
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignNodeData": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignNodeData",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "inputs": {
+          "type": "object",
+          "title": "JsonRecord"
+        },
+        "outputs": {
+          "type": "object",
+          "title": "JsonRecord"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignCapability"
+          }
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "JsonRecord"
+          }
+        },
+        "llm": {
+          "type": "object",
+          "title": "JsonRecord"
+        },
+        "validation": {
+          "type": "object",
+          "title": "JsonRecord"
+        },
+        "state": {
+          "type": "object",
+          "title": "JsonRecord"
+        },
+        "result": {
+          "type": "object",
+          "title": "JsonRecord"
+        },
+        "loop": {
+          "$ref": "#/$defs/WorkflowDesignNestedGraphCarrier"
+        },
+        "iteration": {
+          "$ref": "#/$defs/WorkflowDesignNestedGraphCarrier"
+        },
+        "x_spark": {
+          "$ref": "#/$defs/WorkflowDesignSparkNodeMeta"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDesignNestedGraphCarrier": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignNestedGraphCarrier",
+      "properties": {
+        "mode": {
+          "type": "string"
+        },
+        "maxLoopCount": {
+          "type": "number"
+        },
+        "exitNodeId": {
+          "type": "string"
+        },
+        "subGraph": {
+          "$ref": "#/$defs/WorkflowDesignGraph"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDesignSparkNodeMeta": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignSparkNodeMeta",
+      "properties": {
+        "nodeRole": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDesignNodeView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignNodeView",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "nodeType": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "scopePath": {
+          "type": "string"
+        },
+        "ancestry": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "node": {
+          "$ref": "#/$defs/WorkflowDesignGraphNode"
+        },
+        "graph": {
+          "$ref": "#/$defs/WorkflowDesignGraph"
+        },
+        "isBusinessNode": {
+          "type": "boolean"
+        },
+        "isBoundaryNode": {
+          "type": "boolean"
+        },
+        "isWorkflowNode": {
+          "type": "boolean"
+        },
+        "isSingleModelEditTool": {
+          "type": "boolean"
+        },
+        "isProcessStageNode": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "key",
+        "id",
+        "title",
+        "nodeType",
+        "depth",
+        "scopePath",
+        "ancestry",
+        "node",
+        "graph",
+        "isBusinessNode",
+        "isBoundaryNode",
+        "isWorkflowNode",
+        "isSingleModelEditTool",
+        "isProcessStageNode"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignGraphView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignGraphView",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "scopePath": {
+          "type": "string"
+        },
+        "graph": {
+          "$ref": "#/$defs/WorkflowDesignGraph"
+        },
+        "carrier": {
+          "enum": [
+            "root",
+            "loop",
+            "iteration"
+          ]
+        },
+        "ownerNodeId": {
+          "type": "string"
+        },
+        "ownerNode": {
+          "$ref": "#/$defs/WorkflowDesignGraphNode"
+        }
+      },
+      "required": [
+        "key",
+        "id",
+        "title",
+        "depth",
+        "scopePath",
+        "graph",
+        "carrier"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignLineView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignLineView",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "from": {
+          "$ref": "#/$defs/WorkflowDesignLineEndpoint"
+        },
+        "to": {
+          "$ref": "#/$defs/WorkflowDesignLineEndpoint"
+        },
+        "fromNodeId": {
+          "type": "string"
+        },
+        "toNodeId": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "scopePath": {
+          "type": "string"
+        },
+        "graph": {
+          "$ref": "#/$defs/WorkflowDesignGraph"
+        },
+        "line": {
+          "$ref": "#/$defs/WorkflowDesignGraphLine"
+        },
+        "fromNode": {
+          "$ref": "#/$defs/WorkflowDesignGraphNode"
+        },
+        "toNode": {
+          "$ref": "#/$defs/WorkflowDesignGraphNode"
+        }
+      },
+      "required": [
+        "key",
+        "id",
+        "from",
+        "to",
+        "fromNodeId",
+        "toNodeId",
+        "depth",
+        "scopePath",
+        "graph",
+        "line"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignNodeCreateKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "WorkflowDesignNodeCreateKind",
+      "enum": [
+        "node",
+        "start",
+        "output"
+      ]
+    },
+    "WorkflowDesignNodeCreateInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignNodeCreateInput",
+      "properties": {
+        "nodeKind": {
+          "$ref": "#/$defs/WorkflowDesignNodeCreateKind"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "position": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "nodeKind"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignNodeRemoveResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignNodeRemoveResult",
+      "properties": {
+        "removed": {
+          "type": "boolean"
+        },
+        "removedLines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignGraphLine"
+          }
+        }
+      },
+      "required": [
+        "removed",
+        "removedLines"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignLinePatch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignLinePatch",
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/WorkflowDesignLineEndpoint"
+        },
+        "to": {
+          "$ref": "#/$defs/WorkflowDesignLineEndpoint"
+        },
+        "type": {
+          "type": "string"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "lineType": {
+          "$ref": "#/$defs/WorkflowDesignLineType"
+        },
+        "controlPoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignLineControlPoint"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkflowDesignAutoLayoutGraphResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignAutoLayoutGraphResult",
+      "properties": {
+        "scopePath": {
+          "type": "string"
+        },
+        "changedNodePositions": {
+          "type": "boolean"
+        },
+        "changedViewport": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "scopePath",
+        "changedNodePositions",
+        "changedViewport"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowDesignAutoLayoutResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDesignAutoLayoutResult",
+      "properties": {
+        "changed": {
+          "type": "boolean"
+        },
+        "graphs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowDesignAutoLayoutGraphResult"
+          }
+        }
+      },
+      "required": [
+        "changed",
+        "graphs"
+      ],
+      "additionalProperties": false
+    },
+    "CreateAgentWorkflowDefinitionFromDesignOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CreateAgentWorkflowDefinitionFromDesignOptions",
+      "properties": {
+        "publishedAt": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-05T10:07:52.918Z",
+  "models": {
+    "JsonRecord": {
+      "name": "JsonRecord",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, unknown>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowDesignSummary": {
+      "name": "WorkflowDesignSummary",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    workflowId: string;\n    filename: string;\n    timestamp: string;\n    title?: string;\n    version?: number;\n    status?: string;\n    error?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "filename",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "timestamp",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignWriteResult": {
+      "name": "WorkflowDesignWriteResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    ok: boolean;\n    workflowId: string;\n    filename: string;\n    timestamp: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "ok",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "filename",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "timestamp",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignReadResult": {
+      "name": "WorkflowDesignReadResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    workflowId: string;\n    filename: string;\n    timestamp: string;\n    document?: WorkflowDesignDocument;\n    notModified?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "filename",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "timestamp",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "document",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notModified",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDefinitionReadResult": {
+      "name": "WorkflowDefinitionReadResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    workflowId: string;\n    filename: string;\n    timestamp: string;\n    definition?: SparkAgent.AgentWorkflowDefinition;\n    notModified?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "filename",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "timestamp",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "definition",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notModified",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignDeleteResult": {
+      "name": "WorkflowDesignDeleteResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    ok: boolean;\n    workflowId: string;\n    deleted: string[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "ok",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignDocument": {
+      "name": "WorkflowDesignDocument",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    kind: 'agent.workflow.design';\n    version: number;\n    id: string;\n    workflow: {\n        id: string;\n        version: number;\n        variables?: WorkflowDesignVariable[];\n        capabilities?: WorkflowDesignCapability[];\n        runtimeBinding?: SparkAgent.AgentWorkflowNodeRuntimeBinding;\n        graph: WorkflowDesignGraph;\n        [key: string]: unknown;\n    };\n    x_spark: {\n        schema?: string;\n        designer?: JsonRecord;\n        draft?: JsonRecord;\n        validation?: JsonRecord;\n        history?: JsonRecord;\n        [key: string]: unknown;\n    };\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "version",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "workflow",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "x_spark",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignVariable": {
+      "name": "WorkflowDesignVariable",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    name: string;\n    title?: string;\n    required?: boolean;\n    schema?: JsonRecord;\n    defaultValue?: unknown;\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schema",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultValue",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignCapability": {
+      "name": "WorkflowDesignCapability",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: string;\n    title: string;\n    scope: string;\n    description: string;\n    inputs?: JsonRecord;\n    outputs?: JsonRecord;\n    constraints?: string[];\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "constraints",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignGraph": {
+      "name": "WorkflowDesignGraph",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id?: string;\n    nodes: WorkflowDesignGraphNode[];\n    lines: WorkflowDesignGraphLine[];\n    viewport?: {\n        x?: number;\n        y?: number;\n        zoom?: number;\n        [key: string]: unknown;\n    };\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lines",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewport",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignGraphNode": {
+      "name": "WorkflowDesignGraphNode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: string;\n    type: string;\n    position?: {\n        x?: number;\n        y?: number;\n        [key: string]: unknown;\n    };\n    data?: WorkflowDesignNodeData;\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignLineEndpoint": {
+      "name": "WorkflowDesignLineEndpoint",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    nodeId: string;\n    modelId: string;\n    memberName: string;\n    dock?: number;\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "memberName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dock",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignLineType": {
+      "name": "WorkflowDesignLineType",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'orthogonal' | 'straight' | 'bezier'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'orthogonal'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'straight'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'bezier'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowDesignLineControlPoint": {
+      "name": "WorkflowDesignLineControlPoint",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    x: number;\n    y: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    x: number;\n    y: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "x",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignLineVisual": {
+      "name": "WorkflowDesignLineVisual",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    lineType?: WorkflowDesignLineType;\n    controlPoints?: WorkflowDesignLineControlPoint[];\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "lineType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "controlPoints",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignLineData": {
+      "name": "WorkflowDesignLineData",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    visual?: WorkflowDesignLineVisual;\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "visual",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignGraphLine": {
+      "name": "WorkflowDesignGraphLine",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id?: string;\n    from: WorkflowDesignLineEndpoint;\n    to: WorkflowDesignLineEndpoint;\n    type?: string;\n    data?: WorkflowDesignLineData;\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "from",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "to",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignNodeData": {
+      "name": "WorkflowDesignNodeData",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    type?: string;\n    title?: string;\n    desc?: string;\n    inputs?: JsonRecord;\n    outputs?: JsonRecord;\n    capabilities?: WorkflowDesignCapability[];\n    models?: JsonRecord[];\n    llm?: JsonRecord;\n    validation?: JsonRecord;\n    state?: JsonRecord;\n    result?: JsonRecord;\n    loop?: WorkflowDesignNestedGraphCarrier;\n    iteration?: WorkflowDesignNestedGraphCarrier;\n    x_spark?: WorkflowDesignSparkNodeMeta;\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "desc",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "capabilities",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "llm",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "validation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "result",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "loop",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "iteration",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "x_spark",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignNestedGraphCarrier": {
+      "name": "WorkflowDesignNestedGraphCarrier",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    mode?: string;\n    maxLoopCount?: number;\n    exitNodeId?: string;\n    subGraph?: WorkflowDesignGraph;\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxLoopCount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "exitNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subGraph",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignSparkNodeMeta": {
+      "name": "WorkflowDesignSparkNodeMeta",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    nodeRole?: string;\n    [key: string]: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeRole",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignNodeView": {
+      "name": "WorkflowDesignNodeView",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    key: string;\n    id: string;\n    title: string;\n    nodeType: string;\n    depth: number;\n    scopePath: string;\n    ancestry: string[];\n    node: WorkflowDesignGraphNode;\n    graph: WorkflowDesignGraph;\n    isBusinessNode: boolean;\n    isBoundaryNode: boolean;\n    isWorkflowNode: boolean;\n    isSingleModelEditTool: boolean;\n    isProcessStageNode: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeType",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "depth",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scopePath",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "ancestry",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "node",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "graph",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isBusinessNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isBoundaryNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isWorkflowNode",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isSingleModelEditTool",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isProcessStageNode",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignGraphView": {
+      "name": "WorkflowDesignGraphView",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    key: string;\n    id: string;\n    title: string;\n    depth: number;\n    scopePath: string;\n    graph: WorkflowDesignGraph;\n    carrier: 'root' | 'loop' | 'iteration';\n    ownerNodeId?: string;\n    ownerNode?: WorkflowDesignGraphNode;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "depth",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scopePath",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "graph",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "carrier",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "ownerNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ownerNode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignLineView": {
+      "name": "WorkflowDesignLineView",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    key: string;\n    id: string;\n    from: WorkflowDesignLineEndpoint;\n    to: WorkflowDesignLineEndpoint;\n    fromNodeId: string;\n    toNodeId: string;\n    depth: number;\n    scopePath: string;\n    graph: WorkflowDesignGraph;\n    line: WorkflowDesignGraphLine;\n    fromNode?: WorkflowDesignGraphNode;\n    toNode?: WorkflowDesignGraphNode;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "from",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "to",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fromNodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toNodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "depth",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scopePath",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "graph",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "line",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fromNode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toNode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignNodeCreateKind": {
+      "name": "WorkflowDesignNodeCreateKind",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'node' | 'start' | 'output'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'node'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'start'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'output'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowDesignNodeCreateInput": {
+      "name": "WorkflowDesignNodeCreateInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    nodeKind: WorkflowDesignNodeCreateKind;\n    id?: string;\n    title?: string;\n    desc?: string;\n    position?: {\n        x?: number;\n        y?: number;\n    };\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeKind",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "desc",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "position",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignNodeRemoveResult": {
+      "name": "WorkflowDesignNodeRemoveResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    removed: boolean;\n    removedLines: WorkflowDesignGraphLine[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "removed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removedLines",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignLinePatch": {
+      "name": "WorkflowDesignLinePatch",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    from?: WorkflowDesignLineEndpoint;\n    to?: WorkflowDesignLineEndpoint;\n    type?: string;\n    relation?: string;\n    lineType?: WorkflowDesignLineType;\n    controlPoints?: readonly WorkflowDesignLineControlPoint[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "from",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "to",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lineType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "controlPoints",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignAutoLayoutGraphResult": {
+      "name": "WorkflowDesignAutoLayoutGraphResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    scopePath: string;\n    changedNodePositions: boolean;\n    changedViewport: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "scopePath",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "changedNodePositions",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "changedViewport",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDesignAutoLayoutResult": {
+      "name": "WorkflowDesignAutoLayoutResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    changed: boolean;\n    graphs: WorkflowDesignAutoLayoutGraphResult[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "graphs",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CreateAgentWorkflowDefinitionFromDesignOptions": {
+      "name": "CreateAgentWorkflowDefinitionFromDesignOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    publishedAt?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "publishedAt",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

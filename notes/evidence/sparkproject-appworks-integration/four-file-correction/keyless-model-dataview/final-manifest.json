@@ -1,0 +1,58 @@
+[
+  {
+    "file": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+    "before": "89FEEF517D441374A3A45063C86DE4D1651A5638FB5A5156C00A09D1A3D91341",
+    "after": "ACE4CDDF16DE544FFFC11F484D4776DD111D2015EBB01897FD223427F4BDB287",
+    "beforeBytes": 40460,
+    "afterBytes": 40658
+  },
+  {
+    "file": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
+    "before": "DACD1E9BF386BF5CD70749B1906CE0F4ED52B51B857F08EF307C3A5B8E98EBFA",
+    "after": "70FAA5B217D60990798BD211209B1EDADAA7F7C95159B522A638772DD23118C5",
+    "beforeBytes": 22169,
+    "afterBytes": 22748
+  },
+  {
+    "file": "packages/spark-data/src/data-view.ts",
+    "before": "ECBC0E3B9D5D0D7D0FCD8AA523151C1BDA7062EEEF61545DE26064FE3628677E",
+    "after": "5CEC82960AB50CCFF2EED9E492FB820B7FA0A5505110790EEBD0D43AD98421D3",
+    "beforeBytes": 117435,
+    "afterBytes": 118534
+  },
+  {
+    "file": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "before": "B55D655312CBAD82C540036E3A04423B37AEC448C5C7F9F3112BA3B37C94A475",
+    "after": "B55D655312CBAD82C540036E3A04423B37AEC448C5C7F9F3112BA3B37C94A475",
+    "beforeBytes": 5620,
+    "afterBytes": 5620
+  },
+  {
+    "file": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
+    "before": "E219892CFEF1E55BC51CC5D5F1519E62F59E3F9613D75BEB3D3D1F88B6882A95",
+    "after": "68701FE3052FB7B1F5C40F9B2115664D5C3ABBA8B49DA1E7226118CA7418F957",
+    "beforeBytes": 36510,
+    "afterBytes": 37041
+  },
+  {
+    "file": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
+    "before": "E115D3BFD35F197F8FFE70FB8FF4138D5EFD7DD36A74B9FF6AD6C62151A2229E",
+    "after": "051768402E0B2CFD833824D894F436330B4462B3678AAA17D5FDD06BBE543FD6",
+    "beforeBytes": 83896,
+    "afterBytes": 85006
+  },
+  {
+    "file": "tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts",
+    "before": "1C1FCDA117D6F938CA87BB118576B6037ECC749AC406F728FD0DB5383C9954E4",
+    "after": "1E20271B8468A29455D88537512C44F2D46FCDC1436567D140A2A9F6C9C326DA",
+    "beforeBytes": 42399,
+    "afterBytes": 44228
+  },
+  {
+    "file": "tests/runtime/data-view/dataview-crud-bridge.test.ts",
+    "before": "C3440D30C5DCFC8C8DBE354CF51964BEC5ABA9178A3A3E21D34DE394E033F585",
+    "after": "1B7AB6F811F119C62A86F9A175B95387786409E986EEE89537E4A75789F494FE",
+    "beforeBytes": 24743,
+    "afterBytes": 30024
+  }
+]

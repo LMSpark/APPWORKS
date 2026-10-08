@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:script-types",
+    "sourcePath": "packages/spark-utils/src/script-types.ts",
+    "sourceFile": "packages/spark-utils/src/script-types.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "script-types",
+    "jsdoc": "@module @spark-appworks/spark-utils:script-types\n职责：提供框架无关的 script types 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FieldRenderConfig",
+      "ComponentInstanceSnapshot",
+      "ContextItem",
+      "ContextSnapshot"
+    ]
+  },
+  "$defs": {
+    "FieldRenderConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldRenderConfig",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean"
+        },
+        "editable": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "additionalProperties": false
+    },
+    "ComponentInstanceSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ComponentInstanceSnapshot",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "props": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "ContextItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContextItem",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "ContextSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContextSnapshot",
+      "properties": {
+        "selected": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContextItem"
+          }
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "selected",
+        "items",
+        "nodeId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:51.069Z",
+  "models": {
+    "FieldRenderConfig": {
+      "name": "FieldRenderConfig",
+      "jsdoc": "字段渲染配置（脚本可见）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** field 字段。 */\n    field: string;\n    /** 是否可见。 */\n    visible?: boolean;\n    /** editable 字段。 */\n    editable?: boolean;\n    /** 展示标签。 */\n    label?: string;\n    /** width 字段。 */\n    width?: number | string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "jsdoc": "field 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "visible",
+              "jsdoc": "是否可见。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editable",
+              "jsdoc": "editable 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "展示标签。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "width 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ComponentInstanceSnapshot": {
+      "name": "ComponentInstanceSnapshot",
+      "jsdoc": "页面组件实例快照（脚本只读元数据）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 唯一标识。 */\n    id: string;\n    /** 类型标识。 */\n    type: string;\n    /** 组件属性集合。 */\n    props?: Record<string, unknown>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "唯一标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "props",
+              "jsdoc": "组件属性集合。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContextItem": {
+      "name": "ContextItem",
+      "jsdoc": "模块上下文选项",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 唯一标识。 */\n    id: string | number;\n    /** 显示标题。 */\n    title: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "唯一标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "显示标题。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ContextSnapshot": {
+      "name": "ContextSnapshot",
+      "jsdoc": "模块级上下文快照",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** selected 字段。 */\n    selected: string | number | null;\n    /** items 字段。 */\n    items: readonly ContextItem[];\n    /** node Id 标识。 */\n    nodeId: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "selected",
+              "jsdoc": "selected 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "items",
+              "jsdoc": "items 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "node Id 标识。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

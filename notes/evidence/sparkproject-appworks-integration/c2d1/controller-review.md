@@ -1,0 +1,13 @@
+# C2d1 主控复审
+
+状态：退回同4文件闭环，不扩大生产范围
+
+首轮平台23、runtime26、type/lint/dirs通过，但不够签署以下合同：
+
+1. selectApplication与activateApplication的await commit成功恢复有receipt检查，失败恢复却没有检查。helper抛当前rootError后、外层catch恢复前B可启动；需用原selection fence复核，仍current则保留原error，stale则显式失效。新增延迟失败与新意图的用例，不扩大认证逻辑。
+2. activateApplication的“rechecks after commit”测试在root.resolve之前没有等待list→root进入，可能实际由内层检查拦截；先等resolveNavigationRootId调用再resolve并queueMicrotask，保证覆盖指定outer continuation。
+3. runtime wrapper用例同样在root.resolve后立即换scope，由平台外层就能拒绝，不能证明runtime自己的assert。使用真实platform original方法的公开返回边界调度：包装async方法await original获得真receipt，然后queueMicrotask改scope，再return receipt；runtime continuation晚于scope改变。临时移除runtime目标assert应真实RED，恢复GREEN，不能只凭测试名字说明边界。
+4. 补精简参数化覆盖当前list error原样透传/旧list error失效、两公共选择入口混合启动、login/logout请求未结束时pending root不提交。
+5. 补dispatch要求的ai-codegen门禁并保留原始日志。
+
+生产输入快照7标量字段和旧A目录晚回真实RED已确认；C2d2a预案仍draft，待本轮接受才派工。不得并行写。

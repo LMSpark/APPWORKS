@@ -1,0 +1,255 @@
+diff --git "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\named-view-autoload\\before\\dataset.ts" b/packages/spark-data/src/dataset.ts
+index 21885fa86..86d9f7605 100644
+--- "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\named-view-autoload\\before\\dataset.ts"
++++ b/packages/spark-data/src/dataset.ts
+@@ -740,20 +740,21 @@ getRequestTemplateParams(): Record<string, unknown> {
+   }
+ 
+   /**
+-   * 触发所有标记了 `autoLoad: true` 的 default 视图自动加载。
++   * 触发所有标记了 `autoLoad: true` 的视图自动加载。
+    *
+    * 页面调用渲染层在构建 DataSet 后调用此方法；
+    * 业务脚本不再需要在 `__init__` 中手动写 `view.loadFromServer()`。
+    *
+-   * 仅处理 default 视图——命名视图和从表通常由级联机制驱动。
++   * 父视图依赖与在途请求复用由各视图的 requestData 编排。
+    */
+   triggerAutoLoad(): void {
+     for (const table of Object.values(this.tables)) {
+-      const defaultView = table.getView('default')
+-      if (defaultView?.autoLoad && defaultView.requestState === RequestState.Idle) {
+-        defaultView.requestData().catch((err: unknown) => {
+-          dsLogger.warn(`autoLoad 请求失败: ${table.tableName}`, err)
+-        })
++      for (const view of table.viewList) {
++        if (view.autoLoad && view.requestState === RequestState.Idle) {
++          view.requestData().catch((err: unknown) => {
++            dsLogger.warn(`autoLoad 请求失败: ${table.tableName}@${view.viewId}`, err)
++          })
++        }
+       }
+     }
+   }
+diff --git "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\named-view-autoload\\before\\data-view.ts" b/packages/spark-data/src/data-view.ts
+index b5798c309..c4523a999 100644
+--- "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\named-view-autoload\\before\\data-view.ts"
++++ b/packages/spark-data/src/data-view.ts
+@@ -1394,7 +1394,7 @@ protected logger = Logger('DataView')
+ 
+       const cascadeFilters: DataViewFilterTree[] = []
+       for (const rel of parents) {
+-        await this.requestIdleCascadeSource(rel)
++        await this.requestCascadeSource(rel)
+         if (this._isDestroyed) return
+         const cascadeFilter = ds?.resolveCascadeFilter(rel)
+         if (cascadeFilter === null) {
+@@ -1442,11 +1442,13 @@ protected logger = Logger('DataView')
+     }
+   }
+ 
+-  private async requestIdleCascadeSource(rel: DataViewQueryCascade): Promise<void> {
++  private async requestCascadeSource(rel: DataViewQueryCascade): Promise<void> {
+     const ds = this.dataSet
+     if (!ds) return
+     const parentView = ds.getView(rel.parentTable, rel.parentViewId)
+-    if (parentView?.requestState === RequestState.Idle) {
++    if (parentView?._pendingRequestData) {
++      await parentView._pendingRequestData
++    } else if (parentView?.requestState === RequestState.Idle) {
+       await parentView.requestData()
+     }
+   }
+diff --git "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\named-view-autoload\\before\\cascade-delegate.ts" b/packages/spark-data/src/strategies/cascade-delegate.ts
+index 77c3fafce..35d84bf99 100644
+--- "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\named-view-autoload\\before\\cascade-delegate.ts"
++++ b/packages/spark-data/src/strategies/cascade-delegate.ts
+@@ -123,8 +123,8 @@ constructor(
+     }
+ 
+     if (rel.autoLoad !== false) {
+-      // 无 API 配置（内联静态数据）→ 内存级联过滤，无需发起网络请求
+-      if (!this.host.crudService) {
++      // 正式模型由查询 owner 取数，不依赖表级 CRUD 端点。
++      if (!this.host.crudService && !this.host.dataTable?.modelBinding) {
+         logger.debug(`内存级联过滤 ${this.host.tableName}:${this.host.viewId}（无 API 配置）`)
+         this.host.applyInMemoryCascade(rel, parentRows)
+         return
+diff --git "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\named-view-autoload\\before\\lowcode-data-space-persistence.test.ts" b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+index f72770e65..91931fd05 100644
+--- "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\named-view-autoload\\before\\lowcode-data-space-persistence.test.ts"
++++ b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+@@ -1,5 +1,5 @@
+ import {describe, expect, it, vi} from 'vitest'
+-import {DataViewFilter, extractColumnRules} from '@spark-appworks/spark-data'
++import {DataViewFilter, RequestState, extractColumnRules} from '@spark-appworks/spark-data'
+ import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+ import {ProjectWorkspace, type ScenarioViewFile} from '@spark-appworks/spark-project-model'
+ import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
+@@ -37,12 +37,13 @@ const initial = JSON.stringify({scenarioId: 'SPACE', tables: {
+ 
+ class QueryHttp extends HttpClientBase {
+   readonly requests: RequestConfig[] = []
++  respond?: (config: RequestConfig) => Promise<unknown>
+   result: unknown = {primaryKeyField: 'id', allowAdd: false, data: {Items: [], Count: 0}}
+   saveResult: unknown = {maplistedit: [{ParentSource: [{id: 'P1', title: 'Changed', price: 3, qty: 4}]}]}
+   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+     this.requests.push(config)
+-    return {data: {Code: 200, Result: config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD'
+-      ? this.saveResult : this.result},
++    return {data: {Code: 200, Result: this.respond ? await this.respond(config)
++      : config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD' ? this.saveResult : this.result},
+     status: 200, statusText: 'OK', headers: {}}
+   }
+ }
+@@ -90,6 +91,150 @@ const projection = {fieldId: 'ParentModel-title', source: 'resource' as const,
+   distinct: false, primaryKey: false, value: '', valueFunction: '', expression: ''}
+ 
+ describe('scenario view persistence and formal model assembly', () => {
++  it.each(['parent-first', 'child-first'])('reopens named autoLoad views and queries their dependencies with %s table order', async order => {
++    const storage = fixture()
++    const first = storage.openOwner()
++    const opened = await first.service.open('SPACE')
++    const parents = {modelBinding: {modelId: 'ParentModel', modelName: 'ParentModel'}, views: {
++      default: {autoLoad: false}, shared: {autoLoad: true, queryContext: {purpose: 'parent'}},
++      detail: {autoLoad: true, queryContext: {purpose: 'independent'}},
++    }}
++    const children = {modelBinding: {modelId: 'ChildModel', modelName: 'ChildModel'}, views: {
++      default: {autoLoad: false}, shared: {autoLoad: true}, detail: {autoLoad: false},
++    }}
++    opened.dirtySource.setText(JSON.stringify({scenarioId: 'SPACE', tables: order === 'parent-first'
++      ? {Parents: parents, Children: children} : {Children: children, Parents: parents},
++    viewCascades: [{...cascade, autoLoad: true}]}))
++    const saved = await first.service.save('SPACE')
++    const reopened = storage.openOwner()
++    const read = await reopened.service.open('SPACE')
++    const {dataSet} = await reopened.assemble('SPACE', read.dirtySource)
++    const parent = dataSet.getView('Parents', 'shared')!
++    const child = dataSet.getView('Children', 'shared')!
++    const independent = dataSet.getView('Parents', 'detail')!
++    const queries: Record<string, unknown>[] = []
++    let finishParent: (() => void) | undefined
++    const parentGate = new Promise<void>(resolve => { finishParent = resolve })
++    reopened.http.respond = async request => {
++      if (request.url !== '/api/DataOperation/GetData' || !isRecord(request.data)
++        || !Array.isArray(request.data['Table']) || !isRecord(request.data['Table'][0])) {
++        throw new Error('unexpected query request')
++      }
++      const query = request.data['Table'][0]
++      queries.push(query)
++      let rows: Record<string, unknown>[]
++      if (query['Name'] === 'ParentModel') {
++        const independentQuery = Array.isArray(query['inputParams']) && query['inputParams']
++          .some(input => isRecord(input) && input['Name'] === 'purpose' && input['Value'] === 'independent')
++        if (independentQuery) rows = [{id: 'INDEPENDENT', title: 'Separate result'}]
++        else {
++          await parentGate
++          rows = [{id: 'P1', title: 'First'}, {id: 'P2', title: 'Second'}]
++        }
++      } else {
++        if (query['Name'] !== 'ChildModel' || !isRecord(query['Filter'])
++          || !isRecord(query['Filter']['ValueFun'])) throw new Error('missing child dependency filter')
++        const parentId = query['Filter']['ValueFun']['Value']
++        rows = [{id: `C-${String(parentId)}`, parentId, title: 'Child'}]
++      }
++      return {primaryKeyField: 'id', allowAdd: false, data: {Items: rows, Count: rows.length}}
++    }
++    try {
++      dataSet.triggerAutoLoad()
++      dataSet.triggerAutoLoad()
++      await vi.waitFor(() => expect(independent.requestState).toBe(RequestState.Loaded))
++      expect(parent.requestState).toBe(RequestState.Loading)
++      expect(child.requestState).toBe(RequestState.Preparing)
++      expect(queries).toHaveLength(2)
++      expect(queries.every(query => query['Name'] === 'ParentModel')).toBe(true)
++      finishParent?.()
++      await vi.waitFor(() => expect(child.requestState).toBe(RequestState.Loaded))
++      expect(queries).toHaveLength(3)
++      expect(queries[2]).toMatchObject({Name: 'ChildModel', Filter: {ValueFun: {Type: 'GetConstValue', Value: 'P1'}}})
++      expect(child.rows).toMatchObject([{id: 'C-P1', parentId: 'P1'}])
++      expect(parent.rows).toMatchObject([{id: 'P1'}, {id: 'P2'}])
++      expect(independent.rows).toMatchObject([{id: 'INDEPENDENT'}])
++      expect(dataSet.getView('Parents', 'default')?.requestState).toBe(RequestState.Idle)
++      expect(dataSet.getView('Children', 'default')?.requestState).toBe(RequestState.Idle)
++      expect(dataSet.getView('Children', 'detail')?.requestState).toBe(RequestState.Idle)
++      dataSet.triggerAutoLoad()
++      await Promise.resolve()
++      expect(queries).toHaveLength(3)
++
++      parent.setCurrentRow(parent.rows[1] ?? null)
++      await vi.waitFor(() => expect(child.rows).toMatchObject([{id: 'C-P2', parentId: 'P2'}]))
++      expect(queries).toHaveLength(4)
++      expect(queries[3]).toMatchObject({Name: 'ChildModel', Filter: {ValueFun: {Type: 'GetConstValue', Value: 'P2'}}})
++      expect(independent.rows).toMatchObject([{id: 'INDEPENDENT'}])
++      expect(read.dirtySource.getText()).toBe(saved.text)
++      expect(read.dirtySource.isDirty).toBe(false)
++      expect(storage.stored.get('SPACE')).toBe(saved.text)
++    } finally {
++      finishParent?.()
++      dataSet.destroy()
++    }
++  })
++
++  it.each(['failure', 'destruction'])('keeps named child queries gated after parent %s', async outcome => {
++    const storage = fixture()
++    const first = storage.openOwner()
++    const opened = await first.service.open('SPACE')
++    const parentStage = await first.service.stage({...parentShared, expectedText: opened.state.text,
++      configuration: {autoLoad: true}})
++    await first.service.stage({...childShared, expectedText: parentStage.text, configuration: {autoLoad: true}})
++    const saved = await first.service.save('SPACE')
++    const reopened = storage.openOwner()
++    const read = await reopened.service.open('SPACE')
++    const {dataSet} = await reopened.assemble('SPACE', read.dirtySource)
++    const parent = dataSet.getView('Parents', 'shared')!
++    const child = dataSet.getView('Children', 'shared')!
++    let release: (() => void) | undefined
++    const gate = new Promise<void>(resolve => { release = resolve })
++    let fail = outcome === 'failure'
++    reopened.http.respond = async request => {
++      await gate
++      if (fail) throw new Error('parent offline')
++      if (!isRecord(request.data) || !Array.isArray(request.data['Table'])
++        || !isRecord(request.data['Table'][0])) throw new Error('missing query model')
++      const rows = request.data['Table'][0]['Name'] === 'ParentModel'
++        ? [{id: 'P1', title: 'Parent'}] : [{id: 'C1', parentId: 'P1', title: 'Child'}]
++      return {primaryKeyField: 'id', allowAdd: false, data: {Items: rows, Count: 1}}
++    }
++    try {
++      dataSet.triggerAutoLoad()
++      await vi.waitFor(() => expect(reopened.http.requests).toHaveLength(1))
++      expect(child.requestState).toBe(RequestState.Preparing)
++      const waiting = child.requestData()
++      if (outcome === 'destruction') dataSet.destroy()
++      release?.()
++      await waiting
++      expect(child.rows).toEqual([])
++      expect(reopened.http.requests).toHaveLength(1)
++      if (outcome === 'failure') {
++        expect(parent.requestState).toBe(RequestState.Failed)
++        expect(parent.loadingError?.message).toContain('parent offline')
++        expect(child.requestState).toBe(RequestState.Failed)
++        dataSet.triggerAutoLoad()
++        await Promise.resolve()
++        expect(reopened.http.requests).toHaveLength(1)
++        fail = false
++        await parent.refresh()
++        await child.refresh()
++        expect(child.rows).toMatchObject([{id: 'C1', parentId: 'P1'}])
++        expect(reopened.http.requests).toHaveLength(3)
++      } else {
++        expect(parent.destroyed).toBe(true)
++        expect(child.destroyed).toBe(true)
++        expect(parent.rows).toEqual([])
++        expect(child.requestState).toBe(RequestState.Idle)
++      }
++      expect(storage.stored.get('SPACE')).toBe(saved.text)
++    } finally {
++      release?.()
++      dataSet.destroy()
++    }
++  })
++
+   it('saves a field cascade through the file owner and executes it after fresh workspace assembly', async () => {
+     const storage = fixture()
+     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'country', 'province', 'city'], ['province']),

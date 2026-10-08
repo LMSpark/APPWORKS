@@ -1,0 +1,14 @@
+[
+  {
+    "path": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts",
+    "sha256": "95D0EAD08724030770C29A14B066FD3240B42368ED9BEAAC83A42D93D45E4652",
+    "bytes": 12562,
+    "snapshot": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/model-source/lowcode-data-space-model-source-reader.test.ts",
+    "sha256": "6306E8F6FD0D0D54B35CEE3C1B4F3756E4A4B777B1CAB41C2BDC8383108253ED",
+    "bytes": 7300,
+    "snapshot": "tests/runtime/auth-nav/data-space/model-source/lowcode-data-space-model-source-reader.test.ts"
+  }
+]

@@ -1,0 +1,1003 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:project/project-types",
+    "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
+    "sourceFile": "packages/spark-project-model/src/project/project-types.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "project/project-types",
+    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-types\n职责：提供项目模型层 project-types 契约，处理项目蓝图、页面文件、配置内容、工作区与远端 IO。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 三文件链路。\nAI用途：规划项目蓝图、读写 page files 或理解 ProjectBlueprint/ProjectWorkspace 行为时，用本模块定位 project/project-types。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectBlueprintDirtyScope",
+      "ProjectBlueprintEvent",
+      "ProjectBlueprintEventListener",
+      "ProjectPageFileWriteCommand",
+      "ProjectBlueprintProjection",
+      "ProjectActivePageProjection",
+      "ProjectDirtyProjection",
+      "ProjectPlanningInput",
+      "BlueprintPlanningInput",
+      "ProjectPlanningCompletionInput",
+      "ProjectPlanningCompletionResult",
+      "ProjectInfo",
+      "ProjectInfoInput",
+      "ProjectBlueprintInitOptions"
+    ]
+  },
+  "$defs": {
+    "ProjectBlueprintDirtyScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintDirtyScope",
+      "enum": [
+        "node",
+        "root"
+      ]
+    },
+    "ProjectBlueprintEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectBlueprintEvent",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "blueprint.changed"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "number"
+            },
+            "scope": {
+              "type": "object",
+              "title": "ProjectBlueprintDirtyScope"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "projectId",
+            "revision",
+            "scope"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "selection.changed"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "number"
+            },
+            "nodeId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "pageId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "projectId",
+            "revision",
+            "nodeId",
+            "pageId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "page.file.changed"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "number"
+            },
+            "pageId": {
+              "type": "string"
+            },
+            "fileName": {
+              "type": "object",
+              "title": "PageToolFileName"
+            }
+          },
+          "required": [
+            "type",
+            "projectId",
+            "revision",
+            "pageId",
+            "fileName"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "runtime.changed"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "number"
+            },
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "projectId",
+            "revision"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ProjectPageFileWriteCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPageFileWriteCommand",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "object",
+          "title": "PageToolFileName"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileName",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectBlueprintProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintProjection",
+      "properties": {
+        "blueprint": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "tree": {
+          "type": "array",
+          "items": {
+            "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+          }
+        },
+        "selectedNode": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "selectedNodeId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "blueprintLocation": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeLocation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blueprintDraft": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraft"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pageDeliveries": {
+          "type": "array",
+          "items": {
+            "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectPageNodeSummary"
+          }
+        }
+      },
+      "required": [
+        "blueprint",
+        "tree",
+        "selectedNode",
+        "selectedNodeId",
+        "blueprintLocation",
+        "blueprintDraft",
+        "pageDeliveries"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectActivePageProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectActivePageProjection",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "ruleJson": {
+          "type": "string"
+        },
+        "script": {
+          "type": "string"
+        },
+        "style": {
+          "type": "string"
+        },
+        "parseErrors": {
+          "type": "object",
+          "title": "Record<PageToolFileName, string | null>"
+        },
+        "isLoaded": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "pageId",
+        "ruleJson",
+        "script",
+        "style",
+        "parseErrors",
+        "isLoaded"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectDirtyProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectDirtyProjection",
+      "properties": {
+        "dirtyFiles": {
+          "type": "object",
+          "title": "Set<PageToolFileName>"
+        },
+        "hasAnyFileDirty": {
+          "type": "boolean"
+        },
+        "blueprintDirty": {
+          "type": "boolean"
+        },
+        "hasAnyDirty": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "dirtyFiles",
+        "hasAnyFileDirty",
+        "blueprintDirty",
+        "hasAnyDirty"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectPlanningInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningInput",
+      "properties": {
+        "requirement": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BlueprintPlanningInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintPlanningInput",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "ProjectBlueprintNodeKind"
+            },
+            {
+              "const": "unknown"
+            }
+          ]
+        },
+        "requirement": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectPlanningCompletionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningCompletionInput",
+      "properties": {
+        "summary": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectPlanningCompletionResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ProjectPlanningCompletionResult",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "const": true
+            },
+            "completed": {
+              "const": true
+            },
+            "summary": {
+              "type": "string"
+            },
+            "nodeCount": {
+              "type": "number"
+            },
+            "blueprintKinds": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "ProjectBlueprintNodeKind"
+              }
+            }
+          },
+          "required": [
+            "ok",
+            "completed",
+            "summary",
+            "nodeCount",
+            "blueprintKinds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "const": false
+            },
+            "code": {
+              "type": "string"
+            },
+            "msg": {
+              "type": "string"
+            },
+            "fix": {
+              "type": "string"
+            },
+            "requiredCapabilities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "missingFacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "nextStep": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "ok",
+            "code",
+            "msg",
+            "fix"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ProjectInfo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectInfo",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "projectType": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "homeNodeId": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId",
+        "name",
+        "projectType",
+        "description",
+        "order"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectInfoInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectInfoInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectBlueprintInitOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectBlueprintInitOptions",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "project": {
+          "$ref": "#/$defs/ProjectInfoInput"
+        }
+      },
+      "required": [
+        "projectId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.374Z",
+  "models": {
+    "ProjectBlueprintDirtyScope": {
+      "name": "ProjectBlueprintDirtyScope",
+      "jsdoc": "节点编辑或根结构编辑的保存范围。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'node' | 'root'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'node'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'root'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintEvent": {
+      "name": "ProjectBlueprintEvent",
+      "jsdoc": "Project Blueprint Event 的事件载荷。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    type: 'blueprint.changed';\n    projectId: string;\n    revision: number;\n    scope: ProjectBlueprintDirtyScope;\n    nodeId?: string;\n} | {\n    type: 'selection.changed';\n    projectId: string;\n    revision: number;\n    nodeId: string | null;\n    pageId: string | null;\n} | {\n    type: 'page.file.changed';\n    projectId: string;\n    revision: number;\n    pageId: string;\n    fileName: PageToolFileName;\n} | {\n    type: 'runtime.changed';\n    projectId: string;\n    revision: number;\n    pageId?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "{\n    type: 'blueprint.changed';\n    projectId: string;\n    revision: number;\n    scope: ProjectBlueprintDirtyScope;\n    nodeId?: string;\n}"
+          },
+          {
+            "kind": "union",
+            "typeText": "{\n    type: 'selection.changed';\n    projectId: string;\n    revision: number;\n    nodeId: string | null;\n    pageId: string | null;\n}"
+          },
+          {
+            "kind": "union",
+            "typeText": "{\n    type: 'page.file.changed';\n    projectId: string;\n    revision: number;\n    pageId: string;\n    fileName: PageToolFileName;\n}"
+          },
+          {
+            "kind": "union",
+            "typeText": "{\n    type: 'runtime.changed';\n    projectId: string;\n    revision: number;\n    pageId?: string;\n}"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectBlueprintEventListener": {
+      "name": "ProjectBlueprintEventListener",
+      "jsdoc": "项目领域代次事件订阅，用于驱动UI投影更新。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(event: ProjectBlueprintEvent) => void",
+        "members": {}
+      }
+    },
+    "ProjectPageFileWriteCommand": {
+      "name": "ProjectPageFileWriteCommand",
+      "jsdoc": "Project Page File Write Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 目标配置页 pageId；省略时使用当前 activePage。 */\n    pageId?: string | undefined;\n    /** 要写入的页面三文件名。 */\n    fileName: PageToolFileName;\n    /** 新的文件文本内容，只写入内存模型，落盘由工作区编排。 */\n    text: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "目标配置页 pageId；省略时使用当前 activePage。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "jsdoc": "要写入的页面三文件名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "text",
+              "jsdoc": "新的文件文本内容，只写入内存模型，落盘由工作区编排。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintProjection": {
+      "name": "ProjectBlueprintProjection",
+      "jsdoc": "正式蓝图及会话选择的读投影，不形成新的可写真源。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 完整项目蓝图。 */\n    blueprint: ProjectBlueprintTreeData;\n    /** 蓝图树节点投影。 */\n    tree: ProjectBlueprintTreeNodeData[];\n    /** selected Node 字段。 */\n    selectedNode: ProjectBlueprintTreeNodeData | null;\n    /** selected Node Id 标识。 */\n    selectedNodeId: string | null;\n    /** 当前节点在项目蓝图中的位置。 */\n    blueprintLocation: ProjectBlueprintTreeNodeLocation | null;\n    /** 当前项目蓝图节点编辑草稿。 */\n    blueprintDraft: BlueprintNodeDraft | null;\n    /** 可交付页面投影。 */\n    pageDeliveries: ProjectPageNodeSummary[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "blueprint",
+              "jsdoc": "完整项目蓝图。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "tree",
+              "jsdoc": "蓝图树节点投影。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectedNode",
+              "jsdoc": "selected Node 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectedNodeId",
+              "jsdoc": "selected Node Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintLocation",
+              "jsdoc": "当前节点在项目蓝图中的位置。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintDraft",
+              "jsdoc": "当前项目蓝图节点编辑草稿。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageDeliveries",
+              "jsdoc": "可交付页面投影。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectActivePageProjection": {
+      "name": "ProjectActivePageProjection",
+      "jsdoc": "当前独立PageTool三文件文本与装载状态投影。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** rule Json 字段。 */\n    ruleJson: string;\n    /** script 字段。 */\n    script: string;\n    /** style 字段。 */\n    style: string;\n    /** parse Errors 字段。 */\n    parseErrors: Record<PageToolFileName, string | null>;\n    /** 是否 is Loaded。 */\n    isLoaded: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "page Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "ruleJson",
+              "jsdoc": "rule Json 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "script",
+              "jsdoc": "script 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "style",
+              "jsdoc": "style 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parseErrors",
+              "jsdoc": "parse Errors 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isLoaded",
+              "jsdoc": "是否 is Loaded。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectDirtyProjection": {
+      "name": "ProjectDirtyProjection",
+      "jsdoc": "活动文件和所有工具、蓝图编辑的dirty投影；场景dirty另由Workspace持有。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** dirty Files 字段。 */\n    dirtyFiles: Set<PageToolFileName>;\n    /** 是否 has Any File Dirty。 */\n    hasAnyFileDirty: boolean;\n    /** 项目蓝图是否存在未保存变更。 */\n    blueprintDirty: boolean;\n    /** 是否 has Any Dirty。 */\n    hasAnyDirty: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "dirtyFiles",
+              "jsdoc": "dirty Files 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasAnyFileDirty",
+              "jsdoc": "是否 has Any File Dirty。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "blueprintDirty",
+              "jsdoc": "项目蓝图是否存在未保存变更。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasAnyDirty",
+              "jsdoc": "是否 has Any Dirty。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPlanningInput": {
+      "name": "ProjectPlanningInput",
+      "jsdoc": "项目级策划输入：短需求 + 可选详细说明附件引用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 项目级短需求；优先项目蓝图根节点 description，否则 project.description。 */\n    requirement: string;\n    /** 策划详细说明附件引用；正文由工作区解析后传给 LLM。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 项目级短需求；优先项目蓝图根节点 description，否则 project.description。 */\n    requirement: string;\n    /** 策划详细说明附件引用；正文由工作区解析后传给 LLM。 */\n    planningAttachmentRef?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requirement",
+              "jsdoc": "项目级短需求；优先项目蓝图根节点 description，否则 project.description。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "策划详细说明附件引用；正文由工作区解析后传给 LLM。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintPlanningInput": {
+      "name": "BlueprintPlanningInput",
+      "jsdoc": "单个项目蓝图节点策划输入：节点 description + 可选附件引用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 目标项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 节点标题；用于 LLM 策划上下文中标识节点语义。 */\n    title: string;\n    /** 蓝图草稿种类；unknown 不得进入正式策划完成结果。 */\n    kind: ProjectBlueprintNodeKind | 'unknown';\n    /** 节点短需求，即项目蓝图节点 description。 */\n    requirement: string;\n    /** 策划详细说明附件引用；省略时仅使用 requirement。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 目标项目蓝图节点 ID。 */\n    nodeId: string;\n    /** 节点标题；用于 LLM 策划上下文中标识节点语义。 */\n    title: string;\n    /** 蓝图草稿种类；unknown 不得进入正式策划完成结果。 */\n    kind: ProjectBlueprintNodeKind | 'unknown';\n    /** 节点短需求，即项目蓝图节点 description。 */\n    requirement: string;\n    /** 策划详细说明附件引用；省略时仅使用 requirement。 */\n    planningAttachmentRef?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "目标项目蓝图节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "节点标题；用于 LLM 策划上下文中标识节点语义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "jsdoc": "蓝图草稿种类；unknown 不得进入正式策划完成结果。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirement",
+              "jsdoc": "节点短需求，即项目蓝图节点 description。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "策划详细说明附件引用；省略时仅使用 requirement。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPlanningCompletionInput": {
+      "name": "ProjectPlanningCompletionInput",
+      "jsdoc": "项目策划完成动作输入；由 agent_complete 转发到领域模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 策划完成摘要；由 LLM 生成，归纳整个策划过程的结论。 */\n    summary?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 策划完成摘要；由 LLM 生成，归纳整个策划过程的结论。 */\n    summary?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "summary",
+              "jsdoc": "策划完成摘要；由 LLM 生成，归纳整个策划过程的结论。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPlanningCompletionResult": {
+      "name": "ProjectPlanningCompletionResult",
+      "jsdoc": "项目策划完成动作结果；失败结果会回灌给 LLM 继续补查/补执行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    ok: true;\n    completed: true;\n    summary: string;\n    nodeCount: number;\n    blueprintKinds: readonly ProjectBlueprintNodeKind[];\n}> | Readonly<{\n    ok: false;\n    code: string;\n    msg: string;\n    fix: string;\n    /** 领域模型需要的业务能力名；由 AI runtime 的知识体系翻译为具体查询和代理执行步骤。 */\n    requiredCapabilities?: readonly string[];\n    missingFacts?: readonly string[];\n    nextStep?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    ok: true;\n    completed: true;\n    summary: string;\n    nodeCount: number;\n    blueprintKinds: readonly ProjectBlueprintNodeKind[];\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    ok: false;\n    code: string;\n    msg: string;\n    fix: string;\n    /** 领域模型需要的业务能力名；由 AI runtime 的知识体系翻译为具体查询和代理执行步骤。 */\n    requiredCapabilities?: readonly string[];\n    missingFacts?: readonly string[];\n    nextStep?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectInfo": {
+      "name": "ProjectInfo",
+      "jsdoc": "固定项目身份及项目信息，不替代正式蓝图节点四组合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 租户 ID；多租户环境下用于隔离项目。 */\n    tenantId?: string | undefined;\n    /** 项目唯一 ID。 */\n    projectId: string;\n    /** 项目名称。 */\n    name: string;\n    /** 项目类型标识。 */\n    projectType: string;\n    /** 项目图标名。 */\n    icon?: string | undefined;\n    /** 项目描述，供项目蓝图、规划和 AI 设计理解项目目标。 */\n    description: string;\n    /** 策划详细说明附件引用（文件 ID / 工作区路径等，由 IO 层约定）。 */\n    planningAttachmentRef?: string | undefined;\n    /** 项目首页交付节点 ID。 */\n    homeNodeId?: string | undefined;\n    /** 项目排序值。 */\n    order: number;\n    /** 项目创建时间。 */\n    createdAt?: string | undefined;\n    /** 项目更新时间。 */\n    updatedAt?: string | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "jsdoc": "租户 ID；多租户环境下用于隔离项目。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "项目唯一 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "jsdoc": "项目名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectType",
+              "jsdoc": "项目类型标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "icon",
+              "jsdoc": "项目图标名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "项目描述，供项目蓝图、规划和 AI 设计理解项目目标。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "策划详细说明附件引用（文件 ID / 工作区路径等，由 IO 层约定）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "homeNodeId",
+              "jsdoc": "项目首页交付节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "jsdoc": "项目排序值。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "createdAt",
+              "jsdoc": "项目创建时间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "updatedAt",
+              "jsdoc": "项目更新时间。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectInfoInput": {
+      "name": "ProjectInfoInput",
+      "jsdoc": "Project Info Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Partial<Omit<ProjectInfo, 'projectId'>> & {\n    /** 可选项目 ID；未提供时由 ProjectBlueprint 构造参数补齐。 */\n    projectId?: string | undefined;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Partial<Omit<ProjectInfo, 'projectId'>>",
+            "targetName": "Partial"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 可选项目 ID；未提供时由 ProjectBlueprint 构造参数补齐。 */\n    projectId?: string | undefined;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "jsdoc": "可选项目 ID；未提供时由 ProjectBlueprint 构造参数补齐。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectBlueprintInitOptions": {
+      "name": "ProjectBlueprintInitOptions",
+      "jsdoc": "纯领域构造参数（无 IO）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前 ProjectBlueprint 绑定的项目 ID。 */\n    projectId: string;\n    /** 可选项目基础信息；缺省字段由 ProjectBlueprint 使用默认值补齐。 */\n    project?: ProjectInfoInput | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "jsdoc": "当前 ProjectBlueprint 绑定的项目 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "project",
+              "jsdoc": "可选项目基础信息；缺省字段由 ProjectBlueprint 使用默认值补齐。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

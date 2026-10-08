@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run --config vitest.config.ts src/platform/lowcode-platform-api.test.ts -t 'keeps a receipt valid when route cancellation runs between commit and public return'",
+  "cwd": "D:\\SPARK_AppWorks\\packages\\spark-lowcode-api",
+  "started": "2026-10-07T17:30:50.9968894+08:00",
+  "ended": "2026-10-07T17:30:52.8212196+08:00",
+  "exitCode": 0,
+  "stdoutFile": "D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\c2d2f\\committed-receipt-green.stdout.txt"
+}

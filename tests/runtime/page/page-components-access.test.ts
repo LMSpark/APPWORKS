@@ -14,6 +14,7 @@ import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/pla
 import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 const mockPageService: PageServiceCapability = {
+  copyText: vi.fn(async () => {}),
   showDialog: vi.fn(async (_options: PageDialogOptions): Promise<PageDialogResult> => 'close'),
   selectEntities: vi.fn(async () => []),
   browseFiles: vi.fn(async () => []),
@@ -37,6 +38,84 @@ function contextRuntime(dataSet?: DataSet): PageRuntime {
 }
 
 describe('PageContext $components (metadata only)', () => {
+  it('compiled scripts await the default clipboard write', async () => {
+    const originalClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+    const writeText = vi.fn(async (_text: string) => {})
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    try {
+      const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: { render: () => null } }] })
+      const runtime = contextRuntime()
+      const context = buildPageContext({ pageRuntime: runtime, signal: new AbortController().signal,
+        pageRoute: { path: '/', fullPath: '/', params: {}, query: {}, name: '', hash: '' },
+        pageContainer: ref<HTMLElement | null>(null), pageService: buildPageService(router) })
+      const fns = compileFunctions('var copy = async function(text) { await $page.copyText(text); return true }', context)
+
+      await expect(fns['copy']!('hello clipboard')).resolves.toBe(true)
+      expect(writeText).toHaveBeenCalledWith('hello clipboard')
+      runtime.dispose()
+    } finally {
+      if (originalClipboard) Object.defineProperty(navigator, 'clipboard', originalClipboard)
+      else Reflect.deleteProperty(navigator, 'clipboard')
+    }
+  })
+
+  it('waits for native clipboard writing and propagates its rejection without retrying', async () => {
+    const originalClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+    let rejectWrite: ((reason?: unknown) => void) | undefined
+    const nativeError = new Error('native clipboard denied')
+    const writeText = vi.fn(() => new Promise<void>((_resolve, reject) => { rejectWrite = reject }))
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    try {
+      const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: { render: () => null } }] })
+      const pending = buildPageService(router).copyText('native text')
+      let settled = false
+      const observed = pending.then(
+        () => { settled = true },
+        error => { settled = true; throw error },
+      )
+
+      expect(writeText).toHaveBeenCalledTimes(1)
+      expect(writeText).toHaveBeenCalledWith('native text')
+      expect(settled).toBe(false)
+      rejectWrite?.(nativeError)
+      await expect(observed).rejects.toBe(nativeError)
+      expect(settled).toBe(true)
+      expect(writeText).toHaveBeenCalledTimes(1)
+    } finally {
+      if (originalClipboard) Object.defineProperty(navigator, 'clipboard', originalClipboard)
+      else Reflect.deleteProperty(navigator, 'clipboard')
+    }
+  })
+
+  it('uses a host clipboard override and propagates its rejection', async () => {
+    const fallbackWrite = vi.fn(async (_text: string) => {})
+    const originalClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: fallbackWrite } })
+    const copyText = vi.fn(async (_text: string) => { throw new Error('host clipboard denied') })
+    try {
+      const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: { render: () => null } }] })
+      const service = buildPageService(router, { pageService: { copyText } })
+      await expect(service.copyText('host text')).rejects.toThrow('host clipboard denied')
+      expect(copyText).toHaveBeenCalledWith('host text')
+      expect(fallbackWrite).not.toHaveBeenCalled()
+    } finally {
+      if (originalClipboard) Object.defineProperty(navigator, 'clipboard', originalClipboard)
+      else Reflect.deleteProperty(navigator, 'clipboard')
+    }
+  })
+
+  it('fails explicitly when clipboard writing is unavailable', async () => {
+    const originalClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined })
+    try {
+      const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: { render: () => null } }] })
+      await expect(buildPageService(router).copyText('unavailable')).rejects.toThrow('当前环境不支持剪贴板写入')
+    } finally {
+      if (originalClipboard) Object.defineProperty(navigator, 'clipboard', originalClipboard)
+      else Reflect.deleteProperty(navigator, 'clipboard')
+    }
+  })
+
   it('preserves repeated scenario arguments and primitive query values when scripts navigate', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/tool', component: { render: () => null } }] })
     const service = buildPageService(router)

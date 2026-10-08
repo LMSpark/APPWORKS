@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/dts-surface-to-runtime-api",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/dts-surface-to-runtime-api.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/dts-surface-to-runtime-api.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/dts-surface-to-runtime-api",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/dts-surface-to-runtime-api\n职责：把 guide bundle 已加载的 DtsClassModelSurfaceDocument 映射为 AiRuntimeApiMetadataJson，供 model_script 与 guide 共用同一份 JSON shard。\n边界：只做 JSON surface → runtime API metadata 的薄映射，不访问语义求值器，也不读取 runtime/manifest.json。\nAI用途：确认 script 执行契约是否直接来自 guide manifest shard 中的 paramsSchema / returnSchema。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-08T20:52:32.292Z",
+  "models": {}
+}

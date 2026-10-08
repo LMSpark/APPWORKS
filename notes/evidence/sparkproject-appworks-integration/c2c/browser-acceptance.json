@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-07T07:54:15.891Z",
+  "origin": "http://127.0.0.1:5274",
+  "build": "c2c/build.result.json",
+  "sourceHashManifest": "c2c/sha256-final.json",
+  "method": "真实生产构建；点击对象与标签/关闭按钮；通过源码已暴露的 window.__sparkDev.router.push 进入两个已授权正式URL，通过 reloadNavigation 刷新导航",
+  "checks": {
+    "twoAuthorizedOwnersSamePath": true,
+    "independentInitialState": true,
+    "backToTabRetainsSelection": true,
+    "navigationRefreshRetainsSelection": true,
+    "closeRemovesTab": true,
+    "reopenHasFreshUnselectedState": true
+  },
+  "consoleErrors": [],
+  "screenshots": [
+    "production-cache-preserved.png",
+    "production-reopened.png"
+  ],
+  "limitations": [
+    "导航刷新后的 AX 返回差分，字符串 contains 得到 false 不代表缓存丢失；保存截图明确显示选中服务器与27数据库。",
+    "浏览器无业务写入、未做真实权限变更或登出；撤权、reset、异常rollback由真实App/Router测试验证。"
+  ]
+}

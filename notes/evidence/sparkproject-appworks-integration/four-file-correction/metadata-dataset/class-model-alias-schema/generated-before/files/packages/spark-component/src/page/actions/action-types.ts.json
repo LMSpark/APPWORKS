@@ -1,0 +1,2581 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/actions/action-types",
+    "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
+    "sourceFile": "packages/spark-component/src/page/actions/action-types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/actions/action-types",
+    "jsdoc": "@module @spark-appworks/spark-component:page/actions/action-types\n职责：提供 action types 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nAction Descriptor — 声明式行为描述符\n单一动作真源：rule.json 的 `on` 事件、容器区域子节点（如 `r-toolbar`）、\n内置按钮的 `props.action` 全部统一通过此 descriptor 声明，\n由 `executeActionDescriptor` 单一执行器消费。\n## 分层结构\n```\nActionDescriptor（联合类型，14 种动作）\n├─ UI 类：show-message / confirm / alert / navigate / open\n├─ 字段操作：set-field\n└─ 数据变更类（含 ActionUiDecorator 装饰）：\nappend-row / delete / patch / move / message-row /\nrefresh / clear-rows / submit-current-form / save-dataset\n```",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ActionUiDecorator",
+      "ActionFormApi",
+      "ActionExecutionScope",
+      "ActionDescriptor",
+      "ActionDescriptorActionName",
+      "ActionRowTarget",
+      "ShowMessageAction",
+      "ShowConfirmAction",
+      "ShowAlertAction",
+      "NavigateAction",
+      "OpenAction",
+      "SetFieldAction",
+      "ActionPromptConfig",
+      "AppendRowAction",
+      "DeleteAction",
+      "PatchAction",
+      "MoveAction",
+      "MessageRowAction",
+      "RefreshAction",
+      "ClearRowsAction",
+      "SubmitCurrentFormAction",
+      "SaveDataSetAction",
+      "ActionExecutionContext",
+      "ActionExecutionControl",
+      "RouterLike"
+    ]
+  },
+  "$defs": {
+    "ActionUiDecorator": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActionUiDecorator",
+      "properties": {
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ActionFormApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActionFormApi",
+      "$defs": {
+        "method.getCurrentRow.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCurrentRow.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.getFormData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getFormData.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validate.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        }
+      }
+    },
+    "ActionExecutionScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActionExecutionScope",
+      "properties": {
+        "row": {
+          "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "index": {
+          "type": "number"
+        },
+        "formApi": {
+          "$ref": "#/$defs/ActionFormApi"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ActionDescriptor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ActionDescriptor",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "ShowMessageAction"
+        },
+        {
+          "type": "object",
+          "title": "ShowConfirmAction"
+        },
+        {
+          "type": "object",
+          "title": "ShowAlertAction"
+        },
+        {
+          "type": "object",
+          "title": "NavigateAction"
+        },
+        {
+          "type": "object",
+          "title": "OpenAction"
+        },
+        {
+          "type": "object",
+          "title": "SetFieldAction"
+        },
+        {
+          "type": "object",
+          "title": "AppendRowAction"
+        },
+        {
+          "type": "object",
+          "title": "DeleteAction"
+        },
+        {
+          "type": "object",
+          "title": "PatchAction"
+        },
+        {
+          "type": "object",
+          "title": "MoveAction"
+        },
+        {
+          "type": "object",
+          "title": "MessageRowAction"
+        },
+        {
+          "type": "object",
+          "title": "RefreshAction"
+        },
+        {
+          "type": "object",
+          "title": "ClearRowsAction"
+        },
+        {
+          "type": "object",
+          "title": "SubmitCurrentFormAction"
+        },
+        {
+          "type": "object",
+          "title": "SaveDataSetAction"
+        }
+      ]
+    },
+    "ActionDescriptorActionName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ActionDescriptorActionName",
+      "enum": [
+        "show-message",
+        "confirm",
+        "alert",
+        "navigate",
+        "open",
+        "set-field",
+        "append-row",
+        "delete",
+        "patch",
+        "move",
+        "message-row",
+        "refresh",
+        "clear-rows",
+        "submit-current-form",
+        "save-dataset"
+      ]
+    },
+    "ActionRowTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ActionRowTarget",
+      "enum": [
+        "scope",
+        "current",
+        "selected"
+      ]
+    },
+    "ActionDescriptorBase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActionDescriptorBase",
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/ActionDescriptorActionName"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "ShowMessageAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ShowMessageAction",
+      "properties": {
+        "action": {
+          "const": "show-message"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "messageType": {
+          "type": "object",
+          "title": "PageMessageType"
+        }
+      },
+      "required": [
+        "action",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "ShowConfirmAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ShowConfirmAction",
+      "properties": {
+        "action": {
+          "const": "confirm"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "onConfirm": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "onCancel": {
+          "$ref": "#/$defs/ActionDescriptor"
+        }
+      },
+      "required": [
+        "action",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "ShowAlertAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ShowAlertAction",
+      "properties": {
+        "action": {
+          "const": "alert"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "NavigateAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavigateAction",
+      "properties": {
+        "action": {
+          "const": "navigate"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "OpenAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OpenAction",
+      "properties": {
+        "action": {
+          "const": "open"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "SetFieldAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SetFieldAction",
+      "properties": {
+        "action": {
+          "const": "set-field"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "value": true,
+        "idField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "field",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "ActionPromptConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActionPromptConfig",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "type": "string"
+        },
+        "placeholder": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "additionalProperties": false
+    },
+    "AppendRowAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AppendRowAction",
+      "properties": {
+        "action": {
+          "const": "append-row"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "appendPayload": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "idField": {
+          "type": "string"
+        },
+        "inheritFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inheritFieldMap": {
+          "type": "object",
+          "title": "Record<string, string>"
+        },
+        "setCurrentRowOnSuccess": {
+          "type": "boolean"
+        },
+        "prompt": {
+          "$ref": "#/$defs/ActionPromptConfig"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "DeleteAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DeleteAction",
+      "properties": {
+        "action": {
+          "const": "delete"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "target": {
+          "$ref": "#/$defs/ActionRowTarget"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "idField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "PatchAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PatchAction",
+      "properties": {
+        "action": {
+          "const": "patch"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "target": {
+          "$ref": "#/$defs/ActionRowTarget"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "idField": {
+          "type": "string"
+        },
+        "patch": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "field": {
+          "type": "string"
+        },
+        "value": true,
+        "prompt": {
+          "$ref": "#/$defs/ActionPromptConfig"
+        }
+      },
+      "required": [
+        "action",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "MoveAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MoveAction",
+      "properties": {
+        "action": {
+          "const": "move"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "target": {
+          "enum": [
+            "scope",
+            "current"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "idField": {
+          "type": "string"
+        },
+        "newParentId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetParentSource": {
+          "enum": [
+            "field",
+            "scope"
+          ]
+        },
+        "targetParentField": {
+          "type": "string"
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "action",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "MessageRowAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MessageRowAction",
+      "properties": {
+        "action": {
+          "const": "message-row"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "target": {
+          "enum": [
+            "scope",
+            "current"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "messageFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "messageType": {
+          "type": "object",
+          "title": "PageMessageType"
+        }
+      },
+      "required": [
+        "action",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "RefreshAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RefreshAction",
+      "properties": {
+        "action": {
+          "const": "refresh"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "dataViewKey": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "ClearRowsAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClearRowsAction",
+      "properties": {
+        "action": {
+          "const": "clear-rows"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "dataViewKey": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "SubmitCurrentFormAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SubmitCurrentFormAction",
+      "properties": {
+        "action": {
+          "const": "submit-current-form"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "idField": {
+          "type": "string"
+        },
+        "validateMessage": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "SaveDataSetAction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveDataSetAction",
+      "properties": {
+        "action": {
+          "const": "save-dataset"
+        },
+        "then": {
+          "$ref": "#/$defs/ActionDescriptor"
+        },
+        "cancelDefault": {
+          "type": "boolean"
+        },
+        "silent": {
+          "type": "boolean"
+        },
+        "successMessage": {
+          "type": "string"
+        },
+        "failureMessage": {
+          "type": "string"
+        },
+        "emptyMessage": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "confirmMessage": {
+          "type": "string"
+        },
+        "confirmTitle": {
+          "type": "string"
+        },
+        "confirmType": {
+          "type": "object",
+          "title": "PageMessageType"
+        },
+        "disabledWhenRow": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataSetSaveChangesMode"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "requestIdStrategy": {
+          "const": "auto"
+        },
+        "applyEditingRows": {
+          "type": "boolean"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataSetSaveChangesViewSelector"
+          }
+        }
+      },
+      "required": [
+        "action",
+        "scenarioId"
+      ],
+      "additionalProperties": false
+    },
+    "ActionExecutionContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActionExecutionContext",
+      "$defs": {
+        "method.getDataSet.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getDataSet.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataSetContract"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.resolveView.params": {
+          "type": "object",
+          "properties": {
+            "binding": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveView.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.getDataSource.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getDataSource.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.getPageService.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPageService.return": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "PageServiceCapability"
+        },
+        "method.getRouter.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRouter.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RouterLike"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ActionExecutionControl": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActionExecutionControl",
+      "properties": {
+        "cancel": true
+      },
+      "required": [
+        "cancel"
+      ],
+      "additionalProperties": false
+    },
+    "RouterLike": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RouterLike",
+      "$defs": {
+        "method.push.params": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "query": {
+                      "type": "object",
+                      "title": "Record<string, string>"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.push.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T19:50:59.447Z",
+  "models": {
+    "ActionUiDecorator": {
+      "name": "ActionUiDecorator",
+      "jsdoc": "UI 装饰：与具体动作语义无关，统一控制消息/确认/静默行为。\n所有 data-mutating 动作（append-row / delete / patch / move 等）都继承此接口，\n执行器会在适当时机使用这些文案替代内置兜底文案。\n### 文案插值语法\n支持 `{var}` 占位符，执行器会在调用 `interpolate()` 时注入上下文变量：\n- `{count}` — 批量操作影响的行数\n- `{row.fieldName}` — 当前行的字段值（例如 `{row.name}`）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 静默模式：设为 true 时所有成功/失败消息都不展示（errorMessage 除外） */\n    silent?: boolean;\n    /** 操作成功后的提示文案；支持插值（如 `已删除 {count} 条`） */\n    successMessage?: string;\n    /** 操作失败后的警告文案（例如 CRUD 返回失败） */\n    failureMessage?: string;\n    /** 数据源为空或目标行不存在时的警告文案 */\n    emptyMessage?: string;\n    /** 运行时异常时的 error 文案（无视 silent） */\n    errorMessage?: string;\n    /** 操作前的确认弹窗文案；留空字符串 `''` 表示有意跳过确认 */\n    confirmMessage?: string;\n    /** 确认弹窗标题 */\n    confirmTitle?: string;\n    /** 确认弹窗类型（warning / danger 等） */\n    confirmType?: PageMessageType;\n    /** 当目标行字段值匹配此条件时，按钮禁用（所有字段全相等才触发） */\n    disabledWhenRow?: Record<string, unknown>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "silent",
+              "jsdoc": "静默模式：设为 true 时所有成功/失败消息都不展示（errorMessage 除外）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "successMessage",
+              "jsdoc": "操作成功后的提示文案；支持插值（如 `已删除 {count} 条`）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "failureMessage",
+              "jsdoc": "操作失败后的警告文案（例如 CRUD 返回失败）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyMessage",
+              "jsdoc": "数据源为空或目标行不存在时的警告文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "errorMessage",
+              "jsdoc": "运行时异常时的 error 文案（无视 silent）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmMessage",
+              "jsdoc": "操作前的确认弹窗文案；留空字符串 `''` 表示有意跳过确认",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmTitle",
+              "jsdoc": "确认弹窗标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmType",
+              "jsdoc": "确认弹窗类型（warning / danger 等）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabledWhenRow",
+              "jsdoc": "当目标行字段值匹配此条件时，按钮禁用（所有字段全相等才触发）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ActionFormApi": {
+      "name": "ActionFormApi",
+      "jsdoc": "表单 API 接口（submit-current-form 动作专用）。\n由包含表单的容器（如 r-form）在渲染期注入到 `ActionExecutionScope.formApi`，\n让动作执行器能够读取表单数据并触发校验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 获取表单当前绑定的数据行（未绑定时返回 null） */\n    getCurrentRow(): DataRow | null;\n    /** 获取表单当前填写的字段数据（不含主键） */\n    getFormData(): Record<string, unknown>;\n    /** 可选：触发表单校验；返回 false 则执行器中止提交 */\n    validate?(): Promise<boolean>;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "getCurrentRow",
+              "jsdoc": "获取表单当前绑定的数据行（未绑定时返回 null）",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataRow"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getFormData",
+              "jsdoc": "获取表单当前填写的字段数据（不含主键）",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "validate",
+              "jsdoc": "可选：触发表单校验；返回 false 则执行器中止提交",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ActionExecutionScope": {
+      "name": "ActionExecutionScope",
+      "jsdoc": "动作执行作用域：调用方（容器/渲染器）在触发动作时按需挂入。\n- `row`：行内动作（`target='scope'`）的触发行，由行渲染器注入\n- `index`：行索引（移动等需要位置信息的动作使用）\n- `formApi`：仅 submit-current-form 动作需要，由表单容器注入",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前行数据。 */\n    row?: DataRow;\n    /** index 字段。 */\n    index?: number;\n    /** form Api 字段。 */\n    formApi?: ActionFormApi;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "row",
+              "jsdoc": "当前行数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "index 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formApi",
+              "jsdoc": "form Api 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ActionDescriptor": {
+      "name": "ActionDescriptor",
+      "jsdoc": "ActionDescriptor 判别联合。\n每种动作通过 `action` 字段（字符串字面量）区分，TypeScript 可利用\n此字段做详尽的 switch/if 窄化。所有 data-mutating 类型还继承 `ActionUiDecorator`。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ShowMessageAction | ShowConfirmAction | ShowAlertAction | NavigateAction | OpenAction | SetFieldAction | AppendRowAction | DeleteAction | PatchAction | MoveAction | MessageRowAction | RefreshAction | ClearRowsAction | SubmitCurrentFormAction | SaveDataSetAction",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "ShowMessageAction",
+            "targetName": "ShowMessageAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "ShowConfirmAction",
+            "targetName": "ShowConfirmAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "ShowAlertAction",
+            "targetName": "ShowAlertAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "NavigateAction",
+            "targetName": "NavigateAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "OpenAction",
+            "targetName": "OpenAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "SetFieldAction",
+            "targetName": "SetFieldAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "AppendRowAction",
+            "targetName": "AppendRowAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "DeleteAction",
+            "targetName": "DeleteAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "PatchAction",
+            "targetName": "PatchAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "MoveAction",
+            "targetName": "MoveAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "MessageRowAction",
+            "targetName": "MessageRowAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "RefreshAction",
+            "targetName": "RefreshAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "ClearRowsAction",
+            "targetName": "ClearRowsAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "SubmitCurrentFormAction",
+            "targetName": "SubmitCurrentFormAction"
+          },
+          {
+            "kind": "union",
+            "typeText": "SaveDataSetAction",
+            "targetName": "SaveDataSetAction"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ActionDescriptorActionName": {
+      "name": "ActionDescriptorActionName",
+      "jsdoc": "ActionDescriptor 的统一动作名集合（用于类型约束和穷举检查）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'show-message' | 'confirm' | 'alert' | 'navigate' | 'open' | 'set-field' | 'append-row' | 'delete' | 'patch' | 'move' | 'message-row' | 'refresh' | 'clear-rows' | 'submit-current-form' | 'save-dataset'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'show-message'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'confirm'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'alert'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'navigate'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'open'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'set-field'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'append-row'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'delete'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'patch'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'move'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'message-row'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'refresh'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'clear-rows'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'submit-current-form'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'save-dataset'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ActionRowTarget": {
+      "name": "ActionRowTarget",
+      "jsdoc": "行目标语义：区分动作操作的目标行来源。\n- `scope`：由行渲染器注入的\"当前行\"（行内动作默认）\n- `current`：视图的 `currentRow`（鼠标点击选中的行）\n- `selected`：视图的 `selectedRows`（复选框勾选的行集合）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'scope' | 'current' | 'selected'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'scope'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'current'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'selected'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ActionDescriptorBase": {
+      "name": "ActionDescriptorBase",
+      "jsdoc": "所有 ActionDescriptor 的公共基础字段（不直接使用，通过具体类型继承）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 动作标识（判别字段，唯一确定 descriptor 子类型） */\n    action: ActionDescriptorActionName;\n    /** 链式执行：当前动作成功后自动执行下一个 descriptor */\n    then?: ActionDescriptor;\n    /**\n     * 取消容器默认行为。\n     * 执行器在运行 descriptor 之前会将传入的 `ActionExecutionControl.cancel` 置 true，\n     * 通知容器跳过其内置处理逻辑（如内联编辑行确认）。\n     */\n    cancelDefault?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "动作标识（判别字段，唯一确定 descriptor 子类型）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "then",
+              "jsdoc": "链式执行：当前动作成功后自动执行下一个 descriptor",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancelDefault",
+              "jsdoc": "取消容器默认行为。\n执行器在运行 descriptor 之前会将传入的 `ActionExecutionControl.cancel` 置 true，\n通知容器跳过其内置处理逻辑（如内联编辑行确认）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ShowMessageAction": {
+      "name": "ShowMessageAction",
+      "jsdoc": "展示一条消息通知（不阻塞，立即返回）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & {\n    /** action 字段。 */\n    action: 'show-message';\n    /** 消息文案（不支持插值） */\n    message: string;\n    /** 消息类型，默认 `'info'` */\n    messageType?: PageMessageType;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'show-message';\n    /** 消息文案（不支持插值） */\n    message: string;\n    /** 消息类型，默认 `'info'` */\n    messageType?: PageMessageType;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "message",
+              "jsdoc": "消息文案（不支持插值）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "messageType",
+              "jsdoc": "消息类型，默认 `'info'`",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ShowConfirmAction": {
+      "name": "ShowConfirmAction",
+      "jsdoc": "展示确认对话框（阻塞，等待用户选择后执行对应分支）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & {\n    /** action 字段。 */\n    action: 'confirm';\n    /** 确认对话框正文 */\n    message: string;\n    /** 对话框标题 */\n    title?: string;\n    /** 对话框类型 */\n    confirmType?: PageMessageType;\n    /** 用户点击\"确认\"后执行的子动作 */\n    onConfirm?: ActionDescriptor;\n    /** 用户点击\"取消\"后执行的子动作 */\n    onCancel?: ActionDescriptor;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'confirm';\n    /** 确认对话框正文 */\n    message: string;\n    /** 对话框标题 */\n    title?: string;\n    /** 对话框类型 */\n    confirmType?: PageMessageType;\n    /** 用户点击\"确认\"后执行的子动作 */\n    onConfirm?: ActionDescriptor;\n    /** 用户点击\"取消\"后执行的子动作 */\n    onCancel?: ActionDescriptor;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "message",
+              "jsdoc": "确认对话框正文",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "对话框标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmType",
+              "jsdoc": "对话框类型",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onConfirm",
+              "jsdoc": "用户点击\"确认\"后执行的子动作",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onCancel",
+              "jsdoc": "用户点击\"取消\"后执行的子动作",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ShowAlertAction": {
+      "name": "ShowAlertAction",
+      "jsdoc": "展示 Alert 对话框（只有\"确认\"按钮，阻塞）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & {\n    /** action 字段。 */\n    action: 'alert';\n    /** 用户可读消息。 */\n    message: string;\n    /** 显示标题。 */\n    title?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'alert';\n    /** 用户可读消息。 */\n    message: string;\n    /** 显示标题。 */\n    title?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "message",
+              "jsdoc": "用户可读消息。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "显示标题。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NavigateAction": {
+      "name": "NavigateAction",
+      "jsdoc": "路由跳转（通过 RouterLike 接口，不直接依赖 vue-router）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & {\n    /** action 字段。 */\n    action: 'navigate';\n    /**\n     * 目标路径。\n     * 支持 `{field}` 从触发事件的 row 插值，例如 `/detail/{id}`。\n     */\n    path: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'navigate';\n    /**\n     * 目标路径。\n     * 支持 `{field}` 从触发事件的 row 插值，例如 `/detail/{id}`。\n     */\n    path: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "path",
+              "jsdoc": "目标路径。\n支持 `{field}` 从触发事件的 row 插值，例如 `/detail/{id}`。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "OpenAction": {
+      "name": "OpenAction",
+      "jsdoc": "发射自定义事件，触发容器（如 Drawer/Dialog）打开指定目标。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & {\n    /** action 字段。 */\n    action: 'open';\n    /** 容器标识，由容器的 `name` prop 匹配 */\n    target: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'open';\n    /** 容器标识，由容器的 `name` prop 匹配 */\n    target: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "target",
+              "jsdoc": "容器标识，由容器的 `name` prop 匹配",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SetFieldAction": {
+      "name": "SetFieldAction",
+      "jsdoc": "静默更新当前行的单个字段，不弹任何消息。\n与 patch 的区别：不带 ActionUiDecorator，语义上是\"配置驱动的字段赋值\"。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & {\n    /** action 字段。 */\n    action: 'set-field';\n    /** 可选 DataViewKey，省略时使用容器作用域 DataView 的 currentRow */\n    dataViewKey?: string;\n    /** 目标字段名 */\n    field: string;\n    /** 新值 */\n    value: unknown;\n    /** 主键字段名，默认 `'id'` */\n    idField?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'set-field';\n    /** 可选 DataViewKey，省略时使用容器作用域 DataView 的 currentRow */\n    dataViewKey?: string;\n    /** 目标字段名 */\n    field: string;\n    /** 新值 */\n    value: unknown;\n    /** 主键字段名，默认 `'id'` */\n    idField?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "可选 DataViewKey，省略时使用容器作用域 DataView 的 currentRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "jsdoc": "目标字段名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "jsdoc": "新值",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "idField",
+              "jsdoc": "主键字段名，默认 `'id'`",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ActionPromptConfig": {
+      "name": "ActionPromptConfig",
+      "jsdoc": "Prompt 输入框配置。\nappend-row 和 patch（prompt 模式）动作在执行前弹出输入框让用户填写某个字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 要写入/更新的字段名 */\n    field: string;\n    /** 输入框正文提示，默认 `请输入{field}` */\n    message?: string;\n    /** 弹窗标题，默认 `新增` 或 `编辑` */\n    title?: string;\n    /** 输入框默认值（append 使用；edit 时由执行器从 row[field] 自动推断） */\n    defaultValue?: string;\n    /** 输入框占位符文案 */\n    placeholder?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "jsdoc": "要写入/更新的字段名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "message",
+              "jsdoc": "输入框正文提示，默认 `请输入{field}`",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "弹窗标题，默认 `新增` 或 `编辑`",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultValue",
+              "jsdoc": "输入框默认值（append 使用；edit 时由执行器从 row[field] 自动推断）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "jsdoc": "输入框占位符文案",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AppendRowAction": {
+      "name": "AppendRowAction",
+      "jsdoc": "追加新行动作。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'append-row';\n    /** 目标 DataViewKey；省略时使用容器作用域 DataView */\n    dataViewKey?: string;\n    /** 新行初始字段值（会与 inheritFields 合并，idField 不足时自动生成） */\n    appendPayload?: Record<string, unknown>;\n    /** 主键字段名，默认 `'id'` */\n    idField?: string;\n    /** 从父行继承的字段名列表（适用于树/子表追加场景） */\n    inheritFields?: string[];\n    /** 父行字段映射：`{ 新行字段: 父行字段 }`（支持字段重命名） */\n    inheritFieldMap?: Record<string, string>;\n    /** 新增成功后将新行设为 currentRow */\n    setCurrentRowOnSuccess?: boolean;\n    /** Prompt 模式配置；设置后执行器先弹输入框再追加 */\n    prompt?: ActionPromptConfig;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'append-row';\n    /** 目标 DataViewKey；省略时使用容器作用域 DataView */\n    dataViewKey?: string;\n    /** 新行初始字段值（会与 inheritFields 合并，idField 不足时自动生成） */\n    appendPayload?: Record<string, unknown>;\n    /** 主键字段名，默认 `'id'` */\n    idField?: string;\n    /** 从父行继承的字段名列表（适用于树/子表追加场景） */\n    inheritFields?: string[];\n    /** 父行字段映射：`{ 新行字段: 父行字段 }`（支持字段重命名） */\n    inheritFieldMap?: Record<string, string>;\n    /** 新增成功后将新行设为 currentRow */\n    setCurrentRowOnSuccess?: boolean;\n    /** Prompt 模式配置；设置后执行器先弹输入框再追加 */\n    prompt?: ActionPromptConfig;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "目标 DataViewKey；省略时使用容器作用域 DataView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appendPayload",
+              "jsdoc": "新行初始字段值（会与 inheritFields 合并，idField 不足时自动生成）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idField",
+              "jsdoc": "主键字段名，默认 `'id'`",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inheritFields",
+              "jsdoc": "从父行继承的字段名列表（适用于树/子表追加场景）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inheritFieldMap",
+              "jsdoc": "父行字段映射：`{ 新行字段: 父行字段 }`（支持字段重命名）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "setCurrentRowOnSuccess",
+              "jsdoc": "新增成功后将新行设为 currentRow",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prompt",
+              "jsdoc": "Prompt 模式配置；设置后执行器先弹输入框再追加",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DeleteAction": {
+      "name": "DeleteAction",
+      "jsdoc": "删除行动作（支持单行/当前行/选中行批量）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'delete';\n    /** 删除目标：`scope`=行内当前行，`current`=视图 currentRow，`selected`=批量删除 */\n    target: ActionRowTarget;\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** id Field 字段。 */\n    idField?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'delete';\n    /** 删除目标：`scope`=行内当前行，`current`=视图 currentRow，`selected`=批量删除 */\n    target: ActionRowTarget;\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** id Field 字段。 */\n    idField?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "target",
+              "jsdoc": "删除目标：`scope`=行内当前行，`current`=视图 currentRow，`selected`=批量删除",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idField",
+              "jsdoc": "id Field 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PatchAction": {
+      "name": "PatchAction",
+      "jsdoc": "更新行字段动作（支持静态 patch、单字段赋值、Prompt 输入三种模式）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'patch';\n    /** 目标对象。 */\n    target: ActionRowTarget;\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** id Field 字段。 */\n    idField?: string;\n    /** 静态 patch 对象（多字段批量赋值，与 field/value 互斥） */\n    patch?: Record<string, unknown>;\n    /** 单字段名（与 value 搭配，优先级低于 patch） */\n    field?: string;\n    /** 单字段新值 */\n    value?: unknown;\n    /** Prompt 模式（仅支持 scope/current，不支持 selected） */\n    prompt?: ActionPromptConfig;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'patch';\n    /** 目标对象。 */\n    target: ActionRowTarget;\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** id Field 字段。 */\n    idField?: string;\n    /** 静态 patch 对象（多字段批量赋值，与 field/value 互斥） */\n    patch?: Record<string, unknown>;\n    /** 单字段名（与 value 搭配，优先级低于 patch） */\n    field?: string;\n    /** 单字段新值 */\n    value?: unknown;\n    /** Prompt 模式（仅支持 scope/current，不支持 selected） */\n    prompt?: ActionPromptConfig;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "target",
+              "jsdoc": "目标对象。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idField",
+              "jsdoc": "id Field 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "patch",
+              "jsdoc": "静态 patch 对象（多字段批量赋值，与 field/value 互斥）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "jsdoc": "单字段名（与 value 搭配，优先级低于 patch）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "单字段新值",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prompt",
+              "jsdoc": "Prompt 模式（仅支持 scope/current，不支持 selected）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "MoveAction": {
+      "name": "MoveAction",
+      "jsdoc": "移动树节点动作（要求 DataView 是树视图并实现 moveTreeNode API）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'move';\n    /** 移动目标：`scope`=行内当前行，`current`=视图 currentRow */\n    target: 'scope' | 'current';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** id Field 字段。 */\n    idField?: string;\n    /** 静态目标父节点 ID（null 表示移到根节点） */\n    newParentId?: string | number | null;\n    /** 目标父节点来源：`field`=从 row 字段读，`scope`=用 scope.row 作为父节点 */\n    targetParentSource?: 'field' | 'scope';\n    /** targetParentSource='field' 时读取的字段名 */\n    targetParentField?: string;\n    /** 目标位置索引（可选，不传则追加到末尾） */\n    index?: number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'move';\n    /** 移动目标：`scope`=行内当前行，`current`=视图 currentRow */\n    target: 'scope' | 'current';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** id Field 字段。 */\n    idField?: string;\n    /** 静态目标父节点 ID（null 表示移到根节点） */\n    newParentId?: string | number | null;\n    /** 目标父节点来源：`field`=从 row 字段读，`scope`=用 scope.row 作为父节点 */\n    targetParentSource?: 'field' | 'scope';\n    /** targetParentSource='field' 时读取的字段名 */\n    targetParentField?: string;\n    /** 目标位置索引（可选，不传则追加到末尾） */\n    index?: number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "target",
+              "jsdoc": "移动目标：`scope`=行内当前行，`current`=视图 currentRow",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idField",
+              "jsdoc": "id Field 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "newParentId",
+              "jsdoc": "静态目标父节点 ID（null 表示移到根节点）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetParentSource",
+              "jsdoc": "目标父节点来源：`field`=从 row 字段读，`scope`=用 scope.row 作为父节点",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetParentField",
+              "jsdoc": "targetParentSource='field' 时读取的字段名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "目标位置索引（可选，不传则追加到末尾）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "MessageRowAction": {
+      "name": "MessageRowAction",
+      "jsdoc": "展示行数据消息（适合调试/只读信息场景）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'message-row';\n    /** 目标对象。 */\n    target: 'scope' | 'current';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** 自定义消息模板，支持 `{field}` 插值（优先于 messageFields） */\n    message?: string;\n    /** 展示哪些字段（格式：`字段: 值 | 字段: 值`） */\n    messageFields?: string[];\n    /** 消息类型，默认 `'info'` */\n    messageType?: PageMessageType;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'message-row';\n    /** 目标对象。 */\n    target: 'scope' | 'current';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** 自定义消息模板，支持 `{field}` 插值（优先于 messageFields） */\n    message?: string;\n    /** 展示哪些字段（格式：`字段: 值 | 字段: 值`） */\n    messageFields?: string[];\n    /** 消息类型，默认 `'info'` */\n    messageType?: PageMessageType;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "target",
+              "jsdoc": "目标对象。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "自定义消息模板，支持 `{field}` 插值（优先于 messageFields）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "messageFields",
+              "jsdoc": "展示哪些字段（格式：`字段: 值 | 字段: 值`）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "messageType",
+              "jsdoc": "消息类型，默认 `'info'`",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RefreshAction": {
+      "name": "RefreshAction",
+      "jsdoc": "刷新数据视图（重新触发远程加载）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'refresh';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'refresh';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClearRowsAction": {
+      "name": "ClearRowsAction",
+      "jsdoc": "清空数据视图的所有行（本地操作，不发远程请求）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'clear-rows';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'clear-rows';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SubmitCurrentFormAction": {
+      "name": "SubmitCurrentFormAction",
+      "jsdoc": "提交当前表单（读取 formApi 数据，调用 editRowById 保存）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'submit-current-form';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** id Field 字段。 */\n    idField?: string;\n    /** 表单校验失败时的提示文案 */\n    validateMessage?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'submit-current-form';\n    /** DataView 定位键。 */\n    dataViewKey?: string;\n    /** id Field 字段。 */\n    idField?: string;\n    /** 表单校验失败时的提示文案 */\n    validateMessage?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idField",
+              "jsdoc": "id Field 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "validateMessage",
+              "jsdoc": "表单校验失败时的提示文案",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SaveDataSetAction": {
+      "name": "SaveDataSetAction",
+      "jsdoc": "提交当前 DataSet 范围内的 staged/editing 变更。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActionDescriptorBase & ActionUiDecorator & {\n    /** action 字段。 */\n    action: 'save-dataset';\n    scenarioId: string;\n    /** mode 字段。 */\n    mode?: DataSetSaveChangesMode;\n    /** request Id 标识。 */\n    requestId?: string;\n    /** request Id Strategy 字段。 */\n    requestIdStrategy?: 'auto';\n    /** apply Editing Rows 字段。 */\n    applyEditingRows?: boolean;\n    /** views 字段。 */\n    views?: DataSetSaveChangesViewSelector[];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActionDescriptorBase",
+            "targetName": "ActionDescriptorBase"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "ActionUiDecorator",
+            "targetName": "ActionUiDecorator"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** action 字段。 */\n    action: 'save-dataset';\n    scenarioId: string;\n    /** mode 字段。 */\n    mode?: DataSetSaveChangesMode;\n    /** request Id 标识。 */\n    requestId?: string;\n    /** request Id Strategy 字段。 */\n    requestIdStrategy?: 'auto';\n    /** apply Editing Rows 字段。 */\n    applyEditingRows?: boolean;\n    /** views 字段。 */\n    views?: DataSetSaveChangesViewSelector[];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "action 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mode",
+              "jsdoc": "mode 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestId",
+              "jsdoc": "request Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestIdStrategy",
+              "jsdoc": "request Id Strategy 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applyEditingRows",
+              "jsdoc": "apply Editing Rows 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "jsdoc": "views 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ActionExecutionContext": {
+      "name": "ActionExecutionContext",
+      "jsdoc": "动作执行上下文：执行器与调用方（容器/渲染器）之间的依赖注入接口。\n执行器不直接持有 Vue 组件或 DataSet 引用，而是通过此接口的工厂函数按需获取，\n从而保持执行器框架无关性并支持懒解析。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 获取当前页面的 DataSet 实例（用于 DataViewKey 解析）；页面未就绪时返回 null */\n    getDataSet: (scenarioId: string) => DataSetContract | null;\n    resolveView: (binding: string) => DataView | null;\n    /**\n     * 可选：获取容器作用域 DataView（调用方已确定 DataView 时提供）。\n     *\n     * 适用于容器明确持有 DataView 的场景（如 r-table 内置按钮），\n     * 此时可省略 descriptor 上的 DataViewKey，避免误报\"数据视图未就绪\"。\n     */\n    getDataSource?: () => DataView | null;\n    /** 获取页面服务能力（消息/确认/弹窗等 UI 交互）；未注册时返回 null */\n    getPageService: () => PageServiceCapability | null;\n    /** 获取路由器（navigate 动作使用）；非路由环境返回 null */\n    getRouter: () => RouterLike | null;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "getDataSet",
+              "jsdoc": "获取当前页面的 DataSet 实例（用于 DataViewKey 解析）；页面未就绪时返回 null",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetContract"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resolveView",
+              "parameters": [
+                {
+                  "name": "binding",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getDataSource",
+              "jsdoc": "可选：获取容器作用域 DataView（调用方已确定 DataView 时提供）。\n适用于容器明确持有 DataView 的场景（如 r-table 内置按钮），\n此时可省略 descriptor 上的 DataViewKey，避免误报\"数据视图未就绪\"。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getPageService",
+              "jsdoc": "获取页面服务能力（消息/确认/弹窗等 UI 交互）；未注册时返回 null",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "PageServiceCapability",
+                    "sourcePath": "packages/spark-component/src/core/capability-keys.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getRouter",
+              "jsdoc": "获取路由器（navigate 动作使用）；非路由环境返回 null",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "RouterLike",
+                    "sourcePath": "packages/spark-component/src/page/actions/action-types.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ActionExecutionControl": {
+      "name": "ActionExecutionControl",
+      "jsdoc": "执行流程控制信号（= CancellableControl）。\n执行器在 `cancelDefault: true` 时将 `control.cancel` 置 true，\n通知容器跳过其内置处理（例如内联编辑的行确认）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** cancel 字段。 */\n    cancel: CancellableControl['cancel'];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "cancel",
+              "jsdoc": "cancel 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RouterLike": {
+      "name": "RouterLike",
+      "jsdoc": "路由器最小接口，隔离对 vue-router 的直接依赖。\nspark-component 通过能力系统注入具体实现。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 执行路由跳转；支持路径字符串或带 query 的路径对象，由注入的实现决定实际导航行为（如 vue-router push 或内存跳转） */\n    push(to: string | {\n        path: string;\n        query?: Record<string, string>;\n    }): unknown;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "push",
+              "jsdoc": "执行路由跳转；支持路径字符串或带 query 的路径对象，由注入的实现决定实际导航行为（如 vue-router push 或内存跳转）",
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "unknown",
+                        "name": "{\n        path: string;\n        query?: Record<string, string>;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/view-design/lowcode-data-space-view-design",
+    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+    "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/view-design/lowcode-data-space-view-design",
+    "jsdoc": "app 的 lowcode/data-space/view-design/lowcode-data-space-view-design 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceDesignSession, LowcodeDataSpaceViewDesign（共 2 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDataSpaceDesignSession",
+      "LowcodeDataSpaceViewDesign"
+    ]
+  },
+  "$defs": {
+    "FormalModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalField"
+          }
+        },
+        "raw": {
+          "$ref": "../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "ViewDesignOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ViewDesignOptions",
+      "properties": {
+        "workspace": {
+          "$ref": "../../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readModel.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "PageDataSpaceViewModelInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModel.return": {
+          "type": "object",
+          "title": "Promise<FormalModel>"
+        },
+        "method.assemble.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "file": {
+              "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-file.ts.json#/$defs/ScenarioViewFile"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assemble.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDataSpaceAssembly>"
+        },
+        "method.loadMetadata.params": {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadMetadata.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        },
+        "method.assertScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertScope.return": true
+      }
+    },
+    "SessionSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionSelection",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "SessionStage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionStage",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "SessionAdopt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionAdopt",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "SessionDefinitionStage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionDefinitionStage",
+      "properties": {
+        "expectedText": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "expectedText",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceDesignSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceDesignSession",
+      "properties": {
+        "targetId": {
+          "type": "string"
+        },
+        "metadataDataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "type": "string"
+            },
+            "metadataDataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "design": {
+              "$ref": "#/$defs/LowcodeDataSpaceViewDesign"
+            },
+            "options": {
+              "$ref": "#/$defs/ViewDesignOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.createView.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SessionSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createView.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState>"
+        },
+        "method.stageView.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SessionStage"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stageView.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState>"
+        },
+        "method.stageDefinition.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SessionDefinitionStage"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stageDefinition.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState>"
+        },
+        "method.saveViews.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveViews.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState>"
+        },
+        "method.verifyViews.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verifyViews.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        outcome: 'confirmed' | 'not-applied';\n        state: PageDataSpaceViewState;\n    }>>"
+        },
+        "method.previewRemoteViews.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.previewRemoteViews.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.adoptViews.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SessionAdopt"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adoptViews.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState | null>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    },
+    "LowcodeDataSpaceViewDesign": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceViewDesign",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ViewDesignOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openDesignSession.params": {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openDesignSession.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDataSpaceDesignSession>"
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<{\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n        dirtySource: ScenarioViewFile;\n    }>"
+        },
+        "method.readModel.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "PageDataSpaceViewModelInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModel.return": {
+          "type": "object",
+          "title": "Promise<{\n        id: string;\n        name: string;\n        fields: {\n            name: string;\n            label: string;\n        }[];\n    }>"
+        },
+        "method.create.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "PageDataSpaceViewSelection"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.create.return": {
+          "type": "object",
+          "title": "Promise<{\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n        dirtySource: ScenarioViewFile;\n    }>"
+        },
+        "method.stage.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "PageDataSpaceViewStage"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stage.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<{\n        outcome: \"confirmed\" | \"not-applied\";\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n    }>"
+        },
+        "method.previewRemote.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewRemote.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.adopt.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "PageDataSpaceViewAdopt"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adopt.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState | null>"
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "PageDataSpaceViewSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<{\n        total: number;\n        fields: string[];\n        rows: Record<string, unknown>[];\n    }>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T16:57:14.281Z",
+  "models": {
+    "FormalModel": {
+      "name": "FormalModel",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDataSpaceViewDesignReader": {
+      "name": "PageDataSpaceViewDesignReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>['viewDesign']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>['viewDesign']>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDataSpaceViewModelInput": {
+      "name": "PageDataSpaceViewModelInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<PageDataSpaceViewDesignReader['readModel']>[0]",
+        "members": {}
+      }
+    },
+    "PageDataSpaceViewSelection": {
+      "name": "PageDataSpaceViewSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<PageDataSpaceViewDesignReader['preview']>[0]",
+        "members": {}
+      }
+    },
+    "PageDataSpaceViewStage": {
+      "name": "PageDataSpaceViewStage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<PageDataSpaceViewDesignReader['stage']>[0]",
+        "members": {}
+      }
+    },
+    "PageDataSpaceViewState": {
+      "name": "PageDataSpaceViewState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<PageDataSpaceViewDesignReader['save']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<PageDataSpaceViewDesignReader['save']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDataSpaceViewAdopt": {
+      "name": "PageDataSpaceViewAdopt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<PageDataSpaceViewDesignReader['adopt']>[0]",
+        "members": {}
+      }
+    },
+    "ViewDesignOptions": {
+      "name": "ViewDesignOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput): Promise<FormalModel>;\n    assemble(scenarioId: string, file: ScenarioViewFile): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string): Promise<DataSet>;\n    assertScope(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput): Promise<FormalModel>;\n    assemble(scenarioId: string, file: ScenarioViewFile): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string): Promise<DataSet>;\n    assertScope(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workspace",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readModel",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewModelInput",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "FormalModel",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assemble",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewFile"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceAssembly",
+                    "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadMetadata",
+              "parameters": [
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertScope",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SessionSelection": {
+      "name": "SessionSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<PageDataSpaceViewSelection, 'scenarioId'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<PageDataSpaceViewSelection, 'scenarioId'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SessionStage": {
+      "name": "SessionStage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<PageDataSpaceViewStage, 'scenarioId'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<PageDataSpaceViewStage, 'scenarioId'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SessionAdopt": {
+      "name": "SessionAdopt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<PageDataSpaceViewAdopt, 'scenarioId'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<PageDataSpaceViewAdopt, 'scenarioId'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SessionDefinitionStage": {
+      "name": "SessionDefinitionStage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    expectedText: string;\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    expectedText: string;\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "expectedText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceDesignSession": {
+      "name": "LowcodeDataSpaceDesignSession",
+      "jsdoc": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(targetId: string, metadataDataSet: DataSet, design: LowcodeDataSpaceViewDesign, options: ViewDesignOptions)",
+          "parameters": [
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "metadataDataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "design",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceViewDesign",
+                "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+              }
+            },
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ViewDesignOptions",
+                "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metadataDataSet",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "refresh",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createView",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SessionSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewState",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "stageView",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SessionStage",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewState",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "stageDefinition",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SessionDefinitionStage",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewState",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveViews",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewState",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verifyViews",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        outcome: 'confirmed' | 'not-applied';\n        state: PageDataSpaceViewState;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewRemoteViews",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "adoptViews",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SessionAdopt",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "PageDataSpaceViewState",
+                        "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceViewDesign": {
+      "name": "LowcodeDataSpaceViewDesign",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: ViewDesignOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ViewDesignOptions",
+                "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "PageDataSpaceViewDesignReader",
+            "targetName": "PageDataSpaceViewDesignReader"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "openDesignSession",
+              "parameters": [
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceDesignSession",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "open",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n        dirtySource: ScenarioViewFile;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readModel",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewModelInput",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        id: string;\n        name: string;\n        fields: {\n            name: string;\n            label: string;\n        }[];\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "create",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n        dirtySource: ScenarioViewFile;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "stage",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewStage",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewState",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewState",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        outcome: \"confirmed\" | \"not-applied\";\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewRemote",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "adopt",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewAdopt",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "PageDataSpaceViewState",
+                        "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "preview",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        total: number;\n        fields: string[];\n        rows: Record<string, unknown>[];\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

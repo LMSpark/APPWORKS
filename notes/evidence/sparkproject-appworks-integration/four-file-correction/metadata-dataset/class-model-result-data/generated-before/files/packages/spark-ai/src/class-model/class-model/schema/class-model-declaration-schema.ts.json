@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/schema/class-model-declaration-schema",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/schema/class-model-declaration-schema.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/schema/class-model-declaration-schema.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/schema/class-model-declaration-schema",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/schema/class-model-declaration-schema\n职责：从 TypeScript 已解析类型投影数据声明，保留联合、交叉和映射类型的字段约束。\n边界：仅用于编译期；命名数据引用交给 bundle 寻址，不执行领域逻辑。\nAI用途：保证声明中的必填、可选与组合约束进入脚本参数校验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ClassModelDeclarationSchema"
+    ]
+  },
+  "$defs": {
+    "ClassModelDeclarationSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelDeclarationSchema",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "program": {
+              "type": "object",
+              "title": "ts.Program"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createProgram.params": {
+          "type": "object",
+          "properties": {
+            "rootFiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "host": {
+              "type": "object",
+              "title": "ts.CompilerHost"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createProgram.return": {
+          "type": "object",
+          "title": "ts.Program"
+        },
+        "method.project.params": {
+          "type": "object",
+          "properties": {
+            "node": {
+              "type": "object",
+              "title": "ts.TypeAliasDeclaration"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.project.return": {
+          "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchema"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T21:32:59.843Z",
+  "models": {
+    "ClassModelDeclarationSchema": {
+      "name": "ClassModelDeclarationSchema",
+      "jsdoc": "类型别名的数据形状投影；访问属性是否只读不改变输入是否必填。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "使用生成阶段已有的类型检查器。",
+          "signatureText": "constructor(program: ts.Program)",
+          "parameters": [
+            {
+              "name": "program",
+              "type": {
+                "type": "reference",
+                "name": "ts.Program"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "createProgram",
+              "jsdoc": "同一编译程序解析磁盘或内存声明间的引用，保留严格空值语义。",
+              "parameters": [
+                {
+                  "name": "rootFiles",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "host",
+                  "type": {
+                    "type": "reference",
+                    "name": "ts.CompilerHost"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ts.Program"
+              }
+            },
+            {
+              "name": "project",
+              "jsdoc": "投影已绑定到当前编译程序的类型别名，失败时报告声明位置。",
+              "parameters": [
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "ts.TypeAliasDeclaration"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "JsonSchema"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

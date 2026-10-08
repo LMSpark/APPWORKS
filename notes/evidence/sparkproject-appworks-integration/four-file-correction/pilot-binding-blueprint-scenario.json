@@ -1,0 +1,59 @@
+{
+  "model": {
+    "fields": [
+      {
+        "canonicalName": "NavigationUrl",
+        "id": "0299920F5F2E4D03A943B0743AE51AD1",
+        "name": "NavigationUrl",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "FunName",
+        "id": "1EE8B26DD91840E1AC746D3554148F3A",
+        "name": "FunName",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "conid",
+        "id": "279D22158D8E4969BC5D6E4592481C6D",
+        "name": "conid",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "name",
+        "id": "57166339CB0948798275263E6553B3C6",
+        "name": "name",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "SysId",
+        "id": "7327F44008FD4A01B6F3F3B75217F6D4",
+        "name": "SysId",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "rowid",
+        "id": "A5A69E95A8664DE28C3F2E64890835D7",
+        "name": "rowid",
+        "output": true,
+        "primaryKey": true
+      },
+      {
+        "canonicalName": "prowid",
+        "id": "E8F071814E0F4CB7917838747F1B2791",
+        "name": "prowid",
+        "output": true,
+        "primaryKey": false
+      }
+    ],
+    "id": "7AB874097A1E8711A42FD845939A6E05p000",
+    "name": "Base_NavigationInfo"
+  },
+  "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
+  "text": null
+}

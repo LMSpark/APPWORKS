@@ -1,0 +1,610 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project-planning/project-planning-agent-workflow-binding",
+    "sourcePath": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
+    "sourceFile": "src/services/project-planning/project-planning-agent-workflow-binding.ts",
+    "packageName": "app",
+    "modulePath": "services/project-planning/project-planning-agent-workflow-binding",
+    "jsdoc": "@module app:services/project-planning/project-planning-agent-workflow-binding\n职责：承载 projectPlanning Agent Workflow 的应用侧领域 binding，连接 ProjectBlueprint、输入构造、prompt 和 gate。\n边界：不手写 workflow definition，不直接注册 AiAgentHost；只提供解释器所需 app 能力与领域纯函数。\nAI用途：排查 projectPlanning AI 输入、prompt、gate 或 editorSource 接线时，用本模块确认迁移后的业务逻辑。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectPlanningRunInput",
+      "ProjectPlanningAgentInput",
+      "BlueprintPlanningAgentInput",
+      "BlueprintPlanningRunInput",
+      "ResolveProjectPlanningRunInputOptions",
+      "FilterBlueprintPlanningNodesOptions",
+      "ResolveScopedProjectPlanningRunInputOptions",
+      "ProjectPlanningAgentWorkflowBindingOptions",
+      "ProjectPlanningGateValidationResult"
+    ]
+  },
+  "$defs": {
+    "ProjectPlanningRunInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningRunInput",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "requirement": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "blueprintNodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BlueprintPlanningRunInput"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectPlanningAgentInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningAgentInput",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "projectScopeKey": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "requirement": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "blueprintNodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BlueprintPlanningAgentInput"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "BlueprintPlanningAgentInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintPlanningAgentInput",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "requirement": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BlueprintPlanningRunInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintPlanningRunInput",
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "requirement": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResolveProjectPlanningRunInputOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolveProjectPlanningRunInputOptions",
+      "properties": {
+        "requirementOverride": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FilterBlueprintPlanningNodesOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterBlueprintPlanningNodesOptions",
+      "properties": {
+        "scopeNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "includeEmptyRequirement": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResolveScopedProjectPlanningRunInputOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ResolveScopedProjectPlanningRunInputOptions",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "ResolveProjectPlanningRunInputOptions"
+        },
+        {
+          "type": "object",
+          "title": "FilterBlueprintPlanningNodesOptions"
+        }
+      ],
+      "properties": {
+        "requirementOverride": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "scopeNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "includeEmptyRequirement": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectPlanningAgentWorkflowBindingOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningAgentWorkflowBindingOptions",
+      "properties": {
+        "knowledge": {
+          "$ref": "../../../packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeProvider"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getProjectPlanningEditor.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "type": "object",
+              "properties": {
+                "moduleInstanceId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "moduleInstanceId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getProjectPlanningEditor.return": {
+          "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+        }
+      }
+    },
+    "ProjectPlanningGateValidationResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningGateValidationResult",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "fix": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T19:55:09.112Z",
+  "models": {
+    "ProjectPlanningRunInput": {
+      "name": "ProjectPlanningRunInput",
+      "jsdoc": "Project Planning Run Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 当前项目蓝图节点的策划输入。 */\n    blueprintNodes: readonly BlueprintPlanningRunInput[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级短需求；来自 readProjectPlanningInput().requirement。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 当前项目蓝图节点的策划输入。 */\n    blueprintNodes: readonly BlueprintPlanningRunInput[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "jsdoc": "租户标识；用于后端附件读取 scope 校验。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "项目唯一标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirement",
+              "jsdoc": "项目级短需求；来自 readProjectPlanningInput().requirement。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "项目级策划详细说明附件引用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintNodes",
+              "jsdoc": "当前项目蓝图节点的策划输入。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPlanningAgentInput": {
+      "name": "ProjectPlanningAgentInput",
+      "jsdoc": "Host inputContract 用可变数组，满足 JsonParams。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各项目蓝图节点的策划输入列表。 */\n    blueprintNodes: BlueprintPlanningAgentInput[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 租户标识；用于后端附件读取 scope 校验。 */\n    tenantId?: string;\n    /** Agent 输入的身份键（通常等于 projectId）。 */\n    projectScopeKey: string;\n    /** 项目唯一标识。 */\n    projectId: string;\n    /** 项目级策划短需求文本。 */\n    requirement: string;\n    /** 项目级策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n    /** 各项目蓝图节点的策划输入列表。 */\n    blueprintNodes: BlueprintPlanningAgentInput[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "jsdoc": "租户标识；用于后端附件读取 scope 校验。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectScopeKey",
+              "jsdoc": "Agent 输入的身份键（通常等于 projectId）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "项目唯一标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirement",
+              "jsdoc": "项目级策划短需求文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "项目级策划详细说明附件引用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintNodes",
+              "jsdoc": "各项目蓝图节点的策划输入列表。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintPlanningAgentInput": {
+      "name": "BlueprintPlanningAgentInput",
+      "jsdoc": "Blueprint Planning Agent Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    kind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    kind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "蓝图节点 id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "节点显示标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "jsdoc": "蓝图业务类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirement",
+              "jsdoc": "节点短需求。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "节点策划详细说明附件引用。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintPlanningRunInput": {
+      "name": "BlueprintPlanningRunInput",
+      "jsdoc": "Blueprint Planning Run Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    kind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 蓝图节点 id。 */\n    nodeId: string;\n    /** 节点显示标题。 */\n    title: string;\n    /** 蓝图业务类型。 */\n    kind: string;\n    /** 节点短需求。 */\n    requirement: string;\n    /** 节点策划详细说明附件引用。 */\n    planningAttachmentRef?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "蓝图节点 id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "节点显示标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "jsdoc": "蓝图业务类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requirement",
+              "jsdoc": "节点短需求。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "节点策划详细说明附件引用。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolveProjectPlanningRunInputOptions": {
+      "name": "ResolveProjectPlanningRunInputOptions",
+      "jsdoc": "Resolve Project Planning Run Input Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Agent Run 可注入一次性需求，不写回 ProjectBlueprint。 */\n    requirementOverride?: string;\n    /** Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectBlueprint。 */\n    planningAttachmentRef?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Agent Run 可注入一次性需求，不写回 ProjectBlueprint。 */\n    requirementOverride?: string;\n    /** Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectBlueprint。 */\n    planningAttachmentRef?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requirementOverride",
+              "jsdoc": "Agent Run 可注入一次性需求，不写回 ProjectBlueprint。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningAttachmentRef",
+              "jsdoc": "Agent Run 或导入入口可注入一次性附件引用，不写回 ProjectBlueprint。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FilterBlueprintPlanningNodesOptions": {
+      "name": "FilterBlueprintPlanningNodesOptions",
+      "jsdoc": "Filter Blueprint Planning Nodes Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 仅包含这些 nodeId；未传则按 includeEmptyRequirement 规则过滤。 */\n    scopeNodeIds?: readonly string[];\n    /** 默认 false：跳过 requirement 与 planningAttachmentRef 均为空的节点。 */\n    includeEmptyRequirement?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 仅包含这些 nodeId；未传则按 includeEmptyRequirement 规则过滤。 */\n    scopeNodeIds?: readonly string[];\n    /** 默认 false：跳过 requirement 与 planningAttachmentRef 均为空的节点。 */\n    includeEmptyRequirement?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scopeNodeIds",
+              "jsdoc": "仅包含这些 nodeId；未传则按 includeEmptyRequirement 规则过滤。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includeEmptyRequirement",
+              "jsdoc": "默认 false：跳过 requirement 与 planningAttachmentRef 均为空的节点。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolveScopedProjectPlanningRunInputOptions": {
+      "name": "ResolveScopedProjectPlanningRunInputOptions",
+      "jsdoc": "Resolve Scoped Project Planning Run Input Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ResolveProjectPlanningRunInputOptions & FilterBlueprintPlanningNodesOptions",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ResolveProjectPlanningRunInputOptions",
+            "targetName": "ResolveProjectPlanningRunInputOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "FilterBlueprintPlanningNodesOptions",
+            "targetName": "FilterBlueprintPlanningNodesOptions"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ProjectPlanningAgentWorkflowBindingOptions": {
+      "name": "ProjectPlanningAgentWorkflowBindingOptions",
+      "jsdoc": "Project Planning Agent Workflow Binding Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 按 moduleInstanceId 获取 ProjectWorkspace 编辑器。 */\n    getProjectPlanningEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n    /** Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。 */\n    knowledge?: ClassModelKnowledgeProvider;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 按 moduleInstanceId 获取 ProjectWorkspace 编辑器。 */\n    getProjectPlanningEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n    /** Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。 */\n    knowledge?: ClassModelKnowledgeProvider;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "knowledge",
+              "jsdoc": "Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getProjectPlanningEditor",
+              "jsdoc": "按 moduleInstanceId 获取 ProjectWorkspace 编辑器。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        moduleInstanceId: string;\n    }"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectWorkspace"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPlanningGateValidationResult": {
+      "name": "ProjectPlanningGateValidationResult",
+      "jsdoc": "Project Planning Gate Validation Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 是否通过 tool gate 校验。 */\n    ok: boolean;\n    /** 拒绝原因（ok 为 false 时）。 */\n    reason?: string;\n    /** 给 LLM 的修正建议（ok 为 false 时）。 */\n    fix?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 是否通过 tool gate 校验。 */\n    ok: boolean;\n    /** 拒绝原因（ok 为 false 时）。 */\n    reason?: string;\n    /** 给 LLM 的修正建议（ok 为 false 时）。 */\n    fix?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ok",
+              "jsdoc": "是否通过 tool gate 校验。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reason",
+              "jsdoc": "拒绝原因（ok 为 false 时）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fix",
+              "jsdoc": "给 LLM 的修正建议（ok 为 false 时）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

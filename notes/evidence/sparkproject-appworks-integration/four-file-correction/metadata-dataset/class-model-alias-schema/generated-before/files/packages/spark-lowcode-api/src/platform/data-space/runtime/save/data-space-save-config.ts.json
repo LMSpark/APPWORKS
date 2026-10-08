@@ -1,0 +1,291 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/save/data-space-save-config",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-config.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-config.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/save/data-space-save-config",
+    "jsdoc": "@spark-appworks/spark-lowcode-api 的 platform/data-space/runtime/save/data-space-save-config 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceSaveConfig（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceSaveConfig"
+    ]
+  },
+  "$defs": {
+    "DataSpaceSaveConfigChanges": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveConfigChanges",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": true
+        },
+        "changed": {
+          "type": "array",
+          "items": true
+        },
+        "deleted": {
+          "type": "array",
+          "items": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceSaveConfigInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveConfigInput",
+      "properties": {
+        "tableConfig": {
+          "type": "object",
+          "title": "DataSpaceSaveTableConfig"
+        },
+        "changes": {
+          "$ref": "#/$defs/DataSpaceSaveConfigChanges"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceSaveConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveConfig",
+      "properties": {
+        "endpoint": {
+          "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/HttpEndpoint"
+        },
+        "timeout": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "table": {
+              "$ref": "../../../../../../spark-data/src/data-table.ts.json#/$defs/DataTable"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": true,
+        "method.resolve.params": {
+          "type": "object",
+          "properties": {
+            "inputs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceSaveConfigInput"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolve.return": {
+          "$ref": "#/$defs/DataSpaceSaveConfig"
+        },
+        "method.mergeHeaders.params": {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "type": "object",
+              "title": "Record<string, string>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.mergeHeaders.return": {
+          "type": "object",
+          "title": "Record<string, string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T15:18:50.387Z",
+  "models": {
+    "DataSpaceSaveConfigChanges": {
+      "name": "DataSpaceSaveConfigChanges",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    added?: readonly unknown[];\n    changed?: readonly unknown[];\n    deleted?: readonly unknown[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    added?: readonly unknown[];\n    changed?: readonly unknown[];\n    deleted?: readonly unknown[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "added",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSaveTableConfig": {
+      "name": "DataSpaceSaveTableConfig",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<TableMetadata, 'api' | 'crudConfig'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<TableMetadata, 'api' | 'crudConfig'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceSaveConfigInput": {
+      "name": "DataSpaceSaveConfigInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tableConfig?: DataSpaceSaveTableConfig;\n    changes: DataSpaceSaveConfigChanges;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tableConfig?: DataSpaceSaveTableConfig;\n    changes: DataSpaceSaveConfigChanges;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableConfig",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSaveConfig": {
+      "name": "DataSpaceSaveConfig",
+      "jsdoc": "表级端点只改变 SPARK 请求的投递位置；原查询凭据、动作封包及回执协议仍由正式 owner 执行。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "endpoint",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timeout",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "validate",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataTable"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "resolve",
+              "parameters": [
+                {
+                  "name": "inputs",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceSaveConfigInput[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceSaveConfig",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-config.ts"
+              }
+            },
+            {
+              "name": "mergeHeaders",
+              "parameters": [
+                {
+                  "name": "scope",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

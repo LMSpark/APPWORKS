@@ -4,14 +4,16 @@
  * 边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。
  * AI用途：需要定位 components/fields/options/option-source 的声明、导出和使用边界时，从本模块开始。
  */
-import { SparkData, type DataView, type FlatTreeNode } from '@spark-appworks/spark-data'
+import { SparkData, type DataRow, type DataView, type FlatTreeNode } from '@spark-appworks/spark-data'
+
+type OptionSourceOptions = {labelField: string; childrenField: string; rows?: readonly DataRow[]}
 
 export function buildOptionSourceFromView(
   view: DataView,
-  labelField: string,
-  childrenField: string,
+  options: OptionSourceOptions,
 ): unknown[] {
-  const rows = view.rows
+  const {labelField, childrenField} = options
+  const rows = options.rows === undefined ? view.rows : [...options.rows]
   if (rows.some(row => Array.isArray(row[childrenField]))) {
     return rows
   }
@@ -20,7 +22,7 @@ export function buildOptionSourceFromView(
   if (!treeConfig) return rows
 
   // 优先复用 DataView 内部已同步的 TreeManager
-  if (view.treeManager) {
+  if (options.rows === undefined && view.treeManager) {
     return view.treeManager.buildNestedTree()
   }
 

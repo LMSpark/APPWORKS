@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/runtime/container-ui",
+    "sourcePath": "packages/spark-component/src/components/containers/runtime/container-ui.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/runtime/container-ui.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/runtime/container-ui",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/runtime/container-ui\n职责：提供 container ui 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ToolbarPosition",
+      "ContainerToolbarState",
+      "DataViewSyncGuardState"
+    ]
+  },
+  "$defs": {
+    "ToolbarPosition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ToolbarPosition",
+      "enum": [
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ]
+    },
+    "ToolbarLike": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ToolbarLike",
+      "properties": {
+        "children": {
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "position": {
+          "type": "string"
+        },
+        "class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "UseContainerToolbarOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseContainerToolbarOptions",
+      "properties": {
+        "toolbarNode": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<ToolbarLike | null | undefined>"
+        },
+        "defaultClass": {
+          "type": "string"
+        },
+        "defaultPosition": {
+          "$ref": "#/$defs/ToolbarPosition"
+        }
+      },
+      "required": [
+        "toolbarNode"
+      ],
+      "additionalProperties": false
+    },
+    "ContainerToolbarState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContainerToolbarState",
+      "properties": {
+        "visibleToolbarConfigs": {
+          "type": "object",
+          "title": "ComputedRef<SparkNode[]>"
+        },
+        "toolbarPositionValue": {
+          "type": "object",
+          "title": "ComputedRef<ToolbarPosition>"
+        },
+        "toolbarClassValue": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "showToolbar": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        }
+      },
+      "required": [
+        "visibleToolbarConfigs",
+        "toolbarPositionValue",
+        "toolbarClassValue",
+        "showToolbar"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewSyncGuardState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSyncGuardState",
+      "$defs": {
+        "method.runWithViewSync.params": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "object",
+              "title": "() => T"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.runWithViewSync.return": {
+          "type": "object",
+          "title": "T"
+        },
+        "method.runWithViewSyncAsync.params": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "object",
+              "title": "() => Promise<T>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.runWithViewSyncAsync.return": {
+          "type": "object",
+          "title": "Promise<T>"
+        },
+        "method.isViewSyncing.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isViewSyncing.return": {
+          "type": "boolean"
+        },
+        "method.getSyncDepth.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getSyncDepth.return": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T11:48:18.819Z",
+  "models": {
+    "ToolbarPosition": {
+      "name": "ToolbarPosition",
+      "jsdoc": "工具栏位置枚举。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'top' | 'bottom' | 'left' | 'right'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'top'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'bottom'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'left'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'right'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ToolbarLike": {
+      "name": "ToolbarLike",
+      "jsdoc": "工具栏节点所需的最小属性形状（与 RToolbarProps 结构对齐）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 子节点集合。 */\n    children?: SparkNodeChildren;\n    /** position 字段。 */\n    position?: string;\n    /** class 字段。 */\n    class?: string | string[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "children",
+              "jsdoc": "子节点集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "position",
+              "jsdoc": "position 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "class",
+              "jsdoc": "class 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "UseContainerToolbarOptions": {
+      "name": "UseContainerToolbarOptions",
+      "jsdoc": "Use Container Toolbar Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** toolbar SparkNode（响应式 getter 或 ref）。 */\n    toolbarNode: MaybeRefOrGetter<ToolbarLike | null | undefined>;\n    /**\n     * class 回退值（toolbar.class 未设置时使用）。\n     * @default 'renderer-toolbar-default'\n     */\n    defaultClass?: string;\n    /**\n     * position 回退值（toolbar.position 未设置或无效时使用）。\n     * @default 'top'\n     */\n    defaultPosition?: ToolbarPosition;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "toolbarNode",
+              "jsdoc": "toolbar SparkNode（响应式 getter 或 ref）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "defaultClass",
+              "jsdoc": "class 回退值（toolbar.class 未设置时使用）。\n@default 'renderer-toolbar-default'",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultPosition",
+              "jsdoc": "position 回退值（toolbar.position 未设置或无效时使用）。\n@default 'top'",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContainerToolbarState": {
+      "name": "ContainerToolbarState",
+      "jsdoc": "`useContainerToolbar` 返回状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前可见的工具栏子节点列表。 */\n    visibleToolbarConfigs: ComputedRef<SparkNode[]>;\n    /** 工具栏位置（经过合法性校验后的值）。 */\n    toolbarPositionValue: ComputedRef<ToolbarPosition>;\n    /** 工具栏 CSS class（来自节点属性或回退值）。 */\n    toolbarClassValue: ComputedRef<string>;\n    /** 工具栏是否可见（至少有一个子节点时为 true）。 */\n    showToolbar: ComputedRef<boolean>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "visibleToolbarConfigs",
+              "jsdoc": "当前可见的工具栏子节点列表。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toolbarPositionValue",
+              "jsdoc": "工具栏位置（经过合法性校验后的值）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "toolbarClassValue",
+              "jsdoc": "工具栏 CSS class（来自节点属性或回退值）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "showToolbar",
+              "jsdoc": "工具栏是否可见（至少有一个子节点时为 true）。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataViewSyncGuardState": {
+      "name": "DataViewSyncGuardState",
+      "jsdoc": "`useDataViewSyncGuard` 返回状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 在同步深度保护内执行同步操作。\n     * 同步深度 > 0 时，事件桥接层可跳过循环回写。\n     */\n    runWithViewSync: <T>(action: () => T) => T;\n    /** 在同步深度保护内执行异步操作（Promise 版）。 */\n    runWithViewSyncAsync: <T>(action: () => Promise<T>) => Promise<T>;\n    /** 当前是否处于同步保护中（syncDepth > 0）。 */\n    isViewSyncing: () => boolean;\n    /** 获取当前同步保护的嵌套深度。 */\n    getSyncDepth: () => number;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "runWithViewSync",
+              "jsdoc": "在同步深度保护内执行同步操作。\n同步深度 > 0 时，事件桥接层可跳过循环回写。",
+              "parameters": [
+                {
+                  "name": "action",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "reference",
+                            "name": "T",
+                            "refersToTypeParameter": true
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "T",
+                "refersToTypeParameter": true
+              }
+            },
+            {
+              "name": "runWithViewSyncAsync",
+              "jsdoc": "在同步深度保护内执行异步操作（Promise 版）。",
+              "parameters": [
+                {
+                  "name": "action",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "reference",
+                            "name": "Promise",
+                            "typeArguments": [
+                              {
+                                "type": "reference",
+                                "name": "T",
+                                "refersToTypeParameter": true
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "isViewSyncing",
+              "jsdoc": "当前是否处于同步保护中（syncDepth > 0）。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getSyncDepth",
+              "jsdoc": "获取当前同步保护的嵌套深度。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

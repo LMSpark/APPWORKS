@@ -1,0 +1,1025 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-context",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/query/data-space-query-context",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-context\n职责：持有原查询快照、行身份与保存基线。\n边界：消费者不能替换凭据；保存回执创建独立基线，_pk 不提交。\nAI用途：从实际查询行消费权限并构造可验证的保存请求。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceQueryContext"
+    ]
+  },
+  "$defs": {
+    "DataSpaceActionState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceActionState",
+      "enum": [
+        "hidden",
+        "disabled",
+        "enabled"
+      ]
+    },
+    "DataSpaceSaveChanges": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveChanges",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataSpaceRow"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataSpaceRow"
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataSpaceRow"
+          }
+        },
+        "actionOrder": {
+          "type": "object",
+          "title": "ReturnType<typeof snapshotDataSpaceSaveActionOrder>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceSaveRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveRequest",
+      "properties": {
+        "TableName": {
+          "type": "string"
+        },
+        "CrudModel": {
+          "type": "object",
+          "properties": {
+            "Added": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "DataSpaceSaveRow"
+              }
+            },
+            "Changed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "DataSpaceSaveRow"
+              }
+            },
+            "Deleted": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "DataSpaceSaveRow"
+              }
+            }
+          },
+          "required": [
+            "Added",
+            "Changed",
+            "Deleted"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceSaveReceiptCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveReceiptCommand",
+      "properties": {
+        "requested": {
+          "$ref": "#/$defs/DataSpaceSaveChanges"
+        },
+        "receipt": {
+          "type": "object",
+          "title": "DataSpaceSaveReceipt"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceSaveChangedFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "DataSpaceSaveChangedFields",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "DataSpaceSaveAcceptedReceipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveAcceptedReceipt",
+      "properties": {
+        "context": {
+          "$ref": "#/$defs/DataSpaceQueryContext"
+        },
+        "changedFields": {
+          "$ref": "#/$defs/DataSpaceSaveChangedFields"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceQueryContextOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryContextOptions",
+      "properties": {
+        "identity": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+        },
+        "snapshot": {
+          "type": "object",
+          "title": "ReturnType<DataSpaceQueryTable['applyResult']>"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "missingAuthPolicy": {
+          "$ref": "../protocol/data-space-permission.ts.json#/$defs/DataSpaceMissingAuthPolicy"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "string"
+        }
+      }
+    },
+    "DataSpaceQueryContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryContext",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DataSpaceQueryContextOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindFormalModel.params": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "object",
+              "title": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindFormalModel.return": true,
+        "method.prepareNewRow.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "DataSpaceRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareNewRow.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.rowKey.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "DataSpaceRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rowKey.return": true,
+        "method.invalidate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.invalidate.return": true,
+        "method.assertIdentity.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertIdentity.return": true,
+        "method.addActionState.params": {
+          "type": "object",
+          "properties": {
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addActionState.return": {
+          "$ref": "#/$defs/DataSpaceActionState"
+        },
+        "method.editActionState.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.editActionState.return": {
+          "$ref": "#/$defs/DataSpaceActionState"
+        },
+        "method.deleteActionState.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteActionState.return": {
+          "$ref": "#/$defs/DataSpaceActionState"
+        },
+        "method.createChildActionState.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createChildActionState.return": {
+          "$ref": "#/$defs/DataSpaceActionState"
+        },
+        "method.viewActionState.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.viewActionState.return": {
+          "$ref": "#/$defs/DataSpaceActionState"
+        },
+        "method.fieldAccess.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "fieldName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fieldAccess.return": {
+          "$ref": "../protocol/data-space-permission.ts.json#/$defs/DataSpaceFieldAccess"
+        },
+        "method.readFieldAccess.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "DataSpaceRow"
+            },
+            "fieldName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFieldAccess.return": true,
+        "method.prepareSaveChanges.params": {
+          "type": "object",
+          "properties": {
+            "changes": {
+              "$ref": "#/$defs/DataSpaceSaveChanges"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareSaveChanges.return": {
+          "$ref": "#/$defs/DataSpaceSaveChanges"
+        },
+        "method.resolveSaveReceipt.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/DataSpaceSaveReceiptCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveSaveReceipt.return": {
+          "type": "object",
+          "title": "DataSpaceSaveReceipt"
+        },
+        "method.acceptSaveReceipt.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/DataSpaceSaveReceiptCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acceptSaveReceipt.return": {
+          "$ref": "#/$defs/DataSpaceSaveAcceptedReceipt"
+        },
+        "method.buildSaveRequest.params": {
+          "type": "object",
+          "properties": {
+            "changes": {
+              "$ref": "#/$defs/DataSpaceSaveChanges"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.buildSaveRequest.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceSaveRequest"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T06:53:58.978Z",
+  "models": {
+    "DataSpaceActionState": {
+      "name": "DataSpaceActionState",
+      "jsdoc": "操作入口的隐藏、禁用或可用状态；业务可用性不扩大权限。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'hidden' | 'disabled' | 'enabled'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'hidden'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'disabled'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'enabled'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceRow": {
+      "name": "DataSpaceRow",
+      "jsdoc": "只读业务行；公开行不包含私有系统权限凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceSaveRow": {
+      "name": "DataSpaceSaveRow",
+      "jsdoc": "保存请求或回执的可写行副本，封包前排除 _pk 与消费者伪造凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, unknown>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceSaveChanges": {
+      "name": "DataSpaceSaveChanges",
+      "jsdoc": "按动作分组的候选行变更；更新和删除必须对应唯一原查询行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    added?: readonly DataSpaceRow[];\n    changed?: readonly DataSpaceRow[];\n    deleted?: readonly DataSpaceRow[];\n    actionOrder?: ReturnType<typeof snapshotDataSpaceSaveActionOrder>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    added?: readonly DataSpaceRow[];\n    changed?: readonly DataSpaceRow[];\n    deleted?: readonly DataSpaceRow[];\n    actionOrder?: ReturnType<typeof snapshotDataSpaceSaveActionOrder>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "added",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actionOrder",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSaveRequest": {
+      "name": "DataSpaceSaveRequest",
+      "jsdoc": "单模型 CRUD 协议分组；系统凭据从私有原查询基线重新附入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    TableName: string;\n    CrudModel: Readonly<{\n        Added: DataSpaceSaveRow[];\n        Changed: DataSpaceSaveRow[];\n        Deleted: DataSpaceSaveRow[];\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    TableName: string;\n    CrudModel: Readonly<{\n        Added: DataSpaceSaveRow[];\n        Changed: DataSpaceSaveRow[];\n        Deleted: DataSpaceSaveRow[];\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "TableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "CrudModel",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSaveReceipt": {
+      "name": "DataSpaceSaveReceipt",
+      "jsdoc": "后端实际动作行回执，尚需上下文核对模型与行身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof readDataSpaceSaveReceipt>[number]",
+        "members": {}
+      }
+    },
+    "DataSpaceSaveReceiptCommand": {
+      "name": "DataSpaceSaveReceiptCommand",
+      "jsdoc": "提交范围与实际回执的配对，用于核对动作数量和原行身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    requested: DataSpaceSaveChanges;\n    receipt: DataSpaceSaveReceipt;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    requested: DataSpaceSaveChanges;\n    receipt: DataSpaceSaveReceipt;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requested",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "receipt",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSaveChangedFields": {
+      "name": "DataSpaceSaveChangedFields",
+      "jsdoc": "逐更新回执行的实际字段名，用于消费者确认已返回的字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReadonlyArray<readonly string[]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReadonlyArray<readonly string[]>",
+            "targetName": "ReadonlyArray"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceSaveAcceptedReceipt": {
+      "name": "DataSpaceSaveAcceptedReceipt",
+      "jsdoc": "核对后的动作回执、新独立上下文及实际更新字段；原上下文不被就地改写。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSpaceSaveReceipt & Readonly<{\n    context: DataSpaceQueryContext;\n    changedFields: DataSpaceSaveChangedFields;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSpaceSaveReceipt",
+            "targetName": "DataSpaceSaveReceipt"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    context: DataSpaceQueryContext;\n    changedFields: DataSpaceSaveChangedFields;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changedFields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryContextOptions": {
+      "name": "DataSpaceQueryContextOptions",
+      "jsdoc": "原结果快照及执行域读取器；scope 非空且后续访问必须仍然匹配。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "snapshot",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "missingAuthPolicy",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryContext": {
+      "name": "DataSpaceQueryContext",
+      "jsdoc": "本次查询拥有唯一行身份和双通道权限；消费者不得取得底层权限字段或替换基线。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "保留原快照并登记唯一行权限；公开冻结行移除系统凭据，重复身份不授予权限。",
+          "signatureText": "constructor(options: DataSpaceQueryContextOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryContextOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "bindFormalModel",
+              "parameters": [
+                {
+                  "name": "model",
+                  "type": {
+                    "type": "reference",
+                    "name": "Awaited",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ReturnType",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "DataSpaceDesignApi['readModel']"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "prepareNewRow",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRow",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "rowKey",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRow",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "invalidate",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertIdentity",
+              "parameters": [
+                {
+                  "name": "identity",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryIdentity",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addActionState",
+              "parameters": [
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceActionState",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "editActionState",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceActionState",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "deleteActionState",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceActionState",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "createChildActionState",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceActionState",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "viewActionState",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceActionState",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "fieldAccess",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "fieldName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceFieldAccess",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts"
+              }
+            },
+            {
+              "name": "readFieldAccess",
+              "jsdoc": "Read only the captured read state for the exact public row returned by this query context.",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRow",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                },
+                {
+                  "name": "fieldName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "DataSpaceFieldAccess['read']"
+              }
+            },
+            {
+              "name": "prepareSaveChanges",
+              "jsdoc": "原查询强引用基线决定更新差异和删除原行；业务候选值交后端强验证。",
+              "parameters": [
+                {
+                  "name": "changes",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceSaveChanges",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceSaveChanges",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "resolveSaveReceipt",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceSaveReceiptCommand",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceSaveReceipt",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "acceptSaveReceipt",
+              "jsdoc": "回执推进独立基线；原上下文及其权限不被共享视图的保存就地改写。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceSaveReceiptCommand",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceSaveAcceptedReceipt",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
+            {
+              "name": "buildSaveRequest",
+              "jsdoc": "API 保存边界使用私有原查询凭据封包；不按前端权限集合裁剪业务值。",
+              "parameters": [
+                {
+                  "name": "changes",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceSaveChanges",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSpaceSaveRequest",
+                  "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

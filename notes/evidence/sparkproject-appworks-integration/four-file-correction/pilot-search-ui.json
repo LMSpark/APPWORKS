@@ -1,0 +1,20 @@
+{
+  "route": "http://127.0.0.1:5273/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/__tool/90A82E287930A234FEC3E687C94A93EA?scenarioId=90A82E287930A234FEC3E687C94A93EA",
+  "checks": {
+    "exactId": 1,
+    "nameContainsAndApplication": 1,
+    "mismatchedApplication": 0,
+    "applicationTotal": 68,
+    "pageTwoRange": "11-20 / 68",
+    "pageSizeTwenty": "1-20 / 68",
+    "rowKeyDomAttributes": 0,
+    "consoleErrors": 0
+  },
+  "authority": "DataView query-result data permissions; admin is only the login identity",
+  "pending": [
+    "two column titles pending local correction",
+    "creation and save",
+    "synthetic denied/hidden/masked data-permission tests",
+    "reopen and regression"
+  ]
+}

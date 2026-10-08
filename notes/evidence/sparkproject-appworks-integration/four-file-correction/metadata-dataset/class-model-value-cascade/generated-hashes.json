@@ -1,0 +1,326 @@
+[
+  {
+    "path": "generated/dts-class-model/.dts-manifest.json",
+    "sha256": "64811ACA67EBD6C6279377ACC3EE55F5A2912286F4993C4029D53F3C66BFDAAE"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-ai/src/class-model/class-model/declaration/project-from-declarations.ts.json",
+    "sha256": "5D60D287D5AE06595D30639766ED27D93685D1F5DEC53D54E1C7A1318B184B4E"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-app/src/index.ts.json",
+    "sha256": "41DAE3E73B738A327F9C0A1F9BBA6D83CA9530981E6ACDDC2ADC5A9E95165575"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-app/src/navigation/runtime-navigation.ts.json",
+    "sha256": "90EC029C714C9B7060F530A92A15C3C39A7BAE03C7171C50D2C72FB63FFC10FC"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-app/src/navigation/useNavigation.ts.json",
+    "sha256": "7D04F8A1C3AE2EE2E2A853B8F2FA64DB63C17B50C52C687955F27CEF9D6AB5CB"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-app/src/navigation/useTabPages.ts.json",
+    "sha256": "E174DEAB56B3C1DAE802CA8B1C6A03533FFC1CBE0E82FA369AD45F3CD2B00392"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-app/src/router/dynamic.ts.json",
+    "sha256": "AAA9DDDAB3B01127864BAE20393264F44A39FC2A7123FD3B8C28091E8599F35A"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-app/src/router/page-runtime-pool.ts.json",
+    "sha256": "8022997BBFFBB253EB80521A9F8937B2B89279313DF1FD668D873100DA1380BC"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-app/src/shell/plugins/presets.ts.json",
+    "sha256": "A663398A14989668D2FE32A88EA09441194B75F4C8058CB28C3D0A3A1EC139C6"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/SparkComponentRenderer.vue.json",
+    "sha256": "FB1989D76F53444B5C9ABE8EB6CD860BC97D8B327CC88BC5873F7C40EF00F861"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/filter/value/FilterValueFunctionDialog/FilterValueFunctionDialog.vue.json",
+    "sha256": "52258DB881E65A6B731515B2A7B245D5EF42987004875FE949F02A3090D037CD"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/layout/navigation/RendererTabs/RendererTabs.vue.json",
+    "sha256": "9E7DAB0D49512183CFB3F25648E2A70997D70256304AE7E7472343D9ADFCF36E"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/fields/context/useFieldPermission.ts.json",
+    "sha256": "4006A0C3B31B1530ADBA18065709EC86AA0206224B5A226D9F17F6E801FD612C"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/fields/data-components/choice/FieldCheckboxGroup/FieldCheckboxGroup.vue.json",
+    "sha256": "4E0986777F76FAC0D05F387F087143BE9FA9F801AA453AE253CB6FE99CEAC636"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/fields/data-components/composables/state/useOptionFieldState.ts.json",
+    "sha256": "0DA05FACE025BB08405CAEB4D36B31B8D23DE8769E1664267B3DC89EA0572230"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue.json",
+    "sha256": "E14C4585006C86F11F04B1AF6A9FEC6D37CCB8DA752328629B7C2ED959AEB0E1"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/fields/options/option-source.ts.json",
+    "sha256": "946070B40274721FE3D6FB8A2FD353AA8C691C0FEA984894063D043AFF26052C"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/fields/options/useFieldOptions.ts.json",
+    "sha256": "EEFE9DBB3FEFD061B416D22E6AE122C6F4A5B76832C5070C2DAAFB0A2E0C5F0C"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/index.ts.json",
+    "sha256": "09896F5663651B2244A0748F72352D4DB4B833CBBFBE21F2F2C65F401945CF41"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/core/capability-keys.ts.json",
+    "sha256": "42639001B279D0C90B62B3A5AD5B8C3C0A000D41A06620215FF69015E2390BCE"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/index.ts.json",
+    "sha256": "D596EB1CDB5850D0EE64280D63DEA5B01532E21E2C95AC14DEA8FC1A4A81B8AF"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/page/binding/build-page-children.ts.json",
+    "sha256": "F4CA36E111E131FF70F938B533879E199AE7ECAEA529E0C0541F217F565D4357"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/page/context/buildPageContext.ts.json",
+    "sha256": "2AADC3EF6696400E4684D8DE3F0B1170A3225DBEFA813051F982D2D2C713D375"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/page/renderer/SparkPageRenderer.vue.json",
+    "sha256": "436FB0F9731565E6F86CD97DFD3E1F0C5AD2E6A9A6A1F5302FB317A6024FAEF1"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/page/services/buildPageService.ts.json",
+    "sha256": "2F206045C531CA5EEC8EB33F4D66FC9FA75E324BB37027790EE56621A3CA6CDE"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/runtime/app-services.ts.json",
+    "sha256": "65C7DCB91DF370B90F5624CAB7E35915AFCF69F0CC987600A61B97206C9207EB"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/runtime/script-context-types.ts.json",
+    "sha256": "028A3A8CBC7DB20ED8996D4BFF770A269046CACA919E4433CC337F454CAD33B8"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/core/data-view-key.ts.json",
+    "sha256": "2965E04056FCAB017BBF31F260B9FD3CB8CC0DBE2F6A49F85F751F3C0EEDEA5F"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/core/utils.ts.json",
+    "sha256": "E655833AA7717164C71D94090EF0D38D41679ABAE79FD4C6B0FD406C1CEF7EFA"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/data-view.ts.json",
+    "sha256": "03AA52047FF9A9668B93658753882F6E6DAE0880B6038C475E3E1060DEA363D3"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+    "sha256": "6367CB9BEC7D186B79656F594D4B86B96DABE01FA3EC6D3A952249C5CA11911E"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/dataset.ts.json",
+    "sha256": "77C94CEEC3996775B3EF441872800FBD23DA32AF3D05439807AC56771550FDF0"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/index.ts.json",
+    "sha256": "A2BA2FCC62127B293D82B0ACB670AD1AF9E4121AED3A695A0F7DAED8E8A6EC51"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/query/filter/data-view-filter-contract.ts.json",
+    "sha256": "0E7ED70F86470F6ACAB1C2AF9DA11FF4E1D4AE2E042A0057A32992F78112988D"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/strategies/cascade-delegate.ts.json",
+    "sha256": "EA217525D6F79914317337934B5E97B93C3CE7009931FB0A1EB78C202DF43591"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/strategies/computed-column-delegate.ts.json",
+    "sha256": "B134DDAA16B1FF14F80E88C404E97D9D41906839EE7FBAC9C110D6AE592A0D8F"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/strategies/selection-delegate.ts.json",
+    "sha256": "C672319898C6EF6E1FA44E738B1CD1CA651BB945E6C405E00384ADD8E57CC3B4"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+    "sha256": "3D76D14A8F7D7CC99B8ABAD7FB685EB8849CAE49F3142728E00E294A15CEB292"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/validation/validation.ts.json",
+    "sha256": "606798548D108E41C98678B9F24D5CBE2E3A0D3F2A5656E4390CC826CCE228D8"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/index.ts.json",
+    "sha256": "B075DAE390AB3C4C50635D34F2002E58A2786E85ED52AEEBB7DC85A86E82B9BB"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/data-space-resource-type-wire.ts.json",
+    "sha256": "571973F121561A3A389C56EA990C8D9D787B739D6EF2576A52F9A35185C8B41E"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json",
+    "sha256": "3D6ED9B9D5CCD74C237663C6E4BC4A2F273D467E13E79F59B88052FC4CE08028"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
+    "sha256": "E4B180E6F64494E6E8715B8B6A61C6EAA24CA9E0875170FB711EF2AC1A123AB2"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json",
+    "sha256": "9287CBBEF6BCF94B2E97FD6F0BBA347F446575735F81E527B6015317A1A74711"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts.json",
+    "sha256": "EF01ACEA2F270D337C60E48589C47D5D00A4B6AE39D99D0AA8794E2F5B165040"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts.json",
+    "sha256": "1AF0B1D4DF8B9A60FAF968AED0DA7627A32FFDF331F37D1320A53A2DF2158286"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts.json",
+    "sha256": "776C9F9DB48C30323031F3139A9596E2C29CF2B2C473B6916D70D637DA5430C8"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts.json",
+    "sha256": "6E381DB17D68A79E82B0CC85D54A20721A3C0C83529CCB2102273230B6443EF9"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts.json",
+    "sha256": "2E5C221BA35826C1356F39FE71313AE3418281FD409ED244ED296CC58CED4790"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json",
+    "sha256": "B21A3AF6B17BDBF022482697B3591E2C4BFC5CFD844373800E4B3D8A88020D47"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-project-model/src/page/runtime-page.ts.json",
+    "sha256": "F5C5488DF3DBDDFDA8571BA6CFB9A90FF273FFC95BC1849C5DF93626974BB01C"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-project-model/src/project/project-workspace.ts.json",
+    "sha256": "B32164C2FC19F5AC05DB1E8501899179DC64FC4D0FF57CD303D9A9F86A07F0F7"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-project-model/src/scenario/scenario-view-config.ts.json",
+    "sha256": "C55944738551727207335C17F120D23D8D69E02C21CD3FF86C6B2D5FC1B8B71A"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-project-model/src/scenario/scenario-view-file.ts.json",
+    "sha256": "037543C8D199616419C5C781880AB23B03AEEBEC2418AEF1D0F4D2B66120228D"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/App.vue.json",
+    "sha256": "FAB0B29345B45B26E1F3F2B086C22910EABB1F54BF26FF0ECF1B418E7703E288"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/layout/AppTabBar.vue.json",
+    "sha256": "F8949247772894141A493B3C86AE2292E58B03ACC90D03524EAB4C07205F61E2"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/lowcode/data-space/lowcode-data-space-assembler.ts.json",
+    "sha256": "3485A7B329FBAB2B5055E8649229E0DE8BEA80D3C9CB5CA783879C67136E4907"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
+    "sha256": "A41DA29BD8E557FF26D8C8100BB797EEDBA7533E0D6C86DC0E84937F8B3F75E8"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/lowcode/data-space/lowcode-model-relation-adapter.ts.json",
+    "sha256": "14A9746FD1B206E9F80920175552F6E256BEC2663ABBA4E78F4EE326C4773E91"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/lowcode/lowcode-runtime.ts.json",
+    "sha256": "648789CD655C24BC056A58AEE5B465BFBE011CC0A69F2A64A5D1CE3E601523AC"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/main.ts.json",
+    "sha256": "18A95C42A40B366993DFB287C46780768D18238656F95A6FF670657A6B9C83C1"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/registries/vue-page-registry.ts.json",
+    "sha256": "43DCE48D4E1B93F69978E152E3230DC234DB2E6DC052833578073BB001B9AABF"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/services/ai/agent-workflow-bindings.ts.json",
+    "sha256": "62F65AAE22643755E9753EE8BF5499A570D067DB4AEB2CB624B8A0599B279712"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/services/page-design/page-design-agent-workflow-binding.ts.json",
+    "sha256": "10A0F0B965AC1C7495811435FCAA69A1968C1998AEE8DAAED32B1CE9B6C342D8"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/services/page-design/page-design-headless.ts.json",
+    "sha256": "4024C1A83A74C6844F21ECF0C47427518B3123A30175B6D831D8311A0AE3E802"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/services/page-design/page-design-operation-guard.ts.json",
+    "sha256": "932B74EB82532060F6A061825E4E4D10B03785E033571DA2B74EA9B67F910D7E"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/services/project-planning/project-planning-headless.ts.json",
+    "sha256": "AAFA4EAB6B71AE634905886CE094E237035EA56EF3503E3F66351AC23E45571A"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/services/project/project-shell.ts.json",
+    "sha256": "5271DD7C206F7947E1F42EF8AE6E0C0F2BD35FE64193E853DF8E5BBD385E5936"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/services/tenant-scope.ts.json",
+    "sha256": "FF9A19093F87415D6907C6E387A8D72C5D465F010CC52F7EFF6C54EA1D152D8D"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/app/WorkflowDesigns.vue.json",
+    "sha256": "611857E27F6556CCFB20C5B77A95C91855D0FD316FA9BBB5B22931D68C7F2068"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/app/dev-system/useDevState.ts.json",
+    "sha256": "84BA8778CFC29AE314EA8355831584DF3A3CA48ABA331110B8EE3D0BC1CECC64"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/app/workflow-designs/workflow-design-class-model.ts.json",
+    "sha256": "3D34BD3290FCBCF6A9C49E8147B015383627F798D6AE1FE9B0781F4A374298E2"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/app/workflow-designs/workflow-design-shell.ts.json",
+    "sha256": "4BAD5B34FC35AF7F9F580F37BE74024C19EB6585390B368101D18FADE4285C0D"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/app/workflow-designs/workflow-design-view-types.ts.json",
+    "sha256": "32B6C26140BC265FC4659CA0C638D490BDC697C9F0DFC9B770F0257789A1BE63"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/platform/LoginView.vue.json",
+    "sha256": "9CDDE38C04B357FDB133B861AB2C36305CC43904F57DF6EE238A0133903891E9"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/platform/PlatformApps.vue.json",
+    "sha256": "75F42518C2F594A21D9D1BB919980FA3D3E1F7223BD47F65BCC86695B58EAF96"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/platform/PlatformTenantManagement.vue.json",
+    "sha256": "03513E61932E7C830AB0C40BD3DB6167A6B4652DB814B221DDFF23D73125A02D"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/tenant/AppList.vue.json",
+    "sha256": "63B8F7A8F99A07A99FE6B4D1410DE3E03F4252194005ED6B697DADE8540EC924"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/views/tenant/CacheManager.vue.json",
+    "sha256": "70D9E63E42B0E34E1D9ACBB8CDF91AE3187102A8D70C941CFA0A1756F5444135"
+  },
+  {
+    "path": "generated/dts-class-model/manifest.json",
+    "sha256": "C9BCF5C3BE0BEF20E1375F15542952BD6B3BA669908E91D8E55BA24531DEEA7C"
+  },
+  {
+    "path": "generated/dts-class-model/semantic-gaps.json",
+    "sha256": "26DFA84EC33C755734931F9DF483EE0A2CBB533A2716E2940131691F6BAE2765"
+  }
+]

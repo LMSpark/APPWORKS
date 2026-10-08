@@ -1,0 +1,1999 @@
+{
+  "at": "2026-10-08T09:26:11.313Z",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "targetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "stage": "complete",
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetBaseData",
+      "hasAuth": false,
+      "hasTenant": false,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/LoginAuthority/UserLoginByEnt",
+      "hasAuth": false,
+      "hasTenant": false,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": false,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": false,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "hasAuth": true,
+      "hasTenant": true,
+      "status": 200,
+      "code": 200
+    }
+  ],
+  "target": {
+    "constructor": "DataSet",
+    "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+    "tables": [
+      {
+        "name": "Base_DataModel",
+        "constructor": "DataTable",
+        "modelBinding": {
+          "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+          "modelName": "Base_DataModel"
+        },
+        "columns": [
+          {
+            "name": "lingma_sys_ent",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "DbName",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "addApi",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateApi",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "PId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ShortName",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updatetime",
+            "type": "DATETIME",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Filter",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "cacheType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "IsBusiness",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "topValue",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "BIGINT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ReportID",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Type",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "selfType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateuser",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "MetaName",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "PrimaryKeyFields",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "description",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "wfid",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "JoinFilter",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "flowstate",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "parentField",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "dataSetId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "RequestComplete",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "items",
+            "type": "TEXT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createtime",
+            "type": "DATETIME",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "OutputType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "JoinType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ForeignKeyFields",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "requestType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Name",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "hasChildField",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "DISTINCT",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "DbId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "deleteApi",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "IsBusinessMain",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "rowid",
+            "type": "VARCHAR",
+            "isPrimaryKey": true
+          },
+          {
+            "name": "createuser",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          }
+        ],
+        "views": [
+          {
+            "viewId": "default",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 7,
+            "total": 7
+          },
+          {
+            "viewId": "apiInfoModels",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          },
+          {
+            "viewId": "designModels",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          }
+        ],
+        "rows": 7,
+        "total": 7
+      },
+      {
+        "name": "Base_DataModel_Field",
+        "constructor": "DataTable",
+        "modelBinding": {
+          "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp002",
+          "modelName": "Base_DataModel_Field"
+        },
+        "columns": [
+          {
+            "name": "createuser",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Value",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "rowid",
+            "type": "VARCHAR",
+            "isPrimaryKey": true
+          },
+          {
+            "name": "IsOutput",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "dataSetId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Expression",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ValueFun",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "allowAIAdd",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "AsName",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "IsPKey",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ReportID",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "aiSort",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "dataModelId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "OrderType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "flowstate",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "aiMemo",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_ent",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Group",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "FieldType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateuser",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "DISTINCT",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "wfid",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Name",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Order",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updatetime",
+            "type": "DATETIME",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "type",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "BIGINT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "description",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createtime",
+            "type": "DATETIME",
+            "isPrimaryKey": false
+          }
+        ],
+        "views": [
+          {
+            "viewId": "default",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 119,
+            "total": 119
+          },
+          {
+            "viewId": "apiInfoFields",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          },
+          {
+            "viewId": "designFields",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          }
+        ],
+        "rows": 119,
+        "total": 119
+      },
+      {
+        "name": "Base_DataSet",
+        "constructor": "DataTable",
+        "modelBinding": {
+          "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+          "modelName": "Base_DataSet"
+        },
+        "columns": [
+          {
+            "name": "ReportID",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "rowid",
+            "type": "varchar",
+            "isPrimaryKey": true
+          },
+          {
+            "name": "wfid",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateuser",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createuser",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "description",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "flowstate",
+            "type": "int",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updatetime",
+            "type": "datetime",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createtime",
+            "type": "datetime",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "bigint",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "inputParams",
+            "type": "text",
+            "isPrimaryKey": false
+          }
+        ],
+        "views": [
+          {
+            "viewId": "default",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "rowid",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 1,
+            "total": 1
+          },
+          {
+            "viewId": "designParameters",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "rowid",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          }
+        ],
+        "rows": 1,
+        "total": 1
+      },
+      {
+        "name": "Base_DataModel_Relation",
+        "constructor": "DataTable",
+        "modelBinding": {
+          "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp003",
+          "modelName": "Base_DataModel_Relation"
+        },
+        "columns": [
+          {
+            "name": "childTable",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateuser",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "rowid",
+            "type": "varchar",
+            "isPrimaryKey": true
+          },
+          {
+            "name": "dataSetId",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "flowstate",
+            "type": "int",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ReportID",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "depType",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "bigint",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "cascadeDel",
+            "type": "int",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updatetime",
+            "type": "datetime",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "filter",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "parentTable",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "wfid",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createuser",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "childModId",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "description",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "parentModId",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createtime",
+            "type": "datetime",
+            "isPrimaryKey": false
+          }
+        ],
+        "views": [
+          {
+            "viewId": "default",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          },
+          {
+            "viewId": "designRelations",
+            "constructor": "DataView",
+            "input": {
+              "formid": "97DCB03F75AADEAE6B102B062DB71CEA"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          }
+        ],
+        "rows": 0,
+        "total": 0
+      }
+    ],
+    "resourceRelations": [
+      {
+        "relationId": "FB3CEC0D90334846830FE63E533312C9:Base_DataSet:Base_DataModel",
+        "sourceRelationId": "FB3CEC0D90334846830FE63E533312C9",
+        "parentTable": "Base_DataSet",
+        "childTable": "Base_DataModel",
+        "filterExpression": {
+          "logic": "and",
+          "filters": [
+            {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetTableField",
+                "Field": "rowid"
+              }
+            }
+          ]
+        },
+        "cascadeDelete": false
+      }
+    ],
+    "viewCascades": []
+  },
+  "other": {
+    "constructor": "DataSet",
+    "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+    "tables": [
+      {
+        "name": "Base_DataModel",
+        "constructor": "DataTable",
+        "modelBinding": {
+          "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+          "modelName": "Base_DataModel"
+        },
+        "columns": [
+          {
+            "name": "lingma_sys_ent",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "DbName",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "addApi",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateApi",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "PId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ShortName",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updatetime",
+            "type": "DATETIME",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Filter",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "cacheType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "IsBusiness",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "topValue",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "BIGINT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ReportID",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Type",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "selfType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateuser",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "MetaName",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "PrimaryKeyFields",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "description",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "wfid",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "JoinFilter",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "flowstate",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "parentField",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "dataSetId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "RequestComplete",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "items",
+            "type": "TEXT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createtime",
+            "type": "DATETIME",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "OutputType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "JoinType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ForeignKeyFields",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "requestType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Name",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "hasChildField",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "DISTINCT",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "DbId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "deleteApi",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "IsBusinessMain",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "rowid",
+            "type": "VARCHAR",
+            "isPrimaryKey": true
+          },
+          {
+            "name": "createuser",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          }
+        ],
+        "views": [
+          {
+            "viewId": "default",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 16,
+            "total": 16
+          },
+          {
+            "viewId": "apiInfoModels",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          },
+          {
+            "viewId": "designModels",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          }
+        ],
+        "rows": 16,
+        "total": 16
+      },
+      {
+        "name": "Base_DataModel_Field",
+        "constructor": "DataTable",
+        "modelBinding": {
+          "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp002",
+          "modelName": "Base_DataModel_Field"
+        },
+        "columns": [
+          {
+            "name": "createuser",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Value",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "rowid",
+            "type": "VARCHAR",
+            "isPrimaryKey": true
+          },
+          {
+            "name": "IsOutput",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "dataSetId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Expression",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ValueFun",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "allowAIAdd",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "AsName",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "IsPKey",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ReportID",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "aiSort",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "dataModelId",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "OrderType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "flowstate",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "aiMemo",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_ent",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Group",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "FieldType",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateuser",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "DISTINCT",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "wfid",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Name",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "Order",
+            "type": "INT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updatetime",
+            "type": "DATETIME",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "type",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "BIGINT",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "description",
+            "type": "VARCHAR",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createtime",
+            "type": "DATETIME",
+            "isPrimaryKey": false
+          }
+        ],
+        "views": [
+          {
+            "viewId": "default",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 498,
+            "total": 498
+          },
+          {
+            "viewId": "apiInfoFields",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          },
+          {
+            "viewId": "designFields",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          }
+        ],
+        "rows": 498,
+        "total": 498
+      },
+      {
+        "name": "Base_DataSet",
+        "constructor": "DataTable",
+        "modelBinding": {
+          "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+          "modelName": "Base_DataSet"
+        },
+        "columns": [
+          {
+            "name": "ReportID",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "rowid",
+            "type": "varchar",
+            "isPrimaryKey": true
+          },
+          {
+            "name": "wfid",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateuser",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createuser",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "description",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "flowstate",
+            "type": "int",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updatetime",
+            "type": "datetime",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createtime",
+            "type": "datetime",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "bigint",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "inputParams",
+            "type": "text",
+            "isPrimaryKey": false
+          }
+        ],
+        "views": [
+          {
+            "viewId": "default",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "rowid",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 1,
+            "total": 1
+          },
+          {
+            "viewId": "designParameters",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "rowid",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          }
+        ],
+        "rows": 1,
+        "total": 1
+      },
+      {
+        "name": "Base_DataModel_Relation",
+        "constructor": "DataTable",
+        "modelBinding": {
+          "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp003",
+          "modelName": "Base_DataModel_Relation"
+        },
+        "columns": [
+          {
+            "name": "childTable",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updateuser",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "rowid",
+            "type": "varchar",
+            "isPrimaryKey": true
+          },
+          {
+            "name": "dataSetId",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "flowstate",
+            "type": "int",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "ReportID",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "depType",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "lingma_sys_is_delete",
+            "type": "bigint",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "cascadeDel",
+            "type": "int",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "updatetime",
+            "type": "datetime",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "filter",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "parentTable",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "wfid",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createuser",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "childModId",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "description",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "parentModId",
+            "type": "varchar",
+            "isPrimaryKey": false
+          },
+          {
+            "name": "createtime",
+            "type": "datetime",
+            "isPrimaryKey": false
+          }
+        ],
+        "views": [
+          {
+            "viewId": "default",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 1,
+            "total": 1
+          },
+          {
+            "viewId": "designRelations",
+            "constructor": "DataView",
+            "input": {
+              "formid": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            },
+            "filter": {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetInputParam",
+                "ParamName": "formid"
+              }
+            },
+            "rows": 0,
+            "total": 0
+          }
+        ],
+        "rows": 1,
+        "total": 1
+      }
+    ],
+    "resourceRelations": [
+      {
+        "relationId": "FB3CEC0D90334846830FE63E533312C9:Base_DataSet:Base_DataModel",
+        "sourceRelationId": "FB3CEC0D90334846830FE63E533312C9",
+        "parentTable": "Base_DataSet",
+        "childTable": "Base_DataModel",
+        "filterExpression": {
+          "logic": "and",
+          "filters": [
+            {
+              "field": "dataSetId",
+              "operator": "eq",
+              "value": {
+                "Type": "GetTableField",
+                "Field": "rowid"
+              }
+            }
+          ]
+        },
+        "cascadeDelete": false
+      }
+    ],
+    "viewCascades": []
+  },
+  "isolated": true,
+  "reads": 71
+}

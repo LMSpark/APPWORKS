@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/knowledge/worker-knowledge-api",
+    "sourcePath": "packages/spark-ai/src/class-model/knowledge/worker-knowledge-api.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/knowledge/worker-knowledge-api.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/knowledge/worker-knowledge-api",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/knowledge/worker-knowledge-api\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 worker-knowledge-api 能力，围绕 ClassModelKnowledgeWorkerInitInput、ClassModelKnowledgeWorkerApi 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/knowledge/worker-knowledge-api 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ClassModelKnowledgeWorkerInitInput",
+      "ClassModelKnowledgeWorkerRefreshInput",
+      "ClassModelKnowledgeWorkerApi"
+    ]
+  },
+  "$defs": {
+    "ClassModelKnowledgeWorkerInitInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelKnowledgeWorkerInitInput",
+      "properties": {
+        "dtsClassModelManifestUrl": {
+          "type": "string"
+        },
+        "rootClassName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelKnowledgeWorkerRefreshInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelKnowledgeWorkerRefreshInput",
+      "properties": {
+        "requestedClassName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ClassModelKnowledgeWorkerApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelKnowledgeWorkerApi",
+      "$defs": {
+        "method.init.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelKnowledgeWorkerInitInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.init.return": {
+          "type": "object",
+          "title": "Promise<{\n        initialized: true;\n    }>"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ClassModelKnowledgeWorkerRefreshInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<{\n        refreshed: true;\n    }>"
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeQueryInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<JsonValue>"
+        },
+        "method.modelGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelModelGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.modelGuide.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.attributeGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelAttributeGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.attributeGuide.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.methodGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelMethodGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.methodGuide.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.506Z",
+  "models": {
+    "ClassModelKnowledgeWorkerInitInput": {
+      "name": "ClassModelKnowledgeWorkerInitInput",
+      "jsdoc": "Class Model Knowledge Worker Init Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** DtsTypeDeclarationModel bundle 分片 manifest.json。 */\n    dtsClassModelManifestUrl: string;\n    /** 业务根 className；DTS 模型里 kind 与 className 同值。 */\n    rootClassName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** DtsTypeDeclarationModel bundle 分片 manifest.json。 */\n    dtsClassModelManifestUrl: string;\n    /** 业务根 className；DTS 模型里 kind 与 className 同值。 */\n    rootClassName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dtsClassModelManifestUrl",
+              "jsdoc": "DtsTypeDeclarationModel bundle 分片 manifest.json。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootClassName",
+              "jsdoc": "业务根 className；DTS 模型里 kind 与 className 同值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelKnowledgeWorkerRefreshInput": {
+      "name": "ClassModelKnowledgeWorkerRefreshInput",
+      "jsdoc": "Class Model Knowledge Worker Refresh Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 需要增量刷新的类名；省略时从 rootClassName 全量重建。 */\n    requestedClassName?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 需要增量刷新的类名；省略时从 rootClassName 全量重建。 */\n    requestedClassName?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestedClassName",
+              "jsdoc": "需要增量刷新的类名；省略时从 rootClassName 全量重建。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelKnowledgeWorkerApi": {
+      "name": "ClassModelKnowledgeWorkerApi",
+      "jsdoc": "Class Model Knowledge Worker Api 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 一次性初始化：加载 manifest、创建知识提供者；必须先于其他方法调用。 */\n    init(input: ClassModelKnowledgeWorkerInitInput): Promise<{\n        initialized: true;\n    }>;\n    /** 重新加载知识分片；可指定 className 做增量刷新，否则全量重建。 */\n    refresh(input?: ClassModelKnowledgeWorkerRefreshInput): Promise<{\n        refreshed: true;\n    }>;\n    /** 结构化查询：返回类模型摘要、成员列表等 JSON 数据，供程序消费。 */\n    query(input: ClassModelKnowledgeQueryInput): Promise<JsonValue>;\n    /** 渲染完整类声明的 .d.ts 风格文本，供 LLM 作为上下文知识。 */\n    modelGuide(input: ClassModelModelGuideInput): Promise<string>;\n    /** 渲染单个属性的聚焦声明文本（含所属类头部），供 LLM 精确理解属性语义。 */\n    attributeGuide(input: ClassModelAttributeGuideInput): Promise<string>;\n    /** 渲染单个方法的聚焦声明文本（含所属类头部和完整签名），供 LLM 精确理解方法语义。 */\n    methodGuide(input: ClassModelMethodGuideInput): Promise<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 一次性初始化：加载 manifest、创建知识提供者；必须先于其他方法调用。 */\n    init(input: ClassModelKnowledgeWorkerInitInput): Promise<{\n        initialized: true;\n    }>;\n    /** 重新加载知识分片；可指定 className 做增量刷新，否则全量重建。 */\n    refresh(input?: ClassModelKnowledgeWorkerRefreshInput): Promise<{\n        refreshed: true;\n    }>;\n    /** 结构化查询：返回类模型摘要、成员列表等 JSON 数据，供程序消费。 */\n    query(input: ClassModelKnowledgeQueryInput): Promise<JsonValue>;\n    /** 渲染完整类声明的 .d.ts 风格文本，供 LLM 作为上下文知识。 */\n    modelGuide(input: ClassModelModelGuideInput): Promise<string>;\n    /** 渲染单个属性的聚焦声明文本（含所属类头部），供 LLM 精确理解属性语义。 */\n    attributeGuide(input: ClassModelAttributeGuideInput): Promise<string>;\n    /** 渲染单个方法的聚焦声明文本（含所属类头部和完整签名），供 LLM 精确理解方法语义。 */\n    methodGuide(input: ClassModelMethodGuideInput): Promise<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "init",
+              "jsdoc": "一次性初始化：加载 manifest、创建知识提供者；必须先于其他方法调用。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelKnowledgeWorkerInitInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/worker-knowledge-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        initialized: true;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "重新加载知识分片；可指定 className 做增量刷新，否则全量重建。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelKnowledgeWorkerRefreshInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/worker-knowledge-api.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        refreshed: true;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "query",
+              "jsdoc": "结构化查询：返回类模型摘要、成员列表等 JSON 数据，供程序消费。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelKnowledgeQueryInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "JsonValue"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "modelGuide",
+              "jsdoc": "渲染完整类声明的 .d.ts 风格文本，供 LLM 作为上下文知识。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelModelGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "attributeGuide",
+              "jsdoc": "渲染单个属性的聚焦声明文本（含所属类头部），供 LLM 精确理解属性语义。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelAttributeGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "methodGuide",
+              "jsdoc": "渲染单个方法的聚焦声明文本（含所属类头部和完整签名），供 LLM 精确理解方法语义。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelMethodGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project-planning/project-planning-ai-runner",
+    "sourcePath": "src/services/project-planning/project-planning-ai-runner.ts",
+    "sourceFile": "src/services/project-planning/project-planning-ai-runner.ts",
+    "packageName": "app",
+    "modulePath": "services/project-planning/project-planning-ai-runner",
+    "jsdoc": "@module app:services/project-planning-ai-runner\n职责：提供应用层 projectPlanning 的 project-planning-ai-runner 能力，围绕 ProjectPlanningAiRunOptions、ProjectPlanningAiRunEvents、ProjectPlanningAiRunCommand 等 4 个公开契约编排项目需求、蓝图规划和 AI 业务注册。\n边界：只停留在项目规划阶段，不生成页面 rule/pagedata/script/template，也不越界进入 pageDesign。\nAI用途：规划模块/页面概要或排查项目策划 Agent 时，用本模块理解 services/project-planning-ai-runner。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ProjectPlanningAiRunOptions",
+      "ProjectPlanningAiRunEvents",
+      "ProjectPlanningAiRunCommand",
+      "ProjectPlanningAiRunResult"
+    ]
+  },
+  "$defs": {
+    "ProjectPlanningAiRunOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningAiRunOptions",
+      "properties": {
+        "saveBlueprintAfterRun": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectPlanningAiRunEvents": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningAiRunEvents",
+      "$defs": {
+        "method.onToolCall.params": {
+          "type": "object",
+          "properties": {
+            "record": {
+              "$ref": "../../../packages/spark-ai/src/agent/conversation/chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onToolCall.return": true
+      }
+    },
+    "ProjectPlanningAiRunCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningAiRunCommand",
+      "properties": {
+        "saveBlueprintAfterRun": {
+          "type": "boolean"
+        },
+        "editor": {
+          "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+        },
+        "host": {
+          "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHost"
+        },
+        "events": {
+          "$ref": "#/$defs/ProjectPlanningAiRunEvents"
+        },
+        "trace": {
+          "$ref": "../../../packages/spark-app/src/ai/ai-run-adapter.ts.json#/$defs/AiRunTraceSink"
+        },
+        "adapter": {
+          "$ref": "../../../packages/spark-app/src/ai/ai-run-adapter.ts.json#/$defs/AiRunAdapterState"
+        },
+        "beforeFunctionCall": {
+          "type": "object",
+          "title": "AiRunBeforeFunctionCall"
+        },
+        "onAbort": {
+          "type": "object",
+          "title": "AiRunAbortHandler"
+        },
+        "userMessage": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectPlanningAiRunResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPlanningAiRunResult",
+      "properties": {
+        "sawToolCall": {
+          "type": "boolean"
+        },
+        "input": {
+          "$ref": "project-planning-agent-workflow-binding.ts.json#/$defs/ProjectPlanningAgentInput"
+        },
+        "blueprintDirty": {
+          "type": "boolean"
+        },
+        "savedBlueprint": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T01:13:38.180Z",
+  "models": {
+    "ProjectPlanningAiRunOptions": {
+      "name": "ProjectPlanningAiRunOptions",
+      "jsdoc": "Project Planning Ai Run Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ResolveScopedProjectPlanningRunInputOptions & Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ResolveScopedProjectPlanningRunInputOptions",
+            "targetName": "ResolveScopedProjectPlanningRunInputOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 自动化/headless 可在 run 结束后保存项目蓝图；默认 false。 */\n    saveBlueprintAfterRun?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "saveBlueprintAfterRun",
+              "jsdoc": "自动化/headless 可在 run 结束后保存项目蓝图；默认 false。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPlanningAiRunEvents": {
+      "name": "ProjectPlanningAiRunEvents",
+      "jsdoc": "Project Planning Ai Run Events 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** tool call 发生时的回调。 */\n    onToolCall?: (record: AiAgentToolCallRecord) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** tool call 发生时的回调。 */\n    onToolCall?: (record: AiAgentToolCallRecord) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "onToolCall",
+              "jsdoc": "tool call 发生时的回调。",
+              "parameters": [
+                {
+                  "name": "record",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentToolCallRecord"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPlanningAiRunCommand": {
+      "name": "ProjectPlanningAiRunCommand",
+      "jsdoc": "Project Planning Ai Run Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ProjectPlanningAiRunOptions & Readonly<{\n    /** 项目工作区编辑器实例。 */\n    editor: ProjectWorkspace;\n    /** 测试或编排层可注入 Host；省略时每次运行新建独立 Host。 */\n    host?: AiAgentHost;\n    /** 运行期事件回调集合。 */\n    events?: ProjectPlanningAiRunEvents;\n    /** trace 输出 sink。 */\n    trace?: AiRunTraceSink;\n    /** AI run 适配器状态（跨轮次复用）。 */\n    adapter?: AiRunAdapterState;\n    /** tool call 前置拦截钩子。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** 运行被中止时的回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** 默认使用 requirement 作为 user turn 文本。 */\n    userMessage?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ProjectPlanningAiRunOptions",
+            "targetName": "ProjectPlanningAiRunOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 项目工作区编辑器实例。 */\n    editor: ProjectWorkspace;\n    /** 测试或编排层可注入 Host；省略时每次运行新建独立 Host。 */\n    host?: AiAgentHost;\n    /** 运行期事件回调集合。 */\n    events?: ProjectPlanningAiRunEvents;\n    /** trace 输出 sink。 */\n    trace?: AiRunTraceSink;\n    /** AI run 适配器状态（跨轮次复用）。 */\n    adapter?: AiRunAdapterState;\n    /** tool call 前置拦截钩子。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** 运行被中止时的回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** 默认使用 requirement 作为 user turn 文本。 */\n    userMessage?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "editor",
+              "jsdoc": "项目工作区编辑器实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "host",
+              "jsdoc": "测试或编排层可注入 Host；省略时每次运行新建独立 Host。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "events",
+              "jsdoc": "运行期事件回调集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "trace",
+              "jsdoc": "trace 输出 sink。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "adapter",
+              "jsdoc": "AI run 适配器状态（跨轮次复用）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "beforeFunctionCall",
+              "jsdoc": "tool call 前置拦截钩子。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onAbort",
+              "jsdoc": "运行被中止时的回调。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "userMessage",
+              "jsdoc": "默认使用 requirement 作为 user turn 文本。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPlanningAiRunResult": {
+      "name": "ProjectPlanningAiRunResult",
+      "jsdoc": "Project Planning Ai Run Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次运行是否观察到至少一次 tool call。 */\n    sawToolCall: boolean;\n    /** 注入 Agent 的完整输入契约。 */\n    input: ProjectPlanningAgentInput;\n    /** 运行结束后项目蓝图是否有未保存变更。 */\n    blueprintDirty: boolean;\n    /** 是否已成功保存项目蓝图变更。 */\n    savedBlueprint: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次运行是否观察到至少一次 tool call。 */\n    sawToolCall: boolean;\n    /** 注入 Agent 的完整输入契约。 */\n    input: ProjectPlanningAgentInput;\n    /** 运行结束后项目蓝图是否有未保存变更。 */\n    blueprintDirty: boolean;\n    /** 是否已成功保存项目蓝图变更。 */\n    savedBlueprint: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sawToolCall",
+              "jsdoc": "本次运行是否观察到至少一次 tool call。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "jsdoc": "注入 Agent 的完整输入契约。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintDirty",
+              "jsdoc": "运行结束后项目蓝图是否有未保存变更。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "savedBlueprint",
+              "jsdoc": "是否已成功保存项目蓝图变更。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

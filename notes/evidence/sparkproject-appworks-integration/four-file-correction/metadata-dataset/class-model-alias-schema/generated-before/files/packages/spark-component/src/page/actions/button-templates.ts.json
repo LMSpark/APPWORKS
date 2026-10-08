@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/actions/button-templates",
+    "sourcePath": "packages/spark-component/src/page/actions/button-templates.ts",
+    "sourceFile": "packages/spark-component/src/page/actions/button-templates.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/actions/button-templates",
+    "jsdoc": "@module @spark-appworks/spark-component:page/actions/button-templates\n职责：提供 button templates 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nr-button 模板预设系统\n三层解析优先级（从低到高）：\n1. action 自动推导的默认模板\n2. template 预设\n3. 用户显式 props（最高优先级）\n容器可额外注入 buttonSize/text 等默认值（行操作自动 small+text）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ButtonTemplateProps",
+      "ResolvedButtonStyle"
+    ]
+  },
+  "$defs": {
+    "ButtonTemplateProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ButtonTemplateProps",
+      "properties": {
+        "buttonType": {
+          "enum": [
+            "primary",
+            "success",
+            "warning",
+            "danger",
+            "info"
+          ]
+        },
+        "plain": {
+          "type": "boolean"
+        },
+        "text": {
+          "type": "boolean"
+        },
+        "link": {
+          "type": "boolean"
+        },
+        "round": {
+          "type": "boolean"
+        },
+        "circle": {
+          "type": "boolean"
+        },
+        "buttonSize": {
+          "enum": [
+            "large",
+            "default",
+            "small"
+          ]
+        },
+        "icon": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResolvedButtonStyle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolvedButtonStyle",
+      "properties": {
+        "buttonType": {
+          "type": "string"
+        },
+        "buttonSize": {
+          "type": "string"
+        },
+        "plain": {
+          "type": "boolean"
+        },
+        "text": {
+          "type": "boolean"
+        },
+        "link": {
+          "type": "boolean"
+        },
+        "round": {
+          "type": "boolean"
+        },
+        "circle": {
+          "type": "boolean"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "buttonType",
+        "buttonSize",
+        "plain",
+        "text",
+        "link",
+        "round",
+        "circle",
+        "icon",
+        "label"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:50.980Z",
+  "models": {
+    "ButtonTemplateProps": {
+      "name": "ButtonTemplateProps",
+      "jsdoc": "Button Template Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** button Type 字段。 */\n    buttonType?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    /** plain 字段。 */\n    plain?: boolean;\n    /** 展示文本。 */\n    text?: boolean;\n    /** link 字段。 */\n    link?: boolean;\n    /** round 字段。 */\n    round?: boolean;\n    /** circle 字段。 */\n    circle?: boolean;\n    /** button Size 大小。 */\n    buttonSize?: 'large' | 'default' | 'small';\n    /** icon 字段。 */\n    icon?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "buttonType",
+              "jsdoc": "button Type 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "plain",
+              "jsdoc": "plain 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "jsdoc": "展示文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "link",
+              "jsdoc": "link 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "round",
+              "jsdoc": "round 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "circle",
+              "jsdoc": "circle 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "buttonSize",
+              "jsdoc": "button Size 大小。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "icon 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolvedButtonStyle": {
+      "name": "ResolvedButtonStyle",
+      "jsdoc": "Resolved Button Style 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** button Type 字段。 */\n    buttonType: string;\n    /** button Size 大小。 */\n    buttonSize: string;\n    /** plain 字段。 */\n    plain: boolean;\n    /** 展示文本。 */\n    text: boolean;\n    /** link 字段。 */\n    link: boolean;\n    /** round 字段。 */\n    round: boolean;\n    /** circle 字段。 */\n    circle: boolean;\n    /** icon 字段。 */\n    icon: string | undefined;\n    /** 展示标签。 */\n    label: string | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "buttonType",
+              "jsdoc": "button Type 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "buttonSize",
+              "jsdoc": "button Size 大小。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "plain",
+              "jsdoc": "plain 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "text",
+              "jsdoc": "展示文本。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "link",
+              "jsdoc": "link 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "round",
+              "jsdoc": "round 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "circle",
+              "jsdoc": "circle 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "icon",
+              "jsdoc": "icon 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "jsdoc": "展示标签。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

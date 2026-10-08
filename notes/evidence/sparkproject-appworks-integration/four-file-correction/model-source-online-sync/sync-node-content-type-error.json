@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-08T05:48:06.775Z",
+  "mode": "sync",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "toolId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "stage": "upload:script.js",
+  "outcomes": [
+    {
+      "fileName": "pagedata.json",
+      "status": "already-matches",
+      "sha256": "86ccf1cd4ae3b0a792ff91458074a691dd738955ce99bd21e65033267881a0c1"
+    }
+  ],
+  "failed": true,
+  "errorType": "LowcodeApiError",
+  "errorCode": 500,
+  "message": "[500] Content-Type 'application/x-www-form-urlencoded' is not supported"
+}

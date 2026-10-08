@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-07T22:21:41.169Z",
+  "result": {
+    "dirty": false,
+    "receipt": {
+      "failedCount": 0,
+      "savedCount": 1,
+      "success": true
+    },
+    "reopened": {
+      "dirty": false,
+      "instanceId": "66c367ed-b0c0-41c3-b5f6-99edd7d461c3",
+      "value": "[{\"rowid\":\"941D71D3D9D5061FB544AF0939279C05\",\"Name\":\"四文件参数验收\",\"Description\":\"保存重开后恢复原值\",\"IsBusParam\":true}]"
+    },
+    "target": "97DCB03F75AADEAE6B102B062DB71CEA",
+    "value": null
+  }
+}

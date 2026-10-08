@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec eslint src/main.ts src/services/project/navigation/project-navigation-guard.ts tests/runtime/auth-nav/application/project-navigation-guard.test.ts",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:47:24.4516684Z",
+  "finishedAtUtc": "2026-10-07T08:47:31.9179781Z",
+  "exitCode": 0
+}

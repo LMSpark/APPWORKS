@@ -1,0 +1,32 @@
+[
+  {
+    "path": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
+    "before": "DB3409D35C85F9B893D461A0590C5BA03FDD31018EF1A010972FD3FC99B5F7C8",
+    "after": "413DF094DF48953C5F841B7D1BA916D5EC999CFA3C44CABE997BDB42C6278162"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "before": "B55D655312CBAD82C540036E3A04423B37AEC448C5C7F9F3112BA3B37C94A475",
+    "after": "82AABA92EEE67CB8B1FE0FE8F423BFE49436C52AAF3AB1C8828E29CD75915C15"
+  },
+  {
+    "path": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+    "before": "5241488B7281CA0E8ED32FC0523959F2D8A423ACD5C712B1D2E751DD7996A198",
+    "after": "FC390BD6DD9BE3E8D8AA6DB3DC7F6AA96ECC4291C5E97C721078505EB44DF85F"
+  },
+  {
+    "path": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+    "before": "FF9DA896B9A5972948F3966E9C80D173A7ECC18601CE02DA8904E9FF1645A170",
+    "after": "97BCA1D261F35A845FC121380CB7D82B8CD5991E9712E37A7C873C358775003C"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts",
+    "before": "5408F30F2FF895178B04CF8E1DB03A7CFFB8EA1C08CB43E4F8273093721950B1",
+    "after": "8EC8643DFA542131140049AF10D2C9CBD5120418098BA4FA3746CBC14D16BD4D"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts",
+    "before": "D378B685958965C092FC275ACC81FAC6DC3503B2F9B687556E3960C5DA65D719",
+    "after": "32CE1F784F91714C77384F7189D15B0FE5E984AABD78AB76D5A56CB903AC3B7B"
+  }
+]

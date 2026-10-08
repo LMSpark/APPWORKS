@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:core/lowcode-client",
+    "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/core/lowcode-client.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "core/lowcode-client",
+    "jsdoc": "lowcode HTTP 薄封装：发起请求并强制解包 `AjaxResult`。\nHTTP 4xx/5xx 若仍携带 AjaxResult 体则按业务码处理；非 AjaxResult 或 `Code !== 200` 一律抛 `LowcodeApiError`。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeClient",
+      "LowcodeClientCommand"
+    ]
+  },
+  "$defs": {
+    "LowcodeClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.requestResult.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/LowcodeClientCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.requestResult.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        }
+      }
+    },
+    "LowcodeClientCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeClientCommand",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "method": {
+          "$ref": "../../../spark-utils/src/http/types.ts.json#/$defs/Method"
+        },
+        "data": true,
+        "params": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "headers": {
+          "type": "object",
+          "title": "Record<string, string>"
+        },
+        "authenticated": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-05T10:07:52.890Z",
+  "models": {
+    "LowcodeClient": {
+      "name": "LowcodeClient",
+      "jsdoc": "面向 lowcode 后端的通用请求客户端，返回值仅为 AjaxResult.Result 载荷。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "requestResult",
+              "jsdoc": "执行单次 lowcode 请求；`authenticated: false` 时跳过根门面注入的 Bearer（如登录接口）。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeClientCommand",
+                    "sourcePath": "packages/spark-lowcode-api/src/core/lowcode-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeClientCommand": {
+      "name": "LowcodeClientCommand",
+      "jsdoc": "单次 lowcode 请求描述；path 为相对 API 路径，method 受底层 HttpClient 约束。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "path",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "method",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "params",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authenticated",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

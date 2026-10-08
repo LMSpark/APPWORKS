@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/bundle/class-model-emit-path",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/bundle/class-model-emit-path.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/bundle/class-model-emit-path.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/bundle/class-model-emit-path",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/bundle/class-model-emit-path\n职责：DtsTypeDeclarationModel 编译期内存 emit 的虚拟路径约定（非磁盘目录）。\n边界：只维护路径字符串规则；不访问文件系统，不创建 TypeScript Program。\nAI用途：判断 bundle 键是否为 class-model-emit 虚拟源或映射 repo 路径时，用本模块统一约定。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ClassModelEmitSource"
+    ]
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:20:17.701Z",
+  "models": {
+    "ClassModelEmitSource": {
+      "name": "ClassModelEmitSource",
+      "jsdoc": "DtsTypeDeclarationModel 内存 emit 来源标识（对应 tsconfig.class-model-emit.json）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof CLASS_MODEL_EMIT_SOURCE",
+        "members": {}
+      }
+    }
+  }
+}

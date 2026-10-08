@@ -1,0 +1,975 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:tree/tree-types",
+    "sourcePath": "packages/spark-json-document/src/tree/tree-types.ts",
+    "sourceFile": "packages/spark-json-document/src/tree/tree-types.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "tree/tree-types",
+    "jsdoc": "@module @spark-appworks/spark-json-document:tree/tree-types\n职责：提供 JSON Document/schema 处理中的 tree types 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。\n\n═══════════════════════════════════════════════════════════════\ntree/tree-types.ts — 树模型类型定义\n═══════════════════════════════════════════════════════════════",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "JsonNodeType",
+      "JsonTreeNode",
+      "TreeDisplayNode",
+      "TreeModel",
+      "MutationResult",
+      "RenameNodeKeyInput",
+      "UpdateNodeTypeInput",
+      "JsonTreePolicy",
+      "AutoPopulateEntry",
+      "FlatJsonTreeDocument"
+    ]
+  },
+  "$defs": {
+    "JsonNodeType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "JsonNodeType",
+      "enum": [
+        "object",
+        "array",
+        "string",
+        "number",
+        "boolean",
+        "null"
+      ]
+    },
+    "JsonTreeNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "JsonTreeNode",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "segment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/JsonNodeType"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TreeDisplayNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TreeDisplayNode",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "segment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/JsonNodeType"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "depth": {
+          "type": "number"
+        },
+        "path": {
+          "type": "object",
+          "title": "JsonPath"
+        },
+        "childCount": {
+          "type": "number"
+        },
+        "keyEditable": {
+          "type": "boolean"
+        },
+        "typeEditable": {
+          "type": "boolean"
+        },
+        "deletable": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MutationResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MutationResult",
+      "properties": {
+        "model": {
+          "type": "object",
+          "title": "TreeModel"
+        },
+        "focusId": {
+          "type": "string"
+        },
+        "expandId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "RenameNodeKeyInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RenameNodeKeyInput",
+      "properties": {
+        "model": {
+          "type": "object",
+          "title": "TreeModel"
+        },
+        "uid": {
+          "type": "string"
+        },
+        "nextKeyInput": {
+          "type": "string"
+        },
+        "policy": {
+          "$ref": "#/$defs/JsonTreePolicy"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UpdateNodeTypeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UpdateNodeTypeInput",
+      "properties": {
+        "model": {
+          "type": "object",
+          "title": "TreeModel"
+        },
+        "uid": {
+          "type": "string"
+        },
+        "nextType": {
+          "$ref": "#/$defs/JsonNodeType"
+        },
+        "policy": {
+          "$ref": "#/$defs/JsonTreePolicy"
+        }
+      },
+      "additionalProperties": false
+    },
+    "JsonTreePolicy": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "JsonTreePolicy",
+      "properties": {
+        "rootLabel": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.isProtected.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "object",
+              "title": "JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isProtected.return": {
+          "type": "boolean"
+        },
+        "method.canEditKey.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "object",
+              "title": "JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canEditKey.return": {
+          "type": "boolean"
+        },
+        "method.canEditType.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "object",
+              "title": "JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canEditType.return": {
+          "type": "boolean"
+        },
+        "method.suggestChildKey.params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "object",
+              "title": "JsonObject"
+            },
+            "parentPath": {
+              "type": "object",
+              "title": "JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.suggestChildKey.return": {
+          "type": "string"
+        },
+        "method.createDefaultArrayItem.params": {
+          "type": "object",
+          "properties": {
+            "parentPath": {
+              "type": "object",
+              "title": "JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createDefaultArrayItem.return": {
+          "type": "object",
+          "title": "JsonValue"
+        },
+        "method.createDefaultObjectValue.params": {
+          "type": "object",
+          "properties": {
+            "parentPath": {
+              "type": "object",
+              "title": "JsonPath"
+            },
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createDefaultObjectValue.return": {
+          "type": "object",
+          "title": "JsonValue"
+        },
+        "method.getValueOptions.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "object",
+              "title": "JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getValueOptions.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.getValueLabels.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "object",
+              "title": "JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getValueLabels.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "method.getAutoPopulate.params": {
+          "type": "object",
+          "properties": {
+            "changedPath": {
+              "type": "object",
+              "title": "JsonPath"
+            },
+            "newValue": {
+              "type": "object",
+              "title": "JsonValue"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getAutoPopulate.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AutoPopulateEntry"
+          }
+        }
+      }
+    },
+    "AutoPopulateEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AutoPopulateEntry",
+      "properties": {
+        "targetPath": {
+          "type": "object",
+          "title": "JsonPath"
+        },
+        "entries": {
+          "type": "object",
+          "title": "Record<string, JsonValue>"
+        }
+      },
+      "required": [
+        "targetPath",
+        "entries"
+      ],
+      "additionalProperties": false
+    },
+    "FlatJsonTreeDocument": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FlatJsonTreeDocument",
+      "properties": {
+        "rootType": {
+          "enum": [
+            "object",
+            "array"
+          ]
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/JsonTreeNode"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T11:35:34.100Z",
+  "models": {
+    "JsonNodeType": {
+      "name": "JsonNodeType",
+      "jsdoc": "Json Node Type 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'object' | 'array' | 'string' | 'number' | 'boolean' | 'null'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'object'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'array'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'string'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'number'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'boolean'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'null'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "JsonTreeNode": {
+      "name": "JsonTreeNode",
+      "jsdoc": "Tree Node 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 节点 UUID */\n    readonly id: string;\n    /** 父节点 ID；根节点为 null */\n    readonly parentId: string | null;\n    /** 在父容器中的键 (string) 或索引 (number) */\n    readonly segment: string | number;\n    /** 节点类型 */\n    readonly type: JsonNodeType;\n    /** 叶子节点的原始值 */\n    readonly value: string | number | boolean | null;\n    /** 同级排序权重（parentId 相同的节点按此排序） */\n    readonly order: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "节点 UUID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentId",
+              "jsdoc": "父节点 ID；根节点为 null",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "segment",
+              "jsdoc": "在父容器中的键 (string) 或索引 (number)",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "节点类型",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "叶子节点的原始值",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "jsdoc": "同级排序权重（parentId 相同的节点按此排序）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "TreeDisplayNode": {
+      "name": "TreeDisplayNode",
+      "jsdoc": "Tree Display Node 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "JsonTreeNode & {\n    /** 嵌套深度（根 = 0） */\n    readonly depth: number;\n    /** 从根到此节点的路径 */\n    readonly path: JsonPath;\n    /** 直接子节点数量 */\n    readonly childCount: number;\n    /** 键是否可重命名 */\n    readonly keyEditable: boolean;\n    /** 类型是否可切换 */\n    readonly typeEditable: boolean;\n    /** 是否可删除 */\n    readonly deletable: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "JsonTreeNode",
+            "targetName": "JsonTreeNode"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 嵌套深度（根 = 0） */\n    readonly depth: number;\n    /** 从根到此节点的路径 */\n    readonly path: JsonPath;\n    /** 直接子节点数量 */\n    readonly childCount: number;\n    /** 键是否可重命名 */\n    readonly keyEditable: boolean;\n    /** 类型是否可切换 */\n    readonly typeEditable: boolean;\n    /** 是否可删除 */\n    readonly deletable: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "depth",
+              "jsdoc": "嵌套深度（根 = 0）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "从根到此节点的路径",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childCount",
+              "jsdoc": "直接子节点数量",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "keyEditable",
+              "jsdoc": "键是否可重命名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "typeEditable",
+              "jsdoc": "类型是否可切换",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deletable",
+              "jsdoc": "是否可删除",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "TreeModel": {
+      "name": "TreeModel",
+      "jsdoc": "Tree Model 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReadonlyMap<string, JsonTreeNode>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReadonlyMap<string, JsonTreeNode>",
+            "targetName": "ReadonlyMap"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "MutationResult": {
+      "name": "MutationResult",
+      "jsdoc": "Mutation Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 变更后的新树模型 */\n    readonly model: TreeModel;\n    /** 操作后应聚焦的节点 ID */\n    readonly focusId: string;\n    /** 操作后应展开的节点 ID（null 表示无需展开） */\n    readonly expandId: string | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "model",
+              "jsdoc": "变更后的新树模型",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "focusId",
+              "jsdoc": "操作后应聚焦的节点 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expandId",
+              "jsdoc": "操作后应展开的节点 ID（null 表示无需展开）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RenameNodeKeyInput": {
+      "name": "RenameNodeKeyInput",
+      "jsdoc": "Rename Node Key Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 待操作的目标树模型；函数返回新的不可变模型，不修改原实例。 */\n    model: TreeModel;\n    /** 目标节点的 UUID。 */\n    uid: string;\n    /** 重命名后的新键名。 */\n    nextKeyInput: string;\n    /** 变更策略约束；可覆盖 canEditKey、isProtected 等默认行为。 */\n    policy?: Partial<JsonTreePolicy>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 待操作的目标树模型；函数返回新的不可变模型，不修改原实例。 */\n    model: TreeModel;\n    /** 目标节点的 UUID。 */\n    uid: string;\n    /** 重命名后的新键名。 */\n    nextKeyInput: string;\n    /** 变更策略约束；可覆盖 canEditKey、isProtected 等默认行为。 */\n    policy?: Partial<JsonTreePolicy>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "model",
+              "jsdoc": "待操作的目标树模型；函数返回新的不可变模型，不修改原实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "uid",
+              "jsdoc": "目标节点的 UUID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextKeyInput",
+              "jsdoc": "重命名后的新键名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "policy",
+              "jsdoc": "变更策略约束；可覆盖 canEditKey、isProtected 等默认行为。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "UpdateNodeTypeInput": {
+      "name": "UpdateNodeTypeInput",
+      "jsdoc": "Update Node Type Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 待操作的目标树模型；函数返回新的不可变模型，不修改原实例。 */\n    model: TreeModel;\n    /** 目标节点的 UUID。 */\n    uid: string;\n    /** 要切换到的目标类型；类型转换会按规则重置 value。 */\n    nextType: JsonNodeType;\n    /** 变更策略约束；可覆盖 canEditType、isProtected 等默认行为。 */\n    policy?: Partial<JsonTreePolicy>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 待操作的目标树模型；函数返回新的不可变模型，不修改原实例。 */\n    model: TreeModel;\n    /** 目标节点的 UUID。 */\n    uid: string;\n    /** 要切换到的目标类型；类型转换会按规则重置 value。 */\n    nextType: JsonNodeType;\n    /** 变更策略约束；可覆盖 canEditType、isProtected 等默认行为。 */\n    policy?: Partial<JsonTreePolicy>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "model",
+              "jsdoc": "待操作的目标树模型；函数返回新的不可变模型，不修改原实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "uid",
+              "jsdoc": "目标节点的 UUID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextType",
+              "jsdoc": "要切换到的目标类型；类型转换会按规则重置 value。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "policy",
+              "jsdoc": "变更策略约束；可覆盖 canEditType、isProtected 等默认行为。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "JsonTreePolicy": {
+      "name": "JsonTreePolicy",
+      "jsdoc": "Json Tree Policy 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 根节点显示标签。默认 '$' */\n    rootLabel?: string;\n    /** 该路径是否受保护（不可删除）。默认全部可删除 */\n    isProtected?(path: JsonPath): boolean;\n    /** 该路径的键是否可重命名。默认：对象属性可改，数组索引不可改 */\n    canEditKey?(path: JsonPath): boolean;\n    /** 该路径的类型是否可切换。默认：除根节点外均可 */\n    canEditType?(path: JsonPath): boolean;\n    /** 为目标对象建议新子键名 */\n    suggestChildKey?(target: JsonObject, parentPath: JsonPath): string;\n    /** 为数组添加子项时的默认值 */\n    createDefaultArrayItem?(parentPath: JsonPath): JsonValue;\n    /** 为对象添加子项时的默认值 */\n    createDefaultObjectValue?(parentPath: JsonPath, key: string): JsonValue;\n    /** 返回该路径的可选值列表（用于下拉选择，优先级低于 Schema enum） */\n    getValueOptions?(path: JsonPath): string[] | undefined;\n    /** 返回该路径的带标签下拉选项。优先级最高：getValueLabels > Schema enum > getValueOptions */\n    getValueLabels?(path: JsonPath): Array<{\n        label: string;\n        value: string;\n    }> | undefined;\n    /** 值变更后需要自动填充到文档的补丁。返回的条目中已有的键不会被覆盖 */\n    getAutoPopulate?(changedPath: JsonPath, newValue: JsonValue): AutoPopulateEntry[] | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "rootLabel",
+              "jsdoc": "根节点显示标签。默认 '$'",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "isProtected",
+              "jsdoc": "该路径是否受保护（不可删除）。默认全部可删除",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canEditKey",
+              "jsdoc": "该路径的键是否可重命名。默认：对象属性可改，数组索引不可改",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canEditType",
+              "jsdoc": "该路径的类型是否可切换。默认：除根节点外均可",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "suggestChildKey",
+              "jsdoc": "为目标对象建议新子键名",
+              "parameters": [
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonObject",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                },
+                {
+                  "name": "parentPath",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "createDefaultArrayItem",
+              "jsdoc": "为数组添加子项时的默认值",
+              "parameters": [
+                {
+                  "name": "parentPath",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "JsonValue",
+                "sourcePath": "packages/spark-json-document/src/core.ts"
+              }
+            },
+            {
+              "name": "createDefaultObjectValue",
+              "jsdoc": "为对象添加子项时的默认值",
+              "parameters": [
+                {
+                  "name": "parentPath",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                },
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "JsonValue",
+                "sourcePath": "packages/spark-json-document/src/core.ts"
+              }
+            },
+            {
+              "name": "getValueOptions",
+              "jsdoc": "返回该路径的可选值列表（用于下拉选择，优先级低于 Schema enum）",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "array",
+                  "elementType": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              }
+            },
+            {
+              "name": "getValueLabels",
+              "jsdoc": "返回该路径的带标签下拉选项。优先级最高：getValueLabels > Schema enum > getValueOptions",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "array",
+                  "elementType": {
+                    "type": "unknown",
+                    "name": "{\n        label: string;\n        value: string;\n    }"
+                  }
+                }
+              }
+            },
+            {
+              "name": "getAutoPopulate",
+              "jsdoc": "值变更后需要自动填充到文档的补丁。返回的条目中已有的键不会被覆盖",
+              "parameters": [
+                {
+                  "name": "changedPath",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                },
+                {
+                  "name": "newValue",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonValue",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "array",
+                  "elementType": {
+                    "type": "reference",
+                    "name": "AutoPopulateEntry",
+                    "sourcePath": "packages/spark-json-document/src/tree/tree-types.ts"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AutoPopulateEntry": {
+      "name": "AutoPopulateEntry",
+      "jsdoc": "自动填充条目：在 targetPath 指向的对象上合并 entries 键值对。\n- 若 targetPath 处不是 object，跳过\n- 若某 key 已存在且新旧值都是 object，递归一层合并（仅补缺）\n- 若某 key 已存在且不都是 object，跳过（不覆盖）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** target Path 路径。 */\n    targetPath: JsonPath;\n    /** entries 字段。 */\n    entries: Record<string, JsonValue>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "targetPath",
+              "jsdoc": "target Path 路径。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "entries",
+              "jsdoc": "entries 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FlatJsonTreeDocument": {
+      "name": "FlatJsonTreeDocument",
+      "jsdoc": "Flat Json Tree Document 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** root Type 字段。 */\n    readonly rootType: 'object' | 'array';\n    /** 行数据集合。 */\n    readonly rows: JsonTreeNode[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "rootType",
+              "jsdoc": "root Type 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "jsdoc": "行数据集合。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

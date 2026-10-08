@@ -52,6 +52,8 @@ const data = await api.dataSpace.runtime.query(
 
 `query` 使用后端注册模型，不重发物理表、来源类型和主键定义；支持完整过滤、值函数、输入参数、字段、排序、树参数和分页。全页查询在所有页通过后返回上下文。返回的原上下文由 DataView 的执行边界持有，组件不直接消费它；应用或登录身份变化后，数据读取和权限消费均拒绝旧上下文。
 
+受限运行时 owner 可用 `context.readFieldAccess(row, fieldName)` 读取原查询行已捕获的 `visible / masked / invisible` 三态；`row` 必须是该 context 返回的同一对象引用，复制行或其他 context 的行一律返回 `invisible`，失效 context 仍抛出 stale。该入口只提供读取状态，不公开权限快照，也不赋予行操作、修改身份或保存能力；缺少正式主键时，业务字段如 `rowid` 不会因此成为更新、删除或新增身份。页面组件与脚本继续通过 DataView 消费权限，不直接调用此上下文入口。
+
 宿主 `loadScenarioDataSet` 读取正式模型和关系后，`LowcodeDataSpaceAssembler` 用 `api.dataSpace.runtime.bindModelView(view, model)` 绑定正式定义与实际 owner；`executeQuery(view, params)` 从 DataView 提取场景和模型 Name，将命名输入、完整过滤、字段投影、排序、正整数分页及显式树参数交给同一查询生命周期。不再配置 CRUD list 或 prepare/parse 查询转换；自动级联仍由 DataView 合并后送入同一过滤编码器。未知查询参数、无效排序和空的显式字段列表在请求前报错。
 
 字段配置遵守后端正式模型定义，页面表达式不构成后端定义覆盖保证；后端默认输出模式仍为 MODEL。组件与脚本已通过 DataView 消费原查询权限；正式模型输出由场景文件指定的 modelId/模型 Name 装配，每份文件只描述一个场景及其多视图、viewCascades；多场景由 PageRuntime 的独立调用装载。运行侧旧查询封包、解析快照和 mutation prepare 入口已删除，运行查询与保存统一使用 DataSpaceRuntimeApi 的实际执行链；权限及凭据保留在私有查询上下文中，不公开写前镜像。当前验证为模拟传输，尚不能宣称页面整体或真实后端联调完成。
@@ -62,7 +64,9 @@ API 内部查询上下文已具备原 SPARK 保存封包规则：剔除调用方
 
 内部保存请求返回每模型真实动作行及独立的新查询上下文。新基线保留原查询行权限与凭据，新增行采用原模型凭据；新增回执缺少正式主键或与保留行、其他新增行冲突时拒绝。基线按实际新增、更新、删除及总数推进，深克隆并冻结返回值，旧上下文保持原状。changedFields 保留每条更新实际返回的字段名，区别未返回字段与明确返回旧值；该证据冻结并排除权限凭据和 _pk，不能从合并后的整行推导。DataView 已消费该证据确认未再次修改的字段，保留后续编辑及未确认字段，并采用新上下文继续保存。
 
-`api.dataSpace.design.readModel({ designScenarioId, dataSpaceId, metaName, assertCurrent? })` 读取选定正式模型：校验唯一记录与场景归属，收齐字段分页；数据库表只核对该来源的业务主键，其他来源依模型声明验证输出主键。结果的 `primaryKey` 是已核对的输出字段名，`metaName` 是查询模型 Name，`sourceName` 是来源名，三者不能替代；结构化 Filter/ValueFun 等原值保留。无效或计算主键、别名冲突、不完整读回和旧请求范围明确失败，不凭 `id` 惯例、租户隔离字段或页面快照补造主键。宿主已直接消费该入口；既有全目录设计读不是运行装配的替代入口，关系读取也不包含在 `readModel` 中。
+`api.dataSpace.design.readModel({ designScenarioId, dataSpaceId, metaName, assertCurrent? })` 读取选定正式模型：校验唯一记录与场景归属，收齐字段分页；数据库表核对该来源的业务主键，其他来源依模型声明验证输出主键。非数据库表模型没有主键声明且没有主键字段时，`primaryKey` 返回空字符串，表示只读消费；否则为已核对的输出字段名。无效声明、无效或计算主键、别名冲突、不完整读回和旧请求范围仍明确失败。`metaName` 是查询模型 Name，`sourceName` 是来源名，不能互相替代；结构化 Filter/ValueFun 等原值保留。宿主已直接消费该入口；既有全目录设计读不是运行装配的替代入口，关系读取也不包含在 `readModel` 中。
+
+正式无键模型装配到 DataView 后，由当次查询原行提供隐藏、脱敏和可见状态，字段始终只读；不凭响应中的 `id`、`rowid` 或主键提示补造正式主键。视图内部关联本次克隆行与原行，复制行、其他视图行及替换前的旧行不能沿用该读取状态；无键模型的非空新增、修改、删除在保存封包前拒绝，后端 allowAdd 也不能解除该身份限制。
 
 `api.dataSpace.design.readRelations({ designScenarioId, dataSpaceId, assertCurrent? })` 完整分页读取当前场景的正式关系，核对归属与记录 ID 唯一性。返回的 `filterExpression` 是经唯一 wire codec 解码的 `DataViewFilter`，保留 AND/OR 结构和完整值函数；无效定义和过期身份明确失败。模型、视图及字段引用仍须由场景装配核对，此入口不自行生成或启动级联。
 

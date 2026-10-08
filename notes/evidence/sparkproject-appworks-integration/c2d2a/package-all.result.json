@@ -1,0 +1,6 @@
+{
+  "exitCode": 0,
+  "started": "2026-10-07T16:20:33.1745550+08:00",
+  "command": "pnpm --dir packages/spark-lowcode-api run test:run --maxWorkers=2 --reporter=dot",
+  "finished": "2026-10-07T16:20:38.4699588+08:00"
+}

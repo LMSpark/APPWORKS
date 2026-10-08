@@ -1,0 +1,77 @@
+import * as LowcodePlatform from '@spark-appworks/spark-lowcode-api'
+import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import type { PageRuntimeServicesCapability } from '@spark-appworks/spark-component'
+import { LowcodeDataSpaceModelSourceReader } from './model-source/lowcode-data-space-model-source-reader'
+import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
+import { LowcodeDataSpaceViewDesign } from './view-design/lowcode-data-space-view-design'
+import { loadLowcodeDataSpaceMetadata, loadScenarioDataSet } from './lowcode-data-space-runtime'
+import { lowcodeDataSpaceLayout } from './lowcode-data-space-layout'
+
+type BoundDataSpaceDesignReader = ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>
+
+function staleScope(): Error {
+  return new Error('SPARK_EXECUTION_SCOPE_STALE: 关系依赖字典所属应用或会话已失效')
+}
+
+function assertCurrentScope(token: string): void {
+  try {
+    if (lowcodeApi.readRequestScope().token !== token) throw staleScope()
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('SPARK_EXECUTION_SCOPE_STALE:')) throw error
+    throw staleScope()
+  }
+}
+
+function createViewDesign(scope: ReturnType<typeof lowcodeApi.readRequestScope>): LowcodeDataSpaceViewDesign {
+  const applicationId = Object.entries(scope.headers).find(([key]) => key.toLowerCase() === 'x-appid')?.[1]
+  if (typeof applicationId !== 'string' || !applicationId.trim()) {
+    throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 视图配置需要明确应用')
+  }
+  const assertScope = () => {
+    assertCurrentScope(scope.token)
+    const currentAppId = Object.entries(lowcodeApi.readRequestScope().headers)
+      .find(([key]) => key.toLowerCase() === 'x-appid')?.[1]
+    if (currentAppId !== applicationId) throw staleScope()
+  }
+  return new LowcodeDataSpaceViewDesign({
+    workspace: getAppProjectBlueprintWorkspace(applicationId), assertScope,
+    readModel: input => lowcodeApi.dataSpace.design.readModel({
+      designScenarioId: LowcodePlatform.DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: input.scenarioId,
+      metaName: input.modelName, assertCurrent: assertScope,
+    }),
+    assemble: (scenarioId, file) => loadScenarioDataSet({scenarioId, config: file.value, assertCurrent: assertScope}),
+    loadMetadata: loadLowcodeDataSpaceMetadata,
+    readLegacyLayout: lowcodeDataSpaceLayout.createReader().readDataSpaceLayout,
+  })
+}
+
+/** Open one target's formal metadata and its current file-owned native view definitions. */
+export function openLowcodeDataSpaceDesignSession(targetId: string) {
+  return createViewDesign(lowcodeApi.readRequestScope()).openDesignSession(targetId)
+}
+
+export const lowcodeDataSpaceDesign = {
+  scenarioId: LowcodePlatform.DATA_SPACE_DESIGN_FORM_KEY,
+  createReader(): BoundDataSpaceDesignReader {
+    const scope = lowcodeApi.readRequestScope()
+    if (!Object.entries(scope.headers).some(([key, value]) => key.toLowerCase() === 'x-appid'
+      && typeof value === 'string' && value.trim().length > 0)) {
+      throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 关系依赖字典读取需要明确选中应用')
+    }
+    return {
+      modelSources: new LowcodeDataSpaceModelSourceReader(),
+      viewDesign: createViewDesign(scope),
+      async readRelationDependencyOptions() {
+        assertCurrentScope(scope.token)
+        try {
+          const result = await lowcodeApi.dataSpace.design.readRelationDependencyOptions()
+          assertCurrentScope(scope.token)
+          return result
+        } catch (error) {
+          assertCurrentScope(scope.token)
+          throw error
+        }
+      },
+    }
+  },
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/overlay/RendererDropdown/RendererDropdown",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDropdown/RendererDropdown.vue",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDropdown/RendererDropdown.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/overlay/RendererDropdown/RendererDropdown",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/overlay/RendererDropdown/RendererDropdown\n职责：实现 RendererDropdown（r-dropdown）的 Vue 渲染入口，把配置 props、数据上下文和事件桥接成用户可见的组件界面。\n边界：负责 container/layout-container 的视图组合与事件转发，不定义跨组件数据模型，也不替代 zero-code 行为 API。\nAI用途：需要理解 renderer dropdown 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "RendererDropdown",
+    "componentType": "r-dropdown",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:30:27.126Z",
+  "models": {}
+}

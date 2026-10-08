@@ -1,0 +1,2645 @@
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\types.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\types.ts"
+index f1a919e72..42b5ed901 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\types.ts"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\types.ts"
+@@ -877,11 +877,14 @@ export type DataViewFieldCascade = Readonly<{
+   cascadeId: string
+   tableName: string
+   viewId: string
+-  rowMode: 'editing-row'
+   targetField: string
+-  parents: ReadonlyArray<Readonly<{ field: string; parameter: string }>>
+-  optionsView: Readonly<{ tableName: string; viewId: string; valueField: string; labelField: string }>
+-  valuePolicy: Readonly<{ mode: 'retain' } | { mode: 'clear' | 'retain-valid'; clearValue: string | number | boolean | null }>
++  /** 原生字段值，或按选项 DataView 配置编码的选中值字符串。 */
++  valueFormat: 'native' | 'selection-string'
++  /** field 缺省时取该视图选中主键数组；指针和编辑覆盖仅属于取值绑定。 */
++  parents: ReadonlyArray<Readonly<{ tableName: string; viewId: string; field?: string; parameter: string }>>
++  optionsView: Readonly<{ tableName: string; viewId: string }>
++  valuePolicy: Readonly<{ mode: 'retain' } | { mode: 'clear' | 'retain-valid';
++    clearValue: string | number | boolean | null | ReadonlyArray<string | number | boolean> }>
+ }>
+ 
+ /** 同一持久关系域中的两种独立运行语义。 */
+@@ -890,7 +893,6 @@ export type DataViewCascade = DataViewQueryCascade | DataViewFieldCascade
+ export type DataViewFieldCascadeAddress = Readonly<{
+   tableName: string
+   viewId: string
+-  rowId: string | number
+   field: string
+ }>
+ 
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-definition.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-definition.ts"
+index 417b7a4a9..fc39c51ef 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-definition.ts"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-definition.ts"
+@@ -30,10 +30,10 @@ function scalar(value: unknown, path: string): string | number | boolean | null
+ export class DataViewFieldCascadeDefinition {
+   static parse(input: unknown): DataViewFieldCascade {
+     const value = object(input, 'viewCascades.field')
+-    exactKeys(value, ['kind', 'cascadeId', 'tableName', 'viewId', 'rowMode', 'targetField',
++    exactKeys(value, ['kind', 'cascadeId', 'tableName', 'viewId', 'valueFormat', 'targetField',
+       'parents', 'optionsView', 'valuePolicy'], 'viewCascades.field')
+-    if (value['kind'] !== 'field' || value['rowMode'] !== 'editing-row') {
+-      throw new Error('FIELD_CASCADE_CONFIG: kind/rowMode 无效')
++    if (value['kind'] !== 'field' || (value['valueFormat'] !== 'native' && value['valueFormat'] !== 'selection-string')) {
++      throw new Error('FIELD_CASCADE_CONFIG: kind/valueFormat 无效')
+     }
+     const cascadeId = name(value['cascadeId'], 'cascadeId')
+     const tableName = name(value['tableName'], 'tableName')
+@@ -44,20 +44,19 @@ export class DataViewFieldCascadeDefinition {
+     }
+     const parents = value['parents'].map((inputParent: unknown) => {
+       const parent = object(inputParent, 'parents')
+-      exactKeys(parent, ['field', 'parameter'], 'parents')
+-      return { field: name(parent['field'], 'parents.field'),
++      exactKeys(parent, ['tableName', 'viewId', 'field', 'parameter'], 'parents')
++      return { tableName: name(parent['tableName'], 'parents.tableName'), viewId: name(parent['viewId'], 'parents.viewId'),
++        ...(parent['field'] === undefined ? {} : { field: name(parent['field'], 'parents.field') }),
+         parameter: name(parent['parameter'], 'parents.parameter') }
+     })
+-    if (new Set(parents.map(parent => parent.field)).size !== parents.length
++    if (new Set(parents.map(parent => JSON.stringify([parent.tableName, parent.viewId, parent.field]))).size !== parents.length
+       || new Set(parents.map(parent => parent.parameter)).size !== parents.length) {
+       throw new Error('FIELD_CASCADE_CONFIG: parents 字段或参数重复')
+     }
+     const options = object(value['optionsView'], 'optionsView')
+-    exactKeys(options, ['tableName', 'viewId', 'valueField', 'labelField'], 'optionsView')
++    exactKeys(options, ['tableName', 'viewId'], 'optionsView')
+     const optionsView = { tableName: name(options['tableName'], 'optionsView.tableName'),
+-      viewId: name(options['viewId'], 'optionsView.viewId'),
+-      valueField: name(options['valueField'], 'optionsView.valueField'),
+-      labelField: name(options['labelField'], 'optionsView.labelField') }
++      viewId: name(options['viewId'], 'optionsView.viewId') }
+     const policy = object(value['valuePolicy'], 'valuePolicy')
+     exactKeys(policy, ['mode', 'clearValue'], 'valuePolicy')
+     const mode = policy['mode']
+@@ -67,12 +66,21 @@ export class DataViewFieldCascadeDefinition {
+       valuePolicy = { mode }
+     } else if (mode === 'clear' || mode === 'retain-valid') {
+       if (!Object.hasOwn(policy, 'clearValue')) throw new Error('FIELD_CASCADE_CONFIG: clearValue 必填')
+-      valuePolicy = { mode, clearValue: scalar(policy['clearValue'], 'clearValue') }
++      const raw = policy['clearValue']
++      const clearValue = Array.isArray(raw) ? raw.map((item: unknown) => {
++        const parsed = scalar(item, 'clearValue')
++        if (parsed === null) throw new Error('FIELD_CASCADE_CONFIG: 多选清空数组不接受 null 项')
++        return parsed
++      }) : scalar(raw, 'clearValue')
++      if (value['valueFormat'] === 'selection-string' && clearValue !== null && typeof clearValue !== 'string') {
++        throw new Error('FIELD_CASCADE_CONFIG: selection-string 的 clearValue 必须为字符串或 null')
++      }
++      valuePolicy = { mode, clearValue }
+     } else throw new Error('FIELD_CASCADE_CONFIG: valuePolicy.mode 无效')
+-    for (const field of [targetField, ...parents.map(parent => parent.field), optionsView.valueField, optionsView.labelField]) {
++    for (const field of [targetField, ...parents.flatMap(parent => parent.field === undefined ? [] : [parent.field])]) {
+       if (field === '_pk' || field.startsWith('lingma_sys_')) throw new Error(`FIELD_CASCADE_CONFIG: 框架字段 ${field}`)
+     }
+-    return { kind: 'field', cascadeId, tableName, viewId, rowMode: 'editing-row',
++    return { kind: 'field', cascadeId, tableName, viewId, valueFormat: value['valueFormat'],
+       targetField, parents, optionsView, valuePolicy }
+   }
+ 
+@@ -104,7 +112,7 @@ export class DataViewFieldCascadeDefinition {
+       const definition = byTarget.get(key)
+       if (definition) {
+         for (const parent of definition.parents) {
+-          visit(JSON.stringify([definition.tableName, definition.viewId, parent.field]))
++          visit(JSON.stringify([parent.tableName, parent.viewId, parent.field]))
+         }
+       }
+       visiting.delete(key)
+@@ -117,7 +125,8 @@ export class DataViewFieldCascadeDefinition {
+   static validateViews(definitions: readonly DataViewFieldCascade[], hasView: (tableName: string, viewId: string) => boolean): void {
+     for (const definition of definitions) {
+       if (!hasView(definition.tableName, definition.viewId)
+-        || !hasView(definition.optionsView.tableName, definition.optionsView.viewId)) {
++        || !hasView(definition.optionsView.tableName, definition.optionsView.viewId)
++        || definition.parents.some(parent => !hasView(parent.tableName, parent.viewId))) {
+         throw new Error(`FIELD_CASCADE_VIEW: 视图不存在 ${definition.cascadeId}`)
+       }
+     }
+@@ -130,9 +139,15 @@ export class DataViewFieldCascadeDefinition {
+       const options = dataSet.getView(definition.optionsView.tableName, definition.optionsView.viewId)
+       if (!target || !options) throw new Error(`FIELD_CASCADE_VIEW: 视图不存在 ${definition.cascadeId}`)
+       const output = new Set(target.columns.map(column => column.name))
+-      const optionOutput = new Set(options.columns.map(column => column.name))
+-      if (!output.has(definition.targetField) || definition.parents.some(parent => !output.has(parent.field))
+-        || !optionOutput.has(definition.optionsView.valueField) || !optionOutput.has(definition.optionsView.labelField)) {
++      const parentMissing = definition.parents.some(parent => {
++        const view = dataSet.getView(parent.tableName, parent.viewId)
++        return parent.field !== undefined && !view?.columns.some(column => column.name === parent.field)
++      })
++      const valueFields = options.valueField ?? (options.effectivePkFields.length === 1 ? options.effectivePkFields[0] : undefined)
++      const optionFields = typeof valueFields === 'string' ? [valueFields] : valueFields ?? []
++      if (!output.has(definition.targetField) || parentMissing || optionFields.length === 0
++        || [...optionFields, ...(options.labelField === undefined ? [] : [options.labelField])]
++          .some(field => !options.columns.some(column => column.name === field))) {
+         throw new Error(`FIELD_CASCADE_FIELD: 输出字段不存在 ${definition.cascadeId}`)
+       }
+       const targetColumn = target.columns.find(column => column.name === definition.targetField)
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-runtime.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-runtime.ts"
+index a86509b53..ca9e2e1a8 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-runtime.ts"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-runtime.ts"
+@@ -1,95 +1,127 @@
+ import type { DataSet } from '../../dataset'
+-import type { DataView } from '../../data-view'
+-import { RequestState } from '../../types'
+ import type { DataViewFieldCascade, DataViewFieldCascadeAddress, DataViewFieldCascadeState } from '../../types'
+ import { Logger } from '@spark-appworks/spark-utils'
++import { DataViewFieldCascadeBinding } from './field-cascade-binding'
+ 
+ const logger = Logger('DataView:FieldCascade')
+-
+ type Entry = {
+   address: DataViewFieldCascadeAddress
++  binding: DataViewFieldCascadeBinding
+   state: DataViewFieldCascadeState
+   generation: number
+   parents?: readonly unknown[]
+   targetRevision: number
++  initialized: boolean
++  waiting: boolean
+ }
+-
+ const idle: DataViewFieldCascadeState = { status: 'idle', options: [], valueStatus: 'unverified' }
+ 
+-function scalar(value: unknown, label: string): string | number | boolean | null {
+-  if (value === null || typeof value === 'string' || typeof value === 'boolean'
+-    || (typeof value === 'number' && Number.isFinite(value))) return value
+-  throw new Error(`FIELD_CASCADE_VALUE: ${label} 必须是标量`)
+-}
+-
+ function copyState(state: DataViewFieldCascadeState): DataViewFieldCascadeState {
+   return Object.freeze({ ...state, options: Object.freeze(state.options.map(row => Object.freeze({ ...row }))) })
+ }
+ 
+-/** 一个 DataSet 内字段输入选项和目标编辑值的生命周期 owner。 */
++/** 级联按输入值快照执行；选项结果和子值写入共享同一代次。 */
+ export class DataViewFieldCascadeRuntime {
+-  readonly #definitions = new Map<string, DataViewFieldCascade>()
+   readonly #entries = new Map<string, Entry>()
+   readonly #listeners = new Set<(address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void>()
+   readonly #unsubscribe: () => void
+   #disposed = false
+ 
+   constructor(private readonly dataSet: DataSet, definitions: readonly DataViewFieldCascade[]) {
+-    for (const definition of definitions) this.#definitions.set(this.definitionKey(definition), definition)
++    for (const definition of definitions) {
++      const address = { tableName: definition.tableName, viewId: definition.viewId, field: definition.targetField }
++      const entry: Entry = { address, binding: new DataViewFieldCascadeBinding(dataSet, definition),
++        state: idle, generation: 0, targetRevision: 0, initialized: false, waiting: false }
++      this.#entries.set(this.key(address), entry)
++      this.prime(entry)
++    }
+     this.#unsubscribe = dataSet.onAnyViewChange({
+-      editingFieldChanged: (tableName, viewId, event) => {
+-        for (const definition of definitions) {
+-          if (definition.tableName !== tableName || definition.viewId !== viewId) continue
+-          const address = { tableName, viewId, rowId: event.rowId, field: definition.targetField }
+-          const entry = this.#entries.get(this.addressKey(address))
+-          if (event.field === definition.targetField) {
+-            if (entry) {
+-              entry.targetRevision++
+-              this.recomputeValueStatus(entry, definition)
+-            }
+-          } else if (definition.parents.some(parent => parent.field === event.field)) {
+-            void this.run(address, true).catch(error => this.fail(address, error))
+-          }
++      editingFieldChanged: (table, view, event) => {
++        for (const entry of this.#entries.values()) {
++          if (entry.binding.isTargetEdit(table, view, event)) entry.targetRevision++
+         }
++        this.synchronize(table, view)
++      },
++      currentRowChanged: (table, view) => {
++        this.invalidateTarget(table, view)
++        this.synchronize(table, view)
+       },
+-      editingChanged: (tableName, viewId) => this.invalidateChangedRows(tableName, viewId),
+-      editingDiscarded: (tableName, viewId, ids) => this.invalidateDiscarded(tableName, viewId, ids),
+-      rowsChanged: (tableName, viewId) => this.invalidateView(tableName, viewId),
+-      cleared: (tableName, viewId) => this.invalidateView(tableName, viewId),
+-      requestStateChanged: (tableName, viewId, state) => {
+-        if (state === RequestState.Loading) this.invalidateView(tableName, viewId)
++      selectedRowsChanged: (table, view) => this.synchronize(table, view),
++      rowsChanged: (table, view) => {
++        this.invalidateTarget(table, view)
++        this.synchronize(table, view)
++      },
++      cleared: (table, view) => this.synchronize(table, view),
++      requestStateChanged: (table, view) => this.synchronize(table, view),
++      editingChanged: (table, view) => this.synchronize(table, view),
++      editingDiscarded: (table, view, ids) => {
++        for (const entry of this.#entries.values()) {
++          if (!entry.binding.discardsTarget(table, view, ids)) continue
++          entry.targetRevision++
++          this.invalidate(entry)
++          this.prime(entry)
++        }
+       },
+     })
+   }
+ 
+-  private definitionKey(value: Pick<DataViewFieldCascade, 'tableName' | 'viewId' | 'targetField'>): string {
+-    return JSON.stringify([value.tableName, value.viewId, value.targetField])
++  private key(address: DataViewFieldCascadeAddress): string {
++    return JSON.stringify([address.tableName, address.viewId, address.field])
++  }
++
++  private entry(address: DataViewFieldCascadeAddress): Entry {
++    if (Object.keys(address).some(key => !['tableName', 'viewId', 'field'].includes(key))) {
++      throw new Error('FIELD_CASCADE_ADDRESS: 只接受值绑定地址 tableName/viewId/field')
++    }
++    const entry = this.#entries.get(this.key(address))
++    if (!entry || this.#disposed || this.dataSet.destroyed) throw new Error('FIELD_CASCADE_ADDRESS: 定义不存在或空间已销毁')
++    return entry
+   }
+ 
+-  private addressKey(value: DataViewFieldCascadeAddress): string {
+-    return JSON.stringify([value.tableName, value.viewId, value.rowId, value.field])
++  private prime(entry: Entry): void {
++    try {
++      const parents = entry.binding.parents()
++      if (parents !== undefined && entry.binding.targetReady()) {
++        entry.parents = parents
++        entry.initialized = true
++        entry.waiting = false
++      }
++    } catch (error) { this.fail(entry, error) }
+   }
+ 
+-  private definition(address: DataViewFieldCascadeAddress): DataViewFieldCascade {
+-    const definition = this.#definitions.get(this.definitionKey({ ...address, targetField: address.field }))
+-    if (!definition || this.#disposed || this.dataSet.destroyed) {
+-      throw new Error('FIELD_CASCADE_ADDRESS: 定义不存在或空间已销毁')
++  private invalidateTarget(tableName: string, viewId: string): void {
++    for (const entry of this.#entries.values()) {
++      if (entry.address.tableName === tableName && entry.address.viewId === viewId) entry.targetRevision++
+     }
+-    return definition
+   }
+ 
+-  getState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState {
+-    const definition = this.definition(address)
+-    const entry = this.#entries.get(this.addressKey(address))
+-    if (entry?.parents) {
+-      const view = this.dataSet.getView(address.tableName, address.viewId)
++  private synchronize(tableName: string, viewId: string): void {
++    if (this.#disposed) return
++    for (const entry of this.#entries.values()) {
++      if (!entry.binding.references(tableName, viewId)) continue
+       try {
+-        if (!view || view.destroyed || !this.sameParents(entry.parents,
+-          this.parentValues(view, definition, address.rowId))) this.invalidate(entry)
+-        else this.recomputeValueStatus(entry, definition)
+-      } catch { this.invalidate(entry) }
++        const parents = entry.binding.parents()
++        if (parents === undefined || !entry.binding.targetReady()) {
++          entry.waiting = entry.initialized
++          this.invalidate(entry)
++          continue
++        }
++        if (!entry.initialized) {
++          entry.parents = parents
++          entry.initialized = true
++          continue
++        }
++        if (entry.waiting || !DataViewFieldCascadeBinding.equal(entry.parents, parents)) {
++          void this.run(entry, true)
++        } else this.recompute(entry)
++      } catch (error) { this.fail(entry, error) }
+     }
+-    return copyState(entry?.state ?? idle)
++  }
++
++  getState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState {
++    const entry = this.entry(address)
++    this.recompute(entry)
++    return copyState(entry.state)
+   }
+ 
+   onChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void {
+@@ -99,7 +131,7 @@ export class DataViewFieldCascadeRuntime {
+   }
+ 
+   refresh(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState> {
+-    return this.run(address, false)
++    return this.run(this.entry(address), false)
+   }
+ 
+   private publish(entry: Entry, state: DataViewFieldCascadeState): DataViewFieldCascadeState {
+@@ -112,138 +144,64 @@ export class DataViewFieldCascadeRuntime {
+     return copyState(entry.state)
+   }
+ 
+-  private fail(address: DataViewFieldCascadeAddress, error: unknown): DataViewFieldCascadeState {
+-    const key = this.addressKey(address)
+-    const entry = this.#entries.get(key)
+-    if (!entry || this.#disposed) return copyState(idle)
++  private fail(entry: Entry, error: unknown): DataViewFieldCascadeState {
++    entry.generation++
+     return this.publish(entry, { status: 'error', options: [], valueStatus: 'unverified',
+       error: error instanceof Error ? error.message : String(error) })
+   }
+ 
+-  private parentValues(view: DataView, definition: DataViewFieldCascade, rowId: string | number): readonly unknown[] {
+-    const row = view.getEditingRow(rowId)
+-    if (!row || view.getPkKey(row) === undefined) throw new Error('FIELD_CASCADE_ROW: 目标编辑行不存在或无主键')
+-    return definition.parents.map(parent => {
+-      if (!Object.hasOwn(row, parent.field) || row[parent.field] === undefined) {
+-        throw new Error(`FIELD_CASCADE_PARENT: 缺少父字段 ${parent.field}`)
+-      }
+-      if (view.fieldAccess(row, parent.field).read !== 'visible') {
+-        throw new Error(`FIELD_CASCADE_PARENT: 父字段不可读 ${parent.field}`)
+-      }
+-      return scalar(row[parent.field], parent.field)
+-    })
+-  }
+-
+-  private sameParents(left: readonly unknown[], right: readonly unknown[]): boolean {
+-    return left.length === right.length && left.every((value, index) => Object.is(value, right[index]))
+-  }
+-
+   private invalidate(entry: Entry): void {
+     entry.generation++
+-    delete entry.parents
+-    this.publish(entry, idle)
+-  }
+-
+-  private invalidateView(tableName: string, viewId: string): void {
+-    for (const entry of this.#entries.values()) {
+-      if (entry.address.tableName === tableName && entry.address.viewId === viewId) this.invalidate(entry)
+-    }
+-  }
+-
+-  private invalidateDiscarded(tableName: string, viewId: string, ids: ReadonlyArray<string | number> | undefined): void {
+-    if (ids?.length === 0) return
+-    const selected = ids === undefined ? undefined : new Set(ids)
+-    for (const entry of this.#entries.values()) {
+-      if (entry.address.tableName === tableName && entry.address.viewId === viewId
+-        && (selected === undefined || selected.has(entry.address.rowId))) this.invalidate(entry)
+-    }
++    if (entry.state.status !== 'idle') this.publish(entry, idle)
+   }
+ 
+-  private invalidateChangedRows(tableName: string, viewId: string): void {
+-    for (const entry of this.#entries.values()) {
+-      if (entry.address.tableName !== tableName || entry.address.viewId !== viewId || !entry.parents) continue
+-      const definition = this.#definitions.get(this.definitionKey({ ...entry.address, targetField: entry.address.field }))
+-      const view = this.dataSet.getView(tableName, viewId)
+-      if (!definition || !view) { this.invalidate(entry); continue }
+-      try {
+-        if (!this.sameParents(entry.parents, this.parentValues(view, definition, entry.address.rowId))) this.invalidate(entry)
+-        else this.recomputeValueStatus(entry, definition)
+-      } catch { this.invalidate(entry) }
+-    }
+-  }
+-
+-  private recomputeValueStatus(entry: Entry, definition: DataViewFieldCascade): void {
++  private recompute(entry: Entry): void {
+     if (entry.state.status !== 'ready') return
+-    const view = this.dataSet.getView(definition.tableName, definition.viewId)
+-    const row = view?.getEditingRow(entry.address.rowId)
+-    if (!view || !row || view.fieldAccess(row, definition.targetField).read !== 'visible') {
+-      this.invalidate(entry)
+-      return
+-    }
+-    let value: string | number | boolean | null
+-    try { value = scalar(row[definition.targetField], definition.targetField) }
+-    catch (error) { this.fail(entry.address, error); return }
+-    const valueStatus = value === null ? 'empty'
+-      : entry.state.options.some(option => Object.is(option[definition.optionsView.valueField], value)) ? 'valid' : 'invalid'
+-    if (valueStatus !== entry.state.valueStatus) this.publish(entry, { ...entry.state, valueStatus })
++    try {
++      const value = entry.binding.captureTarget().value
++      const evaluation = entry.binding.options().evaluate(value, entry.state.options)
++      if (evaluation.status !== entry.state.valueStatus) this.publish(entry, { ...entry.state, valueStatus: evaluation.status })
++    } catch (error) { this.fail(entry, error) }
+   }
+ 
+-  private async run(address: DataViewFieldCascadeAddress, automatic: boolean): Promise<DataViewFieldCascadeState> {
+-    const definition = this.definition(address)
+-    const key = this.addressKey(address)
+-    let entry = this.#entries.get(key)
+-    if (!entry) {
+-      entry = { address: { ...address }, state: idle, generation: 0, targetRevision: 0 }
+-      this.#entries.set(key, entry)
+-    }
++  private async run(entry: Entry, automatic: boolean): Promise<DataViewFieldCascadeState> {
+     const generation = ++entry.generation
+-    const targetRevision = entry.targetRevision
+-    const target = this.dataSet.getView(definition.tableName, definition.viewId)
+-    const optionsView = this.dataSet.getView(definition.optionsView.tableName, definition.optionsView.viewId)
++    const revision = entry.targetRevision
+     try {
+-      if (!target || !optionsView || target.destroyed || optionsView.destroyed) throw new Error('FIELD_CASCADE_VIEW: 视图已失效')
+-      const rowsIdentity = target.rows
+-      const parents = this.parentValues(target, definition, address.rowId)
+-      const initialRow = target.getEditingRow(address.rowId)
+-      if (!initialRow || target.fieldAccess(initialRow, definition.targetField).read !== 'visible') {
+-        throw new Error(`FIELD_CASCADE_TARGET: 目标字段不可读 ${definition.targetField}`)
++      const parents = entry.binding.parents()
++      if (parents === undefined || !entry.binding.targetReady()) {
++        entry.waiting = entry.initialized
++        this.invalidate(entry)
++        return copyState(idle)
+       }
++      const target = entry.binding.captureTarget()
++      const options = entry.binding.options()
++      const definition = entry.binding.definition
+       entry.parents = parents
++      entry.initialized = true
++      entry.waiting = false
+       const context = Object.fromEntries(definition.parents.map((parent, index) => [parent.parameter, parents[index]]))
+       this.publish(entry, { status: 'loading', options: [], valueStatus: 'unverified' })
+-      const fields = [...new Set([definition.optionsView.valueField, definition.optionsView.labelField])]
+-      const options = await optionsView.queryOptionRows({ fields, context })
+-      if (this.#disposed || this.dataSet.destroyed || entry.generation !== generation
+-        || this.dataSet.getView(definition.tableName, definition.viewId) !== target
+-        || this.dataSet.getView(definition.optionsView.tableName, definition.optionsView.viewId) !== optionsView
+-        || target.isDestroyed() || optionsView.isDestroyed() || target.rows !== rowsIdentity
+-        || !this.sameParents(parents, this.parentValues(target, definition, address.rowId))) {
+-        return copyState(idle)
+-      }
+-      const row = target.getEditingRow(address.rowId)
+-      if (!row) throw new Error('FIELD_CASCADE_ROW: 编辑行已失效')
+-      if (target.fieldAccess(row, definition.targetField).read !== 'visible') {
+-        throw new Error(`FIELD_CASCADE_TARGET: 目标字段不可读 ${definition.targetField}`)
+-      }
+-      const current = scalar(row[definition.targetField], definition.targetField)
+-      const valid = options.some(option => Object.is(option[definition.optionsView.valueField], current))
+-      let valueStatus: DataViewFieldCascadeState['valueStatus'] = current === null ? 'empty' : valid ? 'valid' : 'invalid'
+-      if (automatic && entry.targetRevision === targetRevision) {
++      const rows = await options.view.queryOptionRows({ fields: options.fields, context })
++      if (this.#disposed || this.dataSet.destroyed || entry.generation !== generation || !options.isCurrent()
++        || !DataViewFieldCascadeBinding.equal(parents, entry.binding.parents())) return copyState(idle)
++      const current = entry.binding.captureTarget().value
++      let evaluation = options.evaluate(current, rows)
++      if (automatic && entry.targetRevision === revision && target.isCurrent()
++        && DataViewFieldCascadeBinding.equal(target.value, current)) {
+         const policy = definition.valuePolicy
+-        const clear = policy.mode === 'clear' || (policy.mode === 'retain-valid' && current !== null && !valid)
+-        if (clear) {
+-          if (target.fieldAccess(row, definition.targetField).write !== 'allowed') {
+-            throw new Error(`FIELD_CASCADE_WRITE: 目标字段不可写 ${definition.targetField}`)
+-          }
+-          target.updateEditingValue(address.rowId, definition.targetField, policy.clearValue)
+-          valueStatus = policy.clearValue === null ? 'empty'
+-            : options.some(option => Object.is(option[definition.optionsView.valueField], policy.clearValue)) ? 'valid' : 'invalid'
++        if (policy.mode !== 'retain') {
++          const next = policy.mode === 'clear' ? policy.clearValue
++            : evaluation.status === 'invalid' ? (evaluation.hasRetained ? evaluation.retained : policy.clearValue) : current
++          if (!DataViewFieldCascadeBinding.equal(current, next)) target.write(next)
++          evaluation = options.evaluate(entry.binding.captureTarget().value, rows)
+         }
+       }
+-      return this.publish(entry, { status: 'ready', options, valueStatus })
++      if (entry.generation !== generation) return copyState(idle)
++      return this.publish(entry, { status: 'ready', options: rows, valueStatus: evaluation.status })
+     } catch (error) {
+       if (entry.generation !== generation || this.#disposed) return copyState(idle)
+-      return this.fail(address, error)
++      return this.fail(entry, error)
+     }
+   }
+ 
+@@ -255,4 +213,4 @@ export class DataViewFieldCascadeRuntime {
+     this.#entries.clear()
+     this.#listeners.clear()
+   }
+-}
++}
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\strategies\\selection-delegate.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\selection-delegate.ts"
+index e4a13c6a3..44d05286d 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\strategies\\selection-delegate.ts"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\selection-delegate.ts"
+@@ -10,6 +10,7 @@ import { isDataRow } from '../core/data-row-guards'
+ import type { DataRow } from '../types'
+ import type { DataView } from '../data-view'
+ import { pruneInvalidSelections } from '../core/utils'
++import { DataViewSelectionValue } from './selection/data-view-selection-value'
+ 
+ const logger = Logger('DataView:Selection')
+ 
+@@ -481,26 +482,12 @@ constructor(
+   get value(): string {
+     const host = this.host
+     if (host.valueField !== undefined) {
+-      const rows = host.selectedRows
+-      if (Array.isArray(host.valueField)) {
+-        const fields = host.valueField
+-        const values: string[] = []
+-        for (const r of rows) {
+-          const parts = fields.map(f => {
+-            const v: unknown = r[f]
+-            return v !== undefined && v !== null ? String(v) : ''
+-          })
+-          if (parts.some(p => p !== '')) values.push(parts.join(':'))
+-        }
+-        return host.selectionDelimiter ? values.join(host.selectionDelimiter) : (values[0] ?? '')
+-      }
+-      const field = host.valueField
+       const values: string[] = []
+-      for (const r of rows) {
+-        const v: unknown = r[field]
+-        if (v !== undefined && v !== null) values.push(String(v))
++      for (const row of host.selectedRows) {
++        const token = DataViewSelectionValue.token(row, host.valueField)
++        if (token !== undefined) values.push(token)
+       }
+-      return host.selectionDelimiter ? values.join(host.selectionDelimiter) : (values[0] ?? '')
++      return DataViewSelectionValue.join(values, host.selectionDelimiter)
+     }
+     // 默认：主键快速路径
+     if (!host.selectionDelimiter) {
+@@ -513,9 +500,7 @@ constructor(
+     const host = this.host
+     if (!value) { this.clearSelectedRows(); return }
+ 
+-    const tokens = host.selectionDelimiter
+-      ? value.split(host.selectionDelimiter).map(s => s.trim()).filter(s => s !== '')
+-      : [value.trim()].filter(s => s !== '')
++    const tokens = DataViewSelectionValue.split(value, host.selectionDelimiter)
+     if (tokens.length === 0) { this.clearSelectedRows(); return }
+ 
+     if (host.valueField !== undefined) {
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\dataset-crud-tool.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset-crud-tool.ts"
+index 493446103..6abcfdf9c 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\dataset-crud-tool.ts"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset-crud-tool.ts"
+@@ -24,6 +24,7 @@ import type {
+   DataResourceRelation,
+   DataResourceRelationInput,
+   DataViewQueryCascade,
++  DataViewFieldCascade,
+   DataViewCascadeSelector,
+   TableSemanticMetadata,
+   TableResourceType,
+@@ -717,13 +718,9 @@ export class DataSetCrudTool {
+         ...cascade,
+         ...(cascade.tableName === tableName ? {
+           targetField: cascade.targetField === columnName ? newColumnName : cascade.targetField,
+-          parents: cascade.parents.map(parent => ({ ...parent,
+-            field: parent.field === columnName ? newColumnName : parent.field })),
+         } : {}),
+-        ...(cascade.optionsView.tableName === tableName ? { optionsView: { ...cascade.optionsView,
+-          valueField: cascade.optionsView.valueField === columnName ? newColumnName : cascade.optionsView.valueField,
+-          labelField: cascade.optionsView.labelField === columnName ? newColumnName : cascade.optionsView.labelField,
+-        } } : {}),
++        parents: cascade.parents.map(parent => parent.tableName === tableName && parent.field === columnName
++          ? { ...parent, field: newColumnName } : parent),
+       }) : ({ ...cascade,
+         filterBindings: cascade.filterBindings.map((binding) => ({
+           sourceField: cascade.parentTable === tableName && binding.sourceField === columnName
+@@ -759,10 +756,10 @@ export class DataSetCrudTool {
+     }
+     const viewCascade = (this.dataSet.viewCascades ?? []).find((cascade) => (
+       cascade.kind === 'field'
+-        ? (cascade.tableName === tableName && (cascade.targetField === columnName
+-          || cascade.parents.some(parent => parent.field === columnName)))
+-          || (cascade.optionsView.tableName === tableName && (cascade.optionsView.valueField === columnName
+-            || cascade.optionsView.labelField === columnName))
++        ? (cascade.tableName === tableName && cascade.targetField === columnName)
++          || cascade.parents.some(parent => parent.tableName === tableName && (parent.field === columnName
++            || (parent.field === undefined && this.dataSet.getView(parent.tableName, parent.viewId)?.effectivePkFields.includes(columnName))))
++          || (cascade.optionsView.tableName === tableName && this.cascadeOptionsReferenceField(cascade, columnName))
+         : (cascade.parentTable === tableName
+           && cascade.filterBindings.some(binding => binding.sourceField === columnName))
+           || (cascade.childTable === tableName
+@@ -775,6 +772,13 @@ export class DataSetCrudTool {
+     this._afterWrite()
+   }
+ 
++  private cascadeOptionsReferenceField(cascade: DataViewFieldCascade, field: string): boolean {
++    const view = this.dataSet.getView(cascade.optionsView.tableName, cascade.optionsView.viewId)
++    if (!view) throw new Error('FIELD_CASCADE_VIEW: 选项视图不存在')
++    const values = view.valueField ?? view.effectivePkFields
++    return view.labelField === field || (typeof values === 'string' ? values === field : values.includes(field))
++  }
++
+   private relationReferencesField(relation: DataResourceRelation, tableName: string, fieldName: string): boolean {
+     return ResourceRelationDefinition.referencesField({
+       expression: relation.filterExpression, parentTable: relation.parentTable, childTable: relation.childTable, tableName, fieldName,
+@@ -921,6 +925,7 @@ export class DataSetCrudTool {
+       snapshot.viewCascades = snapshot.viewCascades.map((cascade) => cascade.kind === 'field'
+         ? { ...cascade,
+           ...(cascade.tableName === tableName ? { tableName: newTableName } : {}),
++          parents: cascade.parents.map(parent => parent.tableName === tableName ? { ...parent, tableName: newTableName } : parent),
+           ...(cascade.optionsView.tableName === tableName ? {
+             optionsView: { ...cascade.optionsView, tableName: newTableName },
+           } : {}),
+@@ -1052,7 +1057,8 @@ export class DataSetCrudTool {
+     }
+     if ((this.dataSet.viewCascades ?? []).some(cascade => cascade.kind === 'field'
+       && ((cascade.tableName === tableName && cascade.viewId === viewId)
+-        || (cascade.optionsView.tableName === tableName && cascade.optionsView.viewId === viewId)))) {
++        || (cascade.optionsView.tableName === tableName && cascade.optionsView.viewId === viewId)
++        || cascade.parents.some(parent => parent.tableName === tableName && parent.viewId === viewId)))) {
+       throw new Error(`deleteView: ${tableName}@${viewId} is referenced by viewCascades`)
+     }
+     this.getTableOrThrow(tableName).destroyView(viewId)
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\tests\\dataset\\field-cascade.test.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\field-cascade.test.ts"
+index 63ddf528c..499292672 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\tests\\dataset\\field-cascade.test.ts"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\field-cascade.test.ts"
+@@ -23,6 +23,8 @@ function result(tableName: string, rows: DataRow[], access?: { hidden?: string;
+ }
+ 
+ async function fixture(input?: { policy?: DataViewFieldCascade['valuePolicy']; rows?: DataRow[];
++  format?: DataViewFieldCascade['valueFormat']; parents?: DataViewFieldCascade['parents']; options?: DataRow[];
++  valueField?: string | string[]; delimiter?: string;
+   access?: { hidden?: string; targetWritable?: boolean } }) {
+   const policy = input?.policy ?? { mode: 'retain-valid', clearValue: null }
+   const rows = input?.rows ?? [{ id: 1, country: 'A', province: 0, city: 'OLD' }]
+@@ -30,38 +32,117 @@ async function fixture(input?: { policy?: DataViewFieldCascade['valuePolicy']; r
+     Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
+       columns: [{ name: 'id', type: 'number', isPrimaryKey: true }, { name: 'country', type: 'string' },
+         { name: 'province', type: 'number' }, { name: 'city', type: 'string' }],
+-      views: { default: {}, edit: {} } },
++      views: { default: {}, edit: {}, selected: { autoSelectFirst: false, valueField: 'country' } } },
+     Cities: { tableName: 'Cities', modelBinding: { modelId: 'CITY', modelName: 'Cities' },
+-      columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'caption', type: 'string' }],
+-      views: { default: {}, choices: {} } },
++      columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'caption', type: 'string' }, { name: 'code', type: 'string' }],
++      views: { default: {}, choices: { valueField: input?.valueField ?? 'id', labelField: 'caption', selectionDelimiter: input?.delimiter ?? '|' } } },
+   }, viewCascades: [{ kind: 'field', cascadeId: 'city-by-region', tableName: 'Orders', viewId: 'edit',
+-    rowMode: 'editing-row', targetField: 'city',
+-    parents: [{ field: 'country', parameter: 'countryId' }, { field: 'province', parameter: 'provinceId' }],
+-    optionsView: { tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption' },
++    valueFormat: input?.format ?? 'native', targetField: 'city',
++    parents: input?.parents ?? [{ tableName: 'Orders', viewId: 'edit', field: 'country', parameter: 'countryId' }, { tableName: 'Orders', viewId: 'edit', field: 'province', parameter: 'provinceId' }],
++    optionsView: { tableName: 'Cities', viewId: 'choices' },
+     valuePolicy: policy }] })
+   const target = dataSet.getView('Orders', 'edit')!
+   const options = dataSet.getView('Cities', 'choices')!
++  const source = dataSet.getView('Orders', 'selected')!
+   const contexts: unknown[] = []
+-  let optionQuery = async (_params: QueryParams) => result('Cities', [{ id: 'NEW', caption: 'New City' }])
++  let optionQuery = async (_params: QueryParams) => result('Cities', input?.options ?? [{ id: 'NEW', caption: 'New City' }])
+   target.bindQueryExecutor({ executeQuery: async () => result('Orders', rows, input?.access) })
++  source.bindQueryExecutor({ executeQuery: async () => result('Orders', rows, input?.access) })
+   options.bindQueryExecutor({ executeQuery: async (_view, params) => {
+     contexts.push(params.context)
+     return optionQuery(params)
+   } })
+   await target.loadFromServer()
+-  return { dataSet, target, options, contexts,
++  await source.loadFromServer()
++  return { dataSet, target, source, options, contexts,
+     setOptionQuery: (next: (params: QueryParams) => Promise<ReturnType<typeof result>>) => { optionQuery = next } }
+ }
+ 
+-function address(rowId = 1) { return { tableName: 'Orders', viewId: 'edit', rowId, field: 'city' } }
++function address() { return { tableName: 'Orders', viewId: 'edit', field: 'city' } }
+ 
+ describe('DataSet field input cascades', () => {
+-  it('uses both current editing parent values and clears an invalid target only after complete options', async () => {
++  it('queries using selected primary key arrays from another view, including an empty selection', async () => {
++    const { dataSet, source, contexts } = await fixture({ parents: [{ tableName: 'Orders', viewId: 'selected', parameter: 'ids' }],
++      policy: { mode: 'retain' }, rows: [{ id: 0, country: 'A', province: 0, city: null },
++        { id: 2, country: 'B', province: 0, city: null }] })
++    try {
++      source.setSelectedRows(source.rows)
++      await vi.waitFor(() => expect(contexts).toHaveLength(1))
++      expect(contexts[0]).toEqual({ ids: [0, 2] })
++      expect(source.value).toBe('A,B')
++      source.setCurrentRowById(2)
++      expect(contexts).toHaveLength(1)
++      source.clearSelectedRows()
++      await vi.waitFor(() => expect(contexts).toHaveLength(2))
++      expect(contexts[1]).toEqual({ ids: [] })
++    } finally { dataSet.destroy() }
++  })
++
++  it.each([
++    { format: 'selection-string' as const, before: '01|0|gone', after: '01|0', clearValue: '' },
++    { format: 'native' as const, before: ['01', 0, 'gone'], after: ['01', 0], clearValue: [] },
++  ])('retains valid $format values and round-trips business values independently of primary keys', async input => {
++    const { dataSet, target, options } = await fixture({ format: input.format, valueField: 'code',
++      rows: [{ id: 1, country: 'A', province: 0, city: input.before }],
++      options: [{ id: 'pk1', code: '01', caption: 'one' }, { id: 'pk2', code: 0, caption: 'zero' }],
++      policy: { mode: 'retain-valid', clearValue: input.clearValue } })
++    try {
++      target.updateEditingValue(1, 'country', 'B')
++      await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).status).toBe('ready'))
++      expect(target.getEditingRow(1)?.['city']).toEqual(input.after)
++      expect(dataSet.getFieldCascadeState(address()).valueStatus).toBe('valid')
++      if (typeof input.after === 'string') {
++        await options.loadFromServer()
++        options.value = input.after
++        expect(options.selectedRows.map(row => options.getPkKey(row))).toEqual(['pk1', 'pk2'])
++        expect(options.value).toBe(input.after)
++      }
++    } finally { dataSet.destroy() }
++  })
++
++  it('keeps ordinary delimited strings as scalar values and does not split them by appearance', async () => {
++    const { dataSet, target, contexts } = await fixture({ rows: [{ id: 1, country: 'X,Y', province: false, city: 'A|B' }],
++      options: [{ id: 'A|B', caption: 'one complete value' }] })
++    try {
++      target.updateEditingValue(1, 'country', 'C,D')
++      await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).valueStatus).toBe('valid'))
++      expect(contexts).toEqual([{ countryId: 'C,D', provinceId: false }])
++      expect(target.getEditingRow(1)?.['city']).toBe('A|B')
++    } finally { dataSet.destroy() }
++  })
++
++  it('uses the option view single-selection and composite valueField format', async () => {
++    const { dataSet, target, options } = await fixture({ format: 'selection-string', delimiter: '', valueField: ['code', 'id'],
++      rows: [{ id: 1, country: 'A', province: 0, city: '01:pk1' }],
++      options: [{ id: 'pk1', code: '01', caption: 'one' }], policy: { mode: 'retain-valid', clearValue: '' } })
++    try {
++      target.updateEditingValue(1, 'country', 'B')
++      await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).valueStatus).toBe('valid'))
++      expect(target.getEditingRow(1)?.['city']).toBe('01:pk1')
++      await options.loadFromServer()
++      options.value = '01:pk1'
++      expect(options.value).toBe('01:pk1')
++    } finally { dataSet.destroy() }
++  })
++
++  it('rejects old rowMode and missing explicit formats instead of guessing how a string is stored', async () => {
++    const { dataSet } = await fixture()
++    try {
++      const snapshot = dataSet.toJson()
++      const cascade = snapshot.viewCascades?.[0]
++      expect(() => DataSet.fromJson({ ...snapshot, viewCascades: [{ ...cascade, rowMode: 'editing-row' }] })).toThrow('rowMode')
++      expect(() => DataSet.fromJson({ ...snapshot, viewCascades: [{ ...cascade, valueFormat: undefined }] })).toThrow('valueFormat')
++      const obsoleteAddress = { ...address(), rowId: 1 }
++      expect(() => dataSet.getFieldCascadeState(obsoleteAddress)).toThrow('FIELD_CASCADE_ADDRESS')
++    } finally { dataSet.destroy() }
++  })
++
++  it('uses both bound input values and clears an invalid target only after complete options', async () => {
+     const { dataSet, target, options, contexts } = await fixture()
+ 
+     target.updateEditingValue(1, 'country', 'B')
+     await vi.waitFor(() => expect(dataSet.getFieldCascadeState({ tableName: 'Orders', viewId: 'edit',
+-      rowId: 1, field: 'city' })).toMatchObject({ status: 'ready', valueStatus: 'empty' }))
++      field: 'city' })).toMatchObject({ status: 'ready', valueStatus: 'empty' }))
+     expect(contexts).toEqual([{ countryId: 'B', provinceId: 0 }])
+     expect(target.getEditingPatch(1)).toEqual({ country: 'B', city: null })
+     expect(target.rows[0]?.['city']).toBe('OLD')
+@@ -89,7 +170,7 @@ describe('DataSet field input cascades', () => {
+ 
+   it('updates ready value status after manual selection and cancellation without another query', async () => {
+     const { dataSet, target, contexts } = await fixture({ policy: { mode: 'retain' } })
+-    const addresses: Array<{ tableName: string; viewId: string; rowId: string | number; field: string }> = []
++    const addresses: Array<{ tableName: string; viewId: string; field: string }> = []
+     const off = dataSet.onFieldCascadeChange(changedAddress => { addresses.push(changedAddress) })
+     await dataSet.refreshFieldCascade(address())
+     expect(dataSet.getFieldCascadeState(address()).valueStatus).toBe('invalid')
+@@ -108,7 +189,7 @@ describe('DataSet field input cascades', () => {
+     const hidden = await fixture({ access: { hidden: 'city' } })
+     hidden.target.updateEditingValue(1, 'country', 'B')
+     await vi.waitFor(() => expect(hidden.dataSet.getFieldCascadeState(address()).status).toBe('error'))
+-    expect(hidden.dataSet.getFieldCascadeState(address()).error).toMatch(/目标字段不可读/)
++    expect(hidden.dataSet.getFieldCascadeState(address()).error).toMatch(/DATA_VIEW_VALUE_READ.*city/)
+     expect(hidden.contexts).toHaveLength(0)
+     hidden.dataSet.destroy()
+ 
+@@ -136,7 +217,7 @@ describe('DataSet field input cascades', () => {
+     const hidden = await fixture({ access: { hidden: 'country' } })
+     hidden.target.updateEditingValue(1, 'province', 2)
+     await vi.waitFor(() => expect(hidden.dataSet.getFieldCascadeState(address()).status).toBe('error'))
+-    expect(hidden.dataSet.getFieldCascadeState(address()).error).toMatch(/父字段不可读/)
++    expect(hidden.dataSet.getFieldCascadeState(address()).error).toMatch(/DATA_VIEW_VALUE_READ.*country/)
+     expect(hidden.contexts).toHaveLength(0)
+     expect(hidden.target.getEditingPatch(1)).toEqual({ province: 2 })
+     hidden.dataSet.destroy()
+@@ -149,22 +230,22 @@ describe('DataSet field input cascades', () => {
+     denied.dataSet.destroy()
+   })
+ 
+-  it('keeps each row and request generation independent under reverse completion', async () => {
+-    const { dataSet, target, setOptionQuery } = await fixture({ rows: [
++  it('does not query again for equal inputs or write to a different target pointer', async () => {
++    const { dataSet, target, contexts, setOptionQuery } = await fixture({ rows: [
+       { id: 1, country: 'A', province: 0, city: 'OLD' },
+-      { id: 2, country: 'A', province: 0, city: 'OLD' },
++      { id: 2, country: 'B', province: 0, city: 'USER' },
+     ] })
+-    const pending: Array<(value: ReturnType<typeof result>) => void> = []
+-    setOptionQuery(async () => new Promise(resolve => { pending.push(resolve) }))
++    let release: ((value: ReturnType<typeof result>) => void) | undefined
++    setOptionQuery(async () => new Promise(resolve => { release = resolve }))
+     target.updateEditingValue(1, 'country', 'B')
+-    target.updateEditingValue(2, 'country', 'C')
+-    pending[1]?.(result('Cities', [{ id: 'OLD', caption: 'Old City' }]))
+-    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address(2)).status).toBe('ready'))
+-    expect(target.getEditingPatch(2)).toEqual({ country: 'C' })
+-    pending[0]?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
+-    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address(1)).status).toBe('ready'))
+-    expect(target.getEditingPatch(1)).toEqual({ country: 'B', city: null })
+-    expect(dataSet.getFieldCascadeState(address(2)).options[0]?.['id']).toBe('OLD')
++    target.setCurrentRowById(2)
++    expect(contexts).toHaveLength(1)
++    target.updateEditingValue(1, 'country', 'INACTIVE')
++    expect(contexts).toHaveLength(1)
++    release?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).status).toBe('ready'))
++    expect(target.getEditingPatch(1)).toEqual({ country: 'INACTIVE' })
++    expect(target.getEditingPatch(2)).toBeUndefined()
+     dataSet.destroy()
+   })
+ 
+@@ -203,29 +284,36 @@ describe('DataSet field input cascades', () => {
+     dataSet.destroy()
+   })
+ 
+-  it('keeps same-parent late options cancelled and isolates the other editing row', async () => {
+-    const { dataSet, target, setOptionQuery } = await fixture({ policy: { mode: 'clear', clearValue: null }, rows: [
++  it('queries when moving the pointer changes the bound values, without row endpoints', async () => {
++    const { dataSet, target, contexts } = await fixture({ rows: [
+       { id: 1, country: 'A', province: 0, city: 'OLD' },
+-      { id: 2, country: 'A', province: 0, city: 'OLD' },
++      { id: 2, country: 'A', province: 0, city: 'NEW' },
++      { id: 3, country: 'B', province: 0, city: 'OLD' },
+     ] })
+-    const pending: Array<(value: ReturnType<typeof result>) => void> = []
+-    setOptionQuery(async () => new Promise(resolve => { pending.push(resolve) }))
+-    target.updateEditingValue(1, 'province', 1)
+-    target.updateEditingValue(1, 'province', 0)
+-    target.updateEditingValue(2, 'country', 'B')
+-    expect(pending).toHaveLength(3)
+-    expect(target.getEditingPatch(1)).toBeUndefined()
+-    expect(target.discardEditingRows([1])).toBe(0)
+-    expect(dataSet.getFieldCascadeState(address()).status).toBe('idle')
+-    pending[1]?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
+-    pending[2]?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
+-    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address(2)).status).toBe('ready'))
+-    expect(dataSet.getFieldCascadeState(address()).status).toBe('idle')
+-    expect(target.getEditingPatch(1)).toBeUndefined()
+-    expect(target.getEditingPatch(2)).toEqual({ country: 'B', city: null })
++    await dataSet.refreshFieldCascade(address())
++    target.setCurrentRowById(2)
++    expect(contexts).toHaveLength(1)
++    expect(dataSet.getFieldCascadeState(address()).valueStatus).toBe('valid')
++    target.setCurrentRowById(3)
++    await vi.waitFor(() => expect(target.getEditingPatch(3)).toEqual({ city: null }))
++    expect(contexts).toEqual([{ countryId: 'A', provinceId: 0 }, { countryId: 'B', provinceId: 0 }])
++    expect(dataSet.toJson().viewCascades).not.toEqual(expect.arrayContaining([expect.objectContaining({ rowMode: expect.anything() })]))
+     dataSet.destroy()
+   })
+ 
++  it('refreshes options when a previously bound input becomes unavailable and returns', async () => {
++    const { dataSet, target, contexts } = await fixture({ policy: { mode: 'retain' } })
++    try {
++      await dataSet.refreshFieldCascade(address())
++      target.setCurrentRow(null)
++      expect(dataSet.getFieldCascadeState(address()).status).toBe('idle')
++      target.setCurrentRowById(1)
++      await vi.waitFor(() => expect(contexts).toHaveLength(2))
++      await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).status).toBe('ready'))
++      expect(target.getEditingPatch(1)).toBeUndefined()
++    } finally { dataSet.destroy() }
++  })
++
+   it('invalidates a legal zero-patch query-backed cancellation but ignores an empty row selection', async () => {
+     const { dataSet, target, setOptionQuery } = await fixture({ policy: { mode: 'clear', clearValue: null } })
+     const pending: Array<(value: ReturnType<typeof result>) => void> = []
+@@ -254,8 +342,8 @@ describe('DataSet field input cascades', () => {
+       if (state.status === 'ready') changed.push(changedAddress.field)
+     })
+     dataSet.addCascade({ kind: 'field', cascadeId: 'province-by-country', tableName: 'Orders', viewId: 'edit',
+-      rowMode: 'editing-row', targetField: 'province', parents: [{ field: 'country', parameter: 'countryId' }],
+-      optionsView: { tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption' },
++      valueFormat: 'native', targetField: 'province', parents: [{ tableName: 'Orders', viewId: 'edit', field: 'country', parameter: 'countryId' }],
++      optionsView: { tableName: 'Cities', viewId: 'choices',  },
+       valuePolicy: { mode: 'retain-valid', clearValue: null } })
+     target.updateEditingValue(1, 'country', 'B')
+     await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).status).toBe('ready'))
+@@ -271,12 +359,12 @@ describe('DataSet field input cascades', () => {
+     const { dataSet } = await fixture()
+     const before = dataSet.toJson().viewCascades
+     expect(() => dataSet.addCascade({ kind: 'field', cascadeId: 'second-city', tableName: 'Orders', viewId: 'edit',
+-      rowMode: 'editing-row', targetField: 'city', parents: [{ field: 'country', parameter: 'countryId' }],
+-      optionsView: { tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption' },
++      valueFormat: 'native', targetField: 'city', parents: [{ tableName: 'Orders', viewId: 'edit', field: 'country', parameter: 'countryId' }],
++      optionsView: { tableName: 'Cities', viewId: 'choices',  },
+       valuePolicy: { mode: 'retain' } })).toThrow('FIELD_CASCADE_DUPLICATE')
+     expect(() => dataSet.addCascade({ kind: 'field', cascadeId: 'country-by-city', tableName: 'Orders', viewId: 'edit',
+-      rowMode: 'editing-row', targetField: 'country', parents: [{ field: 'city', parameter: 'cityId' }],
+-      optionsView: { tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption' },
++      valueFormat: 'native', targetField: 'country', parents: [{ tableName: 'Orders', viewId: 'edit', field: 'city', parameter: 'cityId' }],
++      optionsView: { tableName: 'Cities', viewId: 'choices',  },
+       valuePolicy: { mode: 'retain' } })).toThrow('FIELD_CASCADE_CYCLE')
+     expect(dataSet.toJson().viewCascades).toEqual(before)
+     dataSet.destroy()
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts"
+index f9272baa5..f744617b5 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts"
+@@ -225,13 +225,13 @@ describe('DataSetCrudTool', () => {
+         {name: 'country', type: 'string'}, {name: 'city', type: 'string'}],
+       views: {default: {}, edit: {}}},
+       Cities: {tableName: 'Cities', columns: [{name: 'id', type: 'string', isPrimaryKey: true},
+-        {name: 'caption', type: 'string'}], views: {default: {}, choices: {}}},
++        {name: 'caption', type: 'string'}], views: {default: {}, choices: {valueField: 'id', labelField: 'caption'}}},
+     }, viewCascades: [
+       {cascadeId: 'query', parentTable: 'Orders', parentViewId: 'edit', childTable: 'Cities', childViewId: 'choices',
+         filterBindings: [{sourceField: 'country', targetField: 'caption'}]},
+-      {kind: 'field', cascadeId: 'city-by-country', tableName: 'Orders', viewId: 'edit', rowMode: 'editing-row',
+-        targetField: 'city', parents: [{field: 'country', parameter: 'countryId'}],
+-        optionsView: {tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption'},
++      {kind: 'field', cascadeId: 'city-by-country', tableName: 'Orders', viewId: 'edit', valueFormat: 'native',
++        targetField: 'city', parents: [{tableName: 'Orders', viewId: 'edit', field: 'country', parameter: 'countryId'}],
++        optionsView: {tableName: 'Cities', viewId: 'choices'},
+         valuePolicy: {mode: 'retain-valid', clearValue: null}},
+     ]})
+     expect(tool.listCascades()).toHaveLength(1)
+@@ -251,11 +251,43 @@ describe('DataSetCrudTool', () => {
+       {parentTable: 'Purchases', childTable: 'Places',
+         filterBindings: [{sourceField: 'nation', targetField: 'name'}]},
+       {tableName: 'Purchases', targetField: 'location', parents: [{field: 'nation', parameter: 'countryId'}],
+-        optionsView: {tableName: 'Places', valueField: 'id', labelField: 'name'}},
++        optionsView: {tableName: 'Places', viewId: 'choices'}},
+     ])
+     expect(DataSet.fromJson(tool.toJson()).toJson().viewCascades).toEqual(tool.toJson().viewCascades)
+   })
+ 
++  it('protects and renames cross-view input bindings without treating them as fields on the target', () => {
++    const tool = DataSetCrudTool.fromJson({dataSetName: 'Inputs', tables: {
++      Regions: {columns: [{name: 'id', type: 'number', isPrimaryKey: true}, {name: 'code', type: 'string'}],
++        views: {default: {}, input: {}, selected: {}}},
++      Orders: {columns: [{name: 'id', type: 'number', isPrimaryKey: true}, {name: 'city', type: 'string'}],
++        views: {default: {}, edit: {}}},
++      Cities: {columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {}, choices: {}}},
++    }, viewCascades: [{kind: 'field', cascadeId: 'cross', tableName: 'Orders', viewId: 'edit', targetField: 'city',
++      valueFormat: 'native', parents: [{tableName: 'Regions', viewId: 'input', field: 'code', parameter: 'region'},
++        {tableName: 'Regions', viewId: 'selected', parameter: 'ids'}],
++      optionsView: {tableName: 'Cities', viewId: 'choices'}, valuePolicy: {mode: 'retain'}}]})
++    try {
++      const before = tool.toJson()
++      expect(() => tool.deleteTable('Regions')).toThrow('viewCascades')
++      expect(() => tool.deleteView({tableName: 'Regions', viewId: 'input'})).toThrow('viewCascades')
++      expect(() => tool.deleteView({tableName: 'Regions', viewId: 'selected'})).toThrow('viewCascades')
++      expect(() => tool.deleteColumn({tableName: 'Regions', columnName: 'code'})).toThrow('viewCascades')
++      expect(() => tool.deleteColumn({tableName: 'Regions', columnName: 'id'})).toThrow('viewCascades')
++      expect(tool.toJson()).toEqual(before)
++      tool.renameColumn({tableName: 'Regions', columnName: 'code', newColumnName: 'regionCode'})
++      tool.renameTable({tableName: 'Regions', newTableName: 'Areas'})
++      expect(tool.toJson().viewCascades).toMatchObject([{tableName: 'Orders', targetField: 'city', parents: [
++        {tableName: 'Areas', viewId: 'input', field: 'regionCode', parameter: 'region'},
++        {tableName: 'Areas', viewId: 'selected', parameter: 'ids'},
++      ]}])
++      expect(tool.undo()).toBe(true)
++      expect(tool.toJson().viewCascades).toMatchObject([{parents: [{tableName: 'Regions'}, {tableName: 'Regions'}]}])
++      expect(tool.redo()).toBe(true)
++      expect(tool.toJson().viewCascades).toMatchObject([{parents: [{tableName: 'Areas'}, {tableName: 'Areas'}]}])
++    } finally { tool.dataSet.destroy() }
++  })
++
+   it('should keep the canonical relation expression and DataView cascade bindings aligned when a column is renamed', () => {
+     const tool = DataSetCrudTool.fromJson({
+       dataSetName: 'RenameDS',
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-project-model\\tests\\scenario\\scenario-view-file.test.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-project-model\\tests\\scenario\\scenario-view-file.test.ts"
+index 5cf1ddcdd..33558a1d3 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-project-model\\tests\\scenario\\scenario-view-file.test.ts"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-project-model\\tests\\scenario\\scenario-view-file.test.ts"
+@@ -1,644 +1,644 @@
+-import { describe, expect, it, vi } from 'vitest'
+-import { ScenarioViewFile } from '../../src/scenario/scenario-view-file'
+-import { ProjectWorkspace } from '../../src/project/project-workspace'
+-
+-function fixture(pageSize = 20): string {
+-  return JSON.stringify({ scenarioId: 'UNIT-SCENE', tables: {
+-    Orders: { modelBinding: { modelId: 'UNIT-ORDERS', modelName: 'OrdersModel' },
+-      views: { default: {}, list: { pageSize, autoCurrentFirst: false, selectionDelimiter: '',
+-        filterExpression: { field: 'active', operator: 'eq', value: false } } } },
+-    Items: { modelBinding: { modelId: 'UNIT-ITEMS', modelName: 'ItemsModel' }, views: { default: {}, detail: {} } },
+-  }, viewCascades: [{ parentTable: 'Orders', parentViewId: 'list', childTable: 'Items', childViewId: 'detail',
+-    filterBindings: [{ sourceField: 'id', targetField: 'orderId' }], dependencyType: 'currentRow', autoLoad: false }] })
+-}
+-
+-const validProjection = { fieldId: 'MODEL-FIELD-1', source: 'resource', resourceFieldId: 'MODEL-FIELD-1',
+-  resourceField: 'id', viewField: 'id', type: '', label: '', output: true, sortOrder: 0,
+-  sortDirection: null, group: 0, distinct: false, primaryKey: true, value: '', valueFunction: '', expression: '' }
+-
+-function projectionFixture(field: Readonly<Record<string, unknown>>): string {
+-  return JSON.stringify({ scenarioId: 'UNIT-SCENE', tables: { Orders: {
+-    modelBinding: { modelId: 'UNIT-ORDERS', modelName: 'OrdersModel' },
+-    views: { default: { fieldProjection: [field] } },
+-  } } })
+-}
+-
+-describe('ScenarioViewFile', () => {
+-  it('notifies subscribers after valid edits, saved baselines, undo and reload', () => {
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    const states: boolean[] = []
+-    const unsubscribe = file.subscribe(() => states.push(file.isDirty))
+-    file.setText(fixture(30))
+-    file.markSaved(file.getText())
+-    file.undo()
+-    file.loadText(fixture(50))
+-    expect(states).toEqual([true, false, true, false])
+-    unsubscribe()
+-    file.setText(fixture(60))
+-    expect(states).toHaveLength(4)
+-  })
+-  it('owns one scene with multiple named views and explicit cascades without runtime DataSet serialization', () => {
+-    const text = fixture()
+-    const file = new ScenarioViewFile('UNIT-SCENE', text)
+-    expect(file.getText()).toBe(text)
+-    expect(file.isDirty).toBe(false)
+-    expect(file.value.toJSON()).toEqual(JSON.parse(text))
+-    expect(file.value.toJSON()).toMatchObject({ tables: { Orders: { views: { list: {
+-      autoCurrentFirst: false, selectionDelimiter: '', filterExpression: { value: false },
+-    } } } }, viewCascades: [{ autoLoad: false }] })
+-  })
+-
+-  it('retains recommended and extended table business categories without normalizing their text', () => {
+-    const input = JSON.parse(fixture())
+-    input.tables.Orders.businessCategory = 'master'
+-    input.tables.Items.businessCategory = '  partner-specific  '
+-    const text = JSON.stringify(input)
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    file.setText(text)
+-    expect(file.getText()).toBe(text)
+-    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {businessCategory: 'master'},
+-      Items: {businessCategory: '  partner-specific  '}}})
+-  })
+-
+-  it('rejects invalid category edits atomically and allows clearing by deleting the property', () => {
+-    const input = JSON.parse(fixture())
+-    input.tables.Orders.businessCategory = 'child'
+-    const valid = JSON.stringify(input)
+-    const file = new ScenarioViewFile('UNIT-SCENE', valid)
+-    const revision = file.revision
+-    for (const value of [null, '', '  ', 0, false, {}]) {
+-      input.tables.Orders.businessCategory = value
+-      expect(() => file.setText(JSON.stringify(input))).toThrow('businessCategory')
+-      expect(file.getText()).toBe(valid)
+-      expect(file.revision).toBe(revision)
+-      expect(file.canUndo).toBe(false)
+-      expect(file.isDirty).toBe(false)
+-    }
+-    delete input.tables.Orders.businessCategory
+-    file.setText(JSON.stringify(input))
+-    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {views: {default: {}}}}})
+-    expect(JSON.stringify(file.value.toJSON())).not.toContain('businessCategory')
+-  })
+-
+-  it('retains native DataSet top-level configuration in the immutable file value', () => {
+-    const configured = JSON.stringify({...JSON.parse(fixture()), schemaVersion: 3, version: 0,
+-      saveChanges: {mode: 'perView'}, layout: {tablePositions: {Orders: {x: -1.5, y: 0}}}})
+-    const file = new ScenarioViewFile('UNIT-SCENE', configured)
+-    expect(file.value.toJSON()).toMatchObject({schemaVersion: 3, version: 0,
+-      saveChanges: {mode: 'perView'}, layout: {tablePositions: {Orders: {x: -1.5, y: 0}}}})
+-    expect(Object.isFrozen(file.value.toJSON()['layout'])).toBe(true)
+-  })
+-
+-  it('rejects invalid DataSet top-level edits before changing text or history', () => {
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    const base: Record<string, unknown> = JSON.parse(fixture())
+-    const invalid: Record<string, unknown>[] = [
+-      {schemaVersion: 0}, {schemaVersion: 1.5}, {schemaVersion: Number.MAX_SAFE_INTEGER + 1},
+-      {version: -1}, {version: 1.5}, {version: Number.MAX_SAFE_INTEGER + 1},
+-      {layout: {tablePositions: {Unknown: {x: 0, y: 1}}}},
+-      {layout: {tablePositions: {Orders: {x: null, y: 1}}}},
+-      {layout: {tablePositions: {Orders: {x: 0, y: 1, z: 2}}}},
+-      {layout: {graphVersion: 1, nodes: [], edges: []}},
+-      {saveChanges: {mode: 'transaction'}}, {saveChanges: {mode: 'perView', transaction: {endpoint: {url: '/other'}}}},
+-      {saveChanges: {mode: 'perView', unknown: true}},
+-      {dataSetName: 'shadow'}, {pageId: 'PAGE'}, {resourceRelations: []},
+-    ]
+-    for (const change of invalid) {
+-      expect(() => file.setText(JSON.stringify({...base, ...change}))).toThrow()
+-      expect(file.getText()).toBe(fixture())
+-      expect(file.canUndo).toBe(false)
+-      expect(file.isDirty).toBe(false)
+-    }
+-  })
+-
+-  it('marks the submitted text saved while keeping edits made during saving dirty', () => {
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    file.setText(fixture(30))
+-    const submitted = file.getText()
+-    file.setText(fixture(40))
+-    file.markSaved(submitted)
+-    expect(file.isDirty).toBe(true)
+-    expect(file.undo()).toBe(true)
+-    expect(file.getText()).toBe(submitted)
+-    expect(file.isDirty).toBe(false)
+-    expect(file.redo()).toBe(true)
+-    expect(file.isDirty).toBe(true)
+-  })
+-
+-  it('validates before changing content, history or the saved baseline', () => {
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    expect(() => file.setText('{')).toThrow()
+-    expect(file.canUndo).toBe(false)
+-    file.setText(fixture(30))
+-    const current = file.getText()
+-    expect(() => file.loadText('{}')).toThrow()
+-    expect(() => file.markSaved('{}')).toThrow()
+-    expect(file.getText()).toBe(current)
+-    expect(file.isDirty).toBe(true)
+-    expect(file.canUndo).toBe(true)
+-  })
+-
+-  it('loads a validated saved file and resets history', () => {
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    file.setText(fixture(30))
+-    file.loadText(fixture(50))
+-    expect(file.isDirty).toBe(false)
+-    expect(file.canUndo).toBe(false)
+-    expect(file.canRedo).toBe(false)
+-  })
+-
+-  it('keeps configuration immutable through nested value exits', () => {
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    const config = file.value.toJSON()
+-    expect(Object.isFrozen(config)).toBe(true)
+-    expect(Object.isFrozen(config['tables'])).toBe(true)
+-    expect(Reflect.set(config, 'scenarioId', 'OTHER')).toBe(false)
+-    expect(file.value.scenarioId).toBe('UNIT-SCENE')
+-  })
+-
+-  it.each(['', '{}', JSON.stringify({ scenarioId: 'OTHER', tables: {} }),
+-    JSON.stringify({ scenarioId: 'UNIT-SCENE', dataSetName: 'old', tables: {} }),
+-    JSON.stringify({ dataSets: { one: { scenarioId: 'UNIT-SCENE' } } })])('rejects missing identity, other scenes and old or multi-scene envelopes: %s', text => {
+-    expect(() => new ScenarioViewFile('UNIT-SCENE', text)).toThrow()
+-  })
+-
+-  it.each(['rows', 'permissionSnapshot', 'resourceType', 'resourceId', 'addApi'])('rejects formal definitions and runtime state in a model: %s', key => {
+-    const input = { scenarioId: 'UNIT-SCENE', tables: { Orders: {
+-      modelBinding: { modelId: 'UNIT-MODEL', modelName: 'Orders' }, views: { default: {} }, [key]: [],
+-    } } }
+-    expect(() => new ScenarioViewFile('UNIT-SCENE', JSON.stringify(input))).toThrow(key)
+-  })
+-
+-  it('keeps native column validation values and rejects invalid edits atomically', () => {
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    const withColumns = (columns: unknown) => JSON.stringify({scenarioId: 'UNIT-SCENE', tables: {
+-      Orders: {modelBinding: {modelId: 'UNIT-ORDERS', modelName: 'OrdersModel'}, columns, views: {default: {}}},
+-    }})
+-    const valid = withColumns([{name: 'title', required: false, minLength: 0, maxLength: 8,
+-      min: 0, max: 10, pattern: '', patternMessage: ''}])
+-    file.setText(valid)
+-    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {columns: [{name: 'title',
+-      required: false, minLength: 0, min: 0, pattern: '', patternMessage: ''}]}}})
+-    const invalid = [
+-      [{name: 'title', type: 'string'}], [{name: 'title', computeExpression: '1'}],
+-      [{name: ' title'}], [{name: 'title'}, {name: 'title'}],
+-      [{name: 'title', required: 0}], [{name: 'title', minLength: -1}],
+-      [{name: 'title', minLength: 4, maxLength: 3}], [{name: 'title', min: 2, max: 1}],
+-      [{name: 'title', max: null}], [{name: 'title', pattern: '['}],
+-    ]
+-    for (const columns of invalid) {
+-      expect(() => file.setText(withColumns(columns))).toThrow()
+-      expect(file.getText()).toBe(valid)
+-    }
+-    expect(file.undo()).toBe(true)
+-    expect(file.getText()).toBe(fixture())
+-    expect(file.canRedo).toBe(true)
+-  })
+-
+-  it('retains a local computed column and rejects formal identity or control fields', () => {
+-    const configured = (column: Record<string, unknown>) => JSON.stringify({scenarioId: 'UNIT-SCENE', tables: {
+-      Orders: {modelBinding: {modelId: 'UNIT-ORDERS', modelName: 'OrdersModel'},
+-        columns: [column], views: {default: {}}},
+-    }})
+-    const local = {name: 'total', type: 'number', label: 'Total', computeExpression: 'price * qty', min: 0}
+-    const file = new ScenarioViewFile('UNIT-SCENE', configured(local))
+-    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {columns: [local]}}})
+-    for (const invalid of [
+-      {...local, name: '_pk'}, {...local, name: 'lingma_sys_key'},
+-      {...local, fieldId: 'DB-FIELD'}, {...local, isPrimaryKey: true},
+-      {...local, computeExpression: ''}, {...local, type: ''},
+-    ]) expect(() => file.setText(configured(invalid))).toThrow()
+-    expect(file.getText()).toBe(configured(local))
+-  })
+-
+-  it.each(['rows', 'total', 'dirty', 'permissionSnapshot', 'currentRow', 'scenarioId'])('rejects runtime or identity values inside a view: %s', key => {
+-    const input = { scenarioId: 'UNIT-SCENE', tables: { Orders: {
+-      modelBinding: { modelId: 'UNIT-MODEL', modelName: 'Orders' }, views: { default: { [key]: [] } },
+-    } } }
+-    expect(() => new ScenarioViewFile('UNIT-SCENE', JSON.stringify(input))).toThrow(key)
+-  })
+-
+-  it('rejects old filter dialect and unresolved cascade view references', () => {
+-    expect(() => new ScenarioViewFile('UNIT-SCENE', fixture().replace('"operator":"eq"', '"op":"eq"'))).toThrow('filterExpression')
+-    expect(() => new ScenarioViewFile('UNIT-SCENE', fixture().replace('"childViewId":"detail"', '"childViewId":"missing"'))).toThrow('missing')
+-  })
+-
+-  it('retains a field cascade beside query cascades and rejects invalid edits atomically', () => {
+-    const base = JSON.parse(fixture())
+-    const field = {kind: 'field', cascadeId: 'city-by-region', tableName: 'Orders', viewId: 'list',
+-      rowMode: 'editing-row', targetField: 'city',
+-      parents: [{field: 'country', parameter: 'countryId'}, {field: 'province', parameter: 'provinceId'}],
+-      optionsView: {tableName: 'Items', viewId: 'detail', valueField: 'id', labelField: 'title'},
+-      valuePolicy: {mode: 'retain-valid', clearValue: null}}
+-    const valid = JSON.stringify({...base, viewCascades: [...base.viewCascades, field]})
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    file.setText(valid)
+-    expect(file.value.toJSON()).toMatchObject({viewCascades: [expect.objectContaining({childTable: 'Items'}), field]})
+-    expect(Object.isFrozen(file.value.toJSON()['viewCascades'])).toBe(true)
+-    for (const invalid of [
+-      {...field, unknown: 1}, {...field, rowMode: 'current-row'}, {...field, valuePolicy: undefined},
+-      {...field, parents: [{field: 'country', parameter: 'x'}, {field: 'province', parameter: 'x'}]},
+-      {...field, optionsView: {...field.optionsView, viewId: 'missing'}},
+-      {...field, valuePolicy: {mode: 'clear'}},
+-    ]) {
+-      expect(() => file.setText(JSON.stringify({...base, viewCascades: [...base.viewCascades, invalid]}))).toThrow()
+-      expect(file.getText()).toBe(valid)
+-    }
+-    const cycle = {...field, cascadeId: 'country-by-city', targetField: 'country',
+-      parents: [{field: 'city', parameter: 'cityId'}], valuePolicy: {mode: 'retain'}}
+-    expect(() => file.setText(JSON.stringify({...base, viewCascades: [field, cycle]}))).toThrow('FIELD_CASCADE_CYCLE')
+-    expect(file.getText()).toBe(valid)
+-  })
+-
+-  it('preserves the complete projection contract including false, zero and empty strings', () => {
+-    const text = projectionFixture(validProjection)
+-    expect(new ScenarioViewFile('UNIT-SCENE', text).getText()).toBe(text)
+-    const derived = projectionFixture({ ...validProjection, source: 'derived', resourceFieldId: null,
+-      valueFunction: JSON.stringify({ Type: 'GetConstValue', Value: false }) })
+-    expect(new ScenarioViewFile('UNIT-SCENE', derived).getText()).toBe(derived)
+-  })
+-
+-  it.each([{ fieldId: '' }, { resourceField: '' }, { viewField: '' }, { source: 'unknown' },
+-    { resourceFieldId: null }, { source: 'derived', resourceFieldId: 'FIELD' }, { type: 1 }, { label: null },
+-    { output: 'false' }, { primaryKey: 1 }, { distinct: null }, { sortOrder: 1.5 }, { group: '0' },
+-    { sortDirection: 'descending' }, { value: false }, { valueFunction: {} }, { expression: null },
+-  ])('rejects malformed projections before replacing editable content: %j', change => {
+-    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
+-    expect(() => file.setText(projectionFixture({ ...validProjection, ...change }))).toThrow('fieldProjection')
+-    expect(file.getText()).toBe(fixture())
+-    expect(file.isDirty).toBe(false)
+-    expect(file.canUndo).toBe(false)
+-  })
+-})
+-
+-function deferred<T>() {
+-  let complete: ((value: T) => void) | undefined
+-  const promise = new Promise<T>(resolve => { complete = resolve })
+-  return { promise, resolve: (value: T) => {
+-    if (complete === undefined) throw new Error('promise resolver is missing')
+-    complete(value)
+-  } }
+-}
+-
+-function workspaceFixture() {
+-  let scope = 'request-a'
+-  let remoteText: string | null = fixture()
+-  const readText = vi.fn(async (_scenarioId: string) => remoteText)
+-  const writeText = vi.fn(async (_scenarioId: string, text: string) => { remoteText = text })
+-  const snapshots = new Map<number, string>([[0, fixture(10)]])
+-  const listVersions = vi.fn(async () => [...snapshots.keys()].map(version => ({ version, fileName: `${version}__pagedata.json`, lastModified: null })))
+-  const readVersion = vi.fn(async (_scenarioId: string, version: number) => { const text = snapshots.get(version); if (text === undefined) throw new Error('snapshot missing'); return text })
+-  const createVersion = vi.fn(async (_scenarioId: string, text: string) => { snapshots.set(8, text); return { version: 8, fileName: '8__pagedata.json', lastModified: null } })
+-  const restoreVersion = vi.fn(async (_scenarioId: string, version: number) => { remoteText = await readVersion(_scenarioId, version) })
+-  const workspace = new ProjectWorkspace({ projectId: 'UNIT-PROJECT',
+-    pageFiles: { readPageFile: vi.fn(async () => { throw new Error('must not read a page file') }) },
+-    blueprint: { loadRoot: async () => ({ children: [] }) },
+-    scenarioViews: { readScope: () => scope, readText, writeText, listVersions, readVersion, createVersion, restoreVersion },
+-  })
+-  return { workspace, readText, writeText, listVersions, readVersion, createVersion, restoreVersion,
+-    setScope: (value: string) => { scope = value },
+-    setRemote: (value: string | null) => { remoteText = value },
+-  }
+-}
+-
+-describe('ProjectWorkspace scenario files', () => {
+-  it('retains an unknown first write across later edits and confirms its exact remote submission', async () => {
+-    const { workspace, setRemote, writeText } = workspaceFixture()
+-    setRemote(null)
+-    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture(30) })
+-    writeText.mockImplementationOnce(async (_id, text) => { setRemote(text); throw new Error('network after dispatch') })
+-    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('network after dispatch')
+-    expect(file.saveStatus).toBe('unknown')
+-    expect(file.submittedText).toBe(fixture(30))
+-    file.setText(fixture(40))
+-    expect(await workspace.verifyScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBe('confirmed')
+-    expect(file.isPersisted).toBe(true)
+-    expect(file.isDirty).toBe(true)
+-    expect(file.getText()).toBe(fixture(40))
+-    expect(file.savedText).toBe(fixture(30))
+-  })
+-
+-  it('keeps pre-dispatch failures out of unknown and can explicitly adopt remote content', async () => {
+-    const { workspace, setRemote, writeText } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    file.setText(fixture(30))
+-    setRemote(fixture(40))
+-    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('SCENARIO_VIEW_CONFLICT')
+-    expect(file.saveStatus).toBe('idle')
+-    expect(writeText).not.toHaveBeenCalled()
+-    const revision = file.revision
+-    const remote = await workspace.previewScenarioViewsRemote({ scenarioId: 'UNIT-SCENE' })
+-    await workspace.adoptScenarioViews({ scenarioId: 'UNIT-SCENE', expectedRevision: revision, previewText: remote })
+-    expect(file.getText()).toBe(fixture(40))
+-    expect(file.isDirty).toBe(false)
+-  })
+-
+-  it('invalidates a discarded missing-file draft so old consumers cannot edit it', async () => {
+-    const { workspace, setRemote } = workspaceFixture()
+-    setRemote(null)
+-    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture(30) })
+-    await workspace.adoptScenarioViews({ scenarioId: 'UNIT-SCENE', expectedRevision: file.revision, previewText: null })
+-    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+-    expect(() => file.setText(fixture(40))).toThrow('SCENARIO_VIEW_FILE_INVALID')
+-  })
+-  it('rejects an old remote adoption when the same file receives a save receipt while reading', async () => {
+-    const { workspace, readText } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    const revision = file.revision
+-    const waiting = deferred<string | null>()
+-    readText.mockImplementationOnce(async () => waiting.promise)
+-    const adopting = workspace.adoptScenarioViews({ scenarioId: 'UNIT-SCENE', expectedRevision: revision, previewText: fixture() })
+-    await vi.waitFor(() => expect(readText).toHaveBeenCalledTimes(2))
+-    file.beginSave(fixture(30), fixture())
+-    file.confirmSubmitted()
+-    waiting.resolve(fixture())
+-    await expect(adopting).rejects.toThrow('DRAFT_STALE')
+-    expect(file.savedText).toBe(fixture(30))
+-  })
+-  it('does not dispatch a shared file save when the calling page expires during pre-read', async () => {
+-    const {workspace, readText, writeText} = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
+-    file.setText(fixture(30))
+-    const waiting = deferred<string | null>()
+-    readText.mockImplementationOnce(async () => waiting.promise)
+-    let active = true
+-    const saving = workspace.saveScenarioViews({scenarioId: 'UNIT-SCENE',
+-      assertCurrent: () => {if (!active) throw new Error('PAGE_RUNTIME_STALE')}})
+-    active = false
+-    waiting.resolve(fixture())
+-    await expect(saving).rejects.toThrow('PAGE_RUNTIME_STALE')
+-    expect(writeText).not.toHaveBeenCalled()
+-    expect(file.saveStatus).toBe('idle')
+-  })
+-  it('requires explicit creation after verified absence and confirms its real first write', async () => {
+-    const { workspace, setRemote, writeText } = workspaceFixture()
+-    setRemote(null)
+-    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('FILE_MISSING')
+-    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+-    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture() })
+-    expect(file.isDirty).toBe(true)
+-    expect(file.isPersisted).toBe(false)
+-    expect(writeText).not.toHaveBeenCalled()
+-    await workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    expect(file.isPersisted).toBe(true)
+-    expect(file.isDirty).toBe(false)
+-  })
+-
+-  it('cannot create over an existing file or save over an externally created file', async () => {
+-    const { workspace, setRemote, writeText } = workspaceFixture()
+-    await expect(workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture() })).rejects.toThrow('EXISTS')
+-    setRemote(null)
+-    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture() })
+-    setRemote(fixture(90))
+-    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('CONFLICT')
+-    expect(writeText).not.toHaveBeenCalled()
+-    expect(file.isDirty).toBe(true)
+-  })
+-
+-  it('rechecks a cached load before returning it to an asynchronous caller', async () => {
+-    const { workspace, setScope } = workspaceFixture()
+-    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    const cached = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    setScope('request-b')
+-    await expect(cached).rejects.toThrow('STALE')
+-  })
+-
+-  it('rejects missing IO and invalid scope without reading an old page file', async () => {
+-    const workspace = new ProjectWorkspace({ projectId: 'UNIT-PROJECT',
+-      pageFiles: { readPageFile: async () => { throw new Error('old page path') } },
+-      blueprint: { loadRoot: async () => ({ children: [] }) },
+-    })
+-    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('IO')
+-    const configured = workspaceFixture()
+-    configured.setScope('')
+-    await expect(configured.workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('STALE')
+-    expect(configured.readText).not.toHaveBeenCalled()
+-  })
+-
+-  it('releases a failed load so a corrected scene can be read again', async () => {
+-    const { workspace, readText } = workspaceFixture()
+-    readText.mockResolvedValueOnce('{}')
+-    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow()
+-    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+-    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).resolves.toBeInstanceOf(ScenarioViewFile)
+-  })
+-
+-  it('coalesces concurrent loads of the same scene into one shared file', async () => {
+-    const { workspace, readText } = workspaceFixture()
+-    const waiting = deferred<string>()
+-    readText.mockReturnValueOnce(waiting.promise)
+-    const first = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    const second = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    waiting.resolve(fixture())
+-    const files = await Promise.all([first, second])
+-    expect(files[0]).toBe(files[1])
+-    expect(readText).toHaveBeenCalledTimes(1)
+-  })
+-
+-  it('shares one owner per explicit scene and never reads a page file', async () => {
+-    const { workspace, readText } = workspaceFixture()
+-    const first = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    expect(await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBe(first)
+-    expect(workspace.getScenarioViews('UNIT-SCENE')).toBe(first)
+-    expect(readText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE')
+-    await expect(workspace.loadScenarioViews({ scenarioId: '' })).rejects.toThrow('scenarioId')
+-  })
+-
+-  it('rejects dirty reloads including edits made while a reload is waiting', async () => {
+-    const { workspace, readText } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    file.setText(fixture(30))
+-    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE', forceReload: true })).rejects.toThrow('UNSAVED')
+-    expect(readText).toHaveBeenCalledTimes(1)
+-    file.undo()
+-    const waiting = deferred<string>()
+-    readText.mockReturnValueOnce(waiting.promise)
+-    const reload = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE', forceReload: true })
+-    file.setText(fixture(40))
+-    waiting.resolve(fixture(50))
+-    await expect(reload).rejects.toThrow('UNSAVED')
+-    expect(file.getText()).toBe(fixture(40))
+-  })
+-
+-  it('rejects late loads and never publishes another request scope into the cache', async () => {
+-    const { workspace, readText, setScope } = workspaceFixture()
+-    const waiting = deferred<string>()
+-    readText.mockReturnValueOnce(waiting.promise)
+-    const loading = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    setScope('request-b')
+-    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+-    waiting.resolve(fixture())
+-    await expect(loading).rejects.toThrow('STALE')
+-    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+-    expect(await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBeInstanceOf(ScenarioViewFile)
+-  })
+-
+-  it('checks the remote baseline and marks only submitted text saved after readback', async () => {
+-    const { workspace, writeText, setRemote } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    file.setText(fixture(30))
+-    const writing = deferred<void>()
+-    writeText.mockImplementationOnce(async () => { await writing.promise })
+-    const saving = workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    await vi.waitFor(() => expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(30)))
+-    file.setText(fixture(40))
+-    setRemote(fixture(30))
+-    writing.resolve()
+-    await saving
+-    expect(file.getText()).toBe(fixture(40))
+-    expect(file.isDirty).toBe(true)
+-    file.undo()
+-    expect(file.isDirty).toBe(false)
+-  })
+-
+-  it('refuses a remote conflict before writing', async () => {
+-    const { workspace, writeText, setRemote } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    file.setText(fixture(30))
+-    setRemote(fixture(50))
+-    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('CONFLICT')
+-    expect(writeText).not.toHaveBeenCalled()
+-    expect(file.isDirty).toBe(true)
+-  })
+-
+-  it('saves and validates exact text without normalizing it', async () => {
+-    const { workspace, readText, writeText } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    const submitted = ` \n${fixture(30)}\n`
+-    file.setText(submitted)
+-    await workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', submitted)
+-    expect(readText).toHaveBeenCalledTimes(3)
+-    expect(file.isDirty).toBe(false)
+-  })
+-
+-  it('retains the submitted baseline when remote readback cannot confirm a write', async () => {
+-    const { workspace, writeText } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    file.setText(fixture(30))
+-    writeText.mockImplementationOnce(async () => {})
+-    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNCONFIRMED')
+-    expect(file.isDirty).toBe(true)
+-    file.undo()
+-    expect(file.isDirty).toBe(true)
+-    expect(await workspace.verifyScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBe('not-applied')
+-    expect(file.isDirty).toBe(false)
+-  })
+-
+-  it('rejects another save or forced reload while a save is pending', async () => {
+-    const { workspace, writeText, setRemote } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    file.setText(fixture(30))
+-    const waiting = deferred<void>()
+-    writeText.mockImplementationOnce(async () => { await waiting.promise })
+-    const saving = workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    await vi.waitFor(() => expect(writeText).toHaveBeenCalledTimes(1))
+-    file.undo()
+-    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('PENDING')
+-    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE', forceReload: true })).rejects.toThrow('PENDING')
+-    setRemote(fixture(30))
+-    waiting.resolve()
+-    await saving
+-    expect(file.getText()).toBe(fixture())
+-    expect(file.isDirty).toBe(true)
+-  })
+-
+-  it('does not mark a file saved after its request scope changes during writing', async () => {
+-    const { workspace, writeText, setScope } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    file.setText(fixture(30))
+-    writeText.mockImplementationOnce(async () => { setScope('request-b') })
+-    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('STALE')
+-    expect(file.isDirty).toBe(true)
+-    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
+-  })
+-  it('includes dirty shared scene configuration in the workspace save-all flow',async()=>{
+-    const {workspace,writeText}=workspaceFixture();const file=await workspace.loadScenarioViews({scenarioId:'UNIT-SCENE'});file.setText(fixture(55))
+-    expect(workspace.dirtyScenarioIds).toEqual(['UNIT-SCENE']);await workspace.saveAll();expect(writeText).toHaveBeenCalledWith('UNIT-SCENE',fixture(55));expect(workspace.dirtyScenarioIds).toEqual([])
+-  })
+-
+-})
+-
+-
+-describe('ProjectWorkspace shared scenario versions', () => {
+-  it('lists and previews actual zero-numbered snapshots without modifying a dirty working file', async () => {
+-    const { workspace, restoreVersion } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    file.setText(fixture(50))
+-    expect(await workspace.listScenarioVersions({ scenarioId: 'UNIT-SCENE' })).toEqual([{ version: 0, fileName: '0__pagedata.json', lastModified: null }])
+-    expect(await workspace.previewScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0 })).toBe(fixture(10))
+-    expect(file.getText()).toBe(fixture(50)); expect(file.isDirty).toBe(true)
+-    expect(restoreVersion).not.toHaveBeenCalled()
+-  })
+-  it('creates and verifies a snapshot only from the clean persisted working file', async () => {
+-    const { workspace, createVersion, readVersion } = workspaceFixture()
+-    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    await workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })
+-    expect(createVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture())
+-    expect(readVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', 8)
+-  })
+-  it('rejects snapshots and restores for dirty or not-yet-persisted drafts', async () => {
+-    const { workspace, createVersion, restoreVersion, setRemote } = workspaceFixture()
+-    setRemote(null)
+-    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture() })
+-    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNSAVED')
+-    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('UNSAVED')
+-    await workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' }); file.setText(fixture(30))
+-    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNSAVED')
+-    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('UNSAVED')
+-    expect(createVersion).not.toHaveBeenCalled(); expect(restoreVersion).not.toHaveBeenCalled()
+-  })
+-  it('rejects stale previews and cross-scene snapshots before changing the working file', async () => {
+-    const { workspace, readVersion, restoreVersion } = workspaceFixture()
+-    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(11) })).rejects.toThrow('PREVIEW_CHANGED')
+-    readVersion.mockResolvedValueOnce(fixture(10).replace('UNIT-SCENE', 'OTHER'))
+-    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('当前场景')
+-    expect(restoreVersion).not.toHaveBeenCalled()
+-  })
+-  it('confirms restored exact text before resetting the shared file baseline and history', async () => {
+-    const { workspace } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    await workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: await workspace.previewScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0 }) })
+-    expect(workspace.getScenarioViews('UNIT-SCENE')).toBe(file)
+-    expect(file.getText()).toBe(fixture(10)); expect(file.isDirty).toBe(false); expect(file.canUndo).toBe(false)
+-  })
+-  it('preserves edits made while the remote restore is waiting and blocks another write', async () => {
+-    const { workspace, restoreVersion, setRemote } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    const waiting = deferred<void>()
+-    restoreVersion.mockImplementationOnce(async () => { await waiting.promise; setRemote(fixture(10)) })
+-    const restoring = workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })
+-    await vi.waitFor(() => expect(restoreVersion).toHaveBeenCalledTimes(1))
+-    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('PENDING')
+-    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE', forceReload: true })).rejects.toThrow('PENDING')
+-    file.setText(fixture(70)); waiting.resolve()
+-    await expect(restoring).rejects.toThrow('EDIT_DURING_VERSION')
+-    expect(file.getText()).toBe(fixture(70)); expect(file.isDirty).toBe(true)
+-  })
+-  it('rejects remote work conflicts and unconfirmed restore readback without resetting local state', async () => {
+-    const { workspace, setRemote, restoreVersion } = workspaceFixture()
+-    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    setRemote(fixture(40))
+-    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('CONFLICT')
+-    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('CONFLICT')
+-    setRemote(fixture()); restoreVersion.mockImplementationOnce(async () => {})
+-    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('UNCONFIRMED')
+-    expect(file.getText()).toBe(fixture()); expect(file.isDirty).toBe(false)
+-  })
+-  it('rejects an invalid snapshot receipt or stale request scope after a snapshot write', async () => {
+-    const { workspace, createVersion, setScope } = workspaceFixture()
+-    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    createVersion.mockResolvedValueOnce({ version: 8, fileName: '8__rule.json', lastModified: null })
+-    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNCONFIRMED')
+-    createVersion.mockImplementationOnce(async () => { setScope('request-b'); return { version: 8, fileName: '8__pagedata.json', lastModified: null } })
+-    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('STALE')
+-  })
+-  it.each([-1, 1.5, Number.MAX_SAFE_INTEGER + 1])('rejects invalid version %s before IO', async version => {
+-    const { workspace, readVersion, restoreVersion } = workspaceFixture()
+-    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
+-    await expect(workspace.previewScenarioVersion({ scenarioId: 'UNIT-SCENE', version })).rejects.toThrow('安全整数')
+-    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version, previewText: fixture(10) })).rejects.toThrow('安全整数')
+-    expect(readVersion).not.toHaveBeenCalled(); expect(restoreVersion).not.toHaveBeenCalled()
+-  })
+-})
++import { describe, expect, it, vi } from 'vitest'
++import { ScenarioViewFile } from '../../src/scenario/scenario-view-file'
++import { ProjectWorkspace } from '../../src/project/project-workspace'
++
++function fixture(pageSize = 20): string {
++  return JSON.stringify({ scenarioId: 'UNIT-SCENE', tables: {
++    Orders: { modelBinding: { modelId: 'UNIT-ORDERS', modelName: 'OrdersModel' },
++      views: { default: {}, list: { pageSize, autoCurrentFirst: false, selectionDelimiter: '',
++        filterExpression: { field: 'active', operator: 'eq', value: false } } } },
++    Items: { modelBinding: { modelId: 'UNIT-ITEMS', modelName: 'ItemsModel' }, views: { default: {}, detail: {} } },
++  }, viewCascades: [{ parentTable: 'Orders', parentViewId: 'list', childTable: 'Items', childViewId: 'detail',
++    filterBindings: [{ sourceField: 'id', targetField: 'orderId' }], dependencyType: 'currentRow', autoLoad: false }] })
++}
++
++const validProjection = { fieldId: 'MODEL-FIELD-1', source: 'resource', resourceFieldId: 'MODEL-FIELD-1',
++  resourceField: 'id', viewField: 'id', type: '', label: '', output: true, sortOrder: 0,
++  sortDirection: null, group: 0, distinct: false, primaryKey: true, value: '', valueFunction: '', expression: '' }
++
++function projectionFixture(field: Readonly<Record<string, unknown>>): string {
++  return JSON.stringify({ scenarioId: 'UNIT-SCENE', tables: { Orders: {
++    modelBinding: { modelId: 'UNIT-ORDERS', modelName: 'OrdersModel' },
++    views: { default: { fieldProjection: [field] } },
++  } } })
++}
++
++describe('ScenarioViewFile', () => {
++  it('notifies subscribers after valid edits, saved baselines, undo and reload', () => {
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    const states: boolean[] = []
++    const unsubscribe = file.subscribe(() => states.push(file.isDirty))
++    file.setText(fixture(30))
++    file.markSaved(file.getText())
++    file.undo()
++    file.loadText(fixture(50))
++    expect(states).toEqual([true, false, true, false])
++    unsubscribe()
++    file.setText(fixture(60))
++    expect(states).toHaveLength(4)
++  })
++  it('owns one scene with multiple named views and explicit cascades without runtime DataSet serialization', () => {
++    const text = fixture()
++    const file = new ScenarioViewFile('UNIT-SCENE', text)
++    expect(file.getText()).toBe(text)
++    expect(file.isDirty).toBe(false)
++    expect(file.value.toJSON()).toEqual(JSON.parse(text))
++    expect(file.value.toJSON()).toMatchObject({ tables: { Orders: { views: { list: {
++      autoCurrentFirst: false, selectionDelimiter: '', filterExpression: { value: false },
++    } } } }, viewCascades: [{ autoLoad: false }] })
++  })
++
++  it('retains recommended and extended table business categories without normalizing their text', () => {
++    const input = JSON.parse(fixture())
++    input.tables.Orders.businessCategory = 'master'
++    input.tables.Items.businessCategory = '  partner-specific  '
++    const text = JSON.stringify(input)
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    file.setText(text)
++    expect(file.getText()).toBe(text)
++    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {businessCategory: 'master'},
++      Items: {businessCategory: '  partner-specific  '}}})
++  })
++
++  it('rejects invalid category edits atomically and allows clearing by deleting the property', () => {
++    const input = JSON.parse(fixture())
++    input.tables.Orders.businessCategory = 'child'
++    const valid = JSON.stringify(input)
++    const file = new ScenarioViewFile('UNIT-SCENE', valid)
++    const revision = file.revision
++    for (const value of [null, '', '  ', 0, false, {}]) {
++      input.tables.Orders.businessCategory = value
++      expect(() => file.setText(JSON.stringify(input))).toThrow('businessCategory')
++      expect(file.getText()).toBe(valid)
++      expect(file.revision).toBe(revision)
++      expect(file.canUndo).toBe(false)
++      expect(file.isDirty).toBe(false)
++    }
++    delete input.tables.Orders.businessCategory
++    file.setText(JSON.stringify(input))
++    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {views: {default: {}}}}})
++    expect(JSON.stringify(file.value.toJSON())).not.toContain('businessCategory')
++  })
++
++  it('retains native DataSet top-level configuration in the immutable file value', () => {
++    const configured = JSON.stringify({...JSON.parse(fixture()), schemaVersion: 3, version: 0,
++      saveChanges: {mode: 'perView'}, layout: {tablePositions: {Orders: {x: -1.5, y: 0}}}})
++    const file = new ScenarioViewFile('UNIT-SCENE', configured)
++    expect(file.value.toJSON()).toMatchObject({schemaVersion: 3, version: 0,
++      saveChanges: {mode: 'perView'}, layout: {tablePositions: {Orders: {x: -1.5, y: 0}}}})
++    expect(Object.isFrozen(file.value.toJSON()['layout'])).toBe(true)
++  })
++
++  it('rejects invalid DataSet top-level edits before changing text or history', () => {
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    const base: Record<string, unknown> = JSON.parse(fixture())
++    const invalid: Record<string, unknown>[] = [
++      {schemaVersion: 0}, {schemaVersion: 1.5}, {schemaVersion: Number.MAX_SAFE_INTEGER + 1},
++      {version: -1}, {version: 1.5}, {version: Number.MAX_SAFE_INTEGER + 1},
++      {layout: {tablePositions: {Unknown: {x: 0, y: 1}}}},
++      {layout: {tablePositions: {Orders: {x: null, y: 1}}}},
++      {layout: {tablePositions: {Orders: {x: 0, y: 1, z: 2}}}},
++      {layout: {graphVersion: 1, nodes: [], edges: []}},
++      {saveChanges: {mode: 'transaction'}}, {saveChanges: {mode: 'perView', transaction: {endpoint: {url: '/other'}}}},
++      {saveChanges: {mode: 'perView', unknown: true}},
++      {dataSetName: 'shadow'}, {pageId: 'PAGE'}, {resourceRelations: []},
++    ]
++    for (const change of invalid) {
++      expect(() => file.setText(JSON.stringify({...base, ...change}))).toThrow()
++      expect(file.getText()).toBe(fixture())
++      expect(file.canUndo).toBe(false)
++      expect(file.isDirty).toBe(false)
++    }
++  })
++
++  it('marks the submitted text saved while keeping edits made during saving dirty', () => {
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    file.setText(fixture(30))
++    const submitted = file.getText()
++    file.setText(fixture(40))
++    file.markSaved(submitted)
++    expect(file.isDirty).toBe(true)
++    expect(file.undo()).toBe(true)
++    expect(file.getText()).toBe(submitted)
++    expect(file.isDirty).toBe(false)
++    expect(file.redo()).toBe(true)
++    expect(file.isDirty).toBe(true)
++  })
++
++  it('validates before changing content, history or the saved baseline', () => {
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    expect(() => file.setText('{')).toThrow()
++    expect(file.canUndo).toBe(false)
++    file.setText(fixture(30))
++    const current = file.getText()
++    expect(() => file.loadText('{}')).toThrow()
++    expect(() => file.markSaved('{}')).toThrow()
++    expect(file.getText()).toBe(current)
++    expect(file.isDirty).toBe(true)
++    expect(file.canUndo).toBe(true)
++  })
++
++  it('loads a validated saved file and resets history', () => {
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    file.setText(fixture(30))
++    file.loadText(fixture(50))
++    expect(file.isDirty).toBe(false)
++    expect(file.canUndo).toBe(false)
++    expect(file.canRedo).toBe(false)
++  })
++
++  it('keeps configuration immutable through nested value exits', () => {
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    const config = file.value.toJSON()
++    expect(Object.isFrozen(config)).toBe(true)
++    expect(Object.isFrozen(config['tables'])).toBe(true)
++    expect(Reflect.set(config, 'scenarioId', 'OTHER')).toBe(false)
++    expect(file.value.scenarioId).toBe('UNIT-SCENE')
++  })
++
++  it.each(['', '{}', JSON.stringify({ scenarioId: 'OTHER', tables: {} }),
++    JSON.stringify({ scenarioId: 'UNIT-SCENE', dataSetName: 'old', tables: {} }),
++    JSON.stringify({ dataSets: { one: { scenarioId: 'UNIT-SCENE' } } })])('rejects missing identity, other scenes and old or multi-scene envelopes: %s', text => {
++    expect(() => new ScenarioViewFile('UNIT-SCENE', text)).toThrow()
++  })
++
++  it.each(['rows', 'permissionSnapshot', 'resourceType', 'resourceId', 'addApi'])('rejects formal definitions and runtime state in a model: %s', key => {
++    const input = { scenarioId: 'UNIT-SCENE', tables: { Orders: {
++      modelBinding: { modelId: 'UNIT-MODEL', modelName: 'Orders' }, views: { default: {} }, [key]: [],
++    } } }
++    expect(() => new ScenarioViewFile('UNIT-SCENE', JSON.stringify(input))).toThrow(key)
++  })
++
++  it('keeps native column validation values and rejects invalid edits atomically', () => {
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    const withColumns = (columns: unknown) => JSON.stringify({scenarioId: 'UNIT-SCENE', tables: {
++      Orders: {modelBinding: {modelId: 'UNIT-ORDERS', modelName: 'OrdersModel'}, columns, views: {default: {}}},
++    }})
++    const valid = withColumns([{name: 'title', required: false, minLength: 0, maxLength: 8,
++      min: 0, max: 10, pattern: '', patternMessage: ''}])
++    file.setText(valid)
++    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {columns: [{name: 'title',
++      required: false, minLength: 0, min: 0, pattern: '', patternMessage: ''}]}}})
++    const invalid = [
++      [{name: 'title', type: 'string'}], [{name: 'title', computeExpression: '1'}],
++      [{name: ' title'}], [{name: 'title'}, {name: 'title'}],
++      [{name: 'title', required: 0}], [{name: 'title', minLength: -1}],
++      [{name: 'title', minLength: 4, maxLength: 3}], [{name: 'title', min: 2, max: 1}],
++      [{name: 'title', max: null}], [{name: 'title', pattern: '['}],
++    ]
++    for (const columns of invalid) {
++      expect(() => file.setText(withColumns(columns))).toThrow()
++      expect(file.getText()).toBe(valid)
++    }
++    expect(file.undo()).toBe(true)
++    expect(file.getText()).toBe(fixture())
++    expect(file.canRedo).toBe(true)
++  })
++
++  it('retains a local computed column and rejects formal identity or control fields', () => {
++    const configured = (column: Record<string, unknown>) => JSON.stringify({scenarioId: 'UNIT-SCENE', tables: {
++      Orders: {modelBinding: {modelId: 'UNIT-ORDERS', modelName: 'OrdersModel'},
++        columns: [column], views: {default: {}}},
++    }})
++    const local = {name: 'total', type: 'number', label: 'Total', computeExpression: 'price * qty', min: 0}
++    const file = new ScenarioViewFile('UNIT-SCENE', configured(local))
++    expect(file.value.toJSON()).toMatchObject({tables: {Orders: {columns: [local]}}})
++    for (const invalid of [
++      {...local, name: '_pk'}, {...local, name: 'lingma_sys_key'},
++      {...local, fieldId: 'DB-FIELD'}, {...local, isPrimaryKey: true},
++      {...local, computeExpression: ''}, {...local, type: ''},
++    ]) expect(() => file.setText(configured(invalid))).toThrow()
++    expect(file.getText()).toBe(configured(local))
++  })
++
++  it.each(['rows', 'total', 'dirty', 'permissionSnapshot', 'currentRow', 'scenarioId'])('rejects runtime or identity values inside a view: %s', key => {
++    const input = { scenarioId: 'UNIT-SCENE', tables: { Orders: {
++      modelBinding: { modelId: 'UNIT-MODEL', modelName: 'Orders' }, views: { default: { [key]: [] } },
++    } } }
++    expect(() => new ScenarioViewFile('UNIT-SCENE', JSON.stringify(input))).toThrow(key)
++  })
++
++  it('rejects old filter dialect and unresolved cascade view references', () => {
++    expect(() => new ScenarioViewFile('UNIT-SCENE', fixture().replace('"operator":"eq"', '"op":"eq"'))).toThrow('filterExpression')
++    expect(() => new ScenarioViewFile('UNIT-SCENE', fixture().replace('"childViewId":"detail"', '"childViewId":"missing"'))).toThrow('missing')
++  })
++
++  it('retains a field cascade beside query cascades and rejects invalid edits atomically', () => {
++    const base = JSON.parse(fixture())
++    const field = {kind: 'field', cascadeId: 'city-by-region', tableName: 'Orders', viewId: 'list',
++      valueFormat: 'native', targetField: 'city',
++      parents: [{tableName: 'Orders', viewId: 'list', field: 'country', parameter: 'countryId'}, {tableName: 'Orders', viewId: 'list', field: 'province', parameter: 'provinceId'}],
++      optionsView: {tableName: 'Items', viewId: 'detail'},
++      valuePolicy: {mode: 'retain-valid', clearValue: null}}
++    const valid = JSON.stringify({...base, viewCascades: [...base.viewCascades, field]})
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    file.setText(valid)
++    expect(file.value.toJSON()).toMatchObject({viewCascades: [expect.objectContaining({childTable: 'Items'}), field]})
++    expect(Object.isFrozen(file.value.toJSON()['viewCascades'])).toBe(true)
++    for (const invalid of [
++      {...field, unknown: 1}, {...field, rowMode: 'current-row'}, {...field, valuePolicy: undefined},
++      {...field, parents: [{tableName: 'Orders', viewId: 'list', field: 'country', parameter: 'x'}, {tableName: 'Orders', viewId: 'list', field: 'province', parameter: 'x'}]},
++      {...field, optionsView: {...field.optionsView, viewId: 'missing'}},
++      {...field, valuePolicy: {mode: 'clear'}},
++    ]) {
++      expect(() => file.setText(JSON.stringify({...base, viewCascades: [...base.viewCascades, invalid]}))).toThrow()
++      expect(file.getText()).toBe(valid)
++    }
++    const cycle = {...field, cascadeId: 'country-by-city', targetField: 'country',
++      parents: [{tableName: 'Orders', viewId: 'list', field: 'city', parameter: 'cityId'}], valuePolicy: {mode: 'retain'}}
++    expect(() => file.setText(JSON.stringify({...base, viewCascades: [field, cycle]}))).toThrow('FIELD_CASCADE_CYCLE')
++    expect(file.getText()).toBe(valid)
++  })
++
++  it('preserves the complete projection contract including false, zero and empty strings', () => {
++    const text = projectionFixture(validProjection)
++    expect(new ScenarioViewFile('UNIT-SCENE', text).getText()).toBe(text)
++    const derived = projectionFixture({ ...validProjection, source: 'derived', resourceFieldId: null,
++      valueFunction: JSON.stringify({ Type: 'GetConstValue', Value: false }) })
++    expect(new ScenarioViewFile('UNIT-SCENE', derived).getText()).toBe(derived)
++  })
++
++  it.each([{ fieldId: '' }, { resourceField: '' }, { viewField: '' }, { source: 'unknown' },
++    { resourceFieldId: null }, { source: 'derived', resourceFieldId: 'FIELD' }, { type: 1 }, { label: null },
++    { output: 'false' }, { primaryKey: 1 }, { distinct: null }, { sortOrder: 1.5 }, { group: '0' },
++    { sortDirection: 'descending' }, { value: false }, { valueFunction: {} }, { expression: null },
++  ])('rejects malformed projections before replacing editable content: %j', change => {
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    expect(() => file.setText(projectionFixture({ ...validProjection, ...change }))).toThrow('fieldProjection')
++    expect(file.getText()).toBe(fixture())
++    expect(file.isDirty).toBe(false)
++    expect(file.canUndo).toBe(false)
++  })
++})
++
++function deferred<T>() {
++  let complete: ((value: T) => void) | undefined
++  const promise = new Promise<T>(resolve => { complete = resolve })
++  return { promise, resolve: (value: T) => {
++    if (complete === undefined) throw new Error('promise resolver is missing')
++    complete(value)
++  } }
++}
++
++function workspaceFixture() {
++  let scope = 'request-a'
++  let remoteText: string | null = fixture()
++  const readText = vi.fn(async (_scenarioId: string) => remoteText)
++  const writeText = vi.fn(async (_scenarioId: string, text: string) => { remoteText = text })
++  const snapshots = new Map<number, string>([[0, fixture(10)]])
++  const listVersions = vi.fn(async () => [...snapshots.keys()].map(version => ({ version, fileName: `${version}__pagedata.json`, lastModified: null })))
++  const readVersion = vi.fn(async (_scenarioId: string, version: number) => { const text = snapshots.get(version); if (text === undefined) throw new Error('snapshot missing'); return text })
++  const createVersion = vi.fn(async (_scenarioId: string, text: string) => { snapshots.set(8, text); return { version: 8, fileName: '8__pagedata.json', lastModified: null } })
++  const restoreVersion = vi.fn(async (_scenarioId: string, version: number) => { remoteText = await readVersion(_scenarioId, version) })
++  const workspace = new ProjectWorkspace({ projectId: 'UNIT-PROJECT',
++    pageFiles: { readPageFile: vi.fn(async () => { throw new Error('must not read a page file') }) },
++    blueprint: { loadRoot: async () => ({ children: [] }) },
++    scenarioViews: { readScope: () => scope, readText, writeText, listVersions, readVersion, createVersion, restoreVersion },
++  })
++  return { workspace, readText, writeText, listVersions, readVersion, createVersion, restoreVersion,
++    setScope: (value: string) => { scope = value },
++    setRemote: (value: string | null) => { remoteText = value },
++  }
++}
++
++describe('ProjectWorkspace scenario files', () => {
++  it('retains an unknown first write across later edits and confirms its exact remote submission', async () => {
++    const { workspace, setRemote, writeText } = workspaceFixture()
++    setRemote(null)
++    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture(30) })
++    writeText.mockImplementationOnce(async (_id, text) => { setRemote(text); throw new Error('network after dispatch') })
++    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('network after dispatch')
++    expect(file.saveStatus).toBe('unknown')
++    expect(file.submittedText).toBe(fixture(30))
++    file.setText(fixture(40))
++    expect(await workspace.verifyScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBe('confirmed')
++    expect(file.isPersisted).toBe(true)
++    expect(file.isDirty).toBe(true)
++    expect(file.getText()).toBe(fixture(40))
++    expect(file.savedText).toBe(fixture(30))
++  })
++
++  it('keeps pre-dispatch failures out of unknown and can explicitly adopt remote content', async () => {
++    const { workspace, setRemote, writeText } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    file.setText(fixture(30))
++    setRemote(fixture(40))
++    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('SCENARIO_VIEW_CONFLICT')
++    expect(file.saveStatus).toBe('idle')
++    expect(writeText).not.toHaveBeenCalled()
++    const revision = file.revision
++    const remote = await workspace.previewScenarioViewsRemote({ scenarioId: 'UNIT-SCENE' })
++    await workspace.adoptScenarioViews({ scenarioId: 'UNIT-SCENE', expectedRevision: revision, previewText: remote })
++    expect(file.getText()).toBe(fixture(40))
++    expect(file.isDirty).toBe(false)
++  })
++
++  it('invalidates a discarded missing-file draft so old consumers cannot edit it', async () => {
++    const { workspace, setRemote } = workspaceFixture()
++    setRemote(null)
++    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture(30) })
++    await workspace.adoptScenarioViews({ scenarioId: 'UNIT-SCENE', expectedRevision: file.revision, previewText: null })
++    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
++    expect(() => file.setText(fixture(40))).toThrow('SCENARIO_VIEW_FILE_INVALID')
++  })
++  it('rejects an old remote adoption when the same file receives a save receipt while reading', async () => {
++    const { workspace, readText } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    const revision = file.revision
++    const waiting = deferred<string | null>()
++    readText.mockImplementationOnce(async () => waiting.promise)
++    const adopting = workspace.adoptScenarioViews({ scenarioId: 'UNIT-SCENE', expectedRevision: revision, previewText: fixture() })
++    await vi.waitFor(() => expect(readText).toHaveBeenCalledTimes(2))
++    file.beginSave(fixture(30), fixture())
++    file.confirmSubmitted()
++    waiting.resolve(fixture())
++    await expect(adopting).rejects.toThrow('DRAFT_STALE')
++    expect(file.savedText).toBe(fixture(30))
++  })
++  it('does not dispatch a shared file save when the calling page expires during pre-read', async () => {
++    const {workspace, readText, writeText} = workspaceFixture()
++    const file = await workspace.loadScenarioViews({scenarioId: 'UNIT-SCENE'})
++    file.setText(fixture(30))
++    const waiting = deferred<string | null>()
++    readText.mockImplementationOnce(async () => waiting.promise)
++    let active = true
++    const saving = workspace.saveScenarioViews({scenarioId: 'UNIT-SCENE',
++      assertCurrent: () => {if (!active) throw new Error('PAGE_RUNTIME_STALE')}})
++    active = false
++    waiting.resolve(fixture())
++    await expect(saving).rejects.toThrow('PAGE_RUNTIME_STALE')
++    expect(writeText).not.toHaveBeenCalled()
++    expect(file.saveStatus).toBe('idle')
++  })
++  it('requires explicit creation after verified absence and confirms its real first write', async () => {
++    const { workspace, setRemote, writeText } = workspaceFixture()
++    setRemote(null)
++    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('FILE_MISSING')
++    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
++    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture() })
++    expect(file.isDirty).toBe(true)
++    expect(file.isPersisted).toBe(false)
++    expect(writeText).not.toHaveBeenCalled()
++    await workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    expect(file.isPersisted).toBe(true)
++    expect(file.isDirty).toBe(false)
++  })
++
++  it('cannot create over an existing file or save over an externally created file', async () => {
++    const { workspace, setRemote, writeText } = workspaceFixture()
++    await expect(workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture() })).rejects.toThrow('EXISTS')
++    setRemote(null)
++    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture() })
++    setRemote(fixture(90))
++    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('CONFLICT')
++    expect(writeText).not.toHaveBeenCalled()
++    expect(file.isDirty).toBe(true)
++  })
++
++  it('rechecks a cached load before returning it to an asynchronous caller', async () => {
++    const { workspace, setScope } = workspaceFixture()
++    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    const cached = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    setScope('request-b')
++    await expect(cached).rejects.toThrow('STALE')
++  })
++
++  it('rejects missing IO and invalid scope without reading an old page file', async () => {
++    const workspace = new ProjectWorkspace({ projectId: 'UNIT-PROJECT',
++      pageFiles: { readPageFile: async () => { throw new Error('old page path') } },
++      blueprint: { loadRoot: async () => ({ children: [] }) },
++    })
++    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('IO')
++    const configured = workspaceFixture()
++    configured.setScope('')
++    await expect(configured.workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('STALE')
++    expect(configured.readText).not.toHaveBeenCalled()
++  })
++
++  it('releases a failed load so a corrected scene can be read again', async () => {
++    const { workspace, readText } = workspaceFixture()
++    readText.mockResolvedValueOnce('{}')
++    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow()
++    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
++    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).resolves.toBeInstanceOf(ScenarioViewFile)
++  })
++
++  it('coalesces concurrent loads of the same scene into one shared file', async () => {
++    const { workspace, readText } = workspaceFixture()
++    const waiting = deferred<string>()
++    readText.mockReturnValueOnce(waiting.promise)
++    const first = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    const second = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    waiting.resolve(fixture())
++    const files = await Promise.all([first, second])
++    expect(files[0]).toBe(files[1])
++    expect(readText).toHaveBeenCalledTimes(1)
++  })
++
++  it('shares one owner per explicit scene and never reads a page file', async () => {
++    const { workspace, readText } = workspaceFixture()
++    const first = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    expect(await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBe(first)
++    expect(workspace.getScenarioViews('UNIT-SCENE')).toBe(first)
++    expect(readText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE')
++    await expect(workspace.loadScenarioViews({ scenarioId: '' })).rejects.toThrow('scenarioId')
++  })
++
++  it('rejects dirty reloads including edits made while a reload is waiting', async () => {
++    const { workspace, readText } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    file.setText(fixture(30))
++    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE', forceReload: true })).rejects.toThrow('UNSAVED')
++    expect(readText).toHaveBeenCalledTimes(1)
++    file.undo()
++    const waiting = deferred<string>()
++    readText.mockReturnValueOnce(waiting.promise)
++    const reload = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE', forceReload: true })
++    file.setText(fixture(40))
++    waiting.resolve(fixture(50))
++    await expect(reload).rejects.toThrow('UNSAVED')
++    expect(file.getText()).toBe(fixture(40))
++  })
++
++  it('rejects late loads and never publishes another request scope into the cache', async () => {
++    const { workspace, readText, setScope } = workspaceFixture()
++    const waiting = deferred<string>()
++    readText.mockReturnValueOnce(waiting.promise)
++    const loading = workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    setScope('request-b')
++    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
++    waiting.resolve(fixture())
++    await expect(loading).rejects.toThrow('STALE')
++    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
++    expect(await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBeInstanceOf(ScenarioViewFile)
++  })
++
++  it('checks the remote baseline and marks only submitted text saved after readback', async () => {
++    const { workspace, writeText, setRemote } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    file.setText(fixture(30))
++    const writing = deferred<void>()
++    writeText.mockImplementationOnce(async () => { await writing.promise })
++    const saving = workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    await vi.waitFor(() => expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(30)))
++    file.setText(fixture(40))
++    setRemote(fixture(30))
++    writing.resolve()
++    await saving
++    expect(file.getText()).toBe(fixture(40))
++    expect(file.isDirty).toBe(true)
++    file.undo()
++    expect(file.isDirty).toBe(false)
++  })
++
++  it('refuses a remote conflict before writing', async () => {
++    const { workspace, writeText, setRemote } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    file.setText(fixture(30))
++    setRemote(fixture(50))
++    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('CONFLICT')
++    expect(writeText).not.toHaveBeenCalled()
++    expect(file.isDirty).toBe(true)
++  })
++
++  it('saves and validates exact text without normalizing it', async () => {
++    const { workspace, readText, writeText } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    const submitted = ` \n${fixture(30)}\n`
++    file.setText(submitted)
++    await workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', submitted)
++    expect(readText).toHaveBeenCalledTimes(3)
++    expect(file.isDirty).toBe(false)
++  })
++
++  it('retains the submitted baseline when remote readback cannot confirm a write', async () => {
++    const { workspace, writeText } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    file.setText(fixture(30))
++    writeText.mockImplementationOnce(async () => {})
++    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNCONFIRMED')
++    expect(file.isDirty).toBe(true)
++    file.undo()
++    expect(file.isDirty).toBe(true)
++    expect(await workspace.verifyScenarioViews({ scenarioId: 'UNIT-SCENE' })).toBe('not-applied')
++    expect(file.isDirty).toBe(false)
++  })
++
++  it('rejects another save or forced reload while a save is pending', async () => {
++    const { workspace, writeText, setRemote } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    file.setText(fixture(30))
++    const waiting = deferred<void>()
++    writeText.mockImplementationOnce(async () => { await waiting.promise })
++    const saving = workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    await vi.waitFor(() => expect(writeText).toHaveBeenCalledTimes(1))
++    file.undo()
++    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('PENDING')
++    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE', forceReload: true })).rejects.toThrow('PENDING')
++    setRemote(fixture(30))
++    waiting.resolve()
++    await saving
++    expect(file.getText()).toBe(fixture())
++    expect(file.isDirty).toBe(true)
++  })
++
++  it('does not mark a file saved after its request scope changes during writing', async () => {
++    const { workspace, writeText, setScope } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    file.setText(fixture(30))
++    writeText.mockImplementationOnce(async () => { setScope('request-b') })
++    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('STALE')
++    expect(file.isDirty).toBe(true)
++    expect(workspace.getScenarioViews('UNIT-SCENE')).toBeNull()
++  })
++  it('includes dirty shared scene configuration in the workspace save-all flow',async()=>{
++    const {workspace,writeText}=workspaceFixture();const file=await workspace.loadScenarioViews({scenarioId:'UNIT-SCENE'});file.setText(fixture(55))
++    expect(workspace.dirtyScenarioIds).toEqual(['UNIT-SCENE']);await workspace.saveAll();expect(writeText).toHaveBeenCalledWith('UNIT-SCENE',fixture(55));expect(workspace.dirtyScenarioIds).toEqual([])
++  })
++
++})
++
++
++describe('ProjectWorkspace shared scenario versions', () => {
++  it('lists and previews actual zero-numbered snapshots without modifying a dirty working file', async () => {
++    const { workspace, restoreVersion } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    file.setText(fixture(50))
++    expect(await workspace.listScenarioVersions({ scenarioId: 'UNIT-SCENE' })).toEqual([{ version: 0, fileName: '0__pagedata.json', lastModified: null }])
++    expect(await workspace.previewScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0 })).toBe(fixture(10))
++    expect(file.getText()).toBe(fixture(50)); expect(file.isDirty).toBe(true)
++    expect(restoreVersion).not.toHaveBeenCalled()
++  })
++  it('creates and verifies a snapshot only from the clean persisted working file', async () => {
++    const { workspace, createVersion, readVersion } = workspaceFixture()
++    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    await workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })
++    expect(createVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture())
++    expect(readVersion).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', 8)
++  })
++  it('rejects snapshots and restores for dirty or not-yet-persisted drafts', async () => {
++    const { workspace, createVersion, restoreVersion, setRemote } = workspaceFixture()
++    setRemote(null)
++    const file = await workspace.createScenarioViews({ scenarioId: 'UNIT-SCENE', text: fixture() })
++    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNSAVED')
++    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('UNSAVED')
++    await workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' }); file.setText(fixture(30))
++    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNSAVED')
++    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('UNSAVED')
++    expect(createVersion).not.toHaveBeenCalled(); expect(restoreVersion).not.toHaveBeenCalled()
++  })
++  it('rejects stale previews and cross-scene snapshots before changing the working file', async () => {
++    const { workspace, readVersion, restoreVersion } = workspaceFixture()
++    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(11) })).rejects.toThrow('PREVIEW_CHANGED')
++    readVersion.mockResolvedValueOnce(fixture(10).replace('UNIT-SCENE', 'OTHER'))
++    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('当前场景')
++    expect(restoreVersion).not.toHaveBeenCalled()
++  })
++  it('confirms restored exact text before resetting the shared file baseline and history', async () => {
++    const { workspace } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    await workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: await workspace.previewScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0 }) })
++    expect(workspace.getScenarioViews('UNIT-SCENE')).toBe(file)
++    expect(file.getText()).toBe(fixture(10)); expect(file.isDirty).toBe(false); expect(file.canUndo).toBe(false)
++  })
++  it('preserves edits made while the remote restore is waiting and blocks another write', async () => {
++    const { workspace, restoreVersion, setRemote } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    const waiting = deferred<void>()
++    restoreVersion.mockImplementationOnce(async () => { await waiting.promise; setRemote(fixture(10)) })
++    const restoring = workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })
++    await vi.waitFor(() => expect(restoreVersion).toHaveBeenCalledTimes(1))
++    await expect(workspace.saveScenarioViews({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('PENDING')
++    await expect(workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE', forceReload: true })).rejects.toThrow('PENDING')
++    file.setText(fixture(70)); waiting.resolve()
++    await expect(restoring).rejects.toThrow('EDIT_DURING_VERSION')
++    expect(file.getText()).toBe(fixture(70)); expect(file.isDirty).toBe(true)
++  })
++  it('rejects remote work conflicts and unconfirmed restore readback without resetting local state', async () => {
++    const { workspace, setRemote, restoreVersion } = workspaceFixture()
++    const file = await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    setRemote(fixture(40))
++    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('CONFLICT')
++    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('CONFLICT')
++    setRemote(fixture()); restoreVersion.mockImplementationOnce(async () => {})
++    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version: 0, previewText: fixture(10) })).rejects.toThrow('UNCONFIRMED')
++    expect(file.getText()).toBe(fixture()); expect(file.isDirty).toBe(false)
++  })
++  it('rejects an invalid snapshot receipt or stale request scope after a snapshot write', async () => {
++    const { workspace, createVersion, setScope } = workspaceFixture()
++    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    createVersion.mockResolvedValueOnce({ version: 8, fileName: '8__rule.json', lastModified: null })
++    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('UNCONFIRMED')
++    createVersion.mockImplementationOnce(async () => { setScope('request-b'); return { version: 8, fileName: '8__pagedata.json', lastModified: null } })
++    await expect(workspace.createScenarioVersion({ scenarioId: 'UNIT-SCENE' })).rejects.toThrow('STALE')
++  })
++  it.each([-1, 1.5, Number.MAX_SAFE_INTEGER + 1])('rejects invalid version %s before IO', async version => {
++    const { workspace, readVersion, restoreVersion } = workspaceFixture()
++    await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
++    await expect(workspace.previewScenarioVersion({ scenarioId: 'UNIT-SCENE', version })).rejects.toThrow('安全整数')
++    await expect(workspace.restoreScenarioVersion({ scenarioId: 'UNIT-SCENE', version, previewText: fixture(10) })).rejects.toThrow('安全整数')
++    expect(readVersion).not.toHaveBeenCalled(); expect(restoreVersion).not.toHaveBeenCalled()
++  })
++})
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts" "b/D:\\SPARK_AppWorks\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts"
+index 91931fd05..a3511c172 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts"
++++ "b/D:\\SPARK_AppWorks\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts"
+@@ -235,10 +235,10 @@ describe('scenario view persistence and formal model assembly', () => {
+     }
+   })
+ 
+-  it('saves a field cascade through the file owner and executes it after fresh workspace assembly', async () => {
++  it.each(['native', 'selection-string'])('saves a %s field cascade and preserves the child format through submission and fresh reads', async format => {
+     const storage = fixture()
+     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'country', 'province', 'city'], ['province']),
+-      model('ChildModel', 'ChildSource', ['id', 'parentId', 'provinceId', 'title'], ['provinceId'])])
++      model('ChildModel', 'ChildSource', ['id', 'code', 'parentId', 'provinceId', 'title'], ['provinceId'])])
+     const first = storage.openOwner()
+     const opened = await first.service.open('SPACE')
+     const config = { ...structuredClone(opened.state.config) }
+@@ -246,15 +246,16 @@ describe('scenario view persistence and formal model assembly', () => {
+     if (!isRecord(tables) || !isRecord(tables['Children']) || !isRecord(tables['Children']['views'])) {
+       throw new Error('missing named options view')
+     }
+-    config['tables'] = {...tables, Children: {...tables['Children'], views: {...tables['Children']['views'], detail: {filterExpression: {logic: 'and', filters: [
++    config['tables'] = {...tables, Children: {...tables['Children'], views: {...tables['Children']['views'], detail: {
++      valueField: format === 'native' ? 'id' : 'code', labelField: 'title', selectionDelimiter: '|', filterExpression: {logic: 'and', filters: [
+       {field: 'parentId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'countryId'}},
+       {field: 'provinceId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'provinceId'}},
+     ]}}}}}
+     const field = {kind: 'field', cascadeId: 'city-by-region', tableName: 'Parents', viewId: 'shared',
+-      rowMode: 'editing-row', targetField: 'city',
+-      parents: [{field: 'country', parameter: 'countryId'}, {field: 'province', parameter: 'provinceId'}],
+-      optionsView: {tableName: 'Children', viewId: 'detail', valueField: 'id', labelField: 'title'},
+-      valuePolicy: {mode: 'retain-valid', clearValue: null}}
++      valueFormat: format, targetField: 'city',
++      parents: [{tableName: 'Parents', viewId: 'shared', field: 'country', parameter: 'countryId'}, {tableName: 'Parents', viewId: 'shared', field: 'province', parameter: 'provinceId'}],
++      optionsView: {tableName: 'Children', viewId: 'detail'},
++      valuePolicy: {mode: 'retain-valid', clearValue: format === 'native' ? null : ''}}
+     config['viewCascades'] = [cascade, field]
+     opened.dirtySource.setText(JSON.stringify(config))
+     const saved = await first.service.save('SPACE')
+@@ -273,25 +274,60 @@ describe('scenario view persistence and formal model assembly', () => {
+     const target = dataSet.getView('Parents', 'shared')!
+     const options = dataSet.getView('Children', 'detail')!
+     reopened.http.result = {primaryKeyField: 'id', allowAdd: false,
+-      data: {Items: [{id: 'P1', title: 'Parent', country: 'A', province: 0, city: 'OLD',
++      data: {Items: [{id: 'P1', title: 'Parent', country: 'A', province: 0, city: format === 'native' ? 'OLD' : '01|0|gone',
+         lingma_sys_key: 'SIGNED', lingma_sys_params: {r: ['id', 'title', 'country', 'province', 'city'],
+           e: ['country', 'city']}}], Count: 1}}
+     await target.loadFromServer()
+     reopened.http.result = {primaryKeyField: 'id', allowAdd: false,
+-      data: {Items: [{id: 'NEW', parentId: 'B', provinceId: 0, title: 'New City',
+-        lingma_sys_key: 'OPTION', lingma_sys_params: {r: ['id', 'title']}}], Count: 1}}
++      data: {Items: [{id: 'NEW', code: '01', parentId: 'B', provinceId: 0, title: 'New City',
++        lingma_sys_key: 'OPTION', lingma_sys_params: {r: ['id', 'code', 'title']}},
++      {id: 'ZERO', code: '0', parentId: 'B', provinceId: 0, title: 'Zero',
++        lingma_sys_key: 'OPTION-ZERO', lingma_sys_params: {r: ['id', 'code', 'title']}}], Count: 2}}
+     target.updateEditingValue('P1', 'country', 'B')
+     await vi.waitFor(() => expect(dataSet.getFieldCascadeState({tableName: 'Parents', viewId: 'shared',
+-      rowId: 'P1', field: 'city'})).toMatchObject({status: 'ready', valueStatus: 'empty'}))
+-    expect(target.getEditingPatch('P1')).toEqual({country: 'B', city: null})
+-    expect(target.rows[0]?.['city']).toBe('OLD')
++      field: 'city'})).toMatchObject({status: 'ready', valueStatus: format === 'native' ? 'empty' : 'valid'}))
++    const expectedCity = format === 'native' ? null : '01|0'
++    expect(target.getEditingPatch('P1')).toEqual({country: 'B', city: expectedCity})
++    expect(target.rows[0]?.['city']).toBe(format === 'native' ? 'OLD' : '01|0|gone')
+     expect(options.rows).toEqual([])
+     const optionRequest = reopened.http.requests.filter(request => request.url === '/api/DataOperation/GetData')[1]
+     expect(optionRequest?.data).toMatchObject({Table: [{Name: 'ChildModel',
+       inputParams: [{Name: 'countryId', Value: 'B'}, {Name: 'provinceId', Value: 0}]}]})
+     expect(JSON.stringify(optionRequest?.data)).not.toContain('city-by-region')
++    let savedRow: Record<string, unknown> = {id: 'P1', title: 'Parent', country: 'A', province: 0,
++      city: format === 'native' ? 'OLD' : '01|0|gone'}
++    reopened.http.respond = async request => {
++      if (request.url !== '/api/DataOperation/BatchTableOperateRequestByCRUD') throw new Error('unexpected persistence request')
++      const payload = request.data
++      if (!Array.isArray(payload) || payload.length !== 1 || !isRecord(payload[0])
++        || payload[0]['TableName'] !== 'ParentModel' || !isRecord(payload[0]['CrudModel'])) throw new Error('invalid save target')
++      const changes = payload[0]['CrudModel']['Changed']
++      if (!Array.isArray(changes) || changes.length !== 1 || !isRecord(changes[0])) throw new Error('missing update')
++      expect(changes[0]).toEqual({id: 'P1', country: 'B', city: expectedCity, lingma_sys_key: 'SIGNED'})
++      const {lingma_sys_key: _signature, ...changedFields} = changes[0]
++      savedRow = {...savedRow, ...changedFields}
++      return {maplistedit: [{ParentSource: [savedRow]}]}
++    }
++    await expect(dataSet.saveChanges()).resolves.toMatchObject({success: true, data: {savedCount: 1}})
++    const saveRequest = reopened.http.requests.find(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
++    expect(saveRequest).toBeDefined()
++    expect(JSON.stringify(saveRequest?.data)).toContain(`"city":${JSON.stringify(expectedCity)}`)
++    expect(target.getEditingPatch('P1')).toBeUndefined()
+     expect(storage.stored.get('SPACE')).toBe(saved.text)
+     dataSet.destroy()
++
++    const fresh = storage.openOwner()
++    const freshFile = await fresh.service.open('SPACE')
++    const freshAssembly = await fresh.assemble('SPACE', freshFile.dirtySource)
++    try {
++      fresh.http.result = {primaryKeyField: 'id', allowAdd: false, data: {Items: [{...savedRow,
++        lingma_sys_key: 'READBACK', lingma_sys_params: {r: ['id', 'title', 'country', 'province', 'city'], e: ['country', 'city']}}], Count: 1}}
++      const freshTarget = freshAssembly.dataSet.getView('Parents', 'shared')!
++      await freshTarget.loadFromServer()
++      expect(freshTarget.rows[0]?.['city']).toBe(expectedCity)
++      expect(freshTarget.getEditingPatch('P1')).toBeUndefined()
++      expect(freshAssembly.dataSet.viewCascades).toMatchObject([cascade, field])
++    } finally { freshAssembly.dataSet.destroy() }
+   })
+ 
+   it('saves native DataSet settings through the file owner and reopens independent runtime instances', async () => {
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\API.md" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\API.md"
+index 269168ab6..373ce8546 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\API.md"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\API.md"
+@@ -89,7 +89,7 @@ const dataSet = SparkData.createDataSet({
+ 
+ ### 数据资源关系与 DataView 输入级联
+ 
+-`DataResourceRelation` 和 `DataViewCascade` 是两条独立的合同：前者以完整过滤树定义稳定模型资源关系，后者描述两个明确 DataView 之间的运行时输入级联。框架不会从其中一条自动推导另一条。
++`DataResourceRelation` 和 `DataViewCascade` 分别表达模型关系与运行输入级联，框架不会相互推导。值级联消费父输入值，选项查询结果按配置约束子字段值；当前行仅用于绑定层定位字段，不是级联端点。
+ 
+ #### DataResourceRelation 配置
+ 
+@@ -110,7 +110,7 @@ type DataResourceRelation = {
+ #### DataViewCascade 配置
+ 
+ ```typescript
+-type DataViewCascade = {
++type DataViewQueryCascade = {
+   cascadeId?: string
+   sourceRelationId?: string
+   parentTable: string
+@@ -126,7 +126,31 @@ type DataViewCascade = {
+ }
+ ```
+ 
+-`filterBindings` 是 DataView 输入合同。运行时按 `dependencyType` 读取源 DataView 的行，把 `sourceField` 值转换为目标 DataView 的 `targetField` 查询条件。
++上面的 query 分支仍是尚待迁移的旧查询依赖合同，按 `dependencyType` 读取行并生成过滤条件，不能代表通用值级联已经全部迁移。
++
++字段值级联使用 `DataViewFieldCascade`，与 query 共处 `viewCascades`：
++
++```typescript
++{
++  kind: 'field', cascadeId: 'city-by-region',
++  tableName: 'Orders', viewId: 'edit', targetField: 'city',
++  valueFormat: 'selection-string',
++  parents: [
++    { tableName: 'Orders', viewId: 'edit', field: 'country', parameter: 'countryId' },
++    { tableName: 'Regions', viewId: 'grid', parameter: 'regionIds' },
++  ],
++  optionsView: { tableName: 'Cities', viewId: 'choices' },
++  valuePolicy: { mode: 'retain-valid', clearValue: '' },
++}
++```
++
++带 `field` 的父绑定取字段原值及编辑覆盖；不带时取选中主键数组，包括空数组。输入传入选项查询 context，由选项视图自己的过滤表达式消费，不推断字段对字段等值关系。只有最终值改变才自动查询；指针换行但输入相等不重查，未绑定或查询不可用时不发起扩大范围的查询。
++
++选项值、标签、分隔符只在选项 DataView 的 `valueField`、`labelField`、`selectionDelimiter` 中配置。目标 `valueFormat` 必须明确：`native` 保留标量/数组类型，`selection-string` 复用 `DataView.value` 的字符串格式。普通字符串不会按外观拆分；主键不能代替 `valueField` 对应的业务值。旧 `rowMode` 和运行地址 `rowId` 已从此分支移除。
++
++`retain` 不写子值；`clear` 使用显式 `clearValue`；`retain-valid` 保留有效值，多选保留有效子集，无有效值时使用 `clearValue`。`refreshFieldCascade({tableName, viewId, field})` 手动核验选项而不写值；后续父值变化才自动应用策略。`getFieldCascadeState`/`onFieldCascadeChange` 提供独立选项状态。查询失败、旧响应、取消编辑、目标指针改变或用户中途修改子值，不得覆盖该子值；读取和写入均受正式查询权限限制。子值实际变化继续触发其下游值级联。
++
++此分支通过 `queryOptionRows` 完整读取独立选项结果，不替换共享选项 DataView 的 rows；消费方须读取级联状态，不能把共享 rows 当作该绑定的查询结果。普通选项组件自动接入此状态尚未完成。
+ 
+ #### `SparkData.fromJson(json)`
+ 
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\dataset.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset.ts"
+index b5f848363..7271573ae 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\value-cascade-runtime\\before\\packages\\spark-data\\src\\dataset.ts"
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset.ts"
+@@ -1035,6 +1035,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+     const relatedCascade = (this.viewCascades ?? []).find(
+       dep => dep.kind === 'field'
+         ? dep.tableName === tableName || dep.optionsView.tableName === tableName
++          || dep.parents.some(parent => parent.tableName === tableName)
+         : dep.parentTable === tableName || dep.childTable === tableName,
+     )
+     if (relatedCascade) {
+diff --git "a/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-binding.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-binding.ts"
+new file mode 100644
+index 000000000..24b9b671c
+--- /dev/null
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-binding.ts"
+@@ -0,0 +1,146 @@
++import { isRecord } from '@spark-appworks/spark-utils'
++import { DataMember, resolveDataViewMember } from '../../core/data-view-key'
++import type { DataSet } from '../../dataset'
++import type { DataView } from '../../data-view'
++import { RequestState } from '../../types'
++import type { DataRow, DataViewEditingFieldChangeEvent, DataViewFieldCascade } from '../../types'
++import { DataViewSelectionValue } from '../selection/data-view-selection-value'
++
++type ValueSource = DataViewFieldCascade['parents'][number]
++type Scalar = string | number | boolean | null
++
++function scalar(value: unknown): value is Scalar {
++  return value === null || typeof value === 'string' || typeof value === 'boolean'
++    || (typeof value === 'number' && Number.isFinite(value))
++}
++
++/** 行定位只在绑定边界存在；运行级联持有值快照和失效检查。 */
++export class DataViewFieldCascadeBinding {
++  constructor(private readonly dataSet: DataSet, readonly definition: DataViewFieldCascade) {}
++
++  static equal(left: unknown, right: unknown): boolean {
++    if (Object.is(left, right)) return true
++    if (Array.isArray(left) && Array.isArray(right)) {
++      return left.length === right.length && left.every((value, index) => this.equal(value, right[index]))
++    }
++    if (isRecord(left) && isRecord(right)) {
++      const keys = Object.keys(left)
++      return keys.length === Object.keys(right).length && keys.every(key => Object.hasOwn(right, key) && this.equal(left[key], right[key]))
++    }
++    return false
++  }
++
++  private view(tableName: string, viewId: string): DataView {
++    const view = this.dataSet.getView(tableName, viewId)
++    if (!view || view.destroyed || this.dataSet.destroyed) throw new Error('FIELD_CASCADE_VIEW: 视图已失效')
++    return view
++  }
++
++  private read(source: Pick<ValueSource, 'tableName' | 'viewId' | 'field'>): unknown {
++    return resolveDataViewMember({ dataViewKey: `${source.tableName}@${source.viewId}`,
++      dataMember: DataMember.Value, dataField: source.field }, this.dataSet)
++  }
++
++  references(tableName: string, viewId: string): boolean {
++    const definition = this.definition
++    return (definition.tableName === tableName && definition.viewId === viewId)
++      || definition.parents.some(parent => parent.tableName === tableName && parent.viewId === viewId)
++  }
++
++  isTargetEdit(tableName: string, viewId: string, event: DataViewEditingFieldChangeEvent): boolean {
++    const definition = this.definition
++    if (tableName !== definition.tableName || viewId !== definition.viewId || event.field !== definition.targetField) return false
++    const view = this.view(tableName, viewId)
++    return view.currentRow !== null && view.getPkKey(view.currentRow) === event.rowId
++  }
++
++  discardsTarget(tableName: string, viewId: string, ids: ReadonlyArray<string | number> | undefined): boolean {
++    const definition = this.definition
++    const affectsField = (definition.tableName === tableName && definition.viewId === viewId)
++      || definition.parents.some(parent => parent.tableName === tableName && parent.viewId === viewId && parent.field !== undefined)
++    if (!affectsField || ids?.length === 0) return false
++    const view = this.view(tableName, viewId)
++    const row = view.currentRow
++    return ids === undefined || (row !== null && ids.includes(view.getPkKey(row) ?? ''))
++  }
++
++  parents(): readonly unknown[] | undefined {
++    const values: unknown[] = []
++    for (const parent of this.definition.parents) {
++      const view = this.view(parent.tableName, parent.viewId)
++      if (view.requestState === RequestState.Loading || view.requestState === RequestState.Preparing
++        || (view.requestState === RequestState.Idle && view.rows.length === 0)) return undefined
++      if (view.requestState === RequestState.Failed) throw new Error('FIELD_CASCADE_PARENT: 父输入查询失败')
++      const value = this.read(parent)
++      if (value === undefined) return undefined
++      values.push(value)
++    }
++    return values
++  }
++
++  targetReady(): boolean {
++    const view = this.view(this.definition.tableName, this.definition.viewId)
++    return view.requestState !== RequestState.Loading && view.requestState !== RequestState.Preparing
++      && view.currentRow !== null && view.getPkKey(view.currentRow) !== undefined
++  }
++
++  captureTarget() {
++    const definition = this.definition
++    const view = this.view(definition.tableName, definition.viewId)
++    const pointer = view.currentRow
++    const key = pointer === null ? undefined : view.getPkKey(pointer)
++    if (key === undefined) throw new Error('FIELD_CASCADE_TARGET: 目标值未绑定')
++    const rows = view.rows
++    const value = this.read({ ...definition, field: definition.targetField })
++    const isCurrent = () => !view.destroyed && !this.dataSet.destroyed
++      && this.dataSet.getView(definition.tableName, definition.viewId) === view
++      && view.rows === rows && view.currentRow !== null && view.getPkKey(view.currentRow) === key
++    return { value, isCurrent, write: (next: unknown): void => {
++      if (!isCurrent()) throw new Error('FIELD_CASCADE_TARGET: 目标值绑定已失效')
++      const row = view.getEditingRow(key)
++      if (!row || view.fieldAccess(row, definition.targetField).write !== 'allowed') {
++        throw new Error(`FIELD_CASCADE_WRITE: 目标字段不可写 ${definition.targetField}`)
++      }
++      view.updateEditingValue(key, definition.targetField, structuredClone(next))
++    } }
++  }
++
++  options() {
++    const reference = this.definition.optionsView
++    const view = this.view(reference.tableName, reference.viewId)
++    const configuredFields = view.valueField ?? (view.effectivePkFields.length === 1 ? view.effectivePkFields[0] : undefined)
++    const valueFields = Array.isArray(configuredFields) ? [...configuredFields] : configuredFields
++    if (valueFields === undefined || (Array.isArray(valueFields) && valueFields.length === 0)) {
++      throw new Error('FIELD_CASCADE_OPTIONS: 选项视图必须明确 valueField 或唯一主键')
++    }
++    const fields = typeof valueFields === 'string' ? [valueFields] : [...valueFields]
++    if (view.labelField !== undefined) fields.push(view.labelField)
++    const delimiter = view.selectionDelimiter
++    return { view, fields: [...new Set(fields)],
++      isCurrent: () => !view.destroyed && this.dataSet.getView(reference.tableName, reference.viewId) === view
++        && DataViewFieldCascadeBinding.equal(valueFields, view.valueField ?? view.effectivePkFields[0])
++        && view.selectionDelimiter === delimiter,
++      evaluate: (current: unknown, rows: readonly DataRow[]) => {
++        const nativeOptions = rows.map(row => typeof valueFields === 'string' ? row[valueFields] : DataViewSelectionValue.token(row, valueFields))
++        let values: readonly unknown[]
++        let retained: unknown
++        if (this.definition.valueFormat === 'selection-string') {
++          if (current !== null && typeof current !== 'string') throw new Error('FIELD_CASCADE_VALUE: 选中值字符串格式不匹配')
++          values = DataViewSelectionValue.split(current, delimiter)
++          const validTokens = new Set(rows.map(row => DataViewSelectionValue.token(row, valueFields)))
++          const remaining = values.filter((value): value is string => typeof value === 'string' && validTokens.has(value))
++          retained = remaining.length === values.length ? current : DataViewSelectionValue.join(remaining, delimiter)
++        } else {
++          if (!scalar(current) && !(Array.isArray(current) && current.every(scalar))) throw new Error('FIELD_CASCADE_VALUE: 子值必须为标量或标量数组')
++          values = current === null ? [] : Array.isArray(current) ? current : [current]
++          const remaining = values.filter(value => nativeOptions.some(option => Object.is(option, value)))
++          retained = Array.isArray(current) ? remaining : (remaining[0] ?? null)
++        }
++        const kept = this.definition.valueFormat === 'selection-string'
++          ? DataViewSelectionValue.split(typeof retained === 'string' ? retained : null, delimiter).length
++          : Array.isArray(retained) ? retained.length : retained === null ? 0 : 1
++        return { status: values.length === 0 ? 'empty' as const : kept === values.length ? 'valid' as const : 'invalid' as const,
++          retained, hasRetained: kept > 0 }
++      } }
++  }
++}
+diff --git "a/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\selection\\data-view-selection-value.ts" "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\selection\\data-view-selection-value.ts"
+new file mode 100644
+index 000000000..199edef9d
+--- /dev/null
++++ "b/D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\selection\\data-view-selection-value.ts"
+@@ -0,0 +1,25 @@
++import type { DataRow } from '../../types'
++
++/** DataView.value 与值绑定共用的既有字符串格式；不推断普通字段是否为多选。 */
++export class DataViewSelectionValue {
++  static split(value: string | null | undefined, delimiter: string): string[] {
++    if (!value) return []
++    return (delimiter ? value.split(delimiter) : [value]).map(token => token.trim()).filter(token => token !== '')
++  }
++
++  static join(values: readonly string[], delimiter: string): string {
++    return delimiter ? values.join(delimiter) : (values[0] ?? '')
++  }
++
++  static token(row: DataRow, fields: string | readonly string[]): string | undefined {
++    if (typeof fields === 'string') {
++      const value = row[fields]
++      return value === undefined || value === null ? undefined : String(value)
++    }
++    const parts = fields.map(field => {
++      const value = row[field]
++      return value === undefined || value === null ? '' : String(value)
++    })
++    return parts.some(part => part !== '') ? parts.join(':') : undefined
++  }
++}

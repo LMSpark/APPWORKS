@@ -1,0 +1,14 @@
+[
+  {
+    "path": "src/registries/vue-page-registry.ts",
+    "sha256": "5E6BE0C30B920661180EE6354B893C59077584E737CBC1A221288EE491CE1EAF"
+  },
+  {
+    "path": "src/components/page-loading/PageLoadError.vue",
+    "sha256": "0E68299C158093F4E6DECED9C81B08BF9BBE374A74A0B66E7F734F8F92250497"
+  },
+  {
+    "path": "tests/app/config/vue-page-registry.test.ts",
+    "sha256": "88E606C41EA20380684883965840E73689293727D05CC0BFD49695E8D4854937"
+  }
+]

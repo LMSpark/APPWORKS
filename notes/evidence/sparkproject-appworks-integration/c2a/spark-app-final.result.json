@@ -1,0 +1,7 @@
+{
+  "command": "pnpm --filter @spark-appworks/spark-app test:run",
+  "startedAt": "2026-10-07T14:53:43.8043349+08:00",
+  "exitCode": 1,
+  "endedAt": "2026-10-07T14:53:59.7016175+08:00",
+  "cwd": "D:\\SPARK_AppWorks"
+}

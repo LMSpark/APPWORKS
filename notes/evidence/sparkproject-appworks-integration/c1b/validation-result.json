@@ -1,0 +1,94 @@
+{
+  "recordType": "reconstructed-summary-from-retained-tool-results",
+  "rawCommandLogsAvailable": false,
+  "note": "These command excerpts and exit codes were reconstructed from this agent's retained tool results in the active conversation. They are not complete original stdout/stderr captures. The parent run's build.log/build-result.json and root-tests.log are separate files already present in this evidence directory.",
+  "runs": [
+    {
+      "phase": "initial-red-attempt-environment-failure",
+      "command": "pnpm exec vitest run tests/app/config/spark-components-loading.test.ts --maxWorkers=1 --reporter=dot",
+      "exitCode": 1,
+      "keyOutput": [
+        "[SparkComponentsPlugin] ✅ 扫描完成: 7 个组件 (同步: 5, 异步: 2)",
+        "Assertion failed: !_wcsnicmp(filename, dir, dirlen), file src\\win\\fs-event.c, line 72",
+        "Vitest worker exited unexpectedly"
+      ],
+      "classification": "Test-server watcher environment failure; not a valid behavior RED. The test server was then configured with watch: null."
+    },
+    {
+      "phase": "valid-red",
+      "command": "pnpm exec vitest run tests/app/config/spark-components-loading.test.ts --maxWorkers=1 --reporter=dot",
+      "exitCode": 1,
+      "keyOutput": [
+        "[SparkComponentsPlugin] ✅ 扫描完成: 7 个组件 (同步: 5, 异步: 2)",
+        "AssertionError: expected generated module to contain const smallPage = () => import('./src/views/SmallPage.vue')",
+        "Actual generated module had static imports for SmallPage.vue, nested NestedPage.vue, PageRenderer.vue, and src/views-other/Neighbor.vue."
+      ],
+      "classification": "Valid behavior RED from real Vite virtual-module load; the production code had not yet been changed."
+    },
+    {
+      "phase": "green-final",
+      "command": "pnpm exec vitest run tests/app/config/spark-components-loading.test.ts --maxWorkers=1 --reporter=dot",
+      "exitCode": 0,
+      "keyOutput": [
+        "Test Files  1 passed (1)",
+        "Tests  2 passed (2)",
+        "Configured prefix and normalized ./src\\views\\ prefix each produced 3 sync / 4 async components; no-prefix default case produced 5 sync / 2 async components."
+      ]
+    },
+    {
+      "phase": "typecheck",
+      "command": "pnpm run typecheck",
+      "exitCode": 0,
+      "keyOutput": ["$ vue-tsc --noEmit --skipLibCheck -p tsconfig.typecheck.json"]
+    },
+    {
+      "phase": "eslint",
+      "command": "pnpm exec eslint tools/vite-plugin-spark-components.ts packages/vite-plugin-spark-catalog/src/scan-config.ts vite.config.ts tests/app/config/spark-components-loading.test.ts",
+      "exitCode": 0,
+      "keyOutput": [
+        "0 errors; 2 warnings",
+        "ESLint ignored tools/vite-plugin-spark-components.ts and vite.config.ts due to existing ignore patterns."
+      ]
+    },
+    {
+      "phase": "page-registry-tests",
+      "command": "pnpm exec vitest run tests/app/config/vue-page-registry.test.ts --maxWorkers=1 --reporter=dot",
+      "exitCode": 0,
+      "keyOutput": ["Test Files  1 passed (1)", "Tests  5 passed (5)"]
+    },
+    {
+      "phase": "dependency-catalog",
+      "command": "pnpm run verify:deps",
+      "exitCode": 0,
+      "keyOutput": ["$ node tools/verify-dependency-catalog.mjs", "dependency catalog: ok"]
+    },
+    {
+      "phase": "directory-limits",
+      "command": "pnpm run verify:dirs",
+      "exitCode": 0,
+      "keyOutput": ["$ node tools/verify-directory-limits.mjs", "directory limits: ok"]
+    },
+    {
+      "phase": "parent-combined-build",
+      "command": "pnpm run build",
+      "exitCode": 0,
+      "evidenceFiles": ["build-result.json", "build.log"],
+      "keyOutput": [
+        "Package build complete (0 built, 8 skipped).",
+        "122 components scanned (104 sync, 18 async).",
+        "2912 modules transformed.",
+        "dist/js/pages-config-B_FCIesS.js 1,434.39 kB (gzip: 425.07 kB).",
+        "built in 2.75s"
+      ],
+      "note": "Parent-owned original build log and result JSON are available. Parent subsequently reported dist/index.html modulepreload includes the large pages-config chunk with registry/lowcode-runtime/Settings; this indicates the existing manual chunk still gathers static dependencies and needs a separately planned C1c investigation."
+    },
+    {
+      "phase": "parent-root-tests",
+      "command": null,
+      "exitCode": null,
+      "evidenceFiles": ["root-tests.log"],
+      "keyOutput": [],
+      "note": "The retained root-tests.log has test chatter but no command header, final Vitest summary, or exit-code result JSON. Command and outcome cannot be reliably established from the available artifact, so they are intentionally not inferred."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "at": "2026-10-07T09:39:42.618Z",
+  "scenarioId": "90A82E287930A234FEC3E687C94A93EA",
+  "method": "read-only actual lowcodeApi.dataSpace.runtime.query, pagesize5, explicit fields",
+  "result": [
+    {
+      "metaName": "Base_AppSystemList",
+      "total": 1,
+      "countReported": true,
+      "rowCount": 1,
+      "keyValid": true,
+      "fieldStates": [
+        [
+          {
+            "field": "rowid",
+            "access": {
+              "read": "visible",
+              "write": "allowed",
+              "component": "editable",
+              "required": false,
+              "writeMode": "editable"
+            }
+          },
+          {
+            "field": "AppDesc",
+            "access": {
+              "read": "visible",
+              "write": "allowed",
+              "component": "editable",
+              "required": false,
+              "writeMode": "editable"
+            }
+          },
+          {
+            "field": "AppName",
+            "access": {
+              "read": "visible",
+              "write": "allowed",
+              "component": "editable",
+              "required": false,
+              "writeMode": "editable"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "metaName": "Base_UserInfo",
+      "total": 30,
+      "countReported": true,
+      "rowCount": 5,
+      "keyValid": true,
+      "fieldStates": [
+        [
+          {
+            "field": "ROWID",
+            "access": {
+              "read": "visible",
+              "write": "denied",
+              "component": "readonly",
+              "required": false,
+              "writeMode": "readonly"
+            }
+          },
+          {
+            "field": "UserName",
+            "access": {
+              "read": "visible",
+              "write": "allowed",
+              "component": "editable",
+              "required": false,
+              "writeMode": "editable"
+            }
+          }
+        ]
+      ]
+    }
+  ],
+  "limitation": "administrator only; no values retained, no writes, no proof of restricted-user behavior"
+}

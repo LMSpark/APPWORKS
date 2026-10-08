@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec eslint src/App.vue tests/app/services/project/application-switch.test.ts",
+  "cwd": "D:\\SPARK_AppWorks",
+  "started": "2026-10-07T17:20:38.3149401+08:00",
+  "ended": "2026-10-07T17:20:44.4716404+08:00",
+  "exitCode": 0,
+  "stdoutFile": "notes\\evidence\\sparkproject-appworks-integration\\c2d2e\\lint.stdout.txt"
+}

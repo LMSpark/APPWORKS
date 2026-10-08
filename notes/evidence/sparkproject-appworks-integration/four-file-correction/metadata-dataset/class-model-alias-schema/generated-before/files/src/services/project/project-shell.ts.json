@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/project-shell",
+    "sourcePath": "src/services/project/project-shell.ts",
+    "sourceFile": "src/services/project/project-shell.ts",
+    "packageName": "app",
+    "modulePath": "services/project/project-shell",
+    "jsdoc": "@module app:services/project/project-shell\n职责：App 层项目壳——committed ProjectWorkspace 缓存、项目蓝图工作区单例、运行菜单同步、项目切换 inject。\n边界：不进入 spark-project-model 内核；DevSystem 编辑宿主与 committed 投影分离。\nAI用途：切换项目、同步运行菜单或获取 committed ProjectWorkspace 单例时，用本模块定位壳层服务。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectSwitchService",
+      "ProjectWorkspaceScope",
+      "ShellNavRootListener"
+    ]
+  },
+  "$defs": {
+    "ProjectSwitchService": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectSwitchService",
+      "$defs": {
+        "method.switchAndReload.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.switchAndReload.return": {
+          "type": "object",
+          "title": "Promise<LowcodeApplicationSelectionReceipt>"
+        }
+      }
+    },
+    "ProjectWorkspaceScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectWorkspaceScope",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenantId",
+        "projectId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T08:40:53.231Z",
+  "models": {
+    "ProjectSwitchService": {
+      "name": "ProjectSwitchService",
+      "jsdoc": "Project Switch Service 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 切换到指定项目并刷新壳层导航；projectId 为目标项目标识，切换后会重新加载路由和 ProjectWorkspace。 */\n    switchAndReload(projectId: string): Promise<LowcodeApplicationSelectionReceipt>;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "switchAndReload",
+              "jsdoc": "切换到指定项目并刷新壳层导航；projectId 为目标项目标识，切换后会重新加载路由和 ProjectWorkspace。",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeApplicationSelectionReceipt"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectWorkspaceScope": {
+      "name": "ProjectWorkspaceScope",
+      "jsdoc": "Project Workspace Scope 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 租户 ID，用于多租户 API 隔离；作为 ProjectWorkspace 缓存键的一部分（tenantId:projectId）。 */\n    tenantId: string;\n    /** 项目 ID，标识 ProjectWorkspace 绑定的项目；未提供时回退到用户默认项目或 'homepage'。 */\n    projectId: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "jsdoc": "租户 ID，用于多租户 API 隔离；作为 ProjectWorkspace 缓存键的一部分（tenantId:projectId）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "项目 ID，标识 ProjectWorkspace 绑定的项目；未提供时回退到用户默认项目或 'homepage'。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectApiScope": {
+      "name": "ProjectApiScope",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Partial<ProjectWorkspaceScope>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Partial<ProjectWorkspaceScope>",
+            "targetName": "Partial"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ShellNavRootListener": {
+      "name": "ShellNavRootListener",
+      "jsdoc": "Shell Nav Root Listener 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(navData: RuntimeNavigation | null) => void",
+        "members": {}
+      }
+    }
+  }
+}

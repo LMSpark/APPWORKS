@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/data-space-api",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/data-space-api",
+    "jsdoc": "数据空间根门面：按 design / runtime 分离入口，禁止跨态混用。\ndesign 读设计态元数据并 prepare 设计变更命令；runtime 读业务数据并 prepare 运行变更命令。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceApi"
+    ]
+  },
+  "$defs": {
+    "DataSpaceApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceApi",
+      "properties": {
+        "design": {
+          "$ref": "design/data-space-design-api.ts.json#/$defs/DataSpaceDesignApi"
+        },
+        "runtime": {
+          "$ref": "runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "object",
+              "title": "DataSpaceApiOptions"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T21:12:54.473Z",
+  "models": {
+    "DataSpaceApiOptions": {
+      "name": "DataSpaceApiOptions",
+      "jsdoc": "数据空间根门面共享的运行 owner 配置；design 复用其中的请求 scope 与查询保存能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ConstructorParameters<typeof DataSpaceRuntimeApi>[0]",
+        "members": {}
+      }
+    },
+    "DataSpaceApi": {
+      "name": "DataSpaceApi",
+      "jsdoc": "数据空间 API 聚合根；设计合同读取与业务查询共享 HTTP、请求范围和实际查询 owner。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: DataSpaceApiOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceApiOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "design",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

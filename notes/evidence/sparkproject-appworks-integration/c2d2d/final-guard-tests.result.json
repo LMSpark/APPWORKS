@@ -1,0 +1,7 @@
+{
+  "finishedAtUtc": "2026-10-07T09:08:16.4099760Z",
+  "startedAtUtc": "2026-10-07T09:08:09.4003730Z",
+  "cwd": "D:\\SPARK_AppWorks",
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/application/project-navigation-guard.test.ts",
+  "exitCode": 0
+}

@@ -1,0 +1,8 @@
+{
+  "command": "pnpm run build",
+  "startedAt": "2026-10-07T15:00:11.2889711+08:00",
+  "exitCode": 0,
+  "log": "build.log",
+  "cwd": "D:\\SPARK_AppWorks",
+  "finishedAt": "2026-10-07T15:00:21.6299321+08:00"
+}

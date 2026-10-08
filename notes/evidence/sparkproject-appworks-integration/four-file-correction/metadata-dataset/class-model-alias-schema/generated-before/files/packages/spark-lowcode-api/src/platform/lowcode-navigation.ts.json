@@ -1,0 +1,306 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-navigation",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-navigation.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/lowcode-navigation",
+    "jsdoc": "运行态导航授权归一化：TopMenus/LeftMenus 树与 Relations 上下文。\nwire 键大小写敏感：NavigationUrl、conId/conid、prowid、childrowid；cfg:/vue: 协议须小写。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeNavigationTargetKind",
+      "LowcodeNavigationAuthorizationContext",
+      "LowcodeNavigationAuthorizationItem",
+      "LowcodeNavigationAuthorizationEvidence"
+    ]
+  },
+  "$defs": {
+    "LowcodeNavigationTargetKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LowcodeNavigationTargetKind",
+      "enum": [
+        "cfg",
+        "empty",
+        "external",
+        "route",
+        "vue"
+      ]
+    },
+    "LowcodeNavigationAuthorizationContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeNavigationAuthorizationContext",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "navigationId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "childRowId": {
+          "type": "string"
+        },
+        "textParameterName": {
+          "type": "string"
+        },
+        "valueParameterName": {
+          "type": "string"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "flowState": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "valueField": {
+          "type": "string"
+        },
+        "textField": {
+          "type": "string"
+        },
+        "titlePlacement": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeNavigationAuthorizationItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeNavigationAuthorizationItem",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "targetKind": {
+          "$ref": "#/$defs/LowcodeNavigationTargetKind"
+        },
+        "formKey": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeNavigationAuthorizationItem"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeNavigationAuthorizationEvidence": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeNavigationAuthorizationEvidence",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeNavigationAuthorizationItem"
+          }
+        },
+        "contexts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LowcodeNavigationAuthorizationContext"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-05T10:07:52.893Z",
+  "models": {
+    "LowcodeNavigationTargetKind": {
+      "name": "LowcodeNavigationTargetKind",
+      "jsdoc": "导航目标类型；由 NavigationUrl/url 解析得出。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'cfg' | 'empty' | 'external' | 'route' | 'vue'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'cfg'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'empty'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'external'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'route'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'vue'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeNavigationAuthorizationContext": {
+      "name": "LowcodeNavigationAuthorizationContext",
+      "jsdoc": "Relations 上下文；wire 字段 TextParamName、ValParamName、selectValParam 等 PascalCase。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    navigationId: string;\n    title: string;\n    childRowId: string;\n    textParameterName: string;\n    valueParameterName: string;\n    workflowId: string;\n    flowState: number | null;\n    valueField: string;\n    textField: string;\n    titlePlacement: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    navigationId: string;\n    title: string;\n    childRowId: string;\n    textParameterName: string;\n    valueParameterName: string;\n    workflowId: string;\n    flowState: number | null;\n    valueField: string;\n    textField: string;\n    titlePlacement: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childRowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textParameterName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueParameterName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flowState",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titlePlacement",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeNavigationAuthorizationItem": {
+      "name": "LowcodeNavigationAuthorizationItem",
+      "jsdoc": "导航授权树节点；cfg/route/vue 目标携带 formKey（conId/conid）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    target: string;\n    targetKind: LowcodeNavigationTargetKind;\n    formKey: string | null;\n    children: readonly LowcodeNavigationAuthorizationItem[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    target: string;\n    targetKind: LowcodeNavigationTargetKind;\n    formKey: string | null;\n    children: readonly LowcodeNavigationAuthorizationItem[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetKind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeNavigationAuthorizationEvidence": {
+      "name": "LowcodeNavigationAuthorizationEvidence",
+      "jsdoc": "导航授权完整证据：菜单树 + Relations 上下文列表。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    items: readonly LowcodeNavigationAuthorizationItem[];\n    contexts: readonly LowcodeNavigationAuthorizationContext[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    items: readonly LowcodeNavigationAuthorizationItem[];\n    contexts: readonly LowcodeNavigationAuthorizationContext[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contexts",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

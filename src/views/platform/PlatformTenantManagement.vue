@@ -314,8 +314,13 @@ async function enterTenant(row: PlatformTenant): Promise<void> {
     ElMessage.error('租户管理页缺少项目切换服务')
     return
   }
-  await projectSwitch.switchAndReload(projectId)
-  await router.push(buildTenantPath({ tenantId: row.tenantId, projectId }, getNavHomePath()))
+  try {
+    const receipt = await projectSwitch.switchAndReload(projectId)
+    receipt.assertCurrent()
+    await router.push(buildTenantPath({ tenantId: row.tenantId, projectId }, getNavHomePath()))
+  } catch (error: unknown) {
+    ElMessage.error(`进入租户失败: ${errorMessage(error)}`)
+  }
 }
 
 onMounted(() => {

@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/page/runtime/system-page-identity-tabs.test.ts -t \"pre-reset\" --maxWorkers=1 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:19:04.3737659Z",
+  "finishedAtUtc": "2026-10-07T08:19:11.5095551Z",
+  "exitCode": 1
+}

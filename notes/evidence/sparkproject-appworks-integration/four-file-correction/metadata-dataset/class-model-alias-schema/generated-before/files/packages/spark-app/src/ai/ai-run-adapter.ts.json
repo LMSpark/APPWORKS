@@ -1,0 +1,922 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:ai/ai-run-adapter",
+    "sourcePath": "packages/spark-app/src/ai/ai-run-adapter.ts",
+    "sourceFile": "packages/spark-app/src/ai/ai-run-adapter.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "ai/ai-run-adapter",
+    "jsdoc": "@module @spark-appworks/spark-app:ai/ai-run-adapter\n职责：提供唯一的 headless AI run adapter，同时产出 trace snapshot 与 AG-UI 事件投影。\n边界：负责应用层编排和可观察性投影，不直接调用 LLM、不渲染组件、不替换底层 transport。\nAI用途：接入页面 AI 运行、审批、trace UI 或 AG-UI timeline 时，从本模块确认 app 层入口。\n\n本模块刻意保持 UI-free：没有 Vue import，没有组件引用，也不拥有浏览器 transport。\nUI 通过 snapshot/subscribe 读取内置投影；外部 trace sink 只用于兼容已有宿主观测。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiRunTraceSink",
+      "AiRunErrorFormatter",
+      "AiRunBeforeFunctionCall",
+      "AiRunAbortHandler",
+      "AiRunAdapterRunStatus",
+      "AiRunHost",
+      "AiRunAdapterOptions",
+      "AiRunAdapterCommand",
+      "AiRunTimelineEvent",
+      "AiRunSnapshot",
+      "AiRunListener",
+      "AiRunAdapterState"
+    ]
+  },
+  "$defs": {
+    "AiRunTraceSink": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiRunTraceSink",
+      "$defs": {
+        "method.appendUserMessage.params": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendUserMessage.return": true,
+        "method.appendEvent.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "../../../spark-ai/src/agent/conversation/chat/chat-types.ts.json#/$defs/AiAgentStreamEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendEvent.return": true,
+        "method.appendDelta.params": {
+          "type": "object",
+          "properties": {
+            "delta": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendDelta.return": true,
+        "method.appendReasoning.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendReasoning.return": true,
+        "method.appendToolCall.params": {
+          "type": "object",
+          "properties": {
+            "record": {
+              "$ref": "../../../spark-ai/src/agent/conversation/chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendToolCall.return": true,
+        "method.appendError.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendError.return": true,
+        "method.markAborted.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.markAborted.return": true,
+        "method.finish.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.finish.return": true,
+        "method.reset.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reset.return": true
+      }
+    },
+    "AiRunAdapterRunStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "AiRunAdapterRunStatus",
+      "enum": [
+        "completed",
+        "aborted"
+      ]
+    },
+    "AiRunHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiRunHost",
+      "$defs": {
+        "method.run.params": {
+          "type": "object",
+          "properties": {
+            "alias": {
+              "type": "string"
+            },
+            "input": {
+              "type": "object",
+              "title": "TInput"
+            },
+            "chat": {
+              "$ref": "../../../spark-ai/src/agent/business/business-task.ts.json#/$defs/AiAgentTaskChatOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.run.return": {
+          "type": "object",
+          "title": "Promise<SparkAgent.AiAgentHostRunResult>"
+        }
+      }
+    },
+    "AiRunAdapterOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiRunAdapterOptions",
+      "properties": {
+        "formatError": {
+          "type": "object",
+          "title": "AiRunErrorFormatter"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiRunAdapterCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiRunAdapterCommand",
+      "properties": {
+        "host": {
+          "$ref": "#/$defs/AiRunHost"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "input": {
+          "type": "object",
+          "title": "TInput"
+        },
+        "runInput": {
+          "type": "object",
+          "title": "SparkAgent.RunAgentInput"
+        },
+        "threadId": {
+          "type": "string"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "trace": {
+          "$ref": "#/$defs/AiRunTraceSink"
+        },
+        "beforeFunctionCall": {
+          "type": "object",
+          "title": "AiRunBeforeFunctionCall"
+        },
+        "onAbort": {
+          "type": "object",
+          "title": "AiRunAbortHandler"
+        },
+        "userMessage": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onEvent.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "type": "object",
+              "title": "SparkAgent.AGUIEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onEvent.return": true
+      }
+    },
+    "AiRunTimelineEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiRunTimelineEvent",
+      "properties": {
+        "sequence": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "payloadPreview": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiRunSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiRunSnapshot",
+      "properties": {
+        "trace": {
+          "$ref": "../../../spark-ai/src/agent/conversation/session/session-run-trace.ts.json#/$defs/AiAgentRunTraceSnapshot"
+        },
+        "agUiEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "SparkAgent.AGUIEvent"
+          }
+        },
+        "timeline": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiRunTimelineEvent"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiRunAdapterState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiRunAdapterState",
+      "$defs": {
+        "method.isRunning.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isRunning.return": {
+          "type": "boolean"
+        },
+        "method.abort.params": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.abort.return": true,
+        "method.snapshot.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.snapshot.return": {
+          "$ref": "#/$defs/AiRunSnapshot"
+        },
+        "method.subscribe.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "AiRunListener"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.run.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/AiRunAdapterCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.run.return": {
+          "type": "object",
+          "title": "Promise<AiRunAdapterRunStatus>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.518Z",
+  "models": {
+    "AiRunTraceSink": {
+      "name": "AiRunTraceSink",
+      "jsdoc": "外部 trace sink 接口：宿主方可实现此接口在 run 生命周期中接收观测数据",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 追加用户消息 */\n    appendUserMessage(content: string): void;\n    /** 从原始 SSE 事件派发内部状态变更 */\n    appendEvent(event: SparkAgent.AiAgentStreamEvent): void;\n    /** 追加模型文本增量 */\n    appendDelta(delta: string): void;\n    /** 追加推理文本增量 */\n    appendReasoning(text: string): void;\n    /** 追加工具调用完成记录 */\n    appendToolCall(record: SparkAgent.AiAgentToolCallRecord): void;\n    /** 追加错误条目 */\n    appendError(message: string): void;\n    /** 标记为用户主动中断 */\n    markAborted(message?: string): void;\n    /** 结束当前活跃 turn */\n    finish(): void;\n    /** 重置全部状态 */\n    reset(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 追加用户消息 */\n    appendUserMessage(content: string): void;\n    /** 从原始 SSE 事件派发内部状态变更 */\n    appendEvent(event: SparkAgent.AiAgentStreamEvent): void;\n    /** 追加模型文本增量 */\n    appendDelta(delta: string): void;\n    /** 追加推理文本增量 */\n    appendReasoning(text: string): void;\n    /** 追加工具调用完成记录 */\n    appendToolCall(record: SparkAgent.AiAgentToolCallRecord): void;\n    /** 追加错误条目 */\n    appendError(message: string): void;\n    /** 标记为用户主动中断 */\n    markAborted(message?: string): void;\n    /** 结束当前活跃 turn */\n    finish(): void;\n    /** 重置全部状态 */\n    reset(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "appendUserMessage",
+              "jsdoc": "追加用户消息",
+              "parameters": [
+                {
+                  "name": "content",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendEvent",
+              "jsdoc": "从原始 SSE 事件派发内部状态变更",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkAgent.AiAgentStreamEvent"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendDelta",
+              "jsdoc": "追加模型文本增量",
+              "parameters": [
+                {
+                  "name": "delta",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendReasoning",
+              "jsdoc": "追加推理文本增量",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendToolCall",
+              "jsdoc": "追加工具调用完成记录",
+              "parameters": [
+                {
+                  "name": "record",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkAgent.AiAgentToolCallRecord"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendError",
+              "jsdoc": "追加错误条目",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "markAborted",
+              "jsdoc": "标记为用户主动中断",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "finish",
+              "jsdoc": "结束当前活跃 turn",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reset",
+              "jsdoc": "重置全部状态",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiRunErrorFormatter": {
+      "name": "AiRunErrorFormatter",
+      "jsdoc": "Ai Run Error Formatter 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(error: unknown) => string",
+        "members": {}
+      }
+    },
+    "AiRunBeforeFunctionCall": {
+      "name": "AiRunBeforeFunctionCall",
+      "jsdoc": "Ai Run Before Function Call 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(options: SparkAgent.AiAgentBeforeFunctionCallOptions) => SparkAgent.AiAgentBeforeFunctionCallDirective | Promise<SparkAgent.AiAgentBeforeFunctionCallDirective>",
+        "members": {}
+      }
+    },
+    "AiRunAbortHandler": {
+      "name": "AiRunAbortHandler",
+      "jsdoc": "Ai Run Abort Handler 的回调函数契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(reason: string) => void",
+        "members": {}
+      }
+    },
+    "AiRunAdapterRunStatus": {
+      "name": "AiRunAdapterRunStatus",
+      "jsdoc": "Ai Run Adapter Run Status 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'completed' | 'aborted'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'completed'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'aborted'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AiRunHost": {
+      "name": "AiRunHost",
+      "jsdoc": "AI 运行宿主接口：封装 AiAgentHost.run() 调用，便于 adapter 在不依赖具体 Host 实现的情况下发起 run",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 按 alias 运行已注册业务，委托给 AiAgentHost.run() */\n    run<TInput extends JsonParams>(alias: string, input: TInput, chat?: SparkAgent.AiAgentTaskChatOptions): Promise<SparkAgent.AiAgentHostRunResult>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 按 alias 运行已注册业务，委托给 AiAgentHost.run() */\n    run<TInput extends JsonParams>(alias: string, input: TInput, chat?: SparkAgent.AiAgentTaskChatOptions): Promise<SparkAgent.AiAgentHostRunResult>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "run",
+              "jsdoc": "按 alias 运行已注册业务，委托给 AiAgentHost.run()",
+              "parameters": [
+                {
+                  "name": "alias",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "TInput",
+                    "refersToTypeParameter": true
+                  }
+                },
+                {
+                  "name": "chat",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkAgent.AiAgentTaskChatOptions"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "SparkAgent.AiAgentHostRunResult"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiRunAdapterOptions": {
+      "name": "AiRunAdapterOptions",
+      "jsdoc": "adapter 全局配置",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 自定义错误格式化函数，将 run 抛出的 error 转为展示文本；默认使用 error.message */\n    formatError?: AiRunErrorFormatter;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 自定义错误格式化函数，将 run 抛出的 error 转为展示文本；默认使用 error.message */\n    formatError?: AiRunErrorFormatter;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "formatError",
+              "jsdoc": "自定义错误格式化函数，将 run 抛出的 error 转为展示文本；默认使用 error.message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiRunAdapterCommand": {
+      "name": "AiRunAdapterCommand",
+      "jsdoc": "单次 AI run 的启动命令参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 运行宿主，封装了 AiAgentHost.run() 调用 */\n    host: AiRunHost;\n    /** 业务注册别名，对应 Host 中已注册的业务 */\n    alias: string;\n    /** 业务输入参数，类型由 alias 推断 */\n    input: TInput;\n    /** AG-UI run 输入元数据（threadId / runId / parentRunId），用于构造 AG-UI 事件 */\n    runInput?: SparkAgent.RunAgentInput;\n    /** AG-UI 线程 ID；省略时自动生成 spark-thread:{alias} */\n    threadId?: string;\n    /** AG-UI 运行 ID；省略时自动生成 spark-run:{sequence} */\n    runId?: string;\n    /** 外部 trace sink，用于宿主观测 run 生命周期事件；省略时使用 noopTraceSink */\n    trace?: AiRunTraceSink;\n    /** 本次请求级工具执行前置裁决 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** 用户中断回调：abort 触发后调用，参数为中断原因 */\n    onAbort?: AiRunAbortHandler;\n    /** AG-UI 事件回调：每次产出 AG-UI 事件时调用，用于外部实时消费 */\n    onEvent?: (event: SparkAgent.AGUIEvent) => void;\n    /** 用户消息文本，run 开始前追加到 trace；省略则不追加 */\n    userMessage?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 运行宿主，封装了 AiAgentHost.run() 调用 */\n    host: AiRunHost;\n    /** 业务注册别名，对应 Host 中已注册的业务 */\n    alias: string;\n    /** 业务输入参数，类型由 alias 推断 */\n    input: TInput;\n    /** AG-UI run 输入元数据（threadId / runId / parentRunId），用于构造 AG-UI 事件 */\n    runInput?: SparkAgent.RunAgentInput;\n    /** AG-UI 线程 ID；省略时自动生成 spark-thread:{alias} */\n    threadId?: string;\n    /** AG-UI 运行 ID；省略时自动生成 spark-run:{sequence} */\n    runId?: string;\n    /** 外部 trace sink，用于宿主观测 run 生命周期事件；省略时使用 noopTraceSink */\n    trace?: AiRunTraceSink;\n    /** 本次请求级工具执行前置裁决 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** 用户中断回调：abort 触发后调用，参数为中断原因 */\n    onAbort?: AiRunAbortHandler;\n    /** AG-UI 事件回调：每次产出 AG-UI 事件时调用，用于外部实时消费 */\n    onEvent?: (event: SparkAgent.AGUIEvent) => void;\n    /** 用户消息文本，run 开始前追加到 trace；省略则不追加 */\n    userMessage?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "host",
+              "jsdoc": "运行宿主，封装了 AiAgentHost.run() 调用",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "alias",
+              "jsdoc": "业务注册别名，对应 Host 中已注册的业务",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "jsdoc": "业务输入参数，类型由 alias 推断",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runInput",
+              "jsdoc": "AG-UI run 输入元数据（threadId / runId / parentRunId），用于构造 AG-UI 事件",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "threadId",
+              "jsdoc": "AG-UI 线程 ID；省略时自动生成 spark-thread:{alias}",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runId",
+              "jsdoc": "AG-UI 运行 ID；省略时自动生成 spark-run:{sequence}",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "trace",
+              "jsdoc": "外部 trace sink，用于宿主观测 run 生命周期事件；省略时使用 noopTraceSink",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "beforeFunctionCall",
+              "jsdoc": "本次请求级工具执行前置裁决",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onAbort",
+              "jsdoc": "用户中断回调：abort 触发后调用，参数为中断原因",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "userMessage",
+              "jsdoc": "用户消息文本，run 开始前追加到 trace；省略则不追加",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onEvent",
+              "jsdoc": "AG-UI 事件回调：每次产出 AG-UI 事件时调用，用于外部实时消费",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkAgent.AGUIEvent"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiRunTimelineEvent": {
+      "name": "AiRunTimelineEvent",
+      "jsdoc": "AG-UI timeline 中给组件展示的单条事件摘要。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 事件序号，从 1 开始递增 */\n    sequence: number;\n    /** AG-UI 事件类型标识 */\n    type: string;\n    /** 事件时间戳（Unix 毫秒） */\n    timestamp: number;\n    /** 事件 payload 的截断预览文本，超出 360 字符自动截断 */\n    payloadPreview: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 事件序号，从 1 开始递增 */\n    sequence: number;\n    /** AG-UI 事件类型标识 */\n    type: string;\n    /** 事件时间戳（Unix 毫秒） */\n    timestamp: number;\n    /** 事件 payload 的截断预览文本，超出 360 字符自动截断 */\n    payloadPreview: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sequence",
+              "jsdoc": "事件序号，从 1 开始递增",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "AG-UI 事件类型标识",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timestamp",
+              "jsdoc": "事件时间戳（Unix 毫秒）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "payloadPreview",
+              "jsdoc": "事件 payload 的截断预览文本，超出 360 字符自动截断",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiRunSnapshot": {
+      "name": "AiRunSnapshot",
+      "jsdoc": "headless AI run adapter 暴露给 UI 的完整只读快照。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 内置 run trace 快照（含流式文本、条目列表、工具调用记录） */\n    trace: SparkAgent.AiAgentRunTraceSnapshot;\n    /** 已产出的 AG-UI 事件列表，按时间顺序排列 */\n    agUiEvents: readonly SparkAgent.AGUIEvent[];\n    /** AG-UI 事件 timeline 摘要列表，用于 UI 渲染精简事件流 */\n    timeline: readonly AiRunTimelineEvent[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 内置 run trace 快照（含流式文本、条目列表、工具调用记录） */\n    trace: SparkAgent.AiAgentRunTraceSnapshot;\n    /** 已产出的 AG-UI 事件列表，按时间顺序排列 */\n    agUiEvents: readonly SparkAgent.AGUIEvent[];\n    /** AG-UI 事件 timeline 摘要列表，用于 UI 渲染精简事件流 */\n    timeline: readonly AiRunTimelineEvent[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "trace",
+              "jsdoc": "内置 run trace 快照（含流式文本、条目列表、工具调用记录）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "agUiEvents",
+              "jsdoc": "已产出的 AG-UI 事件列表，按时间顺序排列",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timeline",
+              "jsdoc": "AG-UI 事件 timeline 摘要列表，用于 UI 渲染精简事件流",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiRunListener": {
+      "name": "AiRunListener",
+      "jsdoc": "AI run snapshot 变化监听器，订阅者应只读消费快照而不持有可变内部状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(snapshot: AiRunSnapshot) => void",
+        "members": {}
+      }
+    },
+    "AiRunAdapterState": {
+      "name": "AiRunAdapterState",
+      "jsdoc": "headless AI run adapter 状态接口：UI 通过此接口发起/中断 run、读取快照、订阅变化",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 是否有活跃的 run 正在执行 */\n    isRunning(): boolean;\n    /** 中断当前 run（仅在有活跃 run 时生效） */\n    abort(reason?: string): void;\n    /** 获取当前只读快照 */\n    snapshot(): AiRunSnapshot;\n    /** 订阅快照变化；返回取消订阅函数 */\n    subscribe(listener: AiRunListener): () => void;\n    /** 发起一次 AI run；同一时刻只允许一个活跃 run，重复调用会抛错 */\n    run<TInput extends JsonParams>(command: AiRunAdapterCommand<TInput>): Promise<AiRunAdapterRunStatus>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 是否有活跃的 run 正在执行 */\n    isRunning(): boolean;\n    /** 中断当前 run（仅在有活跃 run 时生效） */\n    abort(reason?: string): void;\n    /** 获取当前只读快照 */\n    snapshot(): AiRunSnapshot;\n    /** 订阅快照变化；返回取消订阅函数 */\n    subscribe(listener: AiRunListener): () => void;\n    /** 发起一次 AI run；同一时刻只允许一个活跃 run，重复调用会抛错 */\n    run<TInput extends JsonParams>(command: AiRunAdapterCommand<TInput>): Promise<AiRunAdapterRunStatus>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "isRunning",
+              "jsdoc": "是否有活跃的 run 正在执行",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "abort",
+              "jsdoc": "中断当前 run（仅在有活跃 run 时生效）",
+              "parameters": [
+                {
+                  "name": "reason",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "snapshot",
+              "jsdoc": "获取当前只读快照",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "AiRunSnapshot",
+                "sourcePath": "packages/spark-app/src/ai/ai-run-adapter.ts"
+              }
+            },
+            {
+              "name": "subscribe",
+              "jsdoc": "订阅快照变化；返回取消订阅函数",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiRunListener",
+                    "sourcePath": "packages/spark-app/src/ai/ai-run-adapter.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "run",
+              "jsdoc": "发起一次 AI run；同一时刻只允许一个活跃 run，重复调用会抛错",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiRunAdapterCommand",
+                    "sourcePath": "packages/spark-app/src/ai/ai-run-adapter.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "TInput",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "AiRunAdapterRunStatus",
+                    "sourcePath": "packages/spark-app/src/ai/ai-run-adapter.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

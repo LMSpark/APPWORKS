@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:router/cross-project-ref-page",
+    "sourcePath": "packages/spark-app/src/router/cross-project-ref-page.ts",
+    "sourceFile": "packages/spark-app/src/router/cross-project-ref-page.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "router/cross-project-ref-page",
+    "jsdoc": "@module @spark-appworks/spark-app:router/cross-project-ref-page\n职责：解析蓝图引用的明确调用目标并导航。\n边界：目标由既有路由装配，不重复加载数据空间。\nAI用途：定位跨项目引用的请求作用域与场景参数传递。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "CrossProjectRefPageRouteProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CrossProjectRefPageRouteProps",
+      "properties": {
+        "route": {
+          "type": "object",
+          "title": "RouteLocationNormalizedLoaded"
+        }
+      },
+      "required": [
+        "route"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T21:12:08.627Z",
+  "models": {
+    "CrossProjectRefPageRouteProps": {
+      "name": "CrossProjectRefPageRouteProps",
+      "jsdoc": "本次引用调用的路由快照；保留场景 query 和 hash 传给实际目标。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    route: RouteLocationNormalizedLoaded;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "route",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

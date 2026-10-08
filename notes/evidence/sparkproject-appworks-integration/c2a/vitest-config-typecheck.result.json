@@ -1,0 +1,7 @@
+{
+  "startedAt": "2026-10-07T14:57:47.7103871+08:00",
+  "command": "pnpm exec tsc --noEmit --skipLibCheck --target ES2022 --module ESNext --moduleResolution Bundler --types node packages/spark-app/vitest.config.ts",
+  "endedAt": "2026-10-07T14:57:48.6104308+08:00",
+  "exitCode": 1,
+  "cwd": "D:\\SPARK_AppWorks"
+}

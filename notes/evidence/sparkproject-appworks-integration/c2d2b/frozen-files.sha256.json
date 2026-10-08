@@ -1,0 +1,46 @@
+{
+  "workspace": "D:\\SPARK_AppWorks",
+  "scope": "C2d2b approved exact 10 files",
+  "files": [
+    {
+      "path": "src/services/project/project-shell.ts",
+      "sha256": "755133ab9cf4f42d8f2b2028f9178fd6b59bc61329e6909cd2d1e25f86f1ff66"
+    },
+    {
+      "path": "src/App.vue",
+      "sha256": "9acc5948a595bddd4996b7d01126582fa1eec263b71a3dbaf8f1c0ab4fdb5c69"
+    },
+    {
+      "path": "src/views/tenant/AppList.vue",
+      "sha256": "54d868d6e1adb7b7d6d88c46b4547786c1f3307dbb8ec08746abe0eff661ff55"
+    },
+    {
+      "path": "src/views/platform/PlatformApps.vue",
+      "sha256": "0c7f0395c774473bd51ce0376b8b828543d39e9df786d225c796be87fde14ad3"
+    },
+    {
+      "path": "src/views/platform/PlatformTenantManagement.vue",
+      "sha256": "114bdcb6703883ee6d2de95245c2d3bb3785e22669bccf8c110ccdf8fbe63219"
+    },
+    {
+      "path": "src/layout/AppTabBar.vue",
+      "sha256": "9e6afbae6dd55dab092057f41dc58b9bdff8d1e52690a06ff50933f6a4001b3a"
+    },
+    {
+      "path": "tests/app/dev/navigation-sync.test.ts",
+      "sha256": "29921f363b81730467849f23f58850d2c3446025a40fd7e723c54de4fe00c6cd"
+    },
+    {
+      "path": "tests/app/services/project/application-switch.test.ts",
+      "sha256": "d3adb2f1e3fd8878de99c39c5e57d98722ed5f3defb30c933817e7cfc40cb281"
+    },
+    {
+      "path": "packages/spark-app/src/router/dynamic.ts",
+      "sha256": "c33a961c88966ad8312b89134371b170c15776670c536d82a16e11aa05bd4119"
+    },
+    {
+      "path": "tests/runtime/page/runtime/system-page-identity-tabs.test.ts",
+      "sha256": "b76d4106cab4de86aa35b442811508091954da0426a0bb2f0baa52e8a54559a9"
+    }
+  ]
+}

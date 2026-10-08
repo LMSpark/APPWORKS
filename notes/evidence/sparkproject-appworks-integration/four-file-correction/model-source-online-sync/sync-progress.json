@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-08T05:48:58.330Z",
+  "mode": "sync",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "toolId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "stage": "upload:rule.json",
+  "outcomes": [
+    {
+      "fileName": "pagedata.json",
+      "status": "already-matches",
+      "sha256": "86ccf1cd4ae3b0a792ff91458074a691dd738955ce99bd21e65033267881a0c1"
+    },
+    {
+      "fileName": "script.js",
+      "status": "uploaded-and-byte-verified",
+      "sha256": "8e5b9cecb06ad9421f615e2fff117854c15234db97810301dafaf6b431cc913b"
+    },
+    {
+      "fileName": "style.css",
+      "status": "uploaded-and-byte-verified",
+      "sha256": "94a373df0de286e39c2cdab36d651ef1aa1314c6d481d4048b4ab02a120e9a3e"
+    },
+    {
+      "fileName": "rule.json",
+      "status": "uploaded-and-byte-verified",
+      "sha256": "6b3ca1c7c552bea684dcaffbe1ff91737e8ba501827956c29f90abca93cc9116"
+    }
+  ]
+}

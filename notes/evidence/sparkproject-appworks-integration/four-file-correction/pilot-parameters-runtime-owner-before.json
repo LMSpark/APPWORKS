@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-07T21:24:19.736Z",
+  "url": "http://127.0.0.1:5273/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/__tool/8D1AB14DD8277F3E7017CD38F77B09FD?scenarioId=8D1AB14DD8277F3E7017CD38F77B09FD&additionalScenarioIds=90A82E287930A234FEC3E687C94A93EA&dataSpaceId=97DCB03F75AADEAE6B102B062DB71CEA&returnTo=%2Ft%2FNewApp%2FD99A1DCE9894698799101EFD70F8FC76%2F__tool%2F90A82E287930A234FEC3E687C94A93EA%3FscenarioId%3D90A82E287930A234FEC3E687C94A93EA%26additionalScenarioIds%3D8D1AB14DD8277F3E7017CD38F77B09FD%26additionalScenarioIds%3D7AB874097A1E8711A42FD845939A6E05",
+  "owners": [
+    {
+      "instanceId": "e06b6aa0-5899-451e-8664-03855a98f065",
+      "isDirty": false,
+      "targets": [
+        {
+          "access": {
+            "component": "editable",
+            "read": "visible",
+            "required": false,
+            "write": "allowed",
+            "writeMode": "editable"
+          },
+          "id": "97DCB03F75AADEAE6B102B062DB71CEA"
+        }
+      ],
+      "viewExists": true
+    }
+  ]
+}

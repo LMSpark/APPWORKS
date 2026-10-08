@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/save/data-space-save-result",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-result.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-result.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/save/data-space-save-result",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/save/data-space-save-result\n职责：解析统一保存封包中的实际动作回执。\n边界：逐模型核对提交分组和返回桶，不把端点成功当作行保存成功。\nAI用途：识别字段失败并返回待上下文身份核对的实际行。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "DataSpaceSaveReceipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveReceipt",
+      "properties": {
+        "metaName": {
+          "type": "string"
+        },
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataSpaceReceiptRow"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataSpaceReceiptRow"
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataSpaceReceiptRow"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceSaveSuccessOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveSuccessOptions",
+      "properties": {
+        "fallback": {
+          "type": "string"
+        },
+        "treatErrorMessageAsFailure": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T21:30:24.085Z",
+  "models": {
+    "DataSpaceSavePlan": {
+      "name": "DataSpaceSavePlan",
+      "jsdoc": "单模型实际提交的 CRUD 分组，用于核对后端回执桶的顺序与数量。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<DataSpaceQueryContext['buildSaveRequest']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<DataSpaceQueryContext['buildSaveRequest']>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceReceiptRow": {
+      "name": "DataSpaceReceiptRow",
+      "jsdoc": "后端动作桶返回的原始行副本，尚未完成正式模型字段映射。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, unknown>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceSaveReceipt": {
+      "name": "DataSpaceSaveReceipt",
+      "jsdoc": "模型 Name 与实际新增、更新、删除行；由查询上下文进一步核对身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    metaName: string;\n    added: DataSpaceReceiptRow[];\n    changed: DataSpaceReceiptRow[];\n    deleted: DataSpaceReceiptRow[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    metaName: string;\n    added: DataSpaceReceiptRow[];\n    changed: DataSpaceReceiptRow[];\n    deleted: DataSpaceReceiptRow[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "added",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSaveSuccessOptions": {
+      "name": "DataSpaceSaveSuccessOptions",
+      "jsdoc": "封包错误判定选项，控制缺省错误文案与错误消息是否视为失败。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fallback?: string;\n    treatErrorMessageAsFailure?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fallback?: string;\n    treatErrorMessageAsFailure?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fallback",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "treatErrorMessageAsFailure",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

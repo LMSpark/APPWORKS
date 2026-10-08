@@ -1,0 +1,391 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/page-design/page-design-ai-runner",
+    "sourcePath": "src/services/page-design/page-design-ai-runner.ts",
+    "sourceFile": "src/services/page-design/page-design-ai-runner.ts",
+    "packageName": "app",
+    "modulePath": "services/page-design/page-design-ai-runner",
+    "jsdoc": "@module app:services/page-design-ai-runner\n职责：提供应用层 pageDesign 的 page-design-ai-runner 能力，围绕 PageDesignAiRunOptions、PageDesignAiRunEvents、PageDesignAiRunCommand 等 4 个公开契约 接线 AI runner、业务门禁、知识服务或编辑器状态。\n边界：只编排 app 层页面设计流程，不替代 spark-ai Host，也不直接实现底层组件渲染器。\nAI用途：排查 pageDesign 会话、工具门禁或页面三文件生成链路时，用本模块定位 services/page-design-ai-runner。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "PageDesignAiRunOptions",
+      "PageDesignAiRunEvents",
+      "PageDesignAiRunCommand",
+      "PageDesignAiRunResult"
+    ]
+  },
+  "$defs": {
+    "PageDesignAiRunOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignAiRunOptions",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignRunMode"
+        },
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        },
+        "preserveExistingInteractions": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "PageDesignAiRunEvents": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignAiRunEvents",
+      "$defs": {
+        "method.onToolCall.params": {
+          "type": "object",
+          "properties": {
+            "record": {
+              "$ref": "../../../packages/spark-ai/src/agent/conversation/chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onToolCall.return": true
+      }
+    },
+    "PageDesignAiRunCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignAiRunCommand",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignRunMode"
+        },
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        },
+        "preserveExistingInteractions": {
+          "type": "boolean"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "editor": {
+          "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+        },
+        "events": {
+          "$ref": "#/$defs/PageDesignAiRunEvents"
+        },
+        "trace": {
+          "$ref": "../../../packages/spark-app/src/ai/ai-run-adapter.ts.json#/$defs/AiRunTraceSink"
+        },
+        "adapter": {
+          "$ref": "../../../packages/spark-app/src/ai/ai-run-adapter.ts.json#/$defs/AiRunAdapterState"
+        },
+        "beforeFunctionCall": {
+          "type": "object",
+          "title": "AiRunBeforeFunctionCall"
+        },
+        "onAbort": {
+          "type": "object",
+          "title": "AiRunAbortHandler"
+        },
+        "userMessage": {
+          "type": "string"
+        },
+        "saveDirtyFilesAfterRun": {
+          "type": "boolean"
+        },
+        "deliverySaveFileNames": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "PageToolFileName"
+          }
+        }
+      },
+      "required": [
+        "description",
+        "pageId",
+        "editor"
+      ],
+      "additionalProperties": false
+    },
+    "PageDesignAiRunResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignAiRunResult",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "delivery": {
+          "$ref": "../ai/ai-delivery-port.ts.json#/$defs/AiDeliveryResult"
+        },
+        "sawToolCall": {
+          "type": "boolean"
+        },
+        "files": {
+          "$ref": "../../../packages/spark-project-model/src/project/project-types.ts.json#/$defs/ProjectActivePageProjection"
+        },
+        "dirtyFileNames": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "PageToolFileName"
+          }
+        },
+        "savedDirtyFileNames": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "PageToolFileName"
+          }
+        }
+      },
+      "required": [
+        "requestId",
+        "delivery",
+        "sawToolCall",
+        "files",
+        "dirtyFileNames",
+        "savedDirtyFileNames"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T01:13:38.175Z",
+  "models": {
+    "PageDesignAiRunOptions": {
+      "name": "PageDesignAiRunOptions",
+      "jsdoc": "Page Design Ai Run Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** description 字段。 */\n    description: string;\n    requestId?: string;\n    scenarioId?: string;\n    /** mode 字段。 */\n    mode?: PageDesignRunMode;\n    /** allowed Operations 字段。 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** preserve Existing Interactions 字段。 */\n    preserveExistingInteractions?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "description",
+              "jsdoc": "description 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "jsdoc": "mode 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowedOperations",
+              "jsdoc": "allowed Operations 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preserveExistingInteractions",
+              "jsdoc": "preserve Existing Interactions 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDesignAiRunEvents": {
+      "name": "PageDesignAiRunEvents",
+      "jsdoc": "DevSystem 侧 channel：仅转发 tool call 状态，不承载 stream/delta/reasoning（见 trace / spark-ai）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** on Tool Call 事件回调。 */\n    onToolCall?: (record: AiAgentToolCallRecord) => void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "onToolCall",
+              "jsdoc": "on Tool Call 事件回调。",
+              "parameters": [
+                {
+                  "name": "record",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentToolCallRecord"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDesignAiRunCommand": {
+      "name": "PageDesignAiRunCommand",
+      "jsdoc": "Page Design Ai Run Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageDesignAiRunOptions & {\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageDesignAiRunOptions",
+            "targetName": "PageDesignAiRunOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** editor 字段。 */\n    editor: ProjectWorkspace;\n    /** events 字段。 */\n    events?: PageDesignAiRunEvents;\n    /** trace 字段。 */\n    trace?: AiRunTraceSink;\n    /** adapter 字段。 */\n    adapter?: AiRunAdapterState;\n    /** before Function Call 字段。 */\n    beforeFunctionCall?: AiRunBeforeFunctionCall;\n    /** on Abort 事件回调。 */\n    onAbort?: AiRunAbortHandler;\n    /** user Message 字段。 */\n    userMessage?: string;\n    /** 自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。 */\n    saveDirtyFilesAfterRun?: boolean;\n    /** 仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。 */\n    deliverySaveFileNames?: readonly PageToolFileName[];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "page Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editor",
+              "jsdoc": "editor 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "events",
+              "jsdoc": "events 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "trace",
+              "jsdoc": "trace 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "adapter",
+              "jsdoc": "adapter 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "beforeFunctionCall",
+              "jsdoc": "before Function Call 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onAbort",
+              "jsdoc": "on Abort 事件回调。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "userMessage",
+              "jsdoc": "user Message 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveDirtyFilesAfterRun",
+              "jsdoc": "自动化/headless 调用可打开；DevSystem 默认保持手动保存语义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deliverySaveFileNames",
+              "jsdoc": "仅 commit 指定 dirty 页面文件；未传则 save 全部 dirty 三文件。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDesignAiRunResult": {
+      "name": "PageDesignAiRunResult",
+      "jsdoc": "Page Design Ai Run Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    requestId: string;\n    scenarioId?: string;\n    delivery: AiDeliveryResult;\n    /** saw Tool Call 字段。 */\n    sawToolCall: boolean;\n    /** files 字段。 */\n    files: ProjectActivePageProjection;\n    /** dirty File Names 字段。 */\n    dirtyFileNames: PageToolFileName[];\n    /** saved Dirty File Names 字段。 */\n    savedDirtyFileNames: PageToolFileName[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "delivery",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sawToolCall",
+              "jsdoc": "saw Tool Call 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "files",
+              "jsdoc": "files 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dirtyFileNames",
+              "jsdoc": "dirty File Names 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "savedDirtyFileNames",
+              "jsdoc": "saved Dirty File Names 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

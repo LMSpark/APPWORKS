@@ -1,0 +1,265 @@
+{
+  "kind": "read-only source and in-memory probe; no backend execution",
+  "capturedAt": "2026-10-08T15:48:43.700Z",
+  "inventory": {
+    "DataSetMetadata": [
+      "schemaVersion",
+      "dataSetName",
+      "scenarioId",
+      "tables",
+      "resourceRelations",
+      "viewCascades",
+      "version",
+      "pageId",
+      "saveChanges",
+      "layout"
+    ],
+    "TableMetadata": [
+      "resourceType",
+      "resourceId",
+      "modelBinding",
+      "businessCategory",
+      "tableName",
+      "columns",
+      "api",
+      "crudConfig",
+      "views"
+    ],
+    "DataColumn": [
+      "name",
+      "type",
+      "label",
+      "allowDBNull",
+      "defaultValue",
+      "isPrimaryKey",
+      "autoIncrement",
+      "isComputed",
+      "required",
+      "minLength",
+      "maxLength",
+      "min",
+      "max",
+      "pattern",
+      "patternMessage",
+      "computeExpression"
+    ],
+    "ViewMetadata": [
+      "tableName",
+      "viewId",
+      "fieldProjection",
+      "queryContext",
+      "rows",
+      "filterExpression",
+      "sortExpression",
+      "autoCurrentFirst",
+      "autoSelectFirst",
+      "page",
+      "pageSize",
+      "treeConfig",
+      "valueField",
+      "labelField",
+      "selectionDelimiter",
+      "autoLoad",
+      "commitMode",
+      "aggregates"
+    ],
+    "HttpEndpoint": [
+      "url",
+      "method",
+      "headers",
+      "params",
+      "pathParams",
+      "baseURL"
+    ],
+    "CrudApi": [
+      "node",
+      "children",
+      "path",
+      "subtree",
+      "move",
+      "search",
+      "nested",
+      "nestedSearch",
+      "create",
+      "retrieve",
+      "update",
+      "delete",
+      "transaction",
+      "list",
+      "batch",
+      "import",
+      "export"
+    ],
+    "CrudOperationConfig": [
+      "timeout",
+      "retryCount",
+      "validateData",
+      "transformRequest",
+      "transformResponse"
+    ],
+    "TreeConfig": [
+      "idField",
+      "parentIdField",
+      "textField",
+      "depthLimit",
+      "lazy",
+      "treeMode",
+      "serverPaginationMode",
+      "filterMode"
+    ],
+    "DataViewFieldProjection": [
+      "fieldId",
+      "source",
+      "resourceFieldId",
+      "resourceField",
+      "viewField",
+      "type",
+      "label",
+      "output",
+      "sortOrder",
+      "sortDirection",
+      "group",
+      "distinct",
+      "primaryKey",
+      "value",
+      "valueFunction",
+      "expression"
+    ],
+    "DataSetSaveChangesConfig": [
+      "mode",
+      "transaction"
+    ],
+    "DataResourceRelation": [
+      "relationId",
+      "sourceRelationId",
+      "relationName",
+      "parentTable",
+      "childTable",
+      "filterExpression",
+      "cascadeUpdate",
+      "cascadeDelete"
+    ],
+    "DataViewQueryCascade": [
+      "kind",
+      "cascadeId",
+      "sourceRelationId",
+      "parentTable",
+      "parentViewId",
+      "childTable",
+      "childViewId",
+      "filterBindings",
+      "dependencyType",
+      "autoLoad"
+    ],
+    "DataViewFieldCascade": [
+      "kind",
+      "cascadeId",
+      "tableName",
+      "viewId",
+      "rowMode",
+      "targetField",
+      "parents",
+      "optionsView",
+      "valuePolicy"
+    ],
+    "DataSetLayoutMetadata": [
+      "tablePositions"
+    ]
+  },
+  "mainPropertyCount": 53,
+  "projection": {
+    "request": {
+      "Table": [
+        {
+          "Name": "Base_DataSet",
+          "OutputType": "Table",
+          "Filter": null,
+          "inputParams": [],
+          "DISTINCT": false,
+          "IsBusinessMain": 1,
+          "Fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            }
+          ]
+        }
+      ]
+    },
+    "hasOutputFieldMode": false
+  },
+  "autoload": {
+    "configured": [
+      "default",
+      "detail"
+    ],
+    "called": [
+      "default"
+    ]
+  },
+  "tree": {
+    "configured": {
+      "idField": "rowid",
+      "parentIdField": "parentId",
+      "lazy": true,
+      "treeMode": "nested"
+    },
+    "nestedWire": {
+      "Table": [
+        {
+          "Name": "Base_DataSet",
+          "OutputType": "Table",
+          "Filter": null,
+          "inputParams": [],
+          "DISTINCT": false,
+          "IsBusinessMain": 1,
+          "Fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            }
+          ]
+        }
+      ],
+      "PageParam": {
+        "index": 1,
+        "size": 20
+      }
+    },
+    "flatWire": {
+      "Table": [
+        {
+          "Name": "Base_DataSet",
+          "OutputType": "Table",
+          "Filter": null,
+          "inputParams": [],
+          "DISTINCT": false,
+          "IsBusinessMain": 1,
+          "Fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            }
+          ]
+        }
+      ],
+      "PageParam": {
+        "index": 1,
+        "size": 20
+      }
+    },
+    "equal": true
+  },
+  "networkRequests": 0,
+  "sourceHashes": {
+    "packages/spark-data/src/types.ts": "ed693478386367cbf14c0ff53e64538b31f6f9545219c93d65321d5483678954",
+    "packages/spark-project-model/src/scenario/scenario-view-config.ts": "3d233e18d87c325a0af6764d2279efb74b907f0e07b21303f943890a5c501ca2",
+    "src/lowcode/data-space/lowcode-data-space-assembler.ts": "7c1aafc37ecad16c221ef2c89e33ed21d20065b7b1e82a858fdf624f313cc732",
+    "packages/spark-data/src/dataset.ts": "b3c562827aa1529056e7ad1fb1c9b7a4337d8e169efb0af45609834911ecd575",
+    "packages/spark-data/src/data-view.ts": "2095ce8b5851d6d6af6655bd4d5d739f77df7eeb2af47a0b9b713c253731d10a",
+    "packages/spark-component/src/page/renderer/SparkPageRenderer.vue": "9c81a8c3cccf3cf4d8eda990850e11f3dfa9f78972b356b7838f7a805de4206f",
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts": "7263f861ca41c1df154ea106b0bb1feb381a2d47a1442191a02ed63642246274",
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts": "712a0e2d41c2c251a4e53fb6239ee7f08da1444a3574311e7e039c897a66e7f0",
+    "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/service/impl/BasicFunServiceImpl.java": "320473b8f688e1a6fea92624ec384d3fcd05f877bf07afdf4e1eab229d095dc8"
+  }
+}

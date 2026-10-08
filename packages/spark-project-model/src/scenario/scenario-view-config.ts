@@ -4,7 +4,7 @@
  * 边界：正式模型与运行数据不属于此文件。
  * AI用途：校验modelBinding、命名视图与显式级联。
  */
-import { DataViewFilter } from '@spark-appworks/spark-data'
+import { DataViewFilter, DataViewFieldCascadeDefinition } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 
 /** 只读JSON配置对象，构造时校验并递归冻结。 */
@@ -45,17 +45,53 @@ export class ScenarioViewConfig {
     this.#scenarioId = name(scenarioId, 'scenarioId')
     const input: unknown = JSON.parse(text)
     const config = record(input, 'pagedata')
-    keys(config, ['scenarioId', 'tables', 'viewCascades'], 'pagedata')
+    keys(config, ['scenarioId', 'tables', 'viewCascades', 'schemaVersion', 'version', 'saveChanges', 'layout'], 'pagedata')
     if (name(config['scenarioId'], 'pagedata.scenarioId') !== this.#scenarioId) throw new Error('pagedata 不属于当前场景')
     const tables = record(config['tables'], 'tables')
+    if ('schemaVersion' in config && (typeof config['schemaVersion'] !== 'number'
+      || !Number.isSafeInteger(config['schemaVersion']) || config['schemaVersion'] <= 0)) {
+      throw new Error('pagedata.schemaVersion 必须是正安全整数')
+    }
+    if ('version' in config && (typeof config['version'] !== 'number'
+      || !Number.isSafeInteger(config['version']) || config['version'] < 0)) {
+      throw new Error('pagedata.version 必须是非负安全整数')
+    }
+    if ('saveChanges' in config) {
+      const save = record(config['saveChanges'], 'pagedata.saveChanges')
+      keys(save, ['mode'], 'pagedata.saveChanges')
+      if ('mode' in save && save['mode'] !== 'perView') throw new Error('pagedata.saveChanges.mode 仅支持 perView')
+    }
+    if ('layout' in config) {
+      const layout = record(config['layout'], 'pagedata.layout')
+      keys(layout, ['tablePositions'], 'pagedata.layout')
+      if ('tablePositions' in layout) {
+        const positions = record(layout['tablePositions'], 'pagedata.layout.tablePositions')
+        for (const [tableName, value] of Object.entries(positions)) {
+          if (!Object.hasOwn(tables, tableName)) throw new Error(`pagedata.layout 未知表: ${tableName}`)
+          const position = record(value, `pagedata.layout.tablePositions.${tableName}`)
+          keys(position, ['x', 'y'], `pagedata.layout.tablePositions.${tableName}`)
+          for (const axis of ['x', 'y']) {
+            if (typeof position[axis] !== 'number' || !Number.isFinite(position[axis])) {
+              throw new Error(`pagedata.layout.tablePositions.${tableName}.${axis} 必须是有限数值`)
+            }
+          }
+        }
+      }
+    }
     for (const [tableName, inputTable] of Object.entries(tables)) {
       name(tableName, 'tableName')
       const table = record(inputTable, `tables.${tableName}`)
-      keys(table, ['modelBinding', 'views'], `tables.${tableName}`)
+      keys(table, ['modelBinding', 'businessCategory', 'columns', 'views', 'api', 'crudConfig'], `tables.${tableName}`)
+      this.validateSubmission(table, `tables.${tableName}`)
+      if ('businessCategory' in table && (typeof table['businessCategory'] !== 'string'
+        || !table['businessCategory'].trim())) {
+        throw new Error(`tables.${tableName}.businessCategory 必须是非空字符串`)
+      }
       const binding = record(table['modelBinding'], `${tableName}.modelBinding`)
       keys(binding, ['modelId', 'modelName'], `${tableName}.modelBinding`)
       name(binding['modelId'], `${tableName}.modelId`)
       name(binding['modelName'], `${tableName}.modelName`)
+      if ('columns' in table) this.validateColumns(table['columns'], `tables.${tableName}.columns`)
       const views = record(table['views'], `${tableName}.views`)
       if (!Object.hasOwn(views, 'default')) throw new Error(`${tableName} 缺少 views.default`)
       for (const [viewId, view] of Object.entries(views)) {
@@ -65,7 +101,15 @@ export class ScenarioViewConfig {
     }
     if ('viewCascades' in config) {
       if (!Array.isArray(config['viewCascades'])) throw new Error('viewCascades 必须是数组')
-      config['viewCascades'].forEach(item => this.validateCascade(record(item, 'viewCascades'), tables))
+      for (const item of config['viewCascades']) {
+        const cascade = record(item, 'viewCascades')
+        if (cascade['kind'] !== 'field') this.validateCascade(cascade, tables)
+      }
+      const fields = DataViewFieldCascadeDefinition.validateAll(config['viewCascades'])
+      DataViewFieldCascadeDefinition.validateViews(fields, (tableName, viewId) => {
+        const table = tables[tableName]
+        return isRecord(table) && isRecord(table['views']) && Object.hasOwn(table['views'], viewId)
+      })
     }
     freezeJson(config)
     this.#config = config
@@ -74,6 +118,83 @@ export class ScenarioViewConfig {
 
   public get scenarioId(): string { return this.#scenarioId }
   public toJSON(): ScenarioConfigObject { return this.#config }
+
+  private validateSubmission(table: ScenarioConfigObject, path: string): void {
+    if ('api' in table) {
+      const api = record(table['api'], `${path}.api`)
+      keys(api, ['create', 'update', 'delete'], `${path}.api`)
+      for (const [operation, value] of Object.entries(api)) {
+        const endpoint = record(value, `${path}.api.${operation}`)
+        keys(endpoint, ['url', 'method', 'headers', 'params'], `${path}.api.${operation}`)
+        const url = name(endpoint['url'], `${path}.api.${operation}.url`)
+        if (url !== endpoint['url'] || !/^\/(?!\/)[^\\#{}\s]*$/.test(url)) throw new Error(`${path}.api 需要无模板的站内绝对路径`)
+        if ('method' in endpoint && endpoint['method'] !== 'POST') throw new Error(`${path}.api SPARK 提交只支持 POST`)
+        if ('params' in endpoint) record(endpoint['params'], `${path}.api.${operation}.params`)
+        if ('headers' in endpoint) {
+          const headers = record(endpoint['headers'], `${path}.api.${operation}.headers`)
+          const seen = new Set<string>()
+          for (const [key, header] of Object.entries(headers)) {
+            const normalized = key.toLowerCase()
+            if (!key.trim() || typeof header !== 'string' || seen.has(normalized)
+              || /authorization|cookie|token|^x-(formkey|appid|tenant|enterprise|user)/i.test(key)) {
+              throw new Error(`${path}.api 端点头无效或包含运行身份/凭据`)
+            }
+            seen.add(normalized)
+          }
+        }
+      }
+    }
+    if ('crudConfig' in table) {
+      const policy = record(table['crudConfig'], `${path}.crudConfig`)
+      keys(policy, ['timeout', 'retryCount', 'validateData'], `${path}.crudConfig`)
+      if ('timeout' in policy && (typeof policy['timeout'] !== 'number' || !Number.isSafeInteger(policy['timeout'])
+        || policy['timeout'] <= 0)) throw new Error(`${path}.crudConfig.timeout 必须是正安全整数`)
+      if ('retryCount' in policy && policy['retryCount'] !== 0) throw new Error(`${path}.crudConfig 正式保存不支持自动重试`)
+      if ('validateData' in policy && policy['validateData'] !== true) throw new Error(`${path}.crudConfig 正式保存不能关闭校验`)
+    }
+  }
+
+  private validateColumns(input: unknown, path: string): void {
+    if (!Array.isArray(input)) throw new Error(`${path} 必须是数组`)
+    const seen = new Set<string>()
+    input.forEach((item, index) => {
+      const columnPath = `${path}[${index}]`
+      const column = record(item, columnPath)
+      const local = Object.hasOwn(column, 'computeExpression')
+      keys(column, ['name', 'required', 'minLength', 'maxLength', 'min', 'max', 'pattern', 'patternMessage',
+        ...(local ? ['type', 'label', 'computeExpression'] : [])], columnPath)
+      const columnName = name(column['name'], `${columnPath}.name`)
+      if (columnName !== column['name'] || seen.has(columnName)) throw new Error(`${columnPath}.name 必须是唯一的原始输出名`)
+      if (local) {
+        if (columnName === '_pk' || columnName.startsWith('lingma_sys_')) throw new Error(`${columnPath}.name 是框架控制字段`)
+        name(column['type'], `${columnPath}.type`)
+        name(column['computeExpression'], `${columnPath}.computeExpression`)
+        if ('label' in column && typeof column['label'] !== 'string') throw new Error(`${columnPath}.label 必须是字符串`)
+      }
+      seen.add(columnName)
+      optionalBoolean(column, 'required', columnPath)
+      for (const key of ['minLength', 'maxLength']) {
+        const value = column[key]
+        if (key in column && (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0)) {
+          throw new Error(`${columnPath}.${key} 必须是非负安全整数`)
+        }
+      }
+      for (const key of ['min', 'max']) {
+        const value = column[key]
+        if (key in column && (typeof value !== 'number' || !Number.isFinite(value))) throw new Error(`${columnPath}.${key} 必须是有限数值`)
+      }
+      if (typeof column['minLength'] === 'number' && typeof column['maxLength'] === 'number'
+        && column['minLength'] > column['maxLength']) throw new Error(`${columnPath} 长度下界大于上界`)
+      if (typeof column['min'] === 'number' && typeof column['max'] === 'number'
+        && column['min'] > column['max']) throw new Error(`${columnPath} 数值下界大于上界`)
+      for (const key of ['pattern', 'patternMessage']) {
+        if (key in column && typeof column[key] !== 'string') throw new Error(`${columnPath}.${key} 必须是字符串`)
+      }
+      if (typeof column['pattern'] === 'string') {
+        try { new RegExp(column['pattern']) } catch { throw new Error(`${columnPath}.pattern 正则表达式无效`) }
+      }
+    })
+  }
 
   private validateView(view: ScenarioConfigObject, path: string): void {
     keys(view, ['fieldProjection', 'queryContext', 'filterExpression', 'sortExpression', 'autoCurrentFirst',
@@ -154,8 +275,9 @@ export class ScenarioViewConfig {
   }
 
   private validateCascade(cascade: ScenarioConfigObject, tables: ScenarioConfigObject): void {
-    keys(cascade, ['cascadeId', 'sourceRelationId', 'parentTable', 'parentViewId', 'childTable', 'childViewId',
-      'filterBindings', 'dependencyType', 'autoLoad'], 'viewCascades')
+    keys(cascade, ['kind', 'cascadeId', 'sourceRelationId', 'parentTable', 'parentViewId', 'childTable', 'childViewId',
+      'filterBindings', 'autoLoad'], 'viewCascades')
+    if ('kind' in cascade && cascade['kind'] !== 'query') throw new Error('viewCascades.kind 无效')
     for (const prefix of ['parent', 'child']) {
       const tableName = name(cascade[`${prefix}Table`], `viewCascades.${prefix}Table`)
       const viewId = name(cascade[`${prefix}ViewId`], `viewCascades.${prefix}ViewId`)
@@ -165,12 +287,11 @@ export class ScenarioViewConfig {
     }
     for (const key of ['cascadeId', 'sourceRelationId']) if (key in cascade) name(cascade[key], `viewCascades.${key}`)
     optionalBoolean(cascade, 'autoLoad', 'viewCascades')
-    if ('dependencyType' in cascade && !['currentRow', 'selectedRows', 'allRows', 'pagedRows'].some(type => type === cascade['dependencyType'])) throw new Error('viewCascades.dependencyType 无效')
     if (!Array.isArray(cascade['filterBindings'])) throw new Error('viewCascades.filterBindings 必须是数组')
     for (const input of cascade['filterBindings']) {
       const binding = record(input, 'viewCascades.filterBindings')
       keys(binding, ['sourceField', 'targetField'], 'viewCascades.filterBindings')
-      name(binding['sourceField'], 'viewCascades.sourceField')
+      if ('sourceField' in binding) name(binding['sourceField'], 'viewCascades.sourceField')
       name(binding['targetField'], 'viewCascades.targetField')
     }
   }

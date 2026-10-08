@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/support/interactionControl",
+    "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/support/interactionControl.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/support/interactionControl",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/interactionControl\n职责：维护 @spark-appworks/spark-component 中 components/containers/support/interactionControl 的模块能力，围绕 CancellableControl、InteractionControl、CancelableHandler 等 9 个公开契约 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/containers/support/interactionControl 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CancellableControl",
+      "InteractionControl",
+      "CancelableHandler",
+      "RowClickHandler",
+      "RowSelectionHandler",
+      "CurrentRowChangeHandler",
+      "AddRowHandler",
+      "EditRowHandler",
+      "RemoveRowHandler"
+    ]
+  },
+  "$defs": {
+    "CancellableControl": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CancellableControl",
+      "properties": {
+        "cancel": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "cancel"
+      ],
+      "additionalProperties": false
+    },
+    "InteractionControl": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InteractionControl",
+      "properties": {
+        "cancel": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "cancel"
+      ],
+      "additionalProperties": false
+    },
+    "CancelableHandler": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CancelableHandler",
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.465Z",
+  "models": {
+    "CancellableControl": {
+      "name": "CancellableControl",
+      "jsdoc": "Cancellable Control 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** cancel 字段。 */\n    cancel: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "cancel",
+              "jsdoc": "cancel 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "InteractionControl": {
+      "name": "InteractionControl",
+      "jsdoc": "Interaction Control 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** cancel 字段。 */\n    cancel: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "cancel",
+              "jsdoc": "cancel 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CancelableHandler": {
+      "name": "CancelableHandler",
+      "jsdoc": "Cancelable Handler 的回调函数契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (...args: [...TArgs, InteractionControl]): void | Promise<void>;\n}",
+        "members": {}
+      }
+    },
+    "RowClickHandler": {
+      "name": "RowClickHandler",
+      "jsdoc": "Row Click Handler 的回调函数契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "CancelableHandler<[DataRow, unknown, Event | undefined]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "CancelableHandler<[DataRow, unknown, Event | undefined]>",
+            "targetName": "CancelableHandler"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RowSelectionHandler": {
+      "name": "RowSelectionHandler",
+      "jsdoc": "Row Selection Handler 的回调函数契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "CancelableHandler<[DataRow[]]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "CancelableHandler<[DataRow[]]>",
+            "targetName": "CancelableHandler"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "CurrentRowChangeHandler": {
+      "name": "CurrentRowChangeHandler",
+      "jsdoc": "Current Row Change Handler 的回调函数契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "CancelableHandler<[DataRow | null, DataRow | null | undefined]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "CancelableHandler<[DataRow | null, DataRow | null | undefined]>",
+            "targetName": "CancelableHandler"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AddRowHandler": {
+      "name": "AddRowHandler",
+      "jsdoc": "Add Row Handler 的回调函数契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "CancelableHandler<[Partial<DataRow>]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "CancelableHandler<[Partial<DataRow>]>",
+            "targetName": "CancelableHandler"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "EditRowHandler": {
+      "name": "EditRowHandler",
+      "jsdoc": "Edit Row Handler 的回调函数契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "CancelableHandler<[string | number, Partial<DataRow>]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "CancelableHandler<[string | number, Partial<DataRow>]>",
+            "targetName": "CancelableHandler"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RemoveRowHandler": {
+      "name": "RemoveRowHandler",
+      "jsdoc": "Remove Row Handler 的回调函数契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "CancelableHandler<[string | number]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "CancelableHandler<[string | number]>",
+            "targetName": "CancelableHandler"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

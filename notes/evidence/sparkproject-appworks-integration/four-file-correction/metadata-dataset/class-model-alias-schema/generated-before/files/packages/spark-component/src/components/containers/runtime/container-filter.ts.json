@@ -1,0 +1,471 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/runtime/container-filter",
+    "sourcePath": "packages/spark-component/src/components/containers/runtime/container-filter.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/runtime/container-filter.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/runtime/container-filter",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/runtime/container-filter\n职责：提供 container filter 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FilterPanelState"
+    ]
+  },
+  "$defs": {
+    "ErrorLoggerLike": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ErrorLoggerLike",
+      "$defs": {
+        "method.error.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "error": true
+          },
+          "additionalProperties": false
+        },
+        "method.error.return": true
+      }
+    },
+    "FilterPanelDataView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterPanelDataView",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        "columns": {
+          "type": "array",
+          "items": true
+        },
+        "filterExpression": {
+          "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+        },
+        "dataTable": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "api": {
+              "type": "object",
+              "properties": {
+                "list": true
+              },
+              "additionalProperties": false
+            },
+            "resourceType": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getColumn.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getColumn.return": true,
+        "method.setFilter.params": {
+          "type": "object",
+          "properties": {
+            "expr": {
+              "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setFilter.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.executeFilter.params": {
+          "type": "object",
+          "properties": {
+            "expr": {
+              "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeFilter.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "UseFilterPanelOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseFilterPanelOptions",
+      "properties": {
+        "filterChildren": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<SparkNode[]>"
+        },
+        "dataView": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<FilterPanelDataView | null>"
+        },
+        "logger": {
+          "$ref": "#/$defs/ErrorLoggerLike"
+        }
+      },
+      "required": [
+        "filterChildren",
+        "dataView",
+        "logger"
+      ],
+      "additionalProperties": false
+    },
+    "FilterPanelState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterPanelState",
+      "properties": {
+        "filterModel": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "filterConfigs": {
+          "type": "object",
+          "title": "ComputedRef<SparkNode[]>"
+        },
+        "hasFilters": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "activeFilterCount": {
+          "type": "object",
+          "title": "ComputedRef<number>"
+        },
+        "filterError": {
+          "type": "object",
+          "title": "Ref<string | null>"
+        }
+      },
+      "required": [
+        "filterModel",
+        "filterConfigs",
+        "hasFilters",
+        "activeFilterCount",
+        "filterError"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.searchFilters.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.searchFilters.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.resetFilters.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resetFilters.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T05:59:53.316Z",
+  "models": {
+    "ErrorLoggerLike": {
+      "name": "ErrorLoggerLike",
+      "jsdoc": "极简日志接口（最小化依赖）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 记录错误消息及可选异常对象，用于过滤同步/应用失败时的非侵入式日志。 */\n    error(message: string, error?: unknown): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "error",
+              "jsdoc": "记录错误消息及可选异常对象，用于过滤同步/应用失败时的非侵入式日志。",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FilterPanelDataView": {
+      "name": "FilterPanelDataView",
+      "jsdoc": "Filter Panel Data View 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 行数据集合。 */\n    readonly rows: ReadonlyArray<Record<string, unknown>>;\n    /** 列定义集合。 */\n    readonly columns?: readonly unknown[];\n    /** filter Expression 字段。 */\n    readonly filterExpression?: DataViewFilterTree | undefined;\n    /** data Table 字段。 */\n    readonly dataTable?: {\n        readonly api?: {\n            readonly list?: unknown;\n        } | undefined;\n        readonly resourceType?: string | undefined;\n    } | null | undefined;\n    /** get Column 回调。 */\n    getColumn?: (field: string) => unknown;\n    /** 由 DataView 同步过滤并按数据来源决定本地执行或远端刷新。 */\n    setFilter(expr: DataViewFilterTree | undefined): Promise<void>;\n    /** 立即执行过滤查询（用于\"搜索\"按钮主动触发远端查询）。 */\n    executeFilter(expr: DataViewFilterTree | undefined): Promise<void>;\n    /** 重新拉取远端数据并刷新当前视图行。 */\n    refresh(): Promise<void>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "jsdoc": "行数据集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "jsdoc": "列定义集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterExpression",
+              "jsdoc": "filter Expression 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataTable",
+              "jsdoc": "data Table 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getColumn",
+              "jsdoc": "get Column 回调。",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "setFilter",
+              "jsdoc": "由 DataView 同步过滤并按数据来源决定本地执行或远端刷新。",
+              "parameters": [
+                {
+                  "name": "expr",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataViewFilterTree"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "executeFilter",
+              "jsdoc": "立即执行过滤查询（用于\"搜索\"按钮主动触发远端查询）。",
+              "parameters": [
+                {
+                  "name": "expr",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataViewFilterTree"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "重新拉取远端数据并刷新当前视图行。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "UseFilterPanelOptions": {
+      "name": "UseFilterPanelOptions",
+      "jsdoc": "Use Filter Panel Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 过滤器子节点列表（响应式）。 */\n    filterChildren: MaybeRefOrGetter<SparkNode[]>;\n    /** 目标 DataView（响应式）。 */\n    dataView: MaybeRefOrGetter<FilterPanelDataView | null>;\n    /** 错误日志接口。 */\n    logger: ErrorLoggerLike;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "filterChildren",
+              "jsdoc": "过滤器子节点列表（响应式）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataView",
+              "jsdoc": "目标 DataView（响应式）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "logger",
+              "jsdoc": "错误日志接口。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FilterPanelState": {
+      "name": "FilterPanelState",
+      "jsdoc": "`useFilterPanel` 返回状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 双向绑定的过滤模型（field → 用户输入值）。 */\n    filterModel: Record<string, unknown>;\n    /** 当前可渲染的过滤器配置列表（input 类型）。 */\n    filterConfigs: ComputedRef<SparkNode[]>;\n    /** 是否有可渲染的过滤器。 */\n    hasFilters: ComputedRef<boolean>;\n    /** 当前有值的过滤器数量（用于 badge）。 */\n    activeFilterCount: ComputedRef<number>;\n    /** 当前草稿校验或查询错误；失败不表示已应用。 */\n    filterError: Readonly<Ref<string | null>>;\n    /** 应用过滤（executeFilter 模式，用于搜索按钮）。 */\n    searchFilters: () => Promise<boolean>;\n    /** 重置所有过滤值。 */\n    resetFilters: () => Promise<void>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "filterModel",
+              "jsdoc": "双向绑定的过滤模型（field → 用户输入值）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "filterConfigs",
+              "jsdoc": "当前可渲染的过滤器配置列表（input 类型）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "hasFilters",
+              "jsdoc": "是否有可渲染的过滤器。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "activeFilterCount",
+              "jsdoc": "当前有值的过滤器数量（用于 badge）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "filterError",
+              "jsdoc": "当前草稿校验或查询错误；失败不表示已应用。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "searchFilters",
+              "jsdoc": "应用过滤（executeFilter 模式，用于搜索按钮）。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resetFilters",
+              "jsdoc": "重置所有过滤值。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

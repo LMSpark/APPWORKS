@@ -1,0 +1,1881 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:dataset",
+    "sourcePath": "packages/spark-data/src/dataset.ts",
+    "sourceFile": "packages/spark-data/src/dataset.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "dataset",
+    "jsdoc": "@module @spark-appworks/spark-data:dataset\n职责：持有单场景或本地数据表、多视图、资源关系及输入级联，协调订阅和保存。\n边界：场景身份只读，场景保存使用既有查询 owner 且不保证事务，多空间由 PageRuntime 持有。\nAI用途：解析视图、组织级联或保存场景内多个模型时确认数据集的不变量。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataSet"
+    ]
+  },
+  "$defs": {
+    "DataSetConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetConfig",
+      "properties": {
+        "dataSetName": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "tables": {
+          "type": "object",
+          "title": "Record<string, TableMetadata>"
+        },
+        "schemaVersion": {
+          "type": "number"
+        },
+        "resourceRelations": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataResourceRelationInput"
+          }
+        },
+        "viewCascades": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataViewCascade"
+          }
+        },
+        "version": {
+          "type": "number"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "saveChanges": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveChangesConfig"
+        },
+        "layout": true
+      },
+      "required": [
+        "dataSetName",
+        "tables"
+      ],
+      "additionalProperties": false
+    },
+    "DataSet": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSet",
+      "properties": {
+        "dataSetName": {
+          "type": "string"
+        },
+        "tables": {
+          "type": "object",
+          "title": "Record<string, DataTable>"
+        },
+        "resourceRelations": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataResourceRelation"
+          }
+        },
+        "viewCascades": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataViewCascade"
+          }
+        },
+        "schemaVersion": {
+          "type": "number"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "saveChangesConfig": {
+          "$ref": "types.ts.json#/$defs/DataSetSaveChangesConfig"
+        },
+        "layout": true,
+        "_sharedHttpClient": {
+          "$ref": "../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "_appServices": {
+          "$ref": "types.ts.json#/$defs/DataSetAppServices"
+        },
+        "_pageRoute": true,
+        "_activeViewSubs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "handlers": {
+                "$ref": "types.ts.json#/$defs/ViewChangeHandlers"
+              },
+              "unsubs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              }
+            },
+            "required": [
+              "handlers",
+              "unsubs"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "_activeOnSubs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "event": {
+                "enum": [
+                  "loadSuccess",
+                  "loadError"
+                ]
+              },
+              "handler": {
+                "type": "object",
+                "title": "(payload: {\n            tableName: string;\n            viewId: string;\n            error?: Error;\n        }) => void"
+              },
+              "unsubs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              }
+            },
+            "required": [
+              "event",
+              "handler",
+              "unsubs"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "dataSetName",
+        "tables",
+        "resourceRelations",
+        "viewCascades",
+        "schemaVersion",
+        "version",
+        "pageId",
+        "saveChangesConfig",
+        "layout",
+        "_activeViewSubs",
+        "_activeOnSubs"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "#/$defs/DataSetConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.initAutoSelection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.initAutoSelection.return": true,
+        "method.setSharedHttpClient.params": {
+          "type": "object",
+          "properties": {
+            "client": {
+              "$ref": "../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setSharedHttpClient.return": true,
+        "method.setAppServices.params": {
+          "type": "object",
+          "properties": {
+            "appServices": {
+              "$ref": "types.ts.json#/$defs/DataSetAppServices"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setAppServices.return": true,
+        "method.setPageRoute.params": {
+          "type": "object",
+          "properties": {
+            "route": true
+          },
+          "additionalProperties": false
+        },
+        "method.setPageRoute.return": true,
+        "method.getRequestTemplateParams.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRequestTemplateParams.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.on.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "enum": [
+                "loadSuccess",
+                "loadError"
+              ]
+            },
+            "handler": {
+              "type": "object",
+              "title": "(payload: {\n        tableName: string;\n        viewId: string;\n        error?: Error;\n    }) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.on.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.onAnyViewChange.params": {
+          "type": "object",
+          "properties": {
+            "handlers": {
+              "$ref": "types.ts.json#/$defs/ViewChangeHandlers"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onAnyViewChange.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method._subscribeNewView.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method._subscribeNewView.return": true,
+        "method.triggerAutoLoad.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.triggerAutoLoad.return": true,
+        "method.getChildCascades.params": {
+          "type": "object",
+          "properties": {
+            "parentTable": {
+              "type": "string"
+            },
+            "parentViewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getChildCascades.return": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataViewQueryCascade"
+          }
+        },
+        "method.getParentCascades.params": {
+          "type": "object",
+          "properties": {
+            "childTable": {
+              "type": "string"
+            },
+            "childViewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getParentCascades.return": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataViewQueryCascade"
+          }
+        },
+        "method.resolveCascadeFilter.params": {
+          "type": "object",
+          "properties": {
+            "rel": {
+              "$ref": "types.ts.json#/$defs/DataViewQueryCascade"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveCascadeFilter.return": {
+          "anyOf": [
+            {
+              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.getResourceChildRelations.params": {
+          "type": "object",
+          "properties": {
+            "parentTable": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getResourceChildRelations.return": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataResourceRelation"
+          }
+        },
+        "method.getResourceParentRelations.params": {
+          "type": "object",
+          "properties": {
+            "childTable": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getResourceParentRelations.return": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataResourceRelation"
+          }
+        },
+        "method.replaceFromJson.params": {
+          "type": "object",
+          "properties": {
+            "json": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataSetMetadata"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceFromJson.return": true,
+        "method.listSnapshots.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "dataset-history.ts.json#/$defs/DataSetHistoryListOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listSnapshots.return": {
+          "type": "array",
+          "items": {
+            "$ref": "dataset-history.ts.json#/$defs/DataSetHistorySnapshot"
+          }
+        },
+        "method.getSnapshot.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "$ref": "dataset-history.ts.json#/$defs/DataSetSnapshotSelector"
+            },
+            "options": {
+              "$ref": "dataset-history.ts.json#/$defs/DataSetHistoryListOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getSnapshot.return": {
+          "anyOf": [
+            {
+              "$ref": "dataset-history.ts.json#/$defs/DataSetHistorySnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.commitSnapshot.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "dataset-history.ts.json#/$defs/DataSetCommitSnapshotOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.commitSnapshot.return": {
+          "$ref": "dataset-history.ts.json#/$defs/DataSetHistorySnapshot"
+        },
+        "method.restoreSnapshot.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "$ref": "dataset-history.ts.json#/$defs/DataSetSnapshotSelector"
+            },
+            "options": {
+              "$ref": "dataset-history.ts.json#/$defs/DataSetHistoryListOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restoreSnapshot.return": {
+          "anyOf": [
+            {
+              "$ref": "dataset-history.ts.json#/$defs/DataSetHistorySnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.addTable.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataColumn"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addTable.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.removeTable.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeTable.return": true,
+        "method.getCascade.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "$ref": "types.ts.json#/$defs/DataViewCascadeSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
+        },
+        "method.addResourceRelation.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "types.ts.json#/$defs/DataResourceRelationInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addResourceRelation.return": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
+        },
+        "method.updateResourceRelation.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "type": "object",
+              "properties": {
+                "parentTable": {
+                  "type": "string"
+                },
+                "childTable": {
+                  "type": "string"
+                },
+                "relationId": {
+                  "type": "string"
+                },
+                "parentField": {
+                  "type": "string"
+                },
+                "childField": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "parentTable",
+                "childTable"
+              ],
+              "additionalProperties": false
+            },
+            "updates": {
+              "$ref": "types.ts.json#/$defs/DataResourceRelation"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateResourceRelation.return": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
+        },
+        "method.removeResourceRelation.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "type": "object",
+              "properties": {
+                "parentTable": {
+                  "type": "string"
+                },
+                "childTable": {
+                  "type": "string"
+                },
+                "relationId": {
+                  "type": "string"
+                },
+                "parentField": {
+                  "type": "string"
+                },
+                "childField": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "parentTable",
+                "childTable"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeResourceRelation.return": true,
+        "method.addCascade.params": {
+          "type": "object",
+          "properties": {
+            "cascade": {
+              "$ref": "types.ts.json#/$defs/DataViewCascade"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
+        },
+        "method.updateCascade.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "$ref": "types.ts.json#/$defs/DataViewCascadeSelector"
+            },
+            "updates": {
+              "$ref": "types.ts.json#/$defs/DataViewCascade"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
+        },
+        "method.removeCascade.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "$ref": "types.ts.json#/$defs/DataViewCascadeSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeCascade.return": true,
+        "method.getFieldCascadeState.params": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "$ref": "types.ts.json#/$defs/DataViewFieldCascadeAddress"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getFieldCascadeState.return": {
+          "$ref": "types.ts.json#/$defs/DataViewFieldCascadeState"
+        },
+        "method.refreshFieldCascade.params": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "$ref": "types.ts.json#/$defs/DataViewFieldCascadeAddress"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refreshFieldCascade.return": {
+          "type": "object",
+          "title": "Promise<DataViewFieldCascadeState>"
+        },
+        "method.onFieldCascadeChange.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "(address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onFieldCascadeChange.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true,
+        "method.getTable.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getTable.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.getView.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getView.return": {
+          "$ref": "data-view.ts.json#/$defs/DataView"
+        },
+        "method.saveChanges.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "types.ts.json#/$defs/DataSetSaveChangesOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveChanges.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<DataSetSaveChangesResult>>"
+        },
+        "method.toJson.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toJson.return": {
+          "$ref": "types.ts.json#/$defs/DataSetMetadata"
+        },
+        "method.fromJson.params": {
+          "type": "object",
+          "properties": {
+            "json": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataSetMetadata"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromJson.return": {
+          "$ref": "#/$defs/DataSet"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T20:15:52.029Z",
+  "models": {
+    "DataSetConfig": {
+      "name": "DataSetConfig",
+      "jsdoc": "Data Set Config 的配置结构。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** data Set Name 名称。 */\n    dataSetName: string;\n    /** SPARK 场景身份。 */\n    scenarioId?: string | undefined;\n    /** tables 字段。 */\n    tables: Record<string, TableMetadata>;\n    /** schema Version 字段。 */\n    schemaVersion?: number | undefined;\n    /** table Relations 字段。 */\n    resourceRelations?: DataResourceRelationInput[] | undefined;\n    /** view Dependencies 字段。 */\n    viewCascades?: DataViewCascade[] | undefined;\n    /** version 字段。 */\n    version?: number | undefined;\n    /** page Id 标识。 */\n    pageId?: string | undefined;\n    /** save Changes 字段。 */\n    saveChanges?: DataSetSaveChangesConfig | undefined;\n    /** layout 字段。 */\n    layout?: DataSetMetadata['layout'] | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSetName",
+              "jsdoc": "data Set Name 名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "jsdoc": "SPARK 场景身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tables",
+              "jsdoc": "tables 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "schemaVersion",
+              "jsdoc": "schema Version 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceRelations",
+              "jsdoc": "table Relations 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewCascades",
+              "jsdoc": "view Dependencies 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "jsdoc": "version 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "jsdoc": "page Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveChanges",
+              "jsdoc": "save Changes 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layout",
+              "jsdoc": "layout 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSet": {
+      "name": "DataSet",
+      "jsdoc": "Data Set 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建数据集实例\n@param config 数据集配置",
+          "signatureText": "constructor(config: DataSetConfig)",
+          "parameters": [
+            {
+              "name": "config",
+              "type": {
+                "type": "reference",
+                "name": "DataSetConfig",
+                "sourcePath": "packages/spark-data/src/dataset.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "SparkAIModel",
+            "targetName": "SparkAIModel"
+          },
+          {
+            "kind": "implements",
+            "typeText": "DataSetContract",
+            "targetName": "DataSetContract"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSetName",
+              "jsdoc": "数据集名称",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "tables",
+              "jsdoc": "数据表集合",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resourceRelations",
+              "jsdoc": "数据资源关系定义",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewCascades",
+              "jsdoc": "DataView 输入级联定义",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "schemaVersion",
+              "jsdoc": "Schema 格式版本（默认 1）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "jsdoc": "SPARK 场景身份只读；变更时重新装配运行 DataSet。本地数据集为 undefined。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "jsdoc": "业务数据版本号（乐观锁）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageId",
+              "jsdoc": "页面ID",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveChangesConfig",
+              "jsdoc": "DataSet.saveChanges 的默认提交策略。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "layout",
+              "jsdoc": "设计器布局信息（不参与运行时数据逻辑）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_sharedHttpClient",
+              "jsdoc": "M5: 共享 HTTP 客户端——所有 DataTable 的 CrudService 复用同一 HttpClientBase 实例。\n由外部通过 `setSharedHttpClient(client)` 注入。未设置时各 CrudService 各自 createRequest()。\n@internal",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "_appServices",
+              "jsdoc": "@internal 页面运行时服务上下文（用于 URL 模板 tenant/project 占位参数解析）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "_pageRoute",
+              "jsdoc": "@internal 页面路由快照（页面运行时服务缺失时的作用域兜底）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "_activeViewSubs",
+              "jsdoc": "活跃的 onAnyViewChange 订阅（handler + 每个视图的清理函数）。\n当 DataTable.getOrCreateView() 创建新视图时，\nDataSet._subscribeNewView() 自动为所有活跃订阅追加监听。\n@internal",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_activeOnSubs",
+              "jsdoc": "活跃的 on('loadSuccess'|'loadError') 订阅追踪。\n@internal",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "initAutoSelection",
+              "jsdoc": "对所有表的 default 视图触发 autoCurrentFirst / autoSelectFirst 初始选中逻辑。\n必须在页面脚本（__init__）完成事件订阅**之后**调用，确保订阅者能收到\n`currentRowChanged` 事件。渲染层在组件 mounted 钩子中、\n`__init__` 执行完毕后调用此方法。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setSharedHttpClient",
+              "jsdoc": "注入共享 HTTP 客户端（M5）——所有 DataTable 的 CrudService 将复用该实例。\n调用时机：DataSet 构建完成后、首次数据请求之前。\n已创建的 CrudService 实例不受影响（它们保留初始化时的 HttpClientBase）。\n@param client HttpClientBase 实例（通常由应用层 auth 模块创建，带统一拦截器）",
+              "parameters": [
+                {
+                  "name": "client",
+                  "type": {
+                    "type": "reference",
+                    "name": "HttpClientBase"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setAppServices",
+              "jsdoc": "设置 App Services。",
+              "parameters": [
+                {
+                  "name": "appServices",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetAppServices",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setPageRoute",
+              "jsdoc": "设置 Page Route。",
+              "parameters": [
+                {
+                  "name": "route",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getRequestTemplateParams",
+              "jsdoc": "读取 Request Template Params。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "on",
+              "jsdoc": "订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）\n- `'loadSuccess'`：任一视图从服务器成功加载数据后触发\n- `'loadError'`：任一视图加载失败后触发（payload.error 含错误对象）\n@returns 取消订阅函数（页面卸载时调用以防内存泄漏）\n@example ```js\nconst off = dataSet.on('loadSuccess', ({ tableName }) => {\nElMessage.success(`${tableName} 加载完成`)\n})\n// 资源释放时: off()\n```",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "loadSuccess"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "loadError"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "handler",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "payload",
+                              "type": {
+                                "type": "unknown",
+                                "name": "{\n        tableName: string;\n        viewId: string;\n        error?: Error;\n    }"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "onAnyViewChange",
+              "jsdoc": "订阅此 DataSet 内任意视图的状态变化（替代全局 event-bus）。\n接收 ViewChangeHandlers 映射，按需注册感兴趣的事件类型。\n自动追踪：后续通过 getOrCreateView() 动态创建的视图也会被订阅。\n作用域严格限定于本实例，不同页面的 DataSet 相互隔离。\n@example ```ts\nconst off = dataSet.onAnyViewChange({\ncurrentRowChanged(tableName, viewId, currentRow) { ... },\nselectedRowsChanged(tableName, viewId, selectedRows) { ... },\ncleared(tableName, viewId) { ... },\n})\n```",
+              "parameters": [
+                {
+                  "name": "handlers",
+                  "type": {
+                    "type": "reference",
+                    "name": "ViewChangeHandlers",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "_subscribeNewView",
+              "jsdoc": "将动态创建的视图注册到所有活跃订阅中。\n由 DataTable.getOrCreateView() 在创建新视图时调用。\n@internal",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "triggerAutoLoad",
+              "jsdoc": "触发所有标记了 `autoLoad: true` 的视图自动加载。\n页面调用渲染层在构建 DataSet 后调用此方法；\n业务脚本不再需要在 `__init__` 中手动写 `view.loadFromServer()`。\n父视图依赖与在途请求复用由各视图的 requestData 编排。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getChildCascades",
+              "jsdoc": "查询以指定 DataView 为源的目标级联（视图级索引）\n@param parentTable 父表名\n@param parentViewId 父视图ID",
+              "parameters": [
+                {
+                  "name": "parentTable",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "parentViewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataViewQueryCascade",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "getParentCascades",
+              "jsdoc": "查询以指定 DataView 为目标的源级联（视图级索引）\n@param childTable 子表名\n@param childViewId 子视图ID",
+              "parameters": [
+                {
+                  "name": "childTable",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "childViewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataViewQueryCascade",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "resolveCascadeFilter",
+              "jsdoc": "将 DataView 输入级联解析为目标视图过滤表达式。",
+              "parameters": [
+                {
+                  "name": "rel",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryCascade",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewFilterTree",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getResourceChildRelations",
+              "jsdoc": "查询以指定资源为父的所有资源关系（聚合函数消费）",
+              "parameters": [
+                {
+                  "name": "parentTable",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataResourceRelation",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "getResourceParentRelations",
+              "jsdoc": "查询以指定资源为子的所有资源关系",
+              "parameters": [
+                {
+                  "name": "childTable",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataResourceRelation",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "replaceFromJson",
+              "jsdoc": "执行 replace From Json 操作。",
+              "parameters": [
+                {
+                  "name": "json",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSetMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "listSnapshots",
+              "jsdoc": "执行 list Snapshots 操作。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetHistoryListOptions",
+                    "sourcePath": "packages/spark-data/src/dataset-history.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSetHistorySnapshot",
+                  "sourcePath": "packages/spark-data/src/dataset-history.ts"
+                }
+              }
+            },
+            {
+              "name": "getSnapshot",
+              "jsdoc": "读取 Snapshot。",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetSnapshotSelector",
+                    "sourcePath": "packages/spark-data/src/dataset-history.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetHistoryListOptions",
+                    "sourcePath": "packages/spark-data/src/dataset-history.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetHistorySnapshot",
+                    "sourcePath": "packages/spark-data/src/dataset-history.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "commitSnapshot",
+              "jsdoc": "执行 commit Snapshot 操作。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCommitSnapshotOptions",
+                    "sourcePath": "packages/spark-data/src/dataset-history.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetHistorySnapshot",
+                "sourcePath": "packages/spark-data/src/dataset-history.ts"
+              }
+            },
+            {
+              "name": "restoreSnapshot",
+              "jsdoc": "执行 restore Snapshot 操作。",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetSnapshotSelector",
+                    "sourcePath": "packages/spark-data/src/dataset-history.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetHistoryListOptions",
+                    "sourcePath": "packages/spark-data/src/dataset-history.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetHistorySnapshot",
+                    "sourcePath": "packages/spark-data/src/dataset-history.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addTable",
+              "jsdoc": "动态添加一张表（含 default 视图）。\n@returns 新建的 DataTable 实例\n@throws 表名已存在时抛 Error",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "columns",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataColumn",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "removeTable",
+              "jsdoc": "删除未被数据资源关系或 DataView 输入级联引用的数据表。\nfail-fast：若仍被 resourceRelations / viewCascades 引用，则拒绝删除。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getCascade",
+              "jsdoc": "按唯一身份读取级联；旧 query 也可使用完整端点，歧义会报错。",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataViewCascade",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "addResourceRelation",
+              "jsdoc": "添加 DataResourceRelation（数据资源字段关系）。\n@throws 引用的表/字段不存在或关系已重复时抛 Error",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataResourceRelationInput",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataResourceRelation",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "updateResourceRelation",
+              "jsdoc": "更新 DataResourceRelation。\n若存在多个同 parentTable→childTable 的关系，必须显式指定 parentField/childField 消歧。",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        parentTable: string;\n        childTable: string;\n        relationId?: string;\n        parentField?: string;\n        childField?: string;\n    }"
+                  }
+                },
+                {
+                  "name": "updates",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataResourceRelation",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataResourceRelation",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "removeResourceRelation",
+              "jsdoc": "删除 DataResourceRelation。\n@throws 关系不存在时抛 Error",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        parentTable: string;\n        childTable: string;\n        relationId?: string;\n        parentField?: string;\n        childField?: string;\n    }"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addCascade",
+              "jsdoc": "添加 DataViewCascade（DataView 输入级联）。\n@throws 级联引用非法或重复时抛 Error",
+              "parameters": [
+                {
+                  "name": "cascade",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewCascade",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewCascade",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "updateCascade",
+              "jsdoc": "更新 DataViewCascade。\n资源关系与输入级联独立；这里只校验 DataView 端点和字段绑定。",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                },
+                {
+                  "name": "updates",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataViewCascade",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewCascade",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "removeCascade",
+              "jsdoc": "删除 DataViewCascade。\n@throws 级联不存在时抛 Error",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getFieldCascadeState",
+              "parameters": [
+                {
+                  "name": "address",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFieldCascadeAddress",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFieldCascadeState",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "refreshFieldCascade",
+              "parameters": [
+                {
+                  "name": "address",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFieldCascadeAddress",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewFieldCascadeState",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onFieldCascadeChange",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "address",
+                              "type": {
+                                "type": "reference",
+                                "name": "DataViewFieldCascadeAddress",
+                                "sourcePath": "packages/spark-data/src/types.ts"
+                              }
+                            },
+                            {
+                              "name": "state",
+                              "type": {
+                                "type": "reference",
+                                "name": "DataViewFieldCascadeState",
+                                "sourcePath": "packages/spark-data/src/types.ts"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "销毁 DataSet 及其所有 DataTable/DataView 的资源。\n调用后：\n- 所有 `onAnyViewChange` / `on('loadSuccess'|'loadError')` 订阅被清理\n- 所有 DataView 的 destroy() 被调用（清理级联、CRUD、计算列、脏追踪等委托）\n- 共享 HTTP 客户端引用被释放\n- 标记为已销毁，后续操作静默忽略\n使用场景：页面调用 dispose 时释放其拥有的 DataSet。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getTable",
+              "jsdoc": "获取数据表\n@param name 表名\n@returns 数据表实例",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataTable",
+                  "sourcePath": "packages/spark-data/src/data-table.ts"
+                }
+              }
+            },
+            {
+              "name": "getView",
+              "jsdoc": "获取已存在的数据视图（不会创建新视图）",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataView",
+                  "sourcePath": "packages/spark-data/src/data-view.ts"
+                }
+              }
+            },
+            {
+              "name": "saveChanges",
+              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更。\n默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n场景视图通过同一查询 owner 一次保存；本地 CRUD 视图按资源关系顺序提交。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetSaveChangesOptions",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataSetSaveChangesResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "toJson",
+              "jsdoc": "序列化为 JSON 友好的元数据对象\n@returns 数据集元数据",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSetMetadata",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "fromJson",
+              "jsdoc": "从 JSON 对象或 JSON 字符串创建数据集实例。\n支持：\n1. canonical DataSet 元数据对象\n2. pagedata.json 原始对象（任意 key-value）\n3. 上述两种结构的 JSON 字符串\n明确拒绝历史 `{ dataset: ... }` 包裹结构，避免模型层同时维护两套顶层事实源。\n@param json 数据集元数据对象、pagedata 原始对象或 JSON 字符串\n@returns 数据集实例",
+              "parameters": [
+                {
+                  "name": "json",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSetMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSet",
+                "sourcePath": "packages/spark-data/src/dataset.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

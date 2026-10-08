@@ -1,0 +1,14 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+    "sha256": "E92DDE23D2DA42A96E8040AC6EC9C793874DCD3C10014381494B1BDB8F940F4F"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+    "sha256": "03D140C573509A295F28C330DCE88E0D6189B54A9DECD0311552CC33E2C65165"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
+    "sha256": "051768402E0B2CFD833824D894F436330B4462B3678AAA17D5FDD06BBE543FD6"
+  }
+]

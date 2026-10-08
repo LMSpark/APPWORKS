@@ -1,0 +1,104 @@
+[
+  {
+    "file": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
+    "before": "B3B780F3149E24BEB547A0C7CB39039ED543D66B62EE302AAF984CF3EA73C66A",
+    "after": "17B4AB060DF1FD14045EC1C44AF415D4E52534C69E05CAD438F0D83D31FC3F9F",
+    "bytes": 6318
+  },
+  {
+    "file": "packages/spark-project-model/src/page/runtime-page.ts",
+    "before": "C0185B8515825B22E5095A51FEB17D8D4D48E08131DC19DD4710372D826547B6",
+    "after": "D86ABA12421AD8A0F11E5BBDCB1AF788D0C6862C0D0EBDF38AE3AE6DEE168638",
+    "bytes": 9796
+  },
+  {
+    "file": "packages/spark-project-model/src/project/project-workspace.ts",
+    "before": "B1B92A6553995808C9428CD65B589D0F9229FF38A77B9C2DDE477B6933849D86",
+    "after": "B7EB6352AA076A63E9FCA2E9E18267A496B2A4834A11B0115CD8A970ACA33F48",
+    "bytes": 49067
+  },
+  {
+    "file": "src/lowcode/data-space/lowcode-data-space-design.ts",
+    "before": "AFB30500BA4E5471E1C14A2CE3FA8221FC3D2384F8928CAFCA87876BC1A80DE5",
+    "after": "A7E6F9541A4DFDA48F6EE675508DFCB2833B502053605CD1975F59FA5EAC94FB",
+    "bytes": 2831
+  },
+  {
+    "file": "packages/spark-component/src/runtime/app-services.ts",
+    "before": "5F5D01BCFA90B0E09EA389032769930BD929815F25C9521A0A3D16561C6F8302",
+    "after": "AB2C878E61D21624498DF22CECDF10A845A1E05177FE0199D24366C70DEBC8B8",
+    "bytes": 17498
+  },
+  {
+    "file": "packages/spark-component/src/runtime/script-context-types.ts",
+    "before": "722F482F6910BF2FDC2EEFC2946E1142505D2663F2AED415ACAA62CD8AA26E74",
+    "after": "E6BAE1F80F9D9D1315F16DE9C23EC10E1F21935C755393C1F343CC159EEC195A",
+    "bytes": 9169
+  },
+  {
+    "file": "packages/spark-component/src/page/context/buildPageContext.ts",
+    "before": "6CFB627E9D06F7EC2B316472F02AA2737F9F5D5BDE57CBFA9928CA5A52B6FE93",
+    "after": "89AED4569393532FAC03942E5582718586536CB12EBA37BAB5CA139BDF21BDB0",
+    "bytes": 20135
+  },
+  {
+    "file": "config/pages/data-platform/data-space-design/rule.json",
+    "before": "6B3CA1C7C552BEA684DCAFFBE1FF91737E8BA501827956C29F90ABCA93CC9116",
+    "after": "8600DF2A875379F3AC064503C09136E8ED5A0657024677D9A191125535EE2AB1",
+    "bytes": 37088
+  },
+  {
+    "file": "config/pages/data-platform/data-space-design/script.js",
+    "before": "8E5B9CECB06AD9421F615E2FFF117854C15234DB97810301DAFAF6B431CC913B",
+    "after": "93C14989187BE0D21CF6D0650D2E09B6B6DD88AED909EEF5CE05F27AC4C49336",
+    "bytes": 242647
+  },
+  {
+    "file": "config/pages/data-platform/data-space-design/style.css",
+    "before": "94A373DF0DE286E39C2CDAB36D651EF1AA1314C6D481D4048B4AB02A120E9A3E",
+    "after": "BF919C7A58FC35C58595A258E5F641438FE2BBDCAB51B1E382815B9C9509CCE2",
+    "bytes": 2616
+  },
+  {
+    "file": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+    "before": "9C470337C95BBBDBEC7CE9D473215375D9A19EE81F0D26BA99DC93DB3BD18B94",
+    "after": "FF9DA896B9A5972948F3966E9C80D173A7ECC18601CE02DA8904E9FF1645A170",
+    "bytes": 30112
+  },
+  {
+    "file": "packages/spark-project-model/tests/page-runtime.test.ts",
+    "before": "28EB65DF6C7500142B4F675B2F2DDA938E1FE0F8BE93F7DAE3E49D1226A3BEF3",
+    "after": "405554086CF3F031009D2C4229CE3772C8CAD7F1707887BDD8DA4B4C0E45B290",
+    "bytes": 9661
+  },
+  {
+    "file": "tests/runtime/page/design/data-space-design-four-file.test.ts",
+    "before": "264BF8A8B143268F075165DFA724A0184A84A7DBAA32E1ED71C310D157B20CB9",
+    "after": "D414A3936198F8612B0682E700CF5BAD31EB307C7EE78B150B0EC84B1CAB03F6",
+    "bytes": 275437
+  },
+  {
+    "file": "tests/runtime/page/catalog/data-space-four-file.test.ts",
+    "before": "8A6F64FD2F14565BF318B5DB55A6A83175020A84517532497B25AA44A3CE9347",
+    "after": "60E1C097467AF2E785B1A6BECFC18967EAAF1F258B973040FF8BEE60549060FB",
+    "bytes": 110062
+  },
+  {
+    "file": "packages/spark-component/src/tests/runtime/createSandbox.test.ts",
+    "before": "A7D1BF533440567629479A5B317CE158A69F31C7128464FE15B03702F52B1B40",
+    "after": "6B2BE426A532D045850DF66C97FA306DA44FE003CC7512E3AF18F7188644E7B6",
+    "bytes": 15341
+  },
+  {
+    "file": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+    "before": null,
+    "after": "2FF20C06307EA7A7103862FD590A6280862924DEB40A1AE1B04B1BEE217696A8",
+    "bytes": 10675
+  },
+  {
+    "file": "tests/runtime/auth-nav/data-space/view-design/lowcode-data-space-view-design.test.ts",
+    "before": null,
+    "after": "7A5F96E435098E1518DBCF5846A5AD00FC374A4827AD82E0BA1793AB105241B4",
+    "bytes": 8961
+  }
+]

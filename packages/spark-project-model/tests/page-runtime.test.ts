@@ -2,9 +2,92 @@ import { describe, expect, it } from 'vitest'
 import { DataSet } from '@spark-appworks/spark-data'
 import { PageRuntime } from '../src/page/runtime-page'
 import { PageTool } from '../src/page/page-tool'
+import { ScenarioViewFile } from '../src/scenario/scenario-view-file'
 function tool():PageTool { const result=new PageTool({pageId:'shared'});result.markLoaded();return result }
 function data(scenarioId:string):DataSet { return DataSet.fromJson({dataSetName:scenarioId,scenarioId,tables:{}}) }
 describe('PageRuntime lifecycle',()=>{
+  it('tracks a shared scenario file until reload or dispose without owning it', async()=>{
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})
+    await runtime.load()
+    const file=new ScenarioViewFile('TARGET',JSON.stringify({scenarioId:'TARGET',tables:{}}))
+    let changes=0
+    runtime.onContentChange(()=>{changes++})
+    runtime.setExternalDirtySource('target-views',file)
+    expect(changes).toBe(1)
+    runtime.setExternalDirtySource('target-views',file)
+    expect(changes).toBe(1)
+    file.setText(JSON.stringify({scenarioId:'TARGET',tables:{Orders:{modelBinding:{modelId:'M',modelName:'Orders'},views:{default:{}}}}}))
+    expect(runtime.isDirty).toBe(true)
+    expect(changes).toBe(2)
+    await expect(runtime.reload()).rejects.toThrow('PAGE_RUNTIME_DIRTY')
+    file.markSaved(file.getText())
+    expect(runtime.isDirty).toBe(false)
+    await runtime.reload()
+    file.setText(JSON.stringify({scenarioId:'TARGET',tables:{}}))
+    expect(runtime.isDirty).toBe(false)
+    expect(changes).toBe(3)
+    runtime.setExternalDirtySource('target-views',file)
+    expect(changes).toBe(4)
+    expect(runtime.isDirty).toBe(true)
+    runtime.dispose()
+    expect(file.isDirty).toBe(true)
+  })
+  it('keeps an opaque layout draft dirty and rejects config reload', async()=>{
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})
+    await runtime.load()
+    const content=runtime.getContent('design@DS-1')
+    content.acceptRead(null)
+    content.setDraft('{"graphVersion":1,"nodes":[],"edges":[]}')
+    expect(runtime.isDirty).toBe(true)
+    await expect(runtime.reload()).rejects.toThrow('PAGE_RUNTIME_DIRTY')
+    expect(runtime.getContent('design@DS-1')).toBe(content)
+    content.discardDraft()
+    expect(runtime.isDirty).toBe(false)
+    runtime.dispose()
+  })
+  it('settles a host write after a renderer leaves and preserves an unknown result', async()=>{
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})
+    await runtime.load()
+    const content=runtime.getContent('design@DS-1')
+    content.acceptRead('old')
+    content.setDraft('new')
+    let complete:(value:void)=>void=()=>{}
+    const pending=content.startWrite({kind:'save',submitted:'new',expectedContent:'old',
+      run:()=>new Promise<void>(resolve=>{complete=resolve})})
+    expect(content.status).toBe('pending')
+    expect(runtime.isDirty).toBe(true)
+    complete()
+    await pending
+    expect(content.baseline).toBe('new')
+    expect(content.draft).toBeUndefined()
+    expect(runtime.isDirty).toBe(false)
+    content.setDraft('old')
+    await expect(content.startWrite({kind:'save',submitted:'old',expectedContent:'new',
+      run:async()=>{throw new Error('unknown')}})).rejects.toThrow('unknown')
+    expect(content.status).toBe('unknown')
+    expect(runtime.isDirty).toBe(true)
+    runtime.dispose()
+  })
+  it('keeps unknown dirty even when text equals the old baseline and ignores settlement after disposal', async()=>{
+    const runtime=new PageRuntime({tool:tool(),scenarioIds:['design'],loadScenario:async id=>data(id)})
+    await runtime.load()
+    const content=runtime.getContent('design@DS-1')
+    content.acceptRead('old')
+    await expect(content.startWrite({kind:'save',submitted:'old',expectedContent:'old',
+      run:async()=>{throw new Error('result unknown')}})).rejects.toThrow('result unknown')
+    expect(content.isDirty).toBe(true)
+    await expect(runtime.reload()).rejects.toThrow('PAGE_RUNTIME_DIRTY')
+    const remote=content.offerRemote('old',content.revision)
+    content.adoptRemote(remote,remote.revision)
+    expect(runtime.isDirty).toBe(false)
+    let finish:(value:void)=>void=()=>{}
+    const pending=content.startWrite({kind:'save',submitted:'new',expectedContent:'old',
+      run:()=>new Promise<void>(resolve=>{finish=resolve})})
+    runtime.dispose()
+    finish()
+    await pending
+    expect(content.baseline).toBe('old')
+  })
   it('isolates datasets for two calls of the same shared tool',async()=>{const shared=tool();const a=new PageRuntime({tool:shared,scenarioIds:['a'],loadScenario:async id=>data(id)});const b=new PageRuntime({tool:shared,scenarioIds:['a'],loadScenario:async id=>data(id)});await Promise.all([a.load(),b.load()]);expect(a.instanceId).not.toBe(b.instanceId);expect(a.getDataSet('a')).not.toBe(b.getDataSet('a'));a.dispose();expect(b.getDataSet('a')?.destroyed).toBe(false);b.dispose()})
   it('loads multiple declared scenarios and never defaults local binding to the first',async()=>{const runtime=new PageRuntime({tool:tool(),scenarioIds:['a','b'],loadScenario:async id=>data(id)});await runtime.load();expect(runtime.getDataSet('a')?.scenarioId).toBe('a');expect(runtime.getDataSet('b')?.scenarioId).toBe('b');expect(()=>runtime.resolveView('Orders@default')).toThrow('主场景');expect(runtime.resolveView('#b@Orders@default')).toBeUndefined();expect(()=>runtime.resolveView('#c@Orders@default')).toThrow('未声明');runtime.dispose()})
   it('invalidates loading and destroys late scenario data after disposal',async()=>{let resolve:(ds:DataSet)=>void=()=>{};const runtime=new PageRuntime({tool:tool(),scenarioIds:['a'],loadScenario:()=>new Promise(res=>{resolve=res})});const loading=runtime.load();const rejection=expect(loading).rejects.toThrow('DESTROYED');runtime.dispose();const ds=data('a');resolve(ds);await rejection;expect(ds.destroyed).toBe(true);expect(runtime.generation).toBe(2)})

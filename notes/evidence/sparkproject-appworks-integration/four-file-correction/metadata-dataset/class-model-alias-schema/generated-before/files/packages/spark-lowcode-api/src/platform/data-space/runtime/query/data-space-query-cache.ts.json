@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-cache",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/query/data-space-query-cache",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-cache\n职责：复用当前请求域内的场景执行器与在途查询。\n边界：完成结果不缓存；身份变化销毁旧资源并阻止旧上下文使用。\nAI用途：避免相同执行输入重复在途请求而不复用过期结果。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceQueryCache"
+    ]
+  },
+  "$defs": {
+    "DataSpaceQueryCache": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryCache",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "object",
+              "title": "DataSpaceQueryCacheOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.invalidate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.invalidate.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true,
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+            },
+            "options": {
+              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceQueryContext>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.612Z",
+  "models": {
+    "DataSpaceQueryCacheOptions": {
+      "name": "DataSpaceQueryCacheOptions",
+      "jsdoc": "查询资源的 HTTP 与 scope 配置，所有资源共享同一请求身份读取器。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ConstructorParameters<typeof DataSpaceQueryResource>[0]",
+        "members": {}
+      }
+    },
+    "DataSpaceQueryCache": {
+      "name": "DataSpaceQueryCache",
+      "jsdoc": "请求 owner 内的场景执行器和模型在途查询缓存；不以完成结果替代新查询。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "保存资源配置，后续按场景建立执行器并检查当前 scope。",
+          "signatureText": "constructor(options: DataSpaceQueryCacheOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryCacheOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "invalidate",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "query",
+              "parameters": [
+                {
+                  "name": "identity",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryIdentity",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryOptions",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

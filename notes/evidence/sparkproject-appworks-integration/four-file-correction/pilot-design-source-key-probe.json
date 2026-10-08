@@ -1,0 +1,504 @@
+{
+  "checkedAt": "2026-10-07T21:29:16.524Z",
+  "results": [
+    {
+      "metaName": "Base_DataModel",
+      "rows": [
+        {
+          "MetaName": "View_TblList",
+          "Name": "View_TblList",
+          "PrimaryKeyFields": null,
+          "Type": "数据库视图",
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp004"
+        }
+      ],
+      "total": 1
+    },
+    {
+      "metaName": "Base_DataModel_Field",
+      "rows": [
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "multiTenancy",
+          "ValueFun": null,
+          "rowid": "05C5C60E073C475D922C26411E810BD2",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "WebChartViewUrl",
+          "ValueFun": null,
+          "rowid": "128AAC0E9443491CA3BE83DC1E045D6C",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "functiondesc",
+          "ValueFun": null,
+          "rowid": "1825226B63394B659055076B70A09AEC",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "DropDownViewJson",
+          "ValueFun": null,
+          "rowid": "19103065769C4ED297B04F615574967B",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 1,
+          "IsPKey": 0,
+          "Name": "tbldesc",
+          "ValueFun": null,
+          "rowid": "1ECA3239F09946B5B318ABA7AC114457",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 1,
+          "IsPKey": 0,
+          "Name": "dbid",
+          "ValueFun": null,
+          "rowid": "2347DE920BDE456F9AD8F0A57EB51172",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "RecCreater",
+          "ValueFun": null,
+          "rowid": "23891A6E5EC644E8B8D8B5E85C8D75D3",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 1,
+          "IsPKey": 0,
+          "Name": "ColCount",
+          "ValueFun": null,
+          "rowid": "3F3147A9C88248A4B4E8690716E381A0",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "hasDefaultFields",
+          "ValueFun": null,
+          "rowid": "4140384FE86547F6866657B57CC26DB4",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 1,
+          "IsPKey": 0,
+          "Name": "DbName",
+          "ValueFun": null,
+          "rowid": "420DC85130F04D80BBFEAFB86D814033",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "updateuser",
+          "ValueFun": null,
+          "rowid": "4293D52D94BC4E2AB4C73568AEDD10A7",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "IsVisible",
+          "ValueFun": null,
+          "rowid": "43885E3A3A6D4130AE40E1BCABA7B82B",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "DetailViewUrl",
+          "ValueFun": null,
+          "rowid": "4599BCE8DEEE425999B8EC09E48A0A04",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "ListViewUrl",
+          "ValueFun": null,
+          "rowid": "461BAD7CDBCD41159977741B58E6B899",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "modid",
+          "ValueFun": null,
+          "rowid": "49DA551A2F9E498596D8CAE3BE4BC8F2",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "wfid",
+          "ValueFun": null,
+          "rowid": "4C8DC46880DD451E993E35CCD1F25AC3",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "ViewTempLoc",
+          "ValueFun": null,
+          "rowid": "53C2CAFD15934D23B9CE57E369C00701",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "RecLast",
+          "ValueFun": null,
+          "rowid": "5438A163DF0E43E68CF2A48AEB79981B",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 1,
+          "IsPKey": 0,
+          "Name": "tblname",
+          "ValueFun": null,
+          "rowid": "5CA7A89CD91F46308E07866B52156008",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "SchemaName",
+          "ValueFun": null,
+          "rowid": "5E871C0C81E74E2CB6DFDB6985748DF2",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "updatetime",
+          "ValueFun": null,
+          "rowid": "63C02671A4884AF0B00CCD0028DCA560",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "QuoteTblid",
+          "ValueFun": null,
+          "rowid": "65009E7588B74EB3A70729F4552FA201",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "RecordOrState",
+          "ValueFun": null,
+          "rowid": "6592204A3774499A9A42C31E006AA109",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "IsOldSys",
+          "ValueFun": null,
+          "rowid": "6CE391D3B08D4164A8BF454C1519B94B",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "lingma_sys_is_delete",
+          "ValueFun": null,
+          "rowid": "75C0264F2C524B8891BA0BD69E732E17",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "lingma_sys_ent",
+          "ValueFun": null,
+          "rowid": "7608BF182D174A8786947EE189E11418",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "IsReferenceSelf",
+          "ValueFun": null,
+          "rowid": "82AC65C8846041B183E2F5BF1599810D",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "object_id",
+          "ValueFun": null,
+          "rowid": "838A2BEE83F141948F31D068F3E44EDE",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "ReportID",
+          "ValueFun": null,
+          "rowid": "8721B387868942DBBBA54E32A34E7B75",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "Expression",
+          "ValueFun": null,
+          "rowid": "89B7E57527734FD29C644245D22C4063",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "ReferenceParentKey",
+          "ValueFun": null,
+          "rowid": "930E0519220C4903BCD2FB27A7283783",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "StateTable",
+          "ValueFun": null,
+          "rowid": "94215F005C8E4A819ECD84F85552A620",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "modname",
+          "ValueFun": null,
+          "rowid": "A409F08DF027423C8767689337359567",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "ReferenceKey",
+          "ValueFun": null,
+          "rowid": "A7C3997215D14CB58BE4AFF2BEB552D2",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "crttime",
+          "ValueFun": null,
+          "rowid": "AA79B68B63B04DB181E345B7D64A4790",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "ListViewJson",
+          "ValueFun": null,
+          "rowid": "AD36F5CF61B04291B45203AA029CE8B3",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 1,
+          "IsPKey": 0,
+          "Name": "tblname",
+          "ValueFun": null,
+          "rowid": "B153A91F1D114CA7B8D86B3CBD2CEDDB",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "PhysicsDel",
+          "ValueFun": null,
+          "rowid": "BA8315A279864A9DA8BB8F3A2E0F27BF",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "description",
+          "ValueFun": null,
+          "rowid": "BC668B9B050141C0AEA4713654FC49AE",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 1,
+          "IsPKey": 0,
+          "Name": "rowid",
+          "ValueFun": null,
+          "rowid": "C84E4763301048B783FE0970BD93985D",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "status",
+          "ValueFun": null,
+          "rowid": "C8F62FF74534438EA9D2CFBC635C130B",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "DetailViewJson",
+          "ValueFun": null,
+          "rowid": "CFEDBC461D434CA8B564203644E89EAC",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "flowstate",
+          "ValueFun": null,
+          "rowid": "D500AC06770E4FEC94B07E37542600D6",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "createtime",
+          "ValueFun": null,
+          "rowid": "D570F53DC78048528842FD016B9DA515",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "FormViewType",
+          "ValueFun": null,
+          "rowid": "E1EBAF2F18214B6A92618124FD868549",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "LastTime",
+          "ValueFun": null,
+          "rowid": "EC2BB721EFC54433926481044D030AB5",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "createuser",
+          "ValueFun": null,
+          "rowid": "FCF4734CD8434015A4C295BED9721F2A",
+          "type": "dataModel"
+        },
+        {
+          "AsName": null,
+          "Expression": null,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "MapSync",
+          "ValueFun": null,
+          "rowid": "FED158BAB13647C0809B4D3B887FF7AB",
+          "type": "dataModel"
+        }
+      ],
+      "total": 48
+    }
+  ]
+}

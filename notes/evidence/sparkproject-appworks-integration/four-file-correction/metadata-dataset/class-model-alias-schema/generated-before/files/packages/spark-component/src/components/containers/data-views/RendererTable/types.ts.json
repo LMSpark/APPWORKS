@@ -1,0 +1,868 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererTable/types",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererTable/types",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererTable/types\n职责：集中定义 RendererTable（r-table）内部共享的类型契约，描述渲染器状态、事件载荷和运行时数据形态。\n边界：只提供 table-level/data-view-container 的类型层语义，不创建组件实例、不执行 IO，也不承载具体 UI 渲染。\nAI用途：需要判断 renderer table 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ElementPlusTableSortOrder",
+      "RendererTreePath",
+      "RendererTableApi"
+    ],
+    "componentName": "RendererTable",
+    "componentType": "r-table",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "ElementPlusTableSortOrder": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ElementPlusTableSortOrder",
+      "enum": [
+        "ascending",
+        "descending"
+      ]
+    },
+    "RendererTreePath": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererTreePath",
+      "properties": {
+        "pathIds": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "pathNodes": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        }
+      },
+      "required": [
+        "pathIds"
+      ],
+      "additionalProperties": false
+    },
+    "RendererTableApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererTableApi",
+      "$defs": {
+        "method.getRows.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRows.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "method.getSelectedRows.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getSelectedRows.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadTreeNested.params": {
+          "type": "object",
+          "properties": {
+            "rootId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "limit": {
+              "type": "number"
+            },
+            "depthLimit": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadTreeNested.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<NestedTreeNode[]> | null>"
+        },
+        "method.loadTreeChildren.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "limit": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadTreeChildren.return": {
+          "type": "object",
+          "title": "Promise<DataRow[]>"
+        },
+        "method.loadTreePath.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadTreePath.return": {
+          "type": "object",
+          "title": "Promise<RendererTreePath | null>"
+        },
+        "method.expandToNode.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.expandToNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.moveNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "newParentId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveNode.return": {
+          "type": "object",
+          "title": "Promise<DataRow | null>"
+        },
+        "method.searchTreeNested.params": {
+          "type": "object",
+          "properties": {
+            "keyword": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.searchTreeNested.return": {
+          "type": "object",
+          "title": "Promise<NestedTreeSearchResult[]>"
+        },
+        "method.setSelectedRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setSelectedRows.return": true,
+        "method.setSelectedRowsById.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setSelectedRowsById.return": {
+          "type": "number"
+        },
+        "method.clearSelectedRows.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearSelectedRows.return": true,
+        "method.clearUiSelection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearUiSelection.return": true,
+        "method.toggleUiRowSelection.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            "selected": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.toggleUiRowSelection.return": true,
+        "method.doLayout.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.doLayout.return": true,
+        "method.getNativeTable.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getNativeTable.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:26.800Z",
+  "models": {
+    "ElementPlusTableSortOrder": {
+      "name": "ElementPlusTableSortOrder",
+      "jsdoc": "Element Plus el-table 排序回调 order；投影为 spark-data SortDirection，勿与 wire OrderType 混用。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTable",
+        "type": "r-table",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "'ascending' | 'descending'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'ascending'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'descending'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RendererTreePath": {
+      "name": "RendererTreePath",
+      "jsdoc": "Renderer Tree Path 的语义模型。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTable",
+        "type": "r-table",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** path Ids 字段。 */\n    pathIds: Array<string | number>;\n    /** path Nodes 字段。 */\n    pathNodes?: DataRow[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "pathIds",
+              "jsdoc": "path Ids 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pathNodes",
+              "jsdoc": "path Nodes 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RendererTableApi": {
+      "name": "RendererTableApi",
+      "jsdoc": "Renderer Table Api 的语义模型。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTable",
+        "type": "r-table",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "BaseContainerApi & {\n    /** 获取当前表格绑定的全部行数据。 */\n    getRows(): DataRow[];\n    /** 获取当前多选选中的行集合。 */\n    getSelectedRows(): DataRow[];\n    /** 重新加载表格数据（触发 DataView 刷新）。 */\n    query(): Promise<void>;\n    /** 加载嵌套树形数据的根层或指定根节点子树。 */\n    loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit?: number): Promise<CrudResult<NestedTreeNode[]> | null>;\n    /** 懒加载指定父节点的直接子节点。 */\n    loadTreeChildren(parentId: string | number | null, limit?: number): Promise<DataRow[]>;\n    /** 加载从根到指定节点的完整路径。 */\n    loadTreePath(id: string | number): Promise<RendererTreePath | null>;\n    /** 展开树到指定节点并设为当前行。 */\n    expandToNode(key: string | number): Promise<void>;\n    /** 移动树节点到新的父节点下，可选指定插入位置。 */\n    moveNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>;\n    /** 在嵌套树中按关键字搜索节点。 */\n    searchTreeNested(keyword: string, limit?: number): Promise<NestedTreeSearchResult[]>;\n    /** 设置多选选中行（写入 DataView selection）。 */\n    setSelectedRows(rows: DataRow[]): void;\n    /** 按主键 id 列表设置多选选中行，返回成功匹配数量。 */\n    setSelectedRowsById(ids: Array<string | number>): number;\n    /** 清空 DataView 层的多选状态。 */\n    clearSelectedRows(): void;\n    /** 清空 Element Plus 表格 UI 层的多选高亮。 */\n    clearUiSelection(): void;\n    /** 切换指定行在 UI 层的选中状态。 */\n    toggleUiRowSelection(row: DataRow, selected?: boolean): void;\n    /** 重新计算表格列宽与布局。 */\n    doLayout(): void;\n    /** 获取底层 Element Plus 表格组件实例。 */\n    getNativeTable(): unknown;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "BaseContainerApi",
+            "targetName": "BaseContainerApi"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 获取当前表格绑定的全部行数据。 */\n    getRows(): DataRow[];\n    /** 获取当前多选选中的行集合。 */\n    getSelectedRows(): DataRow[];\n    /** 重新加载表格数据（触发 DataView 刷新）。 */\n    query(): Promise<void>;\n    /** 加载嵌套树形数据的根层或指定根节点子树。 */\n    loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit?: number): Promise<CrudResult<NestedTreeNode[]> | null>;\n    /** 懒加载指定父节点的直接子节点。 */\n    loadTreeChildren(parentId: string | number | null, limit?: number): Promise<DataRow[]>;\n    /** 加载从根到指定节点的完整路径。 */\n    loadTreePath(id: string | number): Promise<RendererTreePath | null>;\n    /** 展开树到指定节点并设为当前行。 */\n    expandToNode(key: string | number): Promise<void>;\n    /** 移动树节点到新的父节点下，可选指定插入位置。 */\n    moveNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>;\n    /** 在嵌套树中按关键字搜索节点。 */\n    searchTreeNested(keyword: string, limit?: number): Promise<NestedTreeSearchResult[]>;\n    /** 设置多选选中行（写入 DataView selection）。 */\n    setSelectedRows(rows: DataRow[]): void;\n    /** 按主键 id 列表设置多选选中行，返回成功匹配数量。 */\n    setSelectedRowsById(ids: Array<string | number>): number;\n    /** 清空 DataView 层的多选状态。 */\n    clearSelectedRows(): void;\n    /** 清空 Element Plus 表格 UI 层的多选高亮。 */\n    clearUiSelection(): void;\n    /** 切换指定行在 UI 层的选中状态。 */\n    toggleUiRowSelection(row: DataRow, selected?: boolean): void;\n    /** 重新计算表格列宽与布局。 */\n    doLayout(): void;\n    /** 获取底层 Element Plus 表格组件实例。 */\n    getNativeTable(): unknown;\n}"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "getRows",
+              "jsdoc": "获取当前表格绑定的全部行数据。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow"
+                }
+              }
+            },
+            {
+              "name": "getSelectedRows",
+              "jsdoc": "获取当前多选选中的行集合。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow"
+                }
+              }
+            },
+            {
+              "name": "query",
+              "jsdoc": "重新加载表格数据（触发 DataView 刷新）。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadTreeNested",
+              "jsdoc": "加载嵌套树形数据的根层或指定根节点子树。",
+              "parameters": [
+                {
+                  "name": "rootId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "limit",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "depthLimit",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "CrudResult",
+                        "typeArguments": [
+                          {
+                            "type": "array",
+                            "elementType": {
+                              "type": "reference",
+                              "name": "NestedTreeNode"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadTreeChildren",
+              "jsdoc": "懒加载指定父节点的直接子节点。",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "limit",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadTreePath",
+              "jsdoc": "加载从根到指定节点的完整路径。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "RendererTreePath",
+                        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "expandToNode",
+              "jsdoc": "展开树到指定节点并设为当前行。",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "moveNode",
+              "jsdoc": "移动树节点到新的父节点下，可选指定插入位置。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "newParentId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "searchTreeNested",
+              "jsdoc": "在嵌套树中按关键字搜索节点。",
+              "parameters": [
+                {
+                  "name": "keyword",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "limit",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "NestedTreeSearchResult"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setSelectedRows",
+              "jsdoc": "设置多选选中行（写入 DataView selection）。",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setSelectedRowsById",
+              "jsdoc": "按主键 id 列表设置多选选中行，返回成功匹配数量。",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "clearSelectedRows",
+              "jsdoc": "清空 DataView 层的多选状态。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clearUiSelection",
+              "jsdoc": "清空 Element Plus 表格 UI 层的多选高亮。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "toggleUiRowSelection",
+              "jsdoc": "切换指定行在 UI 层的选中状态。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                },
+                {
+                  "name": "selected",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "doLayout",
+              "jsdoc": "重新计算表格列宽与布局。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getNativeTable",
+              "jsdoc": "获取底层 Element Plus 表格组件实例。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

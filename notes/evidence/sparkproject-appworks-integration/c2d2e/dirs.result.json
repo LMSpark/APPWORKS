@@ -1,0 +1,8 @@
+{
+  "command": "pnpm run verify:dirs",
+  "cwd": "D:\\SPARK_AppWorks",
+  "started": "2026-10-07T17:20:38.3296601+08:00",
+  "ended": "2026-10-07T17:20:39.4006270+08:00",
+  "exitCode": 0,
+  "stdoutFile": "notes\\evidence\\sparkproject-appworks-integration\\c2d2e\\dirs.stdout.txt"
+}

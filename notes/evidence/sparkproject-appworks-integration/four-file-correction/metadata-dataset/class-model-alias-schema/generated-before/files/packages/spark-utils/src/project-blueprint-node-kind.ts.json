@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:project-blueprint-node-kind",
+    "sourcePath": "packages/spark-utils/src/project-blueprint-node-kind.ts",
+    "sourceFile": "packages/spark-utils/src/project-blueprint-node-kind.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "project-blueprint-node-kind",
+    "jsdoc": "@module @spark-appworks/spark-utils:project-blueprint-node-kind\n职责：项目蓝图节点业务种类（ProjectBlueprintNodeKind）的唯一字面量 SSOT。\n边界：只放跨包共享的 kind 契约；不含编辑树、平台 wire 或运行导航投影。\nAI用途：校验五种正式业务kind；未知值返回false，明确unknown仅用于读入草稿诊断。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectBlueprintNodeKind"
+    ]
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T20:57:15.295Z",
+  "models": {
+    "ProjectBlueprintNodeKind": {
+      "name": "ProjectBlueprintNodeKind",
+      "jsdoc": "项目蓝图节点的业务种类。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(typeof PROJECT_BLUEPRINT_NODE_KINDS)[number]",
+        "members": {}
+      }
+    }
+  }
+}

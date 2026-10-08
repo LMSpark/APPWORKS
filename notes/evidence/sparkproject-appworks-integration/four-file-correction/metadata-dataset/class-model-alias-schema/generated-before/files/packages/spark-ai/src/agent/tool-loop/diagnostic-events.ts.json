@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/tool-loop/diagnostic-events",
+    "sourcePath": "packages/spark-ai/src/agent/tool-loop/diagnostic-events.ts",
+    "sourceFile": "packages/spark-ai/src/agent/tool-loop/diagnostic-events.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/tool-loop/diagnostic-events",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/tool-loop/diagnostic-events\n职责：支撑 Agent tool loop 的 diagnostic events 能力，处理工具调用、结果映射、诊断事件或 payload 编解码。\n边界：只服务单次 turn 内的工具循环，不定义业务注册协议，也不直接管理 UI 或持久化页面状态。\nAI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "AiAgentDiagnosticEventInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentDiagnosticEventInput",
+      "properties": {
+        "request": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
+        },
+        "scope": {
+          "$ref": "../business/scope-types.ts.json#/$defs/AiAgentScope"
+        },
+        "turn": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
+        },
+        "type": {
+          "enum": [
+            "llm-request",
+            "llm-append"
+          ]
+        },
+        "data": true
+      },
+      "additionalProperties": false
+    },
+    "ToolResultEventInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ToolResultEventInput",
+      "properties": {
+        "request": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentChatRequest"
+        },
+        "scope": {
+          "$ref": "../business/scope-types.ts.json#/$defs/AiAgentScope"
+        },
+        "turn": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
+        },
+        "eventModuleId": {
+          "type": "string"
+        },
+        "data": true
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.223Z",
+  "models": {
+    "AiAgentDiagnosticEventInput": {
+      "name": "AiAgentDiagnosticEventInput",
+      "jsdoc": "Ai Agent Diagnostic Event Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前 chat 请求，含 onStreamEvent 回调。 */\n    request: AiAgentChatRequest;\n    /** 业务作用域，用于构造 turnKey 与 streamKey。 */\n    scope: AiAgentScope;\n    /** 当前 turn 元信息（turnId 等）。 */\n    turn: AiAgentTurnMeta;\n    /** 诊断事件类型：LLM 请求前或流式追加。 */\n    type: 'llm-request' | 'llm-append';\n    /** 待序列化为 JSON 的 LLM 诊断载荷。 */\n    data: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前 chat 请求，含 onStreamEvent 回调。 */\n    request: AiAgentChatRequest;\n    /** 业务作用域，用于构造 turnKey 与 streamKey。 */\n    scope: AiAgentScope;\n    /** 当前 turn 元信息（turnId 等）。 */\n    turn: AiAgentTurnMeta;\n    /** 诊断事件类型：LLM 请求前或流式追加。 */\n    type: 'llm-request' | 'llm-append';\n    /** 待序列化为 JSON 的 LLM 诊断载荷。 */\n    data: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "jsdoc": "当前 chat 请求，含 onStreamEvent 回调。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "业务作用域，用于构造 turnKey 与 streamKey。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "当前 turn 元信息（turnId 等）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "诊断事件类型：LLM 请求前或流式追加。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "待序列化为 JSON 的 LLM 诊断载荷。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ToolResultEventInput": {
+      "name": "ToolResultEventInput",
+      "jsdoc": "Tool Result Event Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前 chat 请求，含 onStreamEvent 回调。 */\n    request: AiAgentChatRequest;\n    /** 业务作用域，用于构造 turnKey 与 streamKey。 */\n    scope: AiAgentScope;\n    /** 当前 turn 元信息（turnId 等）。 */\n    turn: AiAgentTurnMeta;\n    /** 事件归属的能力模块 ID，前端据此路由 UI。 */\n    eventModuleId: string;\n    /** 待序列化为 JSON 的工具结果载荷。 */\n    data: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前 chat 请求，含 onStreamEvent 回调。 */\n    request: AiAgentChatRequest;\n    /** 业务作用域，用于构造 turnKey 与 streamKey。 */\n    scope: AiAgentScope;\n    /** 当前 turn 元信息（turnId 等）。 */\n    turn: AiAgentTurnMeta;\n    /** 事件归属的能力模块 ID，前端据此路由 UI。 */\n    eventModuleId: string;\n    /** 待序列化为 JSON 的工具结果载荷。 */\n    data: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "request",
+              "jsdoc": "当前 chat 请求，含 onStreamEvent 回调。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "业务作用域，用于构造 turnKey 与 streamKey。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "当前 turn 元信息（turnId 等）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "eventModuleId",
+              "jsdoc": "事件归属的能力模块 ID，前端据此路由 UI。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "待序列化为 JSON 的工具结果载荷。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:design/lowcode-design-file-upload",
+    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "design/lowcode-design-file-upload",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:design/lowcode-design-file-upload\n职责：经既有 multipart 端点上传工作文本或禁止覆盖的文件名快照。\n边界：保留 UTF-8 原字节，核对 scope 和字节回读；快照确认不等于发布或 CAS。\nAI用途：上传后核对实际 filePath 最终名与原字节，再接纳文件写入结果。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDesignFileUploadCommand",
+      "LowcodeDesignFileUploadResult",
+      "LowcodeDesignFileUpload"
+    ]
+  },
+  "$defs": {
+    "LowcodeDesignFileUploadOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDesignFileUploadOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        }
+      }
+    },
+    "LowcodeDesignFileUploadCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDesignFileUploadCommand",
+      "properties": {
+        "customPath": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDesignFileUpload": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDesignFileUpload",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodeDesignFileUploadOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.uploadWorkingText.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/LowcodeDesignFileUploadCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.uploadWorkingText.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDesignFileUploadResult>"
+        },
+        "method.uploadTextVersion.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/LowcodeDesignFileUploadCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.uploadTextVersion.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDesignFileUploadResult>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T21:05:20.134Z",
+  "models": {
+    "LowcodeDesignFileUploadOptions": {
+      "name": "LowcodeDesignFileUploadOptions",
+      "jsdoc": "上传和回读共用的 HTTP 与请求 scope 来源，身份变化不能确认旧写入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    readScope: () => DataSpaceRequestScope;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDesignFileUploadCommand": {
+      "name": "LowcodeDesignFileUploadCommand",
+      "jsdoc": "明确目录、最终文件名和原文本；空文本仍按空 UTF-8 字节上传，不自动分配编号。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    customPath: string;\n    fileName: string;\n    text: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    customPath: string;\n    fileName: string;\n    text: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "customPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDesignFileUploadResult": {
+      "name": "LowcodeDesignFileUploadResult",
+      "jsdoc": "完成字节回读后的实际后端单文件回执；快照还须核对 filePath 最终名，后续失败不伪造回滚。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeDesignFileUpload": {
+      "name": "LowcodeDesignFileUpload",
+      "jsdoc": "保存 designfile 工作文本并回读；版本上传保持禁止覆盖。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "使用同一 HTTP 和 scope 建立上传与原字节回读通道。",
+          "signatureText": "constructor(options: LowcodeDesignFileUploadOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDesignFileUploadOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "uploadWorkingText",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDesignFileUploadCommand",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDesignFileUploadResult",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "uploadTextVersion",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDesignFileUploadCommand",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDesignFileUploadResult",
+                    "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

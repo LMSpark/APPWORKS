@@ -1,0 +1,346 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-session-store",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/lowcode-session-store",
+    "jsdoc": "低代码会话持久化：内存缓存 + 可选 storage 后端。\n持久化 JSON 结构须与 {@link LowcodeSession} 一致；解析失败 fail-fast，不静默降级。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeSessionStorage",
+      "LowcodeSessionStoreOptions",
+      "LowcodeSessionStore"
+    ]
+  },
+  "$defs": {
+    "LowcodeSessionStorage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSessionStorage",
+      "$defs": {
+        "method.getItem.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getItem.return": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "method.setItem.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setItem.return": true,
+        "method.removeItem.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeItem.return": true
+      }
+    },
+    "LowcodeSessionStoreOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSessionStoreOptions",
+      "properties": {
+        "storage": {
+          "$ref": "#/$defs/LowcodeSessionStorage"
+        },
+        "sessionKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeSessionStore": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeSessionStore",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodeSessionStoreOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "anyOf": [
+            {
+              "$ref": "lowcode-platform-api.ts.json#/$defs/LowcodeSession"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "$ref": "lowcode-platform-api.ts.json#/$defs/LowcodeSession"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": true,
+        "method.clear.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clear.return": true,
+        "method.isAuthenticated.params": {
+          "type": "object",
+          "properties": {
+            "now": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isAuthenticated.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T05:13:17.295Z",
+  "models": {
+    "LowcodeSessionStorage": {
+      "name": "LowcodeSessionStorage",
+      "jsdoc": "会话 storage 契约；与 Web Storage 键值语义一致。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    getItem(key: string): string | null;\n    setItem(key: string, value: string): void;\n    removeItem(key: string): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    getItem(key: string): string | null;\n    setItem(key: string, value: string): void;\n    removeItem(key: string): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "getItem",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setItem",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "removeItem",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeSessionStoreOptions": {
+      "name": "LowcodeSessionStoreOptions",
+      "jsdoc": "会话 store 配置；未提供 storage 时仅内存持有，刷新页面后丢失。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    sessionKey?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    sessionKey?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "storage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeSessionStore": {
+      "name": "LowcodeSessionStore",
+      "jsdoc": "低代码会话读写；get 首次命中 storage 后写入内存，后续读内存副本。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options?: LowcodeSessionStoreOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeSessionStoreOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "get",
+              "jsdoc": "读取当前会话；无数据返回 null，JSON 或字段非法时抛 LowcodeApiError。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeSession",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "保存会话到内存与 storage（若已配置）。",
+              "parameters": [
+                {
+                  "name": "session",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeSession",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clear",
+              "jsdoc": "清空内存与 storage 中的会话。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "isAuthenticated",
+              "jsdoc": "是否仍视为已认证；以 refreshExpiresAt 为准，access token 过期不单独判定。",
+              "parameters": [
+                {
+                  "name": "now",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

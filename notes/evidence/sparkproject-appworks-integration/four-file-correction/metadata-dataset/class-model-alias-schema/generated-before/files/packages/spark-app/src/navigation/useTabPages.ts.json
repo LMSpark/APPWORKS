@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:navigation/useTabPages",
+    "sourcePath": "packages/spark-app/src/navigation/useTabPages.ts",
+    "sourceFile": "packages/spark-app/src/navigation/useTabPages.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "navigation/useTabPages",
+    "jsdoc": "@module @spark-appworks/spark-app:navigation/useTabPages\n职责：按运行实例保存页面标签及调用地址。\n边界：关闭先校验脏状态，由路由 owner 释放实例。\nAI用途：定位多场景调用的标签切换、导航取消和关闭规则。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "TabPage",
+      "PageMode",
+      "UseTabPagesOptions"
+    ]
+  },
+  "$defs": {
+    "TabPage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TabPage",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "runtimeName": {
+          "type": "string"
+        },
+        "systemPage": {
+          "type": "boolean"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "closable": {
+          "type": "boolean"
+        },
+        "fullPath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "path",
+        "title",
+        "closable",
+        "fullPath"
+      ],
+      "additionalProperties": false
+    },
+    "PageMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageMode",
+      "enum": [
+        "single",
+        "multi"
+      ]
+    },
+    "UseTabPagesOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseTabPagesOptions",
+      "$defs": {
+        "method.navigate.params": {
+          "type": "object",
+          "properties": {
+            "fullPath": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.navigate.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T11:20:42.230Z",
+  "models": {
+    "TabPage": {
+      "name": "TabPage",
+      "jsdoc": "一个已打开页面的标签投影；工具实例用 instanceId 定位，fullPath 保留调用参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: string;\n    path: string;\n    title: string;\n    icon?: string;\n    name?: string;\n    runtimeName?: string;\n    systemPage?: boolean;\n    projectId?: string;\n    tenantId?: string;\n    closable: boolean;\n    fullPath: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "path",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "icon",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtimeName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "systemPage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tenantId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "closable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fullPath",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PageMode": {
+      "name": "PageMode",
+      "jsdoc": "单页或多标签显示方式；切换模式仍遵守实例脏状态检查。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'single' | 'multi'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'single'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'multi'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "UseTabPagesOptions": {
+      "name": "UseTabPagesOptions",
+      "jsdoc": "标签导航入口配置；注入的导航必须等待完成，失败不得释放原实例。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    navigate?: (fullPath: string) => Promise<void> | void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "navigate",
+              "parameters": [
+                {
+                  "name": "fullPath",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

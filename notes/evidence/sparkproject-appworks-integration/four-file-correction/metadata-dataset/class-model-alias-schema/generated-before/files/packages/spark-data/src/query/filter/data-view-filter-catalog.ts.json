@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/filter/data-view-filter-catalog",
+    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-catalog.ts",
+    "sourceFile": "packages/spark-data/src/query/filter/data-view-filter-catalog.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/filter/data-view-filter-catalog",
+    "jsdoc": "@module @spark-appworks/spark-data:query/filter/data-view-filter-catalog\n职责：提供过滤运算符与值函数编辑目录。\n边界：字段默认运算符和能力选项只服务编辑，不作为后端执行白名单。\nAI用途：选择运算符并渲染值函数字段。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T20:52:04.622Z",
+  "models": {}
+}

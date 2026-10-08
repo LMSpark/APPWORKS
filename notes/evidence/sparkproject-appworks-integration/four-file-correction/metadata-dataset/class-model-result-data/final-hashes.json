@@ -1,0 +1,14 @@
+[
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-ai\\src\\class-model\\class-model\\dts-surface-to-runtime-api.ts",
+    "Hash": "6BDCE5B222E689984666FC76EAA65EF87BA08B6E01A0BA1D6D46BB45A0A97B48"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-ai\\src\\agent\\native-runtime\\native-script-context.ts",
+    "Hash": "3CA1DBEE8915D0A421B9DE2D67F4E4BD94125A36378F94D3592EDB434EE8814F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-ai\\src\\class-model\\tests\\dts-surface-to-runtime-api.test.ts",
+    "Hash": "320F47E42657C293C97081CA3D185F52F2FD62590B3A101248DADF7C5283C4F8"
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-07T21:59:02.862Z",
+  "outcomes": [
+    {
+      "matches": true,
+      "name": "script.js",
+      "readbackLength": 44209,
+      "submittedLength": 44209
+    },
+    {
+      "matches": true,
+      "name": "rule.json",
+      "readbackLength": 17009,
+      "submittedLength": 17009
+    }
+  ],
+  "pageId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "projectId": "D99A1DCE9894698799101EFD70F8FC76"
+}

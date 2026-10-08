@@ -1,9 +1,13 @@
 /**
  * @module app:lowcode/data-space/lowcode-model-relation-adapter
- * 职责：将正式模型关系映射到场景稳定表名与规范输出字段。边界：仅自动生成可解析的 AND 等值级联，其余返回诊断；AI 可用此入口理解默认视图级联来源。
+ * 职责：将正式模型关系映射为稳定表名间的结构关系。模型关系不定义前端视图输入级联；后者仅由场景配置表达。
  */
 import type { DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
-import type { DataResourceRelation, DataViewCascade, DependencyType } from '@spark-appworks/spark-data'
+import type { DataResourceRelation, DataViewFilterTree } from '@spark-appworks/spark-data'
+import { isRecord } from '@spark-appworks/spark-utils'
+
+type Model = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
+type RelationFilterTranslation = Readonly<{tree: DataViewFilterTree; parent: Model; child: Model; parentTableName: string; childTableName: string}>
 
 function text(value: unknown): string { return value === undefined || value === null ? '' : String(value).trim() }
 
@@ -16,64 +20,96 @@ function fieldReference(value: unknown): Readonly<{ qualifier: string; field: st
     : { qualifier: reference.slice(0, separator), field: reference.slice(separator + 1) }
 }
 
-function dependencyType(value: string): DependencyType | null {
-  const normalized = value.trim()
-  if (normalized === 'currentRow') return 'currentRow'
-  if (normalized === 'selectedRows') return 'selectedRows'
-  if (normalized === 'allRows') return 'allRows'
-  if (normalized === 'pagedRows') return 'pagedRows'
-  return null
-}
-
 /** 无状态关系适配器，可直接无参创建；只消费 readRelations 和 readModel 正式定义，不读取物理目录。 */
 export class LowcodeModelRelationAdapter {
   public adapt(
     relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>,
     bindings: ReadonlyMap<string, Awaited<ReturnType<DataSpaceDesignApi['readModel']>>>,
-  ): Readonly<{resourceRelations: DataResourceRelation[]; viewCascades: DataViewCascade[]; diagnostics: string[]}> {
+  ): Readonly<{resourceRelations: DataResourceRelation[]; diagnostics: string[]}> {
     const resourceRelations: DataResourceRelation[] = []
-    const viewCascades: DataViewCascade[] = []
     const diagnostics: string[] = []
     for (const relation of relations) {
       const parents = [...bindings].filter(([, model]) => model.id === relation.parentModelId)
       const children = [...bindings].filter(([, model]) => model.id === relation.childModelId)
       if (parents.length === 0 || children.length === 0) continue
-      const pairs: Array<{ sourceField: string; targetField: string }> = []
-      const collect = (tree: ReturnType<typeof relation.filterExpression.toJSON>): boolean => {
-        if ('logic' in tree) return tree.logic === 'and' && tree.filters.length > 0 && tree.filters.every(collect)
-        const value = tree.value
-        if (tree.operator !== 'eq' || value === null || typeof value !== 'object' || Array.isArray(value)
-          || !('Type' in value) || value['Type'] !== 'GetTableField' || !('Field' in value) || typeof value['Field'] !== 'string') return false
-        const source = fieldReference(value['Field'])
+      const translate = (options: RelationFilterTranslation): DataViewFilterTree => {
+        const {tree, parent, child, parentTableName, childTableName} = options
+        if ('logic' in tree) return {logic: tree.logic, filters: tree.filters.map(filter => translate({tree: filter, parent, child, parentTableName, childTableName}))}
         const target = fieldReference(tree.field)
-        if (!source || !target || (source.qualifier !== '' && source.qualifier !== relation.parentResourceName)
-          || (target.qualifier !== '' && target.qualifier !== relation.childResourceName)) return false
-        pairs.push({sourceField: source.field, targetField: target.field})
-        return true
-      }
-      if (!collect(relation.filterExpression.toJSON()) || dependencyType(relation.dependencyType) === null) {
-        diagnostics.push(`关系 ${relation.sourceRelationId} 无法自动生成等值视图级联`)
-        continue
+        if (!target || (target.qualifier !== '' && target.qualifier !== relation.childResourceName)) {
+          throw new Error(`正式关系字段未解析: ${relation.sourceRelationId}`)
+        }
+        const targetField = child.fields.find(field => field.name === target.field)
+        if (!targetField) throw new Error(`正式关系字段未解析: ${relation.sourceRelationId}`)
+        const resolveBoundModel = (formalName: string): Readonly<{tableName: string; model?: Model}> => {
+          if (formalName === relation.parentResourceName) return {tableName: parentTableName, model: parent}
+          if (formalName === relation.childResourceName) return {tableName: childTableName, model: child}
+          const candidates = [...bindings].filter(([, model]) => model.name === formalName)
+          if (candidates.length === 0 && bindings.has(formalName)) {
+            throw new Error(`正式关系引用身份冲突: ${formalName}`)
+          }
+          if (candidates.length === 0) return {tableName: formalName}
+          if (candidates.length !== 1) throw new Error(`正式关系模型引用不唯一: ${formalName}`)
+          const candidate = candidates[0]
+          if (!candidate) throw new Error(`正式关系模型引用未绑定: ${formalName}`)
+          return {tableName: candidate[0], model: candidate[1]}
+        }
+        const canonicalField = (model: Model, name: string): string => {
+          const matches = model.fields.filter(item => item.name === name || item.canonicalName === name)
+          if (matches.length !== 1) throw new Error(`正式关系字段未唯一解析: ${relation.sourceRelationId}:${name}`)
+          const field = matches[0]
+          if (!field) throw new Error(`正式关系字段未解析: ${relation.sourceRelationId}`)
+          return field.canonicalName
+        }
+        const value = tree.value
+        let translatedValue = value
+        if (isRecord(value)) {
+          if (value['Type'] === 'GetTableField' && typeof value['Field'] === 'string') {
+            const source = fieldReference(value['Field'])
+            if (!source) throw new Error(`正式关系字段未解析: ${relation.sourceRelationId}`)
+            if (source.qualifier === '' || source.qualifier === relation.parentResourceName) {
+              const sourceField = parent.fields.find(field => field.name === source.field)
+              if (!sourceField) throw new Error(`正式关系字段未解析: ${relation.sourceRelationId}`)
+              translatedValue = {...value, Field: sourceField.canonicalName}
+            } else {
+              const bound = resolveBoundModel(source.qualifier)
+              translatedValue = {...value, Field: bound.model
+                ? `${bound.tableName}.${canonicalField(bound.model, source.field)}`
+                : value['Field']}
+            }
+          }
+          if (value['Type'] === 'GetRefData' && typeof value['RefTableName'] === 'string') {
+            const bound = resolveBoundModel(value['RefTableName'])
+            translatedValue = {...value, RefTableName: bound.tableName,
+              ...(bound.model && typeof value['RefFieldName'] === 'string' ? {RefFieldName: canonicalField(bound.model, value['RefFieldName'])} : {}),
+              ...(bound.model && typeof value['FkFieldName'] === 'string' ? {FkFieldName: canonicalField(bound.model, value['FkFieldName'])} : {}),
+            }
+          }
+          if (value['Type'] === 'GetGroupData' && typeof value['GroupTableName'] === 'string') {
+            const bound = resolveBoundModel(value['GroupTableName'])
+            translatedValue = {...value, GroupTableName: bound.tableName,
+              ...(bound.model && typeof value['GroupField'] === 'string' ? {GroupField: canonicalField(bound.model, value['GroupField'])} : {}),
+              ...(bound.model && typeof value['Field'] === 'string' ? {Field: canonicalField(bound.model, value['Field'])} : {}),
+            }
+          }
+          if (value['Type'] === 'GetExpData' && typeof value['refTableName'] === 'string') {
+            const bound = resolveBoundModel(value['refTableName'])
+            translatedValue = {...value, refTableName: bound.tableName}
+          }
+        }
+        return {field: targetField.canonicalName, operator: tree.operator, ...(tree.value !== undefined ? {value: translatedValue} : {})}
       }
       for (const [parentTable, parent] of parents) for (const [childTable, child] of children) {
-        const mapped = pairs.map(pair => {
-          const source = parent.fields.find(field => field.name === pair.sourceField && field.output)
-          const target = child.fields.find(field => field.name === pair.targetField && field.output)
-          if (!source || !target) throw new Error(`正式关系字段未解析: ${relation.sourceRelationId}`)
-          return {sourceField: source.canonicalName, targetField: target.canonicalName}
-        })
+        let filterExpression: DataViewFilterTree
+        try { filterExpression = translate({tree: relation.filterExpression.toJSON(), parent, child, parentTableName: parentTable, childTableName: childTable}) }
+        catch (error) { diagnostics.push(error instanceof Error ? error.message : `正式关系字段未解析: ${relation.sourceRelationId}`); continue }
         resourceRelations.push({relationId: `${relation.sourceRelationId}:${parentTable}:${childTable}`,
           sourceRelationId: relation.sourceRelationId, parentTable, childTable,
-          fieldMappings: mapped.map(pair => ({parentResourceField: pair.sourceField, childResourceField: pair.targetField})),
+          filterExpression,
           cascadeDelete: relation.cascadeDelete})
-        const trigger = dependencyType(relation.dependencyType)
-        if (trigger === null) throw new Error(`未知关系触发类型: ${relation.dependencyType}`)
-        viewCascades.push({cascadeId: `${relation.sourceRelationId}:${parentTable}:${childTable}`, sourceRelationId: relation.sourceRelationId,
-          parentTable, parentViewId: 'default', childTable, childViewId: 'default', filterBindings: mapped,
-          dependencyType: trigger, autoLoad: true})
       }
     }
-    return {resourceRelations, viewCascades, diagnostics}
+    return {resourceRelations, diagnostics}
   }
 
 }

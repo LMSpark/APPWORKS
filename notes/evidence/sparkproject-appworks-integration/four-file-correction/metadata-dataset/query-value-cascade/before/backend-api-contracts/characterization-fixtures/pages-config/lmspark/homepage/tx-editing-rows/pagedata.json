@@ -1,0 +1,145 @@
+{
+    "dataSetName": "TxEditingRowsPageDataSet",
+    "saveChanges": {
+        "mode": "transaction",
+        "transaction": {
+            "endpoint": {
+                "url": "/data/transactions",
+                "method": "POST"
+            }
+        }
+    },
+    "resourceRelations": [
+        {
+            "parentTable": "TxOrders",
+            "childTable": "TxItems",
+            "parentField": "id",
+            "childField": "orderId",
+            "relationName": "TxOrderItems"
+        }
+    ],
+    "viewCascades": [
+        {
+            "parentTable": "TxOrders",
+            "parentViewId": "default",
+            "childTable": "TxItems",
+            "childViewId": "default",
+            "filterBindings": [
+                {
+                    "sourceField": "id",
+                    "targetField": "orderId"
+                }
+            ],
+            "dependencyType": "currentRow",
+            "autoLoad": true
+        }
+    ],
+    "tables": {
+        "TxOrders": {
+            "tableName": "TxOrders",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "number",
+                    "isPrimaryKey": true,
+                    "label": "订单ID"
+                },
+                {
+                    "name": "orderNo",
+                    "type": "string",
+                    "label": "订单号"
+                },
+                {
+                    "name": "owner",
+                    "type": "string",
+                    "label": "负责人"
+                },
+                {
+                    "name": "status",
+                    "type": "string",
+                    "label": "状态"
+                }
+            ],
+            "views": {
+                "default": {
+                    "autoCurrentFirst": true,
+                    "autoSelectFirst": false,
+                    "commitMode": "staged",
+                    "rows": [
+                        {
+                            "id": 1,
+                            "orderNo": "TX-EDIT-001",
+                            "owner": "Ada",
+                            "status": "draft"
+                        },
+                        {
+                            "id": 2,
+                            "orderNo": "TX-EDIT-002",
+                            "owner": "Ben",
+                            "status": "draft"
+                        }
+                    ]
+                }
+            }
+        },
+        "TxItems": {
+            "tableName": "TxItems",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "number",
+                    "isPrimaryKey": true,
+                    "label": "明细ID"
+                },
+                {
+                    "name": "orderId",
+                    "type": "number",
+                    "label": "订单ID"
+                },
+                {
+                    "name": "sku",
+                    "type": "string",
+                    "label": "SKU"
+                },
+                {
+                    "name": "quantity",
+                    "type": "number",
+                    "label": "数量"
+                },
+                {
+                    "name": "status",
+                    "type": "string",
+                    "label": "状态"
+                }
+            ],
+            "views": {
+                "default": {
+                    "commitMode": "staged",
+                    "rows": [
+                        {
+                            "id": 101,
+                            "orderId": 1,
+                            "sku": "SKU-A",
+                            "quantity": 1,
+                            "status": "draft"
+                        },
+                        {
+                            "id": 102,
+                            "orderId": 1,
+                            "sku": "SKU-B",
+                            "quantity": 2,
+                            "status": "draft"
+                        },
+                        {
+                            "id": 201,
+                            "orderId": 2,
+                            "sku": "SKU-C",
+                            "quantity": 1,
+                            "status": "draft"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

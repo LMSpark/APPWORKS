@@ -1,0 +1,10 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 D:/SPARK_AppWorks
+
+
+ Test Files  5 passed (5)
+      Tests  83 passed (83)
+   Start at  17:29:42
+   Duration  6.24s (transform 11.37s, setup 584ms, import 19.85s, tests 1.13s, environment 4.24s)
+

@@ -1,0 +1,46 @@
+[
+  {
+    "matches": true,
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts"
+  },
+  {
+    "matches": true,
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue"
+  },
+  {
+    "matches": true,
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts"
+  },
+  {
+    "matches": true,
+    "path": "packages/spark-app/src/router/dynamic.ts"
+  },
+  {
+    "matches": true,
+    "path": "packages/spark-app/src/navigation/useTabPages.ts"
+  },
+  {
+    "matches": true,
+    "path": "packages/spark-app/src/navigation/useNavigation.ts"
+  },
+  {
+    "matches": true,
+    "path": "src/App.vue"
+  },
+  {
+    "matches": true,
+    "path": "tests/runtime/page/runtime/system-page-identity-tabs.test.ts"
+  },
+  {
+    "matches": true,
+    "path": "src/main.ts"
+  },
+  {
+    "matches": true,
+    "path": "tests/runtime/auth-nav/navigation-platform-paths.test.ts"
+  },
+  {
+    "matches": true,
+    "path": "tests/auth-nav/navigation-platform-paths.test.ts"
+  }
+]

@@ -1,0 +1,41 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 D:/SPARK_AppWorks
+
+stdout | tests/app/services/project/application-switch.test.ts > App project selection owner > keeps the current real system-page instance while activation is pending and rejected
+[DynamicRouter] ℹ️ 开始注册动态路由
+
+stdout | tests/app/services/project/application-switch.test.ts > App project selection owner > keeps the current real system-page instance while activation is pending and rejected
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+ ❯ tests/app/services/project/application-switch.test.ts (18 tests | 1 failed | 17 skipped) 44ms
+     × keeps the current real system-page instance while activation is pending and rejected 43ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/app/services/project/application-switch.test.ts > App project selection owner > keeps the current real system-page instance while activation is pending and rejected
+AssertionError: expected undefined to be 'system-page-1' // Object.is equality
+
+- Expected:
+"system-page-1"
+
++ Received:
+undefined
+
+ ❯ tests/app/services/project/application-switch.test.ts:199:82
+    197|     await vi.waitFor(() => expect(rejectActivation).toBeDefined())
+    198|
+    199|     expect(dynamic.getSystemPageInstance(router.currentRoute.value)?.i…
+       |                                                                                  ^
+    200|     rejectActivation?.(activationError)
+    201|     await expect(switching).rejects.toBe(activationError)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 skipped (18)
+   Start at  17:19:30
+   Duration  5.95s (transform 3.67s, setup 91ms, import 5.02s, tests 44ms, environment 614ms)
+

@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/support/RendererActions.types",
+    "sourcePath": "packages/spark-component/src/components/containers/support/RendererActions.types.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/support/RendererActions.types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/support/RendererActions.types",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/RendererActions.types\n职责：维护 @spark-appworks/spark-component 中 components/containers/support/RendererActions.types 的模块能力，围绕 ActionsAlign、ActionsPosition、PermissionDeniedBehavior 等 4 个公开契约 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/containers/support/RendererActions.types 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ActionsAlign",
+      "ActionsPosition",
+      "PermissionDeniedBehavior",
+      "RendererActionsProps"
+    ]
+  },
+  "$defs": {
+    "ActionsAlign": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ActionsAlign",
+      "enum": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    "ActionsPosition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ActionsPosition",
+      "enum": [
+        "left",
+        "right"
+      ]
+    },
+    "PermissionDeniedBehavior": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PermissionDeniedBehavior",
+      "enum": [
+        "hide",
+        "disable"
+      ]
+    },
+    "RendererActionsProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererActionsProps",
+      "properties": {
+        "position": {
+          "$ref": "#/$defs/ActionsPosition"
+        },
+        "align": {
+          "$ref": "#/$defs/ActionsAlign"
+        },
+        "fixed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/$defs/ActionsPosition"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "class": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.466Z",
+  "models": {
+    "ActionsAlign": {
+      "name": "ActionsAlign",
+      "jsdoc": "动作区内容对齐方式。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'left' | 'center' | 'right'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'left'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'center'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'right'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ActionsPosition": {
+      "name": "ActionsPosition",
+      "jsdoc": "动作区停靠位置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'left' | 'right'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'left'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'right'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PermissionDeniedBehavior": {
+      "name": "PermissionDeniedBehavior",
+      "jsdoc": "权限不足时的动作呈现策略。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'hide' | 'disable'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'hide'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'disable'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RendererActionsProps": {
+      "name": "RendererActionsProps",
+      "jsdoc": "表格行动作列配置属性。\n用于 `r-table` 的 `actions` 属性，描述行动作操作列的列元数据与子动作节点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 行动作列停靠位置（列在表格的左侧或右侧） */\n    position?: ActionsPosition;\n    /** 操作列单元格文本对齐方式 */\n    align?: ActionsAlign;\n    /** 列固定策略 */\n    fixed?: boolean | ActionsPosition;\n    /** 列标题文本 */\n    label?: string;\n    /** 列宽度 */\n    width?: number | string;\n    /** 列附加 CSS class */\n    class?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 行动作列停靠位置（列在表格的左侧或右侧） */\n    position?: ActionsPosition;\n    /** 操作列单元格文本对齐方式 */\n    align?: ActionsAlign;\n    /** 列固定策略 */\n    fixed?: boolean | ActionsPosition;\n    /** 列标题文本 */\n    label?: string;\n    /** 列宽度 */\n    width?: number | string;\n    /** 列附加 CSS class */\n    class?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "position",
+              "jsdoc": "行动作列停靠位置（列在表格的左侧或右侧）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "align",
+              "jsdoc": "操作列单元格文本对齐方式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fixed",
+              "jsdoc": "列固定策略",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "列标题文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "列宽度",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "class",
+              "jsdoc": "列附加 CSS class",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

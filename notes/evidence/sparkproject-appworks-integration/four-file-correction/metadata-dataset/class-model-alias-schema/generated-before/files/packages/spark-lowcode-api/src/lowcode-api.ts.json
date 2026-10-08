@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:lowcode-api",
+    "sourcePath": "packages/spark-lowcode-api/src/lowcode-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "lowcode-api",
+    "jsdoc": "lowcode 客户端根门面：组装各子域 API，并在 HTTP 拦截器层统一注入会话 Bearer。\n构造时会注册 request 拦截器；access 过期且 refresh 仍有效时会自动刷新，失败则按原 session 继续（不静默伪造凭证）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeApiOptions",
+      "LowcodeApi"
+    ]
+  },
+  "$defs": {
+    "LowcodeApiOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApiOptions",
+      "properties": {
+        "http": {
+          "$ref": "../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "sessionStorage": {
+          "$ref": "platform/lowcode-session-store.ts.json#/$defs/LowcodeSessionStorage"
+        },
+        "sessionKey": {
+          "type": "string"
+        },
+        "applicationKey": {
+          "type": "string"
+        },
+        "fetch": {
+          "type": "object",
+          "title": "LowcodeFetch"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApi",
+      "properties": {
+        "blueprint": {
+          "$ref": "platform/project-blueprint/project-blueprint-api.ts.json#/$defs/LowcodeProjectBlueprintApi"
+        },
+        "catalog": {
+          "$ref": "catalog/lowcode-catalog-api.ts.json#/$defs/LowcodeCatalogApi"
+        },
+        "dataSpace": {
+          "$ref": "platform/data-space/data-space-api.ts.json#/$defs/DataSpaceApi"
+        },
+        "design": {
+          "$ref": "design/lowcode-design-api.ts.json#/$defs/LowcodeDesignApi"
+        },
+        "application": {
+          "$ref": "platform/lowcode-application-store.ts.json#/$defs/LowcodeApplicationStore"
+        },
+        "realtime": {
+          "$ref": "realtime/lowcode-realtime-api.ts.json#/$defs/LowcodeRealtimeApi"
+        },
+        "platform": {
+          "$ref": "platform/lowcode-platform-api.ts.json#/$defs/LowcodePlatformApi"
+        },
+        "permission": {
+          "$ref": "platform/permission/permission-api.ts.json#/$defs/PermissionApi"
+        },
+        "session": {
+          "$ref": "platform/lowcode-session-store.ts.json#/$defs/LowcodeSessionStore"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodeApiOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRequestScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readRequestScope.return": {
+          "$ref": "platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:23:15.301Z",
+  "models": {
+    "LowcodeApiOptions": {
+      "name": "LowcodeApiOptions",
+      "jsdoc": "根门面构造选项；`http` 为唯一必填项，会话与应用存储键可覆盖默认值以支持多租户隔离。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    sessionStorage?: LowcodeSessionStorage;\n    sessionKey?: string;\n    applicationKey?: string;\n    fetch?: LowcodeFetch;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    sessionStorage?: LowcodeSessionStorage;\n    sessionKey?: string;\n    applicationKey?: string;\n    fetch?: LowcodeFetch;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionStorage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sessionKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fetch",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeApi": {
+      "name": "LowcodeApi",
+      "jsdoc": "lowcode 平台统一入口，按子域划分只读/读写能力，共享同一 `HttpClientBase` 与 `LowcodeSessionStore`。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: LowcodeApiOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeApiOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/lowcode-api.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "blueprint",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalog",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "design",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "application",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "realtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "platform",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permission",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "session",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readRequestScope",
+              "jsdoc": "请求层统一提供选中应用 appId、租户头与身份代次；不写入数据实体或场景 JSON。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

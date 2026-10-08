@@ -1,0 +1,378 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-design-mutation",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/design/data-space-design-mutation",
+    "jsdoc": "数据空间设计态 mutation 命令 prepare：只 prepare 命令，不自动执行线上写入。\n调用方须持 preimage、journal 与 readback 后再由 provision 层执行；preimage 身份不一致会 fail-fast。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataSpaceDesignMutationInput",
+      "DataSpaceDesignMutationCommand"
+    ]
+  },
+  "$defs": {
+    "DataSpaceDesignMutationBase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignMutationBase",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "idempotencyKey": {
+          "type": "string"
+        },
+        "preimage": {
+          "$ref": "data-space-design-api.ts.json#/$defs/DataSpaceDesignSnapshot"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceDesignMutationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceDesignMutationInput",
+      "anyOf": [
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "DataSpaceDesignMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "update-data-space"
+                },
+                "change": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "inputParameters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "title": "DataSpaceInputParameter"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "DataSpaceDesignMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "upsert-frontend-model"
+                },
+                "change": {
+                  "type": "object",
+                  "title": "DataSpaceFrontendModelSnapshot"
+                }
+              },
+              "required": [
+                "capability",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "DataSpaceDesignMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "update-field-reference"
+                },
+                "modelId": {
+                  "type": "string"
+                },
+                "change": {
+                  "type": "object",
+                  "title": "DataSpaceFieldReference"
+                }
+              },
+              "required": [
+                "capability",
+                "modelId",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "type": "object",
+              "title": "DataSpaceDesignMutationBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "const": "update-relation-reference"
+                },
+                "modelId": {
+                  "type": "string"
+                },
+                "change": {
+                  "type": "object",
+                  "title": "LowcodeModelRelationRecord"
+                }
+              },
+              "required": [
+                "capability",
+                "modelId",
+                "change"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      ]
+    },
+    "DataSpaceDesignMutationCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignMutationCommand",
+      "properties": {
+        "kind": {
+          "const": "data-space-design-mutation"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "capability": true,
+        "idempotencyKey": {
+          "type": "string"
+        },
+        "preimage": {
+          "$ref": "data-space-design-api.ts.json#/$defs/DataSpaceDesignSnapshot"
+        },
+        "modelId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "change": true,
+        "risk": {
+          "const": "medium"
+        },
+        "journal": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "const": true
+            }
+          },
+          "required": [
+            "required"
+          ],
+          "additionalProperties": false
+        },
+        "readback": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "const": true
+            },
+            "dataSpaceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "required",
+            "dataSpaceId"
+          ],
+          "additionalProperties": false
+        },
+        "compensation": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "restore-data-space-design-snapshot"
+            },
+            "preimage": {
+              "$ref": "data-space-design-api.ts.json#/$defs/DataSpaceDesignSnapshot"
+            }
+          },
+          "required": [
+            "kind",
+            "preimage"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T07:31:53.316Z",
+  "models": {
+    "DataSpaceDesignMutationBase": {
+      "name": "DataSpaceDesignMutationBase",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    idempotencyKey: string;\n    preimage: DataSpaceDesignSnapshot;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    idempotencyKey: string;\n    preimage: DataSpaceDesignSnapshot;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idempotencyKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preimage",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceDesignMutationInput": {
+      "name": "DataSpaceDesignMutationInput",
+      "jsdoc": "设计态 mutation 输入；capability 决定 change 形状与 modelId 是否必填。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-data-space';\n    change: Readonly<{\n        name?: string;\n        description?: string;\n        inputParameters?: readonly DataSpaceInputParameter[];\n    }>;\n}>) | (DataSpaceDesignMutationBase & Readonly<{\n    capability: 'upsert-frontend-model';\n    change: DataSpaceFrontendModelSnapshot;\n}>) | (DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-field-reference';\n    modelId: string;\n    change: DataSpaceFieldReference;\n}>) | (DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-relation-reference';\n    modelId: string;\n    change: LowcodeModelRelationRecord;\n}>)",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "(DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-data-space';\n    change: Readonly<{\n        name?: string;\n        description?: string;\n        inputParameters?: readonly DataSpaceInputParameter[];\n    }>;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(DataSpaceDesignMutationBase & Readonly<{\n    capability: 'upsert-frontend-model';\n    change: DataSpaceFrontendModelSnapshot;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-field-reference';\n    modelId: string;\n    change: DataSpaceFieldReference;\n}>)"
+          },
+          {
+            "kind": "union",
+            "typeText": "(DataSpaceDesignMutationBase & Readonly<{\n    capability: 'update-relation-reference';\n    modelId: string;\n    change: LowcodeModelRelationRecord;\n}>)"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceDesignMutationCommand": {
+      "name": "DataSpaceDesignMutationCommand",
+      "jsdoc": "设计态 mutation 命令；risk 固定 medium，journal/readback/compensation 均为强制约束。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'data-space-design-mutation';\n    dataSpaceId: string;\n    capability: DataSpaceDesignMutationInput['capability'];\n    idempotencyKey: string;\n    preimage: DataSpaceDesignSnapshot;\n    modelId: string | null;\n    change: DataSpaceDesignMutationInput['change'];\n    risk: 'medium';\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        dataSpaceId: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-data-space-design-snapshot';\n        preimage: DataSpaceDesignSnapshot;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'data-space-design-mutation';\n    dataSpaceId: string;\n    capability: DataSpaceDesignMutationInput['capability'];\n    idempotencyKey: string;\n    preimage: DataSpaceDesignSnapshot;\n    modelId: string | null;\n    change: DataSpaceDesignMutationInput['change'];\n    risk: 'medium';\n    journal: Readonly<{\n        required: true;\n    }>;\n    readback: Readonly<{\n        required: true;\n        dataSpaceId: string;\n    }>;\n    compensation: Readonly<{\n        kind: 'restore-data-space-design-snapshot';\n        preimage: DataSpaceDesignSnapshot;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "capability",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "idempotencyKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preimage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "change",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "risk",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "journal",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readback",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "compensation",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

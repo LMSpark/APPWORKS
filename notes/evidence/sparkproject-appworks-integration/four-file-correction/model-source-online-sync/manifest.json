@@ -1,0 +1,46 @@
+[
+  {
+    "fileName": "pagedata.json",
+    "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/8D1AB14DD8277F3E7017CD38F77B09FD",
+    "local": "config/pages/data-platform/data-space-design/pagedata.json",
+    "backup": "notes/evidence/sparkproject-appworks-integration/four-file-correction/model-source-online-sync/pagedata.json.before",
+    "remoteSha256": "86ccf1cd4ae3b0a792ff91458074a691dd738955ce99bd21e65033267881a0c1",
+    "localSha256": "86ccf1cd4ae3b0a792ff91458074a691dd738955ce99bd21e65033267881a0c1",
+    "remoteBytes": 2194,
+    "localBytes": 2194,
+    "changed": false
+  },
+  {
+    "fileName": "script.js",
+    "customPath": "D99A1DCE9894698799101EFD70F8FC76/8D1AB14DD8277F3E7017CD38F77B09FD",
+    "local": "config/pages/data-platform/data-space-design/script.js",
+    "backup": "notes/evidence/sparkproject-appworks-integration/four-file-correction/model-source-online-sync/script.js.before",
+    "remoteSha256": "abc904d9bf157e258fbfa9c8b28d4d7dd02aff6fc6e50f9200b2e866f6bbc084",
+    "localSha256": "8e5b9cecb06ad9421f615e2fff117854c15234db97810301dafaf6b431cc913b",
+    "remoteBytes": 48948,
+    "localBytes": 220888,
+    "changed": true
+  },
+  {
+    "fileName": "style.css",
+    "customPath": "D99A1DCE9894698799101EFD70F8FC76/8D1AB14DD8277F3E7017CD38F77B09FD",
+    "local": "config/pages/data-platform/data-space-design/style.css",
+    "backup": "notes/evidence/sparkproject-appworks-integration/four-file-correction/model-source-online-sync/style.css.before",
+    "remoteSha256": "540d47b54f54aec20083d711a4eeeae57bccc2baa6b062870611bc455699631d",
+    "localSha256": "94a373df0de286e39c2cdab36d651ef1aa1314c6d481d4048b4ab02a120e9a3e",
+    "remoteBytes": 754,
+    "localBytes": 1959,
+    "changed": true
+  },
+  {
+    "fileName": "rule.json",
+    "customPath": "D99A1DCE9894698799101EFD70F8FC76/8D1AB14DD8277F3E7017CD38F77B09FD",
+    "local": "config/pages/data-platform/data-space-design/rule.json",
+    "backup": "notes/evidence/sparkproject-appworks-integration/four-file-correction/model-source-online-sync/rule.json.before",
+    "remoteSha256": "1cc89fb8d526b606ea0e3850f77d4e3cf2266d214b2c6f1984eb026cc1639131",
+    "localSha256": "6b3ca1c7c552bea684dcaffbe1ff91737e8ba501827956c29f90abca93cc9116",
+    "remoteBytes": 17249,
+    "localBytes": 30941,
+    "changed": true
+  }
+]

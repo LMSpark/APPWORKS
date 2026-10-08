@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/components/NodeStateConfig",
+    "sourcePath": "src/views/app/dev-system/components/NodeStateConfig.vue",
+    "sourceFile": "src/views/app/dev-system/components/NodeStateConfig.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/components/NodeStateConfig",
+    "jsdoc": "@module app:views/app/dev-system/components/NodeStateConfig\n职责：编辑正式导航发布、子项显示、分组和排序。\n边界：状态写入navigation分组，业务kind不由显示状态推断。\nAI用途：调整节点导航展示并经领域dirty与Workspace保存。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.636Z",
+  "models": {}
+}

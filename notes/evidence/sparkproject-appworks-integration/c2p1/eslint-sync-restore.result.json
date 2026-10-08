@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec eslint packages/spark-app/src/router/dynamic.ts tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:11:24.4574560+08:00",
+  "finishedAt": "2026-10-07T14:11:29.1421460+08:00",
+  "exitCode": 0,
+  "log": "eslint-sync-restore.log"
+}

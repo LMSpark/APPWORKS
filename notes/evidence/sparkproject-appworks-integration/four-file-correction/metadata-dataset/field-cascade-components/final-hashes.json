@@ -1,0 +1,58 @@
+[
+  {
+    "path": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
+    "sha256": "AEF5FB6F5F6B24FC67AA49DDE84C2E736DD2CFCF9ADE9EEE304785675AD85CF3"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/options/option-source.ts",
+    "sha256": "B4D9AA6CABCD7823CA4B2B81AF33F5E11B59A0398059006A83235F5BFEC1C000"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
+    "sha256": "5D8493AF32DBC73C9502EC349BC750E1A18AD161AF11C8DA6AB0069B1FF34C13"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/data-components/composables/state/useOptionFieldState.ts",
+    "sha256": "2C5F4E277BF337377FC2E5320184381DBDB04AC2DBCBE6E4686CCE5CC68EEC65"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/data-components/choice/FieldCheckboxGroup/FieldCheckboxGroup.vue",
+    "sha256": "1FECBBCCEF192CA2A4E0436DC67544570978E2E36B043F01FD1314EC0330F3A8"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue",
+    "sha256": "5A3AC048588B8B209259A91CBDBEF87D8FEB66665F88DF59798E5C8743A697D6"
+  },
+  {
+    "path": "packages/spark-data/src/index.ts",
+    "sha256": "893735FA80C63531B89F5014FFAB17AA0C22E38B7116A27C01E9BFC703C138C0"
+  },
+  {
+    "path": "packages/spark-data/src/strategies/cascade/field-cascade-binding.ts",
+    "sha256": "06F57B9B3ACD2D113CDEF2CDB2D6CBF31244C3B654FFD29696538E338ADAF9D9"
+  },
+  {
+    "path": "packages/spark-data/src/dataset.ts",
+    "sha256": "56914FD6AF7803A3072936D31CF7C553F97BA23F1FA7F2743C1A768DB58FC120"
+  },
+  {
+    "path": "packages/spark-data/API.md",
+    "sha256": "CE0AB8C0206FF1380E3B4C4938EB1B915C96669F865B5948FD81D7FA59979F04"
+  },
+  {
+    "path": "packages/spark-component/API.md",
+    "sha256": "A1D0C2775C09B8E779767F4DCD80B8FE9957B7EDD71CE2A9685CD4B28D6FD37A"
+  },
+  {
+    "path": "packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts",
+    "sha256": "C03BA66570E83AFB4FEDD9059AF073A528C4A2D118B7CB1684B2F80A815CF795"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/options/useFieldCascadeOptions.ts",
+    "sha256": "3422E5637C6E7BEC4D03509469FF860E46460E3677F07640498BAB683F06565B"
+  },
+  {
+    "path": "tests/ui/field/choice/field-cascade-options.test.ts",
+    "sha256": "8460AEE7FBDBE2691E17D472B75BD05454B341A16D825984EABCCA4DFAE87047"
+  }
+]

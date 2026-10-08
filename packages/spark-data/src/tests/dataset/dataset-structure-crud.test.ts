@@ -49,7 +49,6 @@ function createStructureDataSet(): DataSet {
         childTable: 'Items',
         childViewId: 'default',
         filterBindings: [{ sourceField: 'id', targetField: 'orderId' }],
-        dependencyType: 'currentRow',
         autoLoad: true,
       },
     ],
@@ -57,6 +56,34 @@ function createStructureDataSet(): DataSet {
 }
 
 describe('DataSet structure CRUD', () => {
+  it('does not create a cascade collection when a missing identity cannot be updated or deleted', () => {
+    const ds = DataSet.fromJson({dataSetName: 'Empty', tables: {}})
+    try {
+      expect(ds.viewCascades).toBeUndefined()
+      expect(ds.getCascade({cascadeId: 'missing'})).toBeUndefined()
+      expect(() => ds.getCascade({cascadeId: ''})).toThrow()
+      expect(() => ds.updateCascade({cascadeId: 'missing'}, {})).toThrow(/not found/)
+      expect(() => ds.removeCascade({cascadeId: 'missing'})).toThrow(/not found/)
+      expect(() => ds.addCascade({parentTable: 'missing', parentViewId: 'default', childTable: 'other',
+        childViewId: 'default', filterBindings: []})).toThrow()
+      expect(ds.viewCascades).toBeUndefined()
+    } finally { ds.destroy() }
+  })
+
+  it('keeps an absent resourceRelations collection absent when relation mutations fail', () => {
+    const ds = DataSet.fromJson({dataSetName: 'EmptyRelations', tables: {
+      Orders: {tableName: 'Orders', columns: [{name: 'id', type: 'number'}], views: {default: {}}},
+      Items: {tableName: 'Items', columns: [{name: 'orderId', type: 'number'}], views: {default: {}}},
+    }})
+    expect(ds.resourceRelations).toBeUndefined()
+    expect(() => ds.addResourceRelation({parentTable: 'Missing', childTable: 'Items', filterExpression: {field: 'orderId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}})).toThrow()
+    expect(ds.resourceRelations).toBeUndefined()
+    expect(() => ds.updateResourceRelation({parentTable: 'Orders', childTable: 'Items'}, {relationName: 'absent'})).toThrow()
+    expect(ds.resourceRelations).toBeUndefined()
+    expect(() => ds.removeResourceRelation({parentTable: 'Orders', childTable: 'Items'})).toThrow()
+    expect(ds.resourceRelations).toBeUndefined()
+  })
+
   it('addTable should attach default view to existing onAnyViewChange subscriptions', () => {
     const ds = createStructureDataSet()
     const handler = vi.fn()
@@ -91,20 +118,18 @@ describe('DataSet structure CRUD', () => {
     expect(ds.getView('Drafts', 'default')).toBeUndefined()
   })
 
-  it('updateResourceRelation should rebuild resource relation metadata without rewriting DataView cascade', () => {
+  it('updateResourceRelation should replace the canonical filter without rewriting DataView cascade', () => {
     const ds = createStructureDataSet()
 
     const updated = ds.updateResourceRelation(
       { parentTable: 'Orders', childTable: 'Items', parentField: 'id', childField: 'orderId' },
-      { parentField: 'code', childField: 'orderCode', relationName: 'order-by-code' },
+      { filterExpression: {logic: 'and', filters: [{field: 'orderCode', operator: 'eq', value: {Type: 'GetTableField', Field: 'code'}}]}, relationName: 'order-by-code' },
     )
 
-    expect(updated.parentField).toBe('code')
-    expect(updated.childField).toBe('orderCode')
+    expect(updated.filterExpression).toEqual({logic: 'and', filters: [{field: 'orderCode', operator: 'eq', value: {Type: 'GetTableField', Field: 'code'}}]})
     expect(updated.relationName).toBe('order-by-code')
 
-    expect(ds.getResourceChildRelations('Orders')[0]?.parentField).toBe('code')
-    expect(ds.getResourceChildRelations('Orders')[0]?.childField).toBe('orderCode')
+    expect(ds.getResourceChildRelations('Orders')[0]?.filterExpression).toEqual(updated.filterExpression)
 
     const parentRelations = ds.getParentCascades('Items', 'default')
     expect(parentRelations).toHaveLength(1)
@@ -120,16 +145,15 @@ describe('DataSet structure CRUD', () => {
       childTable: 'Items',
       childViewId: 'default',
     }, {
-      dependencyType: 'selectedRows',
+      filterBindings: [{targetField: 'orderId'}],
       autoLoad: false,
     })
 
-    expect(updated.dependencyType).toBe('selectedRows')
-    expect(updated.autoLoad).toBe(false)
+    expect(updated).toMatchObject({filterBindings: [{targetField: 'orderId'}], autoLoad: false})
 
     const parentRelations = ds.getParentCascades('Items', 'default')
     expect(parentRelations).toHaveLength(1)
-    expect(parentRelations[0]?.dependencyType).toBe('selectedRows')
+    expect(parentRelations[0]?.filterBindings).toEqual([{targetField: 'orderId'}])
     expect(parentRelations[0]?.autoLoad).toBe(false)
     expect(parentRelations[0]).not.toHaveProperty('filterExpression')
   })

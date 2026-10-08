@@ -1,0 +1,373 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/actions/executor-helpers",
+    "sourcePath": "packages/spark-component/src/page/actions/executor-helpers.ts",
+    "sourceFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/actions/executor-helpers",
+    "jsdoc": "@module @spark-appworks/spark-component:page/actions/executor-helpers\n职责：提供 executor helpers 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nAction 执行器内部辅助工具集\n按功能分区组织，仅供 action-data.ts 和 action-executor.ts 内部使用：\n1. 值解析工具    — asRecord / readString / readBoolean 等\n2. 文案插值      — interpolate / pickText\n3. 行辅助        — isRowLike / resolveRowId / inferNextRowId / resolveRowLabel / getSelectedRows\n4. 错误处理      — extractErrorMessage\n5. 内置动作 props — readOptionalStringArray / readOptionalMessageType / getActionProps\n6. 消息通知器    — ActionNotifier / createActionNotifier\n7. 统一确认      — confirmIfNeeded\n8. 数据能力解析  — resolveActionDataCapabilities\n9. BuiltinAction 元数据 — BUILTIN_ACTION_META / isBuiltinActionName 等\n10. ActionDescriptor 禁用判断 — isActionDescriptorDisabled",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PickActionTextInput",
+      "ActionNotifier",
+      "ConfirmationInput",
+      "ResolvedActionDataCapabilities",
+      "BuiltinActionName",
+      "DataViewSavePermissionInput"
+    ]
+  },
+  "$defs": {
+    "PickActionTextInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PickActionTextInput",
+      "properties": {
+        "decorator": {
+          "$ref": "action-types.ts.json#/$defs/ActionUiDecorator"
+        },
+        "key": {
+          "$ref": "action-types.ts.json#/$defs/ActionUiDecorator"
+        },
+        "fallback": {
+          "type": "string"
+        },
+        "vars": {
+          "type": "object",
+          "title": "Record<string, string | number | undefined>"
+        },
+        "row": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "decorator",
+        "key",
+        "fallback"
+      ],
+      "additionalProperties": false
+    },
+    "ActionNotifier": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActionNotifier",
+      "$defs": {
+        "method.notify.params": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "object",
+              "title": "PageMessageType"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.notify.return": true,
+        "method.notifyError.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.notifyError.return": true
+      }
+    },
+    "ConfirmationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ConfirmationInput",
+      "properties": {
+        "fallbackMessage": {
+          "type": "string"
+        },
+        "fallbackTitle": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResolvedActionDataCapabilities": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolvedActionDataCapabilities",
+      "properties": {
+        "dataSource": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currentRow": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "selectedRows": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        }
+      },
+      "required": [
+        "dataSource",
+        "currentRow",
+        "selectedRows"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewSavePermissionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSavePermissionInput",
+      "properties": {
+        "view": {
+          "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "applyEditingRows": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T19:50:59.447Z",
+  "models": {
+    "PickActionTextInput": {
+      "name": "PickActionTextInput",
+      "jsdoc": "Pick Action Text Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** decorator 字段。 */\n    decorator: ActionUiDecorator | undefined;\n    /** 定位键。 */\n    key: keyof ActionUiDecorator;\n    /** fallback 字段。 */\n    fallback: string;\n    /** vars 字段。 */\n    vars?: Record<string, string | number | undefined>;\n    /** 当前行数据。 */\n    row?: DataRow | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "decorator",
+              "jsdoc": "decorator 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "key",
+              "jsdoc": "定位键。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fallback",
+              "jsdoc": "fallback 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "vars",
+              "jsdoc": "vars 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "row",
+              "jsdoc": "当前行数据。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ActionNotifier": {
+      "name": "ActionNotifier",
+      "jsdoc": "动作执行通知接口（由 createActionNotifier 创建）。\n- `notify`：受 `silent` 控制，静默模式下吞掉非 error 消息\n- `notifyError`：始终展示 error（无视 silent），用于运行时异常",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 发送成功/警告/info 类型消息；`silent=true` 时静默忽略 */\n    notify(type: PageMessageType, message: string): void;\n    /** 发送 error 消息（无视 silent，始终展示） */\n    notifyError(message: string): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "notify",
+              "jsdoc": "发送成功/警告/info 类型消息；`silent=true` 时静默忽略",
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageMessageType",
+                    "sourcePath": "packages/spark-component/src/components/internal.ts"
+                  }
+                },
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "notifyError",
+              "jsdoc": "发送 error 消息（无视 silent，始终展示）",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ConfirmationInput": {
+      "name": "ConfirmationInput",
+      "jsdoc": "统一确认弹窗：返回 true 表示用户确认或无需确认（直通）。\n直通条件（跳过弹窗）：\n- `pageService` 不可用\n- `confirmMessage` 显式设为 `''`（有意取消确认）\n- `confirmMessage` 未设置且 `fallbackMessage` 为空字符串\n`fallbackMessage` 为内置默认确认语（如\"确认删除 XX 吗？\"），由调用方构造。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 确认弹窗正文的内置兜底文案（如\"确认删除 张三 吗？\"），decorator.confirmMessage 未设置时使用 */\n    fallbackMessage: string;\n    /** 确认弹窗标题的内置兜底文案（如\"操作确认\"），decorator.confirmTitle 未设置时使用 */\n    fallbackTitle: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 确认弹窗正文的内置兜底文案（如\"确认删除 张三 吗？\"），decorator.confirmMessage 未设置时使用 */\n    fallbackMessage: string;\n    /** 确认弹窗标题的内置兜底文案（如\"操作确认\"），decorator.confirmTitle 未设置时使用 */\n    fallbackTitle: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fallbackMessage",
+              "jsdoc": "确认弹窗正文的内置兜底文案（如\"确认删除 张三 吗？\"），decorator.confirmMessage 未设置时使用",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fallbackTitle",
+              "jsdoc": "确认弹窗标题的内置兜底文案（如\"操作确认\"），decorator.confirmTitle 未设置时使用",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolvedActionDataCapabilities": {
+      "name": "ResolvedActionDataCapabilities",
+      "jsdoc": "数据能力解析结果：执行器从此结构中读取操作目标。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 解析到的目标 DataView；未就绪时为 null */\n    dataSource: DataView | null;\n    /** DataView 当前行（currentRow）；无当前行时为 null */\n    currentRow: DataRow | null;\n    /** DataView 当前选中行列表（快照副本） */\n    selectedRows: DataRow[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSource",
+              "jsdoc": "解析到的目标 DataView；未就绪时为 null",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentRow",
+              "jsdoc": "DataView 当前行（currentRow）；无当前行时为 null",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectedRows",
+              "jsdoc": "DataView 当前选中行列表（快照副本）",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "BuiltinActionName": {
+      "name": "BuiltinActionName",
+      "jsdoc": "Builtin Action Name 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "keyof typeof BUILTIN_ACTION_META",
+        "members": {}
+      }
+    },
+    "DataViewSavePermissionInput": {
+      "name": "DataViewSavePermissionInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    ids?: ReadonlyArray<string | number>;\n    applyEditingRows?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    ids?: ReadonlyArray<string | number>;\n    applyEditingRows?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ids",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applyEditingRows",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

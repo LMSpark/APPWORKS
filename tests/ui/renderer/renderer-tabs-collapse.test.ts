@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { RendererTabs, RendererCollapse } from '@spark-appworks/spark-component'
+import { RendererTabs, RendererCollapse, Spark, SparkComponentRenderer } from '@spark-appworks/spark-component'
 import RendererTabPane from '../../../packages/spark-component/src/components/containers/layout/navigation/RendererTabs/RendererTabPane.vue'
 import RendererCollapseItem from '../../../packages/spark-component/src/components/containers/layout/structure/RendererCollapse/RendererCollapseItem.vue'
 import RendererToolbar from '../../../packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.vue'
@@ -119,6 +119,55 @@ const ElCollapseItemStub = defineComponent({
 })
 
 describe('RendererTabs and RendererCollapse integration', () => {
+  it('keeps tab pane identity on SparkNode.id through the real renderer pipeline', () => {
+    const registry = Spark.createRegistry()
+    registry.register('r-tabs', RendererTabs)
+    registry.register('r-tab-pane', RendererTabPane)
+    const onTabChange = vi.fn()
+    const wrapper = mount(RendererTabs, {
+      props: {
+        onTabChange,
+        children: [
+          {
+            type: 'r-tab-pane',
+            id: 'pane-named',
+            props: { label: '命名面板', name: 'named-pane' },
+            children: [{ type: 'div', props: { class: 'named-pane-content' }, children: ['named'] }],
+          },
+          {
+            type: 'r-tab-pane',
+            id: 'pane-id-fallback',
+            props: { label: '回退面板' },
+            children: [{ type: 'div', props: { class: 'fallback-pane-content' }, children: ['fallback'] }],
+          },
+        ],
+      },
+      global: {
+        plugins: [Spark.createPlugin({ registry })],
+        stubs: {
+          SparkComponentRenderer: false,
+          'spark-component-renderer': false,
+          'el-tabs': ElTabsStub,
+          'el-tab-pane': ElTabPaneStub,
+        },
+      },
+    })
+
+    expect(wrapper.findAll('.el-tab-pane-stub').map(pane => pane.attributes('data-name'))).toEqual(['named-pane', 'pane-id-fallback'])
+    expect(wrapper.find('.named-pane-content').text()).toBe('named')
+    expect(wrapper.find('.fallback-pane-content').text()).toBe('fallback')
+    const renderedPaneConfigs = wrapper.findAllComponents(SparkComponentRenderer)
+      .map(renderer => renderer.props('config'))
+      .filter((config): config is SparkNode => isSparkNode(config) && config.type === 'r-tab-pane')
+    expect(renderedPaneConfigs.map(config => config['id'])).toEqual(['pane-named', 'pane-id-fallback'])
+    expect(renderedPaneConfigs.every(config => isRecord(config['props'])
+      && !Object.prototype.hasOwnProperty.call(config['props'], 'id'))).toBe(true)
+
+    wrapper.findComponent(ElTabsStub).vm.$emit('tab-change', 'pane-id-fallback')
+    expect(onTabChange).toHaveBeenCalledWith('pane-id-fallback')
+    wrapper.unmount()
+  })
+
   it('should render tabs panes with toolbar children and pane grid body', () => {
     const onTabChange = vi.fn()
     const wrapper = mount(RendererTabs, {

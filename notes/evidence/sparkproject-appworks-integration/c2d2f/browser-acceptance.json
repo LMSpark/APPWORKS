@@ -1,0 +1,38 @@
+{
+  "startedAt": "2026-10-07T09:34:29.233Z",
+  "finishedAt": "2026-10-07T09:35:41.551Z",
+  "build": "pnpm run build, C2d2f plus C2d2e, exit 0",
+  "coldStart": "formal DBMS route renders",
+  "failedActivation": {
+    "expectedError": "应用导航根节点应唯一，实际 0 个",
+    "originalApplication": "D99A1DCE9894698799101EFD70F8FC76",
+    "originalAppListStillVisible": true,
+    "identityErrorCount": 0
+  },
+  "catalog": {
+    "urlProject": "homepage",
+    "applicationId": null
+  },
+  "pendingSelectionCancellation": {
+    "networkLatencyMs": 1500,
+    "trigger": "real AppList enter application button",
+    "newerNavigation": "actual __sparkDev.router.push to homepage/app-list?probe=c2latest",
+    "oldSelection": "explicit stale rejection",
+    "latestUrlPreserved": true,
+    "actualSessionApplicationId": null,
+    "networkLatencyRestoredMs": 0
+  },
+  "subsequentSelection": {
+    "target": "元数据管理",
+    "uiSuccess": "已切换到「元数据管理」",
+    "formalHomeNode": "78C58A7FE34F2987267A1E8AF10B2990",
+    "connectionCount": 4
+  },
+  "consoleErrorCount": 0,
+  "businessWrites": false,
+  "limitations": [
+    "administrator only; no restricted user proof",
+    "29 capabilities still incomplete",
+    "some existing metadata visibility warnings remain"
+  ]
+}

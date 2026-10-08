@@ -1,9 +1,47 @@
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
+import { DataViewFilter } from '@spark-appworks/spark-data'
 import { describe, expect, it } from 'vitest'
 
 import { LowcodeApi } from '../../../lowcode-api.js'
-import { DATA_SPACE_DESIGN_FORM_KEY } from './data-space-design-api.js'
+import { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from './data-space-design-api.js'
+import { encodeDataSpaceResourceType, parseDataSpaceResourceType } from '../data-space-resource-type-wire.js'
+
+it('resolves native table resource semantics from the formal source without I/O', () => {
+  const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: 'physical_orders',
+    sourceId: 'DB-1', sourceType: '数据库表', primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}
+  expect(DataSpaceDesignApi.resolveTableResource(model)).toEqual({resourceType: 'database-table', resourceId: 'physical_orders'})
+  expect(model.metaName).toBe('QueryOrders')
+  expect(model.sourceId).toBe('DB-1')
+})
+
+it.each([
+  ['数据库表', 'database-table'], ['表', 'database-table'], ['table', 'database-table'],
+  ['数据库视图', 'database-view'], ['视图', 'logical-view'], ['字典', 'dictionary'],
+  ['接口', 'third-party-api'], ['JSON', 'json'], ['文件', 'file'],
+])('maps formal Type %s to native resource type %s without altering the source name', (sourceType, native) => {
+  const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: '  source.name  ',
+    sourceId: 'DB-1', sourceType, primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}
+  expect(DataSpaceDesignApi.resolveTableResource(model)).toEqual({resourceType: native, resourceId: '  source.name  '})
+  expect(model.sourceName).toBe('  source.name  ')
+})
+
+it.each(['', 'unknown', '__proto__', 'constructor', 'database-table'])('rejects unknown formal Type %s', sourceType => {
+  const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: 'source',
+    sourceId: 'DB-1', sourceType, primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}
+  expect(() => DataSpaceDesignApi.resolveTableResource(model)).toThrow('未知正式模型资源类型')
+})
+
+it('rejects missing source names and retains legacy wire parse and encode behavior', () => {
+  const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: ' ',
+    sourceId: 'DB-1', sourceType: '数据库表', primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}
+  expect(() => DataSpaceDesignApi.resolveTableResource(model)).toThrow('来源名')
+  expect(parseDataSpaceResourceType('数据库视图')).toBe('view')
+  expect(encodeDataSpaceResourceType('view')).toBe('视图')
+  expect(() => parseDataSpaceResourceType('table')).toThrow('未知数据资源类型')
+  expect(() => parseDataSpaceResourceType('__proto__')).toThrow('未知数据资源类型')
+  expect(() => Reflect.apply(encodeDataSpaceResourceType, undefined, ['__proto__'])).toThrow('未知数据资源类型')
+})
 
 class DataSpaceDesignFixtureHttpClient extends HttpClientBase {
   public readonly requests: RequestConfig[] = []
@@ -122,6 +160,45 @@ class DataSpaceDesignFixtureHttpClient extends HttpClientBase {
 }
 
 describe('DataSpaceDesignApi', () => {
+  it('round trips structured wire filters and rejects damaged stored definitions', () => {
+    const wire = {
+      Type: 'and', Filters: [
+        { Type: 'cond', Field: 'Name', Operator: 'equal', Value: null,
+          ValueFun: { Type: 'GetConstValue', Value: 'A' } },
+        { Type: 'cond', Field: 'Owner', Operator: 'equal', Value: null,
+          ValueFun: { Type: 'GetConstValue', Value: null } },
+        { Type: 'or', Filters: [{ Type: 'cond', Field: 'Owner', Operator: 'equal', Value: null,
+          ValueFun: { Type: 'GetUserMasterId', refType: 'dep', depLevel: '2', getChildDep: true } }] },
+      ],
+    }
+    const filter = DataSpaceDesignApi.parseFilter(JSON.stringify(wire))
+    expect(filter).toBeInstanceOf(DataViewFilter)
+    expect(DataSpaceDesignApi.serializeFilter(filter)).toBe(JSON.stringify(wire))
+    expect(DataSpaceDesignApi.parseFilter(null)).toBeUndefined()
+    expect(DataSpaceDesignApi.parseFilter(undefined)).toBeUndefined()
+    expect(DataSpaceDesignApi.parseFilter(' \t ')).toBeUndefined()
+    expect(DataSpaceDesignApi.serializeFilter(undefined)).toBe('')
+    expect(() => DataSpaceDesignApi.parseFilter('{')).toThrow()
+    expect(() => DataSpaceDesignApi.parseFilter('{"Type":"wat"}')).toThrow()
+  })
+
+  it('parses one field ValueFun object while preserving unknown types and JSON extension values', () => {
+    const valueFunction = {
+      Type: 'FutureFunction',
+      Value: false,
+      Extension: { count: 0, empty: null, flags: [false, 0, null] },
+    }
+    expect(DataSpaceDesignApi.parseValueFunction(JSON.stringify(valueFunction))).toEqual(valueFunction)
+    expect(DataSpaceDesignApi.parseValueFunction(JSON.stringify({ Type: 'GetConstValue', Value: 0 }))?.['Value']).toBe(0)
+    expect(DataSpaceDesignApi.parseValueFunction(JSON.stringify({ Type: 'GetConstValue', Value: null }))?.['Value']).toBeNull()
+    expect(DataSpaceDesignApi.parseValueFunction(null)).toBeUndefined()
+    expect(DataSpaceDesignApi.parseValueFunction(undefined)).toBeUndefined()
+    expect(DataSpaceDesignApi.parseValueFunction('  ')).toBeUndefined()
+    expect(() => DataSpaceDesignApi.parseValueFunction('{')).toThrow('ValueFun 不是有效 JSON')
+    expect(() => DataSpaceDesignApi.parseValueFunction('{"Value":false}')).toThrow('ValueFun 缺少 Type')
+    expect(() => DataSpaceDesignApi.parseValueFunction('"plain text"')).toThrow()
+  })
+
   it('reads the data-space and its frontend-model closure through the design context', async () => {
     const http = new DataSpaceDesignFixtureHttpClient()
     const api = new LowcodeApi({ http })
@@ -278,6 +355,54 @@ function formalApi(http: DataSpaceFormalFixtureHttpClient): LowcodeApi {
 }
 
 const formalInput = { designScenarioId: 'DESIGN-1', dataSpaceId: 'SPACE-1', metaName: 'Orders' }
+const formalSpaceInput = { designScenarioId: 'DESIGN-1', dataSpaceId: 'SPACE-1' }
+function formalSpaceRow(change: Record<string, unknown> = {}): FormalDesignRow {
+  return { rowid: 'SPACE-1', Name: '  薪资正式空间  ', inputParams: '[secret]',
+    lingma_sys_key: 'ROW-KEY', lingma_sys_params: { r: ['rowid', 'Name'] }, ...change }
+}
+describe('DataSpaceDesignApi formal space definition', () => {
+  it('reads only rowid and Name once with the target filter and preserves the formal Name', async () => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.results.push(formalResult([formalSpaceRow()]))
+    const space = await formalApi(http).dataSpace.design.readSpaceDefinition(formalSpaceInput)
+    expect(space).toEqual({dataSpaceId: 'SPACE-1', name: '  薪资正式空间  '})
+    expect(Object.isFrozen(space)).toBe(true)
+    expect(http.requests).toHaveLength(1)
+    expect(http.requests[0]?.data).toMatchObject({Table: [{Name: 'Base_DataSet',
+      Filter: {Field: 'rowid', ValueFun: {Value: 'SPACE-1'}},
+      Fields: [{Name: 'rowid', IsOutput: true}, {Name: 'Name', IsOutput: true}]}],
+    PageParam: {index: 1, size: 2}})
+    expect(http.requests[0]?.headers).toMatchObject({'x-FormKey': 'DESIGN-1'})
+  })
+
+  it.each([
+    formalResult([]), formalResult([formalSpaceRow()], 2),
+    formalResult([formalSpaceRow(), formalSpaceRow()]),
+    formalResult([formalSpaceRow({rowid: 'OTHER'})]),
+    formalResult([formalSpaceRow({Name: ''})]),
+    formalResult([formalSpaceRow({Name: 7})]),
+    formalResult([formalSpaceRow({lingma_sys_params: {h: ['Name']}})]),
+    formalResult([formalSpaceRow({lingma_sys_params: {r: ['rowid', 'Name'], m: ['Name']}})]),
+    formalResult([formalSpaceRow({lingma_sys_params: {h: ['rowid']}})]),
+  ])('rejects absent, ambiguous, foreign, invalid or unreadable formal names', async result => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.results.push(result)
+    await expect(formalApi(http).dataSpace.design.readSpaceDefinition(formalSpaceInput)).rejects.toThrow()
+    expect(http.requests).toHaveLength(1)
+  })
+
+  it('rejects stale scope and caller guard without delivering the name', async () => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    const api = formalApi(http)
+    http.results.push(formalResult([formalSpaceRow()]))
+    http.onResponse = () => { api.application.clear() }
+    await expect(api.dataSpace.design.readSpaceDefinition(formalSpaceInput)).rejects.toThrow('SPARK_EXECUTION_SCOPE')
+    const untouched = new DataSpaceFormalFixtureHttpClient()
+    await expect(formalApi(untouched).dataSpace.design.readSpaceDefinition({...formalSpaceInput,
+      assertCurrent: () => {throw new Error('PAGE_INSTANCE_STALE')}})).rejects.toThrow('PAGE_INSTANCE_STALE')
+    expect(untouched.requests).toHaveLength(0)
+  })
+})
 function formalRelation(index = 0): FormalDesignRow {
   return { rowid: `REL-${index}`, dataSetId: 'SPACE-1', parentModId: 'MODEL-1', childModId: 'MODEL-2',
     parentTable: 'Orders', childTable: 'OrderLines', depType: 'currentRow', cascadeDel: 1,
@@ -376,7 +501,95 @@ describe('DataSpaceDesignApi formal relation reader', () => {
   })
 })
 
+describe('DataSpaceDesignApi relation dependency options', () => {
+  it('reads the application dictionary across pages, maps zero values, and sorts by ordIdx', async () => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    const api = formalApi(http)
+    const laterRows = Array.from({ length: 500 }, (_, index) => ({ rowid: `DEP-${index + 2}`,
+      ordIdx: index + 2, txt: `项${index + 2}`, val: index === 0 ? 0 : `V${index + 2}` }))
+    http.results.push(formalResult(laterRows, 501), formalResult([{ rowid: 'DEP-1', ordIdx: 1, txt: '第一项', val: 'A' }], 501))
+
+    const options = await api.dataSpace.design.readRelationDependencyOptions()
+    expect(options).toHaveLength(501)
+    expect(options.slice(0, 2)).toEqual([{ label: '第一项', value: 'A' }, { label: '项2', value: '0' }])
+    expect(http.requests).toHaveLength(2)
+    expect(http.requests[0]?.url).toBe('/api/DataOperation/GetData')
+    expect(http.requests[0]?.headers).toMatchObject({ 'x-FormKey': '', 'X-AppId': 'APP-1' })
+    expect(http.requests[0]?.data).toEqual({ Table: [{ Name: '数据关系依赖', Type: '字典',
+      PrimaryKeyFields: 'rowid', OutputType: 'Table', Filter: null, inputParams: [],
+      DISTINCT: false, IsBusinessMain: 1 }], PageParam: { index: 1, size: 500 } })
+    expect(http.requests[1]?.data).toMatchObject({ PageParam: { index: 2, size: 500 } })
+  })
+
+  it('rejects stale scope and empty or incomplete dictionary responses', async () => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    const api = formalApi(http)
+    http.results.push(formalResult([{ ordIdx: 1, txt: '项', val: 'A' }]))
+    http.onResponse = () => { api.application.clear() }
+    await expect(api.dataSpace.design.readRelationDependencyOptions()).rejects.toThrow(/SPARK_EXECUTION_SCOPE/)
+
+    for (const rows of [[], [{ ordIdx: 1, val: 'A' }], [{ ordIdx: 1, txt: '项' }],
+      [{ ordIdx: 1, txt: { unexpected: true }, val: 'A' }], [{ ordIdx: 1, txt: '项', val: { unexpected: true } }]]) {
+      const nextHttp = new DataSpaceFormalFixtureHttpClient()
+      nextHttp.results.push(formalResult(rows))
+      await expect(formalApi(nextHttp).dataSpace.design.readRelationDependencyOptions()).rejects.toThrow()
+    }
+  })
+})
+
 describe('DataSpaceDesignApi selected formal model reader', () => {
+  it('resolves equivalent output records once without mutating the formal model and rejects semantic conflicts', async () => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    const duplicate = { ...(formalFields()[1] ?? {}), rowid: 'FIELD-2-DUPLICATE',
+      ValueFun: { Value: 0, Extra: [false, ''], Type: 'GetConstValue' } }
+    http.results.push(formalResult([formalModel()]), formalResult([...formalFields(), duplicate]), ...sourceResults())
+    const model = await formalApi(http).dataSpace.design.readModel(formalInput)
+
+    expect(model.fields).toHaveLength(3)
+    expect(DataSpaceDesignApi.resolveOutputFields(model).map(field => field.canonicalName)).toEqual(['orderId', 'amount'])
+    expect(model.fields).toHaveLength(3)
+
+    const amount = model.fields.find(field => field.name === 'amount')
+    if (!amount) throw new Error('missing amount fixture')
+    const conflicting = { ...model, fields: [...model.fields, { ...amount,
+      id: 'FIELD-2-CONFLICT', description: 'different output semantics' }] }
+    expect(() => DataSpaceDesignApi.resolveOutputFields(conflicting)).toThrow('正式模型输出字段重复')
+  })
+
+  it.each([
+    { label: 'source name', change: { Name: 'amountAlias', AsName: 'amount' } },
+    { label: 'type', change: { FieldType: 'decimal' } },
+    { label: 'computed status', change: { ValueFun: '' } },
+    { label: 'order', change: { Order: 8 } },
+    { label: 'Group', change: { Group: 1 } },
+    { label: 'Distinct', change: { Distinct: true } },
+    { label: 'ValueFun', change: { ValueFun: { Type: 'GetConstValue', Value: 7, Extra: [false, ''] } } },
+    { label: 'Value', change: { Value: 'different' } },
+  ])('rejects duplicate outputs with different $label semantics', async ({ change }) => {
+    const fields = formalFields()
+    const source = fields.find(field => field['Name'] === 'amount')
+    if (!source) throw new Error('missing amount fixture')
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.results.push(formalResult([formalModel()]), formalResult([...fields,
+      { ...source, ...change, rowid: 'FIELD-2-CONFLICT', AsName: 'amount' }]), ...sourceResults())
+    const model = await formalApi(http).dataSpace.design.readModel(formalInput)
+    expect(() => DataSpaceDesignApi.resolveOutputFields(model)).toThrow('正式模型输出字段重复')
+  })
+
+  it('distinguishes a missing raw value from null while comparing semantic JSON independent of key order', async () => {
+    const fields = formalFields()
+    const source = fields.find(field => field['Name'] === 'amount')
+    if (!source) throw new Error('missing amount fixture')
+    const withoutValueFun = { ...source }
+    delete withoutValueFun['ValueFun']
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.results.push(formalResult([formalModel()]), formalResult([...fields.map(field => field['Name'] === 'amount'
+      ? withoutValueFun : field), { ...withoutValueFun, rowid: 'FIELD-2-DUPLICATE',
+      ValueFun: null }]), ...sourceResults())
+    const model = await formalApi(http).dataSpace.design.readModel(formalInput)
+    expect(() => DataSpaceDesignApi.resolveOutputFields(model)).toThrow('正式模型输出字段重复')
+  })
+
   it('reads only the selected model and its source, verifies output key aliases and preserves structured definitions', async () => {
     const http = new DataSpaceFormalFixtureHttpClient()
     http.results.push(formalResult([formalModel()]), formalResult(formalFields()), ...sourceResults())
@@ -403,6 +616,16 @@ describe('DataSpaceDesignApi selected formal model reader', () => {
     http.results.push(formalResult([{ ...formalModel(), Type: 'JSON', PrimaryKeyFields: 'orderId' }]),
       formalResult(formalFields().map(field => field['Name'] === 'rowid' ? { ...field, IsPKey: 1 } : field)))
     expect((await formalApi(http).dataSpace.design.readModel(formalInput)).primaryKey).toBe('orderId')
+    expect(http.requests).toHaveLength(2)
+  })
+
+  it('reads a non-table model with no declared or field primary key as keyless', async () => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.results.push(formalResult([{ ...formalModel(), Type: '字典', PrimaryKeyFields: '' }]),
+      formalResult(formalFields()))
+    const model = await formalApi(http).dataSpace.design.readModel(formalInput)
+    expect(model.primaryKey).toBe('')
+    expect(model.fields.every(field => !field.primaryKey)).toBe(true)
     expect(http.requests).toHaveLength(2)
   })
 

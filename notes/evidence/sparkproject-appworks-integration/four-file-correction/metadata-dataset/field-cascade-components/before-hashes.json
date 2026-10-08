@@ -1,0 +1,50 @@
+[
+  {
+    "path": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
+    "sha256": "E6B43C53626E628B96155F552B3B0ADE9E6063E032D2390EFEAA5DA4FC6640B7"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/options/option-source.ts",
+    "sha256": "2EBEA9B8619211E1B123D61CDD4CC422B762E9BAB4DBDE3439A6CF013423AD39"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
+    "sha256": "3D9E7ED95EBCEE6194015BDFA32134B3B6A5079115E982048ECA7C7D8AA16544"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/data-components/composables/state/useOptionFieldState.ts",
+    "sha256": "74F53F649A2386D92DE85AA839E62B3B6F5084E59535C4C09649DFBFF2BDBDB9"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/data-components/choice/FieldCheckboxGroup/FieldCheckboxGroup.vue",
+    "sha256": "352F1E30C8FC30E2A7BCAC4ED5D45391F3F034D0EBF4AF9FF5FFBBA6B779E43C"
+  },
+  {
+    "path": "packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue",
+    "sha256": "E8E049DF91AB82035F66C261D587EC40172B29D5EEFADFC9E104B776753D25FE"
+  },
+  {
+    "path": "packages/spark-data/src/index.ts",
+    "sha256": "A8B0311EED3898000BFD398258934C02CBF25D11206CAC7898C5014480294F85"
+  },
+  {
+    "path": "packages/spark-data/src/strategies/cascade/field-cascade-binding.ts",
+    "sha256": "F0EAF2B5EE075B6D7EA67995E60F870034C2D3A86994D9E6E819702B7A31CE98"
+  },
+  {
+    "path": "packages/spark-data/src/dataset.ts",
+    "sha256": "46284154581F9654887561701AA0E772FEE22DA113C14C46850FF92691B03795"
+  },
+  {
+    "path": "packages/spark-data/API.md",
+    "sha256": "3CB7BF018BDC5FF44EE165D34993D3AC2573019517D70DCABE5610B52CB3E601"
+  },
+  {
+    "path": "packages/spark-component/API.md",
+    "sha256": "5D5B4832B3B1832317373E34A25BB12392B41E0C1E4B1D2AAF32A2F1C4EA8959"
+  },
+  {
+    "path": "packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts",
+    "sha256": "918BA4A78FB12F5BF2E30F14536479857421A77B51144558648430E4C12ED57C"
+  }
+]

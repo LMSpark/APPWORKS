@@ -1,0 +1,383 @@
+{
+  "model": {
+    "fields": [
+      {
+        "canonicalName": "SysId",
+        "name": "SysId",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "htmlDesc",
+        "name": "htmlDesc",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "prowid",
+        "name": "prowid",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "NavCsrName",
+        "name": "NavCsrName",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "flowstate",
+        "name": "flowstate",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "ChildItemLocation",
+        "name": "ChildItemLocation",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "NavigationOrderValue",
+        "name": "NavigationOrderValue",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "name",
+        "name": "name",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "HorizontalAlignment",
+        "name": "HorizontalAlignment",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "MobileUrl",
+        "name": "MobileUrl",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "DataTextField",
+        "name": "DataTextField",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "caption",
+        "name": "caption",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "personCharge",
+        "name": "personCharge",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "DataId",
+        "name": "DataId",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "FormName",
+        "name": "FormName",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "wfid",
+        "name": "wfid",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "NavigationImageWxz",
+        "name": "NavigationImageWxz",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "Sum",
+        "name": "Sum",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "FunCodeID",
+        "name": "FunCodeID",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "Manhour",
+        "name": "Manhour",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "IsToDeskApp",
+        "name": "IsToDeskApp",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "createtime",
+        "name": "createtime",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "createuser",
+        "name": "createuser",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "folderName",
+        "name": "folderName",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "FunOrderValue",
+        "name": "FunOrderValue",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "Width",
+        "name": "Width",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "FunName",
+        "name": "FunName",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "promptText",
+        "name": "promptText",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "navParams",
+        "name": "navParams",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "NavigationShowType",
+        "name": "NavigationShowType",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "DifficultyFactor",
+        "name": "DifficultyFactor",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "VersionId",
+        "name": "VersionId",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "JSValue",
+        "name": "JSValue",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "modid",
+        "name": "modid",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "Total",
+        "name": "Total",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "rowid",
+        "name": "rowid",
+        "output": true,
+        "primaryKey": true
+      },
+      {
+        "canonicalName": "IsChild",
+        "name": "IsChild",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "description",
+        "name": "description",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "DataValField",
+        "name": "DataValField",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "lingma_sys_appid",
+        "name": "lingma_sys_appid",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "NavCsrType",
+        "name": "NavCsrType",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "lingma_sys_is_delete",
+        "name": "lingma_sys_is_delete",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "memo",
+        "name": "memo",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "Number",
+        "name": "Number",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "updateuser",
+        "name": "updateuser",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "updatetime",
+        "name": "updatetime",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "conType",
+        "name": "conType",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "NavigationUrl",
+        "name": "NavigationUrl",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "funCode",
+        "name": "funCode",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "ReportID",
+        "name": "ReportID",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "authDefaultSet",
+        "name": "authDefaultSet",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "DataName",
+        "name": "DataName",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "FromId",
+        "name": "FromId",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "IsShowChildItem",
+        "name": "IsShowChildItem",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "BeginGroup",
+        "name": "BeginGroup",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "CtrlType",
+        "name": "CtrlType",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "conid",
+        "name": "conid",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "NavigationType",
+        "name": "NavigationType",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "IsShowAtNav",
+        "name": "IsShowAtNav",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "DataType",
+        "name": "DataType",
+        "output": false,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "status",
+        "name": "status",
+        "output": false,
+        "primaryKey": false
+      }
+    ],
+    "id": "44402ab3-7708-4a12-adaf-5d8a2e42b9ff",
+    "name": "Base_NavigationInfo"
+  },
+  "node": {
+    "dataSpace": {
+      "models": [],
+      "scenarioId": "7AB874097A1E8711A42FD845939A6E05"
+    },
+    "nodeId": "7AB874097A1E8711A42FD845939A6E05",
+    "projectId": "D99A1DCE9894698799101EFD70F8FC76",
+    "sourceConid": "7AB874097A1E8711A42FD845939A6E05"
+  }
+}

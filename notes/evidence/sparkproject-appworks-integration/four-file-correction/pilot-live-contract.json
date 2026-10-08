@@ -1,0 +1,744 @@
+{
+  "files": [
+    {
+      "error": "[404] 文件不存在",
+      "fileName": "rule.json"
+    },
+    {
+      "error": "[404] 文件不存在",
+      "fileName": "script.js"
+    },
+    {
+      "error": "[404] 文件不存在",
+      "fileName": "style.css"
+    }
+  ],
+  "models": [
+    {
+      "fields": [
+        {
+          "canonicalName": "isCheckLogin",
+          "id": "083116ECBFFD4A18AE748A4832E50688",
+          "name": "isCheckLogin",
+          "output": false,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "flowstate",
+          "id": "1746E2BAE25145AE814A9539D84A51C5",
+          "name": "flowstate",
+          "output": true,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "createuser",
+          "id": "19324DE8445D4985AD77F7595E1BF281",
+          "name": "createuser",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Type",
+          "id": "1D6C7C64E56346ED83C27CC6C97C7BC8",
+          "name": "Type",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "wfid",
+          "id": "3681A6547B084057A84E20ECF84658A7",
+          "name": "wfid",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "ReportID",
+          "id": "3FA934D551A1421CA64CEAD8A53B5786",
+          "name": "ReportID",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Type",
+          "id": "4314C79A7B0642008DACB2D7800ED0A5",
+          "name": "Type",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "inputParams",
+          "id": "56E86E4BF282410880A1206FBB1CE8A5",
+          "name": "inputParams",
+          "output": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        {
+          "canonicalName": "wfid",
+          "id": "646E8891520B4FBB9429AAB3075E0A9B",
+          "name": "wfid",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "createuser",
+          "id": "67724802E297448DA62E9BBF410174D2",
+          "name": "createuser",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "description",
+          "id": "6B5651FBDFD94754B341B298DC269185",
+          "name": "description",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "inputParams",
+          "id": "6C46E3E1755C4F39998FA2C6A3440EB7",
+          "name": "inputParams",
+          "output": false,
+          "primaryKey": false,
+          "type": "text"
+        },
+        {
+          "canonicalName": "ReportID",
+          "id": "6E058DFC62E34471B1C67103F992968C",
+          "name": "ReportID",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "createtime",
+          "id": "7CEB9A4ABABB47BFB5826C5DB3A662E8",
+          "name": "createtime",
+          "output": true,
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "canonicalName": "sysid",
+          "id": "807184E820A348ECAA5FDEC9FA99E07F",
+          "name": "sysid",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "createtime",
+          "id": "8353653B71E64BF9856A2F97AEE58EF1",
+          "name": "createtime",
+          "output": true,
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "canonicalName": "updatetime",
+          "id": "861A3FCFACF94657A8B3F79FF5091F53",
+          "name": "updatetime",
+          "output": true,
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "canonicalName": "flowstate",
+          "id": "89438D2FBCC14E3AB23DACB19644954A",
+          "name": "flowstate",
+          "output": true,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "lingma_sys_is_delete",
+          "id": "8953675B62A344969F19B5DBB4BC2B8D",
+          "name": "lingma_sys_is_delete",
+          "output": true,
+          "primaryKey": false,
+          "type": "bigint"
+        },
+        {
+          "canonicalName": "lingma_sys_is_delete",
+          "id": "ACFEFAAA63DE46759F3A3A2B0D16D136",
+          "name": "lingma_sys_is_delete",
+          "output": true,
+          "primaryKey": false,
+          "type": "bigint"
+        },
+        {
+          "canonicalName": "updateuser",
+          "id": "AD487D18CE5543F9A081053F489B8AEF",
+          "name": "updateuser",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "updatetime",
+          "id": "BB31E65386AE44D49DC6441D6764341A",
+          "name": "updatetime",
+          "output": true,
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "canonicalName": "rowid",
+          "id": "C29690D7067240CC840539CE0CBEE821",
+          "name": "rowid",
+          "output": true,
+          "primaryKey": true,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "updateuser",
+          "id": "C55251A8EAAE4D3FBF4798447FF1988E",
+          "name": "updateuser",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Name",
+          "id": "C6F91361CC8C4C44A8F40259B52A19FE",
+          "name": "Name",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Name",
+          "id": "C7A2AD7CB9404041A213702C12012821",
+          "name": "Name",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "DefaultPermission",
+          "id": "D0892E7282EF4E7182519F98C6A58CA6",
+          "name": "DefaultPermission",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "sysid",
+          "id": "DF9FCEDE45594113A85BBDE2213F7FC8",
+          "name": "sysid",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "rowid",
+          "id": "F32F8B3A29464355B26C96EF580F4F60",
+          "name": "rowid",
+          "output": true,
+          "primaryKey": true,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "DefaultPermission",
+          "id": "FDECE1A8D5FE444A85D6D96CBC88653F",
+          "name": "DefaultPermission",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "description",
+          "id": "FE2F99A0DE1842499C4DE6B635F95893",
+          "name": "description",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "isCheckLogin",
+          "id": "FE6834B87F664198AA481262A473D98C",
+          "name": "isCheckLogin",
+          "output": false,
+          "primaryKey": false,
+          "type": "int"
+        }
+      ],
+      "id": "90A82E287930A234FEC3E687C94A93EAp000",
+      "metaName": "Base_DataSet",
+      "primaryKey": "rowid"
+    },
+    {
+      "fields": [
+        {
+          "canonicalName": "isWeChat",
+          "id": "0DDF6C89F21CB25B2B98E763B5E89A04",
+          "name": "isWeChat",
+          "output": false,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "publisher_ent",
+          "id": "1599384e97b711f185000242ac110008",
+          "name": "publisher_ent",
+          "output": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        {
+          "canonicalName": "AppDesc",
+          "id": "20BCD6183C5F6840EE1BFBC09C9D32AD",
+          "name": "AppDesc",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "WeChatUrl",
+          "id": "2A469D3CD7BE9B9EF38C2655A22C4D5B",
+          "name": "WeChatUrl",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "description",
+          "id": "2BBB0A4775C363FDC6D9A4946B28848F",
+          "name": "description",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Icon",
+          "id": "33DBD2A4F2EADE73D116F387AA2A8AC4",
+          "name": "Icon",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "updateuser",
+          "id": "37F641518F8253E69B44E9774EA22BCF",
+          "name": "updateuser",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "IsProjectRelation",
+          "id": "40D0C649A980AF897F618D904E3EA62B",
+          "name": "IsProjectRelation",
+          "output": false,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "EntId",
+          "id": "480C7A8A08CE4A26807535D4A2CBED92",
+          "name": "EntId",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "lingma_sys_is_delete",
+          "id": "54A134169BA2253669BA558AD2AC21A2",
+          "name": "lingma_sys_is_delete",
+          "output": false,
+          "primaryKey": false,
+          "type": "bigint"
+        },
+        {
+          "canonicalName": "AppName",
+          "id": "73D1E09E013336F7A9F0DD9643353AD7",
+          "name": "AppName",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "isdel",
+          "id": "7C445F889FCC2D05AE542A98A93A3CCA",
+          "name": "isdel",
+          "output": false,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "CreateTime",
+          "id": "7E3E1E9CAEA966D462254850B25F3A80",
+          "name": "CreateTime",
+          "output": false,
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "canonicalName": "NameStr",
+          "id": "81EA88772753ADD61B0C80558EC06CC6",
+          "name": "NameStr",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "updatetime",
+          "id": "832893F4AC3D562C800E4FBA08998337",
+          "name": "updatetime",
+          "output": false,
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "canonicalName": "DeveloperId",
+          "id": "86FA84FE949311B93870FA89E2BA56E8",
+          "name": "DeveloperId",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "DeveloperName",
+          "id": "91AFA617136C0785E62934F70F7D1BCB",
+          "name": "DeveloperName",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "EntShortName",
+          "id": "A22C5F255DFB496BC8363573253C7CE5",
+          "name": "EntShortName",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "WeChartimg",
+          "id": "B258F0B49A158DF5B7FD3E305B212CF8",
+          "name": "WeChartimg",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "rowid",
+          "id": "B70A3CE33F506E53F2D3E3299BBAD6F6",
+          "name": "rowid",
+          "output": true,
+          "primaryKey": true,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "CreateUser",
+          "id": "C3E0F7C6A24190EF7C127D768F9E15F4",
+          "name": "CreateUser",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "IsSys",
+          "id": "C66993024ED2A2ECE3CF7329DCAC6D16",
+          "name": "IsSys",
+          "output": false,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "isSass",
+          "id": "C6830CE3B99F29500505079B024BD67A",
+          "name": "isSass",
+          "output": false,
+          "primaryKey": false,
+          "type": "tinyint"
+        },
+        {
+          "canonicalName": "AppType",
+          "id": "D02DFF2F8651D662E7DB269D344247ED",
+          "name": "AppType",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "flowstate",
+          "id": "E3C2A4997D9C828195AF8336A12C9A42",
+          "name": "flowstate",
+          "output": false,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "CrossEnt",
+          "id": "E9FB83482C743D7B87C10A7ED9F57179",
+          "name": "CrossEnt",
+          "output": false,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "wfid",
+          "id": "F39FD9F70E442F7D10196E7C2E0DD48E",
+          "name": "wfid",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "WebUrl",
+          "id": "F44E1807A34F32240497B5D171D8F298",
+          "name": "WebUrl",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Memo",
+          "id": "F48478186A1186C567ACD1B031BEDD8D",
+          "name": "Memo",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "ReportID",
+          "id": "F9DC152009E241C426CEE3833BA9251E",
+          "name": "ReportID",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        }
+      ],
+      "id": "acb04903-043f-4c99-9a57-a8e9bc95ce72",
+      "metaName": "Base_AppSystemList",
+      "primaryKey": "rowid"
+    },
+    {
+      "fields": [
+        {
+          "canonicalName": "ROWID",
+          "id": "0AA458FF39F246E9A2D5A9935AB34644",
+          "name": "ROWID",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "ID",
+          "id": "24459754EAAE44C6B42C241E57F947CA",
+          "name": "ID",
+          "output": true,
+          "primaryKey": true,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "memo",
+          "id": "25809A049E014DD79F1EF9340ED78FD1",
+          "name": "memo",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "NativePlace",
+          "id": "2FEAE026FB8A40D98A0655E8A710B6C4",
+          "name": "NativePlace",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Address",
+          "id": "4604E1BD1FBC4E33B2D064F466DF2454",
+          "name": "Address",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Height",
+          "id": "46416B6DC6B84F5D91690B15137508A6",
+          "name": "Height",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "PermanentTenancy",
+          "id": "5EB6FB701B834731895B72653404015C",
+          "name": "PermanentTenancy",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "WeChatOpenId",
+          "id": "5EC40543582D4EA49E6DACE71CFF0B49",
+          "name": "WeChatOpenId",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "UserName",
+          "id": "60A746A09D8043C8B6ABD05C422914F8",
+          "name": "UserName",
+          "output": true,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "mailbox",
+          "id": "6232A3A502824AA38F8F431A519ECD60",
+          "name": "mailbox",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "LoginPass",
+          "id": "79010C219C664AC7AF52CFD7511B7AEB",
+          "name": "LoginPass",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "State",
+          "id": "85F5C61BD52D4D54B385C6A916DC90A2",
+          "name": "State",
+          "output": false,
+          "primaryKey": false,
+          "type": "tinyint"
+        },
+        {
+          "canonicalName": "Flag",
+          "id": "8636BC0ADD98408D97038E67631162DC",
+          "name": "Flag",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "MaritalStatus",
+          "id": "88730CA4E0F044E0B537081CA382C7B4",
+          "name": "MaritalStatus",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Sex",
+          "id": "A0148DE4CA3C4A41A9D5EEF036605B11",
+          "name": "Sex",
+          "output": false,
+          "primaryKey": false,
+          "type": "char"
+        },
+        {
+          "canonicalName": "LoginName",
+          "id": "A361B12EDB46473C950EC7EBA2A6C15E",
+          "name": "LoginName",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Birthday",
+          "id": "B0D14FC276BB4D94B27E253D7C6D5A96",
+          "name": "Birthday",
+          "output": false,
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "canonicalName": "EntId",
+          "id": "B1A3032FCBF3486B898F41DD76ADAA53",
+          "name": "EntId",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "entInfoUserPhone",
+          "id": "B5F26D33578549F89272E693445A4C00",
+          "name": "entInfoUserPhone",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "WechatId",
+          "id": "BE2CC6BDDF38486C87D269D90EAEE023",
+          "name": "WechatId",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "CreateTime",
+          "id": "C1E519AACC794677B6AB97D1273C2E9C",
+          "name": "CreateTime",
+          "output": false,
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "canonicalName": "IDCard",
+          "id": "CA65F69961894432BF3B3C9551D6FCA7",
+          "name": "IDCard",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Nation",
+          "id": "D382A823238B46599BCCF4983024EC27",
+          "name": "Nation",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "Age",
+          "id": "D9C5D3FD69F8448496A76772576CD13C",
+          "name": "Age",
+          "output": false,
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "canonicalName": "Path",
+          "id": "E5E6E413E37C42E99DC092B72CA2880E",
+          "name": "Path",
+          "output": false,
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "canonicalName": "IsWork",
+          "id": "F374D4EB1B8C45B0AFB9D7D14223A77A",
+          "name": "IsWork",
+          "output": false,
+          "primaryKey": false,
+          "type": "tinyint"
+        }
+      ],
+      "id": "90A82E287930A234FEC3E687C94A93EAp001",
+      "metaName": "Base_UserInfo",
+      "primaryKey": "ID"
+    }
+  ],
+  "scenarioText": "{\n  \"scenarioId\": \"90A82E287930A234FEC3E687C94A93EA\",\n  \"tables\": {\n    \"Base_NavigationInfo\": {\n      \"modelBinding\": {\n        \"modelId\": \"44402ab3-7708-4a12-adaf-5d8a2e42b9ff\",\n        \"modelName\": \"Base_NavigationInfo\"\n      },\n      \"views\": {\n        \"default\": {}\n      }\n    },\n    \"Base_DataSet\": {\n      \"modelBinding\": {\n        \"modelId\": \"90A82E287930A234FEC3E687C94A93EAp000\",\n        \"modelName\": \"Base_DataSet\"\n      },\n      \"views\": {\n        \"default\": {}\n      }\n    },\n    \"Base_UserInfo\": {\n      \"modelBinding\": {\n        \"modelId\": \"90A82E287930A234FEC3E687C94A93EAp001\",\n        \"modelName\": \"Base_UserInfo\"\n      },\n      \"views\": {\n        \"default\": {}\n      }\n    },\n    \"Base_DataModel_Field\": {\n      \"modelBinding\": {\n        \"modelId\": \"a30f1b5b-4a2f-432c-aa71-1b597bc36e11\",\n        \"modelName\": \"Base_DataModel_Field\"\n      },\n      \"views\": {\n        \"default\": {}\n      }\n    },\n    \"Base_AppSystemList\": {\n      \"modelBinding\": {\n        \"modelId\": \"acb04903-043f-4c99-9a57-a8e9bc95ce72\",\n        \"modelName\": \"Base_AppSystemList\"\n      },\n      \"views\": {\n        \"default\": {}\n      }\n    },\n    \"Base_DataModel\": {\n      \"modelBinding\": {\n        \"modelId\": \"e9f6c362-9ec9-4d77-bf62-cdcb5d2c1bbb\",\n        \"modelName\": \"Base_DataModel\"\n      },\n      \"views\": {\n        \"default\": {}\n      }\n    }\n  },\n  \"viewCascades\": []\n}"
+}

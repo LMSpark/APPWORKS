@@ -1,0 +1,6 @@
+{
+  "command": "pnpm run verify:rules",
+  "startedAt": "2026-10-07T12:38:21.8453995+08:00",
+  "finishedAt": "2026-10-07T12:38:57.4098421+08:00",
+  "exitCode": 0
+}

@@ -1,0 +1,38 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import assert from 'node:assert/strict'
+import {pathToFileURL, fileURLToPath} from 'node:url'
+
+const root = process.cwd()
+const evidence = path.dirname(fileURLToPath(import.meta.url))
+const {DtsClassModelBundleLoader} = await import(pathToFileURL(path.join(root, 'packages/spark-ai/src/class-model/class-model/bundle/dts-class-model-bundle-loader.ts')).href)
+const {DtsBundleClassModelKnowledgeService} = await import(pathToFileURL(path.join(root, 'packages/spark-ai/src/class-model/knowledge/dts-bundle-class-model-knowledge-service.ts')).href)
+const manifestUrl = pathToFileURL(path.join(root, 'generated/dts-class-model/manifest.json')).href
+const fetchJson = async (url: string) => JSON.parse(fs.readFileSync(fileURLToPath(url), 'utf8'))
+const loader = new DtsClassModelBundleLoader({manifestUrl, fetchJson})
+const service = new DtsBundleClassModelKnowledgeService({loader, rootClassName: 'DataSetCrudTool'})
+await service.init()
+const guide = await service.modelGuide({kind: 'DataViewFieldCascade'})
+const method = await service.methodGuide({kind: 'DataSetCrudTool', methodName: 'createCascade'})
+const api = await loader.buildRuntimeApiMetadata('DataSetCrudTool')
+const action = api.rootApi.actions.find((entry: {name: string}) => entry.name === 'createCascade')
+assert.ok(action)
+fs.writeFileSync(path.join(evidence, 'guides-first.json'), JSON.stringify({guide, method, action}, null, 2))
+const {DataSetCrudTool} = await import(pathToFileURL(path.join(root, 'packages/spark-data/src/dataset-crud-tool.ts')).href)
+const {executeDtsNativeScript} = await import(pathToFileURL(path.join(root, 'packages/spark-ai/src/agent/native-runtime/dts-native-script-runner.ts')).href)
+const tool = DataSetCrudTool.fromJson({dataSetName: 'ClassModelCompatibilityProbe', tables: {
+  Orders: {columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'country', type: 'string'}, {name: 'city', type: 'string'}], views: {default: {}, edit: {}}},
+  Cities: {columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'code', type: 'string'}], views: {default: {}, choices: {valueField: 'code', selectionDelimiter: '|'}}},
+}})
+const cascade = {kind: 'field', cascadeId: 'city', tableName: 'Orders', viewId: 'edit', targetField: 'city',
+  valueFormat: 'selection-string', parents: [{tableName: 'Orders', viewId: 'edit', field: 'country', parameter: 'countryId'}],
+  optionsView: {tableName: 'Cities', viewId: 'choices'}, valuePolicy: {mode: 'retain-valid', clearValue: ''}}
+try {
+  const result = await executeDtsNativeScript({instance: tool, rootClassName: 'DataSetCrudTool', manifestUrl, fetchJson,
+    script: `return await this.createCascade(${JSON.stringify({cascade})});`})
+  fs.writeFileSync(path.join(evidence, 'script-first.json'), JSON.stringify(result, null, 2))
+  console.log(JSON.stringify(result))
+} catch (error) {
+  fs.writeFileSync(path.join(evidence, 'script-first.json'), JSON.stringify({error: String(error)}, null, 2))
+  console.log(String(error))
+} finally { tool.dataSet.destroy() }

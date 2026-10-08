@@ -1,0 +1,102 @@
+[
+  {
+    "sha256": "E5C9E229074EC4C2CF7DBE3FFC88024107C998DC42EB7A45181FAE9A1C98F636",
+    "path": "packages/spark-data/src/types.ts"
+  },
+  {
+    "sha256": "8ACD3BF5202072D625CC35E4CF703D8A1173C6D9AF4830BE95FEEE3DC1BF050B",
+    "path": "packages/spark-data/src/index.ts"
+  },
+  {
+    "sha256": "4AEB995540F474F98FBF9DF4A2CE690F1B1796A2DC74F306A9874424AA8E452F",
+    "path": "packages/spark-data/src/core/utils.ts"
+  },
+  {
+    "sha256": "DA9D4FFE7DB71C7630BCDAB2B3BFE2904A42213709C64748211C5EE563B3FD29",
+    "path": "packages/spark-data/src/dataset.ts"
+  },
+  {
+    "sha256": "7670D04A81BC3D74E96A05A8527412F85568B01FB2BFA9906CA90A35E513BB9B",
+    "path": "packages/spark-data/src/data-view.ts"
+  },
+  {
+    "sha256": "38772754E25EBE41BFD776FA45BE348D71B8BEE169ECEAAA4358B84A3CFA84E9",
+    "path": "packages/spark-data/src/dataset-crud-tool.ts"
+  },
+  {
+    "sha256": "FCE590C3EDEB0CDEEE0F726B04D267078B200DFBD2480A30A1826B11967BDBB1",
+    "path": "packages/spark-data/src/strategies/cascade-delegate.ts"
+  },
+  {
+    "sha256": "45A0D33612F96F032C3301409AB3F0E62334A9A952822A44870FDD97CB7A32EC",
+    "path": "packages/spark-data/src/strategies/cascade/field-cascade-binding.ts"
+  },
+  {
+    "sha256": "F062DFB0AB46E597926EBF792A7F9036E3E6F6D04C7F08F877704401A76F0673",
+    "path": "packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts"
+  },
+  {
+    "sha256": "3D233E18D87C325A0AF6764D2279EFB74B907F0E07B21303F943890A5C501CA2",
+    "path": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+  },
+  {
+    "sha256": "253898739F7C561C51CFE5AD48E990A253030BC4A18A1974A4D3E0BDCAB01C0A",
+    "path": "packages/spark-data/API.md"
+  },
+  {
+    "sha256": "620B4A100E08FA9DA76436F875198BEDEBB76A386E636110E27E36C8EB3AB661",
+    "path": "packages/spark-data/src/tests/cascade-event-filter.test.ts"
+  },
+  {
+    "sha256": "C9D0EB046C74FDF1934820E2BA6FD02D72AB69A596736E0336F883839B66C0F8",
+    "path": "packages/spark-data/src/tests/cascade-computed-tree.test.ts"
+  },
+  {
+    "sha256": "A249B66C464FF995C0511B73E766888A3C5E4AB913336100190137438E5F5A4E",
+    "path": "packages/spark-data/src/tests/data-view/data-view-events.test.ts"
+  },
+  {
+    "sha256": "7855520111EE0AC0B85FE6DD7EFCD3D0DF35767236BC5DCDC35B35EDAB6882EA",
+    "path": "packages/spark-data/src/tests/crud/commit-mode.test.ts"
+  },
+  {
+    "sha256": "C2561DF395A8424D0364A54DA346F818B6D41A4AA2062DFC709E29CD53088B45",
+    "path": "packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts"
+  },
+  {
+    "sha256": "39DF16364DD4DE915095E2BB76B5A973E4DA4461A03D2D535713D7E0E30BE5A2",
+    "path": "packages/spark-data/src/tests/dataset/dataset-structure-crud.test.ts"
+  },
+  {
+    "sha256": "6E91F750F57E6C2EF563454851656E354CB3D0DCDBEF1AC7EA82C2E19C3AF0F0",
+    "path": "packages/spark-data/src/tests/dataset/dataset-request-orchestration.test.ts"
+  },
+  {
+    "sha256": "4027F013670C8CAA186C172B6F25F7EF04AFF8F7062FDC5634A4A152BD839685",
+    "path": "packages/spark-data/src/tests/dataset/dataset-relation-rebuild.test.ts"
+  },
+  {
+    "sha256": "77D59910CE4DA179A64A603B6DFFCEE02CE1A37D069B6087802F1B606DEB0C43",
+    "path": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts"
+  },
+  {
+    "sha256": "7F1EEBB4AAB2EBA64C0DE7845D84AE91A6C0B293824DFDB8BCA3BBFB422DFDE6",
+    "path": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts"
+  },
+  {
+    "sha256": "8B44E9806C407A807290D45CB432AB1117D73FE60E77BC06C0A39F16921E2298",
+    "path": "tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts"
+  },
+  {
+    "sha256": "E7B53B103C706C25ACB33B25509F6FB649DCFBE765701A61B031D9DAC6399B3B",
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts"
+  },
+  {
+    "sha256": "0F223FE82F78762D1A1F915BCEC966ECE0E9A9DAA5D209DD77DC209BB93537A9",
+    "path": "backend-api-contracts/characterization-fixtures/pages-config/lmspark/homepage/tx-editing-rows/pagedata.json"
+  },
+  {
+    "sha256": "DB14527C473A2B092720E7DE715E8A12117EAB9BD5F7B2EA10F82459C69C64EB",
+    "path": "backend-api-contracts/characterization-fixtures/pages-config/lmspark/homepage/tx-transaction-commit/pagedata.json"
+  }
+]

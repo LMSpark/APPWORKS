@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/useDevState",
+    "sourcePath": "src/views/app/dev-system/useDevState.ts",
+    "sourceFile": "src/views/app/dev-system/useDevState.ts",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/useDevState",
+    "jsdoc": "@module app:views/app/dev-system/useDevState\n职责：提供 DevSystem 的 useDevState 能力，围绕 EditableProjectOption 等公开契约支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程，不作为运行中页面配置真源，也不绕过 ProjectWorkspace 保存链路。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevState。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "EditableProjectOption",
+      "StatusMessage",
+      "DevContextConfig",
+      "DevWorkspaceTab",
+      "DevState"
+    ]
+  },
+  "$defs": {
+    "EditableProjectOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EditableProjectOption",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenantId"
+      ],
+      "additionalProperties": false
+    },
+    "StatusMessage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StatusMessage",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "success",
+            "warning",
+            "error",
+            "info"
+          ]
+        },
+        "time": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "type",
+        "time"
+      ],
+      "additionalProperties": false
+    },
+    "DevContextConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DevContextConfig",
+      "properties": {
+        "placeholder": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "type": "string"
+        },
+        "paramName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "placeholder",
+        "defaultValue",
+        "paramName"
+      ],
+      "additionalProperties": false
+    },
+    "DevWorkspaceTab": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DevWorkspaceTab",
+      "anyOf": [
+        {
+          "const": "props"
+        },
+        {
+          "const": "preview"
+        },
+        {
+          "type": "object",
+          "title": "ProjectBlueprintDomain.PageToolFileName"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-10-07T03:12:55.184Z",
+  "models": {
+    "EditableProjectOption": {
+      "name": "EditableProjectOption",
+      "jsdoc": "Editable Project Option 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ProjectBlueprintDomain.ProjectSummary & {\n    /** tenant Id 标识。 */\n    tenantId: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ProjectBlueprintDomain.ProjectSummary",
+            "targetName": "ProjectBlueprintDomain.ProjectSummary"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** tenant Id 标识。 */\n    tenantId: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "jsdoc": "tenant Id 标识。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "StatusMessage": {
+      "name": "StatusMessage",
+      "jsdoc": "Status Message 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 展示文本。 */\n    text: string;\n    /** 类型标识。 */\n    type: 'success' | 'warning' | 'error' | 'info';\n    /** time 字段。 */\n    time: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "text",
+              "jsdoc": "展示文本。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "time",
+              "jsdoc": "time 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DevContextConfig": {
+      "name": "DevContextConfig",
+      "jsdoc": "Dev Context Config 的配置结构。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 占位提示文本。 */\n    placeholder: string;\n    /** default Value 字段。 */\n    defaultValue: string;\n    /** param Name 名称。 */\n    paramName: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "placeholder",
+              "jsdoc": "占位提示文本。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "defaultValue",
+              "jsdoc": "default Value 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "paramName",
+              "jsdoc": "param Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DevWorkspaceTab": {
+      "name": "DevWorkspaceTab",
+      "jsdoc": "Dev Workspace Tab 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'props' | 'preview' | ProjectBlueprintDomain.PageToolFileName",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'props'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'preview'"
+          },
+          {
+            "kind": "union",
+            "typeText": "ProjectBlueprintDomain.PageToolFileName",
+            "targetName": "ProjectBlueprintDomain.PageToolFileName"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DevState": {
+      "name": "DevState",
+      "jsdoc": "Dev State 的运行状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof useDevState>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof useDevState>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

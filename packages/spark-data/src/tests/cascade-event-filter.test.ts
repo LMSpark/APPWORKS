@@ -1,257 +1,214 @@
-/**
- * 级联事件过滤 + 陈旧数据修复 的回归测试
- *
- * 覆盖两类 bug：
- *  1. 白请求风暴：子视图响应了与其 source.state 无关的父事件
- *  2. 陈旧数据：父的选中行在子 Loading 期间改变，子完成后数据仍是旧的
- */
-
 import { describe, it, expect, vi } from 'vitest'
-import { SparkData } from '@spark-appworks/spark-data'
-import { RequestState } from '../types'
-import type { DataRow } from '@spark-appworks/spark-data'
+import { SparkData, RequestState } from '@spark-appworks/spark-data'
+import type { CrudResult, DataRow } from '@spark-appworks/spark-data'
 
-// ─── 通用测试 DataSet 工厂 ─────────────────────────────────────
-
-function makeDs(sourceState: string) {
-  return SparkData.createDataSet({
-    dataSetName: 'TestDS',
-    tables: {
-      Orders: {
-        tableName: 'Orders',
-        columns: [{ name: 'id', type: 'number' }],
-        views: { default: { rows: [] } }
-      },
-      Items: {
-        tableName: 'Items',
-        columns: [{ name: 'id', type: 'number' }, { name: 'orderId', type: 'number' }],
-        views: { default: { rows: [] } },
-        api: { list: { url: '/test/items', method: 'GET' } }
-      }
-    },
-    resourceRelations: [
-      {
-        parentTable: 'Orders',
-        childTable: 'Items',
-        parentField: 'id',
-        childField: 'orderId',
-      }
-    ],
-    viewCascades: [
-      {
-        parentTable: 'Orders',
-        parentViewId: 'default',
-        childTable: 'Items',
-        childViewId: 'default',
-        filterBindings: [{ sourceField: 'id', targetField: 'orderId' }],
-        dependencyType: sourceState,
-        autoLoad: true,
-      }
-    ]
-  })
+async function values(hidden?: string, remote = true) {
+  const ds = SparkData.fromJson({scenarioId: 'Values', dataSetName: 'Values', tables: {
+    Parent: {modelBinding: {modelId: 'P', modelName: 'Parent'},
+      columns: [{name: 'id', type: 'number', isPrimaryKey: true}, {name: 'region', type: 'string'}],
+      views: {default: {autoCurrentFirst: true}}},
+    Child: {columns: [{name: 'id', type: 'number', isPrimaryKey: true}, {name: 'region', type: 'string'}],
+      ...(remote ? {api: {list: {url: '/test/child', method: 'GET'}}} : {}), views: {default: {}}},
+  }})
+  const source = ds.getView('Parent', 'default')!
+  source.bindQueryExecutor({executeQuery: async () => ({
+    rows: [{id: 1, region: 'A'}, {id: 2, region: 'A'}], total: 2,
+    assertIdentity: identity => {
+      if (identity.scenarioId !== 'Values' || identity.metaName !== 'Parent') throw new Error('query identity mismatch')
+    }, rowKey: row => row['id'],
+    fieldAccess: (_key, field) => ({read: hidden === field ? 'invisible' : 'visible', write: 'allowed',
+      required: false, component: 'editable', writeMode: 'editable'}),
+    readFieldAccess: (_row, field) => hidden === field ? 'invisible' : 'visible',
+    addActionState: () => 'hidden', editActionState: () => 'hidden', deleteActionState: () => 'hidden',
+    createChildActionState: () => 'hidden', viewActionState: () => 'hidden',
+  })})
+  await source.loadFromServer()
+  return ds
 }
 
-// ─── 帮助：手动模拟父视图已加载并有数据 ────────────────────────
+const fieldCascade = {parentTable: 'Parent', parentViewId: 'default', childTable: 'Child', childViewId: 'default',
+  filterBindings: [{sourceField: 'region', targetField: 'region'}]}
+const selectionCascade = {...fieldCascade, filterBindings: [{targetField: 'id'}]}
 
-function setParentLoaded(pView: ReturnType<typeof SparkData.createDataSet>['tables'][string]['views'][string], rows: DataRow[]) {
-  pView.rows.splice(0, pView.rows.length, ...rows)
-  pView.requestState = RequestState.Loaded
-}
-
-// ═══════════════════════════════════════════════════════════════
-// 测试组 A — 白请求风暴：不相关事件不应触发子请求
-// ═══════════════════════════════════════════════════════════════
-
-describe('cascade event filter — no spurious child requests', () => {
-
-  // ── A1: dep=currentRow 子视图不应响应 selectedRows 事件 ──────
-
-  it('dep=currentRow: child should NOT react to parent selectedRows event', async () => {
-    const ds = makeDs('currentRow')
-    const pView = ds.getView('Orders', 'default')!
-    const cView = ds.getView('Items', 'default')!
-
-    // 父已加载，currentRow 设为第一行
-    setParentLoaded(pView, [{ id: 1 }, { id: 2 }])
-    pView._currentRowId = pView.getPkKey(pView.rows[0]!) ?? null
-
-    // 子视图 mock
-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
-      cView.requestState = RequestState.Loaded
-      return { success: true, data: [] }
-    })
-
-    // 父仅发出 selectedRowsChanged 事件（用户多选，但子视图 dep=currentRow，与之无关）
-    pView.events.emit('selectedRowsChanged', [pView.rows[0]!, pView.rows[1]!])
-    await new Promise(r => setTimeout(r, 30))
-
-    expect(cSpy).not.toHaveBeenCalled()
-    cSpy.mockRestore()
+describe('query cascade native values', () => {
+  it('resolves the edited field value without collecting parent rows', async () => {
+    const ds = await values()
+    try {
+      ds.getView('Parent', 'default')!.updateEditingValue(1, 'region', 'B')
+      expect(ds.resolveCascadeFilter(fieldCascade)).toEqual({field: 'region', operator: 'eq', value: 'B'})
+    } finally { ds.destroy() }
   })
 
-  // ── A2: dep=selectedRows 子视图不应响应 currentRow 事件 ─────
-
-  it('dep=selectedRows: child should NOT react to parent currentRow event', async () => {
-    const ds = makeDs('selectedRows')
-    const pView = ds.getView('Orders', 'default')!
-    const cView = ds.getView('Items', 'default')!
-
-    // 父已加载，selectedRows 设为第一行
-    setParentLoaded(pView, [{ id: 1 }, { id: 2 }])
-    const selectedKey = pView.getPkKey(pView.rows[0]!)
-    if (selectedKey === null || selectedKey === undefined) throw new Error('Expected selected row key')
-    pView._selectedRowIds.splice(0, pView._selectedRowIds.length, selectedKey)
-
-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
-      cView.requestState = RequestState.Loaded
-      return { success: true, data: [] }
-    })
-
-    // 父仅发出 currentRowChanged 事件（用户点选某行，但子视图 dep=selectedRows，与之无关）
-    pView.events.emit('currentRowChanged', pView.rows[1]!)
-    await new Promise(r => setTimeout(r, 30))
-
-    expect(cSpy).not.toHaveBeenCalled()
-    cSpy.mockRestore()
+  it('resolves selected primary-key arrays including an explicit empty selection', async () => {
+    const ds = await values()
+    try {
+      const source = ds.getView('Parent', 'default')!
+      source.setSelectedRows(source.rows)
+      expect(ds.resolveCascadeFilter(selectionCascade)).toEqual({field: 'id', operator: 'in', value: [1, 2]})
+      source.setSelectedRows([])
+      expect(ds.resolveCascadeFilter(selectionCascade)).toEqual({field: 'id', operator: 'in', value: []})
+    } finally { ds.destroy() }
   })
 
-  // ── A3: dep=allRows 子视图不应响应 currentRow/selectedRows 事件 ──
-
-  it('dep=allRows: child should NOT react to parent currentRow or selectedRows events', async () => {
-    const ds = makeDs('allRows')
-    const pView = ds.getView('Orders', 'default')!
-    const cView = ds.getView('Items', 'default')!
-
-    setParentLoaded(pView, [{ id: 1 }, { id: 2 }])
-
-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
-      cView.requestState = RequestState.Loaded
-      return { success: true, data: [] }
-    })
-
-    pView.events.emit('currentRowChanged', pView.rows[0]!)
-    pView.events.emit('selectedRowsChanged', [pView.rows[0]!])
-    await new Promise(r => setTimeout(r, 30))
-
-    expect(cSpy).not.toHaveBeenCalled()
-    cSpy.mockRestore()
+  it('rejects unreadable input and obsolete row dependency configurations', async () => {
+    const ds = await values('region')
+    try {
+      expect(() => ds.resolveCascadeFilter(fieldCascade)).toThrow('DATA_VIEW_VALUE_READ')
+      for (const dependencyType of ['currentRow', 'selectedRows', 'allRows', 'pagedRows']) {
+        expect(() => ds.addCascade({...fieldCascade, dependencyType})).toThrow('QUERY_CASCADE_CONFIG')
+        expect(() => SparkData.fromJson({...ds.toJson(), viewCascades: [{...fieldCascade, dependencyType}]})).toThrow('viewCascades')
+      }
+      expect(ds.viewCascades).toBeUndefined()
+    } finally { ds.destroy() }
   })
 
-  // ── A4: 正向验证：dep=currentRow 子视图应响应 currentRow 事件 ─
-
-  it('dep=currentRow: child SHOULD react to parent currentRow event', async () => {
-    const ds = makeDs('currentRow')
-    const pView = ds.getView('Orders', 'default')!
-    const cView = ds.getView('Items', 'default')!
-
-    setParentLoaded(pView, [{ id: 42 }])
-    pView._currentRowId = pView.getPkKey(pView.rows[0]!) ?? null
-
-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async (params?: { filter?: unknown }) => {
-      expect(params?.filter).toEqual({ field: 'orderId', operator: 'eq', value: 42 })
-      cView.requestState = RequestState.Loaded
-      return { success: true, data: [] }
-    })
-
-    pView.events.emit('currentRowChanged', pView.currentRow)
-    await new Promise(r => setTimeout(r, 30))
-
-    expect(cSpy).toHaveBeenCalledOnce()
-    cSpy.mockRestore()
+  it('does not requery on equal pointer or selection changes but does on an edited value', async () => {
+    const ds = await values()
+    const child = ds.getView('Child', 'default')!
+    const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: []})
+    try {
+      ds.addCascade(fieldCascade)
+      await child.requestData()
+      expect(list).toHaveBeenCalledOnce()
+      const source = ds.getView('Parent', 'default')!
+      source.setCurrentRow(source.rows[1]!)
+      source.setSelectedRows(source.rows)
+      await Promise.resolve()
+      expect(list).toHaveBeenCalledOnce()
+      source.updateEditingValue(2, 'region', 'B')
+      await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2))
+      expect(list.mock.calls[1]?.[0]?.filter).toEqual({field: 'region', operator: 'eq', value: 'B'})
+    } finally { list.mockRestore(); ds.destroy() }
   })
 
-  // ── A5: 正向验证：dep=allRows 子视图应响应 rows 事件 ─────────
-
-  it('dep=allRows: child SHOULD react to parent rows event', async () => {
-    const ds = makeDs('allRows')
-    const pView = ds.getView('Orders', 'default')!
-    const cView = ds.getView('Items', 'default')!
-
-    setParentLoaded(pView, [{ id: 7 }])
-
-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
-      cView.requestState = RequestState.Loaded
-      return { success: true, data: [] }
-    })
-
-    pView.events.emit('rowsChanged')
-    await new Promise(r => setTimeout(r, 50))
-
-    expect(cSpy).toHaveBeenCalledOnce()
-    cSpy.mockRestore()
+  it('queries array values and empty arrays without reacting to unrelated pointer changes', async () => {
+    const ds = await values()
+    const child = ds.getView('Child', 'default')!
+    const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: []})
+    try {
+      ds.addCascade(selectionCascade)
+      const source = ds.getView('Parent', 'default')!
+      source.setSelectedRows(source.rows)
+      await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
+      expect(list.mock.calls[0]?.[0]?.filter).toEqual({field: 'id', operator: 'in', value: [1, 2]})
+      source.setCurrentRow(source.rows[1]!)
+      await Promise.resolve()
+      expect(list).toHaveBeenCalledOnce()
+      source.setSelectedRows([])
+      await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2))
+      expect(list.mock.calls[1]?.[0]?.filter).toEqual({field: 'id', operator: 'in', value: []})
+    } finally { list.mockRestore(); ds.destroy() }
   })
 
-  // ── A6: dep=currentRow 子视图应响应 rows 事件（父数据重载，currentRow 被清空） ──
-
-  it('dep=currentRow: child SHOULD react to parent rows event (parent reload clears currentRow)', async () => {
-    const ds = makeDs('currentRow')
-    const pView = ds.getView('Orders', 'default')!
-    const cView = ds.getView('Items', 'default')!
-
-    // 子已有数据
-    cView.rows.splice(0, cView.rows.length, { id: 99, orderId: 1 })
-    cView.requestState = RequestState.Loaded
-
-    // 父重新加载（loadFromServer 会清空 currentRow，只发 rows 事件）
-    setParentLoaded(pView, [{ id: 1 }])
-    // rows 事件 → 子应清空（parentRows 为空，因为 currentRow=null）
-    pView.events.emit('rowsChanged')
-    await new Promise(r => setTimeout(r, 30))
-
-    // currentRow=null → getParentRows=[] → 子应 resetState + emit cleared
-    expect(cView.rows.length).toBe(0)
-    expect(cView.requestState).toBe(RequestState.Idle)
+  it('merges all input constraints and the child filter for static results', async () => {
+    const ds = await values(undefined, false)
+    try {
+      ds.getTable('Child')!.rows = [{id: 1, region: 'A'}, {id: 2, region: 'A'}, {id: 3, region: 'B'}]
+      ds.getView('Parent', 'default')!.setSelectedRows(ds.getView('Parent', 'default')!.rows)
+      ds.addCascade({...fieldCascade, autoLoad: false})
+      ds.addCascade({...selectionCascade, autoLoad: false})
+      const child = ds.getView('Child', 'default')!
+      child.configure({filterExpression: {field: 'id', operator: 'gte', value: 2}})
+      await child.requestData()
+      expect(child.rows).toMatchObject([{id: 2, region: 'A'}])
+      ds.getView('Parent', 'default')!.updateEditingValue(1, 'region', 'B')
+      await child.refresh()
+      expect(child.rows).toEqual([])
+    } finally { ds.destroy() }
   })
-})
 
-// ═══════════════════════════════════════════════════════════════
-// 测试组 B — 父 Loading 期间改变时立即重置重请求
-// ═══════════════════════════════════════════════════════════════
-
-describe('cascade reload — parent changes during child loading triggers immediate re-request', () => {
-
-  /**
-   * B1: 父 currentRow 改变时，无论子视图是否正在 Loading/Preparing，
-   *     respondToParentChange 都立即将子重置为 Idle 并发起新 requestData()。
-   *
-   * 设计说明：
-   *   - 不使用 cascadeDirty，而是直接重置 + 重请求
-   *   - loadFromServer 内的 currentLoadRequestId 防止旧请求响应覆盖新结果
-   *   - 本测试通过 spy requestData() 验证"确实触发了第二次完整编排"
-   */
-  it('when parent currentRow changes while child is in Preparing state, child re-requests immediately', async () => {
-    const ds = makeDs('currentRow')
-    const pView = ds.getView('Orders', 'default')!
-    const cView = ds.getView('Items', 'default')!
-
-    setParentLoaded(pView, [{ id: 1 }, { id: 2 }])
-    pView._currentRowId = pView.getPkKey(pView.rows[0]!) ?? null // 初始选中 id=1
-
-    const loadCallCount: number[] = []
-
-    // mock loadFromServer：同步返回，记录调用次数，不挂起
-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
-      const callIndex = loadCallCount.length + 1
-      loadCallCount.push(callIndex)
-      cView.rows.splice(0, cView.rows.length, { id: 100 + callIndex, orderId: pView.currentRow?.['id'] ?? 0 })
-      cView.requestState = RequestState.Loaded
-      return { success: true, data: cView.rows }
+  it('reads every input again after waiting for another parent query', async () => {
+    const ds = await values()
+    const slow = ds.getTable('Parent')!.addView('slow')
+    slow.configure({autoCurrentFirst: true})
+    let finish: (() => void) | undefined
+    const gate = new Promise<void>(resolve => {finish = resolve})
+    const query = vi.fn(async () => {
+      await gate
+      return {
+        rows: [{id: 9, region: 'X'}], total: 1,
+        assertIdentity: () => {}, rowKey: (row: DataRow) => row['id'],
+        fieldAccess: () => ({read: 'visible' as const, write: 'denied' as const,
+          required: false, component: 'readonly' as const, writeMode: 'readonly' as const}),
+        readFieldAccess: () => 'visible' as const,
+        addActionState: () => 'hidden' as const, editActionState: () => 'hidden' as const,
+        deleteActionState: () => 'hidden' as const, createChildActionState: () => 'hidden' as const,
+        viewActionState: () => 'hidden' as const,
+      }
     })
+    slow.bindQueryExecutor({executeQuery: query})
+    const child = ds.getView('Child', 'default')!
+    const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: []})
+    try {
+      ds.addCascade(fieldCascade)
+      ds.addCascade({...selectionCascade, parentViewId: 'slow', filterBindings: [{sourceField: 'id', targetField: 'id'}]})
+      const pending = child.requestData()
+      await vi.waitFor(() => expect(query).toHaveBeenCalledOnce())
+      ds.getView('Parent', 'default')!.updateEditingValue(1, 'region', 'B')
+      finish?.()
+      await pending
+      expect(list).toHaveBeenCalledOnce()
+      expect(list.mock.calls[0]?.[0]?.filter).toEqual({logic: 'and', filters: [
+        {field: 'region', operator: 'eq', value: 'B'}, {field: 'id', operator: 'eq', value: 9},
+      ]})
+    } finally { finish?.(); list.mockRestore(); ds.destroy() }
+  })
 
-    // 启动第一次加载（dep=currentRow, currentRow=id=1）
-    pView.events.emit('currentRowChanged', pView.currentRow)
+  it('keeps the newest input result when earlier responses arrive last', async () => {
+    const ds = await values()
+    const child = ds.getView('Child', 'default')!
+    let first: ((result: CrudResult<DataRow[]>) => void) | undefined
+    let second: ((result: CrudResult<DataRow[]>) => void) | undefined
+    const list = vi.spyOn(child.crud, 'list')
+      .mockReturnValueOnce(new Promise(resolve => {first = resolve}))
+      .mockReturnValueOnce(new Promise(resolve => {second = resolve}))
+    try {
+      ds.addCascade(fieldCascade)
+      const source = ds.getView('Parent', 'default')!
+      source.updateEditingValue(1, 'region', 'B')
+      await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
+      source.updateEditingValue(1, 'region', 'C')
+      await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2))
+      second?.({success: true, data: [{id: 2, region: 'C'}]})
+      await vi.waitFor(() => expect(child.rows[0]?.['region']).toBe('C'))
+      first?.({success: true, data: [{id: 1, region: 'B'}]})
+      await Promise.resolve(); await Promise.resolve()
+      expect(child.rows[0]?.['region']).toBe('C')
+    } finally { list.mockRestore(); ds.destroy() }
+  })
 
-    // 此时子处于 Preparing（requestData 同步设置的），切换父 currentRow
-    pView._currentRowId = pView.getPkKey(pView.rows[1]!) ?? null
-    pView.events.emit('currentRowChanged', pView.currentRow)
+  it('invalidates a pending response when its input becomes unavailable', async () => {
+    const ds = await values()
+    const child = ds.getView('Child', 'default')!
+    let finish: ((result: CrudResult<DataRow[]>) => void) | undefined
+    const list = vi.spyOn(child.crud, 'list').mockReturnValue(new Promise(resolve => {finish = resolve}))
+    try {
+      ds.addCascade(fieldCascade)
+      const source = ds.getView('Parent', 'default')!
+      source.updateEditingValue(1, 'region', 'B')
+      await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
+      source.setCurrentRow(null)
+      finish?.({success: true, data: [{id: 1, region: 'B'}]})
+      await Promise.resolve(); await Promise.resolve()
+      expect(child.rows).toEqual([])
+      expect(child.requestState).toBe(RequestState.Idle)
+    } finally { list.mockRestore(); ds.destroy() }
+  })
 
-    // 等待所有微任务完成
-    await new Promise(r => setTimeout(r, 30))
-
-    // 验证：loadFromServer 被调用了（至少 1 次），最终数据来自 orderId=2 的父
-    expect(cSpy).toHaveBeenCalled()
-    expect(cView.rows[0]).toMatchObject({ orderId: 2 })
-
-    cSpy.mockRestore()
+  it('preserves unsaved child edits when a parent value requests replacement', async () => {
+    const ds = await values()
+    const child = ds.getView('Child', 'default')!
+    const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: [{id: 1, region: 'A'}]})
+    try {
+      ds.addCascade(fieldCascade)
+      await child.requestData()
+      child.updateEditingValue(1, 'region', 'draft')
+      ds.getView('Parent', 'default')!.updateEditingValue(1, 'region', 'B')
+      await vi.waitFor(() => expect(child.loadingError?.message).toContain('DATA_VIEW_UNSAVED_CHANGES'))
+      expect(list).toHaveBeenCalledOnce()
+      expect(child.getEditingPatch(1)).toEqual({region: 'draft'})
+      expect(child.rows[0]?.['region']).toBe('A')
+      expect(child.requestState).toBe(RequestState.Loaded)
+    } finally { list.mockRestore(); ds.destroy() }
   })
 })

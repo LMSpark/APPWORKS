@@ -13,7 +13,7 @@
  * 它属于仓库级 AI 质量门，不属于 packages/spark-data 的运行时职责。
  */
 
-import { afterEach, describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import { DataSet } from '@spark-appworks/spark-data'
 import type { DataRow } from '@spark-appworks/spark-data'
 
@@ -39,6 +39,7 @@ const flushDataViewDebouncers = () => new Promise<void>(resolve => setTimeout(re
 
 afterEach(async () => {
   await flushDataViewDebouncers()
+  vi.restoreAllMocks()
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -49,7 +50,16 @@ afterEach(async () => {
  * 从提示词 fixture 实例化 DataSet。
  */
 function fromPromptJson(json: Record<string, unknown>): DataSet {
-  return DataSet.fromJson(json)
+  const dataSet = DataSet.fromJson(json)
+  // 本地案例只验证数据语义；显式提供只读输入权限，正式权限链另有边界集成测试。
+  for (const table of Object.values(dataSet.tables)) {
+    for (const view of Object.values(table.views)) {
+      vi.spyOn(view, 'fieldAccess').mockReturnValue({
+        read: 'visible', write: 'denied', required: false, component: 'readonly', writeMode: 'readonly',
+      })
+    }
+  }
+  return dataSet
 }
 
 function viewCascade(
@@ -66,7 +76,6 @@ function viewCascade(
     childTable,
     childViewId: 'default',
     filterBindings: [{ sourceField: parentField, targetField: childField }],
-    dependencyType: 'currentRow',
     autoLoad: true,
   }
 }
@@ -155,45 +164,51 @@ describe('PROMPT 验证 — 案例 A: 图书馆管理', () => {
     expect(ds.getView('BorrowRecords')!.primaryKey).toBe('id')
   })
 
-  it('A-4: 内存级联 — 选中读者 1 → BorrowRecords 显示 2 条', () => {
+  it('A-4: 内存级联 — 选中读者 1 → BorrowRecords 显示 2 条', async () => {
     const ds = fromPromptJson(CASE_A_JSON)
     const readers = ds.getView('Readers')!
     const borrows = ds.getView('BorrowRecords')!
 
     readers.selection.setCurrentRow(readers.rows[0]!) // 张三 id=1
+    await flushDataViewDebouncers()
     expect(borrows.rows).toHaveLength(2)
     expect(borrows.rows.every(r => f(r, 'readerId') === 1)).toBe(true)
   })
 
-  it('A-5: 内存级联 — 切换到读者 2 → BorrowRecords 显示 1 条', () => {
+  it('A-5: 内存级联 — 切换到读者 2 → BorrowRecords 显示 1 条', async () => {
     const ds = fromPromptJson(CASE_A_JSON)
     const readers = ds.getView('Readers')!
     const borrows = ds.getView('BorrowRecords')!
 
     readers.selection.setCurrentRow(readers.rows[0]!)
+    await flushDataViewDebouncers()
     readers.selection.setCurrentRow(readers.rows[1]!) // 李四 id=2
+    await flushDataViewDebouncers()
     expect(borrows.rows).toHaveLength(1)
     expect(f(borrows.rows[0], 'readerId')).toBe(2)
   })
 
-  it('A-6: 内存级联 — 切换到读者 3 → BorrowRecords 显示 1 条（overdue）', () => {
+  it('A-6: 内存级联 — 切换到读者 3 → BorrowRecords 显示 1 条（overdue）', async () => {
     const ds = fromPromptJson(CASE_A_JSON)
     const readers = ds.getView('Readers')!
     const borrows = ds.getView('BorrowRecords')!
 
     readers.selection.setCurrentRow(readers.rows[2]!) // 王五 id=3
+    await flushDataViewDebouncers()
     expect(borrows.rows).toHaveLength(1)
     expect(f(borrows.rows[0], 'status')).toBe('overdue')
   })
 
-  it('A-7: 内存级联 — setCurrentRow(null) → BorrowRecords 清空', () => {
+  it('A-7: 内存级联 — setCurrentRow(null) → BorrowRecords 清空', async () => {
     const ds = fromPromptJson(CASE_A_JSON)
     const readers = ds.getView('Readers')!
     const borrows = ds.getView('BorrowRecords')!
 
     readers.selection.setCurrentRow(readers.rows[0]!)
+    await flushDataViewDebouncers()
     expect(borrows.rows).toHaveLength(2)
     readers.selection.setCurrentRow(null)
+    await flushDataViewDebouncers()
     expect(borrows.rows).toHaveLength(0)
   })
 })
@@ -310,35 +325,39 @@ describe('PROMPT 验证 — 案例 B: 电商订单管理', () => {
     expect(numberField(f(orders.rows[2], 'totalAmount'))).toBeCloseTo(259.00, 2)
   })
 
-  it('B-5: 内存级联 — 选中订单 1 → OrderItems 显示 2 条', () => {
+  it('B-5: 内存级联 — 选中订单 1 → OrderItems 显示 2 条', async () => {
     const ds = fromPromptJson(CASE_B_JSON)
     const orders = ds.getView('Orders')!
     const items  = ds.getView('OrderItems')!
 
     orders.selection.setCurrentRow(orders.rows[0]!) // 订单 id=1
+    await flushDataViewDebouncers()
     expect(items.rows).toHaveLength(2)
     expect(items.rows.every(r => f(r, 'orderId') === 1)).toBe(true)
   })
 
-  it('B-6: 内存级联后 aggregateResult 聚合只计算过滤后的行', () => {
+  it('B-6: 内存级联后 aggregateResult 聚合只计算过滤后的行', async () => {
     const ds = fromPromptJson(CASE_B_JSON)
     const orders = ds.getView('Orders')!
     const items  = ds.getView('OrderItems')!
 
     orders.selection.setCurrentRow(orders.rows[0]!) // 订单1: 2 件
+    await flushDataViewDebouncers()
     // 级联后只有 2 行，aggregateResult 仅汇总这 2 行
     expect(items.aggregateResult).not.toBeNull()
     expect(numberField(f(items.aggregateResult, 'quantity'))).toBeCloseTo(3, 2)  // 2+1
     expect(numberField(f(items.aggregateResult, 'subtotal'))).toBeCloseTo(498.98, 1) // 199.98+299
   })
 
-  it('B-7: 切换到订单 2 → OrderItems 级联 1 条，汇总更新', () => {
+  it('B-7: 切换到订单 2 → OrderItems 级联 1 条，汇总更新', async () => {
     const ds = fromPromptJson(CASE_B_JSON)
     const orders = ds.getView('Orders')!
     const items  = ds.getView('OrderItems')!
 
     orders.selection.setCurrentRow(orders.rows[0]!)
+    await flushDataViewDebouncers()
     orders.selection.setCurrentRow(orders.rows[1]!) // 订单 id=2
+    await flushDataViewDebouncers()
     expect(items.rows).toHaveLength(1)
     expect(f(items.rows[0], 'orderId')).toBe(2)
     expect(numberField(f(items.aggregateResult, 'subtotal'))).toBeCloseTo(177.00, 2) // 3*59
@@ -453,22 +472,24 @@ describe('PROMPT 验证 — 示例 9: 学生成绩管理', () => {
     expect(f(grades.aggregateResult, 'id')).toBe(6)
   })
 
-  it('E9-5: 内存级联 — 选中张三 → Grades 显示 2 条（数学+语文）', () => {
+  it('E9-5: 内存级联 — 选中张三 → Grades 显示 2 条（数学+语文）', async () => {
     const ds = fromPromptJson(EXAMPLE_9_JSON)
     const students = ds.getView('Students')!
     const grades   = ds.getView('Grades')!
 
     students.selection.setCurrentRow(students.rows[0]!) // 张三 id=1
+    await flushDataViewDebouncers()
     expect(grades.rows).toHaveLength(2)
     expect(grades.rows.every(r => f(r, 'studentId') === 1)).toBe(true)
   })
 
-  it('E9-6: 级联后 aggregateResult 只汇总过滤行', () => {
+  it('E9-6: 级联后 aggregateResult 只汇总过滤行', async () => {
     const ds = fromPromptJson(EXAMPLE_9_JSON)
     const students = ds.getView('Students')!
     const grades   = ds.getView('Grades')!
 
     students.selection.setCurrentRow(students.rows[0]!) // 张三：95, 82
+    await flushDataViewDebouncers()
     expect(f(grades.aggregateResult, 'id')).toBe(2)           // count=2
     expect(numberField(f(grades.aggregateResult, 'score'))).toBeCloseTo(88.5, 1) // avg(95,82)
   })
@@ -753,22 +774,24 @@ describe('PROMPT 验证 — 案例 G: 仓库库存管理（v1.9 新特性）', (
     expect(f(items.aggregateResult, 'productList')).toBe('笔记本电脑 | 无线鼠标 | 笔记本电脑 | 机械键盘')
   })
 
-  it('G-9: 内存级联（parentField 显式声明）— 选中仓库 1 → StockItems 显示 2 条', () => {
+  it('G-9: 内存级联（parentField 显式声明）— 选中仓库 1 → StockItems 显示 2 条', async () => {
     const ds = fromPromptJson(CASE_G_JSON)
     const warehouses = ds.getView('Warehouses')!
     const items      = ds.getView('StockItems')!
 
     warehouses.selection.setCurrentRow(warehouses.rows[0]!) // 北京仓 id=1
+    await flushDataViewDebouncers()
     expect(items.rows).toHaveLength(2)
     expect(items.rows.every(r => f(r, 'warehouseId') === 1)).toBe(true)
   })
 
-  it('G-10: 级联后 aggregates 只汇总过滤行（field 覆盖 + separator 均有效）', () => {
+  it('G-10: 级联后 aggregates 只汇总过滤行（field 覆盖 + separator 均有效）', async () => {
     const ds = fromPromptJson(CASE_G_JSON)
     const warehouses = ds.getView('Warehouses')!
     const items      = ds.getView('StockItems')!
 
     warehouses.selection.setCurrentRow(warehouses.rows[0]!) // 北京仓：2 条
+    await flushDataViewDebouncers()
     // totalVal = 59999.9 + 4975 = 64974.9
     expect(numberField(f(items.aggregateResult, 'totalVal'))).toBeCloseTo(64974.9, 0)
     // productList separator
@@ -934,20 +957,22 @@ describe('Case H：外部AI生成 - 仓库库存管理（v1.9 结构验证）', 
     expect(names).toContain('WarehouseInbounds')
   })
 
-  it('H-6: 级联 WarehouseInventories - 选华东仓(id=1) 得 2 条库存', () => {
+  it('H-6: 级联 WarehouseInventories - 选华东仓(id=1) 得 2 条库存', async () => {
     const ds = fromPromptJson(CASE_H_JSON)
     const warehouses  = ds.getView('Warehouses')!
     const inventories = ds.getView('Inventories')!
     warehouses.selection.setCurrentRow(warehouses.rows[0]!) // 华东仓 id=1
+    await flushDataViewDebouncers()
     expect(inventories.rows).toHaveLength(2)
     expect(inventories.rows.every(r => f(r, 'warehouseId') === 1)).toBe(true)
   })
 
-  it('H-7: 级联 WarehouseInbounds - 选华南仓(id=2) 得 1 条入库', () => {
+  it('H-7: 级联 WarehouseInbounds - 选华南仓(id=2) 得 1 条入库', async () => {
     const ds = fromPromptJson(CASE_H_JSON)
     const warehouses = ds.getView('Warehouses')!
     const inbounds   = ds.getView('Inbounds')!
     warehouses.selection.setCurrentRow(warehouses.rows[1]!) // 华南仓 id=2
+    await flushDataViewDebouncers()
     expect(inbounds.rows).toHaveLength(1)
     expect(f(inbounds.rows[0], 'warehouseId')).toBe(2)
     expect(f(inbounds.rows[0], 'productName')).toBe('平板电脑')
@@ -959,21 +984,23 @@ describe('Case H：外部AI生成 - 仓库库存管理（v1.9 结构验证）', 
     expect(f(ds.getView('Inbounds')!.aggregateResult, 'inQuantity')).toBe(380)
   })
 
-  it('H-9: 级联后 aggregates 只汇总过滤行 - 华东仓入库总量 = 130', () => {
+  it('H-9: 级联后 aggregates 只汇总过滤行 - 华东仓入库总量 = 130', async () => {
     const ds = fromPromptJson(CASE_H_JSON)
     const warehouses = ds.getView('Warehouses')!
     const inbounds   = ds.getView('Inbounds')!
     warehouses.selection.setCurrentRow(warehouses.rows[0]!) // 华东仓 id=1
+    await flushDataViewDebouncers()
     // 100 + 30 = 130
     expect(f(inbounds.aggregateResult, 'inQuantity')).toBe(130)
   })
 
-  it('H-10: 华北仓(id=3) 级联 - Inventories 1条，Inbounds 1条', () => {
+  it('H-10: 华北仓(id=3) 级联 - Inventories 1条，Inbounds 1条', async () => {
     const ds = fromPromptJson(CASE_H_JSON)
     const warehouses  = ds.getView('Warehouses')!
     const inventories = ds.getView('Inventories')!
     const inbounds    = ds.getView('Inbounds')!
     warehouses.selection.setCurrentRow(warehouses.rows[2]!) // 华北仓 id=3
+    await flushDataViewDebouncers()
     expect(inventories.rows).toHaveLength(1)
     expect(f(inventories.rows[0], 'productName')).toBe('耳机')
     expect(inbounds.rows).toHaveLength(1)
@@ -1130,22 +1157,25 @@ describe('Case I：标准提示词模板自测 - 物业管理系统（三级层�
     expect(names).toContain('BuildingRepairOrders')
   })
 
-  it('I-6: 一级级联 - 选翠湖花园(id=1) → Buildings 显示 2 栋', () => {
+  it('I-6: 一级级联 - 选翠湖花园(id=1) → Buildings 显示 2 栋', async () => {
     const ds = fromPromptJson(CASE_I_JSON)
     const communities = ds.getView('Communities')!
     const buildings   = ds.getView('Buildings')!
     communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园 id=1
+    await flushDataViewDebouncers()
     expect(buildings.rows).toHaveLength(2)
     expect(buildings.rows.every(r => f(r, 'communityId') === 1)).toBe(true)
   })
 
-  it('I-7: 二级级联 - 选1栋(id=101) → RepairOrders 显示 2 条工单', () => {
+  it('I-7: 二级级联 - 选1栋(id=101) → RepairOrders 显示 2 条工单', async () => {
     const ds = fromPromptJson(CASE_I_JSON)
     const communities   = ds.getView('Communities')!
     const buildings     = ds.getView('Buildings')!
     const repairOrders  = ds.getView('RepairOrders')!
     communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园
+    await flushDataViewDebouncers()
     buildings.selection.setCurrentRow(buildings.rows[0]!)     // 1栋 id=101
+    await flushDataViewDebouncers()
     expect(repairOrders.rows).toHaveLength(2)
     expect(repairOrders.rows.every(r => f(r, 'buildingId') === 101)).toBe(true)
   })
@@ -1166,21 +1196,23 @@ describe('Case I：标准提示词模板自测 - 物业管理系统（三级层�
     expect(f(communities.rows[2], 'totalUnits')).toBe(48)   // 1栋 48
   })
 
-  it('I-10: $count 二级计算列 - 1栋(id=101) repairCount=2', () => {
+  it('I-10: $count 二级计算列 - 1栋(id=101) repairCount=2', async () => {
     const ds = fromPromptJson(CASE_I_JSON)
     const communities = ds.getView('Communities')!
     const buildings   = ds.getView('Buildings')!
     communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园
+    await flushDataViewDebouncers()
     // 级联后 Buildings 只有 id=101, 102
     expect(f(buildings.rows[0], 'repairCount')).toBe(2) // 1栋: 1001, 1002
     expect(f(buildings.rows[1], 'repairCount')).toBe(1) // 2栋: 1003
   })
 
-  it('I-11: $join 二级计算列 - 1栋(id=101) repairTypes', () => {
+  it('I-11: $join 二级计算列 - 1栋(id=101) repairTypes', async () => {
     const ds = fromPromptJson(CASE_I_JSON)
     const communities = ds.getView('Communities')!
     const buildings   = ds.getView('Buildings')!
     communities.selection.setCurrentRow(communities.rows[0]!)
+    await flushDataViewDebouncers()
     expect(f(buildings.rows[0], 'repairTypes')).toBe('水管漏水 / 电梯故障')
   })
 
@@ -1199,28 +1231,32 @@ describe('Case I：标准提示词模板自测 - 物业管理系统（三级层�
     expect(typeList.split(' | ')).toHaveLength(5)
   })
 
-  it('I-14: 级联后 aggregates 只汇总过滤行', () => {
+  it('I-14: 级联后 aggregates 只汇总过滤行', async () => {
     const ds = fromPromptJson(CASE_I_JSON)
     const communities  = ds.getView('Communities')!
     const buildings    = ds.getView('Buildings')!
     const repairOrders = ds.getView('RepairOrders')!
     communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园
+    await flushDataViewDebouncers()
     buildings.selection.setCurrentRow(buildings.rows[0]!)     // 1栋 101
+    await flushDataViewDebouncers()
     // 过滤后只有 1001, 1002
     expect(f(repairOrders.aggregateResult, 'id')).toBe(2)
     const typeList = stringField(f(repairOrders.aggregateResult, 'typeList'))
     expect(typeList).toBe('水管漏水 | 电梯故障')
   })
 
-  it('I-15: 切换到碧水湾(id=3) → Buildings 1条，RepairOrders 1条', () => {
+  it('I-15: 切换到碧水湾(id=3) → Buildings 1条，RepairOrders 1条', async () => {
     const ds = fromPromptJson(CASE_I_JSON)
     const communities  = ds.getView('Communities')!
     const buildings    = ds.getView('Buildings')!
     const repairOrders = ds.getView('RepairOrders')!
     communities.selection.setCurrentRow(communities.rows[2]!) // 碧水湾 id=3
+    await flushDataViewDebouncers()
     expect(buildings.rows).toHaveLength(1)
     expect(f(buildings.rows[0], 'buildingNo')).toBe('1栋')
     buildings.selection.setCurrentRow(buildings.rows[0]!) // 碧水湾1栋 id=104
+    await flushDataViewDebouncers()
     expect(repairOrders.rows).toHaveLength(1)
     expect(f(repairOrders.rows[0], 'reporter')).toBe('孙七')
   })

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor",
+    "sourcePath": "src/views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.vue",
+    "sourceFile": "src/views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.vue",
+    "packageName": "app",
+    "modulePath": "views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor",
+    "jsdoc": "app 的 views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T22:10:57.644Z",
+  "models": {}
+}

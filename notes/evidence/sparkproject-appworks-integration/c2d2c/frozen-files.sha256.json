@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "path": "src/main.ts",
+      "sha256": "3cfb642d42273748e1b7afc38326c694fa42c100387eec949b64ee4b66430cc4"
+    },
+    {
+      "path": "src/services/project/navigation/project-navigation-guard.ts",
+      "sha256": "8432ebc7a6370e4c710b8f3df366aa870f3cd59b6c78657f20656ec6e7061e3f"
+    },
+    {
+      "path": "tests/runtime/auth-nav/application/project-navigation-guard.test.ts",
+      "sha256": "6a8934f4a0c67ffd8df28f0bff68ac037a014c3139d37678e596fbeaa319c8c2"
+    }
+  ]
+}

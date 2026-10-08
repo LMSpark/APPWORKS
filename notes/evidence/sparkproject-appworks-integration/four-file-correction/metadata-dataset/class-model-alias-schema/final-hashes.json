@@ -1,0 +1,26 @@
+[
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\class-model-declaration-schema.ts",
+    "Hash": "CDED7FD1256B4DDBF04E03743EC80967558F7FF5A7E84AE844E739511F8A4FC7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-ai\\src\\class-model\\class-model\\declaration\\project-from-declarations.ts",
+    "Hash": "D06342C81EE9A7FEC7F3701836AA72A3A16EE2B442EEC3362F7A01C975827083"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\build-dts-class-model-bundle.ts",
+    "Hash": "9F0FE498A5C5FEEDFA729D7CCBF5D4C61DEB5A67398DCE9A041240B2864BBDDA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\dts-class-model-bundle-loader.ts",
+    "Hash": "7A8EDDECEF2171D88F97C49C1414485404E02BF24CF88E441C19F31D8C575468"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\class-model-to-json-schema.ts",
+    "Hash": "87E1CAD8DFB020B6B8A15BBEEC43DCE334926DF0D8A06A6C456E180455AEFBF9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-ai\\src\\class-model\\tests\\dts-surface-to-runtime-api.test.ts",
+    "Hash": "62CA712A58BC657F2840C72840C132E670ADA837D43979295906FCC6EBB3C2A2"
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/application/project-navigation-guard.test.ts -t \"fails once when refresh succeeds with a navigation tree for the wrong application\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": null,
+  "finishedAtUtc": null,
+  "exitCode": 1,
+  "timingMetadataPersisted": false,
+  "note": "The test entered a redirect loop and Node reached V8 heap exhaustion. The session was interrupted after the fatal output; the command wrapper did not persist timestamps. Raw stdout is retained in wrong-owner-red.stdout.log."
+}

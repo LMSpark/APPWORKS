@@ -1,0 +1,53 @@
+{
+  "observedAt": "2026-10-07T10:20:01.646Z",
+  "message": "用户查询结果缺少唯一且匹配 ROWID 的正式主键",
+  "contract": {
+    "primaryKeyField": "ID",
+    "containerKeys": [
+      "Count",
+      "Items",
+      "hasNextPage",
+      "Action"
+    ],
+    "count": 1,
+    "rowCount": 1,
+    "rows": [
+      {
+        "fields": [
+          "rowid",
+          "ID",
+          "UserName"
+        ],
+        "ROWIDType": "undefined",
+        "IDType": "string",
+        "IDPresent": true,
+        "primaryEqualsROWID": false
+      }
+    ]
+  },
+  "formalModel": {
+    "fields": [
+      {
+        "canonicalName": "ROWID",
+        "name": "ROWID",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "canonicalName": "ID",
+        "name": "ID",
+        "output": true,
+        "primaryKey": true
+      },
+      {
+        "canonicalName": "UserName",
+        "name": "UserName",
+        "output": true,
+        "primaryKey": false
+      }
+    ],
+    "metaName": "Base_UserInfo",
+    "primaryKey": "ID"
+  },
+  "decision": "Separate ID permission identity from ROWID business association; require permissions on both source/output spellings."
+}

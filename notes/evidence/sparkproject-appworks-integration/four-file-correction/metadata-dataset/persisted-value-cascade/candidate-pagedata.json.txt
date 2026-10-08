@@ -1,0 +1,115 @@
+{
+  "scenarioId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "tables": {
+    "shif": {
+      "modelBinding": {
+        "modelId": "23242F5DF24156A738D99A9270802B24",
+        "modelName": "shif"
+      },
+      "views": {
+        "default": {}
+      }
+    },
+    "Json转数组": {
+      "modelBinding": {
+        "modelId": "2E2EE885581B4B21940479EBDC3402C9",
+        "modelName": "Json转数组"
+      },
+      "views": {
+        "default": {}
+      }
+    },
+    "db_relation_show": {
+      "modelBinding": {
+        "modelId": "3A91837FD1EFF10F2B9FF90FF771989C",
+        "modelName": "db_relation_show"
+      },
+      "views": {
+        "default": {}
+      }
+    },
+    "View_TblList": {
+      "modelBinding": {
+        "modelId": "49B82918D1DF5273C5EC752D208621EE",
+        "modelName": "View_TblList"
+      },
+      "views": {
+        "default": {}
+      }
+    },
+    "TestJSON0819": {
+      "modelBinding": {
+        "modelId": "4F2240B23F1F951EC6356AA576F28165",
+        "modelName": "TestJSON0819"
+      },
+      "views": {
+        "default": {}
+      }
+    },
+    "copyTable": {
+      "modelBinding": {
+        "modelId": "536CACBAE8A723F65264B47003D15850",
+        "modelName": "copyTable"
+      },
+      "views": {
+        "default": {}
+      }
+    },
+    "Base_DataSet": {
+      "modelBinding": {
+        "modelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+        "modelName": "Base_DataSet"
+      },
+      "views": {
+        "default": {},
+        "verificationSelection": {
+          "autoLoad": false,
+          "autoSelectFirst": false,
+          "autoCurrentFirst": false,
+          "pageSize": 100,
+          "valueField": "rowid",
+          "selectionDelimiter": "|",
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "in",
+            "value": [
+              "97DCB03F75AADEAE6B102B062DB71CEA",
+              "8D1AB14DD8277F3E7017CD38F77B09FD"
+            ]
+          }
+        },
+        "verificationOptions": {
+          "autoLoad": false,
+          "autoSelectFirst": false,
+          "autoCurrentFirst": false,
+          "pageSize": 100,
+          "valueField": "rowid",
+          "selectionDelimiter": "|",
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "in",
+            "value": [
+              "97DCB03F75AADEAE6B102B062DB71CEA",
+              "8D1AB14DD8277F3E7017CD38F77B09FD"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": [
+    {
+      "kind": "query",
+      "cascadeId": "verification-selected-options",
+      "parentTable": "Base_DataSet",
+      "parentViewId": "verificationSelection",
+      "childTable": "Base_DataSet",
+      "childViewId": "verificationOptions",
+      "filterBindings": [
+        {
+          "targetField": "rowid"
+        }
+      ]
+    }
+  ]
+}

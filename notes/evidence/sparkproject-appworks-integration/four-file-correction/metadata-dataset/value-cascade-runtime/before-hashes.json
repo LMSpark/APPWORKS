@@ -1,0 +1,42 @@
+[
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\types.ts",
+    "Hash": "ED693478386367CBF14C0FF53E64538B31F6F9545219C93D65321D5483678954"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-definition.ts",
+    "Hash": "7702903AE84F01CC8EB4C8FD7399E3935805A9DC5651A91431CF1B5D137DDD54"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-runtime.ts",
+    "Hash": "51DD8A5BF78B53C63C1EDDCE2E692D38941B3B6A3492F154EC11A7A25DC047C4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\strategies\\selection-delegate.ts",
+    "Hash": "E8CE6EC88DA5B783998B8CD8DF374D9D45BA8D1ED5FCE80B1D6377D8CED08989"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset-crud-tool.ts",
+    "Hash": "EEF9ED20C70C73741347DF3D736D4DE4E706B5B75701AAA3EED2318A2AAFF800"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\field-cascade.test.ts",
+    "Hash": "EB7A5486F0812167DCA08B6C1D3FF4C00E95F7C1D357296F166259F93C7BC78A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts",
+    "Hash": "0AF6B8778FE2DEE5867A69EA7AE1906101F8C3C00E15D2E623E4D60B85C99910"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-project-model\\tests\\scenario\\scenario-view-file.test.ts",
+    "Hash": "9833285E7D60BF3AD27D0530EDDFD4F0A95F60C6A87E73BE93C28F842A17F09B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts",
+    "Hash": "2A70E133DB402FA2BE9B1092F957FF1235FA1144DD2C780F6ECFA131C8D8BFD4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\API.md",
+    "Hash": "16B23679DB954E63E61E0B8D7CAE323A44E41B3063D6EC7F56E1D5CC6CB378C8"
+  }
+]

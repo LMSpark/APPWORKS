@@ -1,0 +1,16 @@
+{
+  "route": "http://127.0.0.1:5273/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/__tool/90A82E287930A234FEC3E687C94A93EA?scenarioId=90A82E287930A234FEC3E687C94A93EA",
+  "rowsPerPage": 10,
+  "total": 1184,
+  "pageOneFirst": "上期填报数据",
+  "pageTwoFirst": "外勤签到设置",
+  "consoleErrors": [],
+  "ruleNormalization": "PageTool serializes child array and generated stable node ids; subsequent local asset must match",
+  "checks": [
+    "real six-model assembly",
+    "script __init__ awaited",
+    "staged catalog view",
+    "tool route displayed",
+    "next page changes rows"
+  ]
+}

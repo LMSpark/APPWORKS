@@ -1,0 +1,86 @@
+import { getDynamicRouter, getNavHomePath, getNavTree, refreshRoutes } from '@spark-appworks/spark-app'
+import type { RouteLocationNormalized, NavigationGuardReturn } from 'vue-router'
+import {
+  activateLowcodeApplication,
+  enterLowcodeApplicationCatalog,
+  hasLowcodeSession,
+  lowcodeApi,
+  readLowcodePrincipal,
+} from '@/lowcode/lowcode-runtime'
+import {
+  APPLICATION_CATALOG_PROJECT_ID,
+  buildTenantPath,
+  parseTenantScope,
+  stripTenantScope,
+} from '@/services/tenant-scope'
+
+type ProjectNavigationGuardOptions = {
+  publicPaths: ReadonlySet<string>
+  publicHomePath: string
+  isPlatformWorkspacePath: (path: string) => boolean
+}
+
+export class ProjectNavigationGuard {
+  private activeNavigation: AbortController | null = null
+
+  public constructor(private readonly options: ProjectNavigationGuardOptions) {}
+
+  public async resolve(to: RouteLocationNormalized): Promise<NavigationGuardReturn> {
+    this.activeNavigation?.abort()
+    const controller = new AbortController()
+    this.activeNavigation = controller
+    lowcodeApi.platform.cancelPendingApplicationSelection()
+    const isCurrent = (): boolean => !controller.signal.aborted
+    try {
+      const { publicPaths, publicHomePath, isPlatformWorkspacePath } = this.options
+      const isPublicPath = publicPaths.has(to.path)
+      const isPublicUtilityPath = isPublicPath && to.path !== publicHomePath && to.path !== '/login'
+
+      if (!hasLowcodeSession()) {
+        if (to.path.startsWith('/t/') || isPlatformWorkspacePath(to.path)) return publicHomePath
+        return isPublicPath ? undefined : publicHomePath
+      }
+
+      const principal = readLowcodePrincipal()
+      const tenantId = principal?.enterpriseName
+      const projectId = principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
+      if (!tenantId || !projectId) return '/login'
+      const currentScope = { tenantId, projectId }
+      if (isPublicUtilityPath) return undefined
+      if (isPlatformWorkspacePath(to.path)) return buildTenantPath(currentScope, getNavHomePath())
+      if (!to.path.startsWith('/t/')) return buildTenantPath(currentScope, getNavHomePath())
+
+      const urlScope = parseTenantScope(to.path)
+      if (urlScope) {
+        if (urlScope.tenantId !== tenantId) {
+          const rest = stripTenantScope(to.path)
+          return { path: buildTenantPath(currentScope, rest || getNavHomePath()), query: to.query, hash: to.hash }
+        }
+        const dynamic = getDynamicRouter()
+        const navigationProjectId = getNavTree()?.projectId
+        if (urlScope.projectId !== projectId || navigationProjectId !== urlScope.projectId) {
+          if (dynamic === null) throw new Error('当前租户路由缺少动态路由宿主，无法装配目标应用。')
+          dynamic.assertPageRuntimesClean()
+          const receipt = urlScope.projectId === APPLICATION_CATALOG_PROJECT_ID
+            ? enterLowcodeApplicationCatalog()
+            : await activateLowcodeApplication(urlScope.projectId, controller.signal)
+          if (!isCurrent()) return false
+          receipt.assertCurrent()
+          dynamic.resetSystemPageInstances()
+          dynamic.disposePageRuntimes()
+          await refreshRoutes()
+          if (!isCurrent()) return false
+          receipt.assertCurrent()
+          if (dynamic.getNavTree()?.projectId !== urlScope.projectId) {
+            throw new Error(`导航归属不一致：目标应用 ${urlScope.projectId}，当前导航 ${dynamic.getNavTree()?.projectId ?? '未装配'}`)
+          }
+          return { path: to.path, query: to.query, hash: to.hash, replace: true }
+        }
+      }
+      return undefined
+    } catch (error: unknown) {
+      if (!isCurrent()) return false
+      throw error
+    }
+  }
+}

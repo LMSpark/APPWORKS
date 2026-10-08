@@ -1,0 +1,82 @@
+[
+  {
+    "file": "packages/spark-project-model/src/scenario/scenario-view-file.ts",
+    "sha256": "B3B780F3149E24BEB547A0C7CB39039ED543D66B62EE302AAF984CF3EA73C66A",
+    "bytes": 3120
+  },
+  {
+    "file": "packages/spark-project-model/src/page/runtime-page.ts",
+    "sha256": "C0185B8515825B22E5095A51FEB17D8D4D48E08131DC19DD4710372D826547B6",
+    "bytes": 8544
+  },
+  {
+    "file": "packages/spark-project-model/src/project/project-workspace.ts",
+    "sha256": "B1B92A6553995808C9428CD65B589D0F9229FF38A77B9C2DDE477B6933849D86",
+    "bytes": 45792
+  },
+  {
+    "file": "src/lowcode/data-space/lowcode-data-space-design.ts",
+    "sha256": "AFB30500BA4E5471E1C14A2CE3FA8221FC3D2384F8928CAFCA87876BC1A80DE5",
+    "bytes": 1780
+  },
+  {
+    "file": "packages/spark-component/src/runtime/app-services.ts",
+    "sha256": "5F5D01BCFA90B0E09EA389032769930BD929815F25C9521A0A3D16561C6F8302",
+    "bytes": 15062
+  },
+  {
+    "file": "packages/spark-component/src/runtime/script-context-types.ts",
+    "sha256": "722F482F6910BF2FDC2EEFC2946E1142505D2663F2AED415ACAA62CD8AA26E74",
+    "bytes": 7634
+  },
+  {
+    "file": "packages/spark-component/src/page/context/buildPageContext.ts",
+    "sha256": "6CFB627E9D06F7EC2B316472F02AA2737F9F5D5BDE57CBFA9928CA5A52B6FE93",
+    "bytes": 17525
+  },
+  {
+    "file": "config/pages/data-platform/data-space-design/rule.json",
+    "sha256": "6B3CA1C7C552BEA684DCAFFBE1FF91737E8BA501827956C29F90ABCA93CC9116",
+    "bytes": 30941
+  },
+  {
+    "file": "config/pages/data-platform/data-space-design/script.js",
+    "sha256": "8E5B9CECB06AD9421F615E2FFF117854C15234DB97810301DAFAF6B431CC913B",
+    "bytes": 220888
+  },
+  {
+    "file": "config/pages/data-platform/data-space-design/style.css",
+    "sha256": "94A373DF0DE286E39C2CDAB36D651EF1AA1314C6D481D4048B4AB02A120E9A3E",
+    "bytes": 1959
+  },
+  {
+    "file": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+    "sha256": "9C470337C95BBBDBEC7CE9D473215375D9A19EE81F0D26BA99DC93DB3BD18B94",
+    "bytes": 25481
+  },
+  {
+    "file": "packages/spark-project-model/tests/page-runtime.test.ts",
+    "sha256": "28EB65DF6C7500142B4F675B2F2DDA938E1FE0F8BE93F7DAE3E49D1226A3BEF3",
+    "bytes": 8318
+  },
+  {
+    "file": "tests/runtime/auth-nav/data-space/lowcode-data-space-design.test.ts",
+    "sha256": "31C0F3CA0AE2B02E559F7AE7ABB963A217EBEE0353DDC59CA5CE075B8A5A3B43",
+    "bytes": 4290
+  },
+  {
+    "file": "tests/runtime/page/runtime/page-script-lifetime.test.ts",
+    "sha256": "81221C6617B08DDE93854D79382A47CEAF563471DD1E2C82BDB4201FE9A67C33",
+    "bytes": 26336
+  },
+  {
+    "file": "tests/runtime/page/design/data-space-design-four-file.test.ts",
+    "sha256": "264BF8A8B143268F075165DFA724A0184A84A7DBAA32E1ED71C310D157B20CB9",
+    "bytes": 264599
+  },
+  {
+    "file": "tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts",
+    "sha256": "1E20271B8468A29455D88537512C44F2D46FCDC1436567D140A2A9F6C9C326DA",
+    "bytes": 44228
+  }
+]

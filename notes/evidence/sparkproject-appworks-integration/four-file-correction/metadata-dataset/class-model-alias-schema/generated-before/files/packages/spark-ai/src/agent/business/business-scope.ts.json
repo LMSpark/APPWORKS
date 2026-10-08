@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/business/business-scope",
+    "sourcePath": "packages/spark-ai/src/agent/business/business-scope.ts",
+    "sourceFile": "packages/spark-ai/src/agent/business/business-scope.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/business/business-scope",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/business/business-scope\n职责：从业务注册 ID、实例 ID、turnId 和 streamId 构造 AiAgentScope、sessionId、turnKey 与 runtime scope。\n边界：只做业务坐标校验和投影，不访问注册表、不持久化会话，也不读取页面或项目状态。\nAI用途：需要追踪一次业务对话的 session、turn、stream 如何命名和隔离时，从这里确认作用域 SSOT。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:17:10.218Z",
+  "models": {}
+}

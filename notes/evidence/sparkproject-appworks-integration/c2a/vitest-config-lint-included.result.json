@@ -1,0 +1,7 @@
+{
+  "endedAt": "2026-10-07T14:57:59.6603700+08:00",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:57:47.7420405+08:00",
+  "exitCode": 1,
+  "command": "Get-Content packages/spark-app/vitest.config.ts -Raw | pnpm exec eslint --stdin --stdin-filename packages/spark-app/src/vitest.config.ts"
+}

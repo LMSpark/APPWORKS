@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run --config vitest.config.ts src/platform/lowcode-platform-api.test.ts",
+  "cwd": "D:\\SPARK_AppWorks\\packages\\spark-lowcode-api",
+  "started": "2026-10-07T17:29:35.5414607+08:00",
+  "ended": "2026-10-07T17:29:37.6738559+08:00",
+  "exitCode": 0,
+  "stdoutFile": "D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\c2d2f\\platform-full.stdout.txt"
+}

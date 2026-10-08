@@ -1,0 +1,25 @@
+{
+  "scope": "C2d2f engineering accepted, combination pending",
+  "files": [
+    {
+      "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+      "sha256": "71fe63f2b343febdc975c83d42f998a6c486c13ef4d2f3d44e9e90d6024e9ae2"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+      "sha256": "ff40113595ecceb18af7ac2cd3d833113e8e5df5f2e60e4df73ebce63494df67"
+    },
+    {
+      "path": "src/services/project/navigation/project-navigation-guard.ts",
+      "sha256": "7f61e2ba51e4576ea32f956cf3087e1483c97f822e170a62c9358d3fd96f57e1"
+    },
+    {
+      "path": "tests/runtime/auth-nav/application/project-navigation-guard.test.ts",
+      "sha256": "07088c73b374e58e633213306523116a56e57c531619bb80de7c1ec7f650a75b"
+    },
+    {
+      "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+      "sha256": "f6acab5f4e3960ccdbe8b3949853cce6311541194700c395ca992a484ee2b3bd"
+    }
+  ]
+}

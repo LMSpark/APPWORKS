@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/display/data-components/DisplayPagination/DisplayPagination.props",
+    "sourcePath": "packages/spark-component/src/components/display/data-components/DisplayPagination/DisplayPagination.props.ts",
+    "sourceFile": "packages/spark-component/src/components/display/data-components/DisplayPagination/DisplayPagination.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/display/data-components/DisplayPagination/DisplayPagination.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/display/data-components/DisplayPagination/DisplayPagination.props\n职责：定义 DisplayPagination（r-pagination）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 display/data-display 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 display pagination 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RPaginationProps"
+    ],
+    "componentName": "DisplayPagination",
+    "componentType": "r-pagination",
+    "componentLevel": "display",
+    "componentLayer": "data-display",
+    "componentDirectory": "display/data-components"
+  },
+  "$defs": {
+    "RPaginationProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RPaginationProps",
+      "properties": {
+        "total": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        },
+        "currentPage": {
+          "type": "number"
+        },
+        "pageSizes": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "pagerCount": {
+          "type": "number"
+        },
+        "layout": {
+          "type": "string"
+        },
+        "background": {
+          "type": "boolean"
+        },
+        "small": {
+          "type": "boolean"
+        },
+        "hideOnSinglePage": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.141Z",
+  "models": {
+    "RPaginationProps": {
+      "name": "RPaginationProps",
+      "jsdoc": "RPagination Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DisplayPagination",
+        "type": "r-pagination",
+        "level": "display",
+        "layer": "data-display",
+        "directory": "display/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 总条数 */\n    total?: number;\n    /** 每页条数 */\n    pageSize?: number;\n    /** 当前页 */\n    currentPage?: number;\n    /** 每页条数选项 */\n    pageSizes?: number[];\n    /** 页码按钮数量 */\n    pagerCount?: number;\n    /** 布局模板 */\n    layout?: string;\n    /** 是否显示背景 */\n    background?: boolean;\n    /** 是否小尺寸 */\n    small?: boolean;\n    /** 单页时是否隐藏 */\n    hideOnSinglePage?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 总条数 */\n    total?: number;\n    /** 每页条数 */\n    pageSize?: number;\n    /** 当前页 */\n    currentPage?: number;\n    /** 每页条数选项 */\n    pageSizes?: number[];\n    /** 页码按钮数量 */\n    pagerCount?: number;\n    /** 布局模板 */\n    layout?: string;\n    /** 是否显示背景 */\n    background?: boolean;\n    /** 是否小尺寸 */\n    small?: boolean;\n    /** 单页时是否隐藏 */\n    hideOnSinglePage?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "total",
+              "jsdoc": "总条数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "jsdoc": "每页条数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentPage",
+              "jsdoc": "当前页",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSizes",
+              "jsdoc": "每页条数选项",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pagerCount",
+              "jsdoc": "页码按钮数量",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layout",
+              "jsdoc": "布局模板",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "background",
+              "jsdoc": "是否显示背景",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "small",
+              "jsdoc": "是否小尺寸",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hideOnSinglePage",
+              "jsdoc": "单页时是否隐藏",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

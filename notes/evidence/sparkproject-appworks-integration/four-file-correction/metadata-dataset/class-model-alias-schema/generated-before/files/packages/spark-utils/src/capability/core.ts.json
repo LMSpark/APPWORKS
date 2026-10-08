@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:capability/core",
+    "sourcePath": "packages/spark-utils/src/capability/core.ts",
+    "sourceFile": "packages/spark-utils/src/capability/core.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "capability/core",
+    "jsdoc": "@module @spark-appworks/spark-utils:capability/core\n职责：提供框架无关的 core 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CapabilityReader",
+      "CapabilityKey",
+      "CapabilityName",
+      "SparkCapabilityConsumer",
+      "CapabilityTypeMap",
+      "CapabilityContext"
+    ]
+  },
+  "$defs": {
+    "CapabilityReader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CapabilityReader",
+      "additionalProperties": false
+    },
+    "CapabilityKey": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CapabilityKey",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "token": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "reader": {
+              "$ref": "#/$defs/CapabilityReader"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "T"
+        },
+        "method.toString.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toString.return": {
+          "type": "string"
+        }
+      }
+    },
+    "SparkCapabilityConsumer": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkCapabilityConsumer",
+      "additionalProperties": false
+    },
+    "CapabilityTypeMap": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CapabilityTypeMap"
+    },
+    "CapabilityContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CapabilityContext",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "parent": {
+          "$ref": "#/$defs/CapabilityContext"
+        },
+        "capabilities": {
+          "type": "object",
+          "title": "Map<CapabilityName, unknown>"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "capabilities"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-20T04:47:21.292Z",
+  "models": {
+    "CapabilityReader": {
+      "name": "CapabilityReader",
+      "jsdoc": "能力值读取器：把运行时 unknown 显式校验为能力类型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (value: unknown): value is T;\n}",
+        "members": {}
+      }
+    },
+    "CapabilityKey": {
+      "name": "CapabilityKey",
+      "jsdoc": "带运行时校验的能力键。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Capability Key 实例。",
+          "signatureText": "constructor(name: string, reader: CapabilityReader<T>)",
+          "parameters": [
+            {
+              "name": "name",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "reader",
+              "type": {
+                "type": "reference",
+                "name": "CapabilityReader",
+                "sourcePath": "packages/spark-utils/src/capability/core.ts",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "token",
+              "jsdoc": "token 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "read",
+              "jsdoc": "执行 read 操作。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "toString",
+              "jsdoc": "执行 to String 操作。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CapabilityName": {
+      "name": "CapabilityName",
+      "jsdoc": "未具体化类型的能力名（用于 Map 的 key）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "CapabilityKey<unknown>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "CapabilityKey<unknown>",
+            "targetName": "CapabilityKey"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkCapabilityConsumer": {
+      "name": "SparkCapabilityConsumer",
+      "jsdoc": "能力消费函数签名：给定键返回实现或 null。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    <T>(name: CapabilityKey<T>): T | null;\n}",
+        "members": {}
+      }
+    },
+    "CapabilityTypeMap": {
+      "name": "CapabilityTypeMap",
+      "jsdoc": "能力类型映射表（模块增强入口）。\n各包通过 TypeScript module augmentation 扩展此映射，实现编译期的能力类型安全。\n扩展此接口，实现编译期的能力类型安全。",
+      "declarationKind": "interface",
+      "interfaceDecl": {
+        "members": {}
+      }
+    },
+    "CapabilityContext": {
+      "name": "CapabilityContext",
+      "jsdoc": "能力树节点：持有本地能力 Map，以及指向父节点的可选链。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前能力上下文节点 ID，用于调试、日志和父子链定位。 */\n    id: string;\n    /** 当前上下文类型，例如 renderer/component/page，用于区分能力节点来源。 */\n    type: string;\n    /** 父级能力上下文；消费能力时会沿此链向上查找。 */\n    parent?: CapabilityContext;\n    /** 当前节点本地提供的能力实现表，key 为 CapabilityKey。 */\n    capabilities: Map<CapabilityName, unknown>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "当前能力上下文节点 ID，用于调试、日志和父子链定位。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "jsdoc": "当前上下文类型，例如 renderer/component/page，用于区分能力节点来源。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parent",
+              "jsdoc": "父级能力上下文；消费能力时会沿此链向上查找。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "capabilities",
+              "jsdoc": "当前节点本地提供的能力实现表，key 为 CapabilityKey。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

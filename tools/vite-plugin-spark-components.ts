@@ -116,6 +116,9 @@ export type SparkComponentsPluginOptions = {
    */
   asyncComponents?: string[]
 
+  /** Root-relative directory prefixes whose components load on demand. */
+  asyncPathPrefixes?: string[]
+
   /**
    * 文件大小阈值（KB），超过此大小自动异步加载
    * @default 50
@@ -165,6 +168,7 @@ const DEFAULT_OPTIONS: Required<SparkComponentsPluginOptions> = {
     'Capability*',
     'Tree*'
   ],
+  asyncPathPrefixes: [],
   sizeThreshold: 50,
   exclude: [
     'App.vue',
@@ -310,7 +314,7 @@ class ComponentAnalyzer {
         const sizeKB = stats.size / 1024
 
         // 判断加载策略
-        const strategy = this.determineStrategy(fileName, sizeKB)
+        const strategy = this.determineStrategy(fileName, sizeKB, file)
 
         // 生成路径（相对于 root，用于 import 语句）
         const importPath = './' + file.replace(/\\/g, '/')
@@ -360,23 +364,32 @@ class ComponentAnalyzer {
   /**
    * 判断加载策略
    */
-  private determineStrategy(fileName: string, sizeKB: number): LoadStrategy {
+  private determineStrategy(fileName: string, sizeKB: number, rootRelativePath: string): LoadStrategy {
     // 1. 检查显式同步配置
     if (matchAnyPattern(fileName, this.config.syncComponents)) {
       return 'sync'
     }
 
-    // 2. 检查显式异步配置
+    // 2. 页面目录始终按需加载，除非已被显式标记为同步
+    const normalizedPath = rootRelativePath.replace(/\\/g, '/').replace(/^(\.\/)+/u, '')
+    if (this.config.asyncPathPrefixes.some(prefix => {
+      const normalizedPrefix = prefix.replace(/\\/g, '/').replace(/^(\.\/)+/u, '').replace(/\/*$/u, '/')
+      return normalizedPath.startsWith(normalizedPrefix)
+    })) {
+      return 'async'
+    }
+
+    // 3. 检查显式异步配置
     if (matchAnyPattern(fileName, this.config.asyncComponents)) {
       return 'async'
     }
 
-    // 3. 根据文件大小判断
+    // 4. 根据文件大小判断
     if (sizeKB > this.config.sizeThreshold) {
       return 'async'
     }
 
-    // 4. 默认同步加载
+    // 5. 默认同步加载
     return 'sync'
   }
 

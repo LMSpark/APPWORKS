@@ -1,0 +1,14 @@
+[
+  {
+    "path": "packages/spark-data/src/data-view.ts",
+    "sha256": "9e32a378e01f74a5da61064e7efb381fe977f5691e180b7c188f32f96c4d7ab7"
+  },
+  {
+    "path": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+    "sha256": "512a0bfb9a0b94a064f0bce1ff69d496dfb6ce8776e7635b834126b36d850d2d"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+    "sha256": "1277ee49fc91dc15b61733dddcbf1abf5b255c502588f572bc6e331be51dc35f"
+  }
+]

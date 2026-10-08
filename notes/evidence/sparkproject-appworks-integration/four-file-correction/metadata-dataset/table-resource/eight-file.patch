@@ -1,0 +1,273 @@
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\packages__spark-lowcode-api__src__platform__data-space__data-space-resource-type-wire.ts" b/packages/spark-lowcode-api/src/platform/data-space/data-space-resource-type-wire.ts
+index 190e133ed..b89ebb862 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\packages__spark-lowcode-api__src__platform__data-space__data-space-resource-type-wire.ts"
++++ b/packages/spark-lowcode-api/src/platform/data-space/data-space-resource-type-wire.ts
+@@ -3,6 +3,7 @@
+  * 领域正式名仍为 {@link DataSpaceResourceType}；禁止在 design/runtime 各维护一份表。
+  */
+ import { LowcodeApiError } from '../../core/lowcode-api-error.js'
++import type { TableResourceType } from '@spark-appworks/spark-data'
+ import type { DataSpaceResourceType } from './data-space.js'
+ 
+ /** wire Type 字段中文标签（Jackson / GetData 资源行）。 */
+@@ -23,18 +24,24 @@ const DOMAIN_TO_WIRE: Readonly<Record<DataSpaceResourceType, DataSpaceResourceTy
+   file: '文件',
+ }
+ 
+-const WIRE_TO_DOMAIN: Readonly<Record<string, DataSpaceResourceType>> = {
+-  数据库表: 'table',
+-  数据库视图: 'view',
+-  视图: 'view',
+-  字典: 'dictionary',
+-  接口: 'interface',
+-  JSON: 'json',
+-  文件: 'file',
++type ResourceLabelDescriptor = Readonly<{ domain?: DataSpaceResourceType; native: TableResourceType }>
++type ResourceLabelMap = Readonly<Record<string, ResourceLabelDescriptor>>
++
++const RESOURCE_LABELS: ResourceLabelMap = {
++  数据库表: { domain: 'table', native: 'database-table' },
++  数据库视图: { domain: 'view', native: 'database-view' },
++  视图: { domain: 'view', native: 'logical-view' },
++  字典: { domain: 'dictionary', native: 'dictionary' },
++  接口: { domain: 'interface', native: 'third-party-api' },
++  JSON: { domain: 'json', native: 'json' },
++  文件: { domain: 'file', native: 'file' },
++  表: { native: 'database-table' },
++  table: { native: 'database-table' },
+ }
+ 
+ /** 领域资源类型 → wire Type 中文标签。 */
+ export function encodeDataSpaceResourceType(type: DataSpaceResourceType): DataSpaceResourceTypeWireLabel {
++  if (!Object.hasOwn(DOMAIN_TO_WIRE, type)) throw new LowcodeApiError(0, `未知数据资源类型: ${type}`)
+   return DOMAIN_TO_WIRE[type]
+ }
+ 
+@@ -42,7 +49,15 @@ export function encodeDataSpaceResourceType(type: DataSpaceResourceType): DataSp
+ export function parseDataSpaceResourceType(value: unknown): DataSpaceResourceType {
+   const raw = value === undefined || value === null ? '' : String(value).trim()
+   if (!raw) throw new LowcodeApiError(0, '前端模型 Type 不能为空')
+-  const normalized = WIRE_TO_DOMAIN[raw]
++  const normalized = Object.hasOwn(RESOURCE_LABELS, raw) ? RESOURCE_LABELS[raw]?.domain : undefined
+   if (normalized === undefined) throw new LowcodeApiError(0, `未知数据资源类型: ${raw}`)
+   return normalized
+ }
++
++/** 正式模型 Type 原标签 → 原生 DataTable 资源类别；保留数据库视图与逻辑视图区别。 */
++export function parseNativeDataSpaceResourceType(value: unknown): TableResourceType {
++  const label = typeof value === 'string' ? value : ''
++  const native = Object.hasOwn(RESOURCE_LABELS, label) ? RESOURCE_LABELS[label]?.native : undefined
++  if (native === undefined) throw new LowcodeApiError(0, `未知正式模型资源类型: ${label}`)
++  return native
++}
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\packages__spark-lowcode-api__src__platform__data-space__design__data-space-design-api.ts" b/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts
+index d8d3639df..d86d7b336 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\packages__spark-lowcode-api__src__platform__data-space__design__data-space-design-api.ts"
++++ b/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts
+@@ -5,7 +5,7 @@
+  * AI用途：装配场景视图或创建草稿时核对真实模型 Name、输出字段和关系归属。
+  */
+ import type { HttpClientBase } from '@spark-appworks/spark-utils'
+-import { DataViewFilter } from '@spark-appworks/spark-data'
++import { DataViewFilter, type TableResourceType } from '@spark-appworks/spark-data'
+ import type { DataSpaceRuntimeApi } from '../runtime/data-space-runtime-api.js'
+ import type { DataSpaceRequestScope } from '../runtime/data-space-runtime-contract.js'
+ import { collectDataSpaceQueryPages } from '../runtime/protocol/data-space-pagination.js'
+@@ -29,7 +29,7 @@ import {
+   type DataSpaceResourceField,
+   type DataSpaceResourceType,
+ } from '../data-space.js'
+-import { parseDataSpaceResourceType } from '../data-space-resource-type-wire.js'
++import { parseDataSpaceResourceType, parseNativeDataSpaceResourceType } from '../data-space-resource-type-wire.js'
+ import type { OrderType } from '../../../contracts/lowcode-wire-query.js'
+ import {
+   prepareDataSpaceDesignMutation,
+@@ -123,6 +123,7 @@ type DataSpaceFormalModel = Readonly<{
+   sourceType: string; primaryKey: string; businessMain: boolean
+   fields: readonly DataSpaceFormalField[]; raw: DataSpaceFormalRow
+ }>
++type DataSpaceFormalTableResource = Readonly<{ resourceType: TableResourceType; resourceId: string }>
+ /** 单场景模型目录或关系读取身份；调用方 guard 与请求 scope 共同拒绝迟到结果。 */
+ type DataSpaceFormalScenarioReadInput = Omit<DataSpaceFormalReadInput, 'metaName'>
+ type DataSpaceFormalSpaceDefinition = Readonly<{ dataSpaceId: string; name: string }>
+@@ -601,6 +602,14 @@ export class DataSpaceDesignApi {
+     return Object.freeze(outputs)
+   }
+ 
++  /** 正式来源名与原标签构成原生表资源语义，不替代查询模型绑定或来源调度身份。 */
++  public static resolveTableResource(model: DataSpaceFormalModel): DataSpaceFormalTableResource {
++    if (typeof model.sourceName !== 'string' || !model.sourceName.trim()) {
++      throw new LowcodeApiError(0, '正式模型来源名不能为空')
++    }
++    return Object.freeze({resourceType: parseNativeDataSpaceResourceType(model.sourceType), resourceId: model.sourceName})
++  }
++
+   /** 仅读取正式空间名称，不扩展模型、目录或输入参数。 */
+   public async readSpaceDefinition(input: DataSpaceFormalScenarioReadInput): Promise<DataSpaceFormalSpaceDefinition> {
+     const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\src__lowcode__data-space__lowcode-data-space-assembler.ts" b/src/lowcode/data-space/lowcode-data-space-assembler.ts
+index 788b51906..bac70abf4 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\src__lowcode__data-space__lowcode-data-space-assembler.ts"
++++ b/src/lowcode/data-space/lowcode-data-space-assembler.ts
+@@ -119,6 +119,7 @@ export class LowcodeDataSpaceAssembler {
+    const matches = input.models.filter(model => model.id === binding['modelId'] && model.metaName === binding['modelName'])
+    const model = matches[0]
+    if (!model || matches.length !== 1) throw new Error(`场景表 ${tableName} 未解析到唯一正式模型`)
++   const resource = DataSpaceDesignApi.resolveTableResource(model)
+    bindings.set(tableName, model)
+    const tableColumns = columns(model, table['columns'], tableName)
+    const localNames = new Set(tableColumns.filter(column => Boolean(column.computeExpression)).map(column => column.name))
+@@ -129,7 +130,7 @@ export class LowcodeDataSpaceAssembler {
+     validateRemoteReferences(view, localNames, `${tableName}@${viewId}`)
+     views[viewId] = { page: 1, pageSize: 20, ...view }
+    }
+-   tables[tableName] = { tableName, modelBinding: {modelId: model.id, modelName: model.metaName},
++   tables[tableName] = { tableName, ...resource, modelBinding: {modelId: model.id, modelName: model.metaName},
+     ...('businessCategory' in table ? {businessCategory: table['businessCategory']} : {}), columns: tableColumns, views }
+   }
+   const relations = new LowcodeModelRelationAdapter().adapt(input.relations, bindings)
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\packages__spark-lowcode-api__src__platform__data-space__design__data-space-design-api.test.ts" b/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts
+index 396252720..1265a6adc 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\packages__spark-lowcode-api__src__platform__data-space__design__data-space-design-api.test.ts"
++++ b/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts
+@@ -5,6 +5,43 @@ import { describe, expect, it } from 'vitest'
+ 
+ import { LowcodeApi } from '../../../lowcode-api.js'
+ import { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from './data-space-design-api.js'
++import { encodeDataSpaceResourceType, parseDataSpaceResourceType } from '../data-space-resource-type-wire.js'
++
++it('resolves native table resource semantics from the formal source without I/O', () => {
++  const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: 'physical_orders',
++    sourceId: 'DB-1', sourceType: '数据库表', primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}
++  expect(DataSpaceDesignApi.resolveTableResource(model)).toEqual({resourceType: 'database-table', resourceId: 'physical_orders'})
++  expect(model.metaName).toBe('QueryOrders')
++  expect(model.sourceId).toBe('DB-1')
++})
++
++it.each([
++  ['数据库表', 'database-table'], ['表', 'database-table'], ['table', 'database-table'],
++  ['数据库视图', 'database-view'], ['视图', 'logical-view'], ['字典', 'dictionary'],
++  ['接口', 'third-party-api'], ['JSON', 'json'], ['文件', 'file'],
++])('maps formal Type %s to native resource type %s without altering the source name', (sourceType, native) => {
++  const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: '  source.name  ',
++    sourceId: 'DB-1', sourceType, primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}
++  expect(DataSpaceDesignApi.resolveTableResource(model)).toEqual({resourceType: native, resourceId: '  source.name  '})
++  expect(model.sourceName).toBe('  source.name  ')
++})
++
++it.each(['', 'unknown', '__proto__', 'constructor', 'database-table'])('rejects unknown formal Type %s', sourceType => {
++  const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: 'source',
++    sourceId: 'DB-1', sourceType, primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}
++  expect(() => DataSpaceDesignApi.resolveTableResource(model)).toThrow('未知正式模型资源类型')
++})
++
++it('rejects missing source names and retains legacy wire parse and encode behavior', () => {
++  const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: ' ',
++    sourceId: 'DB-1', sourceType: '数据库表', primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}
++  expect(() => DataSpaceDesignApi.resolveTableResource(model)).toThrow('来源名')
++  expect(parseDataSpaceResourceType('数据库视图')).toBe('view')
++  expect(encodeDataSpaceResourceType('view')).toBe('视图')
++  expect(() => parseDataSpaceResourceType('table')).toThrow('未知数据资源类型')
++  expect(() => parseDataSpaceResourceType('__proto__')).toThrow('未知数据资源类型')
++  expect(() => Reflect.apply(encodeDataSpaceResourceType, undefined, ['__proto__'])).toThrow('未知数据资源类型')
++})
+ 
+ class DataSpaceDesignFixtureHttpClient extends HttpClientBase {
+   public readonly requests: RequestConfig[] = []
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\tests__runtime__auth-nav__data-space__lowcode-scenario-assembly.test.ts" b/tests/runtime/auth-nav/data-space/lowcode-scenario-assembly.test.ts
+index 264f3df2f..3975db59d 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\tests__runtime__auth-nav__data-space__lowcode-scenario-assembly.test.ts"
++++ b/tests/runtime/auth-nav/data-space/lowcode-scenario-assembly.test.ts
+@@ -36,6 +36,8 @@ describe('formal scenario assembly', () => {
+   expect(result.dataSet.scenarioId).toBe('SCENE')
+   expect(result.dataSet.dataSetName).toBe('订单正式空间')
+   expect(result.dataSet.getTable('Orders')?.modelBinding).toEqual({ modelId: 'MODEL', modelName: 'QueryOrders' })
++  expect(result.dataSet.getTable('Orders')).toMatchObject({resourceType: 'database-table', resourceId: 'physical_orders'})
++  expect(result.dataSet.toJson().tables['Orders']).toMatchObject({resourceType: 'database-table', resourceId: 'physical_orders'})
+   expect(result.dataSet.getView('Orders', 'default')?.primaryKey).toBe('orderId')
+   expect(result.dataSet.getView('Orders', 'detail')?.pageSize).toBe(5)
+   expect(result.dataSet.getTable('MODEL')).toBeUndefined()
+@@ -46,6 +48,25 @@ describe('formal scenario assembly', () => {
+   const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({ token: 'scope', headers: {} })})
+   expect(() => new LowcodeDataSpaceAssembler(runtime, http).assemble({ config, space, models: [{...formal,id:'OTHER'}], relations: [] })).toThrow(/模型/)
+  })
++ it('keeps separate model bindings when two tables share a source name and rejects unknown formal types', () => {
++  const http = new NoRequest()
++  const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {}})})
++  const other = {...formal, id: 'MODEL-2', name: 'QueryOther', metaName: 'QueryOther',
++   fields: formal.fields.map(field => ({...field, modelId: 'MODEL-2'}))}
++  const twoTables = new ScenarioViewConfig('SCENE', JSON.stringify({scenarioId: 'SCENE', tables: {
++   Orders: {modelBinding: {modelId: 'MODEL', modelName: 'QueryOrders'}, views: {default: {}, detail: {}}},
++   Other: {modelBinding: {modelId: 'MODEL-2', modelName: 'QueryOther'}, views: {default: {}, detail: {}}},
++  }}))
++  const assembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({config: twoTables, space,
++   models: [formal, other], relations: []})
++  expect(assembly.dataSet.getTable('Orders')?.resourceId).toBe('physical_orders')
++  expect(assembly.dataSet.getTable('Other')?.resourceId).toBe('physical_orders')
++  expect(assembly.dataSet.getTable('Other')?.modelBinding).toEqual({modelId: 'MODEL-2', modelName: 'QueryOther'})
++  expect(assembly.dataSet.getView('Orders', 'detail')).not.toBe(assembly.dataSet.getView('Other', 'detail'))
++  assembly.dataSet.destroy()
++  expect(() => new LowcodeDataSpaceAssembler(runtime, http).assemble({config, space,
++   models: [{...formal, sourceType: 'database-table'}], relations: []})).toThrow('未知正式模型资源类型')
++ })
+  it('requires a matching formal space identity and nonempty legal Name', () => {
+   const http = new NoRequest()
+   const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {}})})
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\tests__runtime__auth-nav__data-space__metadata__lowcode-data-space-persistence.test.ts" b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+index b651a739d..f72770e65 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\tests__runtime__auth-nav__data-space__metadata__lowcode-data-space-persistence.test.ts"
++++ b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+@@ -178,10 +178,15 @@ describe('scenario view persistence and formal model assembly', () => {
+     const read = await reopened.service.open('SPACE')
+     const firstAssembly = await reopened.assemble('SPACE', read.dirtySource)
+     expect(firstAssembly.dataSet.dataSetName).toBe('正式空间名称')
++    expect(firstAssembly.dataSet.getTable('Parents')).toMatchObject({resourceType: 'database-table', resourceId: 'ParentSource'})
+     storage.setSpaceName('正式空间新名称')
++    storage.setModels([model('ParentModel', 'ParentSourceNext', ['id', 'title', 'price', 'qty'], ['price', 'qty']),
++      model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
+     const secondAssembly = await reopened.assemble('SPACE', read.dirtySource)
+     expect(secondAssembly.dataSet.dataSetName).toBe('正式空间新名称')
++    expect(secondAssembly.dataSet.getTable('Parents')?.resourceId).toBe('ParentSourceNext')
+     expect(read.dirtySource.getText()).toBe(saved.text)
++    expect(saved.text).not.toContain('ParentSourceNext')
+     const dataSet = firstAssembly.dataSet
+     expect(dataSet.toJson()).toMatchObject({schemaVersion: 3, version: 0,
+       layout: {tablePositions: {Parents: {x: -2.5, y: 0}}}, saveChanges: {mode: 'perView'}})
+@@ -196,7 +201,11 @@ describe('scenario view persistence and formal model assembly', () => {
+       data: {Items: [{id: 'P1', title: 'Before', price: 3, qty: 4,
+         lingma_sys_key: 'SIGNED', lingma_sys_params: {r: ['id', 'title', 'price', 'qty'], e: ['title']}}], Count: 1}}
+     await view.loadFromServer()
++    const query = reopened.http.requests.find(request => request.url === '/api/DataOperation/GetData')
++    expect(query?.data).toMatchObject({Table: [{Name: 'ParentModel'}]})
++    expect(JSON.stringify(query?.data)).not.toContain('ParentSource')
+     expect(view.rows[0]?.['total']).toBe(12)
++    expect(JSON.stringify(dataSet.toJson())).not.toContain('Before')
+     expect(await view.editRowById('P1', {title: 'Changed'})).toBe(true)
+     await expect(dataSet.saveChanges()).resolves.toMatchObject({success: true, data: {savedCount: 1}})
+     const save = reopened.http.requests.find(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\tests__runtime__page__catalog__data-space-four-file.test.ts" b/tests/runtime/page/catalog/data-space-four-file.test.ts
+index f37e09969..16740f884 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\tests__runtime__page__catalog__data-space-four-file.test.ts"
++++ b/tests/runtime/page/catalog/data-space-four-file.test.ts
+@@ -69,7 +69,7 @@ function formalModel(input: TestFormalModelInput): FormalModel {
+   const fields = input.fields.map((field, order) => ({ ...field, modelId: input.id,
+     canonicalName: field.name, description: '', output: true, computed: false, order, orderType: '', raw: {} }))
+   return { id: input.id, name: input.metaName, metaName: input.metaName, sourceName: input.metaName,
+-    sourceId: '', sourceType: 'database-table', primaryKey: input.primaryKey, businessMain: false, fields, raw: {} }
++    sourceId: '', sourceType: '数据库表', primaryKey: input.primaryKey, businessMain: false, fields, raw: {} }
+ }
+ 
+ function formalModels(): FormalModel[] {
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\tests__runtime__page__design__data-space-design-four-file.test.ts" b/tests/runtime/page/design/data-space-design-four-file.test.ts
+index 40e34619e..4a69ef98b 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\table-resource\\before\\tests__runtime__page__design__data-space-design-four-file.test.ts"
++++ b/tests/runtime/page/design/data-space-design-four-file.test.ts
+@@ -72,7 +72,7 @@ function graphProps(fixture: Awaited<ReturnType<typeof createDesignFixture>>): R
+ 
+ function model(source: FormalModelSource): FormalModel {
+   const { id, name, primaryKey, fields } = source
+-  return { id, name, metaName: name, sourceName: name, sourceId: '', sourceType: 'database-table', primaryKey,
++  return { id, name, metaName: name, sourceName: name, sourceId: '', sourceType: '数据库表', primaryKey,
+     businessMain: false, raw: {}, fields: fields.map(([fieldId, canonicalName, type, isPrimaryKey], order) => ({
+       id: fieldId, modelId: id, name: canonicalName, canonicalName, type, primaryKey: isPrimaryKey,
+       description: '', output: true, computed: false, order, orderType: '', raw: {},

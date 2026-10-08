@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-10-09T00:37:10.9028852+08:00",
+  "sourceFiles": 7,
+  "hashesMatch": true,
+  "apiTests": 540,
+  "rootTests": 102,
+  "suites": 15,
+  "typecheckExit": 0,
+  "lintExit": 0,
+  "aiCodegenExit": 0,
+  "diffCheckExit": 0,
+  "nativeStage": "complete",
+  "businessOrConfigWrites": 0
+}

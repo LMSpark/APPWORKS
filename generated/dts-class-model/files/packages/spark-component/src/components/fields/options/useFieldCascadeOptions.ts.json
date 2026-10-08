@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/options/useFieldCascadeOptions",
+    "sourcePath": "packages/spark-component/src/components/fields/options/useFieldCascadeOptions.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/options/useFieldCascadeOptions.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/options/useFieldCascadeOptions",
+    "jsdoc": "@spark-appworks/spark-component 的 components/fields/options/useFieldCascadeOptions 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {
+    "FieldCascadeProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldCascadeProps",
+      "properties": {
+        "field": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-08T20:23:58.961Z",
+  "models": {
+    "FieldCascadeProps": {
+      "name": "FieldCascadeProps",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    field?: string | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

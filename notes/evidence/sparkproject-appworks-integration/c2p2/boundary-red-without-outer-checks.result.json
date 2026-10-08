@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts --maxWorkers=1 --reporter=dot (outer asserts temporarily removed)",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:22:46.6121843+08:00",
+  "finishedAt": "2026-10-07T14:22:49.7109105+08:00",
+  "exitCode": 1,
+  "log": "boundary-red-without-outer-checks.log"
+}

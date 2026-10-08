@@ -561,6 +561,7 @@ function design(): DataSpaceDesignSnapshot {
 }
 
 class RuntimeFixtureHttpClient extends HttpClientBase {
+  public constructor(private readonly parentIds: readonly number[] = [7]) { super() }
   public readonly requests: RequestConfig[] = []
 
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
@@ -570,7 +571,7 @@ class RuntimeFixtureHttpClient extends HttpClientBase {
     const table = isRecord(tables[0]) ? tables[0] : {}
     const modelName = typeof table['Name'] === 'string' ? table['Name'] : ''
     const rows = modelName === '部门模型'
-      ? [{ id: 7, lingma_sys_key: 'P-7', lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } }]
+      ? this.parentIds.map(id => ({ id, lingma_sys_key: `P-${id}`, lingma_sys_params: { r: [], e: [], h: [], m: [], d: false } }))
       : [{ id: 70, departmentId: 7, lingma_sys_key: 'C-70', lingma_sys_params: { r: [], e: ['departmentId'], h: [], m: [], d: false } }]
     return {
       data: {
@@ -589,26 +590,45 @@ class RuntimeFixtureHttpClient extends HttpClientBase {
   }
 }
 
-function formalAssemblyInput(snapshot: DataSpaceDesignSnapshot, scenarioId: string) {
+function formalAssemblyInput(snapshot: DataSpaceDesignSnapshot, scenarioId: string, options: Readonly<{viewCascades?: readonly unknown[]; namedViews?: readonly string[]}> = {}) {
   const models = snapshot.models.map(model => ({ id: model.modelId, name: model.name, metaName: model.name,
     sourceName: model.resource.resourceName, sourceId: model.resource.databaseId ?? '', sourceType: model.resource.resourceType,
     primaryKey: model.resource.primaryKeyField, businessMain: model.query.businessMain, raw: {},
     fields: model.fields.map(field => ({ id: field.fieldId, modelId: model.modelId, name: field.resourceField,
       canonicalName: field.alias || field.resourceField, type: 'integer', primaryKey: field.primaryKey,
       description: '', output: field.output, computed: false, order: field.order, orderType: field.orderType, raw: {} })) }))
-  const tables = Object.fromEntries(models.map(model => [model.id, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {default: {}}}]))
-  const config = new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables}))
+  const tables = Object.fromEntries(models.map(model => [model.id, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: Object.fromEntries(['default', ...(options.namedViews ?? [])].map(viewId => [viewId, {}]))}]))
+  const config = new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables, ...(options.viewCascades === undefined ? {} : {viewCascades: options.viewCascades})}))
   const relations = snapshot.relations.map(relation => ({...relation,
     filterExpression: DataViewFilter.group({logic:'and', filters:[{field: 'departmentId',operator:'eq',value:{Type:'GetTableField', Field:'id'}}]})}))
-  return {config, models, relations}
+  return {config, space: {dataSpaceId: scenarioId, name: snapshot.name}, models, relations}
 }
 
 describe('lowcode data-space DataView runtime', () => {
-  it('sends the public DataView tree with automatic cascade constraints through the sole API wire codec', async () => {
+  it('assembles one column from equivalent repeated formal output records', () => {
+    const input = formalAssemblyInput(design(), 'FORM-1')
+    const child = input.models.find(candidate => candidate.id === 'MODEL-CHILD')
+    const parentField = child?.fields.find(candidate => candidate.name === 'departmentId')
+    if (!child || !parentField) throw new Error('missing child output fixture')
+    const models = input.models.map(candidate => candidate.id === child.id
+      ? { ...candidate, fields: [...candidate.fields, { ...parentField, id: 'FIELD-C-PARENT-DUP' }] }
+      : candidate)
     const http = new RuntimeFixtureHttpClient()
     const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
+      readScope: () => ({ token: 'fixture-request-scope', headers: {} }) }), http)
+      .assemble({ ...input, models })
+
+    expect(assembly.dataSet.getTable('MODEL-CHILD')?.columns.filter(column => column.name === 'departmentId'))
+      .toHaveLength(1)
+    assembly.dataSet.destroy()
+  })
+
+  it('sends explicit view cascade constraints through the sole API wire codec', async () => {
+    const http = new RuntimeFixtureHttpClient()
+    const explicitCascade = [{cascadeId:'SCENE-CASCADE', parentTable:'MODEL-PARENT', parentViewId:'default', childTable:'MODEL-CHILD', childViewId:'default', filterBindings:[{sourceField:'id',targetField:'departmentId'}], autoLoad:true}]
+    const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
       readScope: () => ({ token: 'fixture-request-scope', headers: {} }) }), http).assemble({
-      ...formalAssemblyInput(design(), 'FORM-1'),
+      ...formalAssemblyInput(design(), 'FORM-1', {viewCascades: explicitCascade}),
     })
     const child = assembly.dataSet.getView('MODEL-CHILD', 'default')
     if (!child) throw new Error('Missing child DataView')
@@ -637,6 +657,72 @@ describe('lowcode data-space DataView runtime', () => {
     assembly.dataSet.destroy()
   })
 
+  it('does not query a parent or add a filter when the scenario has no view cascade', async () => {
+    const http = new RuntimeFixtureHttpClient()
+    const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
+      readScope: () => ({ token: 'fixture-request-scope', headers: {} }) }), http).assemble({
+      ...formalAssemblyInput(design(), 'FORM-1'),
+    })
+    const child = assembly.dataSet.getView('MODEL-CHILD', 'default')
+    if (!child) throw new Error('Missing child DataView')
+    expect(assembly.dataSet.viewCascades).toEqual([])
+    await child.requestData()
+    expect(http.requests).toHaveLength(1)
+    const request = isRecord(http.requests[0]?.data) ? http.requests[0].data : {}
+    const tables = Array.isArray(request['Table']) ? request['Table'] : []
+    expect(tables[0]).toMatchObject({Name:'员工模型'})
+    expect(tables[0]).toHaveProperty('Filter', null)
+    assembly.dataSet.destroy()
+  })
+
+  it('applies an explicit named-view query filter without touching sibling views', async () => {
+    const http = new RuntimeFixtureHttpClient([7, 8])
+    const explicitCascade = [{cascadeId:'NAMED-CASCADE', parentTable:'MODEL-PARENT', parentViewId:'selection', childTable:'MODEL-CHILD', childViewId:'detail', filterBindings:[{sourceField:'id',targetField:'departmentId'}], autoLoad:true}]
+    const input = formalAssemblyInput(design(), 'FORM-1', {viewCascades: explicitCascade, namedViews: ['selection', 'detail', 'summary']})
+    const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
+      readScope: () => ({ token: 'fixture-request-scope', headers: {} }) }), http).assemble(input)
+    const parentDefault = assembly.dataSet.getView('MODEL-PARENT', 'default')
+    const parentSelection = assembly.dataSet.getView('MODEL-PARENT', 'selection')
+    const childDefault = assembly.dataSet.getView('MODEL-CHILD', 'default')
+    const childDetail = assembly.dataSet.getView('MODEL-CHILD', 'detail')
+    const childSummary = assembly.dataSet.getView('MODEL-CHILD', 'summary')
+    if (!parentDefault || !parentSelection || !childDefault || !childDetail || !childSummary) throw new Error('Missing named DataView')
+    parentSelection.autoCurrentFirst = false
+    expect(parentDefault).not.toBe(parentSelection)
+    expect(assembly.dataSet.viewCascades).toMatchObject([{parentViewId:'selection',childViewId:'detail'}])
+    const structuralRelations = structuredClone(assembly.dataSet.resourceRelations)
+    const inputRelations = input.relations.map(relation => ({...relation, filter: relation.filterExpression.toJSON()}))
+    await childDefault.requestData()
+    expect(http.requests).toHaveLength(1)
+    expect(parentDefault.rows).toEqual([])
+    await parentSelection.requestData()
+    expect(http.requests).toHaveLength(2)
+    expect(parentSelection.setCurrentRowById(7)).toBe(true)
+    expect(parentSelection.setCurrentRowById(8)).toBe(true)
+    expect(parentSelection.currentRow).toMatchObject({id:8})
+    await childDetail.refresh()
+    expect(http.requests).toHaveLength(3)
+    expect(http.requests[2]?.data).toMatchObject({Table:[{Name:'员工模型',Filter:{Type:'cond',Field:'departmentId',ValueFun:{Type:'GetConstValue',Value:8}}}]})
+    expect(childDefault.requestState).toBe(RequestState.Loaded)
+    expect(childSummary.requestState).toBe(RequestState.Idle)
+    expect(assembly.dataSet.resourceRelations).toEqual(structuralRelations)
+    expect(input.relations.map(relation => ({...relation, filter: relation.filterExpression.toJSON()}))).toEqual(inputRelations)
+    assembly.dataSet.destroy()
+  })
+
+  it('keeps an explicit view cascade when no model relationship exists', () => {
+    const input = formalAssemblyInput(design(), 'FORM-1', {viewCascades: [
+      {cascadeId:'SCENE-ONLY', parentTable:'MODEL-PARENT', parentViewId:'default', childTable:'MODEL-CHILD', childViewId:'default', filterBindings:[{sourceField:'id',targetField:'departmentId'}], autoLoad:false},
+    ]})
+    const http = new RuntimeFixtureHttpClient()
+    const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
+      readScope: () => ({ token: 'fixture-request-scope', headers: {} }) }), http)
+      .assemble({...input, relations: []})
+    expect(assembly.dataSet.viewCascades).toMatchObject([{cascadeId:'SCENE-ONLY', filterBindings:[{sourceField:'id',targetField:'departmentId'}]}])
+    expect(assembly.dataSet.resourceRelations).toEqual([])
+    assembly.dataSet.destroy()
+  })
+
   it('assembles model-bound views with original private permissions and no CRUD query transforms', async () => {
     const http = new RuntimeFixtureHttpClient()
     const assembler = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
@@ -656,20 +742,15 @@ describe('lowcode data-space DataView runtime', () => {
       sourceRelationId: 'RELATION-1',
       parentTable: 'MODEL-PARENT',
       childTable: 'MODEL-CHILD',
-      fieldMappings: [{ parentResourceField: 'id', childResourceField: 'departmentId' }],
+      filterExpression: {logic: 'and', filters: [{field: 'departmentId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]},
     })
-    expect(assembly.dataSet.viewCascades?.[0]).toMatchObject({
-      sourceRelationId: 'RELATION-1',
-      parentViewId: 'default',
-      childViewId: 'default',
-      filterBindings: [{ sourceField: 'id', targetField: 'departmentId' }],
-    })
+    expect(assembly.dataSet.viewCascades).toEqual([])
 
     const childView = assembly.dataSet.getView('MODEL-CHILD', 'default')
     expect(childView).toBeDefined()
     await childView?.requestData()
 
-    expect(http.requests).toHaveLength(2)
+    expect(http.requests).toHaveLength(1)
     expect(http.requests.every(request => request.headers?.['x-FormKey'] === 'FORM-1')).toBe(true)
     expect(childView?.requestState).toBe(RequestState.Loaded)
     expect(childView?.rows).toMatchObject([{ id: 70, departmentId: 7 }])
@@ -679,12 +760,43 @@ describe('lowcode data-space DataView runtime', () => {
     expect(childView?.rows[0]).not.toHaveProperty('lingma_sys_params')
     expect(childView?.page).toBe(1)
     expect(assembly.dataSet.getTable('MODEL-CHILD')?.toJson().api).toBeUndefined()
-    expect(http.requests[1]?.data).toMatchObject({ PageParam: { index: 1, size: 20 }, Table: [{ Name: '员工模型' }] })
-    const request = isRecord(http.requests[1]?.data) ? http.requests[1].data : {}
+    expect(http.requests[0]?.data).toMatchObject({ PageParam: { index: 1, size: 20 }, Table: [{ Name: '员工模型', Filter: null }] })
+    const request = isRecord(http.requests[0]?.data) ? http.requests[0].data : {}
     const tables = Array.isArray(request['Table']) ? request['Table'] : []
     expect(tables[0]).not.toHaveProperty('MetaName')
     expect(tables[0]).not.toHaveProperty('PrimaryKeyFields')
     expect(tables[0]).not.toHaveProperty('Type')
+    assembly.dataSet.destroy()
+  })
+
+  it('assembles two independent read-only views for one keyless formal model', async () => {
+    const http = new RuntimeFixtureHttpClient()
+    const input = formalAssemblyInput(design(), 'FORM-1', { namedViews: ['selection'] })
+    const model = input.models.find(item => item.id === 'MODEL-CHILD')
+    if (!model) throw new Error('missing child model')
+    const keyless = { ...model, sourceType: '字典', primaryKey: '',
+      fields: model.fields.map(field => ({ ...field, primaryKey: false })) }
+    const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
+      readScope: () => ({ token: 'fixture-request-scope', headers: {} }) }), http).assemble({
+      ...input, models: input.models.map(item => item.id === model.id ? keyless : item), relations: [],
+    })
+    const first = assembly.dataSet.getView('MODEL-CHILD', 'default')
+    const second = assembly.dataSet.getView('MODEL-CHILD', 'selection')
+    if (!first || !second) throw new Error('missing keyless views')
+    expect(first.primaryKey).toBe('')
+    expect(second.primaryKey).toBe('')
+    await first.requestData()
+    expect(second.rows).toEqual([])
+    await second.requestData()
+    const firstRow = first.rows[0]
+    const secondRow = second.rows[0]
+    if (!firstRow || !secondRow) throw new Error('missing keyless rows')
+    expect(first.getPkKey(firstRow)).toBeUndefined()
+    expect(first.fieldAccess(firstRow, 'departmentId')).toMatchObject({ read: 'visible', write: 'denied' })
+    expect(second.fieldAccess(secondRow, 'departmentId')).toMatchObject({ read: 'visible', write: 'denied' })
+    expect(first.fieldAccess(secondRow, 'departmentId').read).toBe('invisible')
+    expect(second.fieldAccess(firstRow, 'departmentId').read).toBe('invisible')
+    expect(http.requests).toHaveLength(2)
     assembly.dataSet.destroy()
   })
 

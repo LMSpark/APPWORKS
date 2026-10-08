@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { Router } from 'vue-router'
-import type { RuntimeNavigation } from '@spark-appworks/spark-app'
+import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigation } from '@spark-appworks/spark-app'
 import { useNavigation } from '../../../packages/spark-app/src/navigation/useNavigation'
 import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../../../packages/spark-app/src/router/cross-project-ref-route'
 
@@ -11,8 +11,10 @@ type NavigateToPath = {
   (path: string): void}
 
 const refreshRoutesMock = vi.hoisted(() => vi.fn<() => Promise<RuntimeNavigation | null>>())
+const getDynamicRouterMock = vi.hoisted(() => vi.fn(() => null))
 
 vi.mock('../../../packages/spark-app/src/navigation/nav-access', () => ({
+  getDynamicRouter: getDynamicRouterMock,
   refreshRoutes: refreshRoutesMock,
 }))
 
@@ -20,7 +22,12 @@ type MountedNavigationProbe = {
   router: Router
   navigateToPath: NavigateToPath
   setContextValue: ReturnType<typeof useNavigation>['setContextValue']
-  navigateTo: ReturnType<typeof useNavigation>['navigateTo']}
+  navigateTo: ReturnType<typeof useNavigation>['navigateTo']
+  isNodeActive: ReturnType<typeof useNavigation>['isNodeActive']}
+
+type NavigationProbeOptions = Readonly<{
+  identityHostScenario?: 'dashboard' | 'scope-collision'
+}>
 
 const DummyPage = defineComponent({
   name: 'DummyPage',
@@ -36,9 +43,14 @@ const NAV_ROOT: RuntimeNavigation = {
   items: [],
 }
 
-async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation = NAV_ROOT): Promise<MountedNavigationProbe> {
+async function mountNavigationProbe(
+  initialPath: string,
+  root: RuntimeNavigation = NAV_ROOT,
+  options: NavigationProbeOptions = {},
+): Promise<MountedNavigationProbe> {
   let navigateToPath: NavigateToPath | null = null
   let navigateTo: ReturnType<typeof useNavigation>['navigateTo'] | null = null
+  let isNodeActive: ReturnType<typeof useNavigation>['isNodeActive'] | null = null
   let setContextValue: ReturnType<typeof useNavigation>['setContextValue'] | null = null
 
   const ProbeRoot = defineComponent({
@@ -47,6 +59,7 @@ async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation
       const navigation = useNavigation(root)
       navigateToPath = navigation.navigateToPath
       navigateTo = navigation.navigateTo
+      isNodeActive = navigation.isNodeActive
       setContextValue = navigation.setContextValue
       return () => h('div')
     },
@@ -71,7 +84,10 @@ async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation
         path: '/t/:tenantId/:projectId/dashboard',
         name: 'tenant-dashboard',
         component: DummyPage,
-        meta: { type: 'system-page' },
+        meta: {
+          type: 'system-page',
+          ...(options.identityHostScenario === undefined ? {} : { systemPageIdentityHost: true }),
+        },
       },
       {
         path: '/t/:tenantId/:projectId/homepage/dataset-demo',
@@ -102,6 +118,15 @@ async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation
     ],
   })
 
+  if (options.identityHostScenario === 'scope-collision') {
+    router.addRoute({ path: '/public-home', name: 'public-home', component: DummyPage, meta: { type: 'system-page' } })
+    router.addRoute({ path: '/dashboard', name: 'public-dashboard', component: DummyPage,
+      meta: { type: 'system-page', systemPageIdentityHost: true } })
+    router.addRoute({ path: '/platform/home', name: 'platform-home', component: DummyPage, meta: { type: 'system-page' } })
+    router.addRoute({ path: '/platform/dashboard', name: 'platform-dashboard', component: DummyPage,
+      meta: { type: 'system-page', systemPageIdentityHost: true } })
+  }
+
   await router.push(initialPath)
   await router.isReady()
 
@@ -117,12 +142,14 @@ async function mountNavigationProbe(initialPath: string, root: RuntimeNavigation
   if (navigateTo === null) {
     throw new Error('navigation probe did not expose navigateTo')
   }
+  if (isNodeActive === null) throw new Error('navigation probe did not expose isNodeActive')
 
   const resolvedNavigateToPath: NavigateToPath = navigateToPath
   const resolvedNavigateTo: ReturnType<typeof useNavigation>['navigateTo'] = navigateTo
+  const resolvedIsNodeActive: ReturnType<typeof useNavigation>['isNodeActive'] = isNodeActive
 
   if (setContextValue === null) throw new Error('navigation probe did not expose setContextValue')
-  return { router, navigateToPath: resolvedNavigateToPath, navigateTo: resolvedNavigateTo, setContextValue }
+  return { router, navigateToPath: resolvedNavigateToPath, navigateTo: resolvedNavigateTo, isNodeActive: resolvedIsNodeActive, setContextValue }
 }
 
 describe('useNavigation platform paths', () => {
@@ -158,6 +185,79 @@ describe('useNavigation platform paths', () => {
     expect(router.currentRoute.value.path).toBe('/t/lmspark/homepage/dashboard')
     expect(router.currentRoute.value.query).toEqual({ scenarioId: 'S1', additionalScenarioIds: ['S2', 'S3'], bare: null, blank: '' })
     expect(router.currentRoute.value.hash).toBe('#section')
+  })
+
+  it('navigates same-path mapped page nodes with their identity and derives active state from route meta', async () => {
+    const first = { id: 'dashboard-one', title: 'Dashboard One', itemKind: 'page' as const, path: '/dashboard?view=one' }
+    const second = { id: 'dashboard-two', title: 'Dashboard Two', itemKind: 'page' as const, path: '/dashboard?view=two' }
+    const { router, navigateTo, navigateToPath, isNodeActive } = await mountNavigationProbe('/t/lmspark/homepage/home', {
+      ...NAV_ROOT, items: [first, second],
+    }, { identityHostScenario: 'dashboard' })
+    router.beforeResolve(to => {
+      const identity = to.query[SYSTEM_PAGE_NAVIGATION_ID_QUERY]
+      if (typeof identity === 'string') {
+        to.meta['nodeId'] = identity
+        to.meta['systemPageIdentityState'] = 'resolved'
+      } else {
+        delete to.meta['nodeId']
+        to.meta['systemPageIdentityState'] = 'error'
+      }
+    })
+
+    navigateTo(second)
+    await flushPromises()
+    expect(router.currentRoute.value.query).toEqual({ view: 'two', [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: 'dashboard-two' })
+    expect(router.currentRoute.value.meta['nodeId']).toBe('dashboard-two')
+    expect(isNodeActive(second)).toBe(true)
+    expect(isNodeActive(first)).toBe(false)
+
+    navigateToPath('/dashboard?view=one')
+    await flushPromises()
+    expect(router.currentRoute.value.query).toEqual({ view: 'one' })
+    expect(isNodeActive(first)).toBe(false)
+    expect(isNodeActive(second)).toBe(false)
+  })
+
+  it('fails closed for reserved target markers and navigates groups through the actual leaf node', async () => {
+    const leaf = { id: 'leaf', title: 'Leaf', itemKind: 'system-page' as const, path: '/dashboard#details?mode=A' }
+    const group = { id: 'group', title: 'Group', itemKind: 'module' as const, children: [leaf] }
+    const { router, navigateTo } = await mountNavigationProbe('/t/lmspark/homepage/home', {
+      ...NAV_ROOT, items: [group],
+    }, { identityHostScenario: 'dashboard' })
+
+    navigateTo(group)
+    await flushPromises()
+    expect(router.currentRoute.value.query).toEqual({ [SYSTEM_PAGE_NAVIGATION_ID_QUERY]: 'leaf' })
+    expect(router.currentRoute.value.hash).toBe('#details?mode=A')
+
+    await router.push('/t/lmspark/homepage/home')
+    expect(() => navigateTo({ id: 'reserved', title: 'Reserved', itemKind: 'system-page', path: `/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=forged` }))
+      .toThrow('系统页面目标使用保留身份参数：reserved')
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/t/lmspark/homepage/home')
+  })
+
+  it.each([
+    ['/t/lmspark/homepage/home', 'tenant-dashboard', '/t/lmspark/homepage/dashboard'],
+    ['/platform/home', 'platform-dashboard', '/platform/dashboard'],
+    ['/public-home', 'public-dashboard', '/dashboard'],
+  ])('selects the %s route when public, tenant, and platform identity hosts share a path', async (initialPath, routeName, targetPath) => {
+    const node = { id: `node-${routeName}`, title: routeName, itemKind: 'system-page' as const, path: '/dashboard' }
+    const { router, navigateTo } = await mountNavigationProbe(initialPath, { ...NAV_ROOT, items: [node] }, { identityHostScenario: 'scope-collision' })
+    router.beforeResolve(to => {
+      const identity = to.query[SYSTEM_PAGE_NAVIGATION_ID_QUERY]
+      if (typeof identity === 'string') {
+        to.meta['nodeId'] = identity
+        to.meta['systemPageIdentityState'] = 'resolved'
+      }
+    })
+
+    navigateTo(node)
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe(routeName)
+    expect(router.currentRoute.value.path).toBe(targetPath)
+    expect(router.currentRoute.value.query[SYSTEM_PAGE_NAVIGATION_ID_QUERY]).toBe(node.id)
   })
 
   it('uses the named cross-project route when another route has the same path', async () => {

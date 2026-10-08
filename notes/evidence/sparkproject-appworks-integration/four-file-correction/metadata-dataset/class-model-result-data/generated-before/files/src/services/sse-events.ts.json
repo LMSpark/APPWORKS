@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/sse-events",
+    "sourcePath": "src/services/sse-events.ts",
+    "sourceFile": "src/services/sse-events.ts",
+    "packageName": "app",
+    "modulePath": "services/sse-events",
+    "jsdoc": "@module app:services/sse-events\n职责：提供应用运行时 service 层的 sse events 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 公共 SSE 事件总线。\n本文件只维护 lowcode `/api/sse/connect` 的单例连接、普通业务事件与 v4 SparkEnvelope 分流，以及按事件名分发。\n页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FileChangeEvent",
+      "DataBatchJobEvent",
+      "DataChangeEvent",
+      "ServerNotificationEvent"
+    ]
+  },
+  "$defs": {
+    "FileChangeEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileChangeEvent",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "pageId",
+        "file",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    },
+    "DataBatchJobEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataBatchJobEvent",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "jobId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "completed": {
+          "type": "number"
+        },
+        "total": {
+          "type": "number"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "result": true,
+        "error": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenantId",
+        "projectId",
+        "jobId",
+        "status",
+        "completed",
+        "total",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    },
+    "DataChangeEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataChangeEvent",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "jobId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenantId",
+        "projectId",
+        "tableName",
+        "operation",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    },
+    "ServerNotificationEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ServerNotificationEvent",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "notificationId": {
+          "type": "string"
+        },
+        "level": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "actionUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "message",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-05T10:07:52.917Z",
+  "models": {
+    "FileChangeEvent": {
+      "name": "FileChangeEvent",
+      "jsdoc": "File Change Event 的事件载荷。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** page Id 标识。 */\n    pageId: string;\n    /** 文件路径或文件对象。 */\n    file: string;\n    /** 事件时间戳。 */\n    timestamp: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "jsdoc": "page Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "file",
+              "jsdoc": "文件路径或文件对象。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "timestamp",
+              "jsdoc": "事件时间戳。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataBatchJobEvent": {
+      "name": "DataBatchJobEvent",
+      "jsdoc": "Data Batch Job Event 的事件载荷。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** tenant Id 标识。 */\n    tenantId: string;\n    /** project Id 标识。 */\n    projectId: string;\n    /** job Id 标识。 */\n    jobId: string;\n    /** 当前状态。 */\n    status: string;\n    /** completed 字段。 */\n    completed: number;\n    /** 总记录数。 */\n    total: number;\n    /** 事件时间戳。 */\n    timestamp: number;\n    /** 操作结果。 */\n    result?: unknown;\n    /** 错误对象或错误信息。 */\n    error?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "jsdoc": "tenant Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "project Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "jobId",
+              "jsdoc": "job Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "status",
+              "jsdoc": "当前状态。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "completed",
+              "jsdoc": "completed 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "total",
+              "jsdoc": "总记录数。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "timestamp",
+              "jsdoc": "事件时间戳。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "result",
+              "jsdoc": "操作结果。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "错误对象或错误信息。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataChangeEvent": {
+      "name": "DataChangeEvent",
+      "jsdoc": "Data Change Event 的事件载荷。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** tenant Id 标识。 */\n    tenantId: string;\n    /** project Id 标识。 */\n    projectId: string;\n    /** 数据表名。 */\n    tableName: string;\n    /** operation 字段。 */\n    operation: string;\n    /** 事件时间戳。 */\n    timestamp: number;\n    /** job Id 标识。 */\n    jobId?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "jsdoc": "tenant Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "project Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "tableName",
+              "jsdoc": "数据表名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "operation",
+              "jsdoc": "operation 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "timestamp",
+              "jsdoc": "事件时间戳。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "jobId",
+              "jsdoc": "job Id 标识。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ServerNotificationEvent": {
+      "name": "ServerNotificationEvent",
+      "jsdoc": "Server Notification Event 的事件载荷。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 显示标题。 */\n    title: string;\n    /** 用户可读消息。 */\n    message: string;\n    /** 事件时间戳。 */\n    timestamp: number;\n    /** notification Id 标识。 */\n    notificationId?: string;\n    /** level 字段。 */\n    level?: string;\n    /** category 字段。 */\n    category?: string;\n    /** 来源对象。 */\n    source?: string;\n    /** action Url 地址。 */\n    actionUrl?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "显示标题。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "message",
+              "jsdoc": "用户可读消息。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "timestamp",
+              "jsdoc": "事件时间戳。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "notificationId",
+              "jsdoc": "notification Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "level",
+              "jsdoc": "level 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "category",
+              "jsdoc": "category 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "来源对象。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "actionUrl",
+              "jsdoc": "action Url 地址。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

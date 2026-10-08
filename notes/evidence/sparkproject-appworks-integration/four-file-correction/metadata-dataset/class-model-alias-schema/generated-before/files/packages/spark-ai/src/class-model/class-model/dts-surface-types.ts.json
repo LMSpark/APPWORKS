@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/dts-surface-types",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/dts-surface-types.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/dts-surface-types.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/dts-surface-types",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/dts-surface-types\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 dts-surface-types 能力，围绕 DtsClassModelSurfaceDocument、ProjectDtsClassModelSurfaceOptions 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/dts-surface-types 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DtsClassModelSurfaceDocument",
+      "ProjectDtsClassModelSurfaceOptions"
+    ]
+  },
+  "$defs": {
+    "DtsClassModelSurfaceDocument": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DtsClassModelSurfaceDocument",
+      "properties": {
+        "schemaVersion": true,
+        "source": {
+          "type": "object",
+          "title": "ClassModelEmitSource"
+        },
+        "configPath": {
+          "type": "string"
+        },
+        "models": {
+          "type": "object",
+          "title": "Record<string, DtsTypeDeclarationModel>"
+        },
+        "fileIndex": {
+          "type": "object",
+          "title": "Record<string, readonly string[]>"
+        },
+        "generatedAt": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectDtsClassModelSurfaceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectDtsClassModelSurfaceOptions",
+      "properties": {
+        "configPath": {
+          "type": "string"
+        },
+        "skipVueComponentDts": {
+          "type": "boolean"
+        },
+        "exportedOnly": {
+          "type": "boolean"
+        },
+        "failOnDuplicate": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.230Z",
+  "models": {
+    "DtsClassModelSurfaceDocument": {
+      "name": "DtsClassModelSurfaceDocument",
+      "jsdoc": "Dts Class Model Surface Document 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** surface 文档格式版本，与 bundle shard 的 schemaVersion 独立演进。 */\n    schemaVersion: typeof DTS_CLASS_MODEL_SURFACE_VERSION;\n    /** 投影来源标识，区分 emit 路径与生成策略。 */\n    source: ClassModelEmitSource;\n    /** 触发 surface 投影的配置文件路径（相对 repoRoot）。 */\n    configPath: string;\n    /** 按 className 索引的 DtsTypeDeclarationModel 快照。 */\n    models: Readonly<Record<string, DtsTypeDeclarationModel>>;\n    /** 源文件路径到该文件导出 className 列表的反向索引。 */\n    fileIndex: Readonly<Record<string, readonly string[]>>;\n    /** ISO 8601 生成时间戳；离线 bundle 可省略。 */\n    generatedAt?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** surface 文档格式版本，与 bundle shard 的 schemaVersion 独立演进。 */\n    schemaVersion: typeof DTS_CLASS_MODEL_SURFACE_VERSION;\n    /** 投影来源标识，区分 emit 路径与生成策略。 */\n    source: ClassModelEmitSource;\n    /** 触发 surface 投影的配置文件路径（相对 repoRoot）。 */\n    configPath: string;\n    /** 按 className 索引的 DtsTypeDeclarationModel 快照。 */\n    models: Readonly<Record<string, DtsTypeDeclarationModel>>;\n    /** 源文件路径到该文件导出 className 列表的反向索引。 */\n    fileIndex: Readonly<Record<string, readonly string[]>>;\n    /** ISO 8601 生成时间戳；离线 bundle 可省略。 */\n    generatedAt?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "schemaVersion",
+              "jsdoc": "surface 文档格式版本，与 bundle shard 的 schemaVersion 独立演进。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "投影来源标识，区分 emit 路径与生成策略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "configPath",
+              "jsdoc": "触发 surface 投影的配置文件路径（相对 repoRoot）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "jsdoc": "按 className 索引的 DtsTypeDeclarationModel 快照。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileIndex",
+              "jsdoc": "源文件路径到该文件导出 className 列表的反向索引。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "generatedAt",
+              "jsdoc": "ISO 8601 生成时间戳；离线 bundle 可省略。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectDtsClassModelSurfaceOptions": {
+      "name": "ProjectDtsClassModelSurfaceOptions",
+      "jsdoc": "Project Dts Class Model Surface Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 投影配置文件路径，决定 rootFiles 与 emit 范围。 */\n    configPath: string;\n    /** true 时跳过 Vue 组件 .vue.d.ts，只投影 TS 声明。 */\n    skipVueComponentDts?: boolean;\n    /** true 时只保留 export 可见的 declaration symbol。 */\n    exportedOnly?: boolean;\n    /** true 时遇到跨文件 className 重复立即失败。 */\n    failOnDuplicate?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 投影配置文件路径，决定 rootFiles 与 emit 范围。 */\n    configPath: string;\n    /** true 时跳过 Vue 组件 .vue.d.ts，只投影 TS 声明。 */\n    skipVueComponentDts?: boolean;\n    /** true 时只保留 export 可见的 declaration symbol。 */\n    exportedOnly?: boolean;\n    /** true 时遇到跨文件 className 重复立即失败。 */\n    failOnDuplicate?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "configPath",
+              "jsdoc": "投影配置文件路径，决定 rootFiles 与 emit 范围。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "skipVueComponentDts",
+              "jsdoc": "true 时跳过 Vue 组件 .vue.d.ts，只投影 TS 声明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "exportedOnly",
+              "jsdoc": "true 时只保留 export 可见的 declaration symbol。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "failOnDuplicate",
+              "jsdoc": "true 时遇到跨文件 className 重复立即失败。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

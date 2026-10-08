@@ -1,0 +1,75 @@
+<template>
+  <div class="data-space-filter-editor">
+    <p v-if="parseError" role="alert">过滤配置无法解析：{{ parseError }}</p>
+    <FilterExpressionEditor
+      v-else
+      :key="revision"
+      :model-value="filter?.toJSON()"
+      :columns="columns"
+      :function-context="editorFunctionContext"
+      :disabled="disabled"
+      @update:model-value="applyForRevision"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import { DataViewFilter, getDataViewFilterFunctionDefinitions } from '@spark-appworks/spark-data'
+import type { DataViewFilterFunctionContext, DataViewFilterTree } from '@spark-appworks/spark-data'
+import { FilterExpressionEditor } from '@spark-appworks/spark-component'
+import { DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
+import type { DataSpaceFilterEditorProps } from './DataSpaceFilterEditor.props'
+
+const props = withDefaults(defineProps<DataSpaceFilterEditorProps>(), { disabled: false })
+const emit = defineEmits<{ change: [serialized: string] }>()
+const revision = ref(0)
+type FilterFunctionDefinition = NonNullable<DataViewFilterFunctionContext['definitions']>[number]
+const parsed = computed(() => {
+  try { return { filter: DataSpaceDesignApi.parseFilter(props.modelValue), error: '' } }
+  catch (error) { return { filter: undefined, error: error instanceof Error ? error.message : String(error) } }
+})
+const filter = computed(() => parsed.value.filter)
+const parseError = computed(() => parsed.value.error)
+
+const departmentFunction = computed<FilterFunctionDefinition | undefined>(() => {
+  const definition = getDataViewFilterFunctionDefinitions({}).find(item => item.type === 'GetUserMasterId')
+  if (!definition) return undefined
+  const fields = definition.fields.flatMap(field => {
+    if (field.key === 'roleClassId') return []
+    if (field.key === 'refType') return [{ ...field, options: [{ label: '部门级别', value: 'dep' }] }]
+    return [field]
+  })
+  return { ...definition, fields, validate: (value: Parameters<NonNullable<FilterFunctionDefinition['validate']>>[0]) => value['refType'] === 'dep'
+    ? null : '该存量值属于已停用的角色分类分支，不能通过部门过滤编辑器应用' }
+})
+const editorFunctionContext = computed<DataViewFilterFunctionContext>(() => {
+  const definitions = getDataViewFilterFunctionDefinitions(props.functionContext ?? {})
+    .filter(item => item.type !== 'GetUserMasterId')
+  const department = departmentFunction.value
+  return { ...props.functionContext, definitions: department ? [...definitions, department] : definitions }
+})
+
+watch(() => [props.modelValue, props.disabled, props.columns, props.functionContext], () => {
+  revision.value += 1
+}, { deep: true })
+
+const applyForRevision = computed(() => {
+  const capturedRevision = revision.value
+  return (tree: DataViewFilterTree | undefined) => {
+    if (capturedRevision !== revision.value) return
+    apply(tree)
+  }
+})
+
+function apply(tree: DataViewFilterTree | undefined): void {
+  if (props.disabled || parseError.value) return
+  if (tree === undefined) {
+    emit('change', DataSpaceDesignApi.serializeFilter(undefined))
+    return
+  }
+  const result = DataViewFilter.parse(tree)
+  if (!result.ok) return
+  emit('change', DataSpaceDesignApi.serializeFilter(result.value))
+}
+</script>

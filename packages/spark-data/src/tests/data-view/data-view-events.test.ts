@@ -53,7 +53,7 @@ function createTestDataSet() {
       {
         parentTable: 'Departments',
         childTable: 'Users',
-        childField: 'deptId',
+        filterExpression: {logic: 'and', filters: [{field: 'deptId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]},
       }
     ],
     viewCascades: [
@@ -63,7 +63,6 @@ function createTestDataSet() {
         childTable: 'Users',
         childViewId: 'default',
         filterBindings: [{ sourceField: 'id', targetField: 'deptId' }],
-        dependencyType: 'currentRow',
         autoLoad: false,
       }
     ]

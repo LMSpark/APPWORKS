@@ -1,0 +1,178 @@
+{
+  "type": "div",
+  "id": "design-page-root",
+  "props": { "class": "data-space-design" },
+  "children": [
+    { "type": "h2", "id": "design-title", "children": ["数据空间设计"] },
+    { "type": "div", "id": "design-status", "props": { "class": "design-status" }, "children": [{ "type": "RenderDesignStatus" }] },
+    { "type": "r-button", "id": "design-return", "props": { "label": "返回目录", "onClick": "returnToCatalog" } },
+    { "type": "r-button", "id": "design-reload", "props": { "label": "重新加载", "onClick": "reloadDesign" } },
+    { "type": "div", "id": "design-layout-recovery", "props": { "class": "design-parameter-recovery", "visible": false, "onBeforeRender": "designLayoutRecoveryBeforeRender" }, "children": [
+      { "type": "RenderDesignLayoutRecoveryStatus" },
+      { "type": "r-button", "id": "design-layout-adopt-remote", "props": { "label": "重新读取并采用远端布局", "onBeforeRender": "designLayoutAdoptBeforeRender", "onClick": "designAdoptRemoteLayout" } }
+    ] },
+    { "type": "r-button", "id": "design-edit-parameters", "props": { "label": "编辑输入参数", "visible": false, "onBeforeRender": "designParameterEditEntryBeforeRender", "onClick": "designOpenParameterEditor" } },
+    { "type": "r-dialog", "id": "design-parameters-dialog", "props": { "value": false, "title": "编辑输入参数", "onClose": "designCancelParameterEditor" }, "children": [
+      { "type": "data-space-parameters-editor", "id": "design-parameters-editor", "props": { "modelValue": [], "disabled": true, "onBeforeRender": "designParameterEditorBeforeRender", "on": { "change": "designChangeInputParameters" } } },
+      { "type": "r-button", "id": "design-parameters-confirm", "props": { "label": "确认保存", "onClick": "designConfirmParameterEditor" } },
+      { "type": "r-button", "id": "design-parameters-cancel", "props": { "label": "取消", "onClick": "designCloseParameterEditor" } }
+    ] },
+    { "type": "div", "id": "design-parameter-recovery", "props": { "class": "design-parameter-recovery", "visible": false, "onBeforeRender": "designParameterRecoveryBeforeRender" }, "children": [
+      { "type": "RenderDesignParameterRecoveryStatus" },
+      { "type": "r-button", "id": "design-parameter-discard-read", "props": { "label": "放弃本地修改并重新读取", "visible": false, "onBeforeRender": "designParameterDiscardBeforeRender", "onClick": "designParameterDiscardAndRead" } },
+      { "type": "r-button", "id": "design-parameter-retry-read", "props": { "label": "重新读取", "visible": false, "onBeforeRender": "designParameterRetryBeforeRender", "onClick": "designParameterRetryRead" } }
+    ] },
+    {
+      "type": "div",
+      "id": "design-content",
+      "props": { "class": "design-content", "visible": false, "onBeforeRender": "designBeforeRender" },
+      "children": [
+        { "type": "RenderDesignEditStatus" },
+        { "type": "RenderDesignGraphStatus", "id": "design-graph-status" },
+        { "type": "RenderDesignLayoutCreateStatus", "id": "design-layout-create-status" },
+        {
+          "type": "r-tabs",
+          "id": "design-tabs",
+          "props": { "modelValue": "overview" },
+          "children": [
+            {
+              "type": "r-tab-pane",
+              "props": { "name": "overview", "label": "概览" },
+              "children": [
+                { "type": "r-table", "id": "design-target-table", "props": { "dataViewKey": "#90A82E287930A234FEC3E687C94A93EA@Base_DataSet@designTarget", "rowKey": "rowid", "autoColumns": false, "showPagination": false, "showDataViewMeta": false, "resizable": false, "border": true }, "children": [
+                  { "type": "r-text", "id": "design-target-id", "props": { "field": "rowid", "label": "数据空间 ID", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-target-name", "props": { "field": "Name", "label": "名称", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-target-type", "props": { "field": "Type", "label": "类型", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-target-description", "props": { "field": "description", "label": "描述", "readonly": true, "sortable": false } }
+                ] },
+                { "type": "div", "id": "design-parameters", "props": { "class": "design-parameters" }, "children": [{ "type": "RenderDesignParameters" }] },
+                { "type": "div", "id": "design-layout", "props": { "class": "design-layout" }, "children": [
+                  { "type": "RenderDesignLayout" },
+                  { "type": "r-button", "id": "design-layout-create-prepare", "props": { "label": "预览创建布局", "visible": false, "onBeforeRender": "designLayoutCreatePrepareBeforeRender", "onClick": "designPrepareLayoutCreate" } },
+                  { "type": "div", "id": "design-layout-create-preview", "props": { "class": "design-layout-create-preview" }, "children": [
+                    { "type": "data-space-design-graph", "id": "design-layout-create-graph", "props": { "visible": false, "nodes": [], "edges": [], "disabled": true, "onBeforeRender": "designLayoutCreatePreviewBeforeRender" } },
+                    { "type": "r-button", "id": "design-layout-create-confirm", "props": { "label": "确认创建布局", "visible": false, "onBeforeRender": "designLayoutCreateConfirmBeforeRender", "onClick": "designConfirmLayoutCreate" } },
+                    { "type": "r-button", "id": "design-layout-create-cancel", "props": { "label": "取消布局预览", "visible": false, "onBeforeRender": "designLayoutCreateCancelBeforeRender", "onClick": "designCancelLayoutCreate" } }
+                  ] }
+                ] }
+              ]
+            },
+            {
+              "type": "r-tab-pane",
+              "props": { "name": "models", "label": "模型" },
+              "children": [
+                { "type": "r-table", "id": "design-models-table", "props": { "dataViewKey": "#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel@designModels", "rowKey": "rowid", "highlightCurrentRow": true, "autoColumns": false, "showPagination": false, "showDataViewMeta": false, "resizable": false, "border": true }, "children": [
+                  { "type": "r-text", "id": "design-model-rowid", "props": { "field": "rowid", "label": "模型 ID", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-model-name", "props": { "field": "Name", "label": "注册名", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-model-source-name", "props": { "field": "MetaName", "label": "来源名", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-model-description", "props": { "field": "description", "label": "描述", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-model-type", "props": { "field": "Type", "label": "类型", "readonly": true, "sortable": false } }
+                ] },
+                { "type": "r-form", "id": "design-model-editor", "props": { "class": "design-model-editor", "dataViewKey": "#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel@designModels", "contextDataMember": "currentRow", "autoColumns": false, "showDataViewMeta": false, "visible": false, "onBeforeRender": "designModelEditorBeforeRender" }, "children": [
+                  { "type": "r-text", "id": "design-model-register-name", "props": { "field": "Name", "label": "注册名", "readonly": true } },
+                  { "type": "r-text", "id": "design-model-source", "props": { "field": "MetaName", "label": "来源名", "readonly": true } },
+                  { "type": "r-text", "id": "design-model-description-editor", "props": { "field": "description", "label": "描述" } },
+                  { "type": "r-text", "id": "design-model-type-editor", "props": { "field": "Type", "label": "来源类型", "readonly": true } },
+                  { "type": "r-select", "id": "design-model-output-type", "props": { "field": "OutputType", "label": "输出类型", "filterable": false, "onBeforeRender": "designModelOutputTypeBeforeRender" } },
+                  { "type": "r-select", "id": "design-model-parent-field", "props": { "field": "parentField", "label": "父字段", "clearable": true, "filterable": true, "onBeforeRender": "designModelParentFieldBeforeRender" } },
+                  { "type": "r-text", "id": "design-model-has-child-field", "props": { "field": "hasChildField", "label": "是否包含子数据字段", "maxlength": 100 } },
+                  { "type": "r-select", "id": "design-model-self-type", "props": { "field": "selfType", "label": "自引用输出类型", "onBeforeRender": "designModelSelfTypeBeforeRender" } },
+                  { "type": "r-text", "id": "design-model-top-value", "props": { "field": "topValue", "label": "顶层父级 ID", "maxlength": 100 } },
+                  { "type": "r-select", "id": "design-model-cache-type", "props": { "field": "cacheType", "label": "缓存类型", "onBeforeRender": "designModelCacheTypeBeforeRender" } },
+                  { "type": "r-text", "id": "design-model-request-complete", "props": { "field": "RequestComplete", "label": "请求完成配置" } },
+                  { "type": "data-space-filter-editor", "id": "design-model-filter-editor", "props": { "onBeforeRender": "designModelFilterEditorBeforeRender", "on": { "change": "designChangeModelFilter" } } },
+                  { "type": "el-select-v2", "id": "design-model-input-param-select", "props": { "modelValue": "", "options": [], "placeholder": "选择当前模型来源入参", "clearable": true, "filterable": true, "onBeforeRender": "designModelInputParamSelectorBeforeRender", "on": { "update:modelValue": "designSelectModelInputParam" } } },
+                  { "type": "r-form", "id": "design-model-input-param-editor", "props": { "class": "design-field-editor", "dataViewKey": "#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel_Field@designFields", "contextDataMember": "currentRow", "autoColumns": false, "showDataViewMeta": false, "visible": false, "onBeforeRender": "designInputParamEditorBeforeRender" }, "children": [
+                    { "type": "r-text", "id": "design-model-input-param-name", "props": { "field": "Name", "label": "来源入参", "readonly": true } },
+                    { "type": "r-text", "id": "design-model-input-param-description", "props": { "field": "description", "label": "参数说明", "readonly": true } },
+                    { "type": "r-text", "id": "design-model-input-param-type", "props": { "field": "FieldType", "label": "参数类型", "readonly": true } },
+                    { "type": "data-space-value-function-editor", "id": "design-model-input-param-value-function", "props": { "onBeforeRender": "designInputParamValueFunctionBeforeRender", "on": { "change": "designChangeInputParamValueFunction" } } },
+                    { "type": "r-button", "id": "design-model-input-param-save", "props": { "label": "保存来源入参", "onClick": "designSaveField", "visible": false, "onBeforeRender": "designFieldSaveBeforeRender" } },
+                    { "type": "r-button", "id": "design-model-input-param-cancel", "props": { "label": "取消来源入参修改", "onClick": "designCancelFieldEdit", "visible": false, "onBeforeRender": "designFieldCancelBeforeRender" } }
+                  ] },
+                  { "type": "r-checkbox", "id": "design-model-business", "props": { "field": "IsBusiness", "label": "业务模型" } },
+                  { "type": "r-checkbox", "id": "design-model-business-main", "props": { "field": "IsBusinessMain", "label": "主业务模型" } },
+                  { "type": "RenderDesignModelConfigStatus", "id": "design-model-config-warning" },
+                  { "type": "r-button", "id": "design-model-save", "props": { "label": "保存模型配置", "onClick": "designSaveModel", "visible": false, "onBeforeRender": "designModelSaveBeforeRender" } },
+                  { "type": "r-button", "id": "design-model-cancel", "props": { "label": "取消模型修改", "onClick": "designCancelModelEdit", "visible": false, "onBeforeRender": "designModelCancelBeforeRender" } }
+                ] }
+              ]
+            },
+            {
+              "type": "r-tab-pane",
+              "props": { "name": "fields", "label": "字段" },
+              "children": [
+                { "type": "r-table", "id": "design-fields-table", "props": { "dataViewKey": "#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel_Field@designFields", "rowKey": "rowid", "highlightCurrentRow": true, "autoColumns": false, "showPagination": false, "showDataViewMeta": false, "resizable": false, "border": true }, "children": [
+                  { "type": "r-text", "id": "design-field-rowid", "props": { "field": "rowid", "label": "字段 ID", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-field-name", "props": { "field": "Name", "label": "字段名称", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-field-classification", "props": { "field": "type", "label": "字段分类", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-field-alias", "props": { "field": "AsName", "label": "规范别名", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-field-type", "props": { "field": "FieldType", "label": "字段类型", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-field-output", "props": { "field": "IsOutput", "label": "输出字段", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-field-model", "props": { "field": "dataModelId", "label": "所属模型 ID", "readonly": true, "sortable": false } }
+                ] },
+                { "type": "r-form", "id": "design-field-editor", "props": { "class": "design-field-editor", "dataViewKey": "#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel_Field@designFields", "contextDataMember": "currentRow", "autoColumns": false, "showDataViewMeta": false, "visible": false, "onBeforeRender": "designFieldEditorBeforeRender" }, "children": [
+                  { "type": "r-text", "id": "design-field-name-editor", "props": { "field": "Name", "label": "来源字段名", "readonly": true } },
+                  { "type": "r-text", "id": "design-field-description-editor", "props": { "field": "description", "label": "字段描述" } },
+                  { "type": "r-text", "id": "design-field-type-editor", "props": { "field": "FieldType", "label": "字段类型", "readonly": true } },
+                  { "type": "data-space-value-function-editor", "id": "design-field-value-function", "props": { "onBeforeRender": "designFieldValueFunctionBeforeRender", "on": { "change": "designChangeFieldValueFunctionValue" } } },
+                  { "type": "r-text", "id": "design-field-alias-editor", "props": { "field": "AsName", "label": "输出别名" } },
+                  { "type": "r-checkbox", "id": "design-field-output-editor", "props": { "field": "IsOutput", "label": "作为输出字段" } },
+                  { "type": "r-select", "id": "design-field-order-type", "props": { "field": "OrderType", "label": "排序类型", "clearable": true, "onBeforeRender": "designFieldOrderTypeBeforeRender" } },
+                  { "type": "r-number", "id": "design-field-order", "props": { "field": "Order", "label": "排序顺序", "min": 0, "precision": 0 } },
+                  { "type": "r-number", "id": "design-field-group", "props": { "field": "Group", "label": "分组顺序", "min": 0, "precision": 0 } },
+                  { "type": "RenderDesignFieldConfigStatus", "id": "design-field-config-warning" },
+                  { "type": "r-button", "id": "design-field-save", "props": { "label": "保存字段配置", "onClick": "designSaveField", "visible": false, "onBeforeRender": "designFieldSaveBeforeRender" } },
+                  { "type": "r-button", "id": "design-field-cancel", "props": { "label": "取消字段修改", "onClick": "designCancelFieldEdit", "visible": false, "onBeforeRender": "designFieldCancelBeforeRender" } }
+                ] }
+              ]
+            },
+            {
+              "type": "r-tab-pane",
+              "props": { "name": "relations", "label": "关系" },
+              "children": [
+                { "type": "RenderDesignRelationNames", "id": "design-relation-names" },
+                { "type": "r-button", "id": "design-relation-add", "props": { "label": "新增关系", "onBeforeRender": "designRelationAddBeforeRender", "onClick": "designAddRelation" } },
+                { "type": "r-table", "id": "design-relations-table", "props": { "dataViewKey": "#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel_Relation@designRelations", "rowKey": "rowid", "autoColumns": false, "showPagination": false, "showDataViewMeta": false, "resizable": false, "border": true, "on": { "row-click": "designSelectRelation" } }, "children": [
+                  { "type": "r-text", "id": "design-relation-rowid", "props": { "field": "rowid", "label": "关系 ID", "readonly": true, "sortable": false } },
+                  { "type": "r-text", "id": "design-relation-parent", "props": { "field": "parentModId", "label": "父模型", "readonly": true, "sortable": false, "onBeforeRender": "designRelationParentDisplayBeforeRender" } },
+                  { "type": "r-text", "id": "design-relation-child", "props": { "field": "childModId", "label": "子模型", "readonly": true, "sortable": false, "onBeforeRender": "designRelationChildDisplayBeforeRender" } },
+                  { "type": "r-text", "id": "design-relation-type", "props": { "field": "depType", "label": "关系类型", "readonly": true, "sortable": false } }
+                  ,{ "type": "r-text", "id": "design-relation-filter", "props": { "field": "filter", "label": "过滤条件", "readonly": true, "sortable": false } }
+                  ,{ "type": "r-text", "id": "design-relation-cascade", "props": { "field": "cascadeDel", "label": "级联删除", "readonly": true, "sortable": false } }
+                ] },
+                { "type": "r-form", "id": "design-relation-editor", "props": { "class": "design-relation-editor", "dataViewKey": "#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel_Relation@designRelations", "contextDataMember": "currentRow", "autoColumns": false, "showDataViewMeta": false, "visible": false, "onBeforeRender": "designRelationEditorBeforeRender" }, "children": [
+                  { "type": "r-text", "id": "design-relation-editor-id", "props": { "field": "rowid", "label": "关系 ID", "readonly": true } },
+                  { "type": "r-select", "id": "design-relation-editor-parent", "props": { "field": "parentModId", "label": "父模型", "filterable": true, "onBeforeRender": "designRelationEndpointOptionsBeforeRender" } },
+                  { "type": "r-select", "id": "design-relation-editor-child", "props": { "field": "childModId", "label": "子模型", "filterable": true, "onBeforeRender": "designRelationEndpointOptionsBeforeRender", "on": { "update:modelValue": "designRelationChildChanged" } } },
+                  { "type": "r-select", "id": "design-relation-editor-type", "props": { "field": "depType", "label": "关系类型", "clearable": false, "onBeforeRender": "designRelationDependencyOptionsBeforeRender" } },
+                  { "type": "data-space-filter-editor", "id": "design-relation-filter-editor", "props": { "onBeforeRender": "designRelationFilterBeforeRender", "on": { "change": "designChangeRelationFilter", "validation": "designRelationFilterValidation" } } },
+                  { "type": "r-text", "id": "design-relation-join-owner", "props": { "label": "Join 配置归属", "readonly": true, "value": "", "onBeforeRender": "designRelationJoinOwnerBeforeRender" } },
+                  { "type": "r-form", "id": "design-relation-join-editor", "props": { "class": "design-relation-join-editor", "dataViewKey": "#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel@designModels", "contextDataMember": "currentRow", "autoColumns": false, "showDataViewMeta": false, "visible": false, "onBeforeRender": "designRelationJoinEditorBeforeRender" }, "children": [
+                    { "type": "r-select", "id": "design-relation-join-type", "props": { "field": "JoinType", "label": "子模型 Join 类型", "clearable": true, "onBeforeRender": "designRelationJoinFieldBeforeRender" } },
+                    { "type": "r-select", "id": "design-relation-foreign-key", "props": { "field": "ForeignKeyFields", "label": "子模型外键字段", "clearable": true, "filterable": true, "onBeforeRender": "designRelationJoinFieldBeforeRender" } },
+                    { "type": "data-space-filter-editor", "id": "design-relation-join-filter-editor", "props": { "onBeforeRender": "designRelationJoinFilterBeforeRender", "on": { "change": "designChangeRelationJoinFilter", "validation": "designRelationJoinFilterValidation" } } }
+                  ] },
+                  { "type": "r-button", "id": "design-relation-save", "props": { "label": "保存关系", "onClick": "designSaveRelation", "visible": false, "onBeforeRender": "designRelationSaveBeforeRender" } },
+                  { "type": "r-button", "id": "design-relation-delete", "props": { "label": "删除关系", "onClick": "designDeleteRelation", "visible": false, "onBeforeRender": "designRelationDeleteBeforeRender" } },
+                  { "type": "r-button", "id": "design-relation-cancel", "props": { "label": "取消关系修改", "onClick": "designCancelRelation", "visible": false, "onBeforeRender": "designRelationCancelBeforeRender" } }
+                ] }
+              ]
+            },
+            {
+              "type": "r-tab-pane",
+              "props": { "name": "graph", "label": "关系图" },
+              "children": [
+                { "type": "div", "id": "design-graph-section", "props": { "class": "design-graph-section" }, "children": [
+                  { "type": "data-space-design-graph", "id": "design-graph-preview", "props": { "visible": false, "nodes": [], "edges": [], "onBeforeRender": "designGraphBeforeRender", "on": { "select": "designGraphSelect", "move": "designGraphMove", "connect": "designGraphConnect" } } }
+                ] }
+                ,{ "type": "r-button", "id": "design-graph-save", "props": { "label": "保存布局", "onBeforeRender": "designGraphSaveBeforeRender", "onClick": "designGraphSave" } }
+                ,{ "type": "r-button", "id": "design-graph-cancel", "props": { "label": "取消布局修改", "onBeforeRender": "designGraphCancelBeforeRender", "onClick": "designGraphCancel" } }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:core/capability-context",
+    "sourcePath": "packages/spark-component/src/core/capability-context.ts",
+    "sourceFile": "packages/spark-component/src/core/capability-context.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "core/capability-context",
+    "jsdoc": "@module @spark-appworks/spark-component:core/capability-context\n职责：提供 capability context 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nSpark 运行时上下文锚点表。\nCapabilityContext 自己形成结构树；\n运行时仅保留 owner 链与 pageRoot 锚点，\n不再通过 provide/inject 传递父上下文。\n两种锚点的设计意图：\n- OWNER_CONTEXTS：key 是 Vue 组件实例（object）。组件卸载时显式 delete，\n实例对象本身也随 Vue 的 GC 路径回收。\n- PAGE_ROOT_CONTEXTS：key 是页面根 DOM 元素（HTMLElement）。\nWeakMap key = DOM 节点，节点从文档移除且无其它引用时 GC 自动回收。\n显式 unbind（onUnmounted）作为双保险，不依赖 GC 时机。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SparkRuntimeOwner"
+    ]
+  },
+  "$defs": {
+    "SparkRuntimeOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkRuntimeOwner",
+      "properties": {
+        "parent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SparkRuntimeOwner"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pageRoot": true
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:50.972Z",
+  "models": {
+    "SparkRuntimeOwner": {
+      "name": "SparkRuntimeOwner",
+      "jsdoc": "Spark Runtime Owner 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** parent 字段。 */\n    parent?: SparkRuntimeOwner | null;\n    /** page Root 字段。 */\n    pageRoot?: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "parent",
+              "jsdoc": "parent 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageRoot",
+              "jsdoc": "page Root 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

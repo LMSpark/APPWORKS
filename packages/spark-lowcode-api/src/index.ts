@@ -112,6 +112,7 @@ export type {
   LowcodeEnterpriseRegistration,
   LowcodeRegistrationResult,
   LowcodeSession,
+  LowcodeApplicationSelectionReceipt,
   LowcodeUserRegistration,
   LowcodeVerificationRequest,
   LowcodeVerificationScene,

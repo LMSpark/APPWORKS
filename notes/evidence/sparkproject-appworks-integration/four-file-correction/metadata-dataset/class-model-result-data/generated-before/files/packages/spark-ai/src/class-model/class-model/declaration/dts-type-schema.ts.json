@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/declaration/dts-type-schema",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/declaration/dts-type-schema.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/declaration/dts-type-schema.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/declaration/dts-type-schema",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/declaration/dts-type-schema\n职责：把 `.d.ts` TypeNode 语法结构投影为轻量 JSON Schema。\n边界：只读取声明文本和 AST，不创建语义求值器、不做符号解析、不执行类型求值。\nAI用途：排查 .d.ts 字符串类型如何进入 paramsSchema / returnSchema / attribute.schema 时，用本模块定位语法映射规则。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:20:17.707Z",
+  "models": {}
+}

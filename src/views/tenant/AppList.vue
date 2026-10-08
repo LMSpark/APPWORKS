@@ -180,11 +180,18 @@ async function handleCreate() {
 }
 
 async function handleSwitch(project: ProjectItem) {
-  const principal = readLowcodePrincipal()
-  if (!principal) throw new Error('未登录，无法切换应用')
-  await getProjectSwitch().switchAndReload(project.projectId)
-  ElMessage.success(`已切换到「${project.name}」`)
-  void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: project.projectId }, getNavHomePath()))
+  try {
+    const principal = readLowcodePrincipal()
+    if (!principal) throw new Error('未登录，无法切换应用')
+    const receipt = await getProjectSwitch().switchAndReload(project.projectId)
+    receipt.assertCurrent()
+    const failure = await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: project.projectId }, getNavHomePath()))
+    receipt.assertCurrent()
+    if (failure) throw new Error('应用页面导航未完成')
+    ElMessage.success(`已切换到「${project.name}」`)
+  } catch (error: unknown) {
+    ElMessage.error(error instanceof Error ? error.message : '切换应用失败')
+  }
 }
 
 async function handleDelete(project: ProjectItem) {

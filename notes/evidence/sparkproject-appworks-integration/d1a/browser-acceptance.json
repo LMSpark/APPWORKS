@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-07T09:54:31.357Z",
+  "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/data-set-management/ui/data-set-list-page?__sparkNavigationId=90A82E287930A234FEC3E687C94A93EA",
+  "environment": "production preview5274; authorized administrator; reads only",
+  "coldRows": 10,
+  "datesDescending": true,
+  "pagination": {
+    "firstRows": 10,
+    "secondRows": 10,
+    "disjoint": true
+  },
+  "idSearch": {
+    "rowCount": 1,
+    "firstIdMatches": true,
+    "pagination": "共 1 条\n每页 \n10\n20\n50\n 条\n上一页\n第 1 页\n下一页"
+  },
+  "empty": {
+    "emptyVisible": true,
+    "tableCount": 0
+  },
+  "pageSize": {
+    "rows": 20,
+    "pagination": "共 1184 条\n每页 \n10\n20\n50\n 条\n上一页\n第 1 页\n下一页"
+  },
+  "tabReturn": {
+    "rows": 20,
+    "pageSize": "20"
+  },
+  "actualWireSevenFields": true,
+  "actualWireDescending": true,
+  "consoleErrorCount": 0,
+  "limitations": [
+    "restricted-user backend not tested",
+    "no writes",
+    "whole D1 not complete"
+  ],
+  "tabNavigationMethod": "existing exposed __sparkDev.router.push to service page, real catalog tab click back"
+}

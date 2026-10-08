@@ -1,0 +1,18 @@
+[
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
+    "sha256": "039EDA9FC39688E241A43EDA395FC27AB243D015BC823C90AB5CAD4098CB51BC"
+  },
+  {
+    "path": "src/views/app/control/data-platform/data-space/catalog/DataSpaceCatalogPage.vue",
+    "sha256": "EC1732DE3FCE68A71F2D788A057F76C74880E471E751B2E780486E35E6DCC8D2"
+  },
+  {
+    "path": "config/navigation/vue-pages.json",
+    "sha256": "BB4623F04CBB02159E2E16B5558EE8BAF25C906CC06A82A565CF26E83E811A14"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts",
+    "sha256": "19E7E5A7899FCE422714138E61A28D0D89C8F8F5AD9F0462427D101FB9DE912F"
+  }
+]

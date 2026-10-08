@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/cascade/field-cascade-definition",
+    "sourcePath": "packages/spark-data/src/strategies/cascade/field-cascade-definition.ts",
+    "sourceFile": "packages/spark-data/src/strategies/cascade/field-cascade-definition.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/cascade/field-cascade-definition",
+    "jsdoc": "@spark-appworks/spark-data 的 strategies/cascade/field-cascade-definition 模块。\n导出 DtsTypeDeclarationModel symbol: DataViewFieldCascadeDefinition（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataViewFieldCascadeDefinition"
+    ]
+  },
+  "$defs": {
+    "DataViewFieldCascadeDefinition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFieldCascadeDefinition",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.parse.params": {
+          "type": "object",
+          "properties": {
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.parse.return": {
+          "$ref": "../../types.ts.json#/$defs/DataViewFieldCascade"
+        },
+        "method.validateAll.params": {
+          "type": "object",
+          "properties": {
+            "cascades": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateAll.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../types.ts.json#/$defs/DataViewFieldCascade"
+          }
+        },
+        "method.validateViews.params": {
+          "type": "object",
+          "properties": {
+            "definitions": {
+              "type": "array",
+              "items": {
+                "$ref": "../../types.ts.json#/$defs/DataViewFieldCascade"
+              }
+            },
+            "hasView": {
+              "type": "object",
+              "title": "(tableName: string, viewId: string) => boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateViews.return": true,
+        "method.validateRuntime.params": {
+          "type": "object",
+          "properties": {
+            "definitions": {
+              "type": "array",
+              "items": {
+                "$ref": "../../types.ts.json#/$defs/DataViewFieldCascade"
+              }
+            },
+            "dataSet": {
+              "$ref": "../../dataset.ts.json#/$defs/DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateRuntime.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T18:32:15.549Z",
+  "models": {
+    "DataViewFieldCascadeDefinition": {
+      "name": "DataViewFieldCascadeDefinition",
+      "jsdoc": "字段输入级联的唯一形状、引用和依赖图校验。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "字段输入级联的唯一形状、引用和依赖图校验。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "parse",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFieldCascade",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "validateAll",
+              "parameters": [
+                {
+                  "name": "cascades",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly unknown[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataViewFieldCascade",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "validateViews",
+              "parameters": [
+                {
+                  "name": "definitions",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataViewFieldCascade[]"
+                  }
+                },
+                {
+                  "name": "hasView",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "tableName",
+                              "type": {
+                                "type": "intrinsic",
+                                "name": "string"
+                              }
+                            },
+                            {
+                              "name": "viewId",
+                              "type": {
+                                "type": "intrinsic",
+                                "name": "string"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validateRuntime",
+              "parameters": [
+                {
+                  "name": "definitions",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataViewFieldCascade[]"
+                  }
+                },
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet",
+                    "sourcePath": "packages/spark-data/src/dataset.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

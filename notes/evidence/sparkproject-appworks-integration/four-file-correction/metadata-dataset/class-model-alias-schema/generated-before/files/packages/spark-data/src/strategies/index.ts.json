@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/index",
+    "sourcePath": "packages/spark-data/src/strategies/index.ts",
+    "sourceFile": "packages/spark-data/src/strategies/index.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/index",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/index\n职责：提供 spark-data 数据管线中的 index 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nstrategies barrel export",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:48:51.020Z",
+  "models": {}
+}

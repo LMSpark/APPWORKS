@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:registries/vue-page-registry",
+    "sourcePath": "src/registries/vue-page-registry.ts",
+    "sourceFile": "src/registries/vue-page-registry.ts",
+    "packageName": "app",
+    "modulePath": "registries/vue-page-registry",
+    "jsdoc": "@module app:registries/vue-page-registry\n职责：提供 src 应用层的 vue page registry 能力，连接运行时上下文、视图组件和服务。\n边界：只服务应用入口和组合层，不修改基础包协议，也不承担服务端职责。\nAI用途：排查应用启动、运行时上下文或局部 UI 接线时，用本模块确认源码入口。\n\nVue system-page registry.\nJSON config only declares pages. This registry binds those declarations to\nVite component loaders and exposes the derived route/navigation helpers.",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageScope"
+    ]
+  },
+  "$defs": {
+    "PageScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageScope",
+      "enum": [
+        "public",
+        "tenant",
+        "app"
+      ]
+    },
+    "VuePageConfigEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "VuePageConfigEntry",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/$defs/PageScope"
+        },
+        "source": {
+          "type": "string"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "shellTool": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "VuePageEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "VuePageEntry",
+      "$defs": {
+        "method.load.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<{\n        default: Component;\n    }>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T05:33:22.746Z",
+  "models": {
+    "PageScope": {
+      "name": "PageScope",
+      "jsdoc": "Page Scope 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'public' | 'tenant' | 'app'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'public'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'tenant'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'app'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "VuePageConfigEntry": {
+      "name": "VuePageConfigEntry",
+      "jsdoc": "Vue Page Config Entry 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n    /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */\n    shellTool?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。 */\n    path: string;\n    /** 页面标题；显示在导航树和浏览器标签页。 */\n    title: string;\n    /** 页面图标名；对应图标组件的标识，省略时导航树不显示图标。 */\n    icon?: string;\n    /** 页面描述；用于导航提示和 AI 理解页面功能。 */\n    description?: string;\n    /** 页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。 */\n    scope: PageScope;\n    /** Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。 */\n    source: string;\n    /** 是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。 */\n    hidden?: boolean;\n    /** 是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。 */\n    shellTool?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "path",
+              "jsdoc": "页面路由路径；必须以 / 开头，作为 URL 路由和注册表键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "页面标题；显示在导航树和浏览器标签页。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "页面图标名；对应图标组件的标识，省略时导航树不显示图标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "页面描述；用于导航提示和 AI 理解页面功能。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "页面可见范围；public 表示无需登录即可访问，tenant/app 需登录后按权限显示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "Vue 组件文件路径；必须位于 src/views/ 下且以 .vue 结尾，用于 Vite 动态 import。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hidden",
+              "jsdoc": "是否在导航树中隐藏；隐藏页面仍可路由访问，但不显示在菜单中。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shellTool",
+              "jsdoc": "是否投影到应用壳层的 SPARK 工具组；业务导航别名应设为 false。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "VuePageEntry": {
+      "name": "VuePageEntry",
+      "jsdoc": "Vue Page Entry 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Omit<VuePageConfigEntry, 'path'> & {\n    /** 懒加载 Vue 组件；通过 Vite import.meta.glob 绑定，首次调用时按需加载。 */\n    load: () => Promise<{\n        default: Component;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Omit<VuePageConfigEntry, 'path'> & {\n    /** 懒加载 Vue 组件；通过 Vite import.meta.glob 绑定，首次调用时按需加载。 */\n    load: () => Promise<{\n        default: Component;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "load",
+              "jsdoc": "懒加载 Vue 组件；通过 Vite import.meta.glob 绑定，首次调用时按需加载。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        default: Component;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

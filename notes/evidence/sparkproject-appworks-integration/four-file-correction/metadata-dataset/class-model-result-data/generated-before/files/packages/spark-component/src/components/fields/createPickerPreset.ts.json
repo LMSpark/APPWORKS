@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/createPickerPreset",
+    "sourcePath": "packages/spark-component/src/components/fields/createPickerPreset.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/createPickerPreset.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/createPickerPreset",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/createPickerPreset\n职责：维护 @spark-appworks/spark-component 中 components/fields/createPickerPreset 的模块能力，围绕 PickerPresetDefaults 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/createPickerPreset 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "PickerPresetDefaults": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PickerPresetDefaults",
+      "properties": {
+        "placeholder": {
+          "type": "string"
+        },
+        "buttonText": {
+          "type": "string"
+        },
+        "readonlyButtonText": {
+          "type": "string"
+        },
+        "entityName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "placeholder",
+        "buttonText",
+        "readonlyButtonText",
+        "entityName"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:26.834Z",
+  "models": {
+    "PickerPresetDefaults": {
+      "name": "PickerPresetDefaults",
+      "jsdoc": "Picker Preset Defaults 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 占位提示文本。 */\n    placeholder: string;\n    /** button Text 文本。 */\n    buttonText: string;\n    /** readonly Button Text 文本。 */\n    readonlyButtonText: string;\n    /** entity Name 名称。 */\n    entityName: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "placeholder",
+              "jsdoc": "占位提示文本。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "buttonText",
+              "jsdoc": "button Text 文本。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "readonlyButtonText",
+              "jsdoc": "readonly Button Text 文本。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "entityName",
+              "jsdoc": "entity Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

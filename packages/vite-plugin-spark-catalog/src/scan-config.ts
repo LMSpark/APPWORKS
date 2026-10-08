@@ -72,6 +72,9 @@ export const ASYNC_COMPONENTS = [
   'Tree*', // 树形组件
 ] as const
 
+/** Root-relative view directories use on-demand component loading. */
+export const ASYNC_PATH_PREFIXES = ['src/views/'] as const
+
 /**
  * 文件大小阈值（KB）
  * 超过此大小的组件自动标记为异步加载

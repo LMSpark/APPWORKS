@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/native-runtime/native-script-context",
+    "sourcePath": "packages/spark-ai/src/agent/native-runtime/native-script-context.ts",
+    "sourceFile": "packages/spark-ai/src/agent/native-runtime/native-script-context.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/native-runtime/native-script-context",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/native-runtime/native-script-context\n职责：构建 native script 可访问的受控上下文，封装路径上下文、动作调用、回调和失败结果。\n边界：只暴露白名单脚本能力，不泄露浏览器全局对象、不绕过 Host 工具审批，也不直接修改业务存储。\nAI用途：编写或审查 AI 生成脚本时，用本模块确认脚本能调用哪些 API、错误如何返回。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "AiApiScriptContextCommand",
+      "ExecuteAiApiActionCommand",
+      "AiApiScriptActionFailure"
+    ]
+  },
+  "$defs": {
+    "ScriptActionArg": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ScriptActionArg",
+      "anyOf": [
+        {
+          "type": "object",
+          "title": "JsonParams"
+        },
+        {
+          "type": "object",
+          "title": "ScriptCallback"
+        }
+      ]
+    },
+    "AiNativePathContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiNativePathContext",
+      "properties": {
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "host": {
+          "type": "object",
+          "title": "AiAgentRuntimeHostContext"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiApiScriptContextCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiApiScriptContextCommand",
+      "properties": {
+        "instance": true,
+        "api": {
+          "type": "object",
+          "title": "AiApiObjectMetadata"
+        },
+        "ctx": {
+          "$ref": "#/$defs/AiNativePathContext"
+        },
+        "validateOptions": {
+          "$ref": "../../../../spark-json-document/src/schema/schema-validator.ts.json#/$defs/JsonSchemaValidateOptions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExecuteAiApiActionCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExecuteAiApiActionCommand",
+      "properties": {
+        "target": true,
+        "action": {
+          "type": "object",
+          "title": "AiApiActionMetadata"
+        },
+        "args": {
+          "$ref": "#/$defs/ScriptActionArg"
+        },
+        "ctx": {
+          "$ref": "#/$defs/AiNativePathContext"
+        },
+        "validateOptions": {
+          "$ref": "../../../../spark-json-document/src/schema/schema-validator.ts.json#/$defs/JsonSchemaValidateOptions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiApiScriptActionFailure": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiApiScriptActionFailure",
+      "properties": {
+        "actionName": {
+          "type": "string"
+        },
+        "result": {
+          "type": "object",
+          "title": "AiAgentToolResult<unknown>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "actionName": {
+              "type": "string"
+            },
+            "result": {
+              "type": "object",
+              "title": "AiAgentToolResult<unknown>"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T20:54:35.155Z",
+  "models": {
+    "ScriptCallback": {
+      "name": "ScriptCallback",
+      "jsdoc": "Script Callback 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(...args: readonly unknown[]) => unknown",
+        "members": {}
+      }
+    },
+    "ScriptActionArg": {
+      "name": "ScriptActionArg",
+      "jsdoc": "Script Action Arg 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "JsonParams | ScriptCallback",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "JsonParams",
+            "targetName": "JsonParams"
+          },
+          {
+            "kind": "union",
+            "typeText": "ScriptCallback",
+            "targetName": "ScriptCallback"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AiNativePathContext": {
+      "name": "AiNativePathContext",
+      "jsdoc": "Ai Native Path Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 从 root 到当前 API 对象的路径段（属性/action 名序列）。 */\n    segments: readonly string[];\n    /** 可选 Host 运行时上下文，供 takesContext action 注入。 */\n    host?: AiAgentRuntimeHostContext;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 从 root 到当前 API 对象的路径段（属性/action 名序列）。 */\n    segments: readonly string[];\n    /** 可选 Host 运行时上下文，供 takesContext action 注入。 */\n    host?: AiAgentRuntimeHostContext;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "segments",
+              "jsdoc": "从 root 到当前 API 对象的路径段（属性/action 名序列）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "host",
+              "jsdoc": "可选 Host 运行时上下文，供 takesContext action 注入。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiApiScriptContextCommand": {
+      "name": "AiApiScriptContextCommand",
+      "jsdoc": "Ai Api Script Context Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 业务实例对象，作为 script 上下文的 root target。 */\n    instance: unknown;\n    /** 该实例对应的 API 对象元数据（actions/attributes 白名单）。 */\n    api: AiApiObjectMetadata;\n    /** 路径与 Host 上下文，供 action 调用链传递。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: JsonSchemaValidateOptions;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 业务实例对象，作为 script 上下文的 root target。 */\n    instance: unknown;\n    /** 该实例对应的 API 对象元数据（actions/attributes 白名单）。 */\n    api: AiApiObjectMetadata;\n    /** 路径与 Host 上下文，供 action 调用链传递。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: JsonSchemaValidateOptions;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "instance",
+              "jsdoc": "业务实例对象，作为 script 上下文的 root target。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "api",
+              "jsdoc": "该实例对应的 API 对象元数据（actions/attributes 白名单）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ctx",
+              "jsdoc": "路径与 Host 上下文，供 action 调用链传递。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "validateOptions",
+              "jsdoc": "参数校验选项，控制 schema 校验严格度。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ExecuteAiApiActionCommand": {
+      "name": "ExecuteAiApiActionCommand",
+      "jsdoc": "Execute Ai Api Action Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 接收 action 调用的业务 target 对象。 */\n    target: unknown;\n    /** 待执行的 API action 元数据。 */\n    action: AiApiActionMetadata;\n    /** script 传入的参数或 callback，归一化前原始形态。 */\n    args: ScriptActionArg;\n    /** 路径与 Host 上下文，供 takesContext action 使用。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: JsonSchemaValidateOptions;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 接收 action 调用的业务 target 对象。 */\n    target: unknown;\n    /** 待执行的 API action 元数据。 */\n    action: AiApiActionMetadata;\n    /** script 传入的参数或 callback，归一化前原始形态。 */\n    args: ScriptActionArg;\n    /** 路径与 Host 上下文，供 takesContext action 使用。 */\n    ctx: AiNativePathContext;\n    /** 参数校验选项，控制 schema 校验严格度。 */\n    validateOptions?: JsonSchemaValidateOptions;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "target",
+              "jsdoc": "接收 action 调用的业务 target 对象。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "action",
+              "jsdoc": "待执行的 API action 元数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "args",
+              "jsdoc": "script 传入的参数或 callback，归一化前原始形态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ctx",
+              "jsdoc": "路径与 Host 上下文，供 takesContext action 使用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "validateOptions",
+              "jsdoc": "参数校验选项，控制 schema 校验严格度。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiApiScriptActionFailure": {
+      "name": "AiApiScriptActionFailure",
+      "jsdoc": "Ai Api Script Action Failure 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Ai Api Script Action Failure 实例。",
+          "signatureText": "constructor(actionName: string, result: AiAgentToolResult<unknown>)",
+          "parameters": [
+            {
+              "name": "actionName",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "result",
+              "type": {
+                "type": "reference",
+                "name": "AiAgentToolResult",
+                "sourcePath": "packages/spark-ai/src/agent/tool-runtime.ts",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "actionName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "result",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,85 @@
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`
+
+ RUN  v4.1.9 D:/SPARK_AppWorks
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > cancels a pending external activation when same-app query navigation takes ownership
+[DynamicRouter] ℹ️ 开始注册动态路由
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > cancels a pending external activation when same-app query navigation takes ownership
+[DynamicRouter] ℹ️ 运行导航路由注册完成 { nodeCount: 1 }
+[DynamicRouter] ℹ️ 动态路由注册完成 { count: 3 }
+
+stdout | tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > cancels a pending external activation when same-app query navigation takes ownership
+C2D2F_EXTERNAL_ACTIVATION_OUTCOME {"activationOutcome":{"status":"committed"},"url":"/t/fixture-tenant/APP-A/dashboard?view=latest&__sparkNavigationId=dashboard","applicationId":"APP-B","navigationProjectId":"APP-A","nativeInstanceId":"system-page-2"}
+
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > returns a current receipt for the application catalog state
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > returns the platform activation receipt unchanged
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > forwards an aborted navigation signal to the real platform selection fence
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > exports the reserved system-page identity key through the spark-app package root
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when the execution application changes during authorization read
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when session-reset changes while authorization is pending
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when application-round-trip changes while authorization is pending
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rejects navigation when navigation-root-change changes while authorization is pending
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps an explicit target separate from the stable execution application
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > does not let a late application catalog overwrite a newer activation intent
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the active URL, platform application, and native page instance aligned after same-app navigation supersedes activation
+ × tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > cancels a pending external activation when same-app query navigation takes ownership 21ms
+   → expected { …(5) } to deeply equal { activationOutcome: { …(2) }, …(4) }
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > reinstalls the real target owner when navigation supersedes an activation just after platform commit
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rechecks the activation receipt after the runtime await continuation
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > stops a pending application selection after application-clear
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > stops a pending application selection after session-replacement
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > allows token refresh while an application selection is pending
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > stops after a pending target lookup invalidates the execution scope
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > stops before blueprint reads when navigation-root resolution becomes stale
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rechecks immediately after application lookup before resolving the target root
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > rechecks after the final parallel response before assembling navigation
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > turns a late request failure into stale-scope failure after the execution application changes
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > allows token refresh with stable identity references and preserves stable request errors
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > uses the local catalog without reading a request scope when no application is selected
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > renders lowcode legacy icon classes as icons instead of raw class text
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > normalizes application icon aliases instead of rendering icon names as text
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > uses the Chinese enterprise short name as the AppWorks display label
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps every AppWorks tenant page reachable from the application catalog
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the menu title and nested home path for capability Payroll.Calculate
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the menu title and nested home path for capability Payroll.Calculate.Renamed
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > keeps the cfg tool target separate from the scenario call parameter
+ ↓ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > preserves native scene call parameters and hash while projecting the Vue resource
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts > lowcode project navigation projection > cancels a pending external activation when same-app query navigation takes ownership
+AssertionError: expected { …(5) } to deeply equal { activationOutcome: { …(2) }, …(4) }
+
+- Expected
++ Received
+
+  {
+    "activationOutcome": {
+-     "errorMessage": StringContaining "STALE",
+-     "status": "rejected",
++     "status": "committed",
+    },
+-   "applicationId": "APP-A",
++   "applicationId": "APP-B",
+    "nativeInstanceId": "system-page-2",
+    "navigationProjectId": "APP-A",
+    "url": "/t/fixture-tenant/APP-A/dashboard?view=latest&__sparkNavigationId=dashboard",
+  }
+
+ ❯ tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts:334:22
+    332|     }
+    333|     console.info('C2D2F_EXTERNAL_ACTIVATION_OUTCOME', JSON.stringify(o…
+    334|     expect(observed).toEqual({
+       |                      ^
+    335|       activationOutcome: { status: 'rejected', errorMessage: expect.st…
+    336|       url: `/t/fixture-tenant/APP-A/dashboard?view=latest&${SYSTEM_PAG…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 31 skipped (32)
+   Start at  17:26:51
+   Duration  5.52s (transform 3.38s, setup 91ms, import 4.66s, tests 22ms, environment 580ms)
+

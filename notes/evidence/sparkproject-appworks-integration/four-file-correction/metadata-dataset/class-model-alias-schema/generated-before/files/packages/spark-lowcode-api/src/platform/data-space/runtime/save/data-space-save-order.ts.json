@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/save/data-space-save-order",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-order.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-order.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/save/data-space-save-order",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/save/data-space-save-order\n职责：校验显式 CRUD 动作顺序。\n边界：顺序必须完整且无重复，不偷偷补齐或重新排序。\nAI用途：保留调用方明确指定的动作顺序。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T20:52:04.620Z",
+  "models": {
+    "DataSpaceSaveAction": {
+      "name": "DataSpaceSaveAction",
+      "jsdoc": "统一保存的新增、更新、删除动作标识。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof actions[number]",
+        "members": {}
+      }
+    }
+  }
+}

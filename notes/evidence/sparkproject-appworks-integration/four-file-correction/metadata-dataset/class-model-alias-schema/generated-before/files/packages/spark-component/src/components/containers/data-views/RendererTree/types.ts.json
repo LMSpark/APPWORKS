@@ -1,0 +1,774 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererTree/types",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/types.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTree/types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererTree/types",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererTree/types\n职责：集中定义 RendererTree（r-tree）内部共享的类型契约，描述渲染器状态、事件载荷和运行时数据形态。\n边界：只提供 table-level/data-view-container 的类型层语义，不创建组件实例、不执行 IO，也不承载具体 UI 渲染。\nAI用途：需要判断 renderer tree 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RendererTreeApi"
+    ],
+    "componentName": "RendererTree",
+    "componentType": "r-tree",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "RendererTreeApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererTreeApi",
+      "$defs": {
+        "method.getTreeData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getTreeData.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "method.getNativeTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getNativeTree.return": true,
+        "method.getCurrentNode.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCurrentNode.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.setCurrentKey.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setCurrentKey.return": true,
+        "method.expandToNode.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.expandToNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.filter.params": {
+          "type": "object",
+          "properties": {
+            "keyword": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.filter.return": true,
+        "method.getCheckedNodes.params": {
+          "type": "object",
+          "properties": {
+            "leafOnly": {
+              "type": "boolean"
+            },
+            "includeHalfChecked": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getCheckedNodes.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "method.getCheckedKeys.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCheckedKeys.return": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "method.setCheckedKeys.params": {
+          "type": "object",
+          "properties": {
+            "keys": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setCheckedKeys.return": true,
+        "method.moveNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "newParentId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveNode.return": {
+          "type": "object",
+          "title": "Promise<DataRow | null>"
+        },
+        "method.appendNode.params": {
+          "type": "object",
+          "properties": {
+            "parentKey": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "nodeData": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendNode.return": true,
+        "method.insertBefore.params": {
+          "type": "object",
+          "properties": {
+            "refKey": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "nodeData": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.insertBefore.return": true,
+        "method.insertAfter.params": {
+          "type": "object",
+          "properties": {
+            "refKey": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "nodeData": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.insertAfter.return": true,
+        "method.updateNode.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "patch": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateNode.return": {
+          "type": "boolean"
+        },
+        "method.removeNode.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeNode.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:26.803Z",
+  "models": {
+    "RendererTreeApi": {
+      "name": "RendererTreeApi",
+      "jsdoc": "Renderer Tree Api 的语义模型。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTree",
+        "type": "r-tree",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "BaseCrudContainerApi & {\n    /** 获取当前树组件绑定的全部节点数据。 */\n    getTreeData(): DataRow[];\n    /** 获取底层 Element Plus 树组件实例。 */\n    getNativeTree(): unknown;\n    /** 获取当前高亮/选中的树节点。 */\n    getCurrentNode(): DataRow | null;\n    /** 按节点 key 设置当前高亮节点。 */\n    setCurrentKey(key: string | number): void;\n    /** 展开树到指定节点。 */\n    expandToNode(key: string | number): Promise<void>;\n    /** 按关键字过滤树节点显示。 */\n    filter(keyword: string): void;\n    /** 获取勾选节点列表，可选仅叶子节点或包含半选节点。 */\n    getCheckedNodes(leafOnly?: boolean, includeHalfChecked?: boolean): DataRow[];\n    /** 获取当前勾选节点的 key 列表。 */\n    getCheckedKeys(): Array<string | number>;\n    /** 按 key 列表设置勾选状态。 */\n    setCheckedKeys(keys: Array<string | number>): void;\n    /** 移动节点到新的父节点下，可选指定插入位置。 */\n    moveNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>;\n    /** 在指定父节点下追加子节点。 */\n    appendNode(parentKey: string | number | null, nodeData: DataRow): void;\n    /** 在参考节点之前插入同级节点。 */\n    insertBefore(refKey: string | number, nodeData: DataRow): void;\n    /** 在参考节点之后插入同级节点。 */\n    insertAfter(refKey: string | number, nodeData: DataRow): void;\n    /** 按 key 局部更新节点数据，返回是否找到目标节点。 */\n    updateNode(key: string | number, patch: Partial<DataRow>): boolean;\n    /** 按 key 删除节点，返回是否成功移除。 */\n    removeNode(key: string | number): boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "BaseCrudContainerApi",
+            "targetName": "BaseCrudContainerApi"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 获取当前树组件绑定的全部节点数据。 */\n    getTreeData(): DataRow[];\n    /** 获取底层 Element Plus 树组件实例。 */\n    getNativeTree(): unknown;\n    /** 获取当前高亮/选中的树节点。 */\n    getCurrentNode(): DataRow | null;\n    /** 按节点 key 设置当前高亮节点。 */\n    setCurrentKey(key: string | number): void;\n    /** 展开树到指定节点。 */\n    expandToNode(key: string | number): Promise<void>;\n    /** 按关键字过滤树节点显示。 */\n    filter(keyword: string): void;\n    /** 获取勾选节点列表，可选仅叶子节点或包含半选节点。 */\n    getCheckedNodes(leafOnly?: boolean, includeHalfChecked?: boolean): DataRow[];\n    /** 获取当前勾选节点的 key 列表。 */\n    getCheckedKeys(): Array<string | number>;\n    /** 按 key 列表设置勾选状态。 */\n    setCheckedKeys(keys: Array<string | number>): void;\n    /** 移动节点到新的父节点下，可选指定插入位置。 */\n    moveNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>;\n    /** 在指定父节点下追加子节点。 */\n    appendNode(parentKey: string | number | null, nodeData: DataRow): void;\n    /** 在参考节点之前插入同级节点。 */\n    insertBefore(refKey: string | number, nodeData: DataRow): void;\n    /** 在参考节点之后插入同级节点。 */\n    insertAfter(refKey: string | number, nodeData: DataRow): void;\n    /** 按 key 局部更新节点数据，返回是否找到目标节点。 */\n    updateNode(key: string | number, patch: Partial<DataRow>): boolean;\n    /** 按 key 删除节点，返回是否成功移除。 */\n    removeNode(key: string | number): boolean;\n}"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "getTreeData",
+              "jsdoc": "获取当前树组件绑定的全部节点数据。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow"
+                }
+              }
+            },
+            {
+              "name": "getNativeTree",
+              "jsdoc": "获取底层 Element Plus 树组件实例。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "getCurrentNode",
+              "jsdoc": "获取当前高亮/选中的树节点。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataRow"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setCurrentKey",
+              "jsdoc": "按节点 key 设置当前高亮节点。",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "expandToNode",
+              "jsdoc": "展开树到指定节点。",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "filter",
+              "jsdoc": "按关键字过滤树节点显示。",
+              "parameters": [
+                {
+                  "name": "keyword",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getCheckedNodes",
+              "jsdoc": "获取勾选节点列表，可选仅叶子节点或包含半选节点。",
+              "parameters": [
+                {
+                  "name": "leafOnly",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "includeHalfChecked",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow"
+                }
+              }
+            },
+            {
+              "name": "getCheckedKeys",
+              "jsdoc": "获取当前勾选节点的 key 列表。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "union",
+                  "types": [
+                    {
+                      "type": "intrinsic",
+                      "name": "string"
+                    },
+                    {
+                      "type": "intrinsic",
+                      "name": "number"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "setCheckedKeys",
+              "jsdoc": "按 key 列表设置勾选状态。",
+              "parameters": [
+                {
+                  "name": "keys",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "moveNode",
+              "jsdoc": "移动节点到新的父节点下，可选指定插入位置。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "newParentId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "appendNode",
+              "jsdoc": "在指定父节点下追加子节点。",
+              "parameters": [
+                {
+                  "name": "parentKey",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "nodeData",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "insertBefore",
+              "jsdoc": "在参考节点之前插入同级节点。",
+              "parameters": [
+                {
+                  "name": "refKey",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "nodeData",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "insertAfter",
+              "jsdoc": "在参考节点之后插入同级节点。",
+              "parameters": [
+                {
+                  "name": "refKey",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "nodeData",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "updateNode",
+              "jsdoc": "按 key 局部更新节点数据，返回是否找到目标节点。",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "patch",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "removeNode",
+              "jsdoc": "按 key 删除节点，返回是否成功移除。",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

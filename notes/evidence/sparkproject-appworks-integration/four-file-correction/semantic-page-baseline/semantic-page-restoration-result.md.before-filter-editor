@@ -1,0 +1,37 @@
+# 数据空间设计页恢复阶段结果
+
+状态：暂停后续实施，保留当前改动，等待主控完成概念层次裁定并重新派工。
+
+## 当前落点
+
+- `config/pages/data-platform/data-space-design/rule.json`：模型列表分开展示正式注册名 `Name` 与来源名 `MetaName`；新增模型、字段的 `r-form` 当前行编辑器、取消/保存入口和读取身份字段。`Name`、`MetaName` 与来源类型仍只读。模型表单目前允许编辑 `description`、`RequestComplete`、`IsBusiness`、`IsBusinessMain`；字段表单目前允许编辑 `description`、`AsName`、`IsOutput`。
+- `config/pages/data-platform/data-space-design/script.js`：使用当前正式 `DataView` 行、字段访问状态和 `DataSet.saveChanges` 处理模型/字段本地编辑；保存前校验当前页面、目标空间、数据集、视图与行身份，保存后检查单行正式回执并按空间身份全量精确回读。业务标志及输出标志按正式 INT 字段将 checkbox 的布尔编辑值归一为 `0/1`。不确定保存结果会阻止重复提交。已有参数专用流程未被替换。
+- `config/pages/data-platform/data-space-design/style.css`：为新模型、字段表单增加页面局部样式。
+- `tests/runtime/page/design/data-space-design-four-file.test.ts`：扩展正式模型 fixture，区分 `Name`/`MetaName` 并补上请求配置字段；`IsBusiness`、`IsBusinessMain`、`IsOutput` 使用正式 INT 表达。补充模型配置保存回执及精确回读、字段取消不提交的用例。
+
+本阶段没有改 `pagedata.json`、关系图组件或 graph 测试。`Name` 改名、请求 `Filter` 结构化编辑、输入参数字段映射、来源建模、前端模型/数组/数据处理、关系图持久化、预览和旁侧标签/授权流程均未完成；当前改动不是整页交付。
+
+## 验证
+
+- 基线：主控运行 `pnpm run typecheck`，session `21086`，exit code `0`，记录在 `semantic-page-baseline-typecheck.log`。
+- 当前最小验证：`pnpm exec vitest run tests/runtime/page/design/data-space-design-four-file.test.ts`，exit code `0`，36/36 tests passed。该套件覆盖原用例及本阶段新增的模型配置保存/回读、字段取消用例。
+- 本阶段未运行 typecheck、lint、graph 测试、整页验收或全量测试；不得据此宣称页面完整或通过整页验收。
+
+## 仍待确认的概念和合同
+
+1. **模型层与本仓 DataSet 的对应关系未确认。** 参考 AppWorks 数据空间设计消费模型与字段记录；不能据此假定原对象整体就是本仓 `DataSet`，也不能将模型行、场景 `DataView` 与被设计空间的运行数据混为一层。主控需确认正式页面数据映射与每个对象的持久责任后，才能继续建立其它编辑闭环。
+2. **当前 `DataSet.saveChanges` 映射是否符合原设计模型业务保存语义，尚待主控核验。** 本阶段用本仓 `DataSet`/`DataView` owner 与测试 fixture 验证局部闭环；回执及回读证明的是当前实现路径的 fixture 行为，不单独证明线上设计 API 的端到端写入合同。
+3. **`ValueFun` 的设计元数据语义待核。** 正式 `Base_DataModel_Field` 有 `ValueFun` 列，固定源页面的请求参数字段编辑包含该字段；当前固定版 `spark-api.md` 将运行时 canonical `inputParams` 限定为已求值的 `{name,value}`，并禁止把 `ValueFun` 就地转成调用参数。不得因此删除设计元数据编辑，也不得在概念与写入合同澄清前将其做成运行时映射。
+4. **结构化请求 `Filter` 编辑未实现。** 当前公共 FilterExpressionEditor 的合同、规则渲染注册方式及它与正式模型 `Filter` 的映射需主控核验；不能用裸 JSON 输入替代原业务表单。
+5. **`Name` 注册名改动尚未追踪所有引用。** 当前只读呈现 `Name` 与 `MetaName` 两列，未提供注册名改写。
+
+正式字段类型证据见同目录 `semantic-live-contract-check.md`。以上未确认项在获得主控裁定前不继续编码，也不以临时视图或额外参数模型猜测。
+
+## 主控层次复核（2026-10-08）
+
+- 已按用户纠正将模型层、场景视图配置、DataSet/DataView 运行实例分开，依据见主语义报告 3.1；原空间不整体等于本仓 DataSet。
+- 当前 `pagedata.json` 的 scenarioId 是设计场景，modelBinding 指向该场景正式的 `Base_DataModel` / `Base_DataModel_Field`，没有将目标空间的模型记录直接作为本页 DataTable 定义。
+- `script.js` 的 `designSaveEditingRow` 从 `designSnapshot.designDataSet` 保存指定 table/view/单行 id，并校验 `$page.getDataSet(designScenarioId)` 身份；目标空间 ID 用于校验元数据归属和 `dataSetId` 回读过滤。该代码路径未把目标空间 ID 当作设计页运行 DataSet 的身份。
+- 当前 editableFields 仅含模型的 description/RequestComplete/IsBusiness/IsBusinessMain，及字段的 description/AsName/IsOutput；尚未加入 Filter/ValueFun/请求参数映射。因此已实现部分不因“空间不等于 DataSet”这个纠正而直接判废。未新增线上写入证据，保存等价性和整页验收仍待完成。
+- `captureDataSpaceViewQuery` 以当前 DataView 的 modelBinding 与 DataSet.scenarioId 发请求，以 context/queryContext 形成当次 inputParams。未来编辑模型 Filter/字段 ValueFun 时，应把它们作为设计记录内容保存，不修改设计器自身的查询配置来冒充保存。
+- 本轮只做文档纠偏与源码复核，没有继续修改生产/测试文件，也未重复运行 36/36 测试。整页任务未完成；续工须遵守已更新的分层合同，不能恢复原等同假设。

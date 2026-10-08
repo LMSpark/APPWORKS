@@ -94,13 +94,13 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
           <span v-if="configRefreshError">{{ configRefreshError }}</span>
         </div>
         <keep-alive :include="runtimeNames">
-          <component v-if="!contextGuard && runtimeView" :is="runtimeView" :key="runtimeInstanceId" ref="runtimeRenderer" />
+          <component v-if="!contextGuard && activeManagedView" :is="activeManagedView" :key="activeManagedInstanceId" ref="runtimeRenderer" />
         </keep-alive>
         <keep-alive v-if="mode === 'multi'">
-          <component v-if="!contextGuard && !runtimeView" :is="Component" :key="route.fullPath" />
+          <component v-if="!contextGuard && !activeManagedView" :is="Component" :key="route.fullPath" />
         </keep-alive>
         <transition v-else name="fade" mode="out-in">
-          <component v-if="!contextGuard && !runtimeView" :is="Component" :key="route.fullPath" />
+          <component v-if="!contextGuard && !activeManagedView" :is="Component" :key="route.fullPath" />
         </transition>
       </router-view>
 
@@ -128,6 +128,7 @@ import { computed, onMounted, onUnmounted, provide, reactive, ref, watch, type C
 import { useRoute, useRouter } from 'vue-router'
 import * as SparkAppRuntime from '@spark-appworks/spark-app'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
+import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
 import { PAGE_RUNTIME_SERVICES } from '@spark-appworks/spark-component'
 import {
   MODULE_CONTEXT,
@@ -143,6 +144,8 @@ import {
   lowcodeRequestHeaders,
   readLowcodePrincipal,
 } from '@/lowcode/lowcode-runtime'
+import { lowcodeDataSpaceLayout } from '@/lowcode/data-space/lowcode-data-space-layout'
+import { lowcodeDataSpaceDesign } from '@/lowcode/data-space/lowcode-data-space-design'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
 import {
   registerShellNavRootListener,
@@ -164,6 +167,7 @@ import type { ProjectSwitchService } from '@/services/project/project-shell'
 import { loadProjectUiSettings, saveProjectUiSettings } from '@/services/project/project-settings'
 import { APPLICATION_CATALOG_PROJECT_ID, buildTenantPath, buildTenantRootPath, parseTenantScope, stripTenantScope } from '@/services/tenant-scope'
 import { getPublicPaths } from '@/registries/vue-page-registry'
+import { ElMessage } from 'element-plus'
 
 const {
   AppPageUiHost,
@@ -221,6 +225,14 @@ let isApplyingProjectUiSettings = false
 let _stopPageConfigChange: (() => void) | null = null
 const runtimeView = computed(() => contextGuard.value ? undefined : getDynamicRouter()?.getPageRuntimeView(router.currentRoute.value))
 const runtimeInstanceId = computed(() => contextGuard.value ? undefined : getDynamicRouter()?.getPageRuntime(router.currentRoute.value)?.instanceId)
+const systemPageInstance = computed(() => {
+  const dynamic = getDynamicRouter()
+  if (!dynamic) return undefined
+  void dynamic.systemPageRevision.value
+  return contextGuard.value ? undefined : dynamic.getSystemPageInstance(router.currentRoute.value)
+})
+const activeManagedView = computed(() => systemPageInstance.value?.view ?? runtimeView.value)
+const activeManagedInstanceId = computed(() => systemPageInstance.value?.instanceId ?? runtimeInstanceId.value)
 const runtimeNames = computed(() => tabs.value.flatMap(tab => tab.runtimeName ? [tab.runtimeName] : []))
 const runtimeRenderer = ref<ComponentPublicInstance>()
 const configurationRevision = ref(0)
@@ -367,19 +379,28 @@ function jumpToExpectedContext(): void {
 }
 
 /* ── 项目切换服务（供子组件注入） ── */
+let projectSwitchIntent = 0
 const projectSwitchService: ProjectSwitchService = {
-  async switchAndReload(projectId: string) {
-    getDynamicRouter()?.assertPageRuntimesClean()
-    if (projectId === APPLICATION_CATALOG_PROJECT_ID) enterLowcodeApplicationCatalog()
-    else await activateLowcodeApplication(projectId)
-    getDynamicRouter()?.disposePageRuntimes()
+  async switchAndReload(projectId: string): Promise<LowcodeApplicationSelectionReceipt> {
+    const dynamic = getDynamicRouter()
+    dynamic?.assertPageRuntimesClean()
+    const intent = ++projectSwitchIntent
+    const ownerReceipt = projectId === APPLICATION_CATALOG_PROJECT_ID
+      ? enterLowcodeApplicationCatalog()
+      : await activateLowcodeApplication(projectId)
+    const assertCurrent = (): void => {
+      if (intent !== projectSwitchIntent) throw new Error('APP_PROJECT_SWITCH_STALE: 项目切换已失效，请重新选择。')
+      ownerReceipt.assertCurrent()
+    }
+    const receipt: LowcodeApplicationSelectionReceipt = Object.freeze({ assertCurrent })
+    receipt.assertCurrent()
+    dynamic?.resetSystemPageInstances()
+    dynamic?.disposePageRuntimes()
     activeProjectId.value = projectId
     applyProjectSettingsScope(resolveProjectSettingsScope(projectId))
-    try {
-      await reloadNavigation()
-    } catch (e) {
-      if (import.meta.env.DEV) console.error('[Nav] 导航加载失败', e)
-    }
+    await reloadNavigation(receipt)
+    receipt.assertCurrent()
+    return receipt
   },
 }
 provide(PROJECT_SWITCH_KEY, projectSwitchService)
@@ -407,19 +428,24 @@ navigationActionRegistry.register('profile', () => {
 navigationActionRegistry.register('settings', () => {
   showConfigurator.value = true
 })
-navigationActionRegistry.register('home', () => {
+navigationActionRegistry.register('home', async () => {
   const principal = readLowcodePrincipal()
-  if (principal && principal.applicationId !== null) {
-    void projectSwitchService.switchAndReload(APPLICATION_CATALOG_PROJECT_ID).then(() => {
-      void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
-    })
-  } else if (principal) {
-    void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
-  } else {
-    void router.push('/')
+  try {
+    if (principal && principal.applicationId !== null) {
+      const receipt = await projectSwitchService.switchAndReload(APPLICATION_CATALOG_PROJECT_ID)
+      receipt.assertCurrent()
+      await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
+    } else if (principal) {
+      await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
+    } else {
+      await router.push('/')
+    }
+  } catch (error: unknown) {
+    ElMessage.error(error instanceof Error ? error.message : String(error))
   }
 })
 navigationActionRegistry.register('logout', () => {
+  getDynamicRouter()?.resetSystemPageInstances()
   resetAppProjectWorkspace()
   void lowcodeApi.platform.logout().finally(() => {
     window.location.replace(router.resolve('/').href)
@@ -446,7 +472,7 @@ const nav = useNavigation(_navRoot, {
   actionRegistry: navigationActionRegistry,
 })
 const pageUiService = appPageUiService
-sparkProvide(PAGE_RUNTIME_SERVICES, { pageService: pageUiService })
+sparkProvide(PAGE_RUNTIME_SERVICES, { pageService: pageUiService, dataSpaceLayout: lowcodeDataSpaceLayout, dataSpaceDesign: lowcodeDataSpaceDesign })
 const pageModuleContext = computed<ContextSnapshot | null>(() => {
   const state = nav.moduleContext.value
   if (!state) return null
@@ -553,8 +579,8 @@ function syncAppNavProjectionFromRouter(): void {
   applyNavTree(getNavTree())
 }
 
-async function reloadNavigation(): Promise<void> {
-  await reloadAndSyncNavigation()
+async function reloadNavigation(receipt?: LowcodeApplicationSelectionReceipt): Promise<void> {
+  await reloadAndSyncNavigation(receipt)
 }
 
 function syncPageConfigSubscription(): void {
@@ -666,8 +692,13 @@ async function handleCrossAppNavigate(projectIdOrFullPath: string, pathArg?: str
   const principal = readLowcodePrincipal()
   if (!principal) return
 
-  await projectSwitchService.switchAndReload(targetProjectId)
-  void router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: targetProjectId }, targetPath))
+  try {
+    const receipt = await projectSwitchService.switchAndReload(targetProjectId)
+    receipt.assertCurrent()
+    await router.push(buildTenantPath({ tenantId: principal.enterpriseName, projectId: targetProjectId }, targetPath))
+  } catch (error: unknown) {
+    ElMessage.error(error instanceof Error ? error.message : String(error))
+  }
 }
 
 </script>

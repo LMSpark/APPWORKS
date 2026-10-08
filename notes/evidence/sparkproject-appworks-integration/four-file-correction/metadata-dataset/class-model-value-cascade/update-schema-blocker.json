@@ -1,0 +1,18 @@
+{
+  "ok": false,
+  "checks": [
+    {
+      "level": "error",
+      "code": "SCHEMA_VALIDATION_FAILED",
+      "message": "updateCascade 参数不符合 paramsSchema: 未声明的字段",
+      "hint": "先读取 model_action_guide 或脚本上下文对应方法的 paramsSchema，再按 schema 修正参数。"
+    },
+    {
+      "level": "error",
+      "code": "SCRIPT_EXECUTION_FAILED",
+      "message": "脚本链式调用失败: SCHEMA_VALIDATION_FAILED: updateCascade 参数不符合 paramsSchema: 未声明的字段",
+      "hint": "脚本链式调用返回业务失败；先按原始错误码修正参数或业务状态。"
+    }
+  ],
+  "state": {}
+}

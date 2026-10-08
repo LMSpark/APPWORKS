@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-07T21:29:54.015Z",
+  "rows": [
+    {
+      "access": {
+        "DbName": "invisible",
+        "dbid": "invisible",
+        "rowid": "invisible",
+        "tbldesc": "invisible",
+        "tblname": "invisible"
+      },
+      "hasIdentity": false,
+      "values": {
+        "DbName": "[unavailable]",
+        "dbid": "[unavailable]",
+        "rowid": "[unavailable]",
+        "tbldesc": "[unavailable]",
+        "tblname": "[unavailable]"
+      }
+    }
+  ],
+  "total": 1
+}

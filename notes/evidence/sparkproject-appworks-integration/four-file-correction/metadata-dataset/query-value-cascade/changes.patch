@@ -1,0 +1,2014 @@
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\types.ts" b/packages/spark-data/src/types.ts
+index 6fdf2800d..588cf3706 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\types.ts"
++++ b/packages/spark-data/src/types.ts
+@@ -809,23 +809,6 @@ export type DataResourceRelationInput = Omit<DataResourceRelation, 'filterExpres
+   condition?: Record<string, unknown>
+ }
+ 
+-/**
+- * 目标 DataView 响应源 DataView 数据变化的触发源。
+- *
+- * 配置在 `DataViewCascade.dependencyType`，决定源 DataView 的哪种数据变化会触发目标 DataView 重新查询。
+- *
+- * - `'currentRow'`   — 父表 default 视图当前聚焦行变化时触发（默认值）；子表 default 视图用当前行主键过滤
+- * - `'selectedRows'` — 父表 default 视图选中行集合变化时触发；子表 default 视图用所有选中行的主键 in-list 过滤
+- * - `'allRows'`      — 父表 default 视图全量行集合变化时触发（不区分分页）
+- * - `'pagedRows'`    — 父表 default 视图当前分页行集合变化时触发
+- */
+-export type DependencyType =
+-  | 'currentRow'
+-  | 'selectedRows'
+-  | 'allRows'
+-  | 'pagedRows'
+-  | (string & {})
+-
+ /**
+  * DataView 输入级联 — 显式声明源/目标 DataView 和字段过滤绑定。
+  *
+@@ -837,19 +820,18 @@ export type DependencyType =
+  *   "parentTable": "Users", "childTable": "Orders",
+  *   "parentViewId": "userGrid",
+  *   "childViewId": "orderGrid",
+- *   "filterBindings": [{ "sourceField": "id", "targetField": "userId" }],
+- *   "dependencyType": "selectedRows"
++ *   "filterBindings": [{ "targetField": "userId" }]
+  * }
+  * ```
+  */
+ export type DataViewCascadeFilterBinding = Readonly<{
+-  /** 从源 DataView 行读取的字段。 */
+-  sourceField: string
++  /** 源字段值；省略表示源视图选中行主键数组，指针只参与取值。 */
++  sourceField?: string
+   /** 作为目标 DataView 查询过滤条件的字段。 */
+   targetField: string
+ }>
+ 
+-/** 既有 DataView 查询级联；不引用 DataResourceRelation。 */
++/** 原生输入值约束目标视图查询；不引用 DataResourceRelation。 */
+ export type DataViewQueryCascade = {
+   kind?: 'query'
+   /** AppWorks 级联身份。 */
+@@ -866,8 +848,6 @@ export type DataViewQueryCascade = {
+   childViewId: string
+   /** 源字段到目标过滤字段的绑定。 */
+   filterBindings: readonly DataViewCascadeFilterBinding[]
+-  /** 响应源视图的哪种数据变化（默认 'currentRow'）。 */
+-  dependencyType?: DependencyType
+   /** 源变化时是否自动重新查询目标视图（默认 true）。 */
+   autoLoad?: boolean
+ }
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\index.ts" b/packages/spark-data/src/index.ts
+index c1b98fc69..9398a192f 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\index.ts"
++++ b/packages/spark-data/src/index.ts
+@@ -177,7 +177,6 @@ export type {
+   DataViewFieldCascadeState,
+   DataViewCascadeFilterBinding,
+   DataViewCascadeSelector,
+-  DependencyType,
+   TableResourceType,
+   TableBusinessCategory,
+   TableModelBinding,
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\core\\utils.ts" b/packages/spark-data/src/core/utils.ts
+index 0cdc599c1..61e916863 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\core\\utils.ts"
++++ b/packages/spark-data/src/core/utils.ts
+@@ -8,7 +8,7 @@
+  * spark-data 内部工具函数
+  */
+ 
+-import type { DataRow, DataSource, DependencyType, CrudApi } from '../types'
++import type { DataRow, CrudApi } from '../types'
+ 
+ /** DataViewKey 分隔符，名称中禁止包含 */
+ const SEPARATOR = '@'
+@@ -181,23 +181,3 @@ export function pruneInvalidSelections(
+   return { currentRowPruned, selectedRowsPruned }
+ }
+ 
+-/**
+- * 根据依赖类型获取源视图的数据范围
+- * @param sourceView 实现 DataSource 的数据源（DataView 自然满足）
+- * @param dep 依赖类型
+- * @returns 数据行数组
+- */
+-export function getParentRows(sourceView: DataSource, dep: DependencyType): readonly DataRow[] {
+-  switch (dep) {
+-    case 'currentRow':   return sourceView.currentRow ? [sourceView.currentRow] : []
+-    case 'selectedRows': return sourceView.selectedRows ?? []
+-    case 'allRows':      return sourceView.rows ?? []
+-    case 'pagedRows': {
+-      const rows = sourceView.rows ?? []
+-      const ps = sourceView.pageSize ?? 20
+-      const p = sourceView.page ?? 1
+-      return rows.slice((p - 1) * ps, p * ps)
+-    }
+-    default: return sourceView.currentRow ? [sourceView.currentRow] : []
+-  }
+-}
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\dataset.ts" b/packages/spark-data/src/dataset.ts
+index 3c729ea24..9229ba911 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\dataset.ts"
++++ b/packages/spark-data/src/dataset.ts
+@@ -37,7 +37,8 @@ import type {
+ import { DataTable } from './data-table'
+ import { createCrudService } from './strategies/crud-service'
+ import { normalizeDataSetMetadata, normalizeScenarioId } from './metadata'
+-import { assertNoSeparator, getParentRows } from './core/utils'
++import { assertNoSeparator } from './core/utils'
++import { DataViewCascadeValueBinding } from './strategies/cascade/cascade-value-binding'
+ import { ResourceRelationDefinition } from './resource-relation/resource-relation-definition'
+ import { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
+ import { DataViewFieldCascadeRuntime } from './strategies/cascade/field-cascade-runtime'
+@@ -245,6 +246,7 @@ function isDataViewQueryCascade(value: unknown): value is DataViewQueryCascade {
+   const record = asRecord(value)
+   return record !== null
+     && (record['kind'] === undefined || record['kind'] === 'query')
++    && !Object.hasOwn(record, 'dependencyType')
+     && typeof record['parentTable'] === 'string'
+     && typeof record['parentViewId'] === 'string'
+     && typeof record['childTable'] === 'string'
+@@ -254,8 +256,8 @@ function isDataViewQueryCascade(value: unknown): value is DataViewQueryCascade {
+     && record['filterBindings'].every((binding) => {
+       const bindingRecord = asRecord(binding)
+       return bindingRecord !== null
+-        && typeof bindingRecord['sourceField'] === 'string'
+-        && bindingRecord['sourceField'].trim() !== ''
++        && (bindingRecord['sourceField'] === undefined || (typeof bindingRecord['sourceField'] === 'string'
++          && bindingRecord['sourceField'].trim() !== ''))
+         && typeof bindingRecord['targetField'] === 'string'
+         && bindingRecord['targetField'].trim() !== ''
+     })
+@@ -781,48 +783,19 @@ getRequestTemplateParams(): Record<string, unknown> {
+ 
+   /** 将 DataView 输入级联解析为目标视图过滤表达式。 */
+   resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null {
+-    const parentView = this.getView(rel.parentTable, rel.parentViewId)
+-    if (!parentView) return null
+-
+-    const parentRows = getParentRows(parentView, rel.dependencyType ?? 'currentRow')
+-    const parentReady = parentView.requestState === RequestState.Loaded || parentView.rows.length > 0
+-    if (!parentReady || parentRows.length === 0) return null
+-
++    const values = DataViewCascadeValueBinding.inputs(this, rel.filterBindings.map(binding => ({
++      tableName: rel.parentTable, viewId: rel.parentViewId,
++      ...(binding.sourceField === undefined ? {} : {field: binding.sourceField}),
++    })))
++    if (values === undefined) return null
+     const filters: DataViewFilterTree[] = []
+-    for (const binding of rel.filterBindings) {
+-      const isComputedField = parentView.columns.some(
+-        column => column.name === binding.sourceField && column.computeExpression !== undefined,
+-      )
+-      const values: Array<string | number | boolean | null> = []
+-      const seen = new Set<unknown>()
+-
+-      for (const row of parentRows) {
+-        if (binding.sourceField in row) {
+-          const value = row[binding.sourceField]
+-          if (value === undefined) {
+-            if (!isComputedField) {
+-              throw new Error(`远端级联过滤字段 "${binding.sourceField}" 解析为 undefined [${rel.childTable}:${rel.childViewId}]`)
+-            }
+-            continue
+-          }
+-          if (!seen.has(value)) {
+-            seen.add(value)
+-            values.push(toFilterScalar(value, binding.sourceField))
+-          }
+-        } else if (!isComputedField) {
+-          throw new Error(`远端级联过滤引用了不存在的源字段 "${binding.sourceField}" [${rel.childTable}:${rel.childViewId}]`)
+-        }
+-      }
+-
+-      if (values.length === 0) return null
+-
+-      if (values.length > 1) {
+-        filters.push(DataViewFilter.condition({ field: binding.targetField, operator: 'in', value: values }).toJSON())
+-      } else {
+-        const firstValue = values[0]
+-        if (firstValue === undefined) return null
+-        filters.push(DataViewFilter.condition({ field: binding.targetField, operator: 'eq', value: firstValue }).toJSON())
+-      }
++    for (const [index, binding] of rel.filterBindings.entries()) {
++      const value = values[index]
++      filters.push(Array.isArray(value)
++        ? DataViewFilter.condition({field: binding.targetField, operator: 'in',
++          value: value.map((item: unknown) => toFilterScalar(item, binding.targetField))}).toJSON()
++        : DataViewFilter.condition({field: binding.targetField, operator: 'eq',
++          value: toFilterScalar(value, binding.targetField)}).toJSON())
+     }
+ 
+     if (filters.length === 1) return filters[0]
+@@ -1203,7 +1176,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+   private _assertCascadeShape(cascade: DataViewQueryCascade): void {
+     const input: unknown = cascade
+     const allowed = ['kind', 'cascadeId', 'sourceRelationId', 'parentTable', 'parentViewId',
+-      'childTable', 'childViewId', 'filterBindings', 'dependencyType', 'autoLoad']
++      'childTable', 'childViewId', 'filterBindings', 'autoLoad']
+     if (!isRecord(input) || Object.keys(input).some(key => !allowed.includes(key))
+       || (input['kind'] !== undefined && input['kind'] !== 'query')
+       || [input['parentTable'], input['parentViewId'], input['childTable'], input['childViewId']]
+@@ -1221,7 +1194,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+       throw new Error(`Cascade ${cascade.parentTable}:${cascade.parentViewId}→${cascade.childTable}:${cascade.childViewId} requires filterBindings`)
+     }
+     for (const binding of cascade.filterBindings) {
+-      if (!parentView.columns.some(column => column.name === binding.sourceField)) {
++      if (binding.sourceField !== undefined && !parentView.columns.some(column => column.name === binding.sourceField)) {
+         throw new Error(`Source field "${binding.sourceField}" not found in view "${cascade.parentTable}:${cascade.parentViewId}"`)
+       }
+       if (!childView.columns.some(column => column.name === binding.targetField)) {
+@@ -1257,10 +1230,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
+       throw new Error(`Cascade ${cascade.parentTable}:${cascade.parentViewId}→${cascade.childTable}:${cascade.childViewId} already exists`)
+     }
+ 
+-    const next = deepClone({
+-      ...cascade,
+-      dependencyType: cascade.dependencyType ?? 'currentRow',
+-    })
++    const next = deepClone(cascade)
+     const candidates = [...(this.viewCascades ?? []), next]
+     const fields = DataViewFieldCascadeDefinition.validateAll(candidates)
+     DataViewFieldCascadeDefinition.validateRuntime(fields, this)
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\data-view.ts" b/packages/spark-data/src/data-view.ts
+index c4523a999..0d566f0e6 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\data-view.ts"
++++ b/packages/spark-data/src/data-view.ts
+@@ -710,7 +710,7 @@ sortExpression?: SortExpression
+     const table = this._dataTable
+     if (!table) return false
+     if (this.#queryExecutor !== undefined) return false
+-    return table.resourceType === 'static-data' || (table.api?.list === undefined && this.rows.length > 0)
++    return table.resourceType === 'static-data' || (table.api?.list === undefined && (this.rows.length > 0 || table.rows.length > 0))
+   }
+ 
+   /** 远端数据来源的行是查询结果，不属于配置，序列化时不写出。 */
+@@ -1377,8 +1377,8 @@ protected logger = Logger('DataView')
+       return
+     }
+ 
+-    // 无远程 list API（含 static-data）时，仅在数据层执行本地过滤同步，不触发网络请求。
+-    if (this._shouldApplyStaticLocalFilter()) {
++    // 没有输入依赖的本地视图可直接完成；其余视图走同一输入编排。
++    if (this._shouldApplyStaticLocalFilter() && !this.dataSet?.getParentCascades(this.tableName, this.viewId).length) {
+       this._syncStaticLocalFilterRows()
+       this.selectionDelegate.applyAutoFirst()
+       this.setRequestState(RequestState.Loaded)
+@@ -1393,15 +1393,22 @@ protected logger = Logger('DataView')
+       const parents = ds ? ds.getParentCascades(this.tableName, this.viewId) : []
+ 
+       const cascadeFilters: DataViewFilterTree[] = []
+-      for (const rel of parents) {
+-        await this.requestCascadeSource(rel)
+-        if (this._isDestroyed) return
+-        const cascadeFilter = ds?.resolveCascadeFilter(rel)
+-        if (cascadeFilter === null) {
+-          this.setRequestState(RequestState.Failed)
+-          return
++      try {
++        for (const rel of parents) {
++          await this.requestCascadeSource(rel)
++          if (this._isDestroyed) return
++        }
++        for (const rel of parents) {
++          const cascadeFilter = ds?.resolveCascadeFilter(rel)
++          if (cascadeFilter === null) {
++            this.setRequestState(RequestState.Failed)
++            return
++          }
++          if (cascadeFilter !== undefined) cascadeFilters.push(cascadeFilter)
+         }
+-        if (cascadeFilter !== undefined) cascadeFilters.push(cascadeFilter)
++      } catch (error) {
++        this.rejectCascade(error)
++        return
+       }
+ 
+       const params: QueryParams = {}
+@@ -1413,6 +1420,11 @@ protected logger = Logger('DataView')
+       const mergedFilter = this._mergeRemoteFilters(cascadeFilter, this.filterExpression)
+       if (mergedFilter !== undefined) params.filter = mergedFilter
+ 
++      if (this._shouldApplyStaticLocalFilter()) {
++        this.applyInMemoryCascade(mergedFilter)
++        return
++      }
++
+       // 注入视图自身的分页/排序/过滤参数
+       params.viewId = this.viewId
+       params.viewConfig = this._buildRemoteViewConfig()
+@@ -1448,7 +1460,7 @@ protected logger = Logger('DataView')
+     const parentView = ds.getView(rel.parentTable, rel.parentViewId)
+     if (parentView?._pendingRequestData) {
+       await parentView._pendingRequestData
+-    } else if (parentView?.requestState === RequestState.Idle) {
++    } else if (parentView?.requestState === RequestState.Idle && ds.resolveCascadeFilter(rel) === null) {
+       await parentView.requestData()
+     }
+   }
+@@ -1643,6 +1655,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
+   /** 拒绝覆盖未保存变更；通过检查后置 Idle 并按当前视图输入重新查询。 */
+   async refresh(): Promise<void> {
+     this.assertResultReplacementAllowed()
++    this.currentLoadRequestId++
+     this.setRequestState(RequestState.Idle)
+     return this.requestData()
+   }
+@@ -1662,22 +1675,27 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
+     }
+   }
+ 
++  /** 级联输入失败使在途结果失效；未保存编辑仍保留原查询上下文供显式处理。 */
++  rejectCascade(error: unknown): void {
++    this.currentLoadRequestId++
++    this.loadingError = toError(error)
++    if (!this.hasEditingChanges() && !this._dirtyTrackingDelegate?.hasPendingChanges()) {
++      this.setRequestState(RequestState.Failed)
++    }
++  }
++
+   /**
+    * 无 API 时的内存级联过滤（从 DataTable.rows 按依赖过滤条件写入视图）。
+    *
+-   * @param rel DataView 输入级联。
+-   * @param _parentRows 父视图当前参与级联的行列表；过滤值统一由 DataSet 解析。
++   * @param filter 已合并所有输入值与视图自身条件的过滤表达式。
+    */
+-  applyInMemoryCascade(rel: DataViewQueryCascade, _parentRows: readonly DataRow[]): void {
++  applyInMemoryCascade(filter: DataViewFilterTree | undefined): void {
+     // 从 DataTable.rows 读取全量静态源数据（可在多次父行切换中反复过滤）
+     const srcRows: DataRow[] = this._dataTable?.rows ?? []
+-    const cascadeFilter = this.dataSet?.resolveCascadeFilter(rel)
+     let filteredRows = srcRows.slice()
+ 
+-    if (cascadeFilter === null) {
+-      filteredRows = []
+-    } else if (cascadeFilter !== undefined) {
+-      const local = new DataViewFilterLocal(this._parseFilter(cascadeFilter))
++    if (filter !== undefined) {
++      const local = new DataViewFilterLocal(this._parseFilter(filter))
+       local.validateFields(this._getAvailableLocalFilterFields())
+       filteredRows = srcRows.filter(row => local.matches(row))
+     }
+@@ -2457,6 +2475,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
+   }
+ 
+   private resetStateInternal(options: { emitEvents: boolean }): void {
++    this.currentLoadRequestId++
+     this.#queryResult = undefined
+     this.#computedQueryToken = undefined
+     this.#queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\dataset-crud-tool.ts" b/packages/spark-data/src/dataset-crud-tool.ts
+index d8ecc7905..c72394290 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\dataset-crud-tool.ts"
++++ b/packages/spark-data/src/dataset-crud-tool.ts
+@@ -728,9 +728,9 @@ export class DataSetCrudTool {
+           ? { ...parent, field: newColumnName } : parent),
+       }) : ({ ...cascade,
+         filterBindings: cascade.filterBindings.map((binding) => ({
+-          sourceField: cascade.parentTable === tableName && binding.sourceField === columnName
++          ...(binding.sourceField === undefined ? {} : {sourceField: cascade.parentTable === tableName && binding.sourceField === columnName
+             ? newColumnName
+-            : binding.sourceField,
++            : binding.sourceField}),
+           targetField: cascade.childTable === tableName && binding.targetField === columnName
+             ? newColumnName
+             : binding.targetField,
+@@ -766,7 +766,8 @@ export class DataSetCrudTool {
+             || (parent.field === undefined && this.dataSet.getView(parent.tableName, parent.viewId)?.effectivePkFields.includes(columnName))))
+           || (cascade.optionsView.tableName === tableName && this.cascadeOptionsReferenceField(cascade, columnName))
+         : (cascade.parentTable === tableName
+-          && cascade.filterBindings.some(binding => binding.sourceField === columnName))
++          && cascade.filterBindings.some(binding => binding.sourceField === columnName
++            || (binding.sourceField === undefined && this.dataSet.getView(cascade.parentTable, cascade.parentViewId)?.effectivePkFields.includes(columnName))))
+           || (cascade.childTable === tableName
+             && cascade.filterBindings.some(binding => binding.targetField === columnName))
+     ))
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\strategies\\cascade-delegate.ts" b/packages/spark-data/src/strategies/cascade-delegate.ts
+index 35d84bf99..1192d642f 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\strategies\\cascade-delegate.ts"
++++ b/packages/spark-data/src/strategies/cascade-delegate.ts
+@@ -1,164 +1,69 @@
+-/**
+- * @module @spark-appworks/spark-data:strategies/cascade-delegate
+- * 职责：提供 spark-data 数据管线中的 cascade delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。
+- * 边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。
+- * AI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。
+- */
+-
+ import { Logger } from '@spark-appworks/spark-utils'
+-import { RequestState, type DataViewQueryCascade } from '../types'
++import { RequestState } from '../types'
+ import type { DataView } from '../data-view'
+-import { getParentRows } from '../core/utils'
++import { DataViewCascadeValueBinding } from './cascade/cascade-value-binding'
+ 
+ const logger = Logger('DataView:Cascade')
+ 
+-/** Cascade Delegate 的语义模型。 */
++/** 视图事件只提供重读信号；输入值快照变化才重新查询。 */
+ export class CascadeDelegate {
+-  /** 级联取消订阅句柄 */
+   private cascadeUnsubscribers: Array<() => void> = []
+-  /** 待处理的级联请求 */
+-  private pendingCascadeRequest?: {
+-    requestId: number
+-    cancel: () => void
+-  } | undefined
+-  /** 级联请求 ID 计数器 */
+-  private nextCascadeRequestId = 0
+-
+-    /** 创建 Cascade Delegate 实例。 */
+-constructor(
+-    private host: DataView,
+-  ) {}
++  private generation = 0
+ 
+-  // ─────────────────────────────────────────────
+-  // 级联订阅
+-  // ─────────────────────────────────────────────
++  constructor(private readonly host: DataView) {}
+ 
+-  /**
+-   * 建立级联监听
+-   *
+-  * 沿 parent 链找到 DataSet → 查询以本视图为 child 的关系 →
+-  * 按 dependencyType 订阅对应的父视图独立事件。
+-   */
+   setupCascade(): void {
+     this.teardownCascade()
+-
+-    // DataTable 尚未绑定时 dataSet 为 undefined（如独立创建的 DataView），直接跳过
+     const dataSet = this.host.dataSet
+     if (!dataSet) return
+-    const parentRels = dataSet.getParentCascades(this.host.tableName, this.host.viewId)
+-
+-    for (const rel of parentRels) {
+-      const parentView = dataSet.getView(rel.parentTable, rel.parentViewId)
+-      if (!parentView) throw new Error(`父视图 ${rel.parentTable}:${rel.parentViewId} 不存在，请检查 DataSet 级联配置`)
+-
+-      const handler = () => {
+-        try {
+-          this.respondToParentChange(rel, parentView)
+-        } catch (error) {
+-          logger.error(`级联加载 ${this.host.tableName}:${this.host.viewId} 失败`, error)
++    const cascades = dataSet.getParentCascades(this.host.tableName, this.host.viewId)
++    const read = () => cascades.map(cascade => dataSet.resolveCascadeFilter(cascade))
++    let previous: ReturnType<typeof read> | undefined
++    const fail = (error: unknown) => {
++      this.host.rejectCascade(error)
++      logger.error(`级联输入 ${this.host.tableName}:${this.host.viewId} 失败`, error)
++    }
++    try { previous = read() } catch (error) { fail(error) }
++    const generation = this.generation
++    const handler = () => {
++      try {
++        const next = read()
++        if (DataViewCascadeValueBinding.equal(previous, next)) return
++        const automatic = cascades.some((cascade, index) => cascade.autoLoad !== false
++          && !DataViewCascadeValueBinding.equal(previous?.[index], next[index]))
++        previous = next
++        // 正在等待父查询的编排会在 await 后读取最新值。
++        if (this.host.requestState === RequestState.Preparing) return
++        if (next.some(value => value === null)) {
++          this.host.clearAll()
++          return
+         }
++        if (automatic) void this.host.refresh().catch((error: unknown) => {
++          if (generation === this.generation && !this.host.destroyed) fail(error)
++        })
++      } catch (error) { fail(error) }
++    }
++    const sources = new Set(cascades.map(cascade => `${cascade.parentTable}@${cascade.parentViewId}`))
++    for (const source of sources) {
++      const cascade = cascades.find(candidate => `${candidate.parentTable}@${candidate.parentViewId}` === source)
++      if (!cascade) continue
++      const view = dataSet.getView(cascade.parentTable, cascade.parentViewId)
++      if (!view) throw new Error(`CASCADE_VALUE_VIEW: 输入视图不存在 ${source}`)
++      for (const event of ['rowsChanged', 'cleared', 'currentRowChanged', 'selectedRowsChanged',
++        'editingFieldChanged', 'editingChanged', 'editingDiscarded', 'requestStateChanged'] as const) {
++        view.events.on(event, handler)
++        this.cascadeUnsubscribers.push(() => view.events.off(event, handler))
+       }
+-
+-      // rowsChanged + cleared 对所有 dep 类型都相关
+-      parentView.events.on('rowsChanged', handler)
+-      parentView.events.on('cleared', handler)
+-      this.cascadeUnsubscribers.push(
+-        () => parentView.events.off('rowsChanged', handler),
+-        () => parentView.events.off('cleared', handler),
+-      )
+-
+-      const dep = rel.dependencyType ?? 'currentRow'
+-      if (dep === 'currentRow') {
+-        parentView.events.on('currentRowChanged', handler)
+-        this.cascadeUnsubscribers.push(() => parentView.events.off('currentRowChanged', handler))
+-      } else if (dep === 'selectedRows') {
+-        parentView.events.on('selectedRowsChanged', handler)
+-        this.cascadeUnsubscribers.push(() => parentView.events.off('selectedRowsChanged', handler))
+-      }
+-      // allRows / pagedRows: 只响应 rowsChanged + cleared（已订阅）
+     }
+   }
+ 
+-  /** 清理全部级联订阅 */
+   teardownCascade(): void {
+-    for (const unsub of this.cascadeUnsubscribers) unsub()
++    this.generation++
++    for (const unsubscribe of this.cascadeUnsubscribers) unsubscribe()
+     this.cascadeUnsubscribers = []
+   }
+ 
+-  /** 取消待处理的级联请求 */
+-  cancelPendingRequest(): void {
+-    if (this.pendingCascadeRequest) {
+-      this.pendingCascadeRequest.cancel()
+-      this.pendingCascadeRequest = undefined
+-    }
+-  }
+-
+-  // ─────────────────────────────────────────────
+-  // 级联响应
+-  // ─────────────────────────────────────────────
+-
+-  /**
+-   * 响应父视图状态变化
+-   *
+-   * 由 setupCascade 中按 dependencyType 订阅的具体事件触发，
+-   * 无需再做 changeType 过滤——订阅时已完成过滤。
+-   */
+-  private respondToParentChange(rel: DataViewQueryCascade, parentView: DataView): void {
+-    // 子视图正在等待该父视图完成时，当前 requestData 会在 await 后读取最新父状态。
+-    // 此处再次 refresh 会与原请求并发并把 requestState 留在 Loading。
+-    if (this.host.requestState === RequestState.Preparing) return
+-
+-    // 取消待处理的级联请求
+-    if (this.pendingCascadeRequest) {
+-      this.pendingCascadeRequest.cancel()
+-      logger.debug(`取消级联请求 ${this.pendingCascadeRequest.requestId} (父视图 ${rel.parentTable}:${rel.parentViewId} 变化)`)
+-      this.pendingCascadeRequest = undefined
+-    }
+-
+-    const parentRows = getParentRows(parentView, rel.dependencyType ?? 'currentRow')
+-
+-    if (!parentRows.length) {
+-      this.host.clearAll()
+-      return
+-    }
+-
+-    if (rel.autoLoad !== false) {
+-      // 正式模型由查询 owner 取数，不依赖表级 CRUD 端点。
+-      if (!this.host.crudService && !this.host.dataTable?.modelBinding) {
+-        logger.debug(`内存级联过滤 ${this.host.tableName}:${this.host.viewId}（无 API 配置）`)
+-        this.host.applyInMemoryCascade(rel, parentRows)
+-        return
+-      }
+-
+-      const requestId = ++this.nextCascadeRequestId
+-      let cancelled = false
+-
+-      void this.host.refresh()
+-        .then(() => {
+-          if (!cancelled && this.pendingCascadeRequest?.requestId === requestId) {
+-            this.pendingCascadeRequest = undefined
+-          }
+-        })
+-        .catch((err: unknown) => {
+-          if (!cancelled) {
+-            logger.error(`级联加载 ${this.host.tableName}:${this.host.viewId} 失败 [${requestId}]`, err)
+-          }
+-        })
+-
+-      this.pendingCascadeRequest = {
+-        requestId,
+-        cancel: () => { cancelled = true }
+-      }
+-    }
+-  }
+-
+-  // ─────────────────────────────────────────────
+-  // 生命周期
+-  // ─────────────────────────────────────────────
+-
+-  /** 销毁 — 清理订阅 + 取消待处理请求 */
+   destroy(): void {
+     this.teardownCascade()
+-    this.cancelPendingRequest()
+   }
+ }
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-binding.ts" b/packages/spark-data/src/strategies/cascade/field-cascade-binding.ts
+index 24b9b671c..4e76d8062 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-binding.ts"
++++ b/packages/spark-data/src/strategies/cascade/field-cascade-binding.ts
+@@ -1,5 +1,4 @@
+-import { isRecord } from '@spark-appworks/spark-utils'
+-import { DataMember, resolveDataViewMember } from '../../core/data-view-key'
++import { DataViewCascadeValueBinding } from './cascade-value-binding'
+ import type { DataSet } from '../../dataset'
+ import type { DataView } from '../../data-view'
+ import { RequestState } from '../../types'
+@@ -18,18 +17,6 @@ function scalar(value: unknown): value is Scalar {
+ export class DataViewFieldCascadeBinding {
+   constructor(private readonly dataSet: DataSet, readonly definition: DataViewFieldCascade) {}
+ 
+-  static equal(left: unknown, right: unknown): boolean {
+-    if (Object.is(left, right)) return true
+-    if (Array.isArray(left) && Array.isArray(right)) {
+-      return left.length === right.length && left.every((value, index) => this.equal(value, right[index]))
+-    }
+-    if (isRecord(left) && isRecord(right)) {
+-      const keys = Object.keys(left)
+-      return keys.length === Object.keys(right).length && keys.every(key => Object.hasOwn(right, key) && this.equal(left[key], right[key]))
+-    }
+-    return false
+-  }
+-
+   private view(tableName: string, viewId: string): DataView {
+     const view = this.dataSet.getView(tableName, viewId)
+     if (!view || view.destroyed || this.dataSet.destroyed) throw new Error('FIELD_CASCADE_VIEW: 视图已失效')
+@@ -37,8 +24,7 @@ export class DataViewFieldCascadeBinding {
+   }
+ 
+   private read(source: Pick<ValueSource, 'tableName' | 'viewId' | 'field'>): unknown {
+-    return resolveDataViewMember({ dataViewKey: `${source.tableName}@${source.viewId}`,
+-      dataMember: DataMember.Value, dataField: source.field }, this.dataSet)
++    return DataViewCascadeValueBinding.read(this.dataSet, source)
+   }
+ 
+   references(tableName: string, viewId: string): boolean {
+@@ -65,17 +51,7 @@ export class DataViewFieldCascadeBinding {
+   }
+ 
+   parents(): readonly unknown[] | undefined {
+-    const values: unknown[] = []
+-    for (const parent of this.definition.parents) {
+-      const view = this.view(parent.tableName, parent.viewId)
+-      if (view.requestState === RequestState.Loading || view.requestState === RequestState.Preparing
+-        || (view.requestState === RequestState.Idle && view.rows.length === 0)) return undefined
+-      if (view.requestState === RequestState.Failed) throw new Error('FIELD_CASCADE_PARENT: 父输入查询失败')
+-      const value = this.read(parent)
+-      if (value === undefined) return undefined
+-      values.push(value)
+-    }
+-    return values
++    return DataViewCascadeValueBinding.inputs(this.dataSet, this.definition.parents)
+   }
+ 
+   targetReady(): boolean {
+@@ -118,7 +94,7 @@ export class DataViewFieldCascadeBinding {
+     const delimiter = view.selectionDelimiter
+     return { view, fields: [...new Set(fields)],
+       isCurrent: () => !view.destroyed && this.dataSet.getView(reference.tableName, reference.viewId) === view
+-        && DataViewFieldCascadeBinding.equal(valueFields, view.valueField ?? view.effectivePkFields[0])
++        && DataViewCascadeValueBinding.equal(valueFields, view.valueField ?? view.effectivePkFields[0])
+         && view.selectionDelimiter === delimiter,
+       evaluate: (current: unknown, rows: readonly DataRow[]) => {
+         const nativeOptions = rows.map(row => typeof valueFields === 'string' ? row[valueFields] : DataViewSelectionValue.token(row, valueFields))
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-runtime.ts" b/packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts
+index 00c14acb6..a6442a32d 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-runtime.ts"
++++ b/packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts
+@@ -2,6 +2,7 @@ import type { DataSet } from '../../dataset'
+ import type { DataViewFieldCascade, DataViewFieldCascadeAddress, DataViewFieldCascadeState } from '../../types'
+ import { Logger } from '@spark-appworks/spark-utils'
+ import { DataViewFieldCascadeBinding } from './field-cascade-binding'
++import { DataViewCascadeValueBinding } from './cascade-value-binding'
+ 
+ const logger = Logger('DataView:FieldCascade')
+ type Entry = {
+@@ -111,7 +112,7 @@ export class DataViewFieldCascadeRuntime {
+           entry.initialized = true
+           continue
+         }
+-        if (entry.waiting || !DataViewFieldCascadeBinding.equal(entry.parents, parents)) {
++        if (entry.waiting || !DataViewCascadeValueBinding.equal(entry.parents, parents)) {
+           void this.run(entry, true)
+         } else this.recompute(entry)
+       } catch (error) { this.fail(entry, error) }
+@@ -184,16 +185,16 @@ export class DataViewFieldCascadeRuntime {
+       this.publish(entry, { status: 'loading', options: [], valueStatus: 'unverified' })
+       const rows = await options.view.queryOptionRows({ fields: options.fields, context })
+       if (this.#disposed || this.dataSet.destroyed || entry.generation !== generation || !options.isCurrent()
+-        || !DataViewFieldCascadeBinding.equal(parents, entry.binding.parents())) return copyState(idle)
++        || !DataViewCascadeValueBinding.equal(parents, entry.binding.parents())) return copyState(idle)
+       const current = entry.binding.captureTarget().value
+       let evaluation = options.evaluate(current, rows)
+       if (automatic && entry.targetRevision === revision && target.isCurrent()
+-        && DataViewFieldCascadeBinding.equal(target.value, current)) {
++        && DataViewCascadeValueBinding.equal(target.value, current)) {
+         const policy = definition.valuePolicy
+         if (policy.mode !== 'retain') {
+           const next = policy.mode === 'clear' ? policy.clearValue
+             : evaluation.status === 'invalid' ? (evaluation.hasRetained ? evaluation.retained : policy.clearValue) : current
+-          if (!DataViewFieldCascadeBinding.equal(current, next)) target.write(next)
++          if (!DataViewCascadeValueBinding.equal(current, next)) target.write(next)
+           evaluation = options.evaluate(entry.binding.captureTarget().value, rows)
+         }
+       }
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-project-model\\src\\scenario\\scenario-view-config.ts" b/packages/spark-project-model/src/scenario/scenario-view-config.ts
+index bf5e64f98..97f71615d 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-project-model\\src\\scenario\\scenario-view-config.ts"
++++ b/packages/spark-project-model/src/scenario/scenario-view-config.ts
+@@ -276,7 +276,7 @@ export class ScenarioViewConfig {
+ 
+   private validateCascade(cascade: ScenarioConfigObject, tables: ScenarioConfigObject): void {
+     keys(cascade, ['kind', 'cascadeId', 'sourceRelationId', 'parentTable', 'parentViewId', 'childTable', 'childViewId',
+-      'filterBindings', 'dependencyType', 'autoLoad'], 'viewCascades')
++      'filterBindings', 'autoLoad'], 'viewCascades')
+     if ('kind' in cascade && cascade['kind'] !== 'query') throw new Error('viewCascades.kind 无效')
+     for (const prefix of ['parent', 'child']) {
+       const tableName = name(cascade[`${prefix}Table`], `viewCascades.${prefix}Table`)
+@@ -287,12 +287,11 @@ export class ScenarioViewConfig {
+     }
+     for (const key of ['cascadeId', 'sourceRelationId']) if (key in cascade) name(cascade[key], `viewCascades.${key}`)
+     optionalBoolean(cascade, 'autoLoad', 'viewCascades')
+-    if ('dependencyType' in cascade && !['currentRow', 'selectedRows', 'allRows', 'pagedRows'].some(type => type === cascade['dependencyType'])) throw new Error('viewCascades.dependencyType 无效')
+     if (!Array.isArray(cascade['filterBindings'])) throw new Error('viewCascades.filterBindings 必须是数组')
+     for (const input of cascade['filterBindings']) {
+       const binding = record(input, 'viewCascades.filterBindings')
+       keys(binding, ['sourceField', 'targetField'], 'viewCascades.filterBindings')
+-      name(binding['sourceField'], 'viewCascades.sourceField')
++      if ('sourceField' in binding) name(binding['sourceField'], 'viewCascades.sourceField')
+       name(binding['targetField'], 'viewCascades.targetField')
+     }
+   }
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\API.md" b/packages/spark-data/API.md
+index f5833e73f..31fcf63b4 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\API.md"
++++ b/packages/spark-data/API.md
+@@ -78,7 +78,6 @@ const dataSet = SparkData.createDataSet({
+       filterBindings: [
+         { sourceField: 'id', targetField: 'departmentId' }
+       ],
+-      dependencyType: 'currentRow',
+       autoLoad: true,
+     }
+   ]
+@@ -118,15 +117,16 @@ type DataViewQueryCascade = {
+   childTable: string
+   childViewId: string
+   filterBindings: readonly {
+-    sourceField: string
++    sourceField?: string
+     targetField: string
+   }[]
+-  dependencyType?: 'currentRow' | 'selectedRows' | 'allRows' | 'pagedRows'
+   autoLoad?: boolean
+ }
+ ```
+ 
+-上面的 query 分支仍是尚待迁移的旧查询依赖合同，按 `dependencyType` 读取行并生成过滤条件，不能代表通用值级联已经全部迁移。
++query 和 field 共享原生 `DataMember.Value` 输入绑定。query 的 `sourceField` 指定字段时读取字段值（含编辑覆盖），省略时读取选中主键数组；标量生成 `eq`，数组生成 `in`，空数组保持空约束，普通字符串不拆分。多个绑定、多个父输入和目标视图自身过滤条件共同约束查询。等待父查询结束后统一读取最新输入值；等值换指针不重查，迟到响应不得覆盖新结果。
++
++旧 query 的 `dependencyType` 已删除，配置解析明确拒绝该属性；`allRows` / `pagedRows` 不会被猜测转换成选择值。配置迁移须明确实际输入。模型关系保持原有过滤表达式，不随前端值变化。两种级联均通过当次数据查询的字段权限读取输入，未绑定或父查询失败时不发起无约束查询。
+ 
+ 字段值级联使用 `DataViewFieldCascade`，与 query 共处 `viewCascades`：
+ 
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\cascade-event-filter.test.ts" b/packages/spark-data/src/tests/cascade-event-filter.test.ts
+index 7b5c4a4d3..6c29384c3 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\cascade-event-filter.test.ts"
++++ b/packages/spark-data/src/tests/cascade-event-filter.test.ts
+@@ -1,256 +1,214 @@
+-/**
+- * 级联事件过滤 + 陈旧数据修复 的回归测试
+- *
+- * 覆盖两类 bug：
+- *  1. 白请求风暴：子视图响应了与其 source.state 无关的父事件
+- *  2. 陈旧数据：父的选中行在子 Loading 期间改变，子完成后数据仍是旧的
+- */
+-
+ import { describe, it, expect, vi } from 'vitest'
+-import { SparkData } from '@spark-appworks/spark-data'
+-import { RequestState } from '../types'
+-import type { DataRow } from '@spark-appworks/spark-data'
+-
+-// ─── 通用测试 DataSet 工厂 ─────────────────────────────────────
+-
+-function makeDs(sourceState: string) {
+-  return SparkData.createDataSet({
+-    dataSetName: 'TestDS',
+-    tables: {
+-      Orders: {
+-        tableName: 'Orders',
+-        columns: [{ name: 'id', type: 'number' }],
+-        views: { default: { rows: [] } }
+-      },
+-      Items: {
+-        tableName: 'Items',
+-        columns: [{ name: 'id', type: 'number' }, { name: 'orderId', type: 'number' }],
+-        views: { default: { rows: [] } },
+-        api: { list: { url: '/test/items', method: 'GET' } }
+-      }
+-    },
+-    resourceRelations: [
+-      {
+-        parentTable: 'Orders',
+-        childTable: 'Items',
+-        filterExpression: {logic: 'and', filters: [{field: 'orderId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]},
+-      }
+-    ],
+-    viewCascades: [
+-      {
+-        parentTable: 'Orders',
+-        parentViewId: 'default',
+-        childTable: 'Items',
+-        childViewId: 'default',
+-        filterBindings: [{ sourceField: 'id', targetField: 'orderId' }],
+-        dependencyType: sourceState,
+-        autoLoad: true,
+-      }
+-    ]
+-  })
++import { SparkData, RequestState } from '@spark-appworks/spark-data'
++import type { CrudResult, DataRow } from '@spark-appworks/spark-data'
++
++async function values(hidden?: string, remote = true) {
++  const ds = SparkData.fromJson({scenarioId: 'Values', dataSetName: 'Values', tables: {
++    Parent: {modelBinding: {modelId: 'P', modelName: 'Parent'},
++      columns: [{name: 'id', type: 'number', isPrimaryKey: true}, {name: 'region', type: 'string'}],
++      views: {default: {autoCurrentFirst: true}}},
++    Child: {columns: [{name: 'id', type: 'number', isPrimaryKey: true}, {name: 'region', type: 'string'}],
++      ...(remote ? {api: {list: {url: '/test/child', method: 'GET'}}} : {}), views: {default: {}}},
++  }})
++  const source = ds.getView('Parent', 'default')!
++  source.bindQueryExecutor({executeQuery: async () => ({
++    rows: [{id: 1, region: 'A'}, {id: 2, region: 'A'}], total: 2,
++    assertIdentity: identity => {
++      if (identity.scenarioId !== 'Values' || identity.metaName !== 'Parent') throw new Error('query identity mismatch')
++    }, rowKey: row => row['id'],
++    fieldAccess: (_key, field) => ({read: hidden === field ? 'invisible' : 'visible', write: 'allowed',
++      required: false, component: 'editable', writeMode: 'editable'}),
++    readFieldAccess: (_row, field) => hidden === field ? 'invisible' : 'visible',
++    addActionState: () => 'hidden', editActionState: () => 'hidden', deleteActionState: () => 'hidden',
++    createChildActionState: () => 'hidden', viewActionState: () => 'hidden',
++  })})
++  await source.loadFromServer()
++  return ds
+ }
+ 
+-// ─── 帮助：手动模拟父视图已加载并有数据 ────────────────────────
+-
+-function setParentLoaded(pView: ReturnType<typeof SparkData.createDataSet>['tables'][string]['views'][string], rows: DataRow[]) {
+-  pView.rows.splice(0, pView.rows.length, ...rows)
+-  pView.requestState = RequestState.Loaded
+-}
+-
+-// ═══════════════════════════════════════════════════════════════
+-// 测试组 A — 白请求风暴：不相关事件不应触发子请求
+-// ═══════════════════════════════════════════════════════════════
+-
+-describe('cascade event filter — no spurious child requests', () => {
+-
+-  // ── A1: dep=currentRow 子视图不应响应 selectedRows 事件 ──────
+-
+-  it('dep=currentRow: child should NOT react to parent selectedRows event', async () => {
+-    const ds = makeDs('currentRow')
+-    const pView = ds.getView('Orders', 'default')!
+-    const cView = ds.getView('Items', 'default')!
+-
+-    // 父已加载，currentRow 设为第一行
+-    setParentLoaded(pView, [{ id: 1 }, { id: 2 }])
+-    pView._currentRowId = pView.getPkKey(pView.rows[0]!) ?? null
+-
+-    // 子视图 mock
+-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
+-      cView.requestState = RequestState.Loaded
+-      return { success: true, data: [] }
+-    })
+-
+-    // 父仅发出 selectedRowsChanged 事件（用户多选，但子视图 dep=currentRow，与之无关）
+-    pView.events.emit('selectedRowsChanged', [pView.rows[0]!, pView.rows[1]!])
+-    await new Promise(r => setTimeout(r, 30))
+-
+-    expect(cSpy).not.toHaveBeenCalled()
+-    cSpy.mockRestore()
++const fieldCascade = {parentTable: 'Parent', parentViewId: 'default', childTable: 'Child', childViewId: 'default',
++  filterBindings: [{sourceField: 'region', targetField: 'region'}]}
++const selectionCascade = {...fieldCascade, filterBindings: [{targetField: 'id'}]}
++
++describe('query cascade native values', () => {
++  it('resolves the edited field value without collecting parent rows', async () => {
++    const ds = await values()
++    try {
++      ds.getView('Parent', 'default')!.updateEditingValue(1, 'region', 'B')
++      expect(ds.resolveCascadeFilter(fieldCascade)).toEqual({field: 'region', operator: 'eq', value: 'B'})
++    } finally { ds.destroy() }
+   })
+ 
+-  // ── A2: dep=selectedRows 子视图不应响应 currentRow 事件 ─────
+-
+-  it('dep=selectedRows: child should NOT react to parent currentRow event', async () => {
+-    const ds = makeDs('selectedRows')
+-    const pView = ds.getView('Orders', 'default')!
+-    const cView = ds.getView('Items', 'default')!
+-
+-    // 父已加载，selectedRows 设为第一行
+-    setParentLoaded(pView, [{ id: 1 }, { id: 2 }])
+-    const selectedKey = pView.getPkKey(pView.rows[0]!)
+-    if (selectedKey === null || selectedKey === undefined) throw new Error('Expected selected row key')
+-    pView._selectedRowIds.splice(0, pView._selectedRowIds.length, selectedKey)
+-
+-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
+-      cView.requestState = RequestState.Loaded
+-      return { success: true, data: [] }
+-    })
+-
+-    // 父仅发出 currentRowChanged 事件（用户点选某行，但子视图 dep=selectedRows，与之无关）
+-    pView.events.emit('currentRowChanged', pView.rows[1]!)
+-    await new Promise(r => setTimeout(r, 30))
+-
+-    expect(cSpy).not.toHaveBeenCalled()
+-    cSpy.mockRestore()
++  it('resolves selected primary-key arrays including an explicit empty selection', async () => {
++    const ds = await values()
++    try {
++      const source = ds.getView('Parent', 'default')!
++      source.setSelectedRows(source.rows)
++      expect(ds.resolveCascadeFilter(selectionCascade)).toEqual({field: 'id', operator: 'in', value: [1, 2]})
++      source.setSelectedRows([])
++      expect(ds.resolveCascadeFilter(selectionCascade)).toEqual({field: 'id', operator: 'in', value: []})
++    } finally { ds.destroy() }
+   })
+ 
+-  // ── A3: dep=allRows 子视图不应响应 currentRow/selectedRows 事件 ──
+-
+-  it('dep=allRows: child should NOT react to parent currentRow or selectedRows events', async () => {
+-    const ds = makeDs('allRows')
+-    const pView = ds.getView('Orders', 'default')!
+-    const cView = ds.getView('Items', 'default')!
+-
+-    setParentLoaded(pView, [{ id: 1 }, { id: 2 }])
+-
+-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
+-      cView.requestState = RequestState.Loaded
+-      return { success: true, data: [] }
+-    })
+-
+-    pView.events.emit('currentRowChanged', pView.rows[0]!)
+-    pView.events.emit('selectedRowsChanged', [pView.rows[0]!])
+-    await new Promise(r => setTimeout(r, 30))
+-
+-    expect(cSpy).not.toHaveBeenCalled()
+-    cSpy.mockRestore()
++  it('rejects unreadable input and obsolete row dependency configurations', async () => {
++    const ds = await values('region')
++    try {
++      expect(() => ds.resolveCascadeFilter(fieldCascade)).toThrow('DATA_VIEW_VALUE_READ')
++      for (const dependencyType of ['currentRow', 'selectedRows', 'allRows', 'pagedRows']) {
++        expect(() => ds.addCascade({...fieldCascade, dependencyType})).toThrow('QUERY_CASCADE_CONFIG')
++        expect(() => SparkData.fromJson({...ds.toJson(), viewCascades: [{...fieldCascade, dependencyType}]})).toThrow('viewCascades')
++      }
++      expect(ds.viewCascades).toBeUndefined()
++    } finally { ds.destroy() }
+   })
+ 
+-  // ── A4: 正向验证：dep=currentRow 子视图应响应 currentRow 事件 ─
+-
+-  it('dep=currentRow: child SHOULD react to parent currentRow event', async () => {
+-    const ds = makeDs('currentRow')
+-    const pView = ds.getView('Orders', 'default')!
+-    const cView = ds.getView('Items', 'default')!
+-
+-    setParentLoaded(pView, [{ id: 42 }])
+-    pView._currentRowId = pView.getPkKey(pView.rows[0]!) ?? null
+-
+-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async (params?: { filter?: unknown }) => {
+-      expect(params?.filter).toEqual({ field: 'orderId', operator: 'eq', value: 42 })
+-      cView.requestState = RequestState.Loaded
+-      return { success: true, data: [] }
+-    })
+-
+-    pView.events.emit('currentRowChanged', pView.currentRow)
+-    await new Promise(r => setTimeout(r, 30))
+-
+-    expect(cSpy).toHaveBeenCalledOnce()
+-    cSpy.mockRestore()
++  it('does not requery on equal pointer or selection changes but does on an edited value', async () => {
++    const ds = await values()
++    const child = ds.getView('Child', 'default')!
++    const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: []})
++    try {
++      ds.addCascade(fieldCascade)
++      await child.requestData()
++      expect(list).toHaveBeenCalledOnce()
++      const source = ds.getView('Parent', 'default')!
++      source.setCurrentRow(source.rows[1]!)
++      source.setSelectedRows(source.rows)
++      await Promise.resolve()
++      expect(list).toHaveBeenCalledOnce()
++      source.updateEditingValue(2, 'region', 'B')
++      await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2))
++      expect(list.mock.calls[1]?.[0]?.filter).toEqual({field: 'region', operator: 'eq', value: 'B'})
++    } finally { list.mockRestore(); ds.destroy() }
+   })
+ 
+-  // ── A5: 正向验证：dep=allRows 子视图应响应 rows 事件 ─────────
+-
+-  it('dep=allRows: child SHOULD react to parent rows event', async () => {
+-    const ds = makeDs('allRows')
+-    const pView = ds.getView('Orders', 'default')!
+-    const cView = ds.getView('Items', 'default')!
+-
+-    setParentLoaded(pView, [{ id: 7 }])
+-
+-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
+-      cView.requestState = RequestState.Loaded
+-      return { success: true, data: [] }
+-    })
+-
+-    pView.events.emit('rowsChanged')
+-    await new Promise(r => setTimeout(r, 50))
+-
+-    expect(cSpy).toHaveBeenCalledOnce()
+-    cSpy.mockRestore()
++  it('queries array values and empty arrays without reacting to unrelated pointer changes', async () => {
++    const ds = await values()
++    const child = ds.getView('Child', 'default')!
++    const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: []})
++    try {
++      ds.addCascade(selectionCascade)
++      const source = ds.getView('Parent', 'default')!
++      source.setSelectedRows(source.rows)
++      await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
++      expect(list.mock.calls[0]?.[0]?.filter).toEqual({field: 'id', operator: 'in', value: [1, 2]})
++      source.setCurrentRow(source.rows[1]!)
++      await Promise.resolve()
++      expect(list).toHaveBeenCalledOnce()
++      source.setSelectedRows([])
++      await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2))
++      expect(list.mock.calls[1]?.[0]?.filter).toEqual({field: 'id', operator: 'in', value: []})
++    } finally { list.mockRestore(); ds.destroy() }
+   })
+ 
+-  // ── A6: dep=currentRow 子视图应响应 rows 事件（父数据重载，currentRow 被清空） ──
+-
+-  it('dep=currentRow: child SHOULD react to parent rows event (parent reload clears currentRow)', async () => {
+-    const ds = makeDs('currentRow')
+-    const pView = ds.getView('Orders', 'default')!
+-    const cView = ds.getView('Items', 'default')!
+-
+-    // 子已有数据
+-    cView.rows.splice(0, cView.rows.length, { id: 99, orderId: 1 })
+-    cView.requestState = RequestState.Loaded
+-
+-    // 父重新加载（loadFromServer 会清空 currentRow，只发 rows 事件）
+-    setParentLoaded(pView, [{ id: 1 }])
+-    // rows 事件 → 子应清空（parentRows 为空，因为 currentRow=null）
+-    pView.events.emit('rowsChanged')
+-    await new Promise(r => setTimeout(r, 30))
+-
+-    // currentRow=null → getParentRows=[] → 子应 resetState + emit cleared
+-    expect(cView.rows.length).toBe(0)
+-    expect(cView.requestState).toBe(RequestState.Idle)
++  it('merges all input constraints and the child filter for static results', async () => {
++    const ds = await values(undefined, false)
++    try {
++      ds.getTable('Child')!.rows = [{id: 1, region: 'A'}, {id: 2, region: 'A'}, {id: 3, region: 'B'}]
++      ds.getView('Parent', 'default')!.setSelectedRows(ds.getView('Parent', 'default')!.rows)
++      ds.addCascade({...fieldCascade, autoLoad: false})
++      ds.addCascade({...selectionCascade, autoLoad: false})
++      const child = ds.getView('Child', 'default')!
++      child.configure({filterExpression: {field: 'id', operator: 'gte', value: 2}})
++      await child.requestData()
++      expect(child.rows).toMatchObject([{id: 2, region: 'A'}])
++      ds.getView('Parent', 'default')!.updateEditingValue(1, 'region', 'B')
++      await child.refresh()
++      expect(child.rows).toEqual([])
++    } finally { ds.destroy() }
+   })
+-})
+-
+-// ═══════════════════════════════════════════════════════════════
+-// 测试组 B — 父 Loading 期间改变时立即重置重请求
+-// ═══════════════════════════════════════════════════════════════
+-
+-describe('cascade reload — parent changes during child loading triggers immediate re-request', () => {
+-
+-  /**
+-   * B1: 父 currentRow 改变时，无论子视图是否正在 Loading/Preparing，
+-   *     respondToParentChange 都立即将子重置为 Idle 并发起新 requestData()。
+-   *
+-   * 设计说明：
+-   *   - 不使用 cascadeDirty，而是直接重置 + 重请求
+-   *   - loadFromServer 内的 currentLoadRequestId 防止旧请求响应覆盖新结果
+-   *   - 本测试通过 spy requestData() 验证"确实触发了第二次完整编排"
+-   */
+-  it('when parent currentRow changes while child is in Preparing state, child re-requests immediately', async () => {
+-    const ds = makeDs('currentRow')
+-    const pView = ds.getView('Orders', 'default')!
+-    const cView = ds.getView('Items', 'default')!
+-
+-    setParentLoaded(pView, [{ id: 1 }, { id: 2 }])
+-    pView._currentRowId = pView.getPkKey(pView.rows[0]!) ?? null // 初始选中 id=1
+ 
+-    const loadCallCount: number[] = []
+-
+-    // mock loadFromServer：同步返回，记录调用次数，不挂起
+-    const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async () => {
+-      const callIndex = loadCallCount.length + 1
+-      loadCallCount.push(callIndex)
+-      cView.rows.splice(0, cView.rows.length, { id: 100 + callIndex, orderId: pView.currentRow?.['id'] ?? 0 })
+-      cView.requestState = RequestState.Loaded
+-      return { success: true, data: cView.rows }
++  it('reads every input again after waiting for another parent query', async () => {
++    const ds = await values()
++    const slow = ds.getTable('Parent')!.addView('slow')
++    slow.configure({autoCurrentFirst: true})
++    let finish: (() => void) | undefined
++    const gate = new Promise<void>(resolve => {finish = resolve})
++    const query = vi.fn(async () => {
++      await gate
++      return {
++        rows: [{id: 9, region: 'X'}], total: 1,
++        assertIdentity: () => {}, rowKey: (row: DataRow) => row['id'],
++        fieldAccess: () => ({read: 'visible' as const, write: 'denied' as const,
++          required: false, component: 'readonly' as const, writeMode: 'readonly' as const}),
++        readFieldAccess: () => 'visible' as const,
++        addActionState: () => 'hidden' as const, editActionState: () => 'hidden' as const,
++        deleteActionState: () => 'hidden' as const, createChildActionState: () => 'hidden' as const,
++        viewActionState: () => 'hidden' as const,
++      }
+     })
++    slow.bindQueryExecutor({executeQuery: query})
++    const child = ds.getView('Child', 'default')!
++    const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: []})
++    try {
++      ds.addCascade(fieldCascade)
++      ds.addCascade({...selectionCascade, parentViewId: 'slow', filterBindings: [{sourceField: 'id', targetField: 'id'}]})
++      const pending = child.requestData()
++      await vi.waitFor(() => expect(query).toHaveBeenCalledOnce())
++      ds.getView('Parent', 'default')!.updateEditingValue(1, 'region', 'B')
++      finish?.()
++      await pending
++      expect(list).toHaveBeenCalledOnce()
++      expect(list.mock.calls[0]?.[0]?.filter).toEqual({logic: 'and', filters: [
++        {field: 'region', operator: 'eq', value: 'B'}, {field: 'id', operator: 'eq', value: 9},
++      ]})
++    } finally { finish?.(); list.mockRestore(); ds.destroy() }
++  })
+ 
+-    // 启动第一次加载（dep=currentRow, currentRow=id=1）
+-    pView.events.emit('currentRowChanged', pView.currentRow)
+-
+-    // 此时子处于 Preparing（requestData 同步设置的），切换父 currentRow
+-    pView._currentRowId = pView.getPkKey(pView.rows[1]!) ?? null
+-    pView.events.emit('currentRowChanged', pView.currentRow)
+-
+-    // 等待所有微任务完成
+-    await new Promise(r => setTimeout(r, 30))
++  it('keeps the newest input result when earlier responses arrive last', async () => {
++    const ds = await values()
++    const child = ds.getView('Child', 'default')!
++    let first: ((result: CrudResult<DataRow[]>) => void) | undefined
++    let second: ((result: CrudResult<DataRow[]>) => void) | undefined
++    const list = vi.spyOn(child.crud, 'list')
++      .mockReturnValueOnce(new Promise(resolve => {first = resolve}))
++      .mockReturnValueOnce(new Promise(resolve => {second = resolve}))
++    try {
++      ds.addCascade(fieldCascade)
++      const source = ds.getView('Parent', 'default')!
++      source.updateEditingValue(1, 'region', 'B')
++      await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
++      source.updateEditingValue(1, 'region', 'C')
++      await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2))
++      second?.({success: true, data: [{id: 2, region: 'C'}]})
++      await vi.waitFor(() => expect(child.rows[0]?.['region']).toBe('C'))
++      first?.({success: true, data: [{id: 1, region: 'B'}]})
++      await Promise.resolve(); await Promise.resolve()
++      expect(child.rows[0]?.['region']).toBe('C')
++    } finally { list.mockRestore(); ds.destroy() }
++  })
+ 
+-    // 验证：loadFromServer 被调用了（至少 1 次），最终数据来自 orderId=2 的父
+-    expect(cSpy).toHaveBeenCalled()
+-    expect(cView.rows[0]).toMatchObject({ orderId: 2 })
++  it('invalidates a pending response when its input becomes unavailable', async () => {
++    const ds = await values()
++    const child = ds.getView('Child', 'default')!
++    let finish: ((result: CrudResult<DataRow[]>) => void) | undefined
++    const list = vi.spyOn(child.crud, 'list').mockReturnValue(new Promise(resolve => {finish = resolve}))
++    try {
++      ds.addCascade(fieldCascade)
++      const source = ds.getView('Parent', 'default')!
++      source.updateEditingValue(1, 'region', 'B')
++      await vi.waitFor(() => expect(list).toHaveBeenCalledOnce())
++      source.setCurrentRow(null)
++      finish?.({success: true, data: [{id: 1, region: 'B'}]})
++      await Promise.resolve(); await Promise.resolve()
++      expect(child.rows).toEqual([])
++      expect(child.requestState).toBe(RequestState.Idle)
++    } finally { list.mockRestore(); ds.destroy() }
++  })
+ 
+-    cSpy.mockRestore()
++  it('preserves unsaved child edits when a parent value requests replacement', async () => {
++    const ds = await values()
++    const child = ds.getView('Child', 'default')!
++    const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: [{id: 1, region: 'A'}]})
++    try {
++      ds.addCascade(fieldCascade)
++      await child.requestData()
++      child.updateEditingValue(1, 'region', 'draft')
++      ds.getView('Parent', 'default')!.updateEditingValue(1, 'region', 'B')
++      await vi.waitFor(() => expect(child.loadingError?.message).toContain('DATA_VIEW_UNSAVED_CHANGES'))
++      expect(list).toHaveBeenCalledOnce()
++      expect(child.getEditingPatch(1)).toEqual({region: 'draft'})
++      expect(child.rows[0]?.['region']).toBe('A')
++      expect(child.requestState).toBe(RequestState.Loaded)
++    } finally { list.mockRestore(); ds.destroy() }
+   })
+ })
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\data-view\\data-view-events.test.ts" b/packages/spark-data/src/tests/data-view/data-view-events.test.ts
+index 3efb1d466..675f7df74 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\data-view\\data-view-events.test.ts"
++++ b/packages/spark-data/src/tests/data-view/data-view-events.test.ts
+@@ -63,7 +63,6 @@ function createTestDataSet() {
+         childTable: 'Users',
+         childViewId: 'default',
+         filterBindings: [{ sourceField: 'id', targetField: 'deptId' }],
+-        dependencyType: 'currentRow',
+         autoLoad: false,
+       }
+     ]
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\crud\\commit-mode.test.ts" b/packages/spark-data/src/tests/crud/commit-mode.test.ts
+index be98ba494..0b5a0cb63 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\crud\\commit-mode.test.ts"
++++ b/packages/spark-data/src/tests/crud/commit-mode.test.ts
+@@ -415,7 +415,7 @@ describe('unsaved change protection on data replacement', () => {
+       },
+       viewCascades: [{
+         parentTable: 'Parents', parentViewId: 'default', childTable: 'Children', childViewId: 'default',
+-        dependencyType: 'allRows', filterBindings: [{ sourceField: 'id', targetField: 'id' }], autoLoad: false,
++        filterBindings: [{ sourceField: 'id', targetField: 'id' }], autoLoad: false,
+       }],
+     })
+     const parent = ds.getView('Parents', 'default')!
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts" b/packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts
+index aa0e1919a..977c609e6 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts"
++++ b/packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts
+@@ -306,7 +306,6 @@ describe('DataSetCrudTool', () => {
+         childTable: 'Items',
+         childViewId: 'default',
+         filterBindings: [{ sourceField: 'id', targetField: 'orderId' }],
+-        dependencyType: 'currentRow',
+         autoLoad: true,
+       },
+     })
+@@ -316,16 +315,16 @@ describe('DataSetCrudTool', () => {
+       childTable: 'Items',
+       childViewId: 'default',
+     }
+-    expect(tool.getCascade(cascadeSelector)).toMatchObject({dependencyType: 'currentRow'})
++    expect(tool.getCascade(cascadeSelector)).toMatchObject({filterBindings: [{sourceField: 'id', targetField: 'orderId'}]})
+ 
+     tool.updateCascade({
+       ...cascadeSelector,
+       updates: {
+-        dependencyType: 'selectedRows',
++        filterBindings: [{targetField: 'orderId'}],
+         autoLoad: false,
+       },
+     })
+-    expect(tool.getCascade(cascadeSelector)).toMatchObject({dependencyType: 'selectedRows'})
++    expect(tool.getCascade(cascadeSelector)).toMatchObject({filterBindings: [{targetField: 'orderId'}]})
+ 
+     tool.deleteCascade(cascadeSelector)
+     expect(tool.getCascade(cascadeSelector)).toBeUndefined()
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-structure-crud.test.ts" b/packages/spark-data/src/tests/dataset/dataset-structure-crud.test.ts
+index ef2ee2c40..153679acf 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-structure-crud.test.ts"
++++ b/packages/spark-data/src/tests/dataset/dataset-structure-crud.test.ts
+@@ -49,7 +49,6 @@ function createStructureDataSet(): DataSet {
+         childTable: 'Items',
+         childViewId: 'default',
+         filterBindings: [{ sourceField: 'id', targetField: 'orderId' }],
+-        dependencyType: 'currentRow',
+         autoLoad: true,
+       },
+     ],
+@@ -146,15 +145,15 @@ describe('DataSet structure CRUD', () => {
+       childTable: 'Items',
+       childViewId: 'default',
+     }, {
+-      dependencyType: 'selectedRows',
++      filterBindings: [{targetField: 'orderId'}],
+       autoLoad: false,
+     })
+ 
+-    expect(updated).toMatchObject({dependencyType: 'selectedRows', autoLoad: false})
++    expect(updated).toMatchObject({filterBindings: [{targetField: 'orderId'}], autoLoad: false})
+ 
+     const parentRelations = ds.getParentCascades('Items', 'default')
+     expect(parentRelations).toHaveLength(1)
+-    expect(parentRelations[0]?.dependencyType).toBe('selectedRows')
++    expect(parentRelations[0]?.filterBindings).toEqual([{targetField: 'orderId'}])
+     expect(parentRelations[0]?.autoLoad).toBe(false)
+     expect(parentRelations[0]).not.toHaveProperty('filterExpression')
+   })
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-request-orchestration.test.ts" b/packages/spark-data/src/tests/dataset/dataset-request-orchestration.test.ts
+index d018be201..332b6a6f8 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-request-orchestration.test.ts"
++++ b/packages/spark-data/src/tests/dataset/dataset-request-orchestration.test.ts
+@@ -1,26 +1,32 @@
+-import { describe, it, expect, vi } from 'vitest'
++import { afterEach, describe, it, expect, vi } from 'vitest'
+ import { SparkData } from '@spark-appworks/spark-data'
++import type { DataView } from '@spark-appworks/spark-data'
+ import { RequestState } from '../../types'
+ import { TreeManager } from '../../node-tree/tree-manager'
+-import type { CrudResult, DataRow, QueryParams } from '../../types'
++import type { CrudResult, DataRow, QueryParams, DataViewCascadeFilterBinding } from '../../types'
+ 
+ function viewCascade(
+   parent: string,
+   child: string,
+-  state = 'allRows',
+-  sourceField = 'id',
+-  targetField = 'parentId',
++  binding: DataViewCascadeFilterBinding = { sourceField: 'id', targetField: 'parentId' },
+ ) {
+   return {
+     parentTable: parent,
+     parentViewId: 'default',
+     childTable: child,
+     childViewId: 'default',
+-    filterBindings: [{ sourceField, targetField }],
+-    dependencyType: state,
++    filterBindings: [binding],
+   }
+ }
+ 
++function readableInput(view: DataView): void {
++  vi.spyOn(view, 'fieldAccess').mockReturnValue({
++    read: 'visible', write: 'denied', required: false, component: 'readonly', writeMode: 'readonly',
++  })
++}
++
++afterEach(() => vi.restoreAllMocks())
++
+ describe('DataView.requestData orchestration', () => {
+   it.each(['editing', 'dirty'])('rejects nested tree queries before transport with %s changes', async change => {
+     const ds = SparkData.createDataSet({ dataSetName: 'NestedUnsaved', tables: {
+@@ -285,8 +291,10 @@ describe('DataView.requestData orchestration', () => {
+     const cView = ds.getView('Children', 'default')!
+ 
+     const pSpy = vi.spyOn(pView, 'loadFromServer').mockImplementation(async () => {
+-      pView.rows.splice(0, pView.rows.length, { id: 11 })
++      readableInput(pView)
++      pView.updateFromServer([{ id: 11 }])
+       pView.requestState = RequestState.Loaded
++      pView.setCurrentRow(pView.rows[0]!)
+       return { success: true, data: pView.rows }
+     })
+ 
+@@ -347,7 +355,7 @@ describe('DataView.requestData orchestration', () => {
+     pSpy.mockRestore(); cSpy.mockRestore()
+   })
+ 
+-  it('respects parent/child references in the relation expression when building params', async () => {
++  it('uses the declared field value when building query params', async () => {
+     const ds = SparkData.createDataSet({
+       dataSetName: 'OrchDS3',
+       tables: {
+@@ -361,7 +369,7 @@ describe('DataView.requestData orchestration', () => {
+         }
+       ],
+       viewCascades: [
+-        viewCascade('Parents', 'Children', 'currentRow', 'uuid', 'parentUuid')
++        viewCascade('Parents', 'Children', { sourceField: 'uuid', targetField: 'parentUuid' })
+       ],
+     })
+ 
+@@ -369,10 +377,10 @@ describe('DataView.requestData orchestration', () => {
+     const cView = ds.getView('Children', 'default')!
+ 
+     const pSpy = vi.spyOn(pView, 'loadFromServer').mockImplementation(async () => {
+-      pView.rows.splice(0, pView.rows.length, { uuid: 'p-1' })
+-      // 直接写 _currentRowId，避免 setCurrentRow 触发 currentRowChanged 干扰编排
+-      pView._currentRowId = pView.getPkKey(pView.rows[0]!) ?? null
++      readableInput(pView)
++      pView.updateFromServer([{ uuid: 'p-1' }])
+       pView.requestState = RequestState.Loaded
++      pView.setCurrentRow(pView.rows[0]!)
+       return { success: true, data: pView.rows }
+     })
+ 
+@@ -392,7 +400,7 @@ describe('DataView.requestData orchestration', () => {
+     pSpy.mockRestore(); cSpy.mockRestore()
+   })
+ 
+-  it('POST list endpoints should merge relation constraints into remote filter AST', async () => {
++  it('POST list endpoints merge selected values with the view filter AST', async () => {
+     const ds = SparkData.createDataSet({
+       dataSetName: 'OrchRemoteFilterAST',
+       tables: {
+@@ -426,14 +434,15 @@ describe('DataView.requestData orchestration', () => {
+         { parentTable: 'Parents', childTable: 'Children', filterExpression: {logic: 'and', filters: [{field: 'parentId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]} },
+       ],
+       viewCascades: [
+-        viewCascade('Parents', 'Children'),
++        viewCascade('Parents', 'Children', { targetField: 'parentId' }),
+       ],
+     })
+ 
+     const pView = ds.getView('Parents', 'default')!
+     const cView = ds.getView('Children', 'default')!
+ 
+-    pView.rows.splice(0, pView.rows.length, { id: 11 }, { id: 12 })
++    readableInput(pView)
++    pView.updateFromServer([{ id: 11 }, { id: 12 }])
+     pView.requestState = RequestState.Loaded
+ 
+     const cSpy = vi.spyOn(cView, 'loadFromServer').mockImplementation(async (params?: QueryParams) => {
+@@ -451,13 +460,14 @@ describe('DataView.requestData orchestration', () => {
+       return { success: true, data: [] }
+     })
+ 
++    pView.setSelectedRows(pView.rows)
+     await cView.requestData()
+ 
+     expect(cSpy).toHaveBeenCalledOnce()
+     cSpy.mockRestore()
+   })
+ 
+-  it('step 4.4: triggers children BR after successful load (3-level cascade)', async () => {
++  it('propagates available values through a three-level query cascade', async () => {
+     // 三层级联：A → B → C
+     // 调用 A.requestData()
+     // A 加载成功后 step 4.4 触发 B 的 C，B 成功后 step 4.4 触发 C 的 C
+@@ -473,8 +483,8 @@ describe('DataView.requestData orchestration', () => {
+         { parentTable: 'B', childTable: 'C', filterExpression: {logic: 'and', filters: [{field: 'bId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}}]} },
+       ],
+       viewCascades: [
+-        viewCascade('A', 'B', 'allRows', 'id', 'aId'),
+-        viewCascade('B', 'C', 'allRows', 'id', 'bId'),
++        viewCascade('A', 'B', { sourceField: 'id', targetField: 'aId' }),
++        viewCascade('B', 'C', { sourceField: 'id', targetField: 'bId' }),
+       ]
+     })
+ 
+@@ -483,18 +493,20 @@ describe('DataView.requestData orchestration', () => {
+     const cView = ds.getView('C', 'default')!
+ 
+     const aSpy = vi.spyOn(aView, 'loadFromServer').mockImplementation(async () => {
+-      aView.rows.splice(0, aView.rows.length, { id: 1 })
++      readableInput(aView)
++      aView.updateFromServer([{ id: 1 }])
+       aView.requestState = RequestState.Loaded
+-      aView.events.emit('rowsChanged')
++      aView.setCurrentRow(aView.rows[0]!)
+       return { success: true, data: aView.rows }
+     })
+ 
+     const bSpy = vi.spyOn(bView, 'loadFromServer').mockImplementation(async (params?: QueryParams) => {
+       expect(params).toBeDefined()
+       expect(params?.filter).toEqual({ field: 'aId', operator: 'eq', value: 1 })
+-      bView.rows.splice(0, bView.rows.length, { id: 10, aId: 1 })
++      readableInput(bView)
++      bView.updateFromServer([{ id: 10, aId: 1 }])
+       bView.requestState = RequestState.Loaded
+-      bView.events.emit('rowsChanged')
++      bView.setCurrentRow(bView.rows[0]!)
+       return { success: true, data: bView.rows }
+     })
+ 
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-relation-rebuild.test.ts" b/packages/spark-data/src/tests/dataset/dataset-relation-rebuild.test.ts
+index 7eaff9a26..ce2568774 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-relation-rebuild.test.ts"
++++ b/packages/spark-data/src/tests/dataset/dataset-relation-rebuild.test.ts
+@@ -1,9 +1,9 @@
+-import { describe, expect, it } from 'vitest'
++import { describe, expect, it, vi } from 'vitest'
+ 
+ import { DataSet } from '@spark-appworks/spark-data'
+ 
+ describe('DataSet relation rebuild', () => {
+-  it('fromJson 在关系图就绪后补挂级联订阅', () => {
++  it('fromJson 在关系图就绪后补挂级联订阅', async () => {
+     const ds = DataSet.fromJson({
+       dataSetName: 'PageDataSet',
+       tables: {
+@@ -40,7 +40,6 @@ describe('DataSet relation rebuild', () => {
+           childTable: 'Employees',
+           childViewId: 'default',
+           filterBindings: [{ sourceField: 'id', targetField: 'deptId' }],
+-          dependencyType: 'currentRow',
+         },
+       ],
+     })
+@@ -52,13 +51,19 @@ describe('DataSet relation rebuild', () => {
+     expect(child).toBeDefined()
+     expect(child?.rows).toHaveLength(2)
+ 
++    const access = vi.spyOn(parent!, 'fieldAccess').mockReturnValue({
++      read: 'visible', write: 'denied', required: false, component: 'readonly', writeMode: 'readonly',
++    })
+     parent?.selection.setCurrentRow(parent.rows[1] ?? null)
++    await vi.waitFor(() => expect(child?.rows).toHaveLength(1))
+ 
+     expect(child?.rows).toHaveLength(1)
+     expect(child?.rows[0]).toMatchObject({ id: 102, deptId: 2 })
++    access.mockRestore()
++    ds.destroy()
+   })
+ 
+-  it('运行期 addResourceRelation/addCascade 会重建内部关系图', () => {
++  it('运行期 addResourceRelation/addCascade 会重建内部关系图', async () => {
+     const ds = DataSet.fromJson({
+       dataSetName: 'RuntimeRelationDataSet',
+       tables: {
+@@ -101,7 +106,6 @@ describe('DataSet relation rebuild', () => {
+       childTable: 'Employees',
+       childViewId: 'default',
+       filterBindings: [{ sourceField: 'id', targetField: 'deptId' }],
+-      dependencyType: 'currentRow',
+     })
+ 
+     const parent = ds.getView('Departments', 'default')
+@@ -111,9 +115,15 @@ describe('DataSet relation rebuild', () => {
+     expect(child).toBeDefined()
+     expect(child?.rows).toHaveLength(2)
+ 
++    const access = vi.spyOn(parent!, 'fieldAccess').mockReturnValue({
++      read: 'visible', write: 'denied', required: false, component: 'readonly', writeMode: 'readonly',
++    })
+     parent?.selection.setCurrentRow(parent.rows[0] ?? null)
++    await vi.waitFor(() => expect(child?.rows).toHaveLength(1))
+ 
+     expect(child?.rows).toHaveLength(1)
+     expect(child?.rows[0]).toMatchObject({ id: 101, deptId: 1 })
++    access.mockRestore()
++    ds.destroy()
+   })
+ })
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-json-prompt-validation.test.ts" b/packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts
+index 50711c59e..3a85289f0 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-data\\src\\tests\\dataset\\dataset-json-prompt-validation.test.ts"
++++ b/packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts
+@@ -13,7 +13,7 @@
+  * 它属于仓库级 AI 质量门，不属于 packages/spark-data 的运行时职责。
+  */
+ 
+-import { afterEach, describe, it, expect } from 'vitest'
++import { afterEach, describe, it, expect, vi } from 'vitest'
+ import { DataSet } from '@spark-appworks/spark-data'
+ import type { DataRow } from '@spark-appworks/spark-data'
+ 
+@@ -39,6 +39,7 @@ const flushDataViewDebouncers = () => new Promise<void>(resolve => setTimeout(re
+ 
+ afterEach(async () => {
+   await flushDataViewDebouncers()
++  vi.restoreAllMocks()
+ })
+ 
+ // ─────────────────────────────────────────────────────────────────────────────
+@@ -49,7 +50,16 @@ afterEach(async () => {
+  * 从提示词 fixture 实例化 DataSet。
+  */
+ function fromPromptJson(json: Record<string, unknown>): DataSet {
+-  return DataSet.fromJson(json)
++  const dataSet = DataSet.fromJson(json)
++  // 本地案例只验证数据语义；显式提供只读输入权限，正式权限链另有边界集成测试。
++  for (const table of Object.values(dataSet.tables)) {
++    for (const view of Object.values(table.views)) {
++      vi.spyOn(view, 'fieldAccess').mockReturnValue({
++        read: 'visible', write: 'denied', required: false, component: 'readonly', writeMode: 'readonly',
++      })
++    }
++  }
++  return dataSet
+ }
+ 
+ function viewCascade(
+@@ -66,7 +76,6 @@ function viewCascade(
+     childTable,
+     childViewId: 'default',
+     filterBindings: [{ sourceField: parentField, targetField: childField }],
+-    dependencyType: 'currentRow',
+     autoLoad: true,
+   }
+ }
+@@ -155,45 +164,51 @@ describe('PROMPT 验证 — 案例 A: 图书馆管理', () => {
+     expect(ds.getView('BorrowRecords')!.primaryKey).toBe('id')
+   })
+ 
+-  it('A-4: 内存级联 — 选中读者 1 → BorrowRecords 显示 2 条', () => {
++  it('A-4: 内存级联 — 选中读者 1 → BorrowRecords 显示 2 条', async () => {
+     const ds = fromPromptJson(CASE_A_JSON)
+     const readers = ds.getView('Readers')!
+     const borrows = ds.getView('BorrowRecords')!
+ 
+     readers.selection.setCurrentRow(readers.rows[0]!) // 张三 id=1
++    await flushDataViewDebouncers()
+     expect(borrows.rows).toHaveLength(2)
+     expect(borrows.rows.every(r => f(r, 'readerId') === 1)).toBe(true)
+   })
+ 
+-  it('A-5: 内存级联 — 切换到读者 2 → BorrowRecords 显示 1 条', () => {
++  it('A-5: 内存级联 — 切换到读者 2 → BorrowRecords 显示 1 条', async () => {
+     const ds = fromPromptJson(CASE_A_JSON)
+     const readers = ds.getView('Readers')!
+     const borrows = ds.getView('BorrowRecords')!
+ 
+     readers.selection.setCurrentRow(readers.rows[0]!)
++    await flushDataViewDebouncers()
+     readers.selection.setCurrentRow(readers.rows[1]!) // 李四 id=2
++    await flushDataViewDebouncers()
+     expect(borrows.rows).toHaveLength(1)
+     expect(f(borrows.rows[0], 'readerId')).toBe(2)
+   })
+ 
+-  it('A-6: 内存级联 — 切换到读者 3 → BorrowRecords 显示 1 条（overdue）', () => {
++  it('A-6: 内存级联 — 切换到读者 3 → BorrowRecords 显示 1 条（overdue）', async () => {
+     const ds = fromPromptJson(CASE_A_JSON)
+     const readers = ds.getView('Readers')!
+     const borrows = ds.getView('BorrowRecords')!
+ 
+     readers.selection.setCurrentRow(readers.rows[2]!) // 王五 id=3
++    await flushDataViewDebouncers()
+     expect(borrows.rows).toHaveLength(1)
+     expect(f(borrows.rows[0], 'status')).toBe('overdue')
+   })
+ 
+-  it('A-7: 内存级联 — setCurrentRow(null) → BorrowRecords 清空', () => {
++  it('A-7: 内存级联 — setCurrentRow(null) → BorrowRecords 清空', async () => {
+     const ds = fromPromptJson(CASE_A_JSON)
+     const readers = ds.getView('Readers')!
+     const borrows = ds.getView('BorrowRecords')!
+ 
+     readers.selection.setCurrentRow(readers.rows[0]!)
++    await flushDataViewDebouncers()
+     expect(borrows.rows).toHaveLength(2)
+     readers.selection.setCurrentRow(null)
++    await flushDataViewDebouncers()
+     expect(borrows.rows).toHaveLength(0)
+   })
+ })
+@@ -310,35 +325,39 @@ describe('PROMPT 验证 — 案例 B: 电商订单管理', () => {
+     expect(numberField(f(orders.rows[2], 'totalAmount'))).toBeCloseTo(259.00, 2)
+   })
+ 
+-  it('B-5: 内存级联 — 选中订单 1 → OrderItems 显示 2 条', () => {
++  it('B-5: 内存级联 — 选中订单 1 → OrderItems 显示 2 条', async () => {
+     const ds = fromPromptJson(CASE_B_JSON)
+     const orders = ds.getView('Orders')!
+     const items  = ds.getView('OrderItems')!
+ 
+     orders.selection.setCurrentRow(orders.rows[0]!) // 订单 id=1
++    await flushDataViewDebouncers()
+     expect(items.rows).toHaveLength(2)
+     expect(items.rows.every(r => f(r, 'orderId') === 1)).toBe(true)
+   })
+ 
+-  it('B-6: 内存级联后 aggregateResult 聚合只计算过滤后的行', () => {
++  it('B-6: 内存级联后 aggregateResult 聚合只计算过滤后的行', async () => {
+     const ds = fromPromptJson(CASE_B_JSON)
+     const orders = ds.getView('Orders')!
+     const items  = ds.getView('OrderItems')!
+ 
+     orders.selection.setCurrentRow(orders.rows[0]!) // 订单1: 2 件
++    await flushDataViewDebouncers()
+     // 级联后只有 2 行，aggregateResult 仅汇总这 2 行
+     expect(items.aggregateResult).not.toBeNull()
+     expect(numberField(f(items.aggregateResult, 'quantity'))).toBeCloseTo(3, 2)  // 2+1
+     expect(numberField(f(items.aggregateResult, 'subtotal'))).toBeCloseTo(498.98, 1) // 199.98+299
+   })
+ 
+-  it('B-7: 切换到订单 2 → OrderItems 级联 1 条，汇总更新', () => {
++  it('B-7: 切换到订单 2 → OrderItems 级联 1 条，汇总更新', async () => {
+     const ds = fromPromptJson(CASE_B_JSON)
+     const orders = ds.getView('Orders')!
+     const items  = ds.getView('OrderItems')!
+ 
+     orders.selection.setCurrentRow(orders.rows[0]!)
++    await flushDataViewDebouncers()
+     orders.selection.setCurrentRow(orders.rows[1]!) // 订单 id=2
++    await flushDataViewDebouncers()
+     expect(items.rows).toHaveLength(1)
+     expect(f(items.rows[0], 'orderId')).toBe(2)
+     expect(numberField(f(items.aggregateResult, 'subtotal'))).toBeCloseTo(177.00, 2) // 3*59
+@@ -453,22 +472,24 @@ describe('PROMPT 验证 — 示例 9: 学生成绩管理', () => {
+     expect(f(grades.aggregateResult, 'id')).toBe(6)
+   })
+ 
+-  it('E9-5: 内存级联 — 选中张三 → Grades 显示 2 条（数学+语文）', () => {
++  it('E9-5: 内存级联 — 选中张三 → Grades 显示 2 条（数学+语文）', async () => {
+     const ds = fromPromptJson(EXAMPLE_9_JSON)
+     const students = ds.getView('Students')!
+     const grades   = ds.getView('Grades')!
+ 
+     students.selection.setCurrentRow(students.rows[0]!) // 张三 id=1
++    await flushDataViewDebouncers()
+     expect(grades.rows).toHaveLength(2)
+     expect(grades.rows.every(r => f(r, 'studentId') === 1)).toBe(true)
+   })
+ 
+-  it('E9-6: 级联后 aggregateResult 只汇总过滤行', () => {
++  it('E9-6: 级联后 aggregateResult 只汇总过滤行', async () => {
+     const ds = fromPromptJson(EXAMPLE_9_JSON)
+     const students = ds.getView('Students')!
+     const grades   = ds.getView('Grades')!
+ 
+     students.selection.setCurrentRow(students.rows[0]!) // 张三：95, 82
++    await flushDataViewDebouncers()
+     expect(f(grades.aggregateResult, 'id')).toBe(2)           // count=2
+     expect(numberField(f(grades.aggregateResult, 'score'))).toBeCloseTo(88.5, 1) // avg(95,82)
+   })
+@@ -753,22 +774,24 @@ describe('PROMPT 验证 — 案例 G: 仓库库存管理（v1.9 新特性）', (
+     expect(f(items.aggregateResult, 'productList')).toBe('笔记本电脑 | 无线鼠标 | 笔记本电脑 | 机械键盘')
+   })
+ 
+-  it('G-9: 内存级联（parentField 显式声明）— 选中仓库 1 → StockItems 显示 2 条', () => {
++  it('G-9: 内存级联（parentField 显式声明）— 选中仓库 1 → StockItems 显示 2 条', async () => {
+     const ds = fromPromptJson(CASE_G_JSON)
+     const warehouses = ds.getView('Warehouses')!
+     const items      = ds.getView('StockItems')!
+ 
+     warehouses.selection.setCurrentRow(warehouses.rows[0]!) // 北京仓 id=1
++    await flushDataViewDebouncers()
+     expect(items.rows).toHaveLength(2)
+     expect(items.rows.every(r => f(r, 'warehouseId') === 1)).toBe(true)
+   })
+ 
+-  it('G-10: 级联后 aggregates 只汇总过滤行（field 覆盖 + separator 均有效）', () => {
++  it('G-10: 级联后 aggregates 只汇总过滤行（field 覆盖 + separator 均有效）', async () => {
+     const ds = fromPromptJson(CASE_G_JSON)
+     const warehouses = ds.getView('Warehouses')!
+     const items      = ds.getView('StockItems')!
+ 
+     warehouses.selection.setCurrentRow(warehouses.rows[0]!) // 北京仓：2 条
++    await flushDataViewDebouncers()
+     // totalVal = 59999.9 + 4975 = 64974.9
+     expect(numberField(f(items.aggregateResult, 'totalVal'))).toBeCloseTo(64974.9, 0)
+     // productList separator
+@@ -934,20 +957,22 @@ describe('Case H：外部AI生成 - 仓库库存管理（v1.9 结构验证）',
+     expect(names).toContain('WarehouseInbounds')
+   })
+ 
+-  it('H-6: 级联 WarehouseInventories - 选华东仓(id=1) 得 2 条库存', () => {
++  it('H-6: 级联 WarehouseInventories - 选华东仓(id=1) 得 2 条库存', async () => {
+     const ds = fromPromptJson(CASE_H_JSON)
+     const warehouses  = ds.getView('Warehouses')!
+     const inventories = ds.getView('Inventories')!
+     warehouses.selection.setCurrentRow(warehouses.rows[0]!) // 华东仓 id=1
++    await flushDataViewDebouncers()
+     expect(inventories.rows).toHaveLength(2)
+     expect(inventories.rows.every(r => f(r, 'warehouseId') === 1)).toBe(true)
+   })
+ 
+-  it('H-7: 级联 WarehouseInbounds - 选华南仓(id=2) 得 1 条入库', () => {
++  it('H-7: 级联 WarehouseInbounds - 选华南仓(id=2) 得 1 条入库', async () => {
+     const ds = fromPromptJson(CASE_H_JSON)
+     const warehouses = ds.getView('Warehouses')!
+     const inbounds   = ds.getView('Inbounds')!
+     warehouses.selection.setCurrentRow(warehouses.rows[1]!) // 华南仓 id=2
++    await flushDataViewDebouncers()
+     expect(inbounds.rows).toHaveLength(1)
+     expect(f(inbounds.rows[0], 'warehouseId')).toBe(2)
+     expect(f(inbounds.rows[0], 'productName')).toBe('平板电脑')
+@@ -959,21 +984,23 @@ describe('Case H：外部AI生成 - 仓库库存管理（v1.9 结构验证）',
+     expect(f(ds.getView('Inbounds')!.aggregateResult, 'inQuantity')).toBe(380)
+   })
+ 
+-  it('H-9: 级联后 aggregates 只汇总过滤行 - 华东仓入库总量 = 130', () => {
++  it('H-9: 级联后 aggregates 只汇总过滤行 - 华东仓入库总量 = 130', async () => {
+     const ds = fromPromptJson(CASE_H_JSON)
+     const warehouses = ds.getView('Warehouses')!
+     const inbounds   = ds.getView('Inbounds')!
+     warehouses.selection.setCurrentRow(warehouses.rows[0]!) // 华东仓 id=1
++    await flushDataViewDebouncers()
+     // 100 + 30 = 130
+     expect(f(inbounds.aggregateResult, 'inQuantity')).toBe(130)
+   })
+ 
+-  it('H-10: 华北仓(id=3) 级联 - Inventories 1条，Inbounds 1条', () => {
++  it('H-10: 华北仓(id=3) 级联 - Inventories 1条，Inbounds 1条', async () => {
+     const ds = fromPromptJson(CASE_H_JSON)
+     const warehouses  = ds.getView('Warehouses')!
+     const inventories = ds.getView('Inventories')!
+     const inbounds    = ds.getView('Inbounds')!
+     warehouses.selection.setCurrentRow(warehouses.rows[2]!) // 华北仓 id=3
++    await flushDataViewDebouncers()
+     expect(inventories.rows).toHaveLength(1)
+     expect(f(inventories.rows[0], 'productName')).toBe('耳机')
+     expect(inbounds.rows).toHaveLength(1)
+@@ -1130,22 +1157,25 @@ describe('Case I：标准提示词模板自测 - 物业管理系统（三级层
+     expect(names).toContain('BuildingRepairOrders')
+   })
+ 
+-  it('I-6: 一级级联 - 选翠湖花园(id=1) → Buildings 显示 2 栋', () => {
++  it('I-6: 一级级联 - 选翠湖花园(id=1) → Buildings 显示 2 栋', async () => {
+     const ds = fromPromptJson(CASE_I_JSON)
+     const communities = ds.getView('Communities')!
+     const buildings   = ds.getView('Buildings')!
+     communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园 id=1
++    await flushDataViewDebouncers()
+     expect(buildings.rows).toHaveLength(2)
+     expect(buildings.rows.every(r => f(r, 'communityId') === 1)).toBe(true)
+   })
+ 
+-  it('I-7: 二级级联 - 选1栋(id=101) → RepairOrders 显示 2 条工单', () => {
++  it('I-7: 二级级联 - 选1栋(id=101) → RepairOrders 显示 2 条工单', async () => {
+     const ds = fromPromptJson(CASE_I_JSON)
+     const communities   = ds.getView('Communities')!
+     const buildings     = ds.getView('Buildings')!
+     const repairOrders  = ds.getView('RepairOrders')!
+     communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园
++    await flushDataViewDebouncers()
+     buildings.selection.setCurrentRow(buildings.rows[0]!)     // 1栋 id=101
++    await flushDataViewDebouncers()
+     expect(repairOrders.rows).toHaveLength(2)
+     expect(repairOrders.rows.every(r => f(r, 'buildingId') === 101)).toBe(true)
+   })
+@@ -1166,21 +1196,23 @@ describe('Case I：标准提示词模板自测 - 物业管理系统（三级层
+     expect(f(communities.rows[2], 'totalUnits')).toBe(48)   // 1栋 48
+   })
+ 
+-  it('I-10: $count 二级计算列 - 1栋(id=101) repairCount=2', () => {
++  it('I-10: $count 二级计算列 - 1栋(id=101) repairCount=2', async () => {
+     const ds = fromPromptJson(CASE_I_JSON)
+     const communities = ds.getView('Communities')!
+     const buildings   = ds.getView('Buildings')!
+     communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园
++    await flushDataViewDebouncers()
+     // 级联后 Buildings 只有 id=101, 102
+     expect(f(buildings.rows[0], 'repairCount')).toBe(2) // 1栋: 1001, 1002
+     expect(f(buildings.rows[1], 'repairCount')).toBe(1) // 2栋: 1003
+   })
+ 
+-  it('I-11: $join 二级计算列 - 1栋(id=101) repairTypes', () => {
++  it('I-11: $join 二级计算列 - 1栋(id=101) repairTypes', async () => {
+     const ds = fromPromptJson(CASE_I_JSON)
+     const communities = ds.getView('Communities')!
+     const buildings   = ds.getView('Buildings')!
+     communities.selection.setCurrentRow(communities.rows[0]!)
++    await flushDataViewDebouncers()
+     expect(f(buildings.rows[0], 'repairTypes')).toBe('水管漏水 / 电梯故障')
+   })
+ 
+@@ -1199,28 +1231,32 @@ describe('Case I：标准提示词模板自测 - 物业管理系统（三级层
+     expect(typeList.split(' | ')).toHaveLength(5)
+   })
+ 
+-  it('I-14: 级联后 aggregates 只汇总过滤行', () => {
++  it('I-14: 级联后 aggregates 只汇总过滤行', async () => {
+     const ds = fromPromptJson(CASE_I_JSON)
+     const communities  = ds.getView('Communities')!
+     const buildings    = ds.getView('Buildings')!
+     const repairOrders = ds.getView('RepairOrders')!
+     communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园
++    await flushDataViewDebouncers()
+     buildings.selection.setCurrentRow(buildings.rows[0]!)     // 1栋 101
++    await flushDataViewDebouncers()
+     // 过滤后只有 1001, 1002
+     expect(f(repairOrders.aggregateResult, 'id')).toBe(2)
+     const typeList = stringField(f(repairOrders.aggregateResult, 'typeList'))
+     expect(typeList).toBe('水管漏水 | 电梯故障')
+   })
+ 
+-  it('I-15: 切换到碧水湾(id=3) → Buildings 1条，RepairOrders 1条', () => {
++  it('I-15: 切换到碧水湾(id=3) → Buildings 1条，RepairOrders 1条', async () => {
+     const ds = fromPromptJson(CASE_I_JSON)
+     const communities  = ds.getView('Communities')!
+     const buildings    = ds.getView('Buildings')!
+     const repairOrders = ds.getView('RepairOrders')!
+     communities.selection.setCurrentRow(communities.rows[2]!) // 碧水湾 id=3
++    await flushDataViewDebouncers()
+     expect(buildings.rows).toHaveLength(1)
+     expect(f(buildings.rows[0], 'buildingNo')).toBe('1栋')
+     buildings.selection.setCurrentRow(buildings.rows[0]!) // 碧水湾1栋 id=104
++    await flushDataViewDebouncers()
+     expect(repairOrders.rows).toHaveLength(1)
+     expect(f(repairOrders.rows[0], 'reporter')).toBe('孙七')
+   })
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-project-model\\tests\\scenario\\scenario-view-file.test.ts" b/packages/spark-project-model/tests/scenario/scenario-view-file.test.ts
+index 33558a1d3..702fc86b5 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\packages\\spark-project-model\\tests\\scenario\\scenario-view-file.test.ts"
++++ b/packages/spark-project-model/tests/scenario/scenario-view-file.test.ts
+@@ -9,7 +9,7 @@ function fixture(pageSize = 20): string {
+         filterExpression: { field: 'active', operator: 'eq', value: false } } } },
+     Items: { modelBinding: { modelId: 'UNIT-ITEMS', modelName: 'ItemsModel' }, views: { default: {}, detail: {} } },
+   }, viewCascades: [{ parentTable: 'Orders', parentViewId: 'list', childTable: 'Items', childViewId: 'detail',
+-    filterBindings: [{ sourceField: 'id', targetField: 'orderId' }], dependencyType: 'currentRow', autoLoad: false }] })
++    filterBindings: [{ sourceField: 'id', targetField: 'orderId' }], autoLoad: false }] })
+ }
+ 
+ const validProjection = { fieldId: 'MODEL-FIELD-1', source: 'resource', resourceFieldId: 'MODEL-FIELD-1',
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\tests\\runtime\\auth-nav\\lowcode-data-space-runtime.test.ts" b/tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts
+index 2fb23e112..8fa539406 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\tests\\runtime\\auth-nav\\lowcode-data-space-runtime.test.ts"
++++ b/tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts
+@@ -625,7 +625,7 @@ describe('lowcode data-space DataView runtime', () => {
+ 
+   it('sends explicit view cascade constraints through the sole API wire codec', async () => {
+     const http = new RuntimeFixtureHttpClient()
+-    const explicitCascade = [{cascadeId:'SCENE-CASCADE', parentTable:'MODEL-PARENT', parentViewId:'default', childTable:'MODEL-CHILD', childViewId:'default', filterBindings:[{sourceField:'id',targetField:'departmentId'}], dependencyType:'allRows', autoLoad:true}]
++    const explicitCascade = [{cascadeId:'SCENE-CASCADE', parentTable:'MODEL-PARENT', parentViewId:'default', childTable:'MODEL-CHILD', childViewId:'default', filterBindings:[{sourceField:'id',targetField:'departmentId'}], autoLoad:true}]
+     const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
+       readScope: () => ({ token: 'fixture-request-scope', headers: {} }) }), http).assemble({
+       ...formalAssemblyInput(design(), 'FORM-1', {viewCascades: explicitCascade}),
+@@ -677,7 +677,7 @@ describe('lowcode data-space DataView runtime', () => {
+ 
+   it('applies an explicit named-view query filter without touching sibling views', async () => {
+     const http = new RuntimeFixtureHttpClient([7, 8])
+-    const explicitCascade = [{cascadeId:'NAMED-CASCADE', parentTable:'MODEL-PARENT', parentViewId:'selection', childTable:'MODEL-CHILD', childViewId:'detail', filterBindings:[{sourceField:'id',targetField:'departmentId'}], dependencyType:'currentRow', autoLoad:true}]
++    const explicitCascade = [{cascadeId:'NAMED-CASCADE', parentTable:'MODEL-PARENT', parentViewId:'selection', childTable:'MODEL-CHILD', childViewId:'detail', filterBindings:[{sourceField:'id',targetField:'departmentId'}], autoLoad:true}]
+     const input = formalAssemblyInput(design(), 'FORM-1', {viewCascades: explicitCascade, namedViews: ['selection', 'detail', 'summary']})
+     const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
+       readScope: () => ({ token: 'fixture-request-scope', headers: {} }) }), http).assemble(input)
+@@ -712,7 +712,7 @@ describe('lowcode data-space DataView runtime', () => {
+ 
+   it('keeps an explicit view cascade when no model relationship exists', () => {
+     const input = formalAssemblyInput(design(), 'FORM-1', {viewCascades: [
+-      {cascadeId:'SCENE-ONLY', parentTable:'MODEL-PARENT', parentViewId:'default', childTable:'MODEL-CHILD', childViewId:'default', filterBindings:[{sourceField:'id',targetField:'departmentId'}], dependencyType:'selectedRows', autoLoad:false},
++      {cascadeId:'SCENE-ONLY', parentTable:'MODEL-PARENT', parentViewId:'default', childTable:'MODEL-CHILD', childViewId:'default', filterBindings:[{sourceField:'id',targetField:'departmentId'}], autoLoad:false},
+     ]})
+     const http = new RuntimeFixtureHttpClient()
+     const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts" b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+index 698628e4d..4b9796716 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts"
++++ b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+@@ -27,7 +27,7 @@ const relations: FormalRelations = [{sourceRelationId: 'REL', dataSpaceId: 'SPAC
+   filterExpression: relationFilter, dependencyType: 'currentRow', cascadeDelete: false}]
+ const cascade = {cascadeId: 'EXPLICIT', parentTable: 'Parents', parentViewId: 'shared',
+   childTable: 'Children', childViewId: 'shared', filterBindings: [{sourceField: 'id', targetField: 'parentId'}],
+-  dependencyType: 'currentRow', autoLoad: false}
++  autoLoad: false}
+ const initial = JSON.stringify({scenarioId: 'SPACE', tables: {
+   Parents: {modelBinding: {modelId: 'ParentModel', modelName: 'ParentModel'},
+     views: {default: {}, shared: {}, detail: {}}},
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\backend-api-contracts\\characterization-fixtures\\pages-config\\lmspark\\homepage\\tx-editing-rows\\pagedata.json" b/backend-api-contracts/characterization-fixtures/pages-config/lmspark/homepage/tx-editing-rows/pagedata.json
+index db3fe435d..e52eead25 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\backend-api-contracts\\characterization-fixtures\\pages-config\\lmspark\\homepage\\tx-editing-rows\\pagedata.json"
++++ b/backend-api-contracts/characterization-fixtures/pages-config/lmspark/homepage/tx-editing-rows/pagedata.json
+@@ -30,7 +30,6 @@
+                     "targetField": "orderId"
+                 }
+             ],
+-            "dependencyType": "currentRow",
+             "autoLoad": true
+         }
+     ],
+diff --git "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\backend-api-contracts\\characterization-fixtures\\pages-config\\lmspark\\homepage\\tx-transaction-commit\\pagedata.json" b/backend-api-contracts/characterization-fixtures/pages-config/lmspark/homepage/tx-transaction-commit/pagedata.json
+index 2826c526c..f8da8d8ec 100644
+--- "a/notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\query-value-cascade\\before\\backend-api-contracts\\characterization-fixtures\\pages-config\\lmspark\\homepage\\tx-transaction-commit\\pagedata.json"
++++ b/backend-api-contracts/characterization-fixtures/pages-config/lmspark/homepage/tx-transaction-commit/pagedata.json
+@@ -30,7 +30,6 @@
+                     "targetField": "orderId"
+                 }
+             ],
+-            "dependencyType": "currentRow",
+             "autoLoad": true
+         }
+     ],
+diff --git a/packages/spark-data/src/strategies/cascade/cascade-value-binding.ts b/packages/spark-data/src/strategies/cascade/cascade-value-binding.ts
+new file mode 100644
+index 000000000..d2f15aadf
+--- /dev/null
++++ b/packages/spark-data/src/strategies/cascade/cascade-value-binding.ts
+@@ -0,0 +1,41 @@
++import { isRecord } from '@spark-appworks/spark-utils'
++import { DataMember, resolveDataViewMember } from '../../core/data-view-key'
++import type { DataSet } from '../../dataset'
++import { RequestState, type DataViewFieldCascade } from '../../types'
++
++type ValueSource = Pick<DataViewFieldCascade['parents'][number], 'tableName' | 'viewId' | 'field'>
++
++/** 级联共享值边界：字段值或选中主键数组，行定位由原生绑定处理。 */
++export class DataViewCascadeValueBinding {
++  static equal(left: unknown, right: unknown): boolean {
++    if (Object.is(left, right)) return true
++    if (Array.isArray(left) && Array.isArray(right)) {
++      return left.length === right.length && left.every((value, index) => this.equal(value, right[index]))
++    }
++    if (isRecord(left) && isRecord(right)) {
++      const keys = Object.keys(left)
++      return keys.length === Object.keys(right).length && keys.every(key => Object.hasOwn(right, key) && this.equal(left[key], right[key]))
++    }
++    return false
++  }
++
++  static read(dataSet: DataSet, source: ValueSource): unknown {
++    return resolveDataViewMember({dataViewKey: `${source.tableName}@${source.viewId}`,
++      dataMember: DataMember.Value, dataField: source.field}, dataSet)
++  }
++
++  static inputs(dataSet: DataSet, sources: readonly ValueSource[]): readonly unknown[] | undefined {
++    const values: unknown[] = []
++    for (const source of sources) {
++      const view = dataSet.getView(source.tableName, source.viewId)
++      if (!view || view.destroyed || dataSet.destroyed) throw new Error('CASCADE_VALUE_VIEW: 输入视图已失效')
++      if (view.requestState === RequestState.Loading || view.requestState === RequestState.Preparing
++        || (view.requestState === RequestState.Idle && view.rows.length === 0)) return undefined
++      if (view.requestState === RequestState.Failed) throw new Error('CASCADE_VALUE_PARENT: 输入查询失败')
++      const value = this.read(dataSet, source)
++      if (value === undefined) return undefined
++      values.push(value)
++    }
++    return values
++  }
++}

@@ -334,13 +334,15 @@ export type {
 
 ## 页面调用与数据绑定
 
-`SparkPageRenderer` 接收 `pageRuntime: PageRuntime` 和冻结的 `routeSnapshot: PageRoute`。宿主按 `instanceId` 为 Vue 组件设置 key。工具定义只包含 rule、script、css；每次调用独立装载场景 DataSet、脚本函数、组件注册表及样式作用域，关闭时 dispose。
+`SparkPageRenderer` 接收 `pageRuntime: PageRuntime` 和冻结的 `routeSnapshot: PageRoute`。宿主按 `instanceId` 为 Vue 组件设置 key。工具定义只包含 rule、script、css；每次调用独立装载场景 DataSet、脚本函数、组件注册表及样式作用域。渲染器借用宿主的 PageRuntime，卸载会中止脚本、解除视图订阅并清理渲染资源，不销毁运行实例。实例创建者负责最终 `dispose()`；页面池关闭和开发预览刷新/卸载是现有所有者入口。
 
 绑定使用 `#scenarioId@tableName@viewId`；只有明确声明 mainScenarioId 的调用允许本地 `tableName@viewId`。不存在隐式第一空间。显式空键、未知场景或视图会拒绝执行。普通静态组件可在局部提供 `DATA_SOURCE`。
 
 脚本通过 `$page.getDataSet(scenarioId)` 和 `$page.resolveView(binding)` 访问数据，通过 DataView 的 `requestData()` 刷新。保存动作必须指定 scenarioId；显式视图列表有空值或坏值时整次拒绝。失败或权限拒绝不执行后续 then 动作。
 
-页面脚本的路由、模块上下文按调用捕获；异步 UI 服务在返回时检查调用是否仍有效。页面销毁后旧服务与 timer 不能继续修改状态。`Render*` 仅注册到当前页面组件注册表。
+页面脚本的路由、模块上下文按调用捕获；异步 UI 服务在返回时检查调用是否仍有效。渲染器卸载或替换会中止该次脚本调用，因此迟到的服务与旧 handler 会以 `PAGE_RUNTIME_STALE` 拒绝执行；这不会销毁仍由宿主持有的 PageRuntime。宿主最终销毁实例后，运行时数据也会释放。`Render*` 仅注册到当前页面组件注册表。
+
+声明式节点的字符串 `onBeforeRender` 是同步纯渲染钩子，随页面脚本更新及正式 DataView 变化重新计算；只返回显隐和 props patch，不在其中执行宿主 I/O 或修改业务状态。需 fail-closed 的节点应声明 `visible: false`，钩子缺失、失败或返回异步结果时保持关闭态。
 
 ---
 
@@ -489,6 +491,14 @@ export type {
 | `r-time-select` | FieldTimeSelect | el-time-select 时间下拉 |
 | `r-autocomplete` | FieldAutocomplete | el-autocomplete 自动补全 |
 
+### 字段选项与值级联
+
+共用选项字段链根据 `DATA_SOURCE` 的 DataSet、tableName、viewId 和组件 `field` 查找字段级联，直接使用该绑定的独立选项结果。无需在页面重复声明选项来源；显式配置的选项视图、值/标签字段或分隔符若与 DataSet 定义冲突则报错。没有字段级联时保留原有静态选项和视图绑定。
+
+`valueFormat: 'selection-string'` 使用选项 DataView 的 `valueField` 和 `selectionDelimiter` 解码行值，在提交控件改动时恢复原字符串；多选、复选框和树选择的控制值可以是数组，源字段格式不随控件改变。`native` 保留原生值类型，含分隔符的普通字符串不拆分。嵌套路径数组不能冒充平面选中字符串，写入时明确拒绝。
+
+初始化只查询核验，不清空已有值；后续父值改变由 DataSet 执行子值策略。加载中、查询失败或表单行与目标指针不一致时不提供共享/过期选项，并禁止选择；查询错误在表单字段处展示。查询和写入继续使用正式数据权限。树选项由独立结果构建，不使用共享 TreeManager 的其他行。级联定义更新后重新绑定，控件卸载释放自己的订阅。
+
 ### 基础设施组件（2 类型）
 
 | type | 组件 | 说明 |
@@ -497,4 +507,16 @@ export type {
 | `r-tree-node-summary` | TreeNodeSummary | 树节点摘要展示 |
 
 > **注意**：`r-header`/`r-footer`（区域组件）与 `r-layout-header`/`r-layout-footer`（Layout）是不同组件——区域组件是容器内操作栏（div 弹性布局），Layout 是 el-header/el-footer 页面结构容器。
+
+## 页面脚本的数据空间布局
+
+`$page.readDataSpaceLayout(dataSpaceId)` 始终存在；只有宿主提供能力且页面明确声明并装载设计场景时才可调用，否则会显式失败。它读取固定应用身份下的数据空间布局原文；文件明确返回 404 时为 `null`，其他请求或协议错误会抛出。页面失效或应用/会话身份变化时，迟到结果会被拒绝。该能力只读，不创建或写入布局。
+
+`$page.createDataSpaceLayout({ dataSpaceId, content })` 仅用于明确缺失的首次布局创建；与已有布局使用的 `$page.saveDataSpaceLayout({ dataSpaceId, content, expectedContent })` 分开。创建前复核文件缺失，上传采用禁止覆盖模式并核对返回文件名和逐字节回读。宿主未配置或设计场景未装载时显式失败；上传或回读结果未知时，调用方须保留证据并显式重读，不自动重试。后端的缺失检查和写入不是原子操作，因此此接口不承诺并发排他创建。
+
+同一 PageRuntime 按设计场景与数据空间身份持有不透明布局原文、草稿及 `idle/pending/unknown` 状态。脚本可用 `$page.getDataSpaceLayoutContent(dataSpaceId)` 读取状态、`$page.setDataSpaceLayoutDraft({ dataSpaceId, content })` 设置草稿、`$page.discardDataSpaceLayoutDraft(dataSpaceId)` 放弃未在途草稿。真实保存或创建请求由该 runtime 结算；旧 Renderer 失效后其回调仍被拒绝，但运行实例会记录实际 host 结果并通知新 Renderer。pending/unknown 时普通 `readDataSpaceLayout` 拒绝读取，防止重挂载或预像核对覆盖草稿。经用户明确同意放弃本地状态后，调用 `readDataSpaceLayoutForAdoption(dataSpaceId)` 获取真实远端原文，页面用当前正式模型/关系校验后，将其返回对象原样交给 `adoptDataSpaceLayoutRead(dataSpaceId, read)`；取消、坏图或期间草稿修订变化不得采用。unknown 不表示请求必然成功或失败，采用远端仅确认本次实际读到的内容。此状态只在同一运行实例内保留，不跨进程硬刷新。
+
+`$page.getLocalDraft(name)` 返回当前 PageRuntime 中命名本地文本草稿的 `{ content, revision }`。脚本用 `$page.setLocalDraft({ name, content, expectedRevision })` 写入、`$page.discardLocalDraft({ name, expectedRevision })` 丢弃；名称和内容必须为字符串，名称为非空规范键，修订必须匹配。此桥只保存不透明文本，不执行关系或其他业务 I/O，不持有查询权限；草稿使运行实例保持 dirty，旧 PageContext 失效后不得继续修改。内容仅随当前 PageRuntime 存活，不跨进程刷新。
+
+数据空间设计场景可选提供 `$page.readDataSpaceModelSources({type, keyword?, description?, databaseName?, page?, pageSize?})` 与 `$page.prepareDataSpaceModelSource(source)`。`type` 只接受 `table/dict/interface/json/logicView/databaseView`；前者返回按正式查询权限投影的 `{rows,total}`，每行仅含来源类型、ID、名称、描述及必要数据库/提供者身份，不返回原行或权限凭据。后者按该来源身份重新查询并核一致性，返回模型及初始字段的只读模板，不分配新模型/字段 ID，也不写入。能力缺失、场景未装载、页面或应用执行域失效时显式失败；迟到结果不会交给脚本继续使用。脚本须通过当前设计场景 DataView owner 分配 ID、保存并回读。
 

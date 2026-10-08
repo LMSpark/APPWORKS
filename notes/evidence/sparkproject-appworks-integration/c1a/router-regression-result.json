@@ -1,0 +1,5 @@
+{
+  "log": "router-regression.log",
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts tests/runtime/auth-nav/navigation-platform-paths.test.ts tests/auth-nav/dynamic-router-platform-pages.test.ts tests/auth-nav/navigation-platform-paths.test.ts --maxWorkers=1 --reporter=dot",
+  "exitCode": 0
+}

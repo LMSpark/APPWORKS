@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/filter/data-view-filter-local",
+    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-local.ts",
+    "sourceFile": "packages/spark-data/src/query/filter/data-view-filter-local.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/filter/data-view-filter-local",
+    "jsdoc": "@module @spark-appworks/spark-data:query/filter/data-view-filter-local\n职责：对静态行执行公开过滤树。\n边界：仅支持常量与当前行字段函数，先检查整树再求值，不模拟服务端函数。\nAI用途：在静态视图中执行受支持的本地过滤。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataViewFilterLocal"
+    ]
+  },
+  "$defs": {
+    "DataViewFilterLocal": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterLocal",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "$ref": "data-view-filter.ts.json#/$defs/DataViewFilter"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateFields.params": {
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "object",
+              "title": "ReadonlySet<string>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateFields.return": true,
+        "method.matches.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "DataViewFilterLocalRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.matches.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.624Z",
+  "models": {
+    "DataViewFilterLocalRow": {
+      "name": "DataViewFilterLocalRow",
+      "jsdoc": "静态过滤读取的业务行；字段值由当前行提供，不是后端函数结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewFilterLocal": {
+      "name": "DataViewFilterLocal",
+      "jsdoc": "静态视图只执行常量和当前行字段；先检查整树，禁止短路掩盖服务端函数。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获冻结过滤树并预检查全部节点；不支持的后端值函数立即失败。",
+          "signatureText": "constructor(filter: DataViewFilter)",
+          "parameters": [
+            {
+              "name": "filter",
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilter",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "validateFields",
+              "parameters": [
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadonlySet",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "matches",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterLocalRow",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-local.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

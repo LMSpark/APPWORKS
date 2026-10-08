@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/zones/RendererTail.types",
+    "sourcePath": "packages/spark-component/src/components/containers/zones/RendererTail.types.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/zones/RendererTail.types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/zones/RendererTail.types",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/zones/RendererTail.types\n职责：集中定义 RendererTail（r-tail）内部共享的类型契约，描述渲染器状态、事件载荷和运行时数据形态。\n边界：只提供 container/zone-container 的类型层语义，不创建组件实例、不执行 IO，也不承载具体 UI 渲染。\nAI用途：需要判断 renderer tail 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RTailProps"
+    ],
+    "componentName": "RendererTail",
+    "componentType": "r-tail",
+    "componentLevel": "container",
+    "componentLayer": "zone-container",
+    "componentDirectory": "containers/zones"
+  },
+  "$defs": {
+    "RTailProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RTailProps",
+      "properties": {
+        "type": {
+          "const": "r-tail"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+          }
+        },
+        "class": {
+          "type": "string"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T11:13:17.748Z",
+  "models": {
+    "RTailProps": {
+      "name": "RTailProps",
+      "jsdoc": "`RendererTail` 运行时公开属性。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTail",
+        "type": "r-tail",
+        "level": "container",
+        "layer": "zone-container",
+        "directory": "containers/zones"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 组件类型固定为 `r-tail`。 */\n    type?: 'r-tail';\n    /** 节点标识。 */\n    id?: string;\n    /** 尾部内容节点列表。 */\n    children?: SparkNode[];\n    /** 尾部区域附加 class。 */\n    class?: string;\n    /** 尾部区域宽度 */\n    width?: string | number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 组件类型固定为 `r-tail`。 */\n    type?: 'r-tail';\n    /** 节点标识。 */\n    id?: string;\n    /** 尾部内容节点列表。 */\n    children?: SparkNode[];\n    /** 尾部区域附加 class。 */\n    class?: string;\n    /** 尾部区域宽度 */\n    width?: string | number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "组件类型固定为 `r-tail`。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "jsdoc": "节点标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "jsdoc": "尾部内容节点列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "class",
+              "jsdoc": "尾部区域附加 class。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "尾部区域宽度",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

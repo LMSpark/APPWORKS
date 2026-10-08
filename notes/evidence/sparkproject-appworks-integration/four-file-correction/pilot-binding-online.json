@@ -1,0 +1,68 @@
+{
+  "at": "2026-10-07T18:37:21.251Z",
+  "url": "http://127.0.0.1:5273/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/__tool/90A82E287930A234FEC3E687C94A93EA?scenarioId=90A82E287930A234FEC3E687C94A93EA&additionalScenarioIds=8D1AB14DD8277F3E7017CD38F77B09FD&additionalScenarioIds=7AB874097A1E8711A42FD845939A6E05",
+  "tableText": "功能路径\t蓝图节点 ID\t导航地址\n软件工坊[AppWorks] / 数据空间管理\t90A82E287930A234FEC3E687C94A93EA\tvue:/features/data-platform/data-set-management/ui/data-set-list-page",
+  "reopenEqual": true,
+  "reloadEqual": true,
+  "copyEqual": true,
+  "copyLines": 19,
+  "root": {
+    "root": {
+      "FunName": "软件工坊[AppWorks]",
+      "name": "DataSchemaManage",
+      "prowid": "000000",
+      "rowid": "D99A1DCE9894698799101EFD70F8FC76"
+    },
+    "rows": 84,
+    "total": 84
+  },
+  "network": [
+    {
+      "method": "Network.requestWillBeSent",
+      "url": "/api/DataOperation/GetData",
+      "httpMethod": "POST",
+      "formKey": "7AB874097A1E8711A42FD845939A6E05"
+    },
+    {
+      "method": "Network.responseReceived",
+      "url": "/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "url": "/api/DataOperation/GetData",
+      "httpMethod": "POST",
+      "formKey": "7AB874097A1E8711A42FD845939A6E05"
+    },
+    {
+      "method": "Network.responseReceived",
+      "url": "/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "url": "/api/DataOperation/GetData",
+      "httpMethod": "POST",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD"
+    },
+    {
+      "method": "Network.responseReceived",
+      "url": "/api/DataOperation/GetData",
+      "status": 200
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "url": "/api/DataOperation/GetData",
+      "httpMethod": "POST",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD"
+    },
+    {
+      "method": "Network.responseReceived",
+      "url": "/api/DataOperation/GetData",
+      "status": 200
+    }
+  ],
+  "businessWriteRequests": 0,
+  "errors": [],
+  "note": "首次快速选行发生在筛选响应替换前，旧行失效；等待分页结果1-1后正常选行即可。路径使用正式蓝图FunName，实际根标题为软件工坊[AppWorks]，非应用目录AppDesc元数据管理。工具入口已验，正式菜单尚未切换。"
+}

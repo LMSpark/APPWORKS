@@ -194,7 +194,8 @@ async function enterProject(project: ProjectItem): Promise<void> {
   if (!selectedTenantId.value) return
   try {
     if (!projectSwitch) throw new Error('应用管理页缺少项目切换服务')
-    await projectSwitch.switchAndReload(project.projectId)
+    const receipt = await projectSwitch.switchAndReload(project.projectId)
+    receipt.assertCurrent()
     await router.push(buildTenantPath(
       { tenantId: selectedTenantId.value, projectId: project.projectId },
       getNavHomePath(),

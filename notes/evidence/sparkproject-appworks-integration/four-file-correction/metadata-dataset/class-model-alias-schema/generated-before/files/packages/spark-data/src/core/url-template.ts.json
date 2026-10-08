@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:core/url-template",
+    "sourcePath": "packages/spark-data/src/core/url-template.ts",
+    "sourceFile": "packages/spark-data/src/core/url-template.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "core/url-template",
+    "jsdoc": "@module @spark-appworks/spark-data:core/url-template\n职责：提供数据层 url-template 能力，围绕 ResolvedUrl 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 core/url-template 的数据语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ResolvedUrl"
+    ]
+  },
+  "$defs": {
+    "ResolvedUrl": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolvedUrl",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "rest": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "required": [
+        "url",
+        "rest"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-15T00:04:57.392Z",
+  "models": {
+    "ResolvedUrl": {
+      "name": "ResolvedUrl",
+      "jsdoc": "URL 模板解析工具\n统一支持两种路径参数风格：\n- Express 风格：`/users/:id/orders/:orderId`\n- 花括号风格：`/users/{id}/orders/{orderId}`\n解析后返回替换后的 URL 及未被模板消费的剩余参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 替换路径参数后的 URL */\n    url: string;\n    /** 未被 URL 模板消费的剩余参数（可用于 query/body） */\n    rest: Record<string, unknown>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "url",
+              "jsdoc": "替换路径参数后的 URL",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rest",
+              "jsdoc": "未被 URL 模板消费的剩余参数（可用于 query/body）",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

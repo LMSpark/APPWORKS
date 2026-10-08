@@ -1,0 +1,105 @@
+{
+  "at": "2026-10-07T22:06:03.679Z",
+  "expected": {
+    "expected": "[{\"rowid\":\"3E1B3E547E4C7924022B163DF09A1076\",\"Name\":\"四文件参数验收\",\"Description\":\"保存重开后恢复原值\",\"IsBusParam\":true}]",
+    "instanceId": "2d636704-ee7a-484e-983a-28b1fcac0733"
+  },
+  "saveCode": 200,
+  "saveResult": {
+    "mapListAdd": [],
+    "mapListEdit": [
+      {
+        "QYVirtualPlat@Base_DataSet": [
+          {
+            "inputParams": "[{\"rowid\":\"3E1B3E547E4C7924022B163DF09A1076\",\"Name\":\"四文件参数验收\",\"Description\":\"保存重开后恢复原值\",\"IsBusParam\":true}]",
+            "rowid": "97DCB03F75AADEAE6B102B062DB71CEA"
+          }
+        ]
+      }
+    ],
+    "mapListDelete": []
+  },
+  "readRequest": {
+    "Table": [
+      {
+        "Name": "Base_DataSet",
+        "OutputType": "Table",
+        "Filter": null,
+        "inputParams": [],
+        "DISTINCT": false,
+        "IsBusinessMain": 1,
+        "Fields": [
+          {
+            "Name": "ReportID",
+            "IsOutput": true,
+            "AsName": "ReportID"
+          },
+          {
+            "Name": "rowid",
+            "IsOutput": true,
+            "AsName": "rowid",
+            "OrderType": "ascending",
+            "Order": 1
+          },
+          {
+            "Name": "wfid",
+            "IsOutput": true,
+            "AsName": "wfid"
+          },
+          {
+            "Name": "updateuser",
+            "IsOutput": true,
+            "AsName": "updateuser"
+          },
+          {
+            "Name": "createuser",
+            "IsOutput": true,
+            "AsName": "createuser"
+          },
+          {
+            "Name": "description",
+            "IsOutput": true,
+            "AsName": "description"
+          },
+          {
+            "Name": "flowstate",
+            "IsOutput": true,
+            "AsName": "flowstate"
+          },
+          {
+            "Name": "updatetime",
+            "IsOutput": true,
+            "AsName": "updatetime"
+          },
+          {
+            "Name": "createtime",
+            "IsOutput": true,
+            "AsName": "createtime"
+          },
+          {
+            "Name": "lingma_sys_is_delete",
+            "IsOutput": true,
+            "AsName": "lingma_sys_is_delete"
+          },
+          {
+            "Name": "inputParams",
+            "IsOutput": true,
+            "AsName": "inputParams"
+          }
+        ]
+      }
+    ],
+    "PageParam": {
+      "index": 1,
+      "size": 500
+    }
+  },
+  "readCode": 200,
+  "observed": {
+    "rows": 500,
+    "total": 1185,
+    "targetMissing": true,
+    "dirty": false
+  },
+  "message": "save receipt succeeded; refresh lost one-off target filter; no save retry performed"
+}

@@ -164,6 +164,7 @@ export type {
   RuntimeNavigationRegionItems,
   RuntimeNavigationRegionVisibility,
 } from './navigation/runtime-navigation'
+export { SYSTEM_PAGE_NAVIGATION_ID_QUERY } from './navigation/runtime-navigation'
 export type { TabPage, PageMode } from './navigation/useTabPages'
 export type { PrimaryPreset, NavPreset, NavColorSet, StylePreset, StyleColorSet } from './navigation/useColorScheme'
 

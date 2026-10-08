@@ -6,6 +6,7 @@
  */
 import type { DataViewFilterJsonValue } from '@spark-appworks/spark-data'
 import type { OrderType, WireFilterOperator } from '../../../../contracts/lowcode-wire-query'
+import type { DataSpaceQueryOptions } from '../data-space-runtime-contract'
 
 /** 协议值函数封包；Type 决定函数，JSON 扩展值原样传递。 */
 type DataSpaceValueFunction = Readonly<{
@@ -42,6 +43,7 @@ export type DataSpaceWireQueryOptions = Readonly<{
   allPages?: boolean
   maxRows?: number
   outputType?: string
+  outputFieldMode?: DataSpaceQueryOptions['outputFieldMode']
   tree?: DataSpaceWireTree
   fields?: readonly DataSpaceWireQueryField[]
   inputParams?: readonly DataSpaceWireInput[]
@@ -64,6 +66,7 @@ type DataSpaceWireQueryDescriptor = Readonly<Record<string, unknown>>
 /** 实际 GetData 请求体；场景身份由请求头 x-FormKey 携带。 */
 export type DataSpaceWireQueryRequest = Readonly<{
   Table: readonly DataSpaceWireQueryDescriptor[]
+  OutputFieldMode?: DataSpaceWireQueryOptions['outputFieldMode']
   PageParam?: Readonly<{ index: number; size: number }>
   keyField?: string
   parentField?: string

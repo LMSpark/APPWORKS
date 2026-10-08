@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/conversation/ag-ui/ag-ui-types",
+    "sourcePath": "packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-types.ts",
+    "sourceFile": "packages/spark-ai/src/agent/conversation/ag-ui/ag-ui-types.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/conversation/ag-ui/ag-ui-types",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/conversation/ag-ui/ag-ui-types\n职责：收拢 SPARK 首版 AG-UI adapter 的自有类型，并转出官方 AG-UI core 类型。\n边界：只定义协议类型别名，不执行 agent、不访问 transport，也不渲染 UI。\nAI用途：需要对齐 AG-UI 事件、tool、message 或 run input 时，从本模块确认公开类型。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SparkAgUiRunRef",
+      "SparkAgUiEventMetadata",
+      "SparkAgUiTextMessageRole",
+      "SparkAgUiCustomEventName"
+    ]
+  },
+  "$defs": {
+    "SparkAgUiRunRef": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkAgUiRunRef",
+      "properties": {
+        "threadId": {
+          "type": "string"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "parentRunId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkAgUiEventMetadata": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkAgUiEventMetadata",
+      "properties": {
+        "timestamp": {
+          "type": "number"
+        },
+        "rawEvent": true
+      },
+      "additionalProperties": false
+    },
+    "SparkAgUiTextMessageRole": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkAgUiTextMessageRole",
+      "enum": [
+        "assistant",
+        "user",
+        "system",
+        "developer"
+      ]
+    },
+    "SparkAgUiCustomEventName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkAgUiCustomEventName",
+      "enum": [
+        "spark.toolApproval.requested",
+        "spark.toolApproval.resolved",
+        "spark.stream.event"
+      ]
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.676Z",
+  "models": {
+    "SparkAgUiRunRef": {
+      "name": "SparkAgUiRunRef",
+      "jsdoc": "SPARK run 在 AG-UI 事件中的稳定定位信息。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** AG-UI thread 唯一标识，对应 RunAgentInput.threadId，跨 run 保持不变。 */\n    threadId: string;\n    /** 单次 run 的唯一标识，每次调用 RunAgentInput 生成新 runId。 */\n    runId: string;\n    /** 父 run 标识；用于嵌套 run 场景（如子 agent 调用），顶层 run 时为 undefined。 */\n    parentRunId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** AG-UI thread 唯一标识，对应 RunAgentInput.threadId，跨 run 保持不变。 */\n    threadId: string;\n    /** 单次 run 的唯一标识，每次调用 RunAgentInput 生成新 runId。 */\n    runId: string;\n    /** 父 run 标识；用于嵌套 run 场景（如子 agent 调用），顶层 run 时为 undefined。 */\n    parentRunId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "threadId",
+              "jsdoc": "AG-UI thread 唯一标识，对应 RunAgentInput.threadId，跨 run 保持不变。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runId",
+              "jsdoc": "单次 run 的唯一标识，每次调用 RunAgentInput 生成新 runId。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentRunId",
+              "jsdoc": "父 run 标识；用于嵌套 run 场景（如子 agent 调用），顶层 run 时为 undefined。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkAgUiEventMetadata": {
+      "name": "SparkAgUiEventMetadata",
+      "jsdoc": "SPARK 生成 AG-UI 事件时附加的时间戳和原始事件调试数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 事件产生的 Unix 毫秒时间戳；未采集时为 undefined（非 0）。 */\n    timestamp?: number;\n    /** 原始 AG-UI 事件引用，仅供调试；生产代码不应依赖此字段的内容结构。 */\n    rawEvent?: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 事件产生的 Unix 毫秒时间戳；未采集时为 undefined（非 0）。 */\n    timestamp?: number;\n    /** 原始 AG-UI 事件引用，仅供调试；生产代码不应依赖此字段的内容结构。 */\n    rawEvent?: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "timestamp",
+              "jsdoc": "事件产生的 Unix 毫秒时间戳；未采集时为 undefined（非 0）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rawEvent",
+              "jsdoc": "原始 AG-UI 事件引用，仅供调试；生产代码不应依赖此字段的内容结构。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkAgUiTextMessageRole": {
+      "name": "SparkAgUiTextMessageRole",
+      "jsdoc": "SPARK 首版 AG-UI 文本消息支持的角色集合。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'assistant' | 'user' | 'system' | 'developer'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'assistant'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'user'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'developer'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkAgUiCustomEventName": {
+      "name": "SparkAgUiCustomEventName",
+      "jsdoc": "SPARK 以 AG-UI CUSTOM 事件承载的扩展事件名称。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'spark.toolApproval.requested' | 'spark.toolApproval.resolved' | 'spark.stream.event'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'spark.toolApproval.requested'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'spark.toolApproval.resolved'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'spark.stream.event'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

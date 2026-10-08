@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererVirtualCard/zero-code",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererVirtualCard/zero-code.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererVirtualCard/zero-code.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererVirtualCard/zero-code",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererVirtualCard/zero-code\n职责：封装 RendererVirtualCard（r-virtual-card）的 zero-code 行为层，向配置动作和脚本暴露稳定的组件操作 API。\n边界：只编排 table-level/data-view-container 的运行时能力、原生组件引用和事件控制，不声明视觉 props，也不持久化业务数据。\nAI用途：当动作、脚本或 ClassModel 需要调用 renderer virtual card 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [],
+    "componentName": "RendererVirtualCard",
+    "componentType": "r-virtual-card",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "RendererVirtualCardZeroCodeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererVirtualCardZeroCodeOptions",
+      "properties": {
+        "props": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "resolvedView": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "rows": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "cachedPages": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "pendingPages": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "visiblePages": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "currentPage": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "totalPages": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "progressText": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "loadPolicyText": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        },
+        "wheelStatusText": {
+          "$ref": "../../../shared-types.ts.json#/$defs/ValueRef"
+        }
+      },
+      "required": [
+        "props",
+        "resolvedView",
+        "rows",
+        "cachedPages",
+        "pendingPages",
+        "visiblePages",
+        "currentPage",
+        "totalPages",
+        "progressText",
+        "loadPolicyText",
+        "wheelStatusText"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.scrollToPage.params": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.scrollToPage.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.clearCache.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearCache.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.408Z",
+  "models": {
+    "RendererVirtualCardZeroCodeOptions": {
+      "name": "RendererVirtualCardZeroCodeOptions",
+      "jsdoc": "创建 r-virtual-card zero-code API 和事件派发桥接所需的运行时输入。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererVirtualCard",
+        "type": "r-virtual-card",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** r-virtual-card 的组件属性集合，包含事件回调和配置透传。 */\n    props: Readonly<Record<string, unknown>>;\n    /** 当前解析出的 DataView。 */\n    resolvedView: ValueRef<DataView | null>;\n    /** 当前可见或缓存中的卡片行数据。 */\n    rows: ValueRef<readonly DataRow[]>;\n    /** 已缓存的页码集合。 */\n    cachedPages: ValueRef<readonly number[]>;\n    /** 正在加载的页码集合。 */\n    pendingPages: ValueRef<readonly number[]>;\n    /** 当前视口附近需要渲染的页码集合。 */\n    visiblePages: ValueRef<readonly number[]>;\n    /** 当前滚动位置对应的页码。 */\n    currentPage: ValueRef<number>;\n    /** 当前数据集总页数。 */\n    totalPages: ValueRef<number>;\n    /** 滚动进度文本。 */\n    progressText: ValueRef<string>;\n    /** 当前虚拟分页加载策略说明。 */\n    loadPolicyText: ValueRef<string>;\n    /** 最近一次滚轮跳页状态说明。 */\n    wheelStatusText: ValueRef<string>;\n    /** 滚动到指定页并触发必要加载。 */\n    scrollToPage: (page: number) => Promise<void>;\n    /** 清空分页缓存并重新加载当前页。 */\n    clearCache: () => void;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "props",
+              "jsdoc": "r-virtual-card 的组件属性集合，包含事件回调和配置透传。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolvedView",
+              "jsdoc": "当前解析出的 DataView。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rows",
+              "jsdoc": "当前可见或缓存中的卡片行数据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "cachedPages",
+              "jsdoc": "已缓存的页码集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pendingPages",
+              "jsdoc": "正在加载的页码集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "visiblePages",
+              "jsdoc": "当前视口附近需要渲染的页码集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentPage",
+              "jsdoc": "当前滚动位置对应的页码。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "totalPages",
+              "jsdoc": "当前数据集总页数。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "progressText",
+              "jsdoc": "滚动进度文本。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadPolicyText",
+              "jsdoc": "当前虚拟分页加载策略说明。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "wheelStatusText",
+              "jsdoc": "最近一次滚轮跳页状态说明。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "scrollToPage",
+              "jsdoc": "滚动到指定页并触发必要加载。",
+              "parameters": [
+                {
+                  "name": "page",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "clearCache",
+              "jsdoc": "清空分页缓存并重新加载当前页。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/renderer/useCssScope",
+    "sourcePath": "packages/spark-component/src/page/renderer/useCssScope.ts",
+    "sourceFile": "packages/spark-component/src/page/renderer/useCssScope.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/renderer/useCssScope",
+    "jsdoc": "@module @spark-appworks/spark-component:page/renderer/useCssScope\n职责：维护 @spark-appworks/spark-component 中 page/renderer/useCssScope 的模块能力，围绕 UseCssScopeOptions 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 page/renderer/useCssScope 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "UseCssScopeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseCssScopeOptions",
+      "properties": {
+        "enableScope": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.604Z",
+  "models": {
+    "UseCssScopeOptions": {
+      "name": "UseCssScopeOptions",
+      "jsdoc": "CSS 作用域 Composable",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 是否 enable Scope。 */\n    enableScope?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "enableScope",
+              "jsdoc": "是否 enable Scope。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

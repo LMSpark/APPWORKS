@@ -1,0 +1,1579 @@
+--- a/packages/spark-data/src/types.ts
++++ b/packages/spark-data/src/types.ts
+@@ -849,8 +849,9 @@
+   targetField: string
+ }>
+ 
+-/** DataView 输入级联；不引用 DataResourceRelation。 */
+-export type DataViewCascade = {
++/** 既有 DataView 查询级联；不引用 DataResourceRelation。 */
++export type DataViewQueryCascade = {
++  kind?: 'query'
+   /** AppWorks 级联身份。 */
+   cascadeId?: string
+   /** 原始平台关系 ID，仅用于来源追踪。 */
+@@ -870,6 +871,35 @@
+   /** 源变化时是否自动重新查询目标视图（默认 true）。 */
+   autoLoad?: boolean
+ }
++
++export type DataViewFieldCascade = Readonly<{
++  kind: 'field'
++  cascadeId: string
++  tableName: string
++  viewId: string
++  rowMode: 'editing-row'
++  targetField: string
++  parents: ReadonlyArray<Readonly<{ field: string; parameter: string }>>
++  optionsView: Readonly<{ tableName: string; viewId: string; valueField: string; labelField: string }>
++  valuePolicy: Readonly<{ mode: 'retain' } | { mode: 'clear' | 'retain-valid'; clearValue: string | number | boolean | null }>
++}>
++
++/** 同一持久关系域中的两种独立运行语义。 */
++export type DataViewCascade = DataViewQueryCascade | DataViewFieldCascade
++
++export type DataViewFieldCascadeAddress = Readonly<{
++  tableName: string
++  viewId: string
++  rowId: string | number
++  field: string
++}>
++
++export type DataViewFieldCascadeState = Readonly<{
++  status: 'idle' | 'loading' | 'ready' | 'error'
++  options: readonly DataRow[]
++  valueStatus: 'empty' | 'valid' | 'invalid' | 'unverified'
++  error?: string
++}>
+ 
+ /** 唯一定位一个 DataView 输入级联。 */
+ export type DataViewCascadeSelector = Readonly<{
+@@ -1113,6 +1143,8 @@
+   editingFieldChanged?: (tableName: string, viewId: string, event: DataViewEditingFieldChangeEvent) => void
+   /** 编辑态开关变化 */
+   editingChanged?: (tableName: string, viewId: string) => void
++  /** 显式取消编辑；undefined 表示全部行 */
++  editingDiscarded?: (tableName: string, viewId: string, ids: ReadonlyArray<string | number> | undefined) => void
+   /** 视图清空 */
+   cleared?: (tableName: string, viewId: string) => void
+   /** 视图配置变化 */
+@@ -1156,9 +1188,9 @@
+   readonly pageId: string | undefined
+ 
+   /** 查询以指定 DataView 为源的目标级联（视图级索引） */
+-  getChildCascades(parentTable: string, parentViewId: string): DataViewCascade[]
++  getChildCascades(parentTable: string, parentViewId: string): DataViewQueryCascade[]
+   /** 查询以指定 DataView 为目标的源级联（视图级索引） */
+-  getParentCascades(childTable: string, childViewId: string): DataViewCascade[]
++  getParentCascades(childTable: string, childViewId: string): DataViewQueryCascade[]
+   /** 查询以指定资源为父的所有资源关系（聚合函数消费） */
+   getResourceChildRelations(parentTable: string): DataResourceRelation[]
+   /** 查询以指定资源为子的所有资源关系 */
+@@ -1193,12 +1225,15 @@
+   /** 更新 DataView 输入级联 */
+   updateCascade(
+     selector: DataViewCascadeSelector,
+-    updates: Partial<DataViewCascade>,
+-  ): DataViewCascade
++    updates: Partial<DataViewQueryCascade>,
++  ): DataViewQueryCascade
+   /** 删除 DataView 输入级联 */
+   removeCascade(selector: DataViewCascadeSelector): void
+   /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */
+-  resolveCascadeFilter(rel: DataViewCascade): DataViewFilterTree | undefined | null
++  resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null
++  getFieldCascadeState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState
++  refreshFieldCascade(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState>
++  onFieldCascadeChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void
+   /** 获取数据表 */
+   getTable(name: string): DataTable | undefined
+   /** 获取数据视图（委托到 DataTable） */
+--- a/packages/spark-data/src/index.ts
++++ b/packages/spark-data/src/index.ts
+@@ -42,6 +42,7 @@
+ 
+ export { TreeManager } from './node-tree/tree-manager'
+ export { DataSetCrudTool } from './dataset-crud-tool'
++export { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
+ 
+ // ===== Node Tree（页面节点树模型，从 spark-project-model 迁入）=====
+ 
+@@ -170,6 +171,10 @@
+   DataResourceRelationInput,
+   DataResourceRelationFieldMapping,
+   DataViewCascade,
++  DataViewQueryCascade,
++  DataViewFieldCascade,
++  DataViewFieldCascadeAddress,
++  DataViewFieldCascadeState,
+   DataViewCascadeFilterBinding,
+   DataViewCascadeSelector,
+   DependencyType,
+--- a/packages/spark-data/src/dataset.ts
++++ b/packages/spark-data/src/dataset.ts
+@@ -9,7 +9,7 @@
+ 
+ import type {
+   DataSetContract, DataSetMetadata, TableMetadata, DataResourceRelation, DataResourceRelationInput, DataViewCascade,
+-  DataViewCascadeSelector, DataRow, DataColumn,
++  DataViewQueryCascade, DataViewCascadeSelector, DataViewFieldCascadeAddress, DataViewFieldCascadeState, DataRow, DataColumn,
+   ColumnType, ViewChangeHandlers, CrudResult,
+   DataSetSaveChangesOptions, DataSetSaveChangesResult, DataSetSaveChangesViewResult,
+   DataSetSaveChangesConfig, DataSetTransactionOperation, DataSetTransactionRequest,
+@@ -39,6 +39,8 @@
+ import { normalizeDataSetMetadata, normalizeScenarioId } from './metadata'
+ import { assertNoSeparator, getParentRows } from './core/utils'
+ import { ResourceRelationDefinition } from './resource-relation/resource-relation-definition'
++import { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
++import { DataViewFieldCascadeRuntime } from './strategies/cascade/field-cascade-runtime'
+ 
+ /** @internal 从未知值推断列类型 */
+ function inferColumnType(v: unknown): ColumnType {
+@@ -239,9 +241,10 @@
+   return value
+ }
+ 
+-function isDataViewCascade(value: unknown): value is DataViewCascade {
++function isDataViewQueryCascade(value: unknown): value is DataViewQueryCascade {
+   const record = asRecord(value)
+   return record !== null
++    && (record['kind'] === undefined || record['kind'] === 'query')
+     && typeof record['parentTable'] === 'string'
+     && typeof record['parentViewId'] === 'string'
+     && typeof record['childTable'] === 'string'
+@@ -260,10 +263,16 @@
+ 
+ function readViewCascades(value: unknown): DataViewCascade[] | undefined {
+   if (value === undefined) return undefined
+-  if (!Array.isArray(value) || !value.every(isDataViewCascade)) {
++  if (!Array.isArray(value)) {
+     throw new Error('DataSet.fromJson: viewCascades 必须是 DataViewCascade 数组')
+   }
+-  return value
++  const cascades = value.map((item: unknown): DataViewCascade => {
++    if (isRecord(item) && item['kind'] === 'field') return DataViewFieldCascadeDefinition.parse(item)
++    if (isDataViewQueryCascade(item)) return item
++    throw new Error('DataSet.fromJson: viewCascades 必须是 DataViewCascade 数组')
++  })
++  DataViewFieldCascadeDefinition.validateAll(cascades)
++  return cascades
+ }
+ 
+ function isSaveChangesConfig(value: unknown): value is DataSetSaveChangesConfig {
+@@ -415,9 +424,12 @@
+   _pageRoute?: unknown
+ 
+   /** @internal DataView 级联索引：parentTable:parentViewId → target cascades */
+-  private _childCascadeIdx = new Map<string, DataViewCascade[]>()
++  private _childCascadeIdx = new Map<string, DataViewQueryCascade[]>()
+   /** @internal DataView 级联索引：childTable:childViewId → source cascades */
+-  private _parentCascadeIdx = new Map<string, DataViewCascade[]>()
++  private _parentCascadeIdx = new Map<string, DataViewQueryCascade[]>()
++  private _fieldCascadeRuntime: DataViewFieldCascadeRuntime | undefined
++  private _fieldCascadeListeners = new Map<
++    (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void, () => void>()
+ 
+   /** @internal 资源关系索引：parentTable → DataResourceRelation[]（聚合函数消费） */
+   private _resourceChildRelationIdx = new Map<string, DataResourceRelation[]>()
+@@ -639,6 +651,11 @@
+       view.events.on('editingChanged', fn)
+       entry.unsubs.push(() => view.events.off('editingChanged', fn))
+     }
++    if (h.editingDiscarded !== undefined) {
++      const fn = (ids: ReadonlyArray<string | number> | undefined) => h.editingDiscarded?.(tn, vid, ids)
++      view.events.on('editingDiscarded', fn)
++      entry.unsubs.push(() => view.events.off('editingDiscarded', fn))
++    }
+     if (h.cleared !== undefined) {
+       const fn = () => h.cleared?.(tn, vid)
+       view.events.on('cleared', fn)
+@@ -748,7 +765,7 @@
+    * @param parentTable 父表名
+    * @param parentViewId 父视图ID
+    */
+-  getChildCascades(parentTable: string, parentViewId: string): DataViewCascade[] {
++  getChildCascades(parentTable: string, parentViewId: string): DataViewQueryCascade[] {
+     return this._childCascadeIdx.get(`${parentTable}:${parentViewId}`) ?? []
+   }
+ 
+@@ -757,12 +774,12 @@
+    * @param childTable 子表名
+    * @param childViewId 子视图ID
+    */
+-  getParentCascades(childTable: string, childViewId: string): DataViewCascade[] {
++  getParentCascades(childTable: string, childViewId: string): DataViewQueryCascade[] {
+     return this._parentCascadeIdx.get(`${childTable}:${childViewId}`) ?? []
+   }
+ 
+   /** 将 DataView 输入级联解析为目标视图过滤表达式。 */
+-  resolveCascadeFilter(rel: DataViewCascade): DataViewFilterTree | undefined | null {
++  resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null {
+     const parentView = this.getView(rel.parentTable, rel.parentViewId)
+     if (!parentView) return null
+ 
+@@ -830,6 +847,7 @@
+     this._childCascadeIdx.clear()
+     this._parentCascadeIdx.clear()
+     for (const r of this.viewCascades ?? []) {
++      if (r.kind === 'field') continue
+       const cKey = `${r.childTable}:${r.childViewId}`
+       let cArr = this._parentCascadeIdx.get(cKey)
+       if (!cArr) { cArr = []; this._parentCascadeIdx.set(cKey, cArr) }
+@@ -858,8 +876,17 @@
+ 
+   /** @internal 重建运行时关系图与索引，并通知各视图刷新级联订阅/聚合解析。 */
+   private _rebuildDataLinks(): void {
++    const fields = DataViewFieldCascadeDefinition.validateAll(this.viewCascades ?? [])
++    DataViewFieldCascadeDefinition.validateRuntime(fields, this)
++    for (const unsubscribe of this._fieldCascadeListeners.values()) unsubscribe()
++    this._fieldCascadeRuntime?.destroy()
+     this._buildResourceRelationIndex()
+     this._buildViewCascadeIndex()
++
++    this._fieldCascadeRuntime = new DataViewFieldCascadeRuntime(this, fields)
++    for (const listener of this._fieldCascadeListeners.keys()) {
++      this._fieldCascadeListeners.set(listener, this._fieldCascadeRuntime.onChange(listener))
++    }
+ 
+     for (const table of Object.values(this.tables)) {
+       table.onDataSetStructureReady()
+@@ -876,6 +903,9 @@
+   }
+ 
+   private _applyNormalizedMetadata(normalized: DataSetMetadata): void {
++    for (const unsubscribe of this._fieldCascadeListeners.values()) unsubscribe()
++    this._fieldCascadeRuntime?.destroy()
++    this._fieldCascadeRuntime = undefined
+     this.dataSetName = normalized.dataSetName
+     this.schemaVersion = normalized.schemaVersion ?? 2
+     this.resourceRelations = undefined
+@@ -884,6 +914,8 @@
+     this.pageId = normalized.pageId
+     this.saveChangesConfig = normalized.saveChanges
+     this.layout = normalized.layout
++    this._childCascadeIdx.clear()
++    this._parentCascadeIdx.clear()
+     this._createTablesFromMetadata(normalized.tables)
+     this.resourceRelations = normalized.resourceRelations?.map(relation => ResourceRelationDefinition.normalize(relation, this.tables))
+     this._rebuildDataLinks()
+@@ -891,7 +923,9 @@
+ 
+     /** 执行 replace From Json 操作。 */
+ replaceFromJson(json: DataSetMetadata | Record<string, unknown> | string): void {
+-    const normalized = normalizeDataSetMetadata(DataSet.fromJson(json).toJson())
++    const candidate = DataSet.fromJson(json)
++    let normalized: DataSetMetadata
++    try { normalized = normalizeDataSetMetadata(candidate.toJson()) } finally { candidate.destroy() }
+     if (normalized.scenarioId !== this.scenarioId) {
+       throw new Error('DataSet.replaceFromJson: 场景身份不可变更，请重新装配运行 DataSet')
+     }
+@@ -998,7 +1032,9 @@
+     }
+ 
+     const relatedCascade = (this.viewCascades ?? []).find(
+-      dep => dep.parentTable === tableName || dep.childTable === tableName,
++      dep => dep.kind === 'field'
++        ? dep.tableName === tableName || dep.optionsView.tableName === tableName
++        : dep.parentTable === tableName || dep.childTable === tableName,
+     )
+     if (relatedCascade) {
+       throw new Error(`Table "${tableName}" is referenced by viewCascades, remove cascade first`)
+@@ -1054,6 +1090,7 @@
+   private _resolveCascadeIndex(selector: DataViewCascadeSelector): number {
+     this.viewCascades ??= []
+     const idx = this.viewCascades.findIndex(dep => {
++      if (dep.kind === 'field') return false
+       if (dep.parentTable !== selector.parentTable || dep.parentViewId !== selector.parentViewId) return false
+       if (dep.childTable !== selector.childTable || dep.childViewId !== selector.childViewId) return false
+       return selector.cascadeId === undefined || dep.cascadeId === selector.cascadeId
+@@ -1149,7 +1186,7 @@
+     this._rebuildDataLinks()
+   }
+ 
+-  private _assertCascadeShape(cascade: DataViewCascade): void {
++  private _assertCascadeShape(cascade: DataViewQueryCascade): void {
+     const parentTable = this.getTable(cascade.parentTable)
+     if (!parentTable) throw new Error(`Parent table "${cascade.parentTable}" not found`)
+     const childTable = this.getTable(cascade.childTable)
+@@ -1176,10 +1213,19 @@
+    * @throws 级联引用非法或重复时抛 Error
+    */
+   addCascade(cascade: DataViewCascade): void {
++    if (cascade.kind === 'field') {
++      const next = DataViewFieldCascadeDefinition.parse(cascade)
++      DataViewFieldCascadeDefinition.validateAll([...(this.viewCascades ?? []), next])
++      DataViewFieldCascadeDefinition.validateRuntime([next], this)
++      this.viewCascades = [...(this.viewCascades ?? []), next]
++      this._rebuildDataLinks()
++      return
++    }
+     this._assertCascadeShape(cascade)
+     this.viewCascades ??= []
+ 
+     const dup = this.viewCascades.some(dep => {
++      if (dep.kind === 'field') return dep.cascadeId === cascade.cascadeId
+       if (cascade.cascadeId !== undefined && dep.cascadeId === cascade.cascadeId) return true
+       return dep.parentTable === cascade.parentTable
+         && dep.parentViewId === cascade.parentViewId
+@@ -1204,8 +1250,8 @@
+    */
+   updateCascade(
+     selector: DataViewCascadeSelector,
+-    updates: Partial<DataViewCascade>,
+-  ): DataViewCascade {
++    updates: Partial<DataViewQueryCascade>,
++  ): DataViewQueryCascade {
+     this.viewCascades ??= []
+ 
+     const idx = this._resolveCascadeIndex(selector)
+@@ -1213,7 +1259,8 @@
+     if (!current) {
+       throw new Error(`Cascade ${selector.parentTable}:${selector.parentViewId}→${selector.childTable}:${selector.childViewId} not found`)
+     }
+-    const next: DataViewCascade = {
++    if (current.kind === 'field') throw new Error('FIELD_CASCADE_QUERY_ONLY: 此入口只维护查询级联')
++    const next: DataViewQueryCascade = {
+       ...current,
+       ...updates,
+       parentTable: updates.parentTable ?? current.parentTable,
+@@ -1227,6 +1274,7 @@
+ 
+     const duplicate = this.viewCascades.some((dep, depIndex) => {
+       if (depIndex === idx) return false
++      if (dep.kind === 'field') return next.cascadeId !== undefined && dep.cascadeId === next.cascadeId
+       if (next.cascadeId !== undefined && dep.cascadeId === next.cascadeId) return true
+       return dep.parentTable === next.parentTable
+         && dep.parentViewId === next.parentViewId
+@@ -1256,6 +1304,26 @@
+     this._rebuildDataLinks()
+   }
+ 
++  getFieldCascadeState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState {
++    if (!this._fieldCascadeRuntime) throw new Error('FIELD_CASCADE_RUNTIME: 未初始化')
++    return this._fieldCascadeRuntime.getState(address)
++  }
++
++  refreshFieldCascade(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState> {
++    if (!this._fieldCascadeRuntime) throw new Error('FIELD_CASCADE_RUNTIME: 未初始化')
++    return this._fieldCascadeRuntime.refresh(address)
++  }
++
++  onFieldCascadeChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void {
++    if (!this._fieldCascadeRuntime) throw new Error('FIELD_CASCADE_RUNTIME: 未初始化')
++    this._fieldCascadeListeners.get(listener)?.()
++    this._fieldCascadeListeners.set(listener, this._fieldCascadeRuntime.onChange(listener))
++    return () => {
++      this._fieldCascadeListeners.get(listener)?.()
++      this._fieldCascadeListeners.delete(listener)
++    }
++  }
++
+   // ===== 数据访问 =====
+ 
+   /**
+@@ -1272,6 +1340,9 @@
+   destroy(): void {
+     if (this._destroyed) return
+     this._destroyed = true
++    this._fieldCascadeRuntime?.destroy()
++    this._fieldCascadeRuntime = undefined
++    this._fieldCascadeListeners.clear()
+ 
+     // 1. 清理 DataSet 级别的事件订阅
+     for (const entry of this._activeViewSubs) {
+--- a/packages/spark-data/src/dataset-crud-tool.ts
++++ b/packages/spark-data/src/dataset-crud-tool.ts
+@@ -23,7 +23,7 @@
+   ViewMetadata,
+   DataResourceRelation,
+   DataResourceRelationInput,
+-  DataViewCascade,
++  DataViewQueryCascade,
+   DataViewCascadeSelector,
+   TableSemanticMetadata,
+   TableResourceType,
+@@ -286,13 +286,13 @@
+ /** 创建 DataView 输入级联参数。 */
+ type DataSetCrudToolCreateCascadeParams = {
+   /** 新 DataView 输入级联定义。 */
+-  cascade: DataViewCascade
++  cascade: DataViewQueryCascade
+ }
+ 
+ /** 更新 DataView 输入级联参数。 */
+ type DataSetCrudToolUpdateCascadeParams = DataViewCascadeSelector & {
+   /** 要合并到级联定义上的更新内容。 */
+-  updates: Partial<DataViewCascade>
++  updates: Partial<DataViewQueryCascade>
+ }
+ 
+ /**
+@@ -334,6 +334,7 @@
+   static fromDataSet(source: DataSet | Record<string, unknown> | string): DataSetCrudTool {
+     if (source instanceof DataSet) {
+       const tool = new DataSetCrudTool(source.dataSetName)
++      tool._dataSet.destroy()
+       tool._dataSet = source
+       tool.initializeHistory()
+       return tool
+@@ -360,7 +361,9 @@
+     current?: DataSetCrudTool,
+     options?: { preserveHistory?: boolean },
+   ): DataSetCrudTool {
+-    const normalizedSnapshot = DataSet.fromJson(snapshot).toJson()
++    const candidate = DataSet.fromJson(snapshot)
++    let normalizedSnapshot: DataSetMetadata
++    try { normalizedSnapshot = candidate.toJson() } finally { candidate.destroy() }
+ 
+     if (!current) {
+       return DataSetCrudTool.fromJson(normalizedSnapshot)
+@@ -494,7 +497,9 @@
+    * @param options 替换写入选项。
+    */
+   replaceFromJson(snapshot: DataSetMetadata | Record<string, unknown> | string, options?: DataSetCrudToolReplaceFromJsonOptions): void {
+-    const normalizedSnapshot = DataSet.fromJson(snapshot).toJson()
++    const candidate = DataSet.fromJson(snapshot)
++    let normalizedSnapshot: DataSetMetadata
++    try { normalizedSnapshot = candidate.toJson() } finally { candidate.destroy() }
+     this._dataSet.replaceFromJson(normalizedSnapshot)
+     if (options?.commitHistory === false) {
+       this.initializeHistory()
+@@ -708,8 +713,18 @@
+     }
+ 
+     if (snapshot.viewCascades) {
+-      snapshot.viewCascades = snapshot.viewCascades.map((cascade) => ({
++      snapshot.viewCascades = snapshot.viewCascades.map((cascade) => cascade.kind === 'field' ? ({
+         ...cascade,
++        ...(cascade.tableName === tableName ? {
++          targetField: cascade.targetField === columnName ? newColumnName : cascade.targetField,
++          parents: cascade.parents.map(parent => ({ ...parent,
++            field: parent.field === columnName ? newColumnName : parent.field })),
++        } : {}),
++        ...(cascade.optionsView.tableName === tableName ? { optionsView: { ...cascade.optionsView,
++          valueField: cascade.optionsView.valueField === columnName ? newColumnName : cascade.optionsView.valueField,
++          labelField: cascade.optionsView.labelField === columnName ? newColumnName : cascade.optionsView.labelField,
++        } } : {}),
++      }) : ({ ...cascade,
+         filterBindings: cascade.filterBindings.map((binding) => ({
+           sourceField: cascade.parentTable === tableName && binding.sourceField === columnName
+             ? newColumnName
+@@ -743,10 +758,15 @@
+       throw new Error(`deleteColumn: ${tableName}.${columnName} is referenced by resourceRelations`)
+     }
+     const viewCascade = (this.dataSet.viewCascades ?? []).find((cascade) => (
+-      (cascade.parentTable === tableName
+-        && cascade.filterBindings.some(binding => binding.sourceField === columnName))
+-      || (cascade.childTable === tableName
+-        && cascade.filterBindings.some(binding => binding.targetField === columnName))
++      cascade.kind === 'field'
++        ? (cascade.tableName === tableName && (cascade.targetField === columnName
++          || cascade.parents.some(parent => parent.field === columnName)))
++          || (cascade.optionsView.tableName === tableName && (cascade.optionsView.valueField === columnName
++            || cascade.optionsView.labelField === columnName))
++        : (cascade.parentTable === tableName
++          && cascade.filterBindings.some(binding => binding.sourceField === columnName))
++          || (cascade.childTable === tableName
++            && cascade.filterBindings.some(binding => binding.targetField === columnName))
+     ))
+     if (viewCascade !== undefined) {
+       throw new Error(`deleteColumn: ${tableName}.${columnName} is referenced by viewCascades`)
+@@ -898,11 +918,17 @@
+     }
+ 
+     if (snapshot.viewCascades) {
+-      snapshot.viewCascades = snapshot.viewCascades.map((cascade) => ({
+-        ...cascade,
+-        ...(cascade.parentTable === tableName ? { parentTable: newTableName } : {}),
+-        ...(cascade.childTable === tableName ? { childTable: newTableName } : {}),
+-      }))
++      snapshot.viewCascades = snapshot.viewCascades.map((cascade) => cascade.kind === 'field'
++        ? { ...cascade,
++          ...(cascade.tableName === tableName ? { tableName: newTableName } : {}),
++          ...(cascade.optionsView.tableName === tableName ? {
++            optionsView: { ...cascade.optionsView, tableName: newTableName },
++          } : {}),
++        }
++        : { ...cascade,
++          ...(cascade.parentTable === tableName ? { parentTable: newTableName } : {}),
++          ...(cascade.childTable === tableName ? { childTable: newTableName } : {}),
++        })
+     }
+ 
+     const currentTablePositions = snapshot.layout?.tablePositions
+@@ -1023,6 +1049,11 @@
+     // default 视图是 DataTable 基础组成部分，不允许删除。
+     if (viewId === 'default') {
+       throw new Error('Default view cannot be deleted')
++    }
++    if ((this.dataSet.viewCascades ?? []).some(cascade => cascade.kind === 'field'
++      && ((cascade.tableName === tableName && cascade.viewId === viewId)
++        || (cascade.optionsView.tableName === tableName && cascade.optionsView.viewId === viewId)))) {
++      throw new Error(`deleteView: ${tableName}@${viewId} is referenced by viewCascades`)
+     }
+     this.getTableOrThrow(tableName).destroyView(viewId)
+     this._afterWrite()
+@@ -1417,8 +1448,9 @@
+    * @param filter 可选过滤条件，支持按 parentTable / childTable 过滤。
+    * @returns 级联列表。
+    */
+-  listCascades(filter?: Partial<Pick<DataViewCascade, 'parentTable' | 'childTable'>>): DataViewCascade[] {
+-    return (this.dataSet.viewCascades ?? []).filter((cascade) => {
++  listCascades(filter?: Partial<Pick<DataViewQueryCascade, 'parentTable' | 'childTable'>>): DataViewQueryCascade[] {
++    return (this.dataSet.viewCascades ?? []).filter((cascade): cascade is DataViewQueryCascade => {
++      if (cascade.kind === 'field') return false
+       if (filter?.parentTable !== undefined && cascade.parentTable !== filter.parentTable) return false
+       if (filter?.childTable !== undefined && cascade.childTable !== filter.childTable) return false
+       return true
+@@ -1433,12 +1465,13 @@
+    * @param childTable 子表名。
+    * @returns 命中的级联；不存在时返回 undefined。
+    */
+-  getCascade(params: DataViewCascadeSelector): DataViewCascade | undefined {
++  getCascade(params: DataViewCascadeSelector): DataViewQueryCascade | undefined {
+     const parentTable = this.requireNonEmptyString(params.parentTable, 'getCascade.parentTable')
+     const parentViewId = this.requireNonEmptyString(params.parentViewId, 'getCascade.parentViewId')
+     const childTable = this.requireNonEmptyString(params.childTable, 'getCascade.childTable')
+     const childViewId = this.requireNonEmptyString(params.childViewId, 'getCascade.childViewId')
+-    return (this.dataSet.viewCascades ?? []).find(cascade => {
++    return (this.dataSet.viewCascades ?? []).find((cascade): cascade is DataViewQueryCascade => {
++      if (cascade.kind === 'field') return false
+       if (cascade.parentTable !== parentTable || cascade.parentViewId !== parentViewId) return false
+       if (cascade.childTable !== childTable || cascade.childViewId !== childViewId) return false
+       return params.cascadeId === undefined || cascade.cascadeId === params.cascadeId
+@@ -1452,7 +1485,7 @@
+    * @returns 新创建的级联。
+    * @throws 当级联引用非法时抛错。
+    */
+-  createCascade(params: DataSetCrudToolCreateCascadeParams): DataViewCascade {
++  createCascade(params: DataSetCrudToolCreateCascadeParams): DataViewQueryCascade {
+     const cascadeInput = this.requireViewCascade(params.cascade, 'createCascade.cascade')
+     this.dataSet.addCascade(cascadeInput)
+     this._afterWrite()
+@@ -1479,7 +1512,7 @@
+    * @returns 更新后的级联。
+    * @throws 当级联不存在或更新目标非法时抛错。
+    */
+-  updateCascade(params: DataSetCrudToolUpdateCascadeParams): DataViewCascade {
++  updateCascade(params: DataSetCrudToolUpdateCascadeParams): DataViewQueryCascade {
+     const parentTable = this.requireNonEmptyString(params.parentTable, 'updateCascade.parentTable')
+     const parentViewId = this.requireNonEmptyString(params.parentViewId, 'updateCascade.parentViewId')
+     const childTable = this.requireNonEmptyString(params.childTable, 'updateCascade.childTable')
+@@ -1559,7 +1592,7 @@
+     return value
+   }
+ 
+-  private requireViewCascade(value: DataViewCascade | Partial<DataViewCascade>, label: string): DataViewCascade {
++  private requireViewCascade(value: DataViewQueryCascade | Partial<DataViewQueryCascade>, label: string): DataViewQueryCascade {
+     this.requireObjectArg(value, label)
+     const parentTable = this.requireNonEmptyString(value.parentTable, `${label}.parentTable`)
+     const parentViewId = this.requireNonEmptyString(value.parentViewId, `${label}.parentViewId`)
+--- a/packages/spark-data/src/data-view.ts
++++ b/packages/spark-data/src/data-view.ts
+@@ -15,7 +15,7 @@
+ import { parseViewMetadataInput } from './metadata'
+ import type {
+   DataRow, ViewMetadata, SortExpression,
+-  QueryParams, DataColumn, DataViewCascade,
++  QueryParams, DataColumn, DataViewQueryCascade,
+   CrudResult, CrudOperationConfig,
+   DataSource,
+   AggregateResultRow,
+@@ -70,6 +70,8 @@
+     editingFieldChanged: [event: DataViewEditingFieldChangeEvent]
+     /** 编辑态 patch 集合变化 */
+     editingChanged: []
++    /** 显式取消编辑；undefined 表示全部行 */
++    editingDiscarded: [ids: ReadonlyArray<string | number> | undefined]
+     /** 数据已清空 */
+     cleared: []
+     /** 视图配置变化（分页、排序、过滤、主键、树、聚合等） */
+@@ -1438,7 +1440,7 @@
+     }
+   }
+ 
+-  private async requestIdleCascadeSource(rel: DataViewCascade): Promise<void> {
++  private async requestIdleCascadeSource(rel: DataViewQueryCascade): Promise<void> {
+     const ds = this.dataSet
+     if (!ds) return
+     const parentView = ds.getView(rel.parentTable, rel.parentViewId)
+@@ -1662,7 +1664,7 @@
+    * @param rel DataView 输入级联。
+    * @param _parentRows 父视图当前参与级联的行列表；过滤值统一由 DataSet 解析。
+    */
+-  applyInMemoryCascade(rel: DataViewCascade, _parentRows: readonly DataRow[]): void {
++  applyInMemoryCascade(rel: DataViewQueryCascade, _parentRows: readonly DataRow[]): void {
+     // 从 DataTable.rows 读取全量静态源数据（可在多次父行切换中反复过滤）
+     const srcRows: DataRow[] = this._dataTable?.rows ?? []
+     const cascadeFilter = this.dataSet?.resolveCascadeFilter(rel)
+@@ -1866,6 +1868,7 @@
+       const hadOriginal = this._editingOriginalRows.delete(id)
+       if (hadPatch || hadOriginal) discardedCount++
+     }
++    if (ids === undefined || ids.length > 0) this.events.emit('editingDiscarded', ids === undefined ? undefined : [...new Set(ids)])
+     if (discardedCount > 0) this.emitEditingChanged()
+     return discardedCount
+   }
+@@ -1894,7 +1897,10 @@
+     const targets = ids === undefined
+       ? [...pendingIds]
+       : [...new Set(ids)].filter(id => pendingIds.has(id))
+-    if (targets.length === 0) return 0
++    if (targets.length === 0) {
++      this.events.emit('editingDiscarded', ids === undefined ? undefined : [...new Set(ids)])
++      return 0
++    }
+     const targetIds = new Set(targets)
+ 
+     const baselineByOwnerKey = new Map<unknown, DataViewQueryRow[]>()
+@@ -2018,6 +2024,7 @@
+     }
+     this.mutation.replaceRows(orderedRows)
+     this.syncTreeManagerFromRows()
++    this.events.emit('editingDiscarded', ids === undefined ? undefined : [...new Set(ids)])
+     if (editingChanged) this.emitEditingChanged()
+     return targets.length
+   }
+--- a/packages/spark-data/src/strategies/cascade-delegate.ts
++++ b/packages/spark-data/src/strategies/cascade-delegate.ts
+@@ -6,7 +6,7 @@
+  */
+ 
+ import { Logger } from '@spark-appworks/spark-utils'
+-import { RequestState, type DataViewCascade } from '../types'
++import { RequestState, type DataViewQueryCascade } from '../types'
+ import type { DataView } from '../data-view'
+ import { getParentRows } from '../core/utils'
+ 
+@@ -103,7 +103,7 @@
+    * 由 setupCascade 中按 dependencyType 订阅的具体事件触发，
+    * 无需再做 changeType 过滤——订阅时已完成过滤。
+    */
+-  private respondToParentChange(rel: DataViewCascade, parentView: DataView): void {
++  private respondToParentChange(rel: DataViewQueryCascade, parentView: DataView): void {
+     // 子视图正在等待该父视图完成时，当前 requestData 会在 await 后读取最新父状态。
+     // 此处再次 refresh 会与原请求并发并把 requestState 留在 Loading。
+     if (this.host.requestState === RequestState.Preparing) return
+--- /dev/null
++++ b/packages/spark-data/src/strategies/cascade/field-cascade-definition.ts
+@@ -0,0 +1,144 @@
++import { isRecord } from '@spark-appworks/spark-utils'
++import type { DataSet } from '../../dataset'
++import type { DataViewFieldCascade } from '../../types'
++
++function object(value: unknown, path: string): Record<string, unknown> {
++  if (!isRecord(value)) throw new Error(`FIELD_CASCADE_CONFIG: ${path} 必须是对象`)
++  return value
++}
++
++function exactKeys(value: Record<string, unknown>, allowed: readonly string[], path: string): void {
++  for (const key of Object.keys(value)) {
++    if (!allowed.includes(key)) throw new Error(`FIELD_CASCADE_CONFIG: ${path}.${key} 未知`)
++  }
++}
++
++function name(value: unknown, path: string): string {
++  if (typeof value !== 'string' || !value.trim() || value !== value.trim()) {
++    throw new Error(`FIELD_CASCADE_CONFIG: ${path} 必须是非空原始名称`)
++  }
++  return value
++}
++
++function scalar(value: unknown, path: string): string | number | boolean | null {
++  if (value === null || typeof value === 'string' || typeof value === 'boolean'
++    || (typeof value === 'number' && Number.isFinite(value))) return value
++  throw new Error(`FIELD_CASCADE_CONFIG: ${path} 必须是 JSON 标量`)
++}
++
++/** 字段输入级联的唯一形状、引用和依赖图校验。 */
++export class DataViewFieldCascadeDefinition {
++  static parse(input: unknown): DataViewFieldCascade {
++    const value = object(input, 'viewCascades.field')
++    exactKeys(value, ['kind', 'cascadeId', 'tableName', 'viewId', 'rowMode', 'targetField',
++      'parents', 'optionsView', 'valuePolicy'], 'viewCascades.field')
++    if (value['kind'] !== 'field' || value['rowMode'] !== 'editing-row') {
++      throw new Error('FIELD_CASCADE_CONFIG: kind/rowMode 无效')
++    }
++    const cascadeId = name(value['cascadeId'], 'cascadeId')
++    const tableName = name(value['tableName'], 'tableName')
++    const viewId = name(value['viewId'], 'viewId')
++    const targetField = name(value['targetField'], 'targetField')
++    if (!Array.isArray(value['parents']) || value['parents'].length === 0) {
++      throw new Error('FIELD_CASCADE_CONFIG: parents 必须是非空数组')
++    }
++    const parents = value['parents'].map((inputParent: unknown) => {
++      const parent = object(inputParent, 'parents')
++      exactKeys(parent, ['field', 'parameter'], 'parents')
++      return { field: name(parent['field'], 'parents.field'),
++        parameter: name(parent['parameter'], 'parents.parameter') }
++    })
++    if (new Set(parents.map(parent => parent.field)).size !== parents.length
++      || new Set(parents.map(parent => parent.parameter)).size !== parents.length) {
++      throw new Error('FIELD_CASCADE_CONFIG: parents 字段或参数重复')
++    }
++    const options = object(value['optionsView'], 'optionsView')
++    exactKeys(options, ['tableName', 'viewId', 'valueField', 'labelField'], 'optionsView')
++    const optionsView = { tableName: name(options['tableName'], 'optionsView.tableName'),
++      viewId: name(options['viewId'], 'optionsView.viewId'),
++      valueField: name(options['valueField'], 'optionsView.valueField'),
++      labelField: name(options['labelField'], 'optionsView.labelField') }
++    const policy = object(value['valuePolicy'], 'valuePolicy')
++    exactKeys(policy, ['mode', 'clearValue'], 'valuePolicy')
++    const mode = policy['mode']
++    let valuePolicy: DataViewFieldCascade['valuePolicy']
++    if (mode === 'retain') {
++      if ('clearValue' in policy) throw new Error('FIELD_CASCADE_CONFIG: retain 不接受 clearValue')
++      valuePolicy = { mode }
++    } else if (mode === 'clear' || mode === 'retain-valid') {
++      if (!Object.hasOwn(policy, 'clearValue')) throw new Error('FIELD_CASCADE_CONFIG: clearValue 必填')
++      valuePolicy = { mode, clearValue: scalar(policy['clearValue'], 'clearValue') }
++    } else throw new Error('FIELD_CASCADE_CONFIG: valuePolicy.mode 无效')
++    for (const field of [targetField, ...parents.map(parent => parent.field), optionsView.valueField, optionsView.labelField]) {
++      if (field === '_pk' || field.startsWith('lingma_sys_')) throw new Error(`FIELD_CASCADE_CONFIG: 框架字段 ${field}`)
++    }
++    return { kind: 'field', cascadeId, tableName, viewId, rowMode: 'editing-row',
++      targetField, parents, optionsView, valuePolicy }
++  }
++
++  static validateAll(cascades: readonly unknown[]): DataViewFieldCascade[] {
++    const fields: DataViewFieldCascade[] = []
++    const ids = new Set<string>()
++    const targets = new Set<string>()
++    for (const input of cascades) {
++      const cascade = object(input, 'viewCascades')
++      if (cascade['cascadeId'] !== undefined) {
++        const id = name(cascade['cascadeId'], 'cascadeId')
++        if (ids.has(id)) throw new Error(`FIELD_CASCADE_DUPLICATE: cascadeId ${id}`)
++        ids.add(id)
++      }
++      if (cascade['kind'] !== 'field') continue
++      const field = this.parse(cascade)
++      const target = JSON.stringify([field.tableName, field.viewId, field.targetField])
++      if (targets.has(target)) throw new Error(`FIELD_CASCADE_DUPLICATE: target ${target}`)
++      targets.add(target)
++      fields.push(field)
++    }
++    const byTarget = new Map(fields.map(field => [JSON.stringify([field.tableName, field.viewId, field.targetField]), field]))
++    const visiting = new Set<string>()
++    const visited = new Set<string>()
++    const visit = (key: string): void => {
++      if (visiting.has(key)) throw new Error('FIELD_CASCADE_CYCLE: 字段输入依赖成环')
++      if (visited.has(key)) return
++      visiting.add(key)
++      const definition = byTarget.get(key)
++      if (definition) {
++        for (const parent of definition.parents) {
++          visit(JSON.stringify([definition.tableName, definition.viewId, parent.field]))
++        }
++      }
++      visiting.delete(key)
++      visited.add(key)
++    }
++    for (const key of byTarget.keys()) visit(key)
++    return fields
++  }
++
++  static validateViews(definitions: readonly DataViewFieldCascade[], hasView: (tableName: string, viewId: string) => boolean): void {
++    for (const definition of definitions) {
++      if (!hasView(definition.tableName, definition.viewId)
++        || !hasView(definition.optionsView.tableName, definition.optionsView.viewId)) {
++        throw new Error(`FIELD_CASCADE_VIEW: 视图不存在 ${definition.cascadeId}`)
++      }
++    }
++  }
++
++  static validateRuntime(definitions: readonly DataViewFieldCascade[], dataSet: DataSet): void {
++    this.validateViews(definitions, (tableName, viewId) => dataSet.getView(tableName, viewId) !== undefined)
++    for (const definition of definitions) {
++      const target = dataSet.getView(definition.tableName, definition.viewId)
++      const options = dataSet.getView(definition.optionsView.tableName, definition.optionsView.viewId)
++      if (!target || !options) throw new Error(`FIELD_CASCADE_VIEW: 视图不存在 ${definition.cascadeId}`)
++      const output = new Set(target.columns.map(column => column.name))
++      const optionOutput = new Set(options.columns.map(column => column.name))
++      if (!output.has(definition.targetField) || definition.parents.some(parent => !output.has(parent.field))
++        || !optionOutput.has(definition.optionsView.valueField) || !optionOutput.has(definition.optionsView.labelField)) {
++        throw new Error(`FIELD_CASCADE_FIELD: 输出字段不存在 ${definition.cascadeId}`)
++      }
++      const targetColumn = target.columns.find(column => column.name === definition.targetField)
++      if (targetColumn?.computeExpression !== undefined || target.effectivePkFields.includes(definition.targetField)) {
++        throw new Error(`FIELD_CASCADE_TARGET: 计算列或主键不可写 ${definition.cascadeId}`)
++      }
++    }
++  }
++}
+--- /dev/null
++++ b/packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts
+@@ -0,0 +1,258 @@
++import type { DataSet } from '../../dataset'
++import type { DataView } from '../../data-view'
++import { RequestState } from '../../types'
++import type { DataViewFieldCascade, DataViewFieldCascadeAddress, DataViewFieldCascadeState } from '../../types'
++import { Logger } from '@spark-appworks/spark-utils'
++
++const logger = Logger('DataView:FieldCascade')
++
++type Entry = {
++  address: DataViewFieldCascadeAddress
++  state: DataViewFieldCascadeState
++  generation: number
++  parents?: readonly unknown[]
++  targetRevision: number
++}
++
++const idle: DataViewFieldCascadeState = { status: 'idle', options: [], valueStatus: 'unverified' }
++
++function scalar(value: unknown, label: string): string | number | boolean | null {
++  if (value === null || typeof value === 'string' || typeof value === 'boolean'
++    || (typeof value === 'number' && Number.isFinite(value))) return value
++  throw new Error(`FIELD_CASCADE_VALUE: ${label} 必须是标量`)
++}
++
++function copyState(state: DataViewFieldCascadeState): DataViewFieldCascadeState {
++  return Object.freeze({ ...state, options: Object.freeze(state.options.map(row => Object.freeze({ ...row }))) })
++}
++
++/** 一个 DataSet 内字段输入选项和目标编辑值的生命周期 owner。 */
++export class DataViewFieldCascadeRuntime {
++  readonly #definitions = new Map<string, DataViewFieldCascade>()
++  readonly #entries = new Map<string, Entry>()
++  readonly #listeners = new Set<(address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void>()
++  readonly #unsubscribe: () => void
++  #disposed = false
++
++  constructor(private readonly dataSet: DataSet, definitions: readonly DataViewFieldCascade[]) {
++    for (const definition of definitions) this.#definitions.set(this.definitionKey(definition), definition)
++    this.#unsubscribe = dataSet.onAnyViewChange({
++      editingFieldChanged: (tableName, viewId, event) => {
++        for (const definition of definitions) {
++          if (definition.tableName !== tableName || definition.viewId !== viewId) continue
++          const address = { tableName, viewId, rowId: event.rowId, field: definition.targetField }
++          const entry = this.#entries.get(this.addressKey(address))
++          if (event.field === definition.targetField) {
++            if (entry) {
++              entry.targetRevision++
++              this.recomputeValueStatus(entry, definition)
++            }
++          } else if (definition.parents.some(parent => parent.field === event.field)) {
++            void this.run(address, true).catch(error => this.fail(address, error))
++          }
++        }
++      },
++      editingChanged: (tableName, viewId) => this.invalidateChangedRows(tableName, viewId),
++      editingDiscarded: (tableName, viewId, ids) => this.invalidateDiscarded(tableName, viewId, ids),
++      rowsChanged: (tableName, viewId) => this.invalidateView(tableName, viewId),
++      cleared: (tableName, viewId) => this.invalidateView(tableName, viewId),
++      requestStateChanged: (tableName, viewId, state) => {
++        if (state === RequestState.Loading) this.invalidateView(tableName, viewId)
++      },
++    })
++  }
++
++  private definitionKey(value: Pick<DataViewFieldCascade, 'tableName' | 'viewId' | 'targetField'>): string {
++    return JSON.stringify([value.tableName, value.viewId, value.targetField])
++  }
++
++  private addressKey(value: DataViewFieldCascadeAddress): string {
++    return JSON.stringify([value.tableName, value.viewId, value.rowId, value.field])
++  }
++
++  private definition(address: DataViewFieldCascadeAddress): DataViewFieldCascade {
++    const definition = this.#definitions.get(this.definitionKey({ ...address, targetField: address.field }))
++    if (!definition || this.#disposed || this.dataSet.destroyed) {
++      throw new Error('FIELD_CASCADE_ADDRESS: 定义不存在或空间已销毁')
++    }
++    return definition
++  }
++
++  getState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState {
++    const definition = this.definition(address)
++    const entry = this.#entries.get(this.addressKey(address))
++    if (entry?.parents) {
++      const view = this.dataSet.getView(address.tableName, address.viewId)
++      try {
++        if (!view || view.destroyed || !this.sameParents(entry.parents,
++          this.parentValues(view, definition, address.rowId))) this.invalidate(entry)
++        else this.recomputeValueStatus(entry, definition)
++      } catch { this.invalidate(entry) }
++    }
++    return copyState(entry?.state ?? idle)
++  }
++
++  onChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void {
++    if (this.#disposed) throw new Error('FIELD_CASCADE_DISPOSED')
++    this.#listeners.add(listener)
++    return () => { this.#listeners.delete(listener) }
++  }
++
++  refresh(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState> {
++    return this.run(address, false)
++  }
++
++  private publish(entry: Entry, state: DataViewFieldCascadeState): DataViewFieldCascadeState {
++    entry.state = copyState(state)
++    for (const listener of this.#listeners) {
++      try { listener(Object.freeze({ ...entry.address }), copyState(entry.state)) } catch (error) {
++        logger.warn(`字段级联状态订阅回调失败 (${error instanceof Error ? 'Error' : typeof error})`)
++      }
++    }
++    return copyState(entry.state)
++  }
++
++  private fail(address: DataViewFieldCascadeAddress, error: unknown): DataViewFieldCascadeState {
++    const key = this.addressKey(address)
++    const entry = this.#entries.get(key)
++    if (!entry || this.#disposed) return copyState(idle)
++    return this.publish(entry, { status: 'error', options: [], valueStatus: 'unverified',
++      error: error instanceof Error ? error.message : String(error) })
++  }
++
++  private parentValues(view: DataView, definition: DataViewFieldCascade, rowId: string | number): readonly unknown[] {
++    const row = view.getEditingRow(rowId)
++    if (!row || view.getPkKey(row) === undefined) throw new Error('FIELD_CASCADE_ROW: 目标编辑行不存在或无主键')
++    return definition.parents.map(parent => {
++      if (!Object.hasOwn(row, parent.field) || row[parent.field] === undefined) {
++        throw new Error(`FIELD_CASCADE_PARENT: 缺少父字段 ${parent.field}`)
++      }
++      if (view.fieldAccess(row, parent.field).read !== 'visible') {
++        throw new Error(`FIELD_CASCADE_PARENT: 父字段不可读 ${parent.field}`)
++      }
++      return scalar(row[parent.field], parent.field)
++    })
++  }
++
++  private sameParents(left: readonly unknown[], right: readonly unknown[]): boolean {
++    return left.length === right.length && left.every((value, index) => Object.is(value, right[index]))
++  }
++
++  private invalidate(entry: Entry): void {
++    entry.generation++
++    delete entry.parents
++    this.publish(entry, idle)
++  }
++
++  private invalidateView(tableName: string, viewId: string): void {
++    for (const entry of this.#entries.values()) {
++      if (entry.address.tableName === tableName && entry.address.viewId === viewId) this.invalidate(entry)
++    }
++  }
++
++  private invalidateDiscarded(tableName: string, viewId: string, ids: ReadonlyArray<string | number> | undefined): void {
++    if (ids?.length === 0) return
++    const selected = ids === undefined ? undefined : new Set(ids)
++    for (const entry of this.#entries.values()) {
++      if (entry.address.tableName === tableName && entry.address.viewId === viewId
++        && (selected === undefined || selected.has(entry.address.rowId))) this.invalidate(entry)
++    }
++  }
++
++  private invalidateChangedRows(tableName: string, viewId: string): void {
++    for (const entry of this.#entries.values()) {
++      if (entry.address.tableName !== tableName || entry.address.viewId !== viewId || !entry.parents) continue
++      const definition = this.#definitions.get(this.definitionKey({ ...entry.address, targetField: entry.address.field }))
++      const view = this.dataSet.getView(tableName, viewId)
++      if (!definition || !view) { this.invalidate(entry); continue }
++      try {
++        if (!this.sameParents(entry.parents, this.parentValues(view, definition, entry.address.rowId))) this.invalidate(entry)
++        else this.recomputeValueStatus(entry, definition)
++      } catch { this.invalidate(entry) }
++    }
++  }
++
++  private recomputeValueStatus(entry: Entry, definition: DataViewFieldCascade): void {
++    if (entry.state.status !== 'ready') return
++    const view = this.dataSet.getView(definition.tableName, definition.viewId)
++    const row = view?.getEditingRow(entry.address.rowId)
++    if (!view || !row || view.fieldAccess(row, definition.targetField).read !== 'visible') {
++      this.invalidate(entry)
++      return
++    }
++    let value: string | number | boolean | null
++    try { value = scalar(row[definition.targetField], definition.targetField) }
++    catch (error) { this.fail(entry.address, error); return }
++    const valueStatus = value === null ? 'empty'
++      : entry.state.options.some(option => Object.is(option[definition.optionsView.valueField], value)) ? 'valid' : 'invalid'
++    if (valueStatus !== entry.state.valueStatus) this.publish(entry, { ...entry.state, valueStatus })
++  }
++
++  private async run(address: DataViewFieldCascadeAddress, automatic: boolean): Promise<DataViewFieldCascadeState> {
++    const definition = this.definition(address)
++    const key = this.addressKey(address)
++    let entry = this.#entries.get(key)
++    if (!entry) {
++      entry = { address: { ...address }, state: idle, generation: 0, targetRevision: 0 }
++      this.#entries.set(key, entry)
++    }
++    const generation = ++entry.generation
++    const targetRevision = entry.targetRevision
++    const target = this.dataSet.getView(definition.tableName, definition.viewId)
++    const optionsView = this.dataSet.getView(definition.optionsView.tableName, definition.optionsView.viewId)
++    try {
++      if (!target || !optionsView || target.destroyed || optionsView.destroyed) throw new Error('FIELD_CASCADE_VIEW: 视图已失效')
++      const rowsIdentity = target.rows
++      const parents = this.parentValues(target, definition, address.rowId)
++      const initialRow = target.getEditingRow(address.rowId)
++      if (!initialRow || target.fieldAccess(initialRow, definition.targetField).read !== 'visible') {
++        throw new Error(`FIELD_CASCADE_TARGET: 目标字段不可读 ${definition.targetField}`)
++      }
++      entry.parents = parents
++      const context = Object.fromEntries(definition.parents.map((parent, index) => [parent.parameter, parents[index]]))
++      this.publish(entry, { status: 'loading', options: [], valueStatus: 'unverified' })
++      const fields = [...new Set([definition.optionsView.valueField, definition.optionsView.labelField])]
++      const options = await optionsView.queryOptionRows({ fields, context })
++      if (this.#disposed || this.dataSet.destroyed || entry.generation !== generation
++        || this.dataSet.getView(definition.tableName, definition.viewId) !== target
++        || this.dataSet.getView(definition.optionsView.tableName, definition.optionsView.viewId) !== optionsView
++        || target.isDestroyed() || optionsView.isDestroyed() || target.rows !== rowsIdentity
++        || !this.sameParents(parents, this.parentValues(target, definition, address.rowId))) {
++        return copyState(idle)
++      }
++      const row = target.getEditingRow(address.rowId)
++      if (!row) throw new Error('FIELD_CASCADE_ROW: 编辑行已失效')
++      if (target.fieldAccess(row, definition.targetField).read !== 'visible') {
++        throw new Error(`FIELD_CASCADE_TARGET: 目标字段不可读 ${definition.targetField}`)
++      }
++      const current = scalar(row[definition.targetField], definition.targetField)
++      const valid = options.some(option => Object.is(option[definition.optionsView.valueField], current))
++      let valueStatus: DataViewFieldCascadeState['valueStatus'] = current === null ? 'empty' : valid ? 'valid' : 'invalid'
++      if (automatic && entry.targetRevision === targetRevision) {
++        const policy = definition.valuePolicy
++        const clear = policy.mode === 'clear' || (policy.mode === 'retain-valid' && current !== null && !valid)
++        if (clear) {
++          if (target.fieldAccess(row, definition.targetField).write !== 'allowed') {
++            throw new Error(`FIELD_CASCADE_WRITE: 目标字段不可写 ${definition.targetField}`)
++          }
++          target.updateEditingValue(address.rowId, definition.targetField, policy.clearValue)
++          valueStatus = policy.clearValue === null ? 'empty'
++            : options.some(option => Object.is(option[definition.optionsView.valueField], policy.clearValue)) ? 'valid' : 'invalid'
++        }
++      }
++      return this.publish(entry, { status: 'ready', options, valueStatus })
++    } catch (error) {
++      if (entry.generation !== generation || this.#disposed) return copyState(idle)
++      return this.fail(address, error)
++    }
++  }
++
++  destroy(): void {
++    if (this.#disposed) return
++    this.#disposed = true
++    this.#unsubscribe()
++    for (const entry of this.#entries.values()) entry.generation++
++    this.#entries.clear()
++    this.#listeners.clear()
++  }
++}
+--- a/packages/spark-project-model/src/scenario/scenario-view-config.ts
++++ b/packages/spark-project-model/src/scenario/scenario-view-config.ts
+@@ -4,7 +4,7 @@
+  * 边界：正式模型与运行数据不属于此文件。
+  * AI用途：校验modelBinding、命名视图与显式级联。
+  */
+-import { DataViewFilter } from '@spark-appworks/spark-data'
++import { DataViewFilter, DataViewFieldCascadeDefinition } from '@spark-appworks/spark-data'
+ import { isRecord } from '@spark-appworks/spark-utils'
+ 
+ /** 只读JSON配置对象，构造时校验并递归冻结。 */
+@@ -96,7 +96,15 @@
+     }
+     if ('viewCascades' in config) {
+       if (!Array.isArray(config['viewCascades'])) throw new Error('viewCascades 必须是数组')
+-      config['viewCascades'].forEach(item => this.validateCascade(record(item, 'viewCascades'), tables))
++      for (const item of config['viewCascades']) {
++        const cascade = record(item, 'viewCascades')
++        if (cascade['kind'] !== 'field') this.validateCascade(cascade, tables)
++      }
++      const fields = DataViewFieldCascadeDefinition.validateAll(config['viewCascades'])
++      DataViewFieldCascadeDefinition.validateViews(fields, (tableName, viewId) => {
++        const table = tables[tableName]
++        return isRecord(table) && isRecord(table['views']) && Object.hasOwn(table['views'], viewId)
++      })
+     }
+     freezeJson(config)
+     this.#config = config
+@@ -227,8 +235,9 @@
+   }
+ 
+   private validateCascade(cascade: ScenarioConfigObject, tables: ScenarioConfigObject): void {
+-    keys(cascade, ['cascadeId', 'sourceRelationId', 'parentTable', 'parentViewId', 'childTable', 'childViewId',
++    keys(cascade, ['kind', 'cascadeId', 'sourceRelationId', 'parentTable', 'parentViewId', 'childTable', 'childViewId',
+       'filterBindings', 'dependencyType', 'autoLoad'], 'viewCascades')
++    if ('kind' in cascade && cascade['kind'] !== 'query') throw new Error('viewCascades.kind 无效')
+     for (const prefix of ['parent', 'child']) {
+       const tableName = name(cascade[`${prefix}Table`], `viewCascades.${prefix}Table`)
+       const viewId = name(cascade[`${prefix}ViewId`], `viewCascades.${prefix}ViewId`)
+--- /dev/null
++++ b/packages/spark-data/src/tests/dataset/field-cascade.test.ts
+@@ -0,0 +1,317 @@
++import { describe, expect, it, vi } from 'vitest'
++import { DataSet } from '../../dataset'
++import type { DataRow, DataViewFieldCascade, QueryParams } from '../../types'
++
++function result(tableName: string, rows: DataRow[], access?: { hidden?: string; targetWritable?: boolean }) {
++  return {
++    rows, total: rows.length,
++    assertIdentity(identity: { scenarioId: string; metaName: string }) {
++      if (identity.scenarioId !== 'SCENE' || identity.metaName !== tableName) throw new Error('identity mismatch')
++    },
++    rowKey: (row: DataRow) => row['id'],
++    fieldAccess: (_key: unknown, field: string) => ({ read: field === access?.hidden ? 'invisible' as const : 'visible' as const,
++      write: (field === 'city' && access?.targetWritable !== false) || field === 'province' ? 'allowed' as const : 'denied' as const,
++      component: field === access?.hidden ? 'hidden' as const
++        : (field === 'city' && access?.targetWritable !== false) || field === 'province' ? 'editable' as const : 'readonly' as const,
++      required: false, writeMode: (field === 'city' && access?.targetWritable !== false) || field === 'province'
++        ? 'editable' as const : 'readonly' as const }),
++    readFieldAccess: (_row: DataRow, field: string) => field === access?.hidden ? 'invisible' as const : 'visible' as const,
++    addActionState: () => 'hidden' as const, editActionState: () => 'hidden' as const,
++    deleteActionState: () => 'hidden' as const, createChildActionState: () => 'hidden' as const,
++    viewActionState: () => 'hidden' as const,
++  }
++}
++
++async function fixture(input?: { policy?: DataViewFieldCascade['valuePolicy']; rows?: DataRow[];
++  access?: { hidden?: string; targetWritable?: boolean } }) {
++  const policy = input?.policy ?? { mode: 'retain-valid', clearValue: null }
++  const rows = input?.rows ?? [{ id: 1, country: 'A', province: 0, city: 'OLD' }]
++  const dataSet = DataSet.fromJson({ scenarioId: 'SCENE', dataSetName: 'SCENE', tables: {
++    Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
++      columns: [{ name: 'id', type: 'number', isPrimaryKey: true }, { name: 'country', type: 'string' },
++        { name: 'province', type: 'number' }, { name: 'city', type: 'string' }],
++      views: { default: {}, edit: {} } },
++    Cities: { tableName: 'Cities', modelBinding: { modelId: 'CITY', modelName: 'Cities' },
++      columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'caption', type: 'string' }],
++      views: { default: {}, choices: {} } },
++  }, viewCascades: [{ kind: 'field', cascadeId: 'city-by-region', tableName: 'Orders', viewId: 'edit',
++    rowMode: 'editing-row', targetField: 'city',
++    parents: [{ field: 'country', parameter: 'countryId' }, { field: 'province', parameter: 'provinceId' }],
++    optionsView: { tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption' },
++    valuePolicy: policy }] })
++  const target = dataSet.getView('Orders', 'edit')!
++  const options = dataSet.getView('Cities', 'choices')!
++  const contexts: unknown[] = []
++  let optionQuery = async (_params: QueryParams) => result('Cities', [{ id: 'NEW', caption: 'New City' }])
++  target.bindQueryExecutor({ executeQuery: async () => result('Orders', rows, input?.access) })
++  options.bindQueryExecutor({ executeQuery: async (_view, params) => {
++    contexts.push(params.context)
++    return optionQuery(params)
++  } })
++  await target.loadFromServer()
++  return { dataSet, target, options, contexts,
++    setOptionQuery: (next: (params: QueryParams) => Promise<ReturnType<typeof result>>) => { optionQuery = next } }
++}
++
++function address(rowId = 1) { return { tableName: 'Orders', viewId: 'edit', rowId, field: 'city' } }
++
++describe('DataSet field input cascades', () => {
++  it('uses both current editing parent values and clears an invalid target only after complete options', async () => {
++    const { dataSet, target, options, contexts } = await fixture()
++
++    target.updateEditingValue(1, 'country', 'B')
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState({ tableName: 'Orders', viewId: 'edit',
++      rowId: 1, field: 'city' })).toMatchObject({ status: 'ready', valueStatus: 'empty' }))
++    expect(contexts).toEqual([{ countryId: 'B', provinceId: 0 }])
++    expect(target.getEditingPatch(1)).toEqual({ country: 'B', city: null })
++    expect(target.rows[0]?.['city']).toBe('OLD')
++    expect(options.rows).toEqual([])
++    dataSet.destroy()
++  })
++
++  it('loads explicit options without writing and preserves them across unrelated edits', async () => {
++    const { dataSet, target, contexts } = await fixture({ policy: { mode: 'clear', clearValue: null } })
++    const states: string[] = []
++    const off = dataSet.onFieldCascadeChange((_address, state) => states.push(state.status))
++    expect(await dataSet.refreshFieldCascade(address())).toMatchObject({ status: 'ready', valueStatus: 'invalid',
++      options: [{ id: 'NEW', caption: 'New City' }] })
++    expect(target.getEditingPatch(1)).toBeUndefined()
++    const snapshot = dataSet.getFieldCascadeState(address())
++    expect(Reflect.set(snapshot.options[0] ?? {}, 'id', 'FORGED')).toBe(false)
++    expect(dataSet.getFieldCascadeState(address()).options[0]?.['id']).toBe('NEW')
++    target.updateEditingValue(1, 'unrelated', 'x')
++    expect(dataSet.getFieldCascadeState(address()).status).toBe('ready')
++    expect(contexts).toHaveLength(1)
++    expect(states).toEqual(['loading', 'ready'])
++    off()
++    dataSet.destroy()
++  })
++
++  it('updates ready value status after manual selection and cancellation without another query', async () => {
++    const { dataSet, target, contexts } = await fixture({ policy: { mode: 'retain' } })
++    const addresses: Array<{ tableName: string; viewId: string; rowId: string | number; field: string }> = []
++    const off = dataSet.onFieldCascadeChange(changedAddress => { addresses.push(changedAddress) })
++    await dataSet.refreshFieldCascade(address())
++    expect(dataSet.getFieldCascadeState(address()).valueStatus).toBe('invalid')
++    target.updateEditingValue(1, 'city', 'NEW')
++    expect(dataSet.getFieldCascadeState(address()).valueStatus).toBe('valid')
++    expect(Reflect.set(addresses[0] ?? {}, 'field', 'forged')).toBe(false)
++    expect(dataSet.getFieldCascadeState(address()).options[0]?.['id']).toBe('NEW')
++    target.discardEditingRows([1])
++    expect(dataSet.getFieldCascadeState(address())).toMatchObject({ status: 'idle', valueStatus: 'unverified', options: [] })
++    expect(contexts).toHaveLength(1)
++    off()
++    dataSet.destroy()
++  })
++
++  it('does not inspect a hidden target value or return old ready options after row invalidation', async () => {
++    const hidden = await fixture({ access: { hidden: 'city' } })
++    hidden.target.updateEditingValue(1, 'country', 'B')
++    await vi.waitFor(() => expect(hidden.dataSet.getFieldCascadeState(address()).status).toBe('error'))
++    expect(hidden.dataSet.getFieldCascadeState(address()).error).toMatch(/目标字段不可读/)
++    expect(hidden.contexts).toHaveLength(0)
++    hidden.dataSet.destroy()
++
++    const normal = await fixture()
++    await normal.dataSet.refreshFieldCascade(address())
++    normal.target.clearAll()
++    expect(normal.dataSet.getFieldCascadeState(address()).status).toBe('idle')
++    expect(normal.dataSet.getFieldCascadeState(address()).options).toEqual([])
++    normal.dataSet.destroy()
++  })
++
++  it('retains explicit null, zero, false and empty parent values without guessing defaults', async () => {
++    const { dataSet, target, contexts } = await fixture({ rows: [
++      { id: 1, country: null, province: false, city: null },
++    ], policy: { mode: 'retain' } })
++    expect(await dataSet.refreshFieldCascade(address())).toMatchObject({ status: 'ready', valueStatus: 'empty' })
++    target.updateEditingValue(1, 'country', '')
++    await vi.waitFor(() => expect(contexts).toHaveLength(2))
++    expect(contexts).toEqual([{ countryId: null, provinceId: false }, { countryId: '', provinceId: false }])
++    expect(target.getEditingPatch(1)).toEqual({ country: '' })
++    dataSet.destroy()
++  })
++
++  it('does not query or clear when a parent is unreadable, and reports denied target writes', async () => {
++    const hidden = await fixture({ access: { hidden: 'country' } })
++    hidden.target.updateEditingValue(1, 'province', 2)
++    await vi.waitFor(() => expect(hidden.dataSet.getFieldCascadeState(address()).status).toBe('error'))
++    expect(hidden.dataSet.getFieldCascadeState(address()).error).toMatch(/父字段不可读/)
++    expect(hidden.contexts).toHaveLength(0)
++    expect(hidden.target.getEditingPatch(1)).toEqual({ province: 2 })
++    hidden.dataSet.destroy()
++
++    const denied = await fixture({ access: { targetWritable: false } })
++    denied.target.updateEditingValue(1, 'country', 'B')
++    await vi.waitFor(() => expect(denied.dataSet.getFieldCascadeState(address()).status).toBe('error'))
++    expect(denied.dataSet.getFieldCascadeState(address()).error).toMatch(/目标字段不可写/)
++    expect(denied.target.getEditingPatch(1)).toEqual({ country: 'B' })
++    denied.dataSet.destroy()
++  })
++
++  it('keeps each row and request generation independent under reverse completion', async () => {
++    const { dataSet, target, setOptionQuery } = await fixture({ rows: [
++      { id: 1, country: 'A', province: 0, city: 'OLD' },
++      { id: 2, country: 'A', province: 0, city: 'OLD' },
++    ] })
++    const pending: Array<(value: ReturnType<typeof result>) => void> = []
++    setOptionQuery(async () => new Promise(resolve => { pending.push(resolve) }))
++    target.updateEditingValue(1, 'country', 'B')
++    target.updateEditingValue(2, 'country', 'C')
++    pending[1]?.(result('Cities', [{ id: 'OLD', caption: 'Old City' }]))
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address(2)).status).toBe('ready'))
++    expect(target.getEditingPatch(2)).toEqual({ country: 'C' })
++    pending[0]?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address(1)).status).toBe('ready'))
++    expect(target.getEditingPatch(1)).toEqual({ country: 'B', city: null })
++    expect(dataSet.getFieldCascadeState(address(2)).options[0]?.['id']).toBe('OLD')
++    dataSet.destroy()
++  })
++
++  it('does not let late options overwrite a newer parent or user-entered target', async () => {
++    const { dataSet, target, setOptionQuery } = await fixture()
++    const pending: Array<(value: ReturnType<typeof result>) => void> = []
++    setOptionQuery(async () => new Promise(resolve => { pending.push(resolve) }))
++    target.updateEditingValue(1, 'country', 'B')
++    target.updateEditingValue(1, 'country', 'C')
++    pending[0]?.(result('Cities', [{ id: 'OLD', caption: 'Old City' }]))
++    await Promise.resolve()
++    expect(dataSet.getFieldCascadeState(address()).status).toBe('loading')
++    target.updateEditingValue(1, 'city', 'USER')
++    pending[1]?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).status).toBe('ready'))
++    expect(dataSet.getFieldCascadeState(address()).valueStatus).toBe('invalid')
++    expect(target.getEditingPatch(1)).toEqual({ country: 'C', city: 'USER' })
++    dataSet.destroy()
++  })
++
++  it('invalidates pending options on edit cancellation and preserves the original value on query failure', async () => {
++    const { dataSet, target, setOptionQuery } = await fixture()
++    let release: ((value: ReturnType<typeof result>) => void) | undefined
++    setOptionQuery(async () => new Promise(resolve => { release = resolve }))
++    target.updateEditingValue(1, 'country', 'B')
++    target.discardEditingRows([1])
++    expect(dataSet.getFieldCascadeState(address()).status).toBe('idle')
++    release?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
++    await Promise.resolve()
++    expect(target.getEditingPatch(1)).toBeUndefined()
++    setOptionQuery(async () => { throw new Error('option failure') })
++    target.updateEditingValue(1, 'country', 'C')
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).status).toBe('error'))
++    expect(dataSet.getFieldCascadeState(address()).error).toMatch(/option failure/)
++    expect(target.getEditingPatch(1)).toEqual({ country: 'C' })
++    dataSet.destroy()
++  })
++
++  it('keeps same-parent late options cancelled and isolates the other editing row', async () => {
++    const { dataSet, target, setOptionQuery } = await fixture({ policy: { mode: 'clear', clearValue: null }, rows: [
++      { id: 1, country: 'A', province: 0, city: 'OLD' },
++      { id: 2, country: 'A', province: 0, city: 'OLD' },
++    ] })
++    const pending: Array<(value: ReturnType<typeof result>) => void> = []
++    setOptionQuery(async () => new Promise(resolve => { pending.push(resolve) }))
++    target.updateEditingValue(1, 'province', 1)
++    target.updateEditingValue(1, 'province', 0)
++    target.updateEditingValue(2, 'country', 'B')
++    expect(pending).toHaveLength(3)
++    expect(target.getEditingPatch(1)).toBeUndefined()
++    expect(target.discardEditingRows([1])).toBe(0)
++    expect(dataSet.getFieldCascadeState(address()).status).toBe('idle')
++    pending[1]?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
++    pending[2]?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address(2)).status).toBe('ready'))
++    expect(dataSet.getFieldCascadeState(address()).status).toBe('idle')
++    expect(target.getEditingPatch(1)).toBeUndefined()
++    expect(target.getEditingPatch(2)).toEqual({ country: 'B', city: null })
++    dataSet.destroy()
++  })
++
++  it('invalidates a legal zero-patch query-backed cancellation but ignores an empty row selection', async () => {
++    const { dataSet, target, setOptionQuery } = await fixture({ policy: { mode: 'clear', clearValue: null } })
++    const pending: Array<(value: ReturnType<typeof result>) => void> = []
++    setOptionQuery(async () => new Promise(resolve => { pending.push(resolve) }))
++    target.updateEditingValue(1, 'country', 'B')
++    target.updateEditingValue(1, 'country', 'A')
++    expect(target.getEditingPatch(1)).toBeUndefined()
++    expect(target.discardPendingChanges([1])).toBe(0)
++    pending[1]?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
++    await new Promise<void>(resolve => { setTimeout(resolve, 0) })
++    expect(dataSet.getFieldCascadeState(address()).status).toBe('idle')
++    expect(target.getEditingPatch(1)).toBeUndefined()
++
++    target.updateEditingValue(1, 'country', 'B')
++    expect(target.discardEditingRows([])).toBe(0)
++    pending[2]?.(result('Cities', [{ id: 'NEW', caption: 'New City' }]))
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).status).toBe('ready'))
++    expect(target.getEditingPatch(1)).toEqual({ country: 'B', city: null })
++    dataSet.destroy()
++  })
++
++  it('propagates a configured chain and preserves state subscribers across definition rebuilds', async () => {
++    const { dataSet, target, contexts } = await fixture()
++    const changed: string[] = []
++    const off = dataSet.onFieldCascadeChange((changedAddress, state) => {
++      if (state.status === 'ready') changed.push(changedAddress.field)
++    })
++    dataSet.addCascade({ kind: 'field', cascadeId: 'province-by-country', tableName: 'Orders', viewId: 'edit',
++      rowMode: 'editing-row', targetField: 'province', parents: [{ field: 'country', parameter: 'countryId' }],
++      optionsView: { tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption' },
++      valuePolicy: { mode: 'retain-valid', clearValue: null } })
++    target.updateEditingValue(1, 'country', 'B')
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).status).toBe('ready'))
++    await vi.waitFor(() => expect(changed).toContain('province'))
++    expect(target.getEditingPatch(1)).toEqual({ country: 'B', province: null, city: null })
++    expect(contexts).toContainEqual({ countryId: 'B', provinceId: null })
++    expect(changed).toContain('city')
++    off()
++    dataSet.destroy()
++  })
++
++  it('rejects duplicate targets and parent cycles before changing definitions', async () => {
++    const { dataSet } = await fixture()
++    const before = dataSet.toJson().viewCascades
++    expect(() => dataSet.addCascade({ kind: 'field', cascadeId: 'second-city', tableName: 'Orders', viewId: 'edit',
++      rowMode: 'editing-row', targetField: 'city', parents: [{ field: 'country', parameter: 'countryId' }],
++      optionsView: { tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption' },
++      valuePolicy: { mode: 'retain' } })).toThrow('FIELD_CASCADE_DUPLICATE')
++    expect(() => dataSet.addCascade({ kind: 'field', cascadeId: 'country-by-city', tableName: 'Orders', viewId: 'edit',
++      rowMode: 'editing-row', targetField: 'country', parents: [{ field: 'city', parameter: 'cityId' }],
++      optionsView: { tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption' },
++      valuePolicy: { mode: 'retain' } })).toThrow('FIELD_CASCADE_CYCLE')
++    expect(dataSet.toJson().viewCascades).toEqual(before)
++    dataSet.destroy()
++  })
++
++  it('keeps subscriptions across replacement and releases its temporary normalized DataSet', async () => {
++    const { dataSet, target } = await fixture()
++    const previous = target
++    const snapshot = dataSet.toJson()
++    const observed: string[] = []
++    const off = dataSet.onFieldCascadeChange((_address, state) => observed.push(state.status))
++    const destroyed: DataSet[] = []
++    const originalDestroy = DataSet.prototype.destroy
++    const spy = vi.spyOn(DataSet.prototype, 'destroy').mockImplementation(function (this: DataSet) {
++      destroyed.push(this)
++      originalDestroy.call(this)
++    })
++    try {
++      dataSet.replaceFromJson(snapshot)
++      expect(previous.destroyed).toBe(true)
++      expect(destroyed.some(candidate => candidate !== dataSet && candidate.destroyed)).toBe(true)
++      const next = dataSet.getView('Orders', 'edit')!
++      const options = dataSet.getView('Cities', 'choices')!
++      next.bindQueryExecutor({ executeQuery: async () => result('Orders', [
++        { id: 1, country: 'A', province: 0, city: 'OLD' },
++      ]) })
++      options.bindQueryExecutor({ executeQuery: async () => result('Cities', [{ id: 'NEW', caption: 'New City' }]) })
++      await next.loadFromServer()
++      next.updateEditingValue(1, 'country', 'B')
++      await vi.waitFor(() => expect(dataSet.getFieldCascadeState(address()).status).toBe('ready'))
++      expect(observed).toContain('ready')
++    } finally {
++      off()
++      dataSet.destroy()
++      spy.mockRestore()
++    }
++  })
++})
+--- a/packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts
++++ b/packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts
+@@ -217,6 +217,43 @@
+ 
+     tool.deleteCascade(cascadeSelector)
+     expect(tool.getCascade(cascadeSelector)).toBeUndefined()
++  })
++
++  it('maintains field-cascade target, parent and option references while keeping query CRUD separate', () => {
++    const tool = DataSetCrudTool.fromJson({dataSetName: 'FieldCrud', tables: {
++      Orders: {tableName: 'Orders', columns: [{name: 'id', type: 'string', isPrimaryKey: true},
++        {name: 'country', type: 'string'}, {name: 'city', type: 'string'}],
++      views: {default: {}, edit: {}}},
++      Cities: {tableName: 'Cities', columns: [{name: 'id', type: 'string', isPrimaryKey: true},
++        {name: 'caption', type: 'string'}], views: {default: {}, choices: {}}},
++    }, viewCascades: [
++      {cascadeId: 'query', parentTable: 'Orders', parentViewId: 'edit', childTable: 'Cities', childViewId: 'choices',
++        filterBindings: [{sourceField: 'country', targetField: 'caption'}]},
++      {kind: 'field', cascadeId: 'city-by-country', tableName: 'Orders', viewId: 'edit', rowMode: 'editing-row',
++        targetField: 'city', parents: [{field: 'country', parameter: 'countryId'}],
++        optionsView: {tableName: 'Cities', viewId: 'choices', valueField: 'id', labelField: 'caption'},
++        valuePolicy: {mode: 'retain-valid', clearValue: null}},
++    ]})
++    expect(tool.listCascades()).toHaveLength(1)
++    expect(tool.getCascade({parentTable: 'Orders', parentViewId: 'edit', childTable: 'Cities', childViewId: 'choices'})?.cascadeId)
++      .toBe('query')
++    expect(() => tool.deleteColumn({tableName: 'Orders', columnName: 'city'})).toThrow('viewCascades')
++    expect(() => tool.deleteColumn({tableName: 'Cities', columnName: 'id'})).toThrow('viewCascades')
++    expect(() => tool.deleteView({tableName: 'Orders', viewId: 'edit'})).toThrow('viewCascades')
++    expect(() => tool.deleteView({tableName: 'Cities', viewId: 'choices'})).toThrow('viewCascades')
++    expect(() => tool.deleteTable('Cities')).toThrow('viewCascades')
++    tool.renameColumn({tableName: 'Orders', columnName: 'country', newColumnName: 'nation'})
++    tool.renameColumn({tableName: 'Orders', columnName: 'city', newColumnName: 'location'})
++    tool.renameColumn({tableName: 'Cities', columnName: 'caption', newColumnName: 'name'})
++    tool.renameTable({tableName: 'Orders', newTableName: 'Purchases'})
++    tool.renameTable({tableName: 'Cities', newTableName: 'Places'})
++    expect(tool.toJson().viewCascades).toMatchObject([
++      {parentTable: 'Purchases', childTable: 'Places',
++        filterBindings: [{sourceField: 'nation', targetField: 'name'}]},
++      {tableName: 'Purchases', targetField: 'location', parents: [{field: 'nation', parameter: 'countryId'}],
++        optionsView: {tableName: 'Places', valueField: 'id', labelField: 'name'}},
++    ])
++    expect(DataSet.fromJson(tool.toJson()).toJson().viewCascades).toEqual(tool.toJson().viewCascades)
+   })
+ 
+   it('should keep the canonical relation expression and DataView cascade bindings aligned when a column is renamed', () => {
+--- a/packages/spark-project-model/tests/scenario/scenario-view-file.test.ts
++++ b/packages/spark-project-model/tests/scenario/scenario-view-file.test.ts
+@@ -191,6 +191,33 @@
+     expect(() => new ScenarioViewFile('UNIT-SCENE', fixture().replace('"childViewId":"detail"', '"childViewId":"missing"'))).toThrow('missing')
+   })
+ 
++  it('retains a field cascade beside query cascades and rejects invalid edits atomically', () => {
++    const base = JSON.parse(fixture())
++    const field = {kind: 'field', cascadeId: 'city-by-region', tableName: 'Orders', viewId: 'list',
++      rowMode: 'editing-row', targetField: 'city',
++      parents: [{field: 'country', parameter: 'countryId'}, {field: 'province', parameter: 'provinceId'}],
++      optionsView: {tableName: 'Items', viewId: 'detail', valueField: 'id', labelField: 'title'},
++      valuePolicy: {mode: 'retain-valid', clearValue: null}}
++    const valid = JSON.stringify({...base, viewCascades: [...base.viewCascades, field]})
++    const file = new ScenarioViewFile('UNIT-SCENE', fixture())
++    file.setText(valid)
++    expect(file.value.toJSON()).toMatchObject({viewCascades: [expect.objectContaining({childTable: 'Items'}), field]})
++    expect(Object.isFrozen(file.value.toJSON()['viewCascades'])).toBe(true)
++    for (const invalid of [
++      {...field, unknown: 1}, {...field, rowMode: 'current-row'}, {...field, valuePolicy: undefined},
++      {...field, parents: [{field: 'country', parameter: 'x'}, {field: 'province', parameter: 'x'}]},
++      {...field, optionsView: {...field.optionsView, viewId: 'missing'}},
++      {...field, valuePolicy: {mode: 'clear'}},
++    ]) {
++      expect(() => file.setText(JSON.stringify({...base, viewCascades: [...base.viewCascades, invalid]}))).toThrow()
++      expect(file.getText()).toBe(valid)
++    }
++    const cycle = {...field, cascadeId: 'country-by-city', targetField: 'country',
++      parents: [{field: 'city', parameter: 'cityId'}], valuePolicy: {mode: 'retain'}}
++    expect(() => file.setText(JSON.stringify({...base, viewCascades: [field, cycle]}))).toThrow('FIELD_CASCADE_CYCLE')
++    expect(file.getText()).toBe(valid)
++  })
++
+   it('preserves the complete projection contract including false, zero and empty strings', () => {
+     const text = projectionFixture(validProjection)
+     expect(new ScenarioViewFile('UNIT-SCENE', text).getText()).toBe(text)
+--- a/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
++++ b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+@@ -1,4 +1,4 @@
+-import {describe, expect, it} from 'vitest'
++import {describe, expect, it, vi} from 'vitest'
+ import {DataViewFilter, extractColumnRules} from '@spark-appworks/spark-data'
+ import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+ import {ProjectWorkspace, type ScenarioViewFile} from '@spark-appworks/spark-project-model'
+@@ -87,6 +87,65 @@
+   distinct: false, primaryKey: false, value: '', valueFunction: '', expression: ''}
+ 
+ describe('scenario view persistence and formal model assembly', () => {
++  it('saves a field cascade through the file owner and executes it after fresh workspace assembly', async () => {
++    const storage = fixture()
++    storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'country', 'province', 'city'], ['province']),
++      model('ChildModel', 'ChildSource', ['id', 'parentId', 'provinceId', 'title'], ['provinceId'])])
++    const first = storage.openOwner()
++    const opened = await first.service.open('SPACE')
++    const config = { ...structuredClone(opened.state.config) }
++    const tables = config['tables']
++    if (!isRecord(tables) || !isRecord(tables['Children']) || !isRecord(tables['Children']['views'])) {
++      throw new Error('missing named options view')
++    }
++    config['tables'] = {...tables, Children: {...tables['Children'], views: {...tables['Children']['views'], detail: {filterExpression: {logic: 'and', filters: [
++      {field: 'parentId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'countryId'}},
++      {field: 'provinceId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'provinceId'}},
++    ]}}}}}
++    const field = {kind: 'field', cascadeId: 'city-by-region', tableName: 'Parents', viewId: 'shared',
++      rowMode: 'editing-row', targetField: 'city',
++      parents: [{field: 'country', parameter: 'countryId'}, {field: 'province', parameter: 'provinceId'}],
++      optionsView: {tableName: 'Children', viewId: 'detail', valueField: 'id', labelField: 'title'},
++      valuePolicy: {mode: 'retain-valid', clearValue: null}}
++    config['viewCascades'] = [cascade, field]
++    opened.dirtySource.setText(JSON.stringify(config))
++    const saved = await first.service.save('SPACE')
++    expect(saved.dirty).toBe(false)
++    expect(storage.stored.get('SPACE')).toBe(saved.text)
++    expect(saved.text).toContain('"kind":"field"')
++    expect(saved.text).not.toMatch(/"rows"|"lingma_sys_"|"options":/)
++
++    const reopened = storage.openOwner()
++    const read = await reopened.service.open('SPACE')
++    const assembly = await reopened.assemble('SPACE', read.dirtySource)
++    const dataSet = assembly.dataSet
++    expect(dataSet.viewCascades).toMatchObject([cascade, field])
++    expect(dataSet.resourceRelations).toMatchObject([{sourceRelationId: 'REL'}])
++    expect(dataSet.getView('Parents', 'shared')).not.toBe(dataSet.getView('Children', 'detail'))
++    const target = dataSet.getView('Parents', 'shared')!
++    const options = dataSet.getView('Children', 'detail')!
++    reopened.http.result = {primaryKeyField: 'id', allowAdd: false,
++      data: {Items: [{id: 'P1', title: 'Parent', country: 'A', province: 0, city: 'OLD',
++        lingma_sys_key: 'SIGNED', lingma_sys_params: {r: ['id', 'title', 'country', 'province', 'city'],
++          e: ['country', 'city']}}], Count: 1}}
++    await target.loadFromServer()
++    reopened.http.result = {primaryKeyField: 'id', allowAdd: false,
++      data: {Items: [{id: 'NEW', parentId: 'B', provinceId: 0, title: 'New City',
++        lingma_sys_key: 'OPTION', lingma_sys_params: {r: ['id', 'title']}}], Count: 1}}
++    target.updateEditingValue('P1', 'country', 'B')
++    await vi.waitFor(() => expect(dataSet.getFieldCascadeState({tableName: 'Parents', viewId: 'shared',
++      rowId: 'P1', field: 'city'})).toMatchObject({status: 'ready', valueStatus: 'empty'}))
++    expect(target.getEditingPatch('P1')).toEqual({country: 'B', city: null})
++    expect(target.rows[0]?.['city']).toBe('OLD')
++    expect(options.rows).toEqual([])
++    const optionRequest = reopened.http.requests.filter(request => request.url === '/api/DataOperation/GetData')[1]
++    expect(optionRequest?.data).toMatchObject({Table: [{Name: 'ChildModel',
++      inputParams: [{Name: 'countryId', Value: 'B'}, {Name: 'provinceId', Value: 0}]}]})
++    expect(JSON.stringify(optionRequest?.data)).not.toContain('city-by-region')
++    expect(storage.stored.get('SPACE')).toBe(saved.text)
++    dataSet.destroy()
++  })
++
+   it('saves native DataSet settings through the file owner and reopens independent runtime instances', async () => {
+     const storage = fixture()
+     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'price', 'qty'], ['price', 'qty']),

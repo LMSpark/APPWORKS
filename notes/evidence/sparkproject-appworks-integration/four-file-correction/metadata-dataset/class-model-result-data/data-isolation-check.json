@@ -1,0 +1,82 @@
+{
+  "editedCopy": {
+    "ok": true,
+    "data": {
+      "kind": "field",
+      "cascadeId": "city",
+      "tableName": "Orders",
+      "viewId": "edit",
+      "valueFormat": "selection-string",
+      "targetField": "city",
+      "parents": [
+        {
+          "tableName": "Orders",
+          "viewId": "edit",
+          "field": "country",
+          "parameter": "local"
+        }
+      ],
+      "optionsView": {
+        "tableName": "Cities",
+        "viewId": "choices"
+      },
+      "valuePolicy": {
+        "mode": "clear",
+        "clearValue": ""
+      }
+    }
+  },
+  "editedList": {
+    "ok": true,
+    "data": [
+      {
+        "kind": "field",
+        "cascadeId": "city",
+        "tableName": "Orders",
+        "viewId": "edit",
+        "valueFormat": "local",
+        "targetField": "city",
+        "parents": [
+          {
+            "tableName": "Orders",
+            "viewId": "edit",
+            "field": "country",
+            "parameter": "countryId"
+          }
+        ],
+        "optionsView": {
+          "tableName": "Cities",
+          "viewId": "choices"
+        },
+        "valuePolicy": {
+          "mode": "retain-valid",
+          "clearValue": ""
+        }
+      }
+    ]
+  },
+  "original": {
+    "kind": "field",
+    "cascadeId": "city",
+    "tableName": "Orders",
+    "viewId": "edit",
+    "valueFormat": "selection-string",
+    "targetField": "city",
+    "parents": [
+      {
+        "tableName": "Orders",
+        "viewId": "edit",
+        "field": "country",
+        "parameter": "countryId"
+      }
+    ],
+    "optionsView": {
+      "tableName": "Cities",
+      "viewId": "choices"
+    },
+    "valuePolicy": {
+      "mode": "retain-valid",
+      "clearValue": ""
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-10-07T04:41:46.641Z",
+  "targetHead": "0b6c85d9979205cf733da8b0ba663c63e89ec395",
+  "url": "http://127.0.0.1:5273/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/data-set-management/ui/data-set-list-page",
+  "tenant": "NewApp",
+  "login": "passed after selecting enterprise record by label",
+  "applicationCatalog": "rendered",
+  "dataSpaceEntry": "SYSTEM PAGE MAPPING ERROR",
+  "pageId": "90A82E287930A234FEC3E687C94A93EA",
+  "businessWrites": false
+}

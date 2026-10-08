@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-source-reader",
+    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-source-reader",
+    "jsdoc": "app 的 lowcode/data-space/model-source/lowcode-data-space-model-source-reader 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceModelSourceReader（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDataSpaceModelSourceReader"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceModelSourceReader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelSourceReader",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "PageDataSpaceModelSourceQuery"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>"
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "object",
+              "title": "PageDataSpaceModelSource"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceModelSourcePrepared>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T05:58:55.168Z",
+  "models": {
+    "PageDataSpaceModelSourceReader": {
+      "name": "PageDataSpaceModelSourceReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>['modelSources']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>['modelSources']>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDataSpaceModelSourceQuery": {
+      "name": "PageDataSpaceModelSourceQuery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<PageDataSpaceModelSourceReader['query']>[0]",
+        "members": {}
+      }
+    },
+    "PageDataSpaceModelSource": {
+      "name": "PageDataSpaceModelSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<PageDataSpaceModelSourceReader['prepare']>[0]",
+        "members": {}
+      }
+    },
+    "PageDataSpaceModelSourcePrepared": {
+      "name": "PageDataSpaceModelSourcePrepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<PageDataSpaceModelSourceReader['prepare']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<PageDataSpaceModelSourceReader['prepare']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeDataSpaceModelSourceReader": {
+      "name": "LowcodeDataSpaceModelSourceReader",
+      "jsdoc": "Fixed six-source reader bound to the current application query scope.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "PageDataSpaceModelSourceReader",
+            "targetName": "PageDataSpaceModelSourceReader"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "query",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceModelSourceQuery",
+                    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepare",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceModelSource",
+                    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceModelSourcePrepared",
+                    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

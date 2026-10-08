@@ -1,0 +1,2 @@
+$ node tools/verify-directory-limits.mjs
+directory limits: ok

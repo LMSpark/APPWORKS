@@ -1,0 +1,554 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:page/content/runtime-content",
+    "sourcePath": "packages/spark-project-model/src/page/content/runtime-content.ts",
+    "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "page/content/runtime-content",
+    "jsdoc": "@spark-appworks/spark-project-model 的 page/content/runtime-content 模块。\n导出 DtsTypeDeclarationModel symbol: PageContentState, PageContentRemoteRead, PageContentWrite, PageContentRuntime（共 4 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "PageContentState",
+      "PageContentRemoteRead",
+      "PageContentWrite",
+      "PageContentRuntime"
+    ]
+  },
+  "$defs": {
+    "PageContentState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageContentState",
+      "properties": {
+        "baseline": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "draft": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "idle",
+            "pending",
+            "unknown"
+          ]
+        },
+        "submitted": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageContentRemoteRead": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageContentRemoteRead",
+      "properties": {
+        "content": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "revision": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageContentWrite": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageContentWrite",
+      "properties": {
+        "kind": {
+          "enum": [
+            "save",
+            "create"
+          ]
+        },
+        "submitted": {
+          "type": "string"
+        },
+        "expectedContent": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.run.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.run.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "PageContentRuntime": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageContentRuntime",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.snapshot.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.snapshot.return": {
+          "$ref": "#/$defs/PageContentState"
+        },
+        "method.subscribe.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.acceptRead.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "expectedRevision": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acceptRead.return": {
+          "type": "boolean"
+        },
+        "method.setDraft.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setDraft.return": true,
+        "method.discardDraft.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardDraft.return": true,
+        "method.startWrite.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/PageContentWrite"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.startWrite.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.offerRemote.params": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "expectedRevision": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.offerRemote.return": {
+          "$ref": "#/$defs/PageContentRemoteRead"
+        },
+        "method.adoptRemote.params": {
+          "type": "object",
+          "properties": {
+            "read": {
+              "$ref": "#/$defs/PageContentRemoteRead"
+            },
+            "expectedRevision": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adoptRemote.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T03:27:47.202Z",
+  "models": {
+    "PageContentState": {
+      "name": "PageContentState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    baseline: string | null | undefined;\n    draft: string | undefined;\n    status: 'idle' | 'pending' | 'unknown';\n    submitted: string | undefined;\n    revision: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    baseline: string | null | undefined;\n    draft: string | undefined;\n    status: 'idle' | 'pending' | 'unknown';\n    submitted: string | undefined;\n    revision: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draft",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submitted",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageContentRemoteRead": {
+      "name": "PageContentRemoteRead",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    content: string | null;\n    revision: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    content: string | null;\n    revision: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageContentWrite": {
+      "name": "PageContentWrite",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'save' | 'create';\n    submitted: string;\n    expectedContent: string | null;\n    run: () => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    kind: 'save' | 'create';\n    submitted: string;\n    expectedContent: string | null;\n    run: () => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submitted",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedContent",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "run",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageContentRuntime": {
+      "name": "PageContentRuntime",
+      "jsdoc": "Opaque text and one real host request owned by a page call, not its renderer.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "Opaque text and one real host request owned by a page call, not its renderer.",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "snapshot",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "PageContentState",
+                "sourcePath": "packages/spark-project-model/src/page/content/runtime-content.ts"
+              }
+            },
+            {
+              "name": "subscribe",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "acceptRead",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "expectedRevision",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "setDraft",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "discardDraft",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "startWrite",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageContentWrite",
+                    "sourcePath": "packages/spark-project-model/src/page/content/runtime-content.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "offerRemote",
+              "parameters": [
+                {
+                  "name": "content",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "expectedRevision",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PageContentRemoteRead",
+                "sourcePath": "packages/spark-project-model/src/page/content/runtime-content.ts"
+              }
+            },
+            {
+              "name": "adoptRemote",
+              "parameters": [
+                {
+                  "name": "read",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageContentRemoteRead",
+                    "sourcePath": "packages/spark-project-model/src/page/content/runtime-content.ts"
+                  }
+                },
+                {
+                  "name": "expectedRevision",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "fileName": "rule.json",
+    "customPath": "D99A1DCE9894698799101EFD70F8FC76/8D1AB14DD8277F3E7017CD38F77B09FD",
+    "local": "config\\pages\\data-platform\\data-space-design\\rule.json",
+    "backup": "D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\data-space-view-design\\tool-remote\\rule.json.before",
+    "remoteSha256": "6b3ca1c7c552bea684dcaffbe1ff91737e8ba501827956c29f90abca93cc9116",
+    "localSha256": "8600df2a875379f3ac064503c09136e8ed5a0657024677d9a191125535ee2ab1",
+    "remoteBytes": 30941,
+    "localBytes": 37088
+  },
+  {
+    "fileName": "script.js",
+    "customPath": "D99A1DCE9894698799101EFD70F8FC76/8D1AB14DD8277F3E7017CD38F77B09FD",
+    "local": "config\\pages\\data-platform\\data-space-design\\script.js",
+    "backup": "D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\data-space-view-design\\tool-remote\\script.js.before",
+    "remoteSha256": "8e5b9cecb06ad9421f615e2fff117854c15234db97810301dafaf6b431cc913b",
+    "localSha256": "93c14989187be0d21cf6d0650d2e09b6b6dd88aed909eef5ce05f27ac4c49336",
+    "remoteBytes": 220888,
+    "localBytes": 242647
+  },
+  {
+    "fileName": "style.css",
+    "customPath": "D99A1DCE9894698799101EFD70F8FC76/8D1AB14DD8277F3E7017CD38F77B09FD",
+    "local": "config\\pages\\data-platform\\data-space-design\\style.css",
+    "backup": "D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\data-space-view-design\\tool-remote\\style.css.before",
+    "remoteSha256": "94a373df0de286e39c2cdab36d651ef1aa1314c6d481d4048b4ab02a120e9a3e",
+    "localSha256": "bf919c7a58fc35c58595a258e5f641438fe2bbdcab51b1e382815b9c9509cce2",
+    "remoteBytes": 1959,
+    "localBytes": 2616
+  }
+]

@@ -1,0 +1,5 @@
+{
+  "log": "red-router-host.log",
+  "exitCode": 1,
+  "command": "pnpm exec vitest run tests/app/config/vue-page-registry.test.ts --maxWorkers=1 --reporter=dot"
+}

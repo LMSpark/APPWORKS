@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/page-design/page-design-agent-workflow-binding",
+    "sourcePath": "src/services/page-design/page-design-agent-workflow-binding.ts",
+    "sourceFile": "src/services/page-design/page-design-agent-workflow-binding.ts",
+    "packageName": "app",
+    "modulePath": "services/page-design/page-design-agent-workflow-binding",
+    "jsdoc": "@module app:services/page-design/page-design-agent-workflow-binding\n职责：承载 pageDesign 领域的 AI workflow binding 能力——合法业务逻辑（MODULE_ID、类型、resolve/build、SOP、gate）+ binding 片段（editorGetter / gateExecutor / systemPromptInterpolator）。\n边界：只做 pageDesign 领域能力注入，不手写 workflow definition（definition 由设计器落盘 JSON 承载），也不承载解释器组合（由 agent-workflow-bindings.ts 薄组合入口完成）。\nAI用途：排查 pageDesign AI 注册如何从 definition + binding 解释而来时，用本模块定位领域 binding 片段。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageDesignRunInput",
+      "ResolvePageDesignPlanningContextOptions",
+      "PageDesignEditorGetterOptions",
+      "PageDesignAgentWorkflowBindingOptions"
+    ]
+  },
+  "$defs": {
+    "PageDesignRunInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignRunInput",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "effectiveDescription": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "planningTitle": {
+          "type": "string"
+        },
+        "planningPath": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignRunMode"
+        },
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        },
+        "preserveExistingInteractions": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "requestId",
+        "pageId",
+        "description",
+        "effectiveDescription"
+      ],
+      "additionalProperties": false
+    },
+    "ResolvePageDesignPlanningContextOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolvePageDesignPlanningContextOptions",
+      "properties": {
+        "fallbackDescription": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDesignEditorGetterOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignEditorGetterOptions",
+      "$defs": {
+        "method.getPageDesignEditor.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "type": "object",
+              "properties": {
+                "moduleInstanceId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "moduleInstanceId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPageDesignEditor.return": {
+          "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+        }
+      }
+    },
+    "PageDesignAgentWorkflowBindingOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDesignAgentWorkflowBindingOptions",
+      "properties": {
+        "knowledge": {
+          "$ref": "../../../packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeProvider"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T03:12:55.170Z",
+  "models": {
+    "PageDesignRunInput": {
+      "name": "PageDesignRunInput",
+      "jsdoc": "Page Design Run Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    requestId: string;\n    scenarioId?: string;\n    /** page Id 标识。 */\n    pageId: string;\n    /** description 字段。 */\n    description: string;\n    /** readPlanningProjection 的 effectiveDescription；runner 必填。 */\n    effectiveDescription: string;\n    /** 项目根 path 段 id；用于 systemPrompt 给出 concrete /project[id] 示例。 */\n    projectId?: string;\n    /** planning Title 字段。 */\n    planningTitle?: string;\n    /** planning Path 路径。 */\n    planningPath?: string;\n    /** mode 字段。 */\n    mode?: PageDesignRunMode;\n    /** allowed Operations 字段。 */\n    allowedOperations?: PageDesignAllowedOperations;\n    /** preserve Existing Interactions 字段。 */\n    preserveExistingInteractions?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "jsdoc": "page Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "description 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "effectiveDescription",
+              "jsdoc": "readPlanningProjection 的 effectiveDescription；runner 必填。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "项目根 path 段 id；用于 systemPrompt 给出 concrete /project[id] 示例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningTitle",
+              "jsdoc": "planning Title 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "planningPath",
+              "jsdoc": "planning Path 路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "jsdoc": "mode 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowedOperations",
+              "jsdoc": "allowed Operations 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "preserveExistingInteractions",
+              "jsdoc": "preserve Existing Interactions 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolvePageDesignPlanningContextOptions": {
+      "name": "ResolvePageDesignPlanningContextOptions",
+      "jsdoc": "Resolve Page Design Planning Context Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 仅 e2e/脚手架：投影为空时用本轮 description 兜底。生产 runner 勿传。 */\n    fallbackDescription?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "fallbackDescription",
+              "jsdoc": "仅 e2e/脚手架：投影为空时用本轮 description 兜底。生产 runner 勿传。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDesignEditorGetterOptions": {
+      "name": "PageDesignEditorGetterOptions",
+      "jsdoc": "Page Design Editor Getter Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 按 moduleInstanceId（即 requestId）返回 pageDesign 编辑器。 */\n    getPageDesignEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 按 moduleInstanceId（即 requestId）返回 pageDesign 编辑器。 */\n    getPageDesignEditor: (context: {\n        moduleInstanceId: string;\n    }) => ProjectWorkspace;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "getPageDesignEditor",
+              "jsdoc": "按 moduleInstanceId（即 requestId）返回 pageDesign 编辑器。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        moduleInstanceId: string;\n    }"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ProjectWorkspace"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDesignAgentWorkflowBindingOptions": {
+      "name": "PageDesignAgentWorkflowBindingOptions",
+      "jsdoc": "Page Design Agent Workflow Binding Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageDesignEditorGetterOptions & Readonly<{\n    /** Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。 */\n    knowledge?: ClassModelKnowledgeProvider;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageDesignEditorGetterOptions",
+            "targetName": "PageDesignEditorGetterOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。 */\n    knowledge?: ClassModelKnowledgeProvider;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "knowledge",
+              "jsdoc": "Node/E2E 可注入非 Worker knowledge provider；浏览器生产默认使用 Worker provider。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

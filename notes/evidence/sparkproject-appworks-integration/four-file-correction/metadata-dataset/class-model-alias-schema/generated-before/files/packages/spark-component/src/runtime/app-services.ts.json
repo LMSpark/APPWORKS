@@ -1,0 +1,4171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:runtime/app-services",
+    "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
+    "sourceFile": "packages/spark-component/src/runtime/app-services.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "runtime/app-services",
+    "jsdoc": "@module @spark-appworks/spark-component:runtime/app-services\n职责：提供 app services 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n页面运行时服务类型定义。\n描述页面在运行时可调用的宿主能力：消息提示、对话框、文件选择/上传、\n实体选择器、路由导航等。\n┌──────────────────────────────────────────────────────┐\n│  类型分组（按页面运行时交互流程）                      │\n│                                                      │\n│  1. 枚举联合：PageMessageType / PageDialogResult      │\n│  2. 消息/对话框：PageDialogOptions                    │\n│  3. 文件操作：  PageBrowseFilesOptions                │\n│                PageSelectedFile                       │\n│                PageUploadFilesOptions                 │\n│                PageUploadedFile                       │\n│  4. 实体选择器：PageSelectorOption                    │\n│                PageSelectEntitiesOptions              │\n│                PageSelectorOption                     │\n│  5. 服务契约：  PageServiceCapability                 │\n│                PageRouterService                      │\n│                PageRuntimeServicesCapability          │\n│  6. 能力注册：  PAGE_RUNTIME_SERVICES                 │\n└──────────────────────────────────────────────────────┘",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageMessageType",
+      "PageDialogResult",
+      "PageDialogOptions",
+      "PageBrowseFilesOptions",
+      "PageSelectedFile",
+      "PageUploadFilesOptions",
+      "PageUploadedFile",
+      "PageSelectorOption",
+      "PageSelectEntitiesOptions",
+      "PageServiceCapability",
+      "PageDataSpaceLayoutReader",
+      "PageDataSpaceLayoutWriteCommand",
+      "PageDataSpaceLayoutCreateCommand",
+      "PageDataSpaceLayoutContentState",
+      "PageDataSpaceLayoutRemoteRead",
+      "PageLocalDraftState",
+      "PageLocalDraftCommand",
+      "PageLocalDraftWriteCommand",
+      "PageLocalDraftAccess",
+      "PageDataSpaceLayoutContent",
+      "PageDataSpaceLayoutWriter",
+      "PageDataSpaceRelationDependencyOption",
+      "PageDataSpaceModelSourceType",
+      "PageDataSpaceModelSource",
+      "PageDataSpaceModelSourceQuery",
+      "PageDataSpaceModelSourceField",
+      "PageDataSpaceModelSourcePrepared",
+      "PageDataSpaceModelSourceReader",
+      "PageDataSpaceDesignReader",
+      "PageRouterService",
+      "PageRuntimeServicesCapability"
+    ]
+  },
+  "$defs": {
+    "PageMessageType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageMessageType",
+      "enum": [
+        "success",
+        "error",
+        "warning",
+        "info"
+      ]
+    },
+    "PageDialogResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageDialogResult",
+      "enum": [
+        "confirm",
+        "cancel",
+        "close"
+      ]
+    },
+    "PageDialogOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDialogOptions",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "confirmText": {
+          "type": "string"
+        },
+        "cancelText": {
+          "type": "string"
+        },
+        "showCancelButton": {
+          "type": "boolean"
+        },
+        "dangerouslyUseHTMLString": {
+          "type": "boolean"
+        },
+        "type": {
+          "$ref": "#/$defs/PageMessageType"
+        },
+        "width": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageBrowseFilesOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageBrowseFilesOptions",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "accept": {
+          "type": "string"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "currentValue": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageSelectedFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageSelectedFile",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "size": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": "number"
+        },
+        "file": {
+          "type": "object",
+          "title": "File"
+        }
+      },
+      "required": [
+        "name",
+        "size",
+        "type",
+        "lastModified",
+        "file"
+      ],
+      "additionalProperties": false
+    },
+    "PageUploadFilesOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageUploadFilesOptions",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "accept": {
+          "type": "string"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "currentValue": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "method": {
+          "type": "object",
+          "title": "Extract<Method, 'POST' | 'PUT' | 'PATCH'>"
+        },
+        "fieldName": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "title": "Record<string, string>"
+        },
+        "data": {
+          "type": "object",
+          "title": "Record<string, string | Blob>"
+        },
+        "withCredentials": {
+          "type": "boolean"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "File"
+          }
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "PageUploadedFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageUploadedFile",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "size": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": "number"
+        },
+        "file": {
+          "type": "object",
+          "title": "File"
+        },
+        "response": true,
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "size",
+        "type",
+        "lastModified",
+        "file",
+        "response"
+      ],
+      "additionalProperties": false
+    },
+    "PageSelectorOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageSelectorOption",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "raw": true
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "PageSelectEntitiesOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageSelectEntitiesOptions",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "entityName": {
+          "type": "string"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "searchable": {
+          "type": "boolean"
+        },
+        "confirmText": {
+          "type": "string"
+        },
+        "cancelText": {
+          "type": "string"
+        },
+        "emptyText": {
+          "type": "string"
+        },
+        "currentValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PageSelectorOption"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageServiceCapability": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageServiceCapability",
+      "$defs": {
+        "method.copyText.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.copyText.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.showMessage.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "type": {
+              "$ref": "#/$defs/PageMessageType"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showMessage.return": true,
+        "method.showConfirm.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "confirmText": {
+                  "type": "string"
+                },
+                "cancelText": {
+                  "type": "string"
+                },
+                "type": {
+                  "$ref": "#/$defs/PageMessageType"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showConfirm.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.showPrompt.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "placeholder": {
+                  "type": "string"
+                },
+                "defaultValue": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showPrompt.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.showAlert.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "$ref": "#/$defs/PageMessageType"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showAlert.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.showDialog.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageDialogOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showDialog.return": {
+          "type": "object",
+          "title": "Promise<PageDialogResult>"
+        },
+        "method.selectEntities.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageSelectEntitiesOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectEntities.return": {
+          "type": "object",
+          "title": "Promise<PageSelectorOption[]>"
+        },
+        "method.browseFiles.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageBrowseFilesOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.browseFiles.return": {
+          "type": "object",
+          "title": "Promise<PageSelectedFile[]>"
+        },
+        "method.uploadFiles.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/PageUploadFilesOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.uploadFiles.return": {
+          "type": "object",
+          "title": "Promise<PageUploadedFile[]>"
+        },
+        "method.showLoading.params": {
+          "type": "object",
+          "properties": {
+            "show": {
+              "type": "boolean"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showLoading.return": true,
+        "method.navigate.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "params": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.navigate.return": true
+      }
+    },
+    "PageDataSpaceLayoutReader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceLayoutReader",
+      "$defs": {
+        "method.readDataSpaceLayout.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readDataSpaceLayout.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        }
+      }
+    },
+    "PageDataSpaceLayoutWriteCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceLayoutWriteCommand",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "expectedContent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceLayoutCreateCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceLayoutCreateCommand",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceLayoutContentState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceLayoutContentState",
+      "properties": {
+        "baseline": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "draft": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "idle",
+            "pending",
+            "unknown"
+          ]
+        },
+        "submitted": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceLayoutRemoteRead": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceLayoutRemoteRead",
+      "properties": {
+        "content": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "revision": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageLocalDraftState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageLocalDraftState",
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageLocalDraftCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageLocalDraftCommand",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "expectedRevision": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageLocalDraftWriteCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageLocalDraftWriteCommand",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "expectedRevision": {
+          "type": "number"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageLocalDraftAccess": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageLocalDraftAccess",
+      "$defs": {
+        "method.getLocalDraft.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getLocalDraft.return": {
+          "$ref": "#/$defs/PageLocalDraftState"
+        },
+        "method.setLocalDraft.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/PageLocalDraftWriteCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setLocalDraft.return": true,
+        "method.discardLocalDraft.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/PageLocalDraftCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.discardLocalDraft.return": true
+      }
+    },
+    "PageDataSpaceLayoutContent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceLayoutContent",
+      "$defs": {
+        "method.getDataSpaceLayoutContent.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getDataSpaceLayoutContent.return": {
+          "$ref": "#/$defs/PageDataSpaceLayoutContentState"
+        },
+        "method.setDataSpaceLayoutDraft.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/PageDataSpaceLayoutCreateCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setDataSpaceLayoutDraft.return": true,
+        "method.discardDataSpaceLayoutDraft.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.discardDataSpaceLayoutDraft.return": true,
+        "method.readDataSpaceLayoutForAdoption.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readDataSpaceLayoutForAdoption.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceLayoutRemoteRead>"
+        },
+        "method.adoptDataSpaceLayoutRead.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            },
+            "read": {
+              "$ref": "#/$defs/PageDataSpaceLayoutRemoteRead"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adoptDataSpaceLayoutRead.return": true
+      }
+    },
+    "PageDataSpaceLayoutWriter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceLayoutWriter",
+      "$defs": {
+        "method.saveDataSpaceLayout.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/PageDataSpaceLayoutWriteCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveDataSpaceLayout.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.createDataSpaceLayout.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/PageDataSpaceLayoutCreateCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createDataSpaceLayout.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "PageDataSpaceRelationDependencyOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceRelationDependencyOption",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceModelSourceType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "PageDataSpaceModelSourceType",
+      "enum": [
+        "table",
+        "dict",
+        "interface",
+        "json",
+        "logicView",
+        "databaseView"
+      ]
+    },
+    "PageDataSpaceModelSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSource",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/PageDataSpaceModelSourceType"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "dbid": {
+          "type": "string"
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "providerId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceModelSourceQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSourceQuery",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/PageDataSpaceModelSourceType"
+        },
+        "keyword": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "page": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceModelSourceField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSourceField",
+      "properties": {
+        "type": {
+          "enum": [
+            "dataModel",
+            "inputParams"
+          ]
+        },
+        "Name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "FieldType": {
+          "type": "string"
+        },
+        "IsPKey": {
+          "type": "number"
+        },
+        "IsOutput": {
+          "type": "number"
+        },
+        "AsName": {
+          "type": "string"
+        },
+        "ValueFun": {
+          "type": "string"
+        },
+        "Expression": {
+          "type": "string"
+        },
+        "allowAIAdd": {
+          "type": "number"
+        },
+        "OrderType": {
+          "type": "string"
+        },
+        "Order": {
+          "type": "number"
+        },
+        "Group": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceModelSourcePrepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSourcePrepared",
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/PageDataSpaceModelSource"
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "type": "string"
+            },
+            "MetaName": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "DbId": {
+              "type": "string"
+            },
+            "DbName": {
+              "type": "string"
+            },
+            "JoinType": {
+              "type": "string"
+            },
+            "ForeignKeyFields": {
+              "type": "string"
+            },
+            "JoinFilter": {
+              "type": "string"
+            },
+            "PId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Type",
+            "MetaName",
+            "description",
+            "DbId",
+            "DbName",
+            "JoinType",
+            "ForeignKeyFields",
+            "JoinFilter",
+            "PId"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PageDataSpaceModelSourceField"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceModelSourceReader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSourceReader",
+      "$defs": {
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageDataSpaceModelSourceQuery"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>"
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "$ref": "#/$defs/PageDataSpaceModelSource"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceModelSourcePrepared>"
+        }
+      }
+    },
+    "PageDataSpaceDesignReader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceDesignReader",
+      "properties": {
+        "modelSources": {
+          "$ref": "#/$defs/PageDataSpaceModelSourceReader"
+        },
+        "viewDesign": {
+          "$ref": "#/$defs/PageDataSpaceViewDesignReader"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readRelationDependencyOptions.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readRelationDependencyOptions.return": {
+          "type": "object",
+          "title": "Promise<readonly PageDataSpaceRelationDependencyOption[]>"
+        }
+      }
+    },
+    "PageDataSpaceViewState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewState",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "config": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "persisted": {
+          "type": "boolean"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "revision": {
+          "type": "number"
+        },
+        "saveStatus": {
+          "enum": [
+            "idle",
+            "pending",
+            "unknown"
+          ]
+        },
+        "submittedText": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewDirtySource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewDirtySource",
+      "properties": {
+        "isDirty": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.subscribe.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.return": {
+          "type": "object",
+          "title": "() => void"
+        }
+      }
+    },
+    "PageDataSpaceViewOpened": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewOpened",
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/PageDataSpaceViewState"
+        },
+        "dirtySource": {
+          "$ref": "#/$defs/PageDataSpaceViewDirtySource"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewModelField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewModelField",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PageDataSpaceViewModelField"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewModelInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewModelInput",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewSelection",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewStage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewStage",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "expectedText": {
+          "type": "string"
+        },
+        "configuration": {
+          "type": "object",
+          "title": "PageDataSpaceViewConfiguration"
+        },
+        "clear": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "PageDataSpaceViewConfiguration"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewAdopt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewAdopt",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "expectedRevision": {
+          "type": "number"
+        },
+        "previewText": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewPreview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewPreview",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewDesignReader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewDesignReader",
+      "$defs": {
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewOpened>"
+        },
+        "method.create.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageDataSpaceViewSelection"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.create.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewOpened>"
+        },
+        "method.readModel.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageDataSpaceViewModelInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModel.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewModel>"
+        },
+        "method.stage.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageDataSpaceViewStage"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stage.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        outcome: 'confirmed' | 'not-applied';\n        state: PageDataSpaceViewState;\n    }>>"
+        },
+        "method.previewRemote.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewRemote.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        },
+        "method.adopt.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageDataSpaceViewAdopt"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adopt.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState | null>"
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/PageDataSpaceViewSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewPreview>"
+        }
+      }
+    },
+    "PageRouterService": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRouterService",
+      "properties": {
+        "currentRoute": true
+      },
+      "required": [
+        "currentRoute"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.push.params": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "query": {
+                      "type": "object",
+                      "title": "Record<string, unknown>"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.push.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.replace.params": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "query": {
+                      "type": "object",
+                      "title": "Record<string, unknown>"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replace.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.back.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.back.return": true
+      }
+    },
+    "PageRuntimeServicesCapability": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuntimeServicesCapability",
+      "properties": {
+        "router": {
+          "$ref": "#/$defs/PageRouterService"
+        },
+        "logger": {
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
+        },
+        "tenant": {
+          "type": "object",
+          "properties": {
+            "tenantId": {
+              "type": "string"
+            },
+            "tenantName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tenantId"
+          ],
+          "additionalProperties": false
+        },
+        "authService": true,
+        "pageService": {
+          "$ref": "#/$defs/PageServiceCapability"
+        },
+        "dataSpaceLayout": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "scenarioId"
+          ],
+          "additionalProperties": false
+        },
+        "dataSpaceDesign": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "scenarioId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-08T08:40:00.748Z",
+  "models": {
+    "PageMessageType": {
+      "name": "PageMessageType",
+      "jsdoc": "消息类型：成功 / 错误 / 警告 / 信息",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'success' | 'error' | 'warning' | 'info'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'success'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'error'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'warning'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'info'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDialogResult": {
+      "name": "PageDialogResult",
+      "jsdoc": "对话框操作结果：确认 / 取消 / 关闭",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'confirm' | 'cancel' | 'close'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'confirm'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'cancel'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'close'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDialogOptions": {
+      "name": "PageDialogOptions",
+      "jsdoc": "对话框配置选项",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 对话框标题 */\n    title?: string;\n    /** 对话框正文内容（纯文本） */\n    message?: string;\n    /** 自定义内容（HTML 字符串，需配合 dangerouslyUseHTMLString） */\n    content?: string;\n    /** 确认按钮文案 */\n    confirmText?: string;\n    /** 取消按钮文案 */\n    cancelText?: string;\n    /** 是否显示取消按钮 */\n    showCancelButton?: boolean;\n    /** 是否允许渲染 HTML 字符串 */\n    dangerouslyUseHTMLString?: boolean;\n    /** 消息类型（影响图标和配色） */\n    type?: PageMessageType;\n    /** 对话框宽度 */\n    width?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "对话框标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "对话框正文内容（纯文本）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "自定义内容（HTML 字符串，需配合 dangerouslyUseHTMLString）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmText",
+              "jsdoc": "确认按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancelText",
+              "jsdoc": "取消按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showCancelButton",
+              "jsdoc": "是否显示取消按钮",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dangerouslyUseHTMLString",
+              "jsdoc": "是否允许渲染 HTML 字符串",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "消息类型（影响图标和配色）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "对话框宽度",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageBrowseFilesOptions": {
+      "name": "PageBrowseFilesOptions",
+      "jsdoc": "文件浏览配置",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 浏览对话框标题 */\n    title?: string;\n    /** 接受的文件类型（如 '.jpg,.png' 或 'image/*'） */\n    accept?: string;\n    /** 是否允许多选 */\n    multiple?: boolean;\n    /** 当前已选值（用于回显） */\n    currentValue?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "浏览对话框标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "accept",
+              "jsdoc": "接受的文件类型（如 '.jpg,.png' 或 'image/*'）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "multiple",
+              "jsdoc": "是否允许多选",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentValue",
+              "jsdoc": "当前已选值（用于回显）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageSelectedFile": {
+      "name": "PageSelectedFile",
+      "jsdoc": "已选择的文件信息",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 文件名 */\n    name: string;\n    /** 文件大小（字节） */\n    size: number;\n    /** MIME 类型 */\n    type: string;\n    /** 最后修改时间戳 */\n    lastModified: number;\n    /** 原始 File 对象 */\n    file: File;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "文件名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "size",
+              "jsdoc": "文件大小（字节）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
+              "jsdoc": "MIME 类型",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lastModified",
+              "jsdoc": "最后修改时间戳",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "file",
+              "jsdoc": "原始 File 对象",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PageUploadFilesOptions": {
+      "name": "PageUploadFilesOptions",
+      "jsdoc": "文件上传配置（在浏览选项基础上增加上传端点信息）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageBrowseFilesOptions & {\n    /** 上传目标 URL */\n    action: string;\n    /** HTTP 方法 */\n    method?: Extract<Method, 'POST' | 'PUT' | 'PATCH'>;\n    /** 文件字段名 */\n    fieldName?: string;\n    /** 附加请求头 */\n    headers?: Record<string, string>;\n    /** 附加表单数据 */\n    data?: Record<string, string | Blob>;\n    /** 是否携带 Cookie / 认证信息 */\n    withCredentials?: boolean;\n    /** 待上传的文件列表 */\n    files?: File[];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageBrowseFilesOptions",
+            "targetName": "PageBrowseFilesOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 上传目标 URL */\n    action: string;\n    /** HTTP 方法 */\n    method?: Extract<Method, 'POST' | 'PUT' | 'PATCH'>;\n    /** 文件字段名 */\n    fieldName?: string;\n    /** 附加请求头 */\n    headers?: Record<string, string>;\n    /** 附加表单数据 */\n    data?: Record<string, string | Blob>;\n    /** 是否携带 Cookie / 认证信息 */\n    withCredentials?: boolean;\n    /** 待上传的文件列表 */\n    files?: File[];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "上传目标 URL",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "method",
+              "jsdoc": "HTTP 方法",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldName",
+              "jsdoc": "文件字段名",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "jsdoc": "附加请求头",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "附加表单数据",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "withCredentials",
+              "jsdoc": "是否携带 Cookie / 认证信息",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "files",
+              "jsdoc": "待上传的文件列表",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageUploadedFile": {
+      "name": "PageUploadedFile",
+      "jsdoc": "已上传的文件：在选择文件基础上增加服务端响应",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageSelectedFile & {\n    /** 服务端返回的响应体 */\n    response: unknown;\n    /** 上传后可访问的文件 URL */\n    url?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageSelectedFile",
+            "targetName": "PageSelectedFile"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 服务端返回的响应体 */\n    response: unknown;\n    /** 上传后可访问的文件 URL */\n    url?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "response",
+              "jsdoc": "服务端返回的响应体",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "url",
+              "jsdoc": "上传后可访问的文件 URL",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageSelectorOption": {
+      "name": "PageSelectorOption",
+      "jsdoc": "选择器候选项",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 展示文本 */\n    label: string;\n    /** 选中值 */\n    value: string | number | boolean;\n    /** 描述信息 */\n    description?: string;\n    /** 是否禁用 */\n    disabled?: boolean;\n    /** 原始数据（未加工的选项数据） */\n    raw?: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "jsdoc": "展示文本",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "jsdoc": "选中值",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "描述信息",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "是否禁用",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "raw",
+              "jsdoc": "原始数据（未加工的选项数据）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageSelectEntitiesOptions": {
+      "name": "PageSelectEntitiesOptions",
+      "jsdoc": "实体选择器配置",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 选择器标题 */\n    title?: string;\n    /** 实体名称（用于空状态提示等） */\n    entityName?: string;\n    /** 搜索框占位符 */\n    placeholder?: string;\n    /** 是否允许多选 */\n    multiple?: boolean;\n    /** 是否可搜索 */\n    searchable?: boolean;\n    /** 确认按钮文案 */\n    confirmText?: string;\n    /** 取消按钮文案 */\n    cancelText?: string;\n    /** 空状态文案 */\n    emptyText?: string;\n    /** 当前已选值 */\n    currentValue?: string | number | boolean | Array<string | number | boolean>;\n    /** 静态选项列表（不传则动态加载） */\n    options?: PageSelectorOption[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "选择器标题",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "entityName",
+              "jsdoc": "实体名称（用于空状态提示等）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "jsdoc": "搜索框占位符",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "multiple",
+              "jsdoc": "是否允许多选",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "searchable",
+              "jsdoc": "是否可搜索",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmText",
+              "jsdoc": "确认按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancelText",
+              "jsdoc": "取消按钮文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "空状态文案",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "currentValue",
+              "jsdoc": "当前已选值",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "jsdoc": "静态选项列表（不传则动态加载）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageServiceCapability": {
+      "name": "PageServiceCapability",
+      "jsdoc": "页面服务：消息提示、对话框、文件操作、实体选择、导航等。\n所有方法由宿主（如 Vue Router、Element Plus 等）实现，\n页面通过 ScriptContext 调用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 写入剪贴板文本；仅在宿主确认写入成功后完成。 */\n    copyText(text: string): Promise<void>;\n    /** 显示提示消息 */\n    showMessage(message: string, type?: PageMessageType): void;\n    /** 显示确认对话框，返回用户操作结果 */\n    showConfirm(message: string, title?: string, options?: {\n        confirmText?: string;\n        cancelText?: string;\n        type?: PageMessageType;\n    }): Promise<boolean>;\n    /** 显示输入弹窗 */\n    showPrompt(message: string, title?: string, options?: {\n        placeholder?: string;\n        defaultValue?: string;\n    }): Promise<string | null>;\n    /** 显示提示框（无取消操作） */\n    showAlert(message: string, title?: string, options?: {\n        type?: PageMessageType;\n    }): Promise<void>;\n    /** 显示自定义对话框 */\n    showDialog(options: PageDialogOptions): Promise<PageDialogResult>;\n    /** 打开实体选择器 */\n    selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]>;\n    /** 打开文件浏览对话框 */\n    browseFiles(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]>;\n    /** 上传文件 */\n    uploadFiles(options: PageUploadFilesOptions): Promise<PageUploadedFile[]>;\n    /** 显示 / 隐藏全局 Loading */\n    showLoading(show: boolean, text?: string): void;\n    /** 路由跳转 */\n    navigate(path: string, params?: Record<string, unknown>): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "copyText",
+              "jsdoc": "写入剪贴板文本；仅在宿主确认写入成功后完成。",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showMessage",
+              "jsdoc": "显示提示消息",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageMessageType",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "showConfirm",
+              "jsdoc": "显示确认对话框，返回用户操作结果",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "title",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        confirmText?: string;\n        cancelText?: string;\n        type?: PageMessageType;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showPrompt",
+              "jsdoc": "显示输入弹窗",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "title",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        placeholder?: string;\n        defaultValue?: string;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showAlert",
+              "jsdoc": "显示提示框（无取消操作）",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "title",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        type?: PageMessageType;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showDialog",
+              "jsdoc": "显示自定义对话框",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDialogOptions",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDialogResult",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectEntities",
+              "jsdoc": "打开实体选择器",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageSelectEntitiesOptions",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageSelectorOption",
+                      "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "browseFiles",
+              "jsdoc": "打开文件浏览对话框",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageBrowseFilesOptions",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageSelectedFile",
+                      "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "uploadFiles",
+              "jsdoc": "上传文件",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageUploadFilesOptions",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "PageUploadedFile",
+                      "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "showLoading",
+              "jsdoc": "显示 / 隐藏全局 Loading",
+              "parameters": [
+                {
+                  "name": "show",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "navigate",
+              "jsdoc": "路由跳转",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceLayoutReader": {
+      "name": "PageDataSpaceLayoutReader",
+      "jsdoc": "Read-only reader bound by the host to one application and design scope.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readDataSpaceLayout(dataSpaceId: string): Promise<string | null>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readDataSpaceLayout(dataSpaceId: string): Promise<string | null>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "readDataSpaceLayout",
+              "parameters": [
+                {
+                  "name": "dataSpaceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceLayoutWriteCommand": {
+      "name": "PageDataSpaceLayoutWriteCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    content: string;\n    expectedContent: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    content: string;\n    expectedContent: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedContent",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceLayoutCreateCommand": {
+      "name": "PageDataSpaceLayoutCreateCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    content: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    content: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceLayoutContentState": {
+      "name": "PageDataSpaceLayoutContentState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    baseline: string | null | undefined;\n    draft: string | undefined;\n    status: 'idle' | 'pending' | 'unknown';\n    submitted: string | undefined;\n    revision: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    baseline: string | null | undefined;\n    draft: string | undefined;\n    status: 'idle' | 'pending' | 'unknown';\n    submitted: string | undefined;\n    revision: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draft",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submitted",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceLayoutRemoteRead": {
+      "name": "PageDataSpaceLayoutRemoteRead",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    content: string | null;\n    revision: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    content: string | null;\n    revision: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageLocalDraftState": {
+      "name": "PageLocalDraftState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    content: string | undefined;\n    revision: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    content: string | undefined;\n    revision: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageLocalDraftCommand": {
+      "name": "PageLocalDraftCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    expectedRevision: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    expectedRevision: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedRevision",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageLocalDraftWriteCommand": {
+      "name": "PageLocalDraftWriteCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageLocalDraftCommand & Readonly<{\n    content: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageLocalDraftCommand",
+            "targetName": "PageLocalDraftCommand"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    content: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageLocalDraftAccess": {
+      "name": "PageLocalDraftAccess",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    getLocalDraft(name: string): PageLocalDraftState;\n    setLocalDraft(command: PageLocalDraftWriteCommand): void;\n    discardLocalDraft(command: PageLocalDraftCommand): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    getLocalDraft(name: string): PageLocalDraftState;\n    setLocalDraft(command: PageLocalDraftWriteCommand): void;\n    discardLocalDraft(command: PageLocalDraftCommand): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "getLocalDraft",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PageLocalDraftState",
+                "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+              }
+            },
+            {
+              "name": "setLocalDraft",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageLocalDraftWriteCommand",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "discardLocalDraft",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageLocalDraftCommand",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceLayoutContent": {
+      "name": "PageDataSpaceLayoutContent",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    getDataSpaceLayoutContent(dataSpaceId: string): PageDataSpaceLayoutContentState;\n    setDataSpaceLayoutDraft(command: PageDataSpaceLayoutCreateCommand): void;\n    discardDataSpaceLayoutDraft(dataSpaceId: string): void;\n    readDataSpaceLayoutForAdoption(dataSpaceId: string): Promise<PageDataSpaceLayoutRemoteRead>;\n    adoptDataSpaceLayoutRead(dataSpaceId: string, read: PageDataSpaceLayoutRemoteRead): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    getDataSpaceLayoutContent(dataSpaceId: string): PageDataSpaceLayoutContentState;\n    setDataSpaceLayoutDraft(command: PageDataSpaceLayoutCreateCommand): void;\n    discardDataSpaceLayoutDraft(dataSpaceId: string): void;\n    readDataSpaceLayoutForAdoption(dataSpaceId: string): Promise<PageDataSpaceLayoutRemoteRead>;\n    adoptDataSpaceLayoutRead(dataSpaceId: string, read: PageDataSpaceLayoutRemoteRead): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "getDataSpaceLayoutContent",
+              "parameters": [
+                {
+                  "name": "dataSpaceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PageDataSpaceLayoutContentState",
+                "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+              }
+            },
+            {
+              "name": "setDataSpaceLayoutDraft",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceLayoutCreateCommand",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "discardDataSpaceLayoutDraft",
+              "parameters": [
+                {
+                  "name": "dataSpaceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "readDataSpaceLayoutForAdoption",
+              "parameters": [
+                {
+                  "name": "dataSpaceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceLayoutRemoteRead",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "adoptDataSpaceLayoutRead",
+              "parameters": [
+                {
+                  "name": "dataSpaceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "read",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceLayoutRemoteRead",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceLayoutWriter": {
+      "name": "PageDataSpaceLayoutWriter",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    saveDataSpaceLayout(command: PageDataSpaceLayoutWriteCommand): Promise<void>;\n    createDataSpaceLayout(command: PageDataSpaceLayoutCreateCommand): Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    saveDataSpaceLayout(command: PageDataSpaceLayoutWriteCommand): Promise<void>;\n    createDataSpaceLayout(command: PageDataSpaceLayoutCreateCommand): Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "saveDataSpaceLayout",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceLayoutWriteCommand",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createDataSpaceLayout",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceLayoutCreateCommand",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceRelationDependencyOption": {
+      "name": "PageDataSpaceRelationDependencyOption",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    label: string;\n    value: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    label: string;\n    value: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceModelSourceType": {
+      "name": "PageDataSpaceModelSourceType",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'table' | 'dict' | 'interface' | 'json' | 'logicView' | 'databaseView'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'table'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'dict'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'interface'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'json'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'logicView'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'databaseView'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDataSpaceModelSource": {
+      "name": "PageDataSpaceModelSource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    type: PageDataSpaceModelSourceType;\n    id: string;\n    name: string;\n    description: string;\n    dbid: string;\n    databaseName: string;\n    providerId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    type: PageDataSpaceModelSourceType;\n    id: string;\n    name: string;\n    description: string;\n    dbid: string;\n    databaseName: string;\n    providerId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dbid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "providerId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceModelSourceQuery": {
+      "name": "PageDataSpaceModelSourceQuery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    type: PageDataSpaceModelSourceType;\n    keyword?: string;\n    description?: string;\n    databaseName?: string;\n    page?: number;\n    pageSize?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    type: PageDataSpaceModelSourceType;\n    keyword?: string;\n    description?: string;\n    databaseName?: string;\n    page?: number;\n    pageSize?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "keyword",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceModelSourceField": {
+      "name": "PageDataSpaceModelSourceField",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    type: 'dataModel' | 'inputParams';\n    Name: string;\n    description: string;\n    FieldType: string;\n    IsPKey: number;\n    IsOutput: number;\n    AsName: string;\n    ValueFun: string;\n    Expression: string;\n    allowAIAdd: number;\n    OrderType: string;\n    Order: number;\n    Group: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    type: 'dataModel' | 'inputParams';\n    Name: string;\n    description: string;\n    FieldType: string;\n    IsPKey: number;\n    IsOutput: number;\n    AsName: string;\n    ValueFun: string;\n    Expression: string;\n    allowAIAdd: number;\n    OrderType: string;\n    Order: number;\n    Group: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "FieldType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsPKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsOutput",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "AsName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ValueFun",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Expression",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowAIAdd",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "OrderType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "Group",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceModelSourcePrepared": {
+      "name": "PageDataSpaceModelSourcePrepared",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    source: PageDataSpaceModelSource;\n    model: Readonly<{\n        Type: string;\n        MetaName: string;\n        description: string;\n        DbId: string;\n        DbName: string;\n        JoinType: string;\n        ForeignKeyFields: string;\n        JoinFilter: string;\n        PId: string;\n    }>;\n    fields: readonly PageDataSpaceModelSourceField[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    source: PageDataSpaceModelSource;\n    model: Readonly<{\n        Type: string;\n        MetaName: string;\n        description: string;\n        DbId: string;\n        DbName: string;\n        JoinType: string;\n        ForeignKeyFields: string;\n        JoinFilter: string;\n        PId: string;\n    }>;\n    fields: readonly PageDataSpaceModelSourceField[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "model",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceModelSourceReader": {
+      "name": "PageDataSpaceModelSourceReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    prepare(source: PageDataSpaceModelSource): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    prepare(source: PageDataSpaceModelSource): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "query",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceModelSourceQuery",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepare",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceModelSource",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceModelSourcePrepared",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceDesignReader": {
+      "name": "PageDataSpaceDesignReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    readRelationDependencyOptions(): Promise<readonly PageDataSpaceRelationDependencyOption[]>;\n    modelSources?: PageDataSpaceModelSourceReader;\n    viewDesign?: PageDataSpaceViewDesignReader;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    readRelationDependencyOptions(): Promise<readonly PageDataSpaceRelationDependencyOption[]>;\n    modelSources?: PageDataSpaceModelSourceReader;\n    viewDesign?: PageDataSpaceViewDesignReader;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelSources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewDesign",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readRelationDependencyOptions",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly PageDataSpaceRelationDependencyOption[]"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewState": {
+      "name": "PageDataSpaceViewState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    text: string;\n    config: Readonly<Record<string, unknown>>;\n    persisted: boolean;\n    dirty: boolean;\n    revision: number;\n    saveStatus: 'idle' | 'pending' | 'unknown';\n    submittedText: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    text: string;\n    config: Readonly<Record<string, unknown>>;\n    persisted: boolean;\n    dirty: boolean;\n    revision: number;\n    saveStatus: 'idle' | 'pending' | 'unknown';\n    submittedText: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "persisted",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dirty",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveStatus",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submittedText",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewDirtySource": {
+      "name": "PageDataSpaceViewDirtySource",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    isDirty: boolean;\n    subscribe(listener: () => void): () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    isDirty: boolean;\n    subscribe(listener: () => void): () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "isDirty",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "subscribe",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewOpened": {
+      "name": "PageDataSpaceViewOpened",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    state: PageDataSpaceViewState;\n    dirtySource: PageDataSpaceViewDirtySource;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    state: PageDataSpaceViewState;\n    dirtySource: PageDataSpaceViewDirtySource;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dirtySource",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewModelField": {
+      "name": "PageDataSpaceViewModelField",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    label: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    label: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewModel": {
+      "name": "PageDataSpaceViewModel",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    name: string;\n    fields: readonly PageDataSpaceViewModelField[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    name: string;\n    fields: readonly PageDataSpaceViewModelField[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewModelInput": {
+      "name": "PageDataSpaceViewModelInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    modelId: string;\n    modelName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    modelId: string;\n    modelName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewSelection": {
+      "name": "PageDataSpaceViewSelection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    tableName: string;\n    modelId: string;\n    modelName: string;\n    viewId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    tableName: string;\n    modelId: string;\n    modelName: string;\n    viewId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewConfiguration": {
+      "name": "PageDataSpaceViewConfiguration",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Omit<ViewMetadata, 'tableName' | 'viewId' | 'rows'>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Omit<ViewMetadata, 'tableName' | 'viewId' | 'rows'>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "PageDataSpaceViewStage": {
+      "name": "PageDataSpaceViewStage",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "PageDataSpaceViewSelection & Readonly<{\n    expectedText: string;\n    configuration: PageDataSpaceViewConfiguration;\n    clear?: ReadonlyArray<keyof PageDataSpaceViewConfiguration>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "PageDataSpaceViewSelection",
+            "targetName": "PageDataSpaceViewSelection"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    expectedText: string;\n    configuration: PageDataSpaceViewConfiguration;\n    clear?: ReadonlyArray<keyof PageDataSpaceViewConfiguration>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "expectedText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "configuration",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clear",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewAdopt": {
+      "name": "PageDataSpaceViewAdopt",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previewText",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewPreview": {
+      "name": "PageDataSpaceViewPreview",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rows: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    total: number;\n    fields: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rows: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    total: number;\n    fields: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PageDataSpaceViewDesignReader": {
+      "name": "PageDataSpaceViewDesignReader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    open(scenarioId: string): Promise<PageDataSpaceViewOpened>;\n    create(input: PageDataSpaceViewSelection, assertCurrent?: () => void): Promise<PageDataSpaceViewOpened>;\n    readModel(input: PageDataSpaceViewModelInput): Promise<PageDataSpaceViewModel>;\n    stage(input: PageDataSpaceViewStage, assertCurrent?: () => void): Promise<PageDataSpaceViewState>;\n    save(scenarioId: string, assertCurrent?: () => void): Promise<PageDataSpaceViewState>;\n    verify(scenarioId: string): Promise<Readonly<{\n        outcome: 'confirmed' | 'not-applied';\n        state: PageDataSpaceViewState;\n    }>>;\n    previewRemote(scenarioId: string): Promise<string | null>;\n    adopt(input: PageDataSpaceViewAdopt): Promise<PageDataSpaceViewState | null>;\n    preview(input: PageDataSpaceViewSelection): Promise<PageDataSpaceViewPreview>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    open(scenarioId: string): Promise<PageDataSpaceViewOpened>;\n    create(input: PageDataSpaceViewSelection, assertCurrent?: () => void): Promise<PageDataSpaceViewOpened>;\n    readModel(input: PageDataSpaceViewModelInput): Promise<PageDataSpaceViewModel>;\n    stage(input: PageDataSpaceViewStage, assertCurrent?: () => void): Promise<PageDataSpaceViewState>;\n    save(scenarioId: string, assertCurrent?: () => void): Promise<PageDataSpaceViewState>;\n    verify(scenarioId: string): Promise<Readonly<{\n        outcome: 'confirmed' | 'not-applied';\n        state: PageDataSpaceViewState;\n    }>>;\n    previewRemote(scenarioId: string): Promise<string | null>;\n    adopt(input: PageDataSpaceViewAdopt): Promise<PageDataSpaceViewState | null>;\n    preview(input: PageDataSpaceViewSelection): Promise<PageDataSpaceViewPreview>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "open",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewOpened",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "create",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewSelection",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewOpened",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readModel",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewModelInput",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewModel",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "stage",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewStage",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewState",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewState",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        outcome: 'confirmed' | 'not-applied';\n        state: PageDataSpaceViewState;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewRemote",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "adopt",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewAdopt",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "PageDataSpaceViewState",
+                        "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "preview",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewSelection",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewPreview",
+                    "sourcePath": "packages/spark-component/src/runtime/app-services.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageRouterService": {
+      "name": "PageRouterService",
+      "jsdoc": "路由服务：SPA 内的 push / replace / back 操作",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 导航到目标（字符串路径或路由对象） */\n    push(to: string | {\n        path: string;\n        query?: Record<string, unknown>;\n    }): Promise<unknown>;\n    /** 替换当前路由 */\n    replace(to: string | {\n        path: string;\n        query?: Record<string, unknown>;\n    }): Promise<unknown>;\n    /** 后退 */\n    back(): void;\n    /** 当前路由信息 */\n    currentRoute: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "currentRoute",
+              "jsdoc": "当前路由信息",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "push",
+              "jsdoc": "导航到目标（字符串路径或路由对象）",
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "unknown",
+                        "name": "{\n        path: string;\n        query?: Record<string, unknown>;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "replace",
+              "jsdoc": "替换当前路由",
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "unknown",
+                        "name": "{\n        path: string;\n        query?: Record<string, unknown>;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "back",
+              "jsdoc": "后退",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageRuntimeServicesCapability": {
+      "name": "PageRuntimeServicesCapability",
+      "jsdoc": "页面运行时能力集合。\n由宿主环境提供，ScriptContext 中通过 capability 查询获取。\n各字段均为可选，由消费方在使用前判断是否存在。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 路由服务 */\n    router?: PageRouterService;\n    /** 日志 API */\n    logger?: LoggerApi;\n    /** 租户上下文 */\n    tenant?: {\n        tenantId: string;\n        tenantName?: string;\n        [key: string]: unknown;\n    };\n    /** 认证服务 */\n    authService?: unknown;\n    /** 页面服务（部分实现） */\n    pageService?: Partial<PageServiceCapability>;\n    /** Restricted layout-file reader for the declared data-space design scenario. */\n    dataSpaceLayout?: Readonly<{\n        scenarioId: string;\n        createReader(): PageDataSpaceLayoutReader;\n        createWriter?(): PageDataSpaceLayoutWriter;\n    }>;\n    /** Restricted relation dictionary reader for the declared data-space design scenario. */\n    dataSpaceDesign?: Readonly<{\n        scenarioId: string;\n        createReader(): PageDataSpaceDesignReader;\n    }>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "router",
+              "jsdoc": "路由服务",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "logger",
+              "jsdoc": "日志 API",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tenant",
+              "jsdoc": "租户上下文",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authService",
+              "jsdoc": "认证服务",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageService",
+              "jsdoc": "页面服务（部分实现）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceLayout",
+              "jsdoc": "Restricted layout-file reader for the declared data-space design scenario.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSpaceDesign",
+              "jsdoc": "Restricted relation dictionary reader for the declared data-space design scenario.",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "at": "2026-10-08T05:47:41.223Z",
+  "mode": "inspect",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "toolId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "stage": "complete",
+  "outcomes": [
+    {
+      "fileName": "pagedata.json",
+      "changed": false,
+      "remoteBytes": 2194,
+      "localBytes": 2194
+    },
+    {
+      "fileName": "script.js",
+      "changed": true,
+      "remoteBytes": 48948,
+      "localBytes": 220888
+    },
+    {
+      "fileName": "style.css",
+      "changed": true,
+      "remoteBytes": 754,
+      "localBytes": 1959
+    },
+    {
+      "fileName": "rule.json",
+      "changed": true,
+      "remoteBytes": 17249,
+      "localBytes": 30941
+    }
+  ]
+}

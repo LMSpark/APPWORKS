@@ -1,0 +1,263 @@
+{
+  "guide": "/**\n * DTS declaration: DataViewFieldCascade = Readonly<{\n    kind: 'field';\n    cascadeId: string;\n    tableName: string;\n    viewId: string;\n    targetField: string;\n    /** 原生字段值，或按选项 DataView 配置编码的选中值字符串。 */\n    valueFormat: 'native' | 'selection-string';\n    /** field 缺省时取该视图选中主键数组；指针和编辑覆盖仅属于取值绑定。 */\n    parents: ReadonlyArray<Readonly<{\n        tableName: string;\n        viewId: string;\n        field?: string;\n        parameter: string;\n    }>>;\n    optionsView: Readonly<{\n        tableName: string;\n        viewId: string;\n    }>;\n    valuePolicy: Readonly<{\n        mode: 'retain';\n    } | {\n        mode: 'clear' | 'retain-valid';\n        clearValue: string | number | boolean | null | ReadonlyArray<string | number | boolean>;\n    }>;\n}>\n * DTS relation: alias Readonly<{\n    kind: 'field';\n    cascadeId: string;\n    tableName: string;\n    viewId: string;\n    targetField: string;\n    /** 原生字段值，或按选项 DataView 配置编码的选中值字符串。 */\n    valueFormat: 'native' | 'selection-string';\n    /** field 缺省时取该视图选中主键数组；指针和编辑覆盖仅属于取值绑定。 */\n    parents: ReadonlyArray<Readonly<{\n        tableName: string;\n        viewId: string;\n        field?: string;\n        parameter: string;\n    }>>;\n    optionsView: Readonly<{\n        tableName: string;\n        viewId: string;\n    }>;\n    valuePolicy: Readonly<{\n        mode: 'retain';\n    } | {\n        mode: 'clear' | 'retain-valid';\n        clearValue: string | number | boolean | null | ReadonlyArray<string | number | boolean>;\n    }>;\n}>\n */\ntype DataViewFieldCascade {\n  readonly kind: unknown\n  readonly cascadeId: string\n  readonly tableName: string\n  readonly viewId: string\n  readonly targetField: string\n  readonly valueFormat: \"native\" | \"selection-string\"\n  readonly parents: { tableName: string; viewId: string; field?: string; parameter: string }[]\n  readonly optionsView: { tableName: string; viewId: string }\n  readonly valuePolicy: { mode: unknown } | { mode: \"clear\" | \"retain-valid\"; clearValue: boolean | null | string | number | boolean | string | number[] }\n}",
+  "method": "DataSet 级统一 CRUD facade。\n设计目标：\n1. 构造时只要求 dataSetName，外部无需先手动拼装 DataSet。\n2. 统一收口表、列、视图、行、关系、依赖这几类对象的常用操作。\n3. 全部复用现有 DataSet/DataTable/DataView 能力，避免再造第二套状态模型。\n4. 所有公开方法统一使用单一对象参数，便于 LLM / 动态调度直接传 JSON object。\nclass DataSetCrudTool {\n  创建一条 DataView 输入级联。\n  @param params 级联参数。\n  @returns 新创建的级联。\n  @throws 当级联引用非法时抛错。\n  createCascade(params: DataSetCrudToolCreateCascadeParams): DataViewCascade\n}",
+  "action": {
+    "name": "createCascade",
+    "methodName": "createCascade",
+    "signatureText": "createCascade(params: DataSetCrudToolCreateCascadeParams): DataViewCascade",
+    "description": "创建一条 DataView 输入级联。",
+    "jsdoc": "创建一条 DataView 输入级联。\n@param params 级联参数。\n@returns 新创建的级联。\n@throws 当级联引用非法时抛错。",
+    "paramsSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "$ref": "#/$defs/DataSetCrudToolCreateCascadeParams"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "DataSetCrudToolCreateCascadeParams": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "title": "DataSetCrudToolCreateCascadeParams",
+          "properties": {
+            "cascade": {
+              "$ref": "#/$defs/DataViewCascade"
+            }
+          },
+          "required": [
+            "cascade"
+          ],
+          "additionalProperties": false
+        },
+        "DataViewCascade": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "title": "DataViewCascade",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataViewQueryCascade"
+            },
+            {
+              "$ref": "#/$defs/DataViewFieldCascade"
+            }
+          ]
+        },
+        "DataViewQueryCascade": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "title": "DataViewQueryCascade",
+          "properties": {
+            "kind": {
+              "const": "query"
+            },
+            "cascadeId": {
+              "type": "string"
+            },
+            "sourceRelationId": {
+              "type": "string"
+            },
+            "parentTable": {
+              "type": "string"
+            },
+            "parentViewId": {
+              "type": "string"
+            },
+            "childTable": {
+              "type": "string"
+            },
+            "childViewId": {
+              "type": "string"
+            },
+            "filterBindings": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewCascadeFilterBinding"
+              }
+            },
+            "autoLoad": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "parentTable",
+            "parentViewId",
+            "childTable",
+            "childViewId",
+            "filterBindings"
+          ],
+          "additionalProperties": false
+        },
+        "DataViewCascadeFilterBinding": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "title": "DataViewCascadeFilterBinding",
+          "properties": {
+            "sourceField": {
+              "type": "string"
+            },
+            "targetField": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "targetField"
+          ],
+          "additionalProperties": false
+        },
+        "DataViewFieldCascade": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "title": "DataViewFieldCascade",
+          "properties": {
+            "kind": {
+              "const": "field"
+            },
+            "cascadeId": {
+              "type": "string"
+            },
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            },
+            "targetField": {
+              "type": "string"
+            },
+            "valueFormat": {
+              "enum": [
+                "native",
+                "selection-string"
+              ]
+            },
+            "parents": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "tableName": {
+                    "type": "string"
+                  },
+                  "viewId": {
+                    "type": "string"
+                  },
+                  "field": {
+                    "type": "string"
+                  },
+                  "parameter": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "tableName",
+                  "viewId",
+                  "parameter"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "optionsView": {
+              "type": "object",
+              "properties": {
+                "tableName": {
+                  "type": "string"
+                },
+                "viewId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "tableName",
+                "viewId"
+              ],
+              "additionalProperties": false
+            },
+            "valuePolicy": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "const": "retain"
+                    }
+                  },
+                  "required": [
+                    "mode"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "enum": [
+                        "clear",
+                        "retain-valid"
+                      ]
+                    },
+                    "clearValue": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "mode",
+                    "clearValue"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "cascadeId",
+            "tableName",
+            "viewId",
+            "targetField",
+            "valueFormat",
+            "parents",
+            "optionsView",
+            "valuePolicy"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "takesContext": false,
+    "resultSchema": {
+      "$ref": "types.ts.json#/$defs/DataViewCascade"
+    }
+  }
+}

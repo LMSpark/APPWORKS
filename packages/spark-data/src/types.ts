@@ -759,27 +759,19 @@ export type NestedTreeSearchResult = {
 // ═══════════════════════════════════════════════════════
 // 10. 数据资源关系 & DataView 输入级联
 //
-// DataResourceRelation 只声明资源间字段关系（数据 Schema）。
+// DataResourceRelation 声明稳定资源间的完整过滤条件（数据 Schema）。
 // DataViewCascade 只声明视图输入联动（UI/运行 Schema）。
 // 两类关系分别索引、分别消费，不再合并成第三种关系。
 // ═══════════════════════════════════════════════════════
 
 /**
- * 数据资源关系 — 声明两个 DataTable 所对应资源之间的字段关系。
+ * 数据资源关系 — 声明两个 DataTable 所对应资源之间的完整过滤条件。
  *
  * 纯数据结构描述，不涉及 UI 联动。
  * 消费者：计算列聚合函数（$sum/$count）、提交排序与资源结构设计。
  *
- * SQL 等价：
- * ```sql
- * SELECT child.* FROM {childTable} child
- * JOIN {parentTable} parent ON child.{childField} = parent.{parentField}
- * ```
- *
- * @example
- * ```json
- * { "parentTable": "Users", "childTable": "Orders", "childField": "userId" }
- * ```
+ * 条件可使用过滤树支持的运算符和值函数；本地聚合仅执行 DataViewFilterLocal 支持的函数。
+ * 条件 field 属于子资源，GetTableField.Field 属于父资源。
  */
 export type DataResourceRelationFieldMapping = Readonly<{
   parentResourceField: string
@@ -798,24 +790,9 @@ export type DataResourceRelation = {
   /** 子表名 */
   childTable: string
 
-  // ── 简写模式（单字段外键，95% 场景）──
-  /** 子表外键字段（简写模式必填） */
-  childField?: string
-  /** 父表匹配字段（默认取父表 primaryKey，通常 'id'） */
-  parentField?: string
+  /** 唯一关系条件真源；field 指向子表，GetTableField.Field 指向父表。函数定义完整保留。 */
+  filterExpression: DataViewFilterTree
 
-  /** 资源字段映射；复合关系必须使用此集合。 */
-  fieldMappings?: readonly DataResourceRelationFieldMapping[]
-
-  // ── 完整条件（与 childField/parentField 互斥，后续迭代定义具体结构）──
-  /**
-   * 复合匹配条件（预留）。
-   *
-   * 用于复合键、带静态过滤等高级场景。
-   * SQL 等价：JOIN ON + WHERE 合并。
-   * 当前版本不消费此字段，具体结构后续迭代定义。
-   */
-  condition?: Record<string, unknown>
 
   // ── 声明性元数据 ──
   /** 父表记录更新时是否级联更新子表 */
@@ -823,22 +800,14 @@ export type DataResourceRelation = {
   /** 父表记录删除时是否级联删除子表 */
   cascadeDelete?: boolean}
 
-/**
- * 目标 DataView 响应源 DataView 数据变化的触发源。
- *
- * 配置在 `DataViewCascade.dependencyType`，决定源 DataView 的哪种数据变化会触发目标 DataView 重新查询。
- *
- * - `'currentRow'`   — 父表 default 视图当前聚焦行变化时触发（默认值）；子表 default 视图用当前行主键过滤
- * - `'selectedRows'` — 父表 default 视图选中行集合变化时触发；子表 default 视图用所有选中行的主键 in-list 过滤
- * - `'allRows'`      — 父表 default 视图全量行集合变化时触发（不区分分页）
- * - `'pagedRows'`    — 父表 default 视图当前分页行集合变化时触发
- */
-export type DependencyType =
-  | 'currentRow'
-  | 'selectedRows'
-  | 'allRows'
-  | 'pagedRows'
-  | (string & {})
+/** DataSet 输入边界接受的历史关系形式；归一输出仅使用 DataResourceRelation。 */
+export type DataResourceRelationInput = Omit<DataResourceRelation, 'filterExpression'> & {
+  filterExpression?: DataViewFilterTree
+  childField?: string
+  parentField?: string
+  fieldMappings?: readonly DataResourceRelationFieldMapping[]
+  condition?: Record<string, unknown>
+}
 
 /**
  * DataView 输入级联 — 显式声明源/目标 DataView 和字段过滤绑定。
@@ -851,20 +820,20 @@ export type DependencyType =
  *   "parentTable": "Users", "childTable": "Orders",
  *   "parentViewId": "userGrid",
  *   "childViewId": "orderGrid",
- *   "filterBindings": [{ "sourceField": "id", "targetField": "userId" }],
- *   "dependencyType": "selectedRows"
+ *   "filterBindings": [{ "targetField": "userId" }]
  * }
  * ```
  */
 export type DataViewCascadeFilterBinding = Readonly<{
-  /** 从源 DataView 行读取的字段。 */
-  sourceField: string
+  /** 源字段值；省略表示源视图选中行主键数组，指针只参与取值。 */
+  sourceField?: string
   /** 作为目标 DataView 查询过滤条件的字段。 */
   targetField: string
 }>
 
-/** DataView 输入级联；不引用 DataResourceRelation。 */
-export type DataViewCascade = {
+/** 原生输入值约束目标视图查询；不引用 DataResourceRelation。 */
+export type DataViewQueryCascade = {
+  kind?: 'query'
   /** AppWorks 级联身份。 */
   cascadeId?: string
   /** 原始平台关系 ID，仅用于来源追踪。 */
@@ -879,14 +848,49 @@ export type DataViewCascade = {
   childViewId: string
   /** 源字段到目标过滤字段的绑定。 */
   filterBindings: readonly DataViewCascadeFilterBinding[]
-  /** 响应源视图的哪种数据变化（默认 'currentRow'）。 */
-  dependencyType?: DependencyType
   /** 源变化时是否自动重新查询目标视图（默认 true）。 */
   autoLoad?: boolean
 }
 
+export type DataViewFieldCascade = Readonly<{
+  kind: 'field'
+  cascadeId: string
+  tableName: string
+  viewId: string
+  targetField: string
+  /** 原生字段值，或按选项 DataView 配置编码的选中值字符串。 */
+  valueFormat: 'native' | 'selection-string'
+  /** field 缺省时取该视图选中主键数组；指针和编辑覆盖仅属于取值绑定。 */
+  parents: ReadonlyArray<Readonly<{ tableName: string; viewId: string; field?: string; parameter: string }>>
+  optionsView: Readonly<{ tableName: string; viewId: string }>
+  valuePolicy: Readonly<{ mode: 'retain' } | { mode: 'clear' | 'retain-valid';
+    clearValue: string | number | boolean | null | ReadonlyArray<string | number | boolean> }>
+}>
+
+/** 同一持久关系域中的两种独立运行语义。 */
+export type DataViewCascade = DataViewQueryCascade | DataViewFieldCascade
+
+export type DataViewFieldCascadeAddress = Readonly<{
+  tableName: string
+  viewId: string
+  field: string
+}>
+
+export type DataViewFieldCascadeState = Readonly<{
+  status: 'idle' | 'loading' | 'ready' | 'error'
+  options: readonly DataRow[]
+  valueStatus: 'empty' | 'valid' | 'invalid' | 'unverified'
+  error?: string
+}>
+
 /** 唯一定位一个 DataView 输入级联。 */
 export type DataViewCascadeSelector = Readonly<{
+  cascadeId: string
+  parentTable?: never
+  parentViewId?: never
+  childTable?: never
+  childViewId?: never
+} | {
   parentTable: string
   parentViewId: string
   childTable: string
@@ -1127,6 +1131,8 @@ export type ViewChangeHandlers = {
   editingFieldChanged?: (tableName: string, viewId: string, event: DataViewEditingFieldChangeEvent) => void
   /** 编辑态开关变化 */
   editingChanged?: (tableName: string, viewId: string) => void
+  /** 显式取消编辑；undefined 表示全部行 */
+  editingDiscarded?: (tableName: string, viewId: string, ids: ReadonlyArray<string | number> | undefined) => void
   /** 视图清空 */
   cleared?: (tableName: string, viewId: string) => void
   /** 视图配置变化 */
@@ -1170,9 +1176,9 @@ export type DataSetContract = {
   readonly pageId: string | undefined
 
   /** 查询以指定 DataView 为源的目标级联（视图级索引） */
-  getChildCascades(parentTable: string, parentViewId: string): DataViewCascade[]
+  getChildCascades(parentTable: string, parentViewId: string): DataViewQueryCascade[]
   /** 查询以指定 DataView 为目标的源级联（视图级索引） */
-  getParentCascades(childTable: string, childViewId: string): DataViewCascade[]
+  getParentCascades(childTable: string, childViewId: string): DataViewQueryCascade[]
   /** 查询以指定资源为父的所有资源关系（聚合函数消费） */
   getResourceChildRelations(parentTable: string): DataResourceRelation[]
   /** 查询以指定资源为子的所有资源关系 */
@@ -1182,18 +1188,13 @@ export type DataSetContract = {
   /** 删除未被关系或依赖引用的数据表 */
   removeTable(tableName: string): void
   /** 添加数据资源关系 */
-  addResourceRelation(params: {
-    parentTable: string
-    childTable: string
-    parentField: string
-    childField: string
-    relationName?: string
-  }): void
+  addResourceRelation(params: DataResourceRelationInput): DataResourceRelation
   /** 更新数据资源关系 */
   updateResourceRelation(
     selector: {
       parentTable: string
       childTable: string
+      relationId?: string
       parentField?: string
       childField?: string
     },
@@ -1203,11 +1204,14 @@ export type DataSetContract = {
   removeResourceRelation(selector: {
     parentTable: string
     childTable: string
+    relationId?: string
     parentField?: string
     childField?: string
   }): void
   /** 添加 DataView 输入级联 */
-  addCascade(cascade: DataViewCascade): void
+  addCascade(cascade: DataViewCascade): DataViewCascade
+  /** 按唯一选择器读取级联，未命中返回 undefined，歧义报错。 */
+  getCascade(selector: DataViewCascadeSelector): DataViewCascade | undefined
   /** 更新 DataView 输入级联 */
   updateCascade(
     selector: DataViewCascadeSelector,
@@ -1216,7 +1220,10 @@ export type DataSetContract = {
   /** 删除 DataView 输入级联 */
   removeCascade(selector: DataViewCascadeSelector): void
   /** 将 DataView 输入级联解析为目标视图过滤表达式；返回 null 表示源 DataView 输入不满足 */
-  resolveCascadeFilter(rel: DataViewCascade): DataViewFilterTree | undefined | null
+  resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null
+  getFieldCascadeState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState
+  refreshFieldCascade(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState>
+  onFieldCascadeChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void
   /** 获取数据表 */
   getTable(name: string): DataTable | undefined
   /** 获取数据视图（委托到 DataTable） */

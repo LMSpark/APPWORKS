@@ -1,0 +1,190 @@
+{
+  "at": "2026-10-08T05:51:21.459Z",
+  "mode": "probe",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "toolId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "stage": "complete",
+  "outcomes": [
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "6EB57351E4484D089629CD53147B8D77"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "Base_DataAccountDeveloper"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": null
+      },
+      "DbName": {
+        "read": "visible",
+        "value": null
+      }
+    },
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "7687BB69F2C9E59D857D704026520CB9"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "copyTable"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": "0089C614F01742ED9B231FF6F71BA0F3"
+      },
+      "DbName": {
+        "read": "visible",
+        "value": "testAdd"
+      }
+    },
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "4F6EB3E960F2610882190193EDA22DCF"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "copyTbl1"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": "0089C614F01742ED9B231FF6F71BA0F3"
+      },
+      "DbName": {
+        "read": "visible",
+        "value": "testAdd"
+      }
+    },
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "A9B9650AEB1FE031BD02086393F7CFCA"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "cp1"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": "0089C614F01742ED9B231FF6F71BA0F3"
+      },
+      "DbName": {
+        "read": "visible",
+        "value": "testAdd"
+      }
+    },
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "5321C52FDDB4433D955BD4DA8116F1F0"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "tableAddTest"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": "0089C614F01742ED9B231FF6F71BA0F3"
+      },
+      "DbName": {
+        "read": "visible",
+        "value": "testAdd"
+      }
+    },
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "0022B6C551D9475EAE6EF5A326884F48"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "tableAddTest_20260509_20260509_20260509"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": "0089C614F01742ED9B231FF6F71BA0F3"
+      },
+      "DbName": {
+        "read": "visible",
+        "value": "testAdd"
+      }
+    },
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "5BF447877A734DFEB6EBA79FD4ECD411"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "tableAddTest_20260509_20260509_20260509"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": "0089C614F01742ED9B231FF6F71BA0F3"
+      },
+      "DbName": {
+        "read": "visible",
+        "value": "testAdd"
+      }
+    },
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "92312A96140F4F30838D2DD37F18CD63"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "tableAddTest_20260509_20260509_20260509"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": "0089C614F01742ED9B231FF6F71BA0F3"
+      },
+      "DbName": {
+        "read": "visible",
+        "value": "testAdd"
+      }
+    },
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "1D0DABD5AD4A5862A70FA651C3553170"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "customer"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": "09C58DF7D2AF4E6FB565AB82AB2ABEB3"
+      },
+      "DbName": {
+        "read": "visible",
+        "value": "PX"
+      }
+    },
+    {
+      "rowid": {
+        "read": "visible",
+        "value": "30AC110E3DA45543C2B6D0394A7F31C2"
+      },
+      "tblname": {
+        "read": "visible",
+        "value": "customer_manage"
+      },
+      "dbid": {
+        "read": "visible",
+        "value": "09C58DF7D2AF4E6FB565AB82AB2ABEB3"
+      },
+      "DbName": {
+        "read": "visible",
+        "value": "PX"
+      }
+    }
+  ],
+  "total": 1188
+}

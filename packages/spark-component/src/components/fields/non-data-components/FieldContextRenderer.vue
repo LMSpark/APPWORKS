@@ -47,6 +47,8 @@ AI用途：需要理解 field context renderer 的实际渲染结构、slot/tool
             <span :class="['field-table-value', tableValueClassName]">{{ resolveTableCellDisplayValue(row) }}</span>
           </slot>
         </template>
+        <!-- Keep Element Plus from falling back to row[prop] when the slot is hidden. -->
+        <span v-else />
       </template>
     </el-table-column>
   </template>
@@ -57,6 +59,7 @@ AI用途：需要理解 field context renderer 的实际渲染结构、slot/tool
     :label="resolvedDisplayLabel"
     :prop="resolvedFieldName"
     :rules="resolvedValidationRules"
+    :error="error"
   >
     <slot name="form" />
   </el-form-item>
@@ -104,6 +107,7 @@ import type { SparkNode } from '@spark-appworks/spark-data'
 
 /** 字段上下文渲染器属性，统一描述字段在表格、表单、详情中的展示状态。 */
 type Props = SparkNodeProps & {
+  error?: string | undefined
   /** 显示标签 */
   displayLabel?: string | undefined
   /** 字段绑定名 */

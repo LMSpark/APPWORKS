@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-08T13:37:54.411Z",
+  "mode": "apply",
+  "stage": "complete",
+  "writes": 1,
+  "before": {
+    "rowid": "8349CC5F4D3D473A961886A3AFCC1C18",
+    "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+    "dataModelId": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+    "Name": "Name",
+    "type": "dataModel",
+    "IsOutput": 0
+  },
+  "receipt": {
+    "success": true,
+    "savedCount": 1,
+    "createdCount": 0,
+    "deletedCount": 0,
+    "failedCount": 0
+  },
+  "after": {
+    "rowid": "8349CC5F4D3D473A961886A3AFCC1C18",
+    "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+    "dataModelId": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+    "Name": "Name",
+    "type": "dataModel",
+    "IsOutput": 1
+  },
+  "formalModel": {
+    "metaName": "Base_DataSet",
+    "nameOutput": true
+  },
+  "headers": [
+    {
+      "dataSpaceId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "name": "数据空间设计",
+      "readable": true
+    },
+    {
+      "dataSpaceId": "97DCB03F75AADEAE6B102B062DB71CEA",
+      "name": "四文件编辑验收-20261007",
+      "readable": true
+    }
+  ],
+  "dataSetsDestroyed": 2
+}

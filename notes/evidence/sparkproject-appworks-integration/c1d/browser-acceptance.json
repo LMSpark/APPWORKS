@@ -1,0 +1,202 @@
+{
+  "startedAt": "2026-10-07T05:57:53.261Z",
+  "finishedAt": "2026-10-07T05:59:05.873Z",
+  "coldStart": {
+    "eventsComplete": true,
+    "scripts": [
+      "/js/index-D1ni80Jn.js",
+      "/js/rolldown-runtime-Cyuzqnbw.js",
+      "/js/spark-ai-Df9r-y8w.js",
+      "/js/element-plus-components-a-i-v7DIwDjy.js",
+      "/js/element-plus-components-j-r-CnIl9utZ.js",
+      "/js/spark-app-B9f3sf7Y.js",
+      "/js/PageLoadError-yT55vGdM.js",
+      "/js/vue-page-registry-tuoF-kyA.js",
+      "/js/spark-lowcode-api-BJP41gJn.js",
+      "/js/element-plus-core-DicGYQt2.js",
+      "/js/element-plus-components-s-z-BqWehQcy.js",
+      "/js/vendor-forms-Co0SVQ3N.js",
+      "/js/vendor-COHrzo2L.js",
+      "/js/element-plus-CPEpUTE4.js",
+      "/js/_virtual_spark-components-CWqR0sJF.js",
+      "/js/spark-component-lRViX1zq.js",
+      "/js/IconPicker-BjJFPFmO.js",
+      "/js/ModuleContextBadge-Rjhxg-Y_.js",
+      "/js/HomePage-Ce_Mleme.js"
+    ],
+    "warningsAndErrors": []
+  },
+  "dbms": {
+    "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/ui/service-management-page",
+    "heading": "连接概览",
+    "connections": "4 个连接",
+    "eventsComplete": true,
+    "scripts": [
+      "/js/DBMS-DU_ZkPpE.js"
+    ],
+    "warningsAndErrors": [
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.378Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.378Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      },
+      {
+        "level": "warn",
+        "message": "[DynamicRouter] ⚠️ system-page 节点未在 componentMap / Vue 页面注册表中声明，使用显式错误页 Object",
+        "timestamp": "2026-10-07T05:58:33.379Z",
+        "url": "http://127.0.0.1:5274/js/spark-app-B9f3sf7Y.js"
+      }
+    ]
+  }
+}

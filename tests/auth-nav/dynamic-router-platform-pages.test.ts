@@ -139,7 +139,11 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     const dynamic = createDynamicRouter({ router, pageComponent: DummyPage, loadNavigation: async () => navigation,
       tenantPathPrefix: '/t/:tenantId/:projectId', componentMap: { '/dashboard': DummyPage } })
     await dynamic.registerRoutes()
-    expect(router.getRoutes().find(route => route.name === 'nav-dashboard')?.meta['type']).toBe('system-page')
+    const host = router.getRoutes().find(route => route.path === '/t/:tenantId/:projectId/dashboard')
+    expect(host?.meta['type']).toBe('system-page')
+    expect(host?.meta).not.toHaveProperty('nodeId')
+    await router.push('/t/T/APP/dashboard')
+    expect(router.currentRoute.value.meta['nodeId']).toBe('dashboard')
     expect(router.getRoutes().find(route => route.name === 'nav-docs')?.meta['linkUrl']).toBe('https://example.com/docs')
     expect(dynamic.getPageRuntimeNames()).toEqual([])
   })

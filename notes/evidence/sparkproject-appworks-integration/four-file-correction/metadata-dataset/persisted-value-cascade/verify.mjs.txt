@@ -1,0 +1,190 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+import {createHash} from 'node:crypto'
+import {createServer} from 'vite'
+
+for (const level of ['log', 'info', 'debug', 'warn', 'error']) console[level] = () => {}
+const appId = 'D99A1DCE9894698799101EFD70F8FC76'
+const targetId = '97DCB03F75AADEAE6B102B062DB71CEA'
+const metadataId = '8D1AB14DD8277F3E7017CD38F77B09FD'
+const persist = process.argv.includes('--persist')
+const report = {at:new Date().toISOString(), persist, stage:'initialize', writes:0, reads:0, checks:[]}
+const hash = text => createHash('sha256').update(text).digest('hex')
+const safeError = error => String(error.message ?? error).replace(/Bearer\s+\S+/gi,'[redacted]').replace(/eyJ[A-Za-z0-9_.-]+/g,'[redacted]').slice(0,400)
+const record = () => fs.writeFileSync(new URL(persist ? './verification-result.json' : './preflight-result.json',import.meta.url),JSON.stringify(report,null,2))
+let server, session, reopened, before, candidate, gateway, gateways, ProjectWorkspace, loadScenarioDataSet, api, assertCurrent, DataMember, resolveDataViewMember
+
+async function exercise(dataSet,label) {
+  const parent=dataSet.getView('Base_DataSet','verificationSelection')
+  const child=dataSet.getView('Base_DataSet','verificationOptions')
+  assert.ok(parent && child)
+  assert.equal(parent.dataTable,child.dataTable)
+  await parent.loadFromServer({allPages:true})
+  assert.equal(parent.rows.length,2)
+  const first=parent.rows.find(row=>row.rowid===targetId)
+  const second=parent.rows.find(row=>row.rowid===metadataId)
+  assert.ok(first && second)
+  const states=[]
+  for(const selected of [[first],[first,second],[second],[]]) {
+    parent.setSelectedRows(selected)
+    assert.equal(typeof parent.value,'string')
+    assert.equal(parent.value,selected.map(row=>row.rowid).join('|'))
+    const expected=selected.map(row=>row.rowid).sort()
+    assert.deepEqual(resolveDataViewMember({dataViewKey:'Base_DataSet@verificationSelection',dataMember:DataMember.Value},dataSet).sort(),expected)
+    const deadline=Date.now()+10000
+    while([1,2].includes(child.requestState)||JSON.stringify(child.rows.map(row=>row.rowid).sort())!==JSON.stringify(expected)) {
+      if(child.requestState===4) throw child.loadingError
+      if(Date.now()>deadline) throw new Error(`Query cascade not converged ${child.requestState}/${child.rows.length}/${expected.length}`)
+      await new Promise(resolve=>setTimeout(resolve,25))
+    }
+    assert.equal(child.rows.length,selected.length)
+    states.push({selected:selected.length,options:child.rows.length,nativeValueArray:true,legacyValueString:true})
+  }
+  const requestsBefore=report.reads
+  parent.setCurrentRowById(metadataId)
+  await new Promise(resolve=>setTimeout(resolve,100))
+  assert.equal(report.reads,requestsBefore)
+  assert.equal(dataSet.getView('Base_DataSet','default').rows.length,0)
+  report.checks.push({label,states,sameTable:true,defaultRowsUntouched:true,pointerOnlyNoRequest:true})
+  record()
+}
+async function exactRemote(expected) {
+  assert.equal(await gateway.readText(targetId),expected)
+  const bytes = await api.design.readFileBytes({appType:'designfile',customPath:`${appId}/SysForm/${targetId}`,fileName:'pagedata.json'})
+  assert.equal(hash(Buffer.from(bytes)),hash(expected))
+}
+
+async function save(workspace,file) {
+  try { await workspace.saveScenarioViews({scenarioId:targetId,assertCurrent}) }
+  catch(error) {
+    report.saveObservations ??= []
+    report.saveObservations.push({stage:report.stage,error:safeError(error),status:file.saveStatus})
+    if (file.saveStatus!=='unknown') throw error
+    assert.equal(await workspace.verifyScenarioViews({scenarioId:targetId}),'confirmed')
+  }
+  assert.equal(file.saveStatus,'idle')
+  assert.equal(file.isDirty,false)
+}
+
+try {
+  const auth = JSON.parse(fs.readFileSync(0,'utf8').replace(/^\uFEFF/,''))
+  const storage = new Map()
+  Object.defineProperty(globalThis,'localStorage',{configurable:true,value:{getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)}})
+  server = await createServer({configFile:'vitest.config.ts',logLevel:'silent',server:{middlewareMode:true}})
+  const runtime = await server.ssrLoadModule('/src/lowcode/lowcode-runtime.ts')
+  api = runtime.lowcodeApi
+  const http = runtime.lowcodeHttp
+  const {openLowcodeDataSpaceDesignSession} = await server.ssrLoadModule('/src/lowcode/data-space/lowcode-data-space-design.ts')
+  ;({loadScenarioDataSet} = await server.ssrLoadModule('/src/lowcode/data-space/lowcode-data-space-runtime.ts'))
+  ;({ProjectWorkspace} = await server.ssrLoadModule('/packages/spark-project-model/src/project/project-workspace.ts'))
+  ;({DataMember,resolveDataViewMember}=await server.ssrLoadModule('/packages/spark-data/src/core/data-view-key.ts'))
+  let authenticated = false
+  http.interceptors.request.use({onRequest:config=>{
+    if (authenticated) {
+      if (config.url==='/api/File/UploadFile') {
+        assert.ok(persist && ['save-candidate','restore-original'].includes(report.stage))
+        assert.ok(config.data instanceof FormData)
+        assert.equal(config.data.get('customPath'),`${appId}/SysForm/${targetId}`)
+        assert.equal(config.data.get('newName'),'pagedata.json')
+        report.writes++
+        assert.ok(report.writes<=2,'No repeated uploads')
+        record()
+      } else {
+        assert.ok(['/api/DataOperation/GetData','/api/File/content/text','/api/File/DownFile'].includes(config.url),'Unexpected endpoint')
+        report.reads++
+      }
+    }
+    return {...config,baseURL:'http://127.0.0.1:5273'}
+  }})
+  http.interceptors.response.use({onResponse:response=>Buffer.isBuffer(response.data)?{...response,data:response.data.buffer.slice(response.data.byteOffset,response.data.byteOffset+response.data.byteLength)}:response})
+  report.stage='login'
+  const enterprises = (await api.platform.listEnterprises()).filter(item=>item.name===auth.enterpriseName||item.shortName===auth.enterpriseName)
+  assert.equal(enterprises.length,1)
+  auth.enterpriseName=enterprises[0].shortName
+  await api.platform.login(auth)
+  auth.password=''
+  await api.platform.activateApplication(appId)
+  authenticated=true
+  const scope=api.readRequestScope().token
+  assertCurrent=()=>assert.equal(api.readRequestScope().token,scope)
+  gateways=runtime.createLowcodeProjectGateways(appId)
+  gateway=gateways.scenarioViews
+  before=await gateway.readText(targetId)
+  assert.equal(typeof before,'string')
+  report.originalHash=hash(before)
+  report.metadataHash=hash(await gateway.readText(metadataId))
+  fs.writeFileSync(new URL('./original-pagedata.json.txt',import.meta.url),before)
+  const config=JSON.parse(before)
+  const views=config.tables.Base_DataSet.views
+  for(const id of ['verificationSelection','verificationOptions']) assert.equal(views[id],undefined)
+  assert.equal(config.viewCascades.length,0)
+  const selection={autoLoad:false,autoSelectFirst:false,autoCurrentFirst:false,pageSize:100,valueField:'rowid',selectionDelimiter:'|',
+    filterExpression:{field:'rowid',operator:'in',value:[targetId,metadataId]}}
+  views.verificationSelection={...selection}
+  views.verificationOptions={...selection}
+  config.viewCascades.push({kind:'query',cascadeId:'verification-selected-options',parentTable:'Base_DataSet',parentViewId:'verificationSelection',
+    childTable:'Base_DataSet',childViewId:'verificationOptions',filterBindings:[{targetField:'rowid'}]})
+  candidate=JSON.stringify(config,null,2)
+  report.candidateHash=hash(candidate)
+  fs.writeFileSync(new URL('./candidate-pagedata.json.txt',import.meta.url),candidate)
+  report.stage='preflight-native-session'
+  session=await openLowcodeDataSpaceDesignSession(targetId)
+  assert.equal(session.viewState.text,before)
+  await session.stageDefinition({expectedText:before,text:candidate})
+  await exercise(session.definitionDataSet,'candidate-before-upload')
+  if (persist) {
+    report.stage='save-candidate'
+    record()
+    try { await session.saveViews() }
+    catch(error) {
+      report.sessionSaveError=safeError(error)
+      if (session.viewState.saveStatus!=='unknown') throw error
+      assert.equal((await session.verifyViews()).outcome,'confirmed')
+    }
+    report.saveConfirmed=true
+    await exactRemote(candidate)
+    const fresh = new ProjectWorkspace({projectId:appId,...gateways})
+    const file=await fresh.loadScenarioViews({scenarioId:targetId})
+    assert.equal(file.getText(),candidate)
+    report.stage='reopen-and-consume'
+    reopened=await loadScenarioDataSet({scenarioId:targetId,config:file.value,assertCurrent})
+    assert.equal(reopened.diagnostics.length,0)
+    await exercise(reopened.dataSet,'fresh-workspace-after-save')
+    report.reopened=true
+  }
+  report.stage='verified'
+} catch(error) {
+  report.failed=true
+  report.error=safeError(error)
+  process.exitCode=1
+} finally {
+  reopened?.dataSet.destroy()
+  session?.dispose()
+  if (persist && report.writes>0 && gateway) {
+    try {
+      report.stage='restore-original'
+      record()
+      const remote=await gateway.readText(targetId)
+      if (remote!==before) {
+        assert.equal(remote,candidate,'Remote changed outside this probe; do not overwrite')
+        const cleanup=new ProjectWorkspace({projectId:appId,...gateways})
+        const file=await cleanup.loadScenarioViews({scenarioId:targetId})
+        assert.equal(file.getText(),candidate)
+        file.setText(before)
+        await save(cleanup,file)
+      }
+      await exactRemote(before)
+      report.restored=true
+      report.restoredHash=hash(await gateway.readText(targetId))
+    } catch(error) {report.restoreError=safeError(error); process.exitCode=1}
+  }
+  if(gateway && before) {
+    report.remoteOriginal=(await gateway.readText(targetId))===before
+    report.metadataUnchanged=hash(await gateway.readText(metadataId))===report.metadataHash
+  }
+  report.stage=process.exitCode===1?'failed':'complete'
+  await server?.close()
+  record()
+  process.stdout.write(JSON.stringify(report,null,2))
+}
+

@@ -1,0 +1,42 @@
+{
+  "scope": "C1a-C1d accepted",
+  "at": "2026-10-07T14:07:08.9475383+08:00",
+  "files": [
+    {
+      "path": "src/registries/vue-page-registry.ts",
+      "sha256": "5E6BE0C30B920661180EE6354B893C59077584E737CBC1A221288EE491CE1EAF"
+    },
+    {
+      "path": "src/components/page-loading/PageLoadError.vue",
+      "sha256": "0E68299C158093F4E6DECED9C81B08BF9BBE374A74A0B66E7F734F8F92250497"
+    },
+    {
+      "path": "tests/app/config/vue-page-registry.test.ts",
+      "sha256": "88E606C41EA20380684883965840E73689293727D05CC0BFD49695E8D4854937"
+    },
+    {
+      "path": "tools/vite-plugin-spark-components.ts",
+      "sha256": "5F1CBEB234A546BEA73D6189C7D48B6DD3764827DA7763F54FBC574C86B0AA9F"
+    },
+    {
+      "path": "packages/vite-plugin-spark-catalog/src/scan-config.ts",
+      "sha256": "A25E8BAFCDCF14D95C453CD70F0481157A8390C509C296FB255605F269ED3A58"
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "90F383DEF6ED389C818BFE9A2C083A7AEF9DF3F34B68B6D7B64E975AD0027726"
+    },
+    {
+      "path": "tests/app/config/spark-components-loading.test.ts",
+      "sha256": "03D7CD58C0AA3E44A663DA78A5A3A89C37D8156FBEA9B83685E081B89FF4B0B3"
+    },
+    {
+      "path": "packages/spark-app/src/shell/plugins/presets.ts",
+      "sha256": "A211D04F1737DF634FFD292BF61D3FAFFF51A45DB73806CF2EC853F9B8A396B0"
+    },
+    {
+      "path": "packages/spark-app/src/shell/plugins/__tests__/presets.test.ts",
+      "sha256": "30F344D9008A986EF5D37942D7CAF9B7BE66B8AD5E530CA65F77353A337C465B"
+    }
+  ]
+}

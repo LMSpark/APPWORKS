@@ -1,0 +1,7 @@
+{
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T07:44:16.8136178Z",
+  "command": "pnpm exec vitest run tests/runtime/page/runtime/system-page-identity-tabs.test.ts -t \"preserves native instances and reset locks|reuses selected owners\" --maxWorkers=1 --reporter=dot",
+  "exitCode": 1,
+  "finishedAtUtc": "2026-10-07T07:44:23.7931966Z"
+}

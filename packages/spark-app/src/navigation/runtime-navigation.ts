@@ -7,6 +7,8 @@ import type {
   PermissionMode,
   RuntimeNavigationItemKind,
 } from '@spark-appworks/spark-utils'
+
+export const SYSTEM_PAGE_NAVIGATION_ID_QUERY = '__sparkNavigationId'
 /**
  * 应用壳唯一可消费的运行导航合同。
  *
@@ -36,6 +38,7 @@ export type RuntimeNavigationItem = {
   permissionMode?: PermissionMode
   children?: RuntimeNavigationItem[]
   path?: string
+  blueprintScenarioId?: string
   tool?: Readonly<{ projectId: string; pageId: string; versionId?: string }>
   linkTarget?: NavigationLinkTarget
   redirect?: string

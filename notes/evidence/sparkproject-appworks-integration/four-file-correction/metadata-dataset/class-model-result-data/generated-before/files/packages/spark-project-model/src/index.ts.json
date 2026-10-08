@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:index",
+    "sourcePath": "packages/spark-project-model/src/index.ts",
+    "sourceFile": "packages/spark-project-model/src/index.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "index",
+    "jsdoc": "@module @spark-appworks/spark-project-model:index\n职责：提供项目蓝图和页面配置域的公共入口，支撑 blueprint、page content、project session 与远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\n@spark-appworks/spark-project-model\n领域模型：class 层级为主语。\n运行态页面加载与 ProjectWorkspace 均从根入口导出。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T20:59:31.329Z",
+  "models": {}
+}

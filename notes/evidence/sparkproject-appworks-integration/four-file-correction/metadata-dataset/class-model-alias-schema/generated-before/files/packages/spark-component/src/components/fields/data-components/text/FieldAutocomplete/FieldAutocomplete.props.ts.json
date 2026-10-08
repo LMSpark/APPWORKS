@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/text/FieldAutocomplete/FieldAutocomplete.props",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldAutocomplete/FieldAutocomplete.props.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldAutocomplete/FieldAutocomplete.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/text/FieldAutocomplete/FieldAutocomplete.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/text/FieldAutocomplete/FieldAutocomplete.props\n职责：定义 FieldAutocomplete（r-autocomplete）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 field-level/data-field 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 field autocomplete 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FetchSuggestionsCallback",
+      "RAutocompleteProps"
+    ],
+    "componentName": "FieldAutocomplete",
+    "componentType": "r-autocomplete",
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {
+    "FetchSuggestionsCallback": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FetchSuggestionsCallback",
+      "additionalProperties": false
+    },
+    "RAutocompleteProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RAutocompleteProps",
+      "properties": {
+        "triggerOnFocus": {
+          "type": "boolean"
+        },
+        "highlightFirstItem": {
+          "type": "boolean"
+        },
+        "valueKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.fetchSuggestions.params": {
+          "type": "object",
+          "properties": {
+            "queryString": {
+              "type": "string"
+            },
+            "cb": {
+              "$ref": "#/$defs/FetchSuggestionsCallback"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fetchSuggestions.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.156Z",
+  "models": {
+    "FetchSuggestionsCallback": {
+      "name": "FetchSuggestionsCallback",
+      "jsdoc": "Fetch Suggestions Callback 的语义模型。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FieldAutocomplete",
+        "type": "r-autocomplete",
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    (suggestions: Array<Record<string, unknown>>): void;\n}",
+        "members": {}
+      }
+    },
+    "RAutocompleteProps": {
+      "name": "RAutocompleteProps",
+      "jsdoc": "RAutocomplete Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FieldAutocomplete",
+        "type": "r-autocomplete",
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<string> & {\n    /** 弹出建议面板前是否先基于当前焦点触发一次拉取。 */\n    fetchSuggestions?: (queryString: string, cb: FetchSuggestionsCallback) => void;\n    /** 获得焦点时是否立即触发建议查询。 */\n    triggerOnFocus?: boolean;\n    /** 是否默认高亮第一条候选项。 */\n    highlightFirstItem?: boolean;\n    /** 建议项中作为展示值的字段名。 */\n    valueKey?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<string>",
+            "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 弹出建议面板前是否先基于当前焦点触发一次拉取。 */\n    fetchSuggestions?: (queryString: string, cb: FetchSuggestionsCallback) => void;\n    /** 获得焦点时是否立即触发建议查询。 */\n    triggerOnFocus?: boolean;\n    /** 是否默认高亮第一条候选项。 */\n    highlightFirstItem?: boolean;\n    /** 建议项中作为展示值的字段名。 */\n    valueKey?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "triggerOnFocus",
+              "jsdoc": "获得焦点时是否立即触发建议查询。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "highlightFirstItem",
+              "jsdoc": "是否默认高亮第一条候选项。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueKey",
+              "jsdoc": "建议项中作为展示值的字段名。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "fetchSuggestions",
+              "jsdoc": "弹出建议面板前是否先基于当前焦点触发一次拉取。",
+              "parameters": [
+                {
+                  "name": "queryString",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "cb",
+                  "type": {
+                    "type": "reference",
+                    "name": "FetchSuggestionsCallback",
+                    "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldAutocomplete/FieldAutocomplete.props.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

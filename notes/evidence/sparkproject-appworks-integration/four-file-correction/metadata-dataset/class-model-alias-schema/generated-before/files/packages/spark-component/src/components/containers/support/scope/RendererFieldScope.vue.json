@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/support/scope/RendererFieldScope",
+    "sourcePath": "packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue",
+    "sourceFile": "packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/support/scope/RendererFieldScope",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/scope/RendererFieldScope\n职责：维护 @spark-appworks/spark-component 中 components/containers/support/RendererFieldScope 的模块能力，围绕 RendererFieldScopeProps 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/containers/support/RendererFieldScope 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "RendererFieldScope",
+    "componentType": "r-field-scope",
+    "componentLevel": "row-level",
+    "componentLayer": "row-scope",
+    "componentDirectory": "containers/support"
+  },
+  "$defs": {
+    "RendererFieldScopeProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererFieldScopeProps",
+      "properties": {
+        "type": {
+          "const": "r-field-scope"
+        },
+        "id": {
+          "type": "string"
+        },
+        "model": {
+          "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+          }
+        },
+        "gridColumns": {
+          "type": "number"
+        },
+        "gridGap": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "gridAutoRows": {
+          "type": "string"
+        },
+        "autoFitMinWidth": {
+          "type": "string"
+        },
+        "defaultColSpan": {
+          "type": "number"
+        },
+        "autoFillLastRow": {
+          "type": "boolean"
+        },
+        "labelPosition": {
+          "enum": [
+            "top",
+            "left",
+            "right"
+          ]
+        },
+        "labelWidth": {
+          "type": "string"
+        },
+        "inline": {
+          "type": "boolean"
+        },
+        "compact": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.135Z",
+  "models": {
+    "RendererFieldScopeProps": {
+      "name": "RendererFieldScopeProps",
+      "jsdoc": "r-field-scope 字段宿主容器属性，负责提供行上下文和表单布局。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererFieldScope",
+        "type": "r-field-scope",
+        "level": "row-level",
+        "layer": "row-scope",
+        "directory": "containers/support"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 固定组件类型，用于注册表识别字段宿主容器。 */\n    type?: 'r-field-scope';\n    /** 字段宿主容器节点 ID。 */\n    id?: string;\n    /** 表单数据模型 */\n    model?: DataRow;\n    /** 字段组件配置列表 */\n    children?: SparkNode[];\n    /** CSS Grid 列数 */\n    gridColumns?: number;\n    /** 栅格间距 */\n    gridGap?: number | string;\n    /** 栅格行高 */\n    gridAutoRows?: string;\n    /** 自适应最小宽度 */\n    autoFitMinWidth?: string;\n    /** 默认跨列数 */\n    defaultColSpan?: number;\n    /** 最后一行不满时自动拉宽 */\n    autoFillLastRow?: boolean;\n    /** 标签位置 */\n    labelPosition?: 'top' | 'left' | 'right';\n    /** 标签宽度 */\n    labelWidth?: string;\n    /** 内联模式 */\n    inline?: boolean;\n    /** 紧凑模式 */\n    compact?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "固定组件类型，用于注册表识别字段宿主容器。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "jsdoc": "字段宿主容器节点 ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "model",
+              "jsdoc": "表单数据模型",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "jsdoc": "字段组件配置列表",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gridColumns",
+              "jsdoc": "CSS Grid 列数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gridGap",
+              "jsdoc": "栅格间距",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gridAutoRows",
+              "jsdoc": "栅格行高",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoFitMinWidth",
+              "jsdoc": "自适应最小宽度",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultColSpan",
+              "jsdoc": "默认跨列数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoFillLastRow",
+              "jsdoc": "最后一行不满时自动拉宽",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelPosition",
+              "jsdoc": "标签位置",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelWidth",
+              "jsdoc": "标签宽度",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inline",
+              "jsdoc": "内联模式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "compact",
+              "jsdoc": "紧凑模式",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

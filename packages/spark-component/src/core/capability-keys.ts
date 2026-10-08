@@ -184,7 +184,8 @@ function isPageCssScopeCapability(value: unknown): value is PageCssScopeCapabili
 
 function isPageServiceCapability(value: unknown): value is PageServiceCapability {
   if (!isRecord(value)) return false
-  return hasCallable(value, 'showMessage')
+  return hasCallable(value, 'copyText')
+    && hasCallable(value, 'showMessage')
     && hasCallable(value, 'showConfirm')
     && hasCallable(value, 'showPrompt')
     && hasCallable(value, 'showAlert')

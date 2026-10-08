@@ -1,0 +1,539 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/knowledge/dts-bundle-class-model-knowledge-service",
+    "sourcePath": "packages/spark-ai/src/class-model/knowledge/dts-bundle-class-model-knowledge-service.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/knowledge/dts-bundle-class-model-knowledge-service.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/knowledge/dts-bundle-class-model-knowledge-service",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/knowledge/dts-bundle-class-model-knowledge-service\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 dts-bundle-class-model-knowledge-service 能力，围绕 DtsBundleClassModelKnowledgeServiceOptions、DtsBundleClassModelKnowledgeService 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/knowledge/dts-bundle-class-model-knowledge-service 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DtsBundleClassModelKnowledgeRefreshInput",
+      "DtsBundleClassModelKnowledgeRefreshPolicy",
+      "DtsBundleClassModelKnowledgeRefreshFunction",
+      "DtsBundleClassModelKnowledgeServiceOptions",
+      "CreateDtsBundleClassModelKnowledgeProviderOptions",
+      "DtsBundleClassModelKnowledgeService"
+    ]
+  },
+  "$defs": {
+    "DtsBundleClassModelKnowledgeRefreshInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DtsBundleClassModelKnowledgeRefreshInput",
+      "properties": {
+        "rootClassName": {
+          "type": "string"
+        },
+        "requestedClassName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DtsBundleClassModelKnowledgeRefreshPolicy": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DtsBundleClassModelKnowledgeRefreshPolicy",
+      "enum": [
+        "never",
+        "before-first-load",
+        "always"
+      ]
+    },
+    "DtsBundleClassModelKnowledgeServiceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DtsBundleClassModelKnowledgeServiceOptions",
+      "properties": {
+        "loader": {
+          "$ref": "../class-model/bundle/dts-class-model-bundle-loader.ts.json#/$defs/DtsClassModelBundleLoader"
+        },
+        "rootClassName": {
+          "type": "string"
+        },
+        "refreshBundle": {
+          "type": "object",
+          "title": "DtsBundleClassModelKnowledgeRefreshFunction"
+        },
+        "refreshPolicy": {
+          "$ref": "#/$defs/DtsBundleClassModelKnowledgeRefreshPolicy"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CreateDtsBundleClassModelKnowledgeProviderOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CreateDtsBundleClassModelKnowledgeProviderOptions",
+      "properties": {
+        "dtsClassModelManifestUrl": {
+          "type": "string"
+        },
+        "rootClassName": {
+          "type": "string"
+        },
+        "refreshBundle": {
+          "type": "object",
+          "title": "DtsBundleClassModelKnowledgeRefreshFunction"
+        },
+        "refreshPolicy": {
+          "$ref": "#/$defs/DtsBundleClassModelKnowledgeRefreshPolicy"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.fetchJson.params": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fetchJson.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        }
+      }
+    },
+    "DtsBundleClassModelKnowledgeService": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DtsBundleClassModelKnowledgeService",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DtsBundleClassModelKnowledgeServiceOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.init.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.init.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {
+            "requestedClassName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeQueryInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<JsonValue>"
+        },
+        "method.modelGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelModelGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.modelGuide.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.attributeGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelAttributeGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.attributeGuide.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.methodGuide.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "class-model-knowledge-service.ts.json#/$defs/ClassModelMethodGuideInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.methodGuide.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.233Z",
+  "models": {
+    "DtsBundleClassModelKnowledgeRefreshInput": {
+      "name": "DtsBundleClassModelKnowledgeRefreshInput",
+      "jsdoc": "Dts Bundle Class Model Knowledge Service Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 知识闭包的根 className，决定可达模型范围。 */\n    rootClassName: string;\n    /** 触发刷新的目标 className；按需增量编译时使用。 */\n    requestedClassName?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 知识闭包的根 className，决定可达模型范围。 */\n    rootClassName: string;\n    /** 触发刷新的目标 className；按需增量编译时使用。 */\n    requestedClassName?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rootClassName",
+              "jsdoc": "知识闭包的根 className，决定可达模型范围。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestedClassName",
+              "jsdoc": "触发刷新的目标 className；按需增量编译时使用。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DtsBundleClassModelKnowledgeRefreshPolicy": {
+      "name": "DtsBundleClassModelKnowledgeRefreshPolicy",
+      "jsdoc": "Dts Bundle Class Model Knowledge Refresh Policy 的刷新策略。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'never' | 'before-first-load' | 'always'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'never'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'before-first-load'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'always'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DtsBundleClassModelKnowledgeRefreshFunction": {
+      "name": "DtsBundleClassModelKnowledgeRefreshFunction",
+      "jsdoc": "Dts Bundle Class Model Knowledge Refresh Function 的刷新函数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(input: DtsBundleClassModelKnowledgeRefreshInput) => Promise<void>",
+        "members": {}
+      }
+    },
+    "DtsBundleClassModelKnowledgeServiceOptions": {
+      "name": "DtsBundleClassModelKnowledgeServiceOptions",
+      "jsdoc": "Dts Bundle Class Model Knowledge Service Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** bundle shard 加载器，负责 manifest 与按需拉取。 */\n    loader: DtsClassModelBundleLoader;\n    /** 知识闭包的根 className。 */\n    rootClassName: string;\n    /** 外部 bundle 刷新钩子，在 reload 前触发重新编译。 */\n    refreshBundle?: DtsBundleClassModelKnowledgeRefreshFunction;\n    /** bundle 刷新策略：never / before-first-load / always。 */\n    refreshPolicy?: DtsBundleClassModelKnowledgeRefreshPolicy;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** bundle shard 加载器，负责 manifest 与按需拉取。 */\n    loader: DtsClassModelBundleLoader;\n    /** 知识闭包的根 className。 */\n    rootClassName: string;\n    /** 外部 bundle 刷新钩子，在 reload 前触发重新编译。 */\n    refreshBundle?: DtsBundleClassModelKnowledgeRefreshFunction;\n    /** bundle 刷新策略：never / before-first-load / always。 */\n    refreshPolicy?: DtsBundleClassModelKnowledgeRefreshPolicy;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "loader",
+              "jsdoc": "bundle shard 加载器，负责 manifest 与按需拉取。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootClassName",
+              "jsdoc": "知识闭包的根 className。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshBundle",
+              "jsdoc": "外部 bundle 刷新钩子，在 reload 前触发重新编译。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshPolicy",
+              "jsdoc": "bundle 刷新策略：never / before-first-load / always。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CreateDtsBundleClassModelKnowledgeProviderOptions": {
+      "name": "CreateDtsBundleClassModelKnowledgeProviderOptions",
+      "jsdoc": "Create Dts Bundle Class Model Knowledge Provider Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** manifest.json 的 URL，loader 入口。 */\n    dtsClassModelManifestUrl: string;\n    /** 知识闭包的根 className。 */\n    rootClassName: string;\n    /** 自定义 JSON fetch；默认使用 fetch。 */\n    fetchJson?: (url: string) => Promise<unknown>;\n    /** 外部 bundle 刷新钩子，在 reload 前触发重新编译。 */\n    refreshBundle?: DtsBundleClassModelKnowledgeRefreshFunction;\n    /** bundle 刷新策略：never / before-first-load / always。 */\n    refreshPolicy?: DtsBundleClassModelKnowledgeRefreshPolicy;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** manifest.json 的 URL，loader 入口。 */\n    dtsClassModelManifestUrl: string;\n    /** 知识闭包的根 className。 */\n    rootClassName: string;\n    /** 自定义 JSON fetch；默认使用 fetch。 */\n    fetchJson?: (url: string) => Promise<unknown>;\n    /** 外部 bundle 刷新钩子，在 reload 前触发重新编译。 */\n    refreshBundle?: DtsBundleClassModelKnowledgeRefreshFunction;\n    /** bundle 刷新策略：never / before-first-load / always。 */\n    refreshPolicy?: DtsBundleClassModelKnowledgeRefreshPolicy;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dtsClassModelManifestUrl",
+              "jsdoc": "manifest.json 的 URL，loader 入口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootClassName",
+              "jsdoc": "知识闭包的根 className。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshBundle",
+              "jsdoc": "外部 bundle 刷新钩子，在 reload 前触发重新编译。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refreshPolicy",
+              "jsdoc": "bundle 刷新策略：never / before-first-load / always。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "fetchJson",
+              "jsdoc": "自定义 JSON fetch；默认使用 fetch。",
+              "parameters": [
+                {
+                  "name": "url",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DtsBundleClassModelKnowledgeService": {
+      "name": "DtsBundleClassModelKnowledgeService",
+      "jsdoc": "Dts Bundle Class Model Knowledge Service 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Dts Bundle Class Model Knowledge Service 实例。",
+          "signatureText": "constructor(options: DtsBundleClassModelKnowledgeServiceOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DtsBundleClassModelKnowledgeServiceOptions",
+                "sourcePath": "packages/spark-ai/src/class-model/knowledge/dts-bundle-class-model-knowledge-service.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "ClassModelKnowledgeProvider",
+            "targetName": "ClassModelKnowledgeProvider"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "init",
+              "jsdoc": "初始化 manifest，保持动态加载入口 fail-fast。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "触发外部编译/刷新钩子，并重新读取 manifest/shard。",
+              "parameters": [
+                {
+                  "name": "requestedClassName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "query",
+              "jsdoc": "查询参数。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelKnowledgeQueryInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "JsonValue"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "modelGuide",
+              "jsdoc": "执行 model Guide 操作。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelModelGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "attributeGuide",
+              "jsdoc": "执行 attribute Guide 操作。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelAttributeGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "methodGuide",
+              "jsdoc": "执行 method Guide 操作。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClassModelMethodGuideInput",
+                    "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

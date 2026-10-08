@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run --maxWorkers=2 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:23:34.4577359+08:00",
+  "finishedAt": "2026-10-07T14:25:51.8899668+08:00",
+  "exitCode": 0,
+  "log": "root-tests.log"
+}

@@ -1,0 +1,77 @@
+[
+  {
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-lifecycle.ts",
+    "sha256": "A7A59D692C8599E34CA68D878842BBD80E03BA0726AF1F1459880489424D846A",
+    "snapshotPath": "source-snapshot/packages/spark-app/src/router/system-page-identity/system-page-identity-lifecycle.ts.txt"
+  },
+  {
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
+    "sha256": "931967801509E5A03D58B4550135C4DE88A84CC042893CD44963B340B948A665",
+    "snapshotPath": "source-snapshot/packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts.txt"
+  },
+  {
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
+    "sha256": "5F5691F5CB0C780365123CC5A355642B27043DF73E23B6B2BD41492D2E3818AB",
+    "snapshotPath": "source-snapshot/packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts.txt"
+  },
+  {
+    "path": "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue",
+    "sha256": "BB4C6573DFDEFBD4090D667A78B38A1043D4207F847BBD918E320E2FB517AE9A",
+    "snapshotPath": "source-snapshot/packages/spark-app/src/router/system-page-identity/system-page-route-host.vue.txt"
+  },
+  {
+    "path": "packages/spark-app/src/router/dynamic.ts",
+    "sha256": "E1F0040C9FBE6013CB596430DEEF2E1F8F5E167A84B6717782215F6E50EC6558",
+    "snapshotPath": "source-snapshot/packages/spark-app/src/router/dynamic.ts.txt"
+  },
+  {
+    "path": "packages/spark-app/src/navigation/useTabPages.ts",
+    "sha256": "83A6018BFE9BFFE245D224DDE17708FB42E15EF1EFFA7C0E79F37D05BD4B4E51",
+    "snapshotPath": "source-snapshot/packages/spark-app/src/navigation/useTabPages.ts.txt"
+  },
+  {
+    "path": "packages/spark-app/src/index.ts",
+    "sha256": "7A5EF4F52F7822B510806F4DF867D4166DB5E6ABB4E07D873DC7664611B78EBA",
+    "snapshotPath": "source-snapshot/packages/spark-app/src/index.ts.txt"
+  },
+  {
+    "path": "src/App.vue",
+    "sha256": "1ACE4579112B5AF47E48441F416E6F300BD4FF52F85BDEE0CE2DA2DD214D2C57",
+    "snapshotPath": "source-snapshot/src/App.vue.txt"
+  },
+  {
+    "path": "src/services/project/navigation/project-navigation-guard.ts",
+    "sha256": "4D2044875A965E0A4E541FD2BD1BEAED4ED2D12C4041FD4ACECA5E355E07C8E8",
+    "snapshotPath": "source-snapshot/src/services/project/navigation/project-navigation-guard.ts.txt"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
+    "sha256": "5D9025AA7ACF94399E72546305255BA37D692A7C6A1B237EF78BED1C0D970E88",
+    "snapshotPath": "source-snapshot/src/lowcode/data-space/lowcode-data-space-catalog.ts.txt"
+  },
+  {
+    "path": "src/views/app/control/data-platform/data-space/catalog/DataSpaceCatalogPage.vue",
+    "sha256": "7204A3CD7CCB0A49117891050348CB7297CCB66996F7F58055171EC79A31CFF3",
+    "snapshotPath": "source-snapshot/src/views/app/control/data-platform/data-space/catalog/DataSpaceCatalogPage.vue.txt"
+  },
+  {
+    "path": "tests/runtime/page/runtime/system-page-identity-tabs.test.ts",
+    "sha256": "5CEE73EB4EDE1E06BF2DE2D311AAB59FBC093BB22B9BB56EA697109AEC4C4FD9",
+    "snapshotPath": "source-snapshot/tests/runtime/page/runtime/system-page-identity-tabs.test.ts.txt"
+  },
+  {
+    "path": "tests/runtime/auth-nav/application/project-navigation-guard.test.ts",
+    "sha256": "BD0C498A39224FC60EFCC93D30D0561FCBBCFC536103ABC29C9D7B72C7FB3DD4",
+    "snapshotPath": "source-snapshot/tests/runtime/auth-nav/application/project-navigation-guard.test.ts.txt"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts",
+    "sha256": "0A020643907334835B0680DD665F0BCA8B598C2A338703B177E8C7FE78C4969E",
+    "snapshotPath": "source-snapshot/tests/runtime/auth-nav/data-space/lowcode-data-space-catalog.test.ts.txt"
+  },
+  {
+    "path": "config/navigation/vue-pages.json",
+    "sha256": "BB4623F04CBB02159E2E16B5558EE8BAF25C906CC06A82A565CF26E83E811A14",
+    "snapshotPath": "source-snapshot/config/navigation/vue-pages.json"
+  }
+]

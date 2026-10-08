@@ -1,0 +1,135 @@
+{
+  "type": "div",
+  "id": "catalog-page-root",
+  "props": {
+    "class": "catalog-page"
+  },
+  "children": [
+    {
+      "type": "h2",
+      "id": "catalog-title",
+      "children": [
+        "数据空间目录"
+      ]
+    },
+    {
+      "type": "RenderCatalogActions",
+      "id": "catalog-actions",
+      "children": []
+    },
+    {
+      "type": "RenderCatalogSearch",
+      "id": "catalog-search",
+      "children": []
+    },
+    {
+      "type": "r-table",
+      "id": "catalog-table",
+      "props": {
+        "dataViewKey": "Base_DataSet@catalog",
+        "rowKey": "rowid",
+        "border": true,
+        "stripe": true,
+        "showPagination": false
+      },
+      "children": [
+        {
+          "type": "r-text",
+          "id": "catalog-col-rowid",
+          "props": {
+            "field": "rowid",
+            "label": "ID",
+            "width": 150,
+            "sortable": false
+          },
+          "children": []
+        },
+        {
+          "type": "r-text",
+          "id": "catalog-col-name",
+          "props": {
+            "field": "Name",
+            "label": "名称",
+            "minWidth": 180,
+            "sortable": false
+          },
+          "children": []
+        },
+        {
+          "type": "r-text",
+          "id": "catalog-col-type",
+          "props": {
+            "field": "Type",
+            "label": "类型",
+            "width": 110,
+            "sortable": false
+          },
+          "children": []
+        },
+        {
+          "type": "r-text",
+          "id": "catalog-col-description",
+          "props": {
+            "field": "description",
+            "label": "描述",
+            "minWidth": 200,
+            "sortable": false
+          },
+          "children": []
+        },
+        {
+          "type": "r-column-group",
+          "id": "catalog-col-app",
+          "props": {
+            "width": 160,
+            "title": "所属应用"
+          },
+          "children": [
+            {
+              "type": "RenderCatalogApp",
+              "id": "catalog-app-label",
+              "props": {
+                "rowKey": "$[rowid]"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "r-column-group",
+          "id": "catalog-col-creator",
+          "props": {
+            "width": 140,
+            "title": "创建人"
+          },
+          "children": [
+            {
+              "type": "RenderCatalogCreator",
+              "id": "catalog-creator-label",
+              "props": {
+                "rowKey": "$[rowid]"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "r-text",
+          "id": "catalog-col-created",
+          "props": {
+            "field": "createtime",
+            "label": "创建时间",
+            "width": 170,
+            "sortable": false
+          },
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "RenderCatalogPaging",
+      "id": "catalog-paging",
+      "children": []
+    }
+  ]
+}

@@ -29,6 +29,7 @@ import { mountWithPageDataSet } from '../../support/helpers/mount-with-page-data
 
 function createPageService(overrides: Partial<PageServiceCapability> = {}): PageServiceCapability {
   return {
+    copyText: vi.fn(async () => {}),
     showMessage: vi.fn(),
     showConfirm: vi.fn(async () => true),
     showPrompt: vi.fn(async () => null),

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/childPlacementLabels",
+    "sourcePath": "src/views/app/dev-system/childPlacementLabels.ts",
+    "sourceFile": "src/views/app/dev-system/childPlacementLabels.ts",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/childPlacementLabels",
+    "jsdoc": "@module app:views/app/dev-system/childPlacementLabels\n职责：提供正式navigation.placement的界面选项与标签。\n边界：只翻译展示文本，不持有布局真源或重写业务kind。\nAI用途：显示top/left/right/parent/tabs/popup正式布局值。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.634Z",
+  "models": {}
+}

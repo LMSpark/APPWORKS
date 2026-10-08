@@ -1,0 +1,84 @@
+import { inject, reactive, type InjectionKey } from 'vue'
+
+type SystemPageIdentityLifecycleState = {
+  dirty: boolean
+  submitting: boolean
+  disposed: boolean
+  transitionCount: number
+}
+
+export class SystemPageIdentityLifecycle {
+  readonly #state = reactive<SystemPageIdentityLifecycleState>({ dirty: false, submitting: false, disposed: false, transitionCount: 0 })
+  readonly #controller = new AbortController()
+  readonly #transitions = new Set<symbol>()
+
+  get signal(): AbortSignal { return this.#controller.signal }
+  get dirty(): boolean { return this.#state.dirty }
+  get submitting(): boolean { return this.#state.submitting }
+  get disposed(): boolean { return this.#state.disposed }
+  get transitioning(): boolean { return this.#state.transitionCount > 0 }
+  get editable(): boolean { return !this.submitting && !this.disposed && !this.transitioning }
+
+  reportDirty(dirty: boolean): void {
+    this.assertUsable(dirty)
+    this.#state.dirty = dirty
+  }
+
+  reportSubmitting(submitting: boolean): void {
+    this.assertUsable(submitting)
+    this.#state.submitting = submitting
+  }
+
+  assertClean(): void {
+    this.assertNoWork()
+    if (this.transitioning) throw new Error('应用范围正在切换，请等待后重试')
+  }
+
+  assertNoWork(): void {
+    if (this.dirty || this.submitting) throw new Error('页面有未保存修改或操作正在进行，必须先保存或明确放弃')
+  }
+
+  assertUsable(startingWork = false): void {
+    if (this.disposed || this.signal.aborted) throw new Error('原生页面身份已失效')
+    if (startingWork && this.transitioning) throw new Error('应用范围正在切换，请等待后重试')
+  }
+
+  addTransition(token: symbol): void {
+    if (this.#transitions.add(token)) this.#state.transitionCount = this.#transitions.size
+  }
+
+  releaseTransition(token: symbol): void {
+    if (this.#transitions.delete(token)) this.#state.transitionCount = this.#transitions.size
+  }
+
+  dispose(): void {
+    if (this.disposed) return
+    this.#state.disposed = true
+    this.#transitions.clear()
+    this.#state.transitionCount = 0
+    this.#controller.abort()
+  }
+}
+
+export type SystemPageIdentityLifecycleConsumer = Readonly<{
+  signal: AbortSignal
+  editable: boolean
+  reportDirty: (dirty: boolean) => void
+  reportSubmitting: (submitting: boolean) => void
+  assertUsable: (startingWork?: boolean) => void
+}>
+
+export const SYSTEM_PAGE_IDENTITY_LIFECYCLE_KEY: InjectionKey<SystemPageIdentityLifecycle> =
+  Symbol('spark-system-page-identity-lifecycle')
+
+export function useSystemPageIdentityLifecycle(): SystemPageIdentityLifecycleConsumer {
+  const lifecycle = inject(SYSTEM_PAGE_IDENTITY_LIFECYCLE_KEY)
+  if (!lifecycle) throw new Error('原生系统页生命周期 provider 缺失')
+  return {
+    get signal() { return lifecycle.signal },
+    get editable() { return lifecycle.editable },
+    reportDirty: dirty => lifecycle.reportDirty(dirty),
+    reportSubmitting: submitting => lifecycle.reportSubmitting(submitting),
+    assertUsable: startingWork => lifecycle.assertUsable(startingWork),
+  }
+}

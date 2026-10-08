@@ -1,0 +1,280 @@
+{
+  "at": "2026-10-08T14:32:50.052Z",
+  "targetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "stage": "open-single-target-session",
+  "writes": 0,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/File/content/text"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    }
+  ],
+  "names": {
+    "metadata": "数据空间设计",
+    "target": "四文件编辑验收-20261007"
+  },
+  "parameterDeclarations": {
+    "carrier": "Base_DataSet.inputParams",
+    "retained": true
+  },
+  "metadata": [
+    {
+      "name": "Base_DataModel",
+      "rows": 7,
+      "views": [
+        "default",
+        "apiInfoModels",
+        "designModels"
+      ]
+    },
+    {
+      "name": "Base_DataModel_Field",
+      "rows": 119,
+      "views": [
+        "default",
+        "apiInfoFields",
+        "designFields"
+      ]
+    },
+    {
+      "name": "Base_DataSet",
+      "rows": 1,
+      "views": [
+        "default",
+        "designParameters"
+      ]
+    },
+    {
+      "name": "Base_DataModel_Relation",
+      "rows": 0,
+      "views": [
+        "default",
+        "designRelations"
+      ]
+    }
+  ],
+  "definitions": [
+    {
+      "tableName": "shif",
+      "sourceType": "字典",
+      "resourceType": "dictionary",
+      "resourceId": "shif",
+      "modelName": "shif",
+      "columns": 4,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "tableName": "Json转数组",
+      "sourceType": "接口",
+      "resourceType": "third-party-api",
+      "resourceId": "Json转数组",
+      "modelName": "Json转数组",
+      "columns": 0,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "tableName": "db_relation_show",
+      "sourceType": "视图",
+      "resourceType": "logical-view",
+      "resourceId": "db_relation_show",
+      "modelName": "db_relation_show",
+      "columns": 0,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "tableName": "View_TblList",
+      "sourceType": "数据库视图",
+      "resourceType": "database-view",
+      "resourceId": "View_TblList",
+      "modelName": "View_TblList",
+      "columns": 0,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "tableName": "TestJSON0819",
+      "sourceType": "JSON",
+      "resourceType": "json",
+      "resourceId": "TestJSON0819",
+      "modelName": "TestJSON0819",
+      "columns": 6,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "tableName": "copyTable",
+      "sourceType": "数据库表",
+      "resourceType": "database-table",
+      "resourceId": "copyTable",
+      "modelName": "copyTable",
+      "columns": 2,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "tableName": "Base_DataSet",
+      "sourceType": "数据库表",
+      "resourceType": "database-table",
+      "resourceId": "Base_DataSet",
+      "modelName": "Base_DataSet",
+      "columns": 1,
+      "views": [
+        "default"
+      ]
+    }
+  ],
+  "failed": true,
+  "error": "Remote rows leaked into definition serialization"
+}

@@ -1,0 +1,330 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:page/content/rule-file",
+    "sourcePath": "packages/spark-project-model/src/page/content/rule-file.ts",
+    "sourceFile": "packages/spark-project-model/src/page/content/rule-file.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "page/content/rule-file",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/content/rule-file\n职责：提供项目模型层 rule-file 能力，围绕 PageRuleFile 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 三文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectBlueprint/ProjectWorkspace 行为时，用本模块定位 page/content/rule-file。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "PageRuleFile"
+    ]
+  },
+  "$defs": {
+    "PageRuleFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageRuleFile",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "tree": {
+          "type": "object",
+          "title": "SparkNodeTreeModel"
+        }
+      },
+      "required": [
+        "tree"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getText.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getText.return": {
+          "type": "string"
+        },
+        "method.setText.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setText.return": true,
+        "method.loadText.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadText.return": true,
+        "method.markSaved.params": {
+          "type": "object",
+          "properties": {
+            "submittedText": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.markSaved.return": true,
+        "method.getTree.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getTree.return": {
+          "type": "object",
+          "title": "SparkNodeTreeModel"
+        },
+        "method.replaceTree.params": {
+          "type": "object",
+          "properties": {
+            "tree": {
+              "type": "object",
+              "title": "SparkNodeTreeModel"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceTree.return": true,
+        "method.editTree.params": {
+          "type": "object",
+          "properties": {
+            "run": {
+              "type": "object",
+              "title": "(tree: SparkNodeTreeModel) => void | Promise<void>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.editTree.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.undo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.undo.return": {
+          "type": "boolean"
+        },
+        "method.redo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.redo.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.385Z",
+  "models": {
+    "PageRuleFile": {
+      "name": "PageRuleFile",
+      "jsdoc": "rule.json节点树编辑owner，拥有撤销历史和已保存文本基线。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定明确pageId并建立空规则的内存基线。",
+          "signatureText": "constructor(pageId: string)",
+          "parameters": [
+            {
+              "name": "pageId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tree",
+              "jsdoc": "tree 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "getText",
+              "jsdoc": "get Text 文本。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "setText",
+              "jsdoc": "set Text 文本。",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "loadText",
+              "jsdoc": "load Text 文本。",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "markSaved",
+              "parameters": [
+                {
+                  "name": "submittedText",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getTree",
+              "jsdoc": "读取 Tree。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "SparkNodeTreeModel"
+              }
+            },
+            {
+              "name": "replaceTree",
+              "parameters": [
+                {
+                  "name": "tree",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNodeTreeModel"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "editTree",
+              "parameters": [
+                {
+                  "name": "run",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "tree",
+                              "type": {
+                                "type": "reference",
+                                "name": "SparkNodeTreeModel"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "union",
+                            "types": [
+                              {
+                                "type": "intrinsic",
+                                "name": "void"
+                              },
+                              {
+                                "type": "reference",
+                                "name": "Promise",
+                                "typeArguments": [
+                                  {
+                                    "type": "intrinsic",
+                                    "name": "void"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "undo",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "redo",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/composables/useNodeKindFlags",
+    "sourcePath": "src/views/app/dev-system/composables/useNodeKindFlags.ts",
+    "sourceFile": "src/views/app/dev-system/composables/useNodeKindFlags.ts",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/composables/useNodeKindFlags",
+    "jsdoc": "@module app:views/app/dev-system/composables/useNodeKindFlags\n职责：从正式五种业务kind计算界面条件。\n边界：只读四组草稿kind，不按URL或树层级猜种类。\nAI用途：按module/page/embedded/service/content选择属性编辑控件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.636Z",
+  "models": {}
+}

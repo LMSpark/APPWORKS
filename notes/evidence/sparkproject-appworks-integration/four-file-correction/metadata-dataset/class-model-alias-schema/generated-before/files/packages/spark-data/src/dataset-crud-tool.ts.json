@@ -1,0 +1,3774 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:dataset-crud-tool",
+    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts",
+    "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "dataset-crud-tool",
+    "jsdoc": "@module @spark-appworks/spark-data:dataset-crud-tool\n职责：提供数据层 dataset-crud-tool 能力，围绕 DataSetCrudToolCreateTableOptions、DataSetCrudToolColumnUpdate、DataSetCrudToolUpdateTableOptions 等 33 个公开契约 描述 DataSet、DataTable、DataView、策略委托或数据绑定键。\n边界：保持框架无关，只处理数据模型、校验和本地策略，不依赖 Vue、路由或 Element Plus。\nAI用途：生成页面数据绑定、DataViewKey 或数据策略调用时，用本模块确认 dataset-crud-tool 的数据语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSetCrudTool"
+    ]
+  },
+  "$defs": {
+    "DataSetCrudToolCreateTableOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolCreateTableOptions",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "api": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/CrudApi"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "crudConfig": {
+          "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+        },
+        "views": {
+          "type": "object",
+          "title": "Record<string, ViewMetadata>"
+        }
+      },
+      "required": [
+        "tableName",
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolColumnUpdate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolColumnUpdate",
+      "properties": {
+        "columnName": {
+          "type": "string"
+        },
+        "updates": {
+          "$ref": "types.ts.json#/$defs/DataColumn"
+        }
+      },
+      "required": [
+        "columnName",
+        "updates"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateTableOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolUpdateTableOptions",
+      "properties": {
+        "columnsToAdd": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "columnUpdates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSetCrudToolColumnUpdate"
+          }
+        },
+        "columnsToRemove": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "api": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/CrudApi"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "crudConfig": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resourceType": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/TableResourceType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resourceId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "businessCategory": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/TableBusinessCategory"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "defaultRows": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataRow"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResourceRelationSelector": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResourceRelationSelector",
+      "properties": {
+        "parentTable": {
+          "type": "string"
+        },
+        "childTable": {
+          "type": "string"
+        },
+        "relationId": {
+          "type": "string"
+        },
+        "parentField": {
+          "type": "string"
+        },
+        "childField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "parentTable",
+        "childTable"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolTableNameParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolTableNameParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolReplaceFromJsonOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolReplaceFromJsonOptions",
+      "properties": {
+        "commitHistory": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSetCrudToolColumnSelectorParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolColumnSelectorParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "columnName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "columnName"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolCreateColumnParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolCreateColumnParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "column": {
+          "$ref": "types.ts.json#/$defs/DataColumn"
+        }
+      },
+      "required": [
+        "tableName",
+        "column"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateColumnParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolUpdateColumnParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "columnName": {
+          "type": "string"
+        },
+        "updates": {
+          "$ref": "types.ts.json#/$defs/DataColumn"
+        }
+      },
+      "required": [
+        "tableName",
+        "columnName",
+        "updates"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolRenameColumnParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolRenameColumnParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "columnName": {
+          "type": "string"
+        },
+        "newColumnName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "columnName",
+        "newColumnName"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateTableParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSetCrudToolUpdateTableParams",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "DataSetCrudToolTableNameParams"
+        },
+        {
+          "type": "object",
+          "title": "DataSetCrudToolUpdateTableOptions"
+        }
+      ],
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "columnsToAdd": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "columnUpdates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSetCrudToolColumnUpdate"
+          }
+        },
+        "columnsToRemove": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "api": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/CrudApi"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "crudConfig": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resourceType": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/TableResourceType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resourceId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "businessCategory": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/TableBusinessCategory"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "defaultRows": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataRow"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tableName"
+      ]
+    },
+    "DataSetCrudToolRenameTableParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolRenameTableParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "newTableName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "newTableName"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolViewSelectorParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolViewSelectorParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tableName"
+      ]
+    },
+    "DataSetCrudToolCreateViewParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolCreateViewParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "config": {
+          "$ref": "types.ts.json#/$defs/ViewMetadata"
+        }
+      },
+      "required": [
+        "tableName",
+        "viewId"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateViewParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolUpdateViewParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "updates": {
+          "$ref": "types.ts.json#/$defs/ViewMetadata"
+        }
+      },
+      "required": [
+        "tableName",
+        "updates"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolDeleteViewParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolDeleteViewParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "viewId"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolAggregateSelectorParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolAggregateSelectorParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "key"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolAddAggregateParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolAddAggregateParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "config": {
+          "$ref": "types.ts.json#/$defs/AggregateColumnConfig"
+        }
+      },
+      "required": [
+        "tableName",
+        "key",
+        "config"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateAggregateParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolUpdateAggregateParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "updates": {
+          "$ref": "types.ts.json#/$defs/AggregateColumnConfig"
+        }
+      },
+      "required": [
+        "tableName",
+        "key",
+        "updates"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolSetComputeExpressionParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolSetComputeExpressionParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "columnName": {
+          "type": "string"
+        },
+        "expression": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "columnName",
+        "expression"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolRowSelectorParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolRowSelectorParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "required": [
+        "tableName",
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolCreateRowParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolCreateRowParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "types.ts.json#/$defs/DataRow"
+        }
+      },
+      "required": [
+        "tableName",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolCreateRowsParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolCreateRowsParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataRow"
+          }
+        }
+      },
+      "required": [
+        "tableName",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateRowParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolUpdateRowParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "data": {
+          "$ref": "types.ts.json#/$defs/DataRow"
+        }
+      },
+      "required": [
+        "tableName",
+        "id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateRowsItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolUpdateRowsItem",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "data": {
+          "$ref": "types.ts.json#/$defs/DataRow"
+        }
+      },
+      "required": [
+        "id",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateRowsParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolUpdateRowsParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSetCrudToolUpdateRowsItem"
+          }
+        }
+      },
+      "required": [
+        "tableName",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolDeleteRowsParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolDeleteRowsParams",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "tableName",
+        "ids"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateResourceRelationParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolUpdateResourceRelationParams",
+      "properties": {
+        "selector": {
+          "$ref": "#/$defs/ResourceRelationSelector"
+        },
+        "updates": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
+        }
+      },
+      "required": [
+        "selector",
+        "updates"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolCreateCascadeParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolCreateCascadeParams",
+      "properties": {
+        "cascade": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
+        }
+      },
+      "required": [
+        "cascade"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolUpdateCascadeParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolUpdateCascadeParams",
+      "properties": {
+        "updates": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
+        }
+      },
+      "required": [
+        "updates"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCrudToolCascadeFilter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudToolCascadeFilter",
+      "properties": {
+        "kind": true
+      },
+      "additionalProperties": false
+    },
+    "DataSetCrudTool": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCrudTool",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSetName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromDataSet.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "anyOf": [
+                {
+                  "$ref": "dataset.ts.json#/$defs/DataSet"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromDataSet.return": {
+          "$ref": "#/$defs/DataSetCrudTool"
+        },
+        "method.fromJson.params": {
+          "type": "object",
+          "properties": {
+            "json": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataSetMetadata"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromJson.return": {
+          "$ref": "#/$defs/DataSetCrudTool"
+        },
+        "method.reconcileFromJson.params": {
+          "type": "object",
+          "properties": {
+            "snapshot": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataSetMetadata"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "current": {
+              "$ref": "#/$defs/DataSetCrudTool"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "preserveHistory": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.reconcileFromJson.return": {
+          "$ref": "#/$defs/DataSetCrudTool"
+        },
+        "method.toJson.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toJson.return": {
+          "$ref": "types.ts.json#/$defs/DataSetMetadata"
+        },
+        "method.getCanUndo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCanUndo.return": {
+          "type": "boolean"
+        },
+        "method.getCanRedo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCanRedo.return": {
+          "type": "boolean"
+        },
+        "method.getHistoryCursor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getHistoryCursor.return": {
+          "type": "number"
+        },
+        "method.undo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.undo.return": {
+          "type": "boolean"
+        },
+        "method.redo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.redo.return": {
+          "type": "boolean"
+        },
+        "method.clearHistory.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearHistory.return": true,
+        "method.replaceFromJson.params": {
+          "type": "object",
+          "properties": {
+            "snapshot": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataSetMetadata"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "options": {
+              "$ref": "#/$defs/DataSetCrudToolReplaceFromJsonOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceFromJson.return": true,
+        "method.listTables.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listTables.return": {
+          "type": "array",
+          "items": {
+            "$ref": "data-table.ts.json#/$defs/DataTable"
+          }
+        },
+        "method.getTable.params": {
+          "type": "object",
+          "properties": {
+            "tableNameOrParams": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "#/$defs/DataSetCrudToolTableNameParams"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getTable.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.listColumns.params": {
+          "type": "object",
+          "properties": {
+            "tableNameOrParams": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "#/$defs/DataSetCrudToolTableNameParams"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listColumns.return": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "method.getColumn.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolColumnSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getColumn.return": {
+          "$ref": "types.ts.json#/$defs/DataColumn"
+        },
+        "method.createColumn.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolCreateColumnParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createColumn.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.updateColumn.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolUpdateColumnParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateColumn.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.renameColumn.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolRenameColumnParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.renameColumn.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.deleteColumn.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolColumnSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteColumn.return": true,
+        "method.createTable.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DataSetCrudToolCreateTableOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createTable.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.updateTable.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolUpdateTableParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateTable.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.renameTable.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolRenameTableParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.renameTable.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.deleteTable.params": {
+          "type": "object",
+          "properties": {
+            "tableNameOrParams": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "#/$defs/DataSetCrudToolTableNameParams"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteTable.return": true,
+        "method.listViews.params": {
+          "type": "object",
+          "properties": {
+            "tableNameOrParams": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "#/$defs/DataSetCrudToolTableNameParams"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listViews.return": {
+          "type": "array",
+          "items": {
+            "$ref": "data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "method.getView.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolViewSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getView.return": {
+          "$ref": "data-view.ts.json#/$defs/DataView"
+        },
+        "method.createView.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolCreateViewParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createView.return": {
+          "$ref": "data-view.ts.json#/$defs/DataView"
+        },
+        "method.updateView.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolUpdateViewParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateView.return": {
+          "$ref": "data-view.ts.json#/$defs/DataView"
+        },
+        "method.deleteView.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolDeleteViewParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteView.return": true,
+        "method.listAggregates.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolViewSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listAggregates.return": {
+          "type": "object",
+          "title": "Record<string, AggregateColumnConfig>"
+        },
+        "method.getAggregate.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolAggregateSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getAggregate.return": {
+          "$ref": "types.ts.json#/$defs/AggregateColumnConfig"
+        },
+        "method.addAggregate.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolAddAggregateParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addAggregate.return": true,
+        "method.updateAggregate.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolUpdateAggregateParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateAggregate.return": true,
+        "method.removeAggregate.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolAggregateSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeAggregate.return": true,
+        "method.getComputeExpression.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolColumnSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getComputeExpression.return": {
+          "type": "string"
+        },
+        "method.setComputeExpression.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolSetComputeExpressionParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setComputeExpression.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.clearComputeExpression.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolColumnSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.clearComputeExpression.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
+        "method.listRows.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolViewSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listRows.return": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataRow"
+          }
+        },
+        "method.getRow.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolRowSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getRow.return": {
+          "$ref": "types.ts.json#/$defs/DataRow"
+        },
+        "method.createRow.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolCreateRowParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createRow.return": {
+          "type": "object",
+          "title": "Promise<DataRow | CrudResult<DataRow>>"
+        },
+        "method.createRows.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolCreateRowsParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createRows.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<BatchResult>>"
+        },
+        "method.updateRow.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolUpdateRowParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateRow.return": {
+          "type": "object",
+          "title": "Promise<boolean | CrudResult<DataRow>>"
+        },
+        "method.updateRows.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolUpdateRowsParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateRows.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<BatchResult>>"
+        },
+        "method.deleteRow.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolRowSelectorParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteRow.return": {
+          "type": "object",
+          "title": "Promise<boolean | CrudResult<boolean>>"
+        },
+        "method.deleteRows.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolDeleteRowsParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteRows.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<BatchResult>>"
+        },
+        "method.listResourceRelations.params": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "type": "object",
+              "title": "Pick<DataResourceRelation, 'parentTable' | 'childTable'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listResourceRelations.return": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataResourceRelation"
+          }
+        },
+        "method.getResourceRelation.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "$ref": "#/$defs/ResourceRelationSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getResourceRelation.return": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
+        },
+        "method.createResourceRelation.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "types.ts.json#/$defs/DataResourceRelationInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createResourceRelation.return": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
+        },
+        "method.updateResourceRelation.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolUpdateResourceRelationParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateResourceRelation.return": {
+          "$ref": "types.ts.json#/$defs/DataResourceRelation"
+        },
+        "method.deleteResourceRelation.params": {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "$ref": "#/$defs/ResourceRelationSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteResourceRelation.return": true,
+        "method.listCascades.params": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "$ref": "#/$defs/DataSetCrudToolCascadeFilter"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listCascades.return": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataViewCascade"
+          }
+        },
+        "method.getCascade.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "types.ts.json#/$defs/DataViewCascadeSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
+        },
+        "method.createCascade.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolCreateCascadeParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
+        },
+        "method.updateCascade.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "#/$defs/DataSetCrudToolUpdateCascadeParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateCascade.return": {
+          "$ref": "types.ts.json#/$defs/DataViewCascade"
+        },
+        "method.deleteCascade.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "types.ts.json#/$defs/DataViewCascadeSelector"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteCascade.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T19:28:48.777Z",
+  "models": {
+    "DataSetCrudToolCreateTableOptions": {
+      "name": "DataSetCrudToolCreateTableOptions",
+      "jsdoc": "创建数据表时的输入参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "TableSemanticMetadata & {\n    /**\n       * 表名。\n       * 在同一个 DataSet 内必须唯一，后续所有表级 CRUD 都以它为入口。\n       */\n    tableName: string;\n    /**\n     * 初始列定义。\n     */\n    columns: DataColumn[];\n    /**\n     * 可选的 CRUD API 配置。\n     * 传入后，表及其视图可直接走远端 CRUD 能力。\n     */\n    api?: CrudApi | string | boolean;\n    /**\n     * 可选的 CRUD 运行配置。\n     */\n    crudConfig?: CrudOperationConfig;\n    /**\n     * 需要一起创建或初始化的视图配置。\n     * 其中 default 视图不会新建，只会复用建表时自动创建的实例并应用配置。\n     */\n    views?: Record<string, ViewMetadata>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "TableSemanticMetadata",
+            "targetName": "TableSemanticMetadata"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /**\n       * 表名。\n       * 在同一个 DataSet 内必须唯一，后续所有表级 CRUD 都以它为入口。\n       */\n    tableName: string;\n    /**\n     * 初始列定义。\n     */\n    columns: DataColumn[];\n    /**\n     * 可选的 CRUD API 配置。\n     * 传入后，表及其视图可直接走远端 CRUD 能力。\n     */\n    api?: CrudApi | string | boolean;\n    /**\n     * 可选的 CRUD 运行配置。\n     */\n    crudConfig?: CrudOperationConfig;\n    /**\n     * 需要一起创建或初始化的视图配置。\n     * 其中 default 视图不会新建，只会复用建表时自动创建的实例并应用配置。\n     */\n    views?: Record<string, ViewMetadata>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "表名。\n在同一个 DataSet 内必须唯一，后续所有表级 CRUD 都以它为入口。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "columns",
+              "jsdoc": "初始列定义。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "api",
+              "jsdoc": "可选的 CRUD API 配置。\n传入后，表及其视图可直接走远端 CRUD 能力。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "crudConfig",
+              "jsdoc": "可选的 CRUD 运行配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "jsdoc": "需要一起创建或初始化的视图配置。\n其中 default 视图不会新建，只会复用建表时自动创建的实例并应用配置。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolColumnUpdate": {
+      "name": "DataSetCrudToolColumnUpdate",
+      "jsdoc": "字段更新项。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 要更新的列名。 */\n    columnName: string;\n    /** 要合并到列定义上的字段更新；不应包含 name 重命名。 */\n    updates: Partial<DataColumn>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "columnName",
+              "jsdoc": "要更新的列名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "updates",
+              "jsdoc": "要合并到列定义上的字段更新；不应包含 name 重命名。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateTableOptions": {
+      "name": "DataSetCrudToolUpdateTableOptions",
+      "jsdoc": "更新数据表时的输入参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 需要新增的列。\n     * 内部统一走 DataTable.addColumns，保证 validator 与 DataView 列缓存同步刷新。\n     */\n    columnsToAdd?: DataColumn[];\n    /**\n     * 需要更新的列定义。\n     */\n    columnUpdates?: DataSetCrudToolColumnUpdate[];\n    /**\n     * 需要删除的列名列表。\n     */\n    columnsToRemove?: string[];\n    /**\n     * 新的 CRUD API 配置。\n     */\n    api?: CrudApi | string | boolean;\n    /**\n     * 新的 CRUD 运行配置。\n     * 传入 null 表示显式移除已有 crudConfig。\n     */\n    crudConfig?: CrudOperationConfig | null;\n    /**\n     * 新的资源类型。\n     * 传入 null 表示显式清空已有 resourceType。\n     */\n    resourceType?: TableResourceType | null;\n    /**\n     * 新的资源 ID。\n     * 传入 null 表示显式清空已有 resourceId。\n     */\n    resourceId?: string | null;\n    /**\n     * 新的业务分类。\n     * 传入 null 表示显式清空已有 businessCategory。\n     */\n    businessCategory?: TableBusinessCategory | null;\n    /**\n     * default 视图需要替换的整批行数据。\n     */\n    defaultRows?: DataRow[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "columnsToAdd",
+              "jsdoc": "需要新增的列。\n内部统一走 DataTable.addColumns，保证 validator 与 DataView 列缓存同步刷新。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columnUpdates",
+              "jsdoc": "需要更新的列定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columnsToRemove",
+              "jsdoc": "需要删除的列名列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "api",
+              "jsdoc": "新的 CRUD API 配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "crudConfig",
+              "jsdoc": "新的 CRUD 运行配置。\n传入 null 表示显式移除已有 crudConfig。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceType",
+              "jsdoc": "新的资源类型。\n传入 null 表示显式清空已有 resourceType。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "jsdoc": "新的资源 ID。\n传入 null 表示显式清空已有 resourceId。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessCategory",
+              "jsdoc": "新的业务分类。\n传入 null 表示显式清空已有 businessCategory。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultRows",
+              "jsdoc": "default 视图需要替换的整批行数据。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResourceRelationSelector": {
+      "name": "ResourceRelationSelector",
+      "jsdoc": "关系选择器。\n默认可用 parentTable + childTable 定位；当同一父子表之间存在多条关系时，\n需要继续提供 parentField / childField 做字段级消歧。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 父表表名。 */\n    parentTable: string;\n    /** 子表表名。 */\n    childTable: string;\n    /** 稳定关系 ID；存在多条同端点关系时用于精确定位。 */\n    relationId?: string;\n    /** 父表关联字段；同一父子表存在多条关系时用于消歧。 */\n    parentField?: string;\n    /** 子表关联字段；同一父子表存在多条关系时用于消歧。 */\n    childField?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "parentTable",
+              "jsdoc": "父表表名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "childTable",
+              "jsdoc": "子表表名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "relationId",
+              "jsdoc": "稳定关系 ID；存在多条同端点关系时用于精确定位。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentField",
+              "jsdoc": "父表关联字段；同一父子表存在多条关系时用于消歧。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childField",
+              "jsdoc": "子表关联字段；同一父子表存在多条关系时用于消歧。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolTableNameParams": {
+      "name": "DataSetCrudToolTableNameParams",
+      "jsdoc": "表名参数对象。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 表名。 */\n    tableName: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "表名。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolReplaceFromJsonOptions": {
+      "name": "DataSetCrudToolReplaceFromJsonOptions",
+      "jsdoc": "外部快照替换选项。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 是否将替换结果写入历史栈，默认 true。 */\n    commitHistory?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "commitHistory",
+              "jsdoc": "是否将替换结果写入历史栈，默认 true。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolColumnSelectorParams": {
+      "name": "DataSetCrudToolColumnSelectorParams",
+      "jsdoc": "表字段定位参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolTableNameParams & {\n    /** 列名。 */\n    columnName: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolTableNameParams",
+            "targetName": "DataSetCrudToolTableNameParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 列名。 */\n    columnName: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "columnName",
+              "jsdoc": "列名。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolCreateColumnParams": {
+      "name": "DataSetCrudToolCreateColumnParams",
+      "jsdoc": "新增字段参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolTableNameParams & {\n    /** 新列定义。 */\n    column: DataColumn;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolTableNameParams",
+            "targetName": "DataSetCrudToolTableNameParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 新列定义。 */\n    column: DataColumn;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "column",
+              "jsdoc": "新列定义。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateColumnParams": {
+      "name": "DataSetCrudToolUpdateColumnParams",
+      "jsdoc": "更新字段参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolColumnSelectorParams & {\n    /** 要合并到现有列定义上的更新内容。 */\n    updates: Partial<DataColumn>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolColumnSelectorParams",
+            "targetName": "DataSetCrudToolColumnSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 要合并到现有列定义上的更新内容。 */\n    updates: Partial<DataColumn>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "updates",
+              "jsdoc": "要合并到现有列定义上的更新内容。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolRenameColumnParams": {
+      "name": "DataSetCrudToolRenameColumnParams",
+      "jsdoc": "重命名字段参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolColumnSelectorParams & {\n    /** 新列名。 */\n    newColumnName: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolColumnSelectorParams",
+            "targetName": "DataSetCrudToolColumnSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 新列名。 */\n    newColumnName: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "newColumnName",
+              "jsdoc": "新列名。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateTableParams": {
+      "name": "DataSetCrudToolUpdateTableParams",
+      "jsdoc": "更新表参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolTableNameParams & DataSetCrudToolUpdateTableOptions",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolTableNameParams",
+            "targetName": "DataSetCrudToolTableNameParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolUpdateTableOptions",
+            "targetName": "DataSetCrudToolUpdateTableOptions"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSetCrudToolRenameTableParams": {
+      "name": "DataSetCrudToolRenameTableParams",
+      "jsdoc": "重命名表参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolTableNameParams & {\n    /** 新表名。 */\n    newTableName: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolTableNameParams",
+            "targetName": "DataSetCrudToolTableNameParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 新表名。 */\n    newTableName: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "newTableName",
+              "jsdoc": "新表名。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolViewSelectorParams": {
+      "name": "DataSetCrudToolViewSelectorParams",
+      "jsdoc": "视图定位参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolTableNameParams & {\n    /** 视图 ID；省略时使用 default 视图。 */\n    viewId?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolTableNameParams",
+            "targetName": "DataSetCrudToolTableNameParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 视图 ID；省略时使用 default 视图。 */\n    viewId?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "viewId",
+              "jsdoc": "视图 ID；省略时使用 default 视图。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolCreateViewParams": {
+      "name": "DataSetCrudToolCreateViewParams",
+      "jsdoc": "创建视图参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolTableNameParams & {\n    /** 新视图 ID。 */\n    viewId: string;\n    /** 可选视图配置。 */\n    config?: ViewMetadata;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolTableNameParams",
+            "targetName": "DataSetCrudToolTableNameParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 新视图 ID。 */\n    viewId: string;\n    /** 可选视图配置。 */\n    config?: ViewMetadata;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "viewId",
+              "jsdoc": "新视图 ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "config",
+              "jsdoc": "可选视图配置。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateViewParams": {
+      "name": "DataSetCrudToolUpdateViewParams",
+      "jsdoc": "更新视图参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolViewSelectorParams & {\n    /** 要合并到视图配置上的更新内容。 */\n    updates: Partial<ViewMetadata>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolViewSelectorParams",
+            "targetName": "DataSetCrudToolViewSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 要合并到视图配置上的更新内容。 */\n    updates: Partial<ViewMetadata>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "updates",
+              "jsdoc": "要合并到视图配置上的更新内容。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolDeleteViewParams": {
+      "name": "DataSetCrudToolDeleteViewParams",
+      "jsdoc": "删除视图参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolTableNameParams & {\n    /** 要删除的视图 ID。 */\n    viewId: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolTableNameParams",
+            "targetName": "DataSetCrudToolTableNameParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 要删除的视图 ID。 */\n    viewId: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "viewId",
+              "jsdoc": "要删除的视图 ID。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolAggregateSelectorParams": {
+      "name": "DataSetCrudToolAggregateSelectorParams",
+      "jsdoc": "聚合配置定位参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolViewSelectorParams & {\n    /** 聚合配置 key，即 aggregateResult 的输出字段名。 */\n    key: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolViewSelectorParams",
+            "targetName": "DataSetCrudToolViewSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 聚合配置 key，即 aggregateResult 的输出字段名。 */\n    key: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "jsdoc": "聚合配置 key，即 aggregateResult 的输出字段名。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolAddAggregateParams": {
+      "name": "DataSetCrudToolAddAggregateParams",
+      "jsdoc": "新增聚合参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolAggregateSelectorParams & {\n    /** 聚合列配置。 */\n    config: AggregateColumnConfig;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolAggregateSelectorParams",
+            "targetName": "DataSetCrudToolAggregateSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 聚合列配置。 */\n    config: AggregateColumnConfig;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "jsdoc": "聚合列配置。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateAggregateParams": {
+      "name": "DataSetCrudToolUpdateAggregateParams",
+      "jsdoc": "更新聚合参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolAggregateSelectorParams & {\n    /** 要合并到聚合配置上的更新内容。 */\n    updates: Partial<AggregateColumnConfig>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolAggregateSelectorParams",
+            "targetName": "DataSetCrudToolAggregateSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 要合并到聚合配置上的更新内容。 */\n    updates: Partial<AggregateColumnConfig>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "updates",
+              "jsdoc": "要合并到聚合配置上的更新内容。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolSetComputeExpressionParams": {
+      "name": "DataSetCrudToolSetComputeExpressionParams",
+      "jsdoc": "设置计算表达式参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolColumnSelectorParams & {\n    /** 新计算表达式。 */\n    expression: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolColumnSelectorParams",
+            "targetName": "DataSetCrudToolColumnSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 新计算表达式。 */\n    expression: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "expression",
+              "jsdoc": "新计算表达式。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolRowSelectorParams": {
+      "name": "DataSetCrudToolRowSelectorParams",
+      "jsdoc": "行定位参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolViewSelectorParams & {\n    /** 行主键值。 */\n    id: string | number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolViewSelectorParams",
+            "targetName": "DataSetCrudToolViewSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 行主键值。 */\n    id: string | number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "行主键值。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolCreateRowParams": {
+      "name": "DataSetCrudToolCreateRowParams",
+      "jsdoc": "新增行参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolViewSelectorParams & {\n    /** 新行数据。 */\n    data: Partial<DataRow>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolViewSelectorParams",
+            "targetName": "DataSetCrudToolViewSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 新行数据。 */\n    data: Partial<DataRow>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "data",
+              "jsdoc": "新行数据。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolCreateRowsParams": {
+      "name": "DataSetCrudToolCreateRowsParams",
+      "jsdoc": "批量新增行参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolViewSelectorParams & {\n    /** 待新增的行数据列表。 */\n    items: Array<Partial<DataRow>>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolViewSelectorParams",
+            "targetName": "DataSetCrudToolViewSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 待新增的行数据列表。 */\n    items: Array<Partial<DataRow>>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "jsdoc": "待新增的行数据列表。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateRowParams": {
+      "name": "DataSetCrudToolUpdateRowParams",
+      "jsdoc": "更新行参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolRowSelectorParams & {\n    /** 要合并到目标行上的字段更新。 */\n    data: Partial<DataRow>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolRowSelectorParams",
+            "targetName": "DataSetCrudToolRowSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 要合并到目标行上的字段更新。 */\n    data: Partial<DataRow>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "data",
+              "jsdoc": "要合并到目标行上的字段更新。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateRowsItem": {
+      "name": "DataSetCrudToolUpdateRowsItem",
+      "jsdoc": "批量更新行的单条输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 目标行主键值。 */\n    id: string | number;\n    /** 要合并到目标行上的字段更新。 */\n    data: Partial<DataRow>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "目标行主键值。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "jsdoc": "要合并到目标行上的字段更新。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateRowsParams": {
+      "name": "DataSetCrudToolUpdateRowsParams",
+      "jsdoc": "批量更新行参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolViewSelectorParams & {\n    /** 待更新的行列表。 */\n    items: DataSetCrudToolUpdateRowsItem[];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolViewSelectorParams",
+            "targetName": "DataSetCrudToolViewSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 待更新的行列表。 */\n    items: DataSetCrudToolUpdateRowsItem[];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "items",
+              "jsdoc": "待更新的行列表。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolDeleteRowsParams": {
+      "name": "DataSetCrudToolDeleteRowsParams",
+      "jsdoc": "批量删除行参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSetCrudToolViewSelectorParams & {\n    /** 待删除行的主键值列表。 */\n    ids: Array<string | number>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSetCrudToolViewSelectorParams",
+            "targetName": "DataSetCrudToolViewSelectorParams"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 待删除行的主键值列表。 */\n    ids: Array<string | number>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ids",
+              "jsdoc": "待删除行的主键值列表。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateResourceRelationParams": {
+      "name": "DataSetCrudToolUpdateResourceRelationParams",
+      "jsdoc": "更新表关系参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 用于定位原关系的选择器。 */\n    selector: ResourceRelationSelector;\n    /** 要合并到关系定义上的更新内容。 */\n    updates: Partial<DataResourceRelation>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "selector",
+              "jsdoc": "用于定位原关系的选择器。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "updates",
+              "jsdoc": "要合并到关系定义上的更新内容。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolCreateCascadeParams": {
+      "name": "DataSetCrudToolCreateCascadeParams",
+      "jsdoc": "创建 DataView 输入级联参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 新 DataView 输入级联定义。 */\n    cascade: DataViewCascade;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "cascade",
+              "jsdoc": "新 DataView 输入级联定义。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolUpdateCascadeParams": {
+      "name": "DataSetCrudToolUpdateCascadeParams",
+      "jsdoc": "更新 DataView 输入级联参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataViewCascadeSelector & {\n    /** 要合并到级联定义上的更新内容。 */\n    updates: Partial<DataViewCascade>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataViewCascadeSelector",
+            "targetName": "DataViewCascadeSelector"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 要合并到级联定义上的更新内容。 */\n    updates: Partial<DataViewCascade>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "updates",
+              "jsdoc": "要合并到级联定义上的更新内容。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudToolCascadeFilter": {
+      "name": "DataSetCrudToolCascadeFilter",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Partial<Pick<DataViewQueryCascade, 'parentTable' | 'childTable'>> & {\n    kind?: DataViewCascade['kind'];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Partial<Pick<DataViewQueryCascade, 'parentTable' | 'childTable'>>",
+            "targetName": "Partial"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    kind?: DataViewCascade['kind'];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCrudTool": {
+      "name": "DataSetCrudTool",
+      "jsdoc": "DataSet 级统一 CRUD facade。\n设计目标：\n1. 构造时只要求 dataSetName，外部无需先手动拼装 DataSet。\n2. 统一收口表、列、视图、行、关系、依赖这几类对象的常用操作。\n3. 全部复用现有 DataSet/DataTable/DataView 能力，避免再造第二套状态模型。\n4. 所有公开方法统一使用单一对象参数，便于 LLM / 动态调度直接传 JSON object。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建一个绑定到指定 dataSetName 的统一 CRUD 工具。\n@param dataSetName DataSet 名称。",
+          "signatureText": "constructor(dataSetName: string)",
+          "parameters": [
+            {
+              "name": "dataSetName",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "fromDataSet",
+              "jsdoc": "从已有 DataSet 实例或 JSON 快照创建工具类。",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSet",
+                        "sourcePath": "packages/spark-data/src/dataset.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetCrudTool",
+                "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+              }
+            },
+            {
+              "name": "fromJson",
+              "jsdoc": "从 JSON 元数据创建工具类。",
+              "parameters": [
+                {
+                  "name": "json",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSetMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetCrudTool",
+                "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+              }
+            },
+            {
+              "name": "reconcileFromJson",
+              "jsdoc": "以模型层方式合并外部快照。\n- 无当前工具时：创建新工具（历史从快照初始化）。\n- preserveHistory=false：重建工具并重置历史。\n- preserveHistory=true：在当前历史链中提交快照，支持 undo/redo。",
+              "parameters": [
+                {
+                  "name": "snapshot",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSetMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "current",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudTool",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "unknown",
+                    "name": "{\n        preserveHistory?: boolean;\n    }"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetCrudTool",
+                "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+              }
+            },
+            {
+              "name": "toJson",
+              "jsdoc": "将当前 DataSet 序列化为元数据对象。\n@returns 可用于持久化或传输的 DataSet 元数据。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSetMetadata",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "getCanUndo",
+              "jsdoc": "查询当前数据集历史是否可撤销。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getCanRedo",
+              "jsdoc": "查询当前数据集历史是否可重做。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getHistoryCursor",
+              "jsdoc": "查询当前数据集历史栈游标位置。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "undo",
+              "jsdoc": "撤销最近一次结构写操作。\n成功时替换内部 DataSet 并返回 true；无可撤销时返回 false。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "redo",
+              "jsdoc": "重做最近一次被撤销的操作。\n成功时替换内部 DataSet 并返回 true；无可重做时返回 false。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "clearHistory",
+              "jsdoc": "清空当前数据集的 undo/redo 历史，只保留当前快照作为新的历史起点。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "replaceFromJson",
+              "jsdoc": "用外部快照替换当前 DataSet。\n默认会把替换结果压入历史栈，确保该替换可被撤销/重做。\n@param snapshot 外部 DataSet 元数据快照。\n@param options 替换写入选项。",
+              "parameters": [
+                {
+                  "name": "snapshot",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSetMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolReplaceFromJsonOptions",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "listTables",
+              "jsdoc": "列出当前 DataSet 中的全部数据表。\n@returns 数据表实例列表。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataTable",
+                  "sourcePath": "packages/spark-data/src/data-table.ts"
+                }
+              }
+            },
+            {
+              "name": "getTable",
+              "jsdoc": "获取指定数据表。\n@param tableNameOrParams 表名字符串或表名参数对象。\n@param tableName 表名。\n@returns 命中的 DataTable；不存在时返回 undefined。",
+              "parameters": [
+                {
+                  "name": "tableNameOrParams",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "DataSetCrudToolTableNameParams",
+                        "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataTable",
+                  "sourcePath": "packages/spark-data/src/data-table.ts"
+                }
+              }
+            },
+            {
+              "name": "listColumns",
+              "jsdoc": "列出指定数据表的全部列定义。\n@param tableNameOrParams 表名字符串或表名参数对象。\n@param tableName 表名。\n@returns 列定义副本列表。\n@throws 当表不存在时抛错。",
+              "parameters": [
+                {
+                  "name": "tableNameOrParams",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "DataSetCrudToolTableNameParams",
+                        "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataColumn",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "getColumn",
+              "jsdoc": "获取指定数据表中的单个列定义。\n@param params 字段定位参数。\n@param tableName 表名。\n@param columnName 列名。\n@returns 命中的列定义；不存在时返回 undefined。\n@throws 当表不存在时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolColumnSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataColumn",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "createColumn",
+              "jsdoc": "向指定数据表追加一列。\n@param params 字段新增参数。\n@param tableName 表名。\n@param column 新列定义。\n@returns 更新后的 DataTable。\n@throws 当表不存在或列定义非法时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolCreateColumnParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "updateColumn",
+              "jsdoc": "更新指定列定义。\n@param params 字段更新参数。\n@param tableName 表名。\n@param columnName 列名。\n@param updates 需要合并到现有列定义中的更新内容。\n@returns 更新后的 DataTable。\n@throws 当表或列不存在时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolUpdateColumnParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "renameColumn",
+              "jsdoc": "重命名指定字段，并迁移行数据、视图字段引用和表关系字段引用。\n@param params 字段重命名参数。\n@returns 重命名后的 DataTable。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolRenameColumnParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "deleteColumn",
+              "jsdoc": "删除指定列。\n@param params 字段定位参数。\n@param tableName 表名。\n@param columnName 列名。\n@throws 当表或列不存在时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolColumnSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "createTable",
+              "jsdoc": "创建数据表并按需初始化资源语义、API、CRUD 配置和视图。\n@param options 建表参数。\n@returns 新创建的数据表实例。\n@throws 当表已存在或配置非法时抛错。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolCreateTableOptions",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "updateTable",
+              "jsdoc": "更新数据表结构、资源语义及运行配置。\n@param params 表更新参数。\n@param tableName 表名。\n@param updates 更新内容。\n@returns 更新后的 DataTable。\n@throws 当表不存在或某项结构更新非法时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolUpdateTableParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "renameTable",
+              "jsdoc": "重命名数据表，并迁移视图 tableName、关系、依赖和布局位置引用。\n@param params 表重命名参数。\n@returns 重命名后的 DataTable。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolRenameTableParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "deleteTable",
+              "jsdoc": "删除指定数据表。\n@param tableNameOrParams 表名字符串或表名参数对象。\n@param tableName 表名。\n@throws 当表不存在，或仍被 resource relation / view cascade 引用时抛错。",
+              "parameters": [
+                {
+                  "name": "tableNameOrParams",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "DataSetCrudToolTableNameParams",
+                        "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "listViews",
+              "jsdoc": "列出某个数据表下的全部视图。\n@param tableNameOrParams 表名字符串或表名参数对象。\n@param tableName 表名。\n@returns 视图实例列表。\n@throws 当表不存在时抛错。",
+              "parameters": [
+                {
+                  "name": "tableNameOrParams",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "DataSetCrudToolTableNameParams",
+                        "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataView",
+                  "sourcePath": "packages/spark-data/src/data-view.ts"
+                }
+              }
+            },
+            {
+              "name": "getView",
+              "jsdoc": "获取指定视图。\n@param params 视图定位参数。\n@param tableName 表名。\n@param viewId 视图 ID，默认 default。\n@returns 视图实例；不存在时返回 undefined。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolViewSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataView",
+                  "sourcePath": "packages/spark-data/src/data-view.ts"
+                }
+              }
+            },
+            {
+              "name": "createView",
+              "jsdoc": "创建一个非 default 视图。\n@param params 视图创建参数。\n@param tableName 表名。\n@param viewId 视图 ID。\n@param config 视图初始配置。\n@returns 新创建的视图实例。\n@throws 当表不存在，或试图创建 default 视图时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolCreateViewParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "updateView",
+              "jsdoc": "更新指定视图的元数据配置。\n@param params 视图更新参数。\n@param tableName 表名。\n@param viewId 视图 ID。\n@param updates 要应用的视图配置。\n@returns 更新后的视图实例。\n@throws 当表或视图不存在时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolUpdateViewParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "deleteView",
+              "jsdoc": "删除指定视图。\n@param params 视图删除参数。\n@param tableName 表名。\n@param viewId 视图 ID。\n@throws 当表不存在，或试图删除 default 视图时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolDeleteViewParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "listAggregates",
+              "jsdoc": "列出指定视图的全部聚合配置。\n@param params 聚合查询参数。\n@returns 聚合 key 到聚合配置的映射。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolViewSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "AggregateColumnConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getAggregate",
+              "jsdoc": "读取指定视图中的单个聚合配置。\n@param params 聚合定位参数。\n@returns 命中的聚合配置；不存在时返回 undefined。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolAggregateSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "AggregateColumnConfig",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "addAggregate",
+              "jsdoc": "向指定视图新增一个聚合配置。\n@param params 聚合创建参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolAddAggregateParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "updateAggregate",
+              "jsdoc": "更新指定视图中的聚合配置。\n@param params 聚合更新参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolUpdateAggregateParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "removeAggregate",
+              "jsdoc": "删除指定视图中的聚合配置。\n@param params 聚合删除参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolAggregateSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getComputeExpression",
+              "jsdoc": "读取指定字段的计算表达式。\n@param params 字段定位参数。\n@returns 字段计算表达式；未设置时返回 undefined。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolColumnSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "setComputeExpression",
+              "jsdoc": "设置指定字段的计算表达式。\n@param params 计算表达式设置参数。\n@returns 更新后的 DataTable。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolSetComputeExpressionParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "clearComputeExpression",
+              "jsdoc": "清除指定字段的计算表达式。\n@param params 字段定位参数。\n@returns 更新后的 DataTable。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolColumnSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "listRows",
+              "jsdoc": "列出指定视图当前持有的全部行。\n@param params 视图定位参数。\n@param tableName 表名。\n@param viewId 视图 ID，默认 default。\n@returns 行数组副本。\n@throws 当表或视图不存在时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolViewSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "getRow",
+              "jsdoc": "通过主键查找一条行数据。\n@param params 行定位参数。\n@param tableName 表名。\n@param id 主键值。\n@param viewId 视图 ID，默认 default。\n@returns 命中的行；不存在时返回 undefined。\n@throws 当表或视图不存在时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolRowSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "createRow",
+              "jsdoc": "在指定视图中创建一条新行。\n@param params 新增行参数。\n@param tableName 表名。\n@param data 新行数据。\n@param viewId 视图 ID，默认 default。\n@returns 本地模式下通常返回 DataRow；远端 CRUD 模式下可能返回 CrudResult。\n@throws 当表或视图不存在，或创建失败时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolCreateRowParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "CrudResult",
+                        "sourcePath": "packages/spark-data/src/types.ts",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "DataRow",
+                            "sourcePath": "packages/spark-data/src/types.ts"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createRows",
+              "jsdoc": "在指定视图中批量创建多条新行。\n- immediate + API 模式：优先走 view.crud.batchCreateRecords\n- 其余模式：逐条复用 view.addRow，并统一收口为 BatchResult\n@param params 批量新增行参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolCreateRowsParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "BatchResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateRow",
+              "jsdoc": "更新指定主键的行数据。\n@param params 更新行参数。\n@param tableName 表名。\n@param id 主键值。\n@param data 要合并的字段更新。\n@param viewId 视图 ID，默认 default。\n@returns 本地模式下通常返回 boolean；远端 CRUD 模式下可能返回 CrudResult。\n@throws 当表或视图不存在，或更新失败时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolUpdateRowParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "CrudResult",
+                        "sourcePath": "packages/spark-data/src/types.ts",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "DataRow",
+                            "sourcePath": "packages/spark-data/src/types.ts"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateRows",
+              "jsdoc": "批量更新多条行数据。\n对话侧统一传 id + data，底层再按视图主键字段拼装 batchUpdate payload。\n@param params 批量更新行参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolUpdateRowsParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "BatchResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteRow",
+              "jsdoc": "删除指定主键的行数据。\n@param params 删除行参数。\n@param tableName 表名。\n@param id 主键值。\n@param viewId 视图 ID，默认 default。\n@returns 本地模式下通常返回 boolean；远端 CRUD 模式下可能返回 CrudResult。\n@throws 当表或视图不存在，或删除失败时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolRowSelectorParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "CrudResult",
+                        "sourcePath": "packages/spark-data/src/types.ts",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "deleteRows",
+              "jsdoc": "批量删除多条行数据。\n@param params 批量删除行参数。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolDeleteRowsParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "BatchResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listResourceRelations",
+              "jsdoc": "列出 DataSet 中的表关系。\n@param filter 可选过滤条件，仅支持按 parentTable / childTable 过滤。\n@returns 关系列表。",
+              "parameters": [
+                {
+                  "name": "filter",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Pick",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "DataResourceRelation",
+                            "sourcePath": "packages/spark-data/src/types.ts"
+                          },
+                          {
+                            "type": "union",
+                            "types": [
+                              {
+                                "type": "literal",
+                                "value": "parentTable"
+                              },
+                              {
+                                "type": "literal",
+                                "value": "childTable"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataResourceRelation",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "getResourceRelation",
+              "jsdoc": "获取单条表关系。\n@param selector 关系选择器。\n@returns 命中的表关系；不存在时返回 undefined。\n@throws 当 selector 命中多条关系且未通过 relationId 消歧时抛错。",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "ResourceRelationSelector",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataResourceRelation",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "createResourceRelation",
+              "jsdoc": "创建一条表关系。\n@param params 关系参数。\n@returns 新创建的表关系。\n@throws 当父表、子表、字段不存在或关系重复时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataResourceRelationInput",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataResourceRelation",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "updateResourceRelation",
+              "jsdoc": "更新一条表关系。\n@param params 关系更新参数。\n@param selector 用于定位原关系的选择器。\n@param updates 关系更新内容。\n@returns 更新后的表关系。\n@throws 当关系不存在、选择器不唯一或更新后关系非法时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolUpdateResourceRelationParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataResourceRelation",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "deleteResourceRelation",
+              "jsdoc": "删除一条表关系。\n@param selector 关系选择器。\n@throws 当关系不存在，或定位到多条关系时抛错。",
+              "parameters": [
+                {
+                  "name": "selector",
+                  "type": {
+                    "type": "reference",
+                    "name": "ResourceRelationSelector",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "listCascades",
+              "jsdoc": "列出 DataSet 中的 DataView 输入级联。\n@param filter 按类型、父输入表或子选项表过滤；省略时包含全部级联。\n@returns 级联列表。",
+              "parameters": [
+                {
+                  "name": "filter",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolCascadeFilter",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataViewCascade",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "getCascade",
+              "jsdoc": "获取一条 DataView 输入级联。\n@param params 级联定位参数。\n@returns 命中的级联；不存在时返回 undefined。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataViewCascade",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "createCascade",
+              "jsdoc": "创建一条 DataView 输入级联。\n@param params 级联参数。\n@returns 新创建的级联。\n@throws 当级联引用非法时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolCreateCascadeParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewCascade",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "updateCascade",
+              "jsdoc": "更新一条 DataView 输入级联。\n@param params 级联更新参数。\n@returns 更新后的级联。\n@throws 当级联不存在或更新目标非法时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetCrudToolUpdateCascadeParams",
+                    "sourcePath": "packages/spark-data/src/dataset-crud-tool.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewCascade",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "deleteCascade",
+              "jsdoc": "删除一条 DataView 输入级联。\n@param params 级联定位参数。\n@throws 当级联不存在时抛错。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewCascadeSelector",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

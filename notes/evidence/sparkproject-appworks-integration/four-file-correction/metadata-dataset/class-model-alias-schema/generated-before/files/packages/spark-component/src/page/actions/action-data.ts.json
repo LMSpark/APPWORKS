@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/actions/action-data",
+    "sourcePath": "packages/spark-component/src/page/actions/action-data.ts",
+    "sourceFile": "packages/spark-component/src/page/actions/action-data.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/actions/action-data",
+    "jsdoc": "@module @spark-appworks/spark-component:page/actions/action-data\n职责：提供 action data 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n数据变更动作执行器\n负责执行所有涉及 DataView CRUD 操作的动作描述符：\nappend-row / delete / patch / move / message-row / refresh / clear-rows / set-field / submit-current-form\n单一真源：BuiltinAction（内置按钮）与 bind-normalize（on 事件）均通过此模块执行。\n## 公共约定\n- 每个执行器首先通过 `ensureView` 确保 DataView 就绪，否则 fail-fast 返回\n- 批量操作（selected）使用 `for...of` 逐行调用 CRUD，汇总成功数量\n- UI 消息通过 `ActionNotifier` 统一发送，`silent=true` 时自动吞掉成功/警告消息\n- `confirmIfNeeded` 实现统一确认弹窗，`confirmMessage=''` 表示有意跳过确认",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:30:26.862Z",
+  "models": {}
+}

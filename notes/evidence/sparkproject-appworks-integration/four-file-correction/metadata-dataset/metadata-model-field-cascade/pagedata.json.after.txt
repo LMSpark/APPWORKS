@@ -1,0 +1,120 @@
+{
+  "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "tables": {
+    "Base_DataModel": {
+      "modelBinding": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+        "modelName": "Base_DataModel"
+      },
+      "views": {
+        "modelOptions": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "valueField": "rowid",
+          "labelField": "Name",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }],
+          "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        },
+        "default": {
+          "autoLoad": false,
+          "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        },
+        "apiInfoModels": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        },
+        "designModels": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "selectionDelimiter": "",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }],
+          "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        }
+      }
+    },
+    "Base_DataModel_Field": {
+      "modelBinding": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp002",
+        "modelName": "Base_DataModel_Field"
+      },
+      "views": {
+        "modelFieldOptions": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "valueField": "rowid",
+          "labelField": "Name",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }],
+          "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        },
+        "default": {
+          "autoLoad": false,
+          "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        },
+        "apiInfoFields": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        },
+        "designFields": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "selectionDelimiter": "",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }],
+          "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        }
+      }
+    },
+    "Base_DataSet": {
+      "modelBinding": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+        "modelName": "Base_DataSet"
+      },
+      "views": {
+        "default": { "autoLoad": false, "filterExpression": { "field": "rowid", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } } },
+        "designParameters": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "selectionDelimiter": "",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }],
+          "filterExpression": { "field": "rowid", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        }
+      }
+    },
+    "Base_DataModel_Relation": {
+      "modelBinding": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp003",
+        "modelName": "Base_DataModel_Relation"
+      },
+      "views": {
+        "default": { "autoLoad": false, "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } } },
+        "designRelations": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "selectionDelimiter": "",
+          "sortExpression": [{ "field": "rowid", "direction": "asc" }],
+          "filterExpression": { "field": "dataSetId", "operator": "eq", "value": { "Type": "GetInputParam", "ParamName": "formid" } }
+        }
+      }
+    }
+  },
+  "viewCascades": [{
+    "kind": "query",
+    "cascadeId": "model-field-options",
+    "parentTable": "Base_DataModel",
+    "parentViewId": "modelOptions",
+    "childTable": "Base_DataModel_Field",
+    "childViewId": "modelFieldOptions",
+    "filterBindings": [{ "targetField": "dataModelId" }]
+  }]
+}

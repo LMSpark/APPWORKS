@@ -1,0 +1,64 @@
+{
+  "at": "2026-10-09T07:25:31.9849850+08:00",
+  "status": "local_verified_full_regression_failed",
+  "typecheck": "passed",
+  "lint": "passed",
+  "aiCodegenFiles": 1027,
+  "sessionTests": 38,
+  "relatedBeforeFinalRaceFix": 74,
+  "root": {
+    "passedSuites": 210,
+    "failedSuites": 1,
+    "passedTests": 2786,
+    "failedTests": 3,
+    "seconds": 456.26,
+    "exitCode": 1
+  },
+  "focusedFailureProbe": {
+    "failedTests": 3,
+    "seconds": 25.44,
+    "exitCode": 1
+  },
+  "beforeSourceProbe": {
+    "failedTests": 3,
+    "seconds": 28.24,
+    "exitCode": 1,
+    "workspaceSourcesReplaced": false,
+    "timeoutChanged": false
+  },
+  "online": {
+    "reads": 136,
+    "writes": 0,
+    "nodes": 7,
+    "positions": 7,
+    "localDraftRestored": true,
+    "remoteUnchanged": true
+  },
+  "files": [
+    {
+      "path": "D:\\SPARK_AppWorks\\src\\lowcode\\data-space\\view-design\\lowcode-data-space-view-design.ts",
+      "expected": "8B1677693EF9C1F5B290F79674091F0A65D72CA5C5B8C78A408CA85E6A068F6D",
+      "actual": "8B1677693EF9C1F5B290F79674091F0A65D72CA5C5B8C78A408CA85E6A068F6D",
+      "matches": true
+    },
+    {
+      "path": "D:\\SPARK_AppWorks\\src\\lowcode\\data-space\\lowcode-data-space-design.ts",
+      "expected": "699D390CA26BCFB61CA2E76653A7F263E77AAD2D0223321CAE05E183A78A5086",
+      "actual": "699D390CA26BCFB61CA2E76653A7F263E77AAD2D0223321CAE05E183A78A5086",
+      "matches": true
+    },
+    {
+      "path": "D:\\SPARK_AppWorks\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-design-session.test.ts",
+      "expected": "3A241E3ACD9056269CB5C41EBC9E62F0FADF89B29A8835DEE10F232CC2656274",
+      "actual": "3A241E3ACD9056269CB5C41EBC9E62F0FADF89B29A8835DEE10F232CC2656274",
+      "matches": true
+    },
+    {
+      "path": "D:\\SPARK_AppWorks\\src\\lowcode\\data-space\\view-design\\lowcode-data-space-view-layout.ts",
+      "expected": "265F35516BBC416E8811DC4F509DE970AF8F8C8561B630CF1C38D3BCA738B24E",
+      "actual": "265F35516BBC416E8811DC4F509DE970AF8F8C8561B630CF1C38D3BCA738B24E",
+      "matches": true
+    }
+  ],
+  "goalComplete": false
+}

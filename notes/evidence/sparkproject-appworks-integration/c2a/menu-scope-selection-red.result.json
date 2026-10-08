@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/navigation-platform-paths.test.ts --maxWorkers=1 --reporter=dot -t \"share a path\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T06:48:36.4143071Z",
+  "finishedAt": "2026-10-07T06:48:43.0758190Z",
+  "exitCode": 1
+}

@@ -1,0 +1,14 @@
+.catalog-page { display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary, #303133); }
+.catalog-page h2 { margin: 0; font-size: 20px; }
+.catalog-search-name, .catalog-search-app, .catalog-pager select { min-height: 32px; padding: 4px 8px; border: 1px solid var(--el-border-color, #dcdfe6); border-radius: var(--el-border-radius-base, 4px); background: var(--el-bg-color, #fff); color: var(--el-text-color-regular, #606266); }
+.catalog-search-name { width: min(360px, 45vw); }
+.catalog-search-app { min-width: 190px; }
+.catalog-search-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.catalog-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.catalog-button, .catalog-pager button { min-height: 32px; padding: 4px 12px; border: 1px solid var(--el-border-color, #dcdfe6); border-radius: var(--el-border-radius-base, 4px); background: var(--el-bg-color, #fff); color: var(--el-text-color-regular, #606266); cursor: pointer; }
+.catalog-add { justify-self: start; border-color: var(--el-color-primary, #409eff); background: var(--el-color-primary, #409eff); color: var(--el-color-white, #fff); }
+.catalog-edit { justify-self: start; }
+.catalog-delete { justify-self: start; border-color: var(--el-color-danger, #f56c6c); color: var(--el-color-danger, #f56c6c); }
+.catalog-pager { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding-top: 12px; color: var(--el-text-color-secondary, #909399); }
+.catalog-error { color: var(--el-color-danger, #f56c6c); }
+.catalog-pager button:disabled, .catalog-button:disabled { cursor: not-allowed; opacity: .55; }

@@ -1,0 +1,483 @@
+[
+  {
+    "fields": [
+      {
+        "canonicalName": "flowstate",
+        "computed": false,
+        "description": "流程状态",
+        "expression": null,
+        "group": 0,
+        "id": "1746E2BAE25145AE814A9539D84A51C5",
+        "name": "flowstate",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "int",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "flowstate",
+        "computed": false,
+        "description": "流程状态",
+        "expression": null,
+        "group": 0,
+        "id": "89438D2FBCC14E3AB23DACB19644954A",
+        "name": "flowstate",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "int",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "flowstate"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "createuser",
+        "computed": false,
+        "description": "创建人",
+        "expression": null,
+        "group": 0,
+        "id": "19324DE8445D4985AD77F7595E1BF281",
+        "name": "createuser",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "createuser",
+        "computed": false,
+        "description": "创建人",
+        "expression": null,
+        "group": 0,
+        "id": "67724802E297448DA62E9BBF410174D2",
+        "name": "createuser",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "createuser"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "Type",
+        "computed": false,
+        "description": "类型",
+        "expression": null,
+        "group": 0,
+        "id": "1D6C7C64E56346ED83C27CC6C97C7BC8",
+        "name": "Type",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "Type",
+        "computed": false,
+        "description": "类型",
+        "expression": null,
+        "group": 0,
+        "id": "4314C79A7B0642008DACB2D7800ED0A5",
+        "name": "Type",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "Type"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "wfid",
+        "computed": false,
+        "description": "流程实例 ID",
+        "expression": null,
+        "group": 0,
+        "id": "3681A6547B084057A84E20ECF84658A7",
+        "name": "wfid",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "wfid",
+        "computed": false,
+        "description": "流程实例 ID",
+        "expression": null,
+        "group": 0,
+        "id": "646E8891520B4FBB9429AAB3075E0A9B",
+        "name": "wfid",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "wfid"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "ReportID",
+        "computed": false,
+        "description": "报表 ID",
+        "expression": null,
+        "group": 0,
+        "id": "3FA934D551A1421CA64CEAD8A53B5786",
+        "name": "ReportID",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "ReportID",
+        "computed": false,
+        "description": "报表 ID",
+        "expression": null,
+        "group": 0,
+        "id": "6E058DFC62E34471B1C67103F992968C",
+        "name": "ReportID",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "ReportID"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "description",
+        "computed": false,
+        "description": "摘要",
+        "expression": null,
+        "group": 0,
+        "id": "6B5651FBDFD94754B341B298DC269185",
+        "name": "description",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "description",
+        "computed": false,
+        "description": "摘要",
+        "expression": null,
+        "group": 0,
+        "id": "FE2F99A0DE1842499C4DE6B635F95893",
+        "name": "description",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "description"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "createtime",
+        "computed": false,
+        "description": "创建时间",
+        "expression": null,
+        "group": 0,
+        "id": "7CEB9A4ABABB47BFB5826C5DB3A662E8",
+        "name": "createtime",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "datetime",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "createtime",
+        "computed": false,
+        "description": "创建时间",
+        "expression": null,
+        "group": 0,
+        "id": "8353653B71E64BF9856A2F97AEE58EF1",
+        "name": "createtime",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "datetime",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "createtime"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "sysid",
+        "computed": false,
+        "description": "所属系统 ID",
+        "expression": null,
+        "group": 0,
+        "id": "807184E820A348ECAA5FDEC9FA99E07F",
+        "name": "sysid",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "sysid",
+        "computed": false,
+        "description": "所属系统 ID",
+        "expression": null,
+        "group": 0,
+        "id": "DF9FCEDE45594113A85BBDE2213F7FC8",
+        "name": "sysid",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "sysid"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "updatetime",
+        "computed": false,
+        "description": "修改时间",
+        "expression": null,
+        "group": 0,
+        "id": "861A3FCFACF94657A8B3F79FF5091F53",
+        "name": "updatetime",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "datetime",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "updatetime",
+        "computed": false,
+        "description": "修改时间",
+        "expression": null,
+        "group": 0,
+        "id": "BB31E65386AE44D49DC6441D6764341A",
+        "name": "updatetime",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "datetime",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "updatetime"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "lingma_sys_is_delete",
+        "computed": false,
+        "description": "逻辑删除标记",
+        "expression": null,
+        "group": 0,
+        "id": "8953675B62A344969F19B5DBB4BC2B8D",
+        "name": "lingma_sys_is_delete",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "bigint",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "lingma_sys_is_delete",
+        "computed": false,
+        "description": "逻辑删除标记",
+        "expression": null,
+        "group": 0,
+        "id": "ACFEFAAA63DE46759F3A3A2B0D16D136",
+        "name": "lingma_sys_is_delete",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "bigint",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "lingma_sys_is_delete"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "updateuser",
+        "computed": false,
+        "description": "修改人",
+        "expression": null,
+        "group": 0,
+        "id": "AD487D18CE5543F9A081053F489B8AEF",
+        "name": "updateuser",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "updateuser",
+        "computed": false,
+        "description": "修改人",
+        "expression": null,
+        "group": 0,
+        "id": "C55251A8EAAE4D3FBF4798447FF1988E",
+        "name": "updateuser",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "updateuser"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "rowid",
+        "computed": false,
+        "description": "唯一标识 ID",
+        "expression": null,
+        "group": 0,
+        "id": "C29690D7067240CC840539CE0CBEE821",
+        "name": "rowid",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": true,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "rowid",
+        "computed": false,
+        "description": "唯一标识 ID",
+        "expression": null,
+        "group": 0,
+        "id": "F32F8B3A29464355B26C96EF580F4F60",
+        "name": "rowid",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": true,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "rowid"
+  },
+  {
+    "fields": [
+      {
+        "canonicalName": "Name",
+        "computed": false,
+        "description": "名称",
+        "expression": null,
+        "group": 0,
+        "id": "C6F91361CC8C4C44A8F40259B52A19FE",
+        "name": "Name",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      },
+      {
+        "canonicalName": "Name",
+        "computed": false,
+        "description": "名称",
+        "expression": null,
+        "group": 0,
+        "id": "C7A2AD7CB9404041A213702C12012821",
+        "name": "Name",
+        "order": 0,
+        "orderType": "",
+        "output": true,
+        "primaryKey": false,
+        "type": "varchar",
+        "value": null,
+        "valueFun": null
+      }
+    ],
+    "name": "Name"
+  }
+]

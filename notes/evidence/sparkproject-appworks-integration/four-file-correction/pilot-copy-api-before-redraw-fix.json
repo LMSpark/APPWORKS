@@ -1,0 +1,17 @@
+{
+  "capturedAt": "2026-10-07T17:41:01.231Z",
+  "status": "copy chain passed; ordinary row selection redraw pending",
+  "clipboard": "const DataSetId = '90A82E287930A234FEC3E687C94A93EA';\nconst DataModel_Base_NavigationInfo = 'Base_NavigationInfo';\nconst DataModel_Base_NavigationInfo_Type = '数据库表';\nconst DataModel_Base_NavigationInfo_PK = 'rowid';\nconst DataModel_Base_DataSet = 'Base_DataSet';\nconst DataModel_Base_DataSet_Type = '数据库表';\nconst DataModel_Base_DataSet_PK = 'rowid';\nconst DataModel_Base_UserInfo = 'Base_UserInfo';\nconst DataModel_Base_UserInfo_Type = '数据库表';\nconst DataModel_Base_UserInfo_PK = 'ID';\nconst DataModel_Base_DataModel_Field = 'Base_DataModel_Field';\nconst DataModel_Base_DataModel_Field_Type = '数据库表';\nconst DataModel_Base_DataModel_Field_PK = 'rowid';\nconst DataModel_Base_AppSystemList = 'Base_AppSystemList';\nconst DataModel_Base_AppSystemList_Type = '数据库表';\nconst DataModel_Base_AppSystemList_PK = 'rowid';\nconst DataModel_Base_DataModel = 'Base_DataModel';\nconst DataModel_Base_DataModel_Type = '数据库表';\nconst DataModel_Base_DataModel_PK = 'rowid';",
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "method": "POST",
+      "formKey": "8D1AB14DD8277F3E7017CD38F77B09FD"
+    }
+  ]
+}

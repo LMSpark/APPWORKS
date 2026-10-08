@@ -1,0 +1,82 @@
+diff --git "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\regression-contract\\before\\dev-dataset-designer-projection.test.ts" b/tests/app/dev/dev-dataset-designer-projection.test.ts
+index 4508453f5..82fad8a22 100644
+--- "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\regression-contract\\before\\dev-dataset-designer-projection.test.ts"
++++ b/tests/app/dev/dev-dataset-designer-projection.test.ts
+@@ -1,5 +1,42 @@
+ import { describe, expect, it } from 'vitest'
+ import { ScenarioViewFile } from '@spark-appworks/spark-project-model'
+-describe('scenario design contract',()=>{
+- it('retains independent named views and explicit cascades without editable resource columns',()=>{const text=JSON.stringify({scenarioId:'s',tables:{Orders:{modelBinding:{modelId:'model',modelName:'OrdersModel'},views:{default:{},list:{pageSize:20}}}},viewCascades:[]});const file=new ScenarioViewFile('s',text);expect(file.value.toJSON()).toEqual(JSON.parse(text));expect(()=>file.setText(JSON.stringify({scenarioId:'s',tables:{Orders:{columns:[],modelBinding:{modelId:'model',modelName:'OrdersModel'},views:{default:{}}}}}))).toThrow('columns');expect(file.getText()).toBe(text)})
++describe('scenario design contract', () => {
++  it('retains named views and frontend column rules while rejecting formal field overrides', () => {
++    const definition = {
++      scenarioId: 's',
++      tables: {
++        Orders: {
++          modelBinding: { modelId: 'model', modelName: 'OrdersModel' },
++          views: { default: {}, list: { pageSize: 20 } },
++        },
++      },
++      viewCascades: [],
++    }
++    const text = JSON.stringify(definition)
++    const file = new ScenarioViewFile('s', text)
++    expect(file.value.toJSON()).toEqual(definition)
++
++    const emptyExtensions = { ...definition, tables: { Orders: { ...definition.tables.Orders, columns: [] } } }
++    file.setText(JSON.stringify(emptyExtensions))
++    expect(file.value.toJSON()).toEqual(emptyExtensions)
++
++    const frontendRules = { ...definition, tables: { Orders: {
++      ...definition.tables.Orders, columns: [{ name: 'amount', required: true, min: 0 }],
++    } } }
++    const draft = JSON.stringify(frontendRules)
++    file.setText(draft)
++    expect(file.value.toJSON()).toEqual(frontendRules)
++    const revision = file.revision
++    for (const column of [
++      { name: 'amount', type: 'number' },
++      { name: 'amount', isPrimaryKey: true },
++    ]) {
++      const invalid = { ...definition, tables: { Orders: { ...definition.tables.Orders, columns: [column] } } }
++      expect(() => file.setText(JSON.stringify(invalid))).toThrow('columns')
++      expect(file.getText()).toBe(draft)
++      expect(file.revision).toBe(revision)
++    }
++    expect(file.savedText).toBe(text)
++    expect(file.isDirty).toBe(true)
++  })
+ })
+diff --git "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\regression-contract\\before\\spark-page-renderer-binding.test.ts" b/tests/runtime/page/spark-page-renderer-binding.test.ts
+index 056a3a7ce..34ed8b55f 100644
+--- "a/D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\metadata-dataset\\regression-contract\\before\\spark-page-renderer-binding.test.ts"
++++ b/tests/runtime/page/spark-page-renderer-binding.test.ts
+@@ -782,6 +782,8 @@ describe('SparkPageRenderer root props aggregation', () => {
+         },
+       }),
+     })))
++    // DataSet 自有级联订阅属于 runtime；这里只计 renderer 的注册与释放。
++    await pageRuntime.load()
+     const originalSubscribe = DataSet.prototype.onAnyViewChange
+     const unsubscribe = vi.fn()
+     const subscribe = vi.spyOn(DataSet.prototype, 'onAnyViewChange').mockImplementation(function (this: DataSet, handlers) {
+@@ -813,10 +815,19 @@ describe('SparkPageRenderer root props aggregation', () => {
+       await flushPromises()
+       expect(subscribe).toHaveBeenCalledTimes(4)
+       expect(unsubscribe).toHaveBeenCalledTimes(2)
++      expect(pageRuntime.getDataSet('extra-scene')).toBe(dataSet)
++      lateView?.replaceRows([{ id: 'late-2' }])
++      lateView?.setCurrentRow(lateView.rows[0] ?? null)
++      await flushPromises()
++      expect(wrapper.find('.late-view-probe').text()).toBe('late-2')
+ 
+       wrapper.unmount()
+       wrapper = undefined
+       expect(unsubscribe).toHaveBeenCalledTimes(4)
++      expect(pageRuntime.destroyed).toBe(false)
++      expect(dataSet?.destroyed).toBe(false)
++      pageRuntime.dispose()
++      expect(dataSet?.destroyed).toBe(true)
+     } finally {
+       wrapper?.unmount()
+       subscribe.mockRestore()

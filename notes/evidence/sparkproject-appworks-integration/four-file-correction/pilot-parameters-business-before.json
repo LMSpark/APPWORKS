@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-07T21:59:33.681Z",
+  "dirty": false,
+  "editAction": "enabled",
+  "fieldAccess": {
+    "component": "editable",
+    "read": "visible",
+    "required": false,
+    "write": "allowed",
+    "writeMode": "editable"
+  },
+  "runtimeId": "c15194e9-07cf-4ab4-b4e9-1dee8124ed6d",
+  "target": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "value": null
+}

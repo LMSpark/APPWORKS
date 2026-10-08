@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:permission/usePermission",
+    "sourcePath": "packages/spark-component/src/permission/usePermission.ts",
+    "sourceFile": "packages/spark-component/src/permission/usePermission.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "permission/usePermission",
+    "jsdoc": "@module @spark-appworks/spark-component:permission/usePermission\n职责：提供 use Permission 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "UsePermissionReturn"
+    ]
+  },
+  "$defs": {
+    "UsePermissionReturn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UsePermissionReturn",
+      "properties": {
+        "permissionMode": {
+          "type": "object",
+          "title": "PermissionMode"
+        },
+        "subtreeFieldPolicy": {
+          "$ref": "../core/capability-keys.ts.json#/$defs/SubtreeFieldPolicy"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.isModelActionAllowed.params": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isModelActionAllowed.return": {
+          "type": "boolean"
+        },
+        "method.isRowActionAllowed.params": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+            },
+            "row": {
+              "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isRowActionAllowed.return": {
+          "type": "boolean"
+        },
+        "method.resolveFieldState.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "config": {
+              "type": "object",
+              "title": "Omit<FieldRenderConfig, 'field'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveFieldState.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../spark-data/src/script-types.ts.json#/$defs/FieldRenderState"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T01:13:38.181Z",
+  "models": {
+    "UsePermissionReturn": {
+      "name": "UsePermissionReturn",
+      "jsdoc": "Use Permission Return 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前页面权限模式（后端下发），undefined 表示能力未注入；渲染器默认提供 'masked'。 */\n    readonly permissionMode: PermissionMode | undefined;\n    /** 当前子树级字段输入策略；通常仅筛选条件等本地输入子树会提供。 */\n    readonly subtreeFieldPolicy: SubtreeFieldPolicy | undefined;\n    /** 模型新增消费绑定 DataView；未签发的动作或标签不能授权。 */\n    isModelActionAllowed(action: SparkNode): boolean;\n    /** 判断行级动作（edit/delete/create-child）是否允许 */\n    isRowActionAllowed(action: SparkNode, row: DataRow | undefined): boolean;\n    /** 解析字段权限状态（可见性 + 可编辑性） */\n    resolveFieldState(field: string | undefined, row: DataRow | null | undefined, config?: Omit<FieldRenderConfig, 'field'>): FieldRenderState | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "permissionMode",
+              "jsdoc": "当前页面权限模式（后端下发），undefined 表示能力未注入；渲染器默认提供 'masked'。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "subtreeFieldPolicy",
+              "jsdoc": "当前子树级字段输入策略；通常仅筛选条件等本地输入子树会提供。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "isModelActionAllowed",
+              "jsdoc": "模型新增消费绑定 DataView；未签发的动作或标签不能授权。",
+              "parameters": [
+                {
+                  "name": "action",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNode"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isRowActionAllowed",
+              "jsdoc": "判断行级动作（edit/delete/create-child）是否允许",
+              "parameters": [
+                {
+                  "name": "action",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNode"
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "resolveFieldState",
+              "jsdoc": "解析字段权限状态（可见性 + 可编辑性）",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "intrinsic",
+                      "name": "string"
+                    }
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "undefined"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "Omit",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "FieldRenderConfig"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "field"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "FieldRenderState"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

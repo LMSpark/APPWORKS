@@ -31,6 +31,7 @@
 
 import { defineCapability, type LoggerApi, type Method } from '@spark-appworks/spark-utils'
 import { isRecord } from '@spark-appworks/spark-utils'
+import type { ViewMetadata } from '@spark-appworks/spark-data'
 
 // ═══════════════════════════════════════════════════════
 // 1. 枚举联合
@@ -188,6 +189,8 @@ export type PageSelectEntitiesOptions = {
  * 页面通过 ScriptContext 调用。
  */
 export type PageServiceCapability = {
+  /** 写入剪贴板文本；仅在宿主确认写入成功后完成。 */
+  copyText(text: string): Promise<void>
   /** 显示提示消息 */
   showMessage(message: string, type?: PageMessageType): void
   /** 显示确认对话框，返回用户操作结果 */
@@ -209,6 +212,126 @@ export type PageServiceCapability = {
   /** 路由跳转 */
   navigate(path: string, params?: Record<string, unknown>): void
 }
+
+/** Read-only reader bound by the host to one application and design scope. */
+export type PageDataSpaceLayoutReader = Readonly<{
+  readDataSpaceLayout(dataSpaceId: string): Promise<string | null>
+}>
+
+export type PageDataSpaceLayoutWriteCommand = Readonly<{ dataSpaceId: string; content: string; expectedContent: string }>
+export type PageDataSpaceLayoutCreateCommand = Readonly<{ dataSpaceId: string; content: string }>
+export type PageDataSpaceLayoutContentState = Readonly<{baseline: string | null | undefined; draft: string | undefined;
+  status: 'idle' | 'pending' | 'unknown'; submitted: string | undefined; revision: number}>
+export type PageDataSpaceLayoutRemoteRead = Readonly<{content: string | null; revision: number}>
+export type PageLocalDraftState = Readonly<{content: string | undefined; revision: number}>
+export type PageLocalDraftCommand = Readonly<{name: string; expectedRevision: number}>
+export type PageLocalDraftWriteCommand = PageLocalDraftCommand & Readonly<{content: string}>
+export type PageLocalDraftAccess = Readonly<{
+  getLocalDraft(name: string): PageLocalDraftState
+  setLocalDraft(command: PageLocalDraftWriteCommand): void
+  discardLocalDraft(command: PageLocalDraftCommand): void
+}>
+export type PageDataSpaceLayoutContent = Readonly<{
+  getDataSpaceLayoutContent(dataSpaceId: string): PageDataSpaceLayoutContentState
+  setDataSpaceLayoutDraft(command: PageDataSpaceLayoutCreateCommand): void
+  discardDataSpaceLayoutDraft(dataSpaceId: string): void
+  readDataSpaceLayoutForAdoption(dataSpaceId: string): Promise<PageDataSpaceLayoutRemoteRead>
+  adoptDataSpaceLayoutRead(dataSpaceId: string, read: PageDataSpaceLayoutRemoteRead): void
+}>
+export type PageDataSpaceLayoutWriter = Readonly<{
+  saveDataSpaceLayout(command: PageDataSpaceLayoutWriteCommand): Promise<void>
+  createDataSpaceLayout(command: PageDataSpaceLayoutCreateCommand): Promise<void>
+}>
+export type PageDataSpaceRelationDependencyOption = Readonly<{ label: string; value: string }>
+export type PageDataSpaceModelSourceType = 'table' | 'dict' | 'interface' | 'json' | 'logicView' | 'databaseView'
+export type PageDataSpaceModelSource = Readonly<{
+  type: PageDataSpaceModelSourceType; id: string; name: string; description: string
+  dbid: string; databaseName: string; providerId: string
+}>
+export type PageDataSpaceModelSourceQuery = Readonly<{
+  type: PageDataSpaceModelSourceType; keyword?: string; description?: string
+  databaseName?: string; page?: number; pageSize?: number
+}>
+export type PageDataSpaceModelSourceField = Readonly<{
+  type: 'dataModel' | 'inputParams'; Name: string; description: string; FieldType: string
+  IsPKey: number; IsOutput: number; AsName: string; ValueFun: string
+  Expression: string; allowAIAdd: number; OrderType: string; Order: number; Group: number
+}>
+export type PageDataSpaceModelSourcePrepared = Readonly<{
+  source: PageDataSpaceModelSource
+  model: Readonly<{ Type: string; MetaName: string; description: string; DbId: string; DbName: string;
+    JoinType: string; ForeignKeyFields: string; JoinFilter: string; PId: string }>
+  fields: readonly PageDataSpaceModelSourceField[]
+}>
+export type PageDataSpaceModelSourceReader = Readonly<{
+  query(input: PageDataSpaceModelSourceQuery): Promise<Readonly<{rows: readonly PageDataSpaceModelSource[]; total: number}>>
+  prepare(source: PageDataSpaceModelSource): Promise<PageDataSpaceModelSourcePrepared>
+}>
+export type PageDataSpaceDesignReader = Readonly<{
+  readRelationDependencyOptions(): Promise<readonly PageDataSpaceRelationDependencyOption[]>
+  modelSources?: PageDataSpaceModelSourceReader
+  viewDesign?: PageDataSpaceViewDesignReader
+}>
+
+type PageDataSpaceViewState = Readonly<{
+  scenarioId: string
+  text: string
+  config: Readonly<Record<string, unknown>>
+  persisted: boolean
+  dirty: boolean
+  revision: number
+  saveStatus: 'idle' | 'pending' | 'unknown'
+  submittedText: string | null
+}>
+type PageDataSpaceViewDirtySource = Readonly<{
+  isDirty: boolean
+  subscribe(listener: () => void): () => void
+}>
+type PageDataSpaceViewOpened = Readonly<{
+  state: PageDataSpaceViewState
+  dirtySource: PageDataSpaceViewDirtySource
+}>
+type PageDataSpaceViewModelField = Readonly<{ name: string; label: string }>
+type PageDataSpaceViewModel = Readonly<{
+  id: string
+  name: string
+  fields: readonly PageDataSpaceViewModelField[]
+}>
+type PageDataSpaceViewModelInput = Readonly<{ scenarioId: string; modelId: string; modelName: string }>
+type PageDataSpaceViewSelection = Readonly<{
+  scenarioId: string
+  tableName: string
+  modelId: string
+  modelName: string
+  viewId: string
+}>
+type PageDataSpaceViewConfiguration = Readonly<Omit<ViewMetadata, 'tableName' | 'viewId' | 'rows'>>
+type PageDataSpaceViewStage = PageDataSpaceViewSelection & Readonly<{
+  expectedText: string
+  configuration: PageDataSpaceViewConfiguration
+  clear?: ReadonlyArray<keyof PageDataSpaceViewConfiguration>
+}>
+type PageDataSpaceViewAdopt = Readonly<{
+  scenarioId: string
+  expectedRevision: number
+  previewText: string | null
+}>
+type PageDataSpaceViewPreview = Readonly<{
+  rows: ReadonlyArray<Readonly<Record<string, unknown>>>
+  total: number
+  fields: readonly string[]
+}>
+type PageDataSpaceViewDesignReader = Readonly<{
+  open(scenarioId: string): Promise<PageDataSpaceViewOpened>
+  create(input: PageDataSpaceViewSelection, assertCurrent?: () => void): Promise<PageDataSpaceViewOpened>
+  readModel(input: PageDataSpaceViewModelInput): Promise<PageDataSpaceViewModel>
+  stage(input: PageDataSpaceViewStage, assertCurrent?: () => void): Promise<PageDataSpaceViewState>
+  save(scenarioId: string, assertCurrent?: () => void): Promise<PageDataSpaceViewState>
+  verify(scenarioId: string): Promise<Readonly<{ outcome: 'confirmed' | 'not-applied'; state: PageDataSpaceViewState }>>
+  previewRemote(scenarioId: string): Promise<string | null>
+  adopt(input: PageDataSpaceViewAdopt): Promise<PageDataSpaceViewState | null>
+  preview(input: PageDataSpaceViewSelection): Promise<PageDataSpaceViewPreview>
+}>
 
 /** 路由服务：SPA 内的 push / replace / back 操作 */
 export type PageRouterService = {
@@ -239,6 +362,14 @@ export type PageRuntimeServicesCapability = {
   authService?: unknown
   /** 页面服务（部分实现） */
   pageService?: Partial<PageServiceCapability>
+  /** Restricted layout-file reader for the declared data-space design scenario. */
+  dataSpaceLayout?: Readonly<{
+    scenarioId: string
+    createReader(): PageDataSpaceLayoutReader
+    createWriter?(): PageDataSpaceLayoutWriter
+  }>
+  /** Restricted relation dictionary reader for the declared data-space design scenario. */
+  dataSpaceDesign?: Readonly<{ scenarioId: string; createReader(): PageDataSpaceDesignReader }>
 }
 
 // ═══════════════════════════════════════════════════════

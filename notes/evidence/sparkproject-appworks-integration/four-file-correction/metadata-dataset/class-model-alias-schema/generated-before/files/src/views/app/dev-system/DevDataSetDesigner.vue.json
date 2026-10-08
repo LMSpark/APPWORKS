@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/DevDataSetDesigner",
+    "sourcePath": "src/views/app/dev-system/DevDataSetDesigner.vue",
+    "sourceFile": "src/views/app/dev-system/DevDataSetDesigner.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/DevDataSetDesigner",
+    "jsdoc": "@module app:views/app/dev-system/DevDataSetDesigner\n职责：编辑单场景共享视图配置及真实N__pagedata.json历史。\n边界：正式模型定义不在配置文件中；缺文件需显式新建，dirty禁止恢复与快照。\nAI用途：通过ScenarioViewFile与Workspace编辑、保存、预览并明确恢复场景文件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.638Z",
+  "models": {}
+}

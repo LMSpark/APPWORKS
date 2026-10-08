@@ -1,0 +1,97 @@
+[
+  {
+    "add": "enabled",
+    "fields": {
+      "Name": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      },
+      "createuser": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      },
+      "rowid": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      },
+      "sysid": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      }
+    },
+    "name": "Base_DataSet"
+  },
+  {
+    "add": "enabled",
+    "fields": {
+      "AppDesc": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      },
+      "AppName": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      },
+      "rowid": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      }
+    },
+    "name": "Base_AppSystemList"
+  },
+  {
+    "add": "enabled",
+    "fields": {
+      "ID": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      },
+      "ROWID": {
+        "component": "readonly",
+        "read": "visible",
+        "required": false,
+        "write": "denied",
+        "writeMode": "readonly"
+      },
+      "UserName": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      },
+      "rowid": {
+        "component": "editable",
+        "read": "visible",
+        "required": false,
+        "write": "allowed",
+        "writeMode": "editable"
+      }
+    },
+    "name": "Base_UserInfo"
+  }
+]

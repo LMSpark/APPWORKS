@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/tool-loop/function-call-recovery-enricher",
+    "sourcePath": "packages/spark-ai/src/agent/tool-loop/function-call-recovery-enricher.ts",
+    "sourceFile": "packages/spark-ai/src/agent/tool-loop/function-call-recovery-enricher.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/tool-loop/function-call-recovery-enricher",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/tool-loop/function-call-recovery-enricher\n职责：支撑 Agent tool loop 的 function call recovery enricher 能力，处理工具调用、结果映射、诊断事件或 payload 编解码。\n边界：只服务单次 turn 内的工具循环，不定义业务注册协议，也不直接管理 UI 或持久化页面状态。\nAI用途：排查工具调用为什么继续、完成、失败或被映射成回调事件时，用本模块定位 loop 内部语义。\n\nFC 失败恢复提示：把 tool result 的 code/msg/fix 映射成 ClassModel\n查询、guide 和 model_script 重试步骤，回灌给 LLM 形成失败自修复闭环。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "EnrichFunctionCallFailureCommand",
+      "EnrichFunctionCallResultOptions"
+    ]
+  },
+  "$defs": {
+    "EnrichFunctionCallFailureCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EnrichFunctionCallFailureCommand",
+      "properties": {
+        "protocolToolName": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "title": "JsonParams"
+        },
+        "callResult": {
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentFunctionCallFailure"
+        },
+        "moduleInstanceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "EnrichFunctionCallResultOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EnrichFunctionCallResultOptions",
+      "$defs": {
+        "method.enrichRecoveryHints.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/EnrichFunctionCallFailureCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.enrichRecoveryHints.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.223Z",
+  "models": {
+    "EnrichFunctionCallFailureCommand": {
+      "name": "EnrichFunctionCallFailureCommand",
+      "jsdoc": "Enrich Function Call Failure Command 的命令参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** ClassModel 协议工具名（如 model_query / model_action_guide / model_script），用于匹配协议级恢复策略。 */\n    protocolToolName: string;\n    /** 本次工具调用发送的参数对象，供旧字段名检测和模板插值。 */\n    args: JsonParams;\n    /** 工具调用执行后返回的失败结果，包含 code / fix / checks。 */\n    callResult: AiAgentFunctionCallFailure;\n    /** 当前业务实例 ID；app 层 recovery hook 可用来插值实例级提示。 */\n    moduleInstanceId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** ClassModel 协议工具名（如 model_query / model_action_guide / model_script），用于匹配协议级恢复策略。 */\n    protocolToolName: string;\n    /** 本次工具调用发送的参数对象，供旧字段名检测和模板插值。 */\n    args: JsonParams;\n    /** 工具调用执行后返回的失败结果，包含 code / fix / checks。 */\n    callResult: AiAgentFunctionCallFailure;\n    /** 当前业务实例 ID；app 层 recovery hook 可用来插值实例级提示。 */\n    moduleInstanceId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "protocolToolName",
+              "jsdoc": "ClassModel 协议工具名（如 model_query / model_action_guide / model_script），用于匹配协议级恢复策略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "args",
+              "jsdoc": "本次工具调用发送的参数对象，供旧字段名检测和模板插值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "callResult",
+              "jsdoc": "工具调用执行后返回的失败结果，包含 code / fix / checks。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "moduleInstanceId",
+              "jsdoc": "当前业务实例 ID；app 层 recovery hook 可用来插值实例级提示。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "EnrichFunctionCallResultOptions": {
+      "name": "EnrichFunctionCallResultOptions",
+      "jsdoc": "Enrich Function Call Result Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 业务方注入的自定义恢复提示回调；接收失败命令，返回追加到 checks 的提示文本数组。 */\n    enrichRecoveryHints?: (command: EnrichFunctionCallFailureCommand) => readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 业务方注入的自定义恢复提示回调；接收失败命令，返回追加到 checks 的提示文本数组。 */\n    enrichRecoveryHints?: (command: EnrichFunctionCallFailureCommand) => readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "enrichRecoveryHints",
+              "jsdoc": "业务方注入的自定义恢复提示回调；接收失败命令，返回追加到 checks 的提示文本数组。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "EnrichFunctionCallFailureCommand",
+                    "sourcePath": "packages/spark-ai/src/agent/tool-loop/function-call-recovery-enricher.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly string[]"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

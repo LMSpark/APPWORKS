@@ -1,0 +1,508 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/context/dataViewEditing",
+    "sourcePath": "packages/spark-component/src/components/fields/context/dataViewEditing.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/context/dataViewEditing.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/context/dataViewEditing",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/dataViewEditing\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/dataViewEditing 的模块能力，围绕 DataViewEditingEventName、DataViewEditingEvents、DataViewEditingSource 等 4 个公开契约 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/dataViewEditing 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewEditingEventName",
+      "DataViewEditingEvents",
+      "DataViewEditingSource",
+      "DataViewEditingWriteInput"
+    ]
+  },
+  "$defs": {
+    "DataViewEditingEventName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewEditingEventName",
+      "enum": [
+        "editingFieldChanged",
+        "editingChanged",
+        "rowsChanged",
+        "currentRowChanged",
+        "selectedRowsChanged",
+        "cleared"
+      ]
+    },
+    "DataViewEditingEvents": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewEditingEvents",
+      "$defs": {
+        "method.on.params": {
+          "type": "object",
+          "properties": {
+            "eventName": {
+              "$ref": "#/$defs/DataViewEditingEventName"
+            },
+            "handler": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.on.return": true,
+        "method.off.params": {
+          "type": "object",
+          "properties": {
+            "eventName": {
+              "$ref": "#/$defs/DataViewEditingEventName"
+            },
+            "handler": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.off.return": true
+      }
+    },
+    "DataViewEditingSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewEditingSource",
+      "properties": {
+        "events": {
+          "$ref": "#/$defs/DataViewEditingEvents"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getPkKey.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPkKey.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "method.hasEditingChanges.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasEditingChanges.return": {
+          "type": "boolean"
+        },
+        "method.getEditingRow.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getEditingRow.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.updateEditingValue.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "field": {
+              "type": "string"
+            },
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.updateEditingValue.return": {
+          "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+        }
+      }
+    },
+    "DataViewEditingWriteInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewEditingWriteInput",
+      "properties": {
+        "source": true,
+        "row": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "field": {
+          "type": "string"
+        },
+        "value": true
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-14T22:53:49.858Z",
+  "models": {
+    "DataViewEditingEventName": {
+      "name": "DataViewEditingEventName",
+      "jsdoc": "Data View Editing Event Name 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'editingFieldChanged' | 'editingChanged' | 'rowsChanged' | 'currentRowChanged' | 'selectedRowsChanged' | 'cleared'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'editingFieldChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'editingChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'rowsChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'currentRowChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'selectedRowsChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'cleared'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewEditingEvents": {
+      "name": "DataViewEditingEvents",
+      "jsdoc": "Data View Editing Events 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 订阅 DataView 编辑态事件。 */\n    on(eventName: DataViewEditingEventName, handler: () => void): void;\n    /** 取消订阅 DataView 编辑态事件。 */\n    off(eventName: DataViewEditingEventName, handler: () => void): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "on",
+              "jsdoc": "订阅 DataView 编辑态事件。",
+              "parameters": [
+                {
+                  "name": "eventName",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewEditingEventName",
+                    "sourcePath": "packages/spark-component/src/components/fields/context/dataViewEditing.ts"
+                  }
+                },
+                {
+                  "name": "handler",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "off",
+              "jsdoc": "取消订阅 DataView 编辑态事件。",
+              "parameters": [
+                {
+                  "name": "eventName",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewEditingEventName",
+                    "sourcePath": "packages/spark-component/src/components/fields/context/dataViewEditing.ts"
+                  }
+                },
+                {
+                  "name": "handler",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataViewEditingSource": {
+      "name": "DataViewEditingSource",
+      "jsdoc": "Data View Editing Source 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 从行数据中提取主键值。 */\n    getPkKey(row: DataRow): string | number | undefined;\n    /** 检查指定行（或任意行）是否存在未保存的编辑变更。 */\n    hasEditingChanges(id?: string | number): boolean;\n    /** 获取指定 id 的编辑中行副本。 */\n    getEditingRow(id: string | number): DataRow | null;\n    /** 更新指定行字段的编辑值并返回更新后的行副本。 */\n    updateEditingValue(id: string | number, field: string, value: unknown): DataRow;\n    /** 编辑态事件总线（可选）。 */\n    events?: DataViewEditingEvents;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "events",
+              "jsdoc": "编辑态事件总线（可选）。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getPkKey",
+              "jsdoc": "从行数据中提取主键值。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hasEditingChanges",
+              "jsdoc": "检查指定行（或任意行）是否存在未保存的编辑变更。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getEditingRow",
+              "jsdoc": "获取指定 id 的编辑中行副本。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataRow"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateEditingValue",
+              "jsdoc": "更新指定行字段的编辑值并返回更新后的行副本。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataRow"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataViewEditingWriteInput": {
+      "name": "DataViewEditingWriteInput",
+      "jsdoc": "Data View Editing Write Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** DataView 编辑源对象。 */\n    source: unknown;\n    /** 目标行数据。 */\n    row: DataRow | null;\n    /** 要写入的字段名。 */\n    field: string;\n    /** 要写入的字段值。 */\n    value: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** DataView 编辑源对象。 */\n    source: unknown;\n    /** 目标行数据。 */\n    row: DataRow | null;\n    /** 要写入的字段名。 */\n    field: string;\n    /** 要写入的字段值。 */\n    value: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "jsdoc": "DataView 编辑源对象。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "row",
+              "jsdoc": "目标行数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "jsdoc": "要写入的字段名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "要写入的字段值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,847 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/conversation/session/session-run-trace",
+    "sourcePath": "packages/spark-ai/src/agent/conversation/session/session-run-trace.ts",
+    "sourceFile": "packages/spark-ai/src/agent/conversation/session/session-run-trace.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/conversation/session/session-run-trace",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/conversation/session/session-run-trace\n职责：定义或实现 Agent 会话存储、诊断和运行轨迹中的 session run trace 能力。\n边界：只维护 session 层状态和观测数据，不生成业务输入契约，也不直接执行工具 runtime。\nAI用途：追踪会话记录、诊断事件或 run trace 时，用本模块确认 session 数据如何保存和读取。\n\nagent/session/session-run-trace.ts — headless AI run trace.\nThis is a compact, UI-independent projection of one active AI run. It is\nnot the durable conversation source; the backend DB owns persisted history.",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiAgentRunTraceToolCall",
+      "AiAgentRunTraceReasoning",
+      "AiAgentRunTraceEntry",
+      "AiAgentRunTraceSnapshot",
+      "AiAgentRunTraceOptions",
+      "AiAgentRunTraceListener",
+      "AiAgentRunTrace"
+    ]
+  },
+  "$defs": {
+    "AiAgentRunTraceToolCall": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRunTraceToolCall",
+      "properties": {
+        "toolName": {
+          "type": "string"
+        },
+        "argsPreview": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "round": {
+          "type": "number"
+        },
+        "callId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "enum": [
+            "success",
+            "error"
+          ]
+        },
+        "resultSummary": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "durationMs": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentRunTraceReasoning": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRunTraceReasoning",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "collapsed": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentRunTraceEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "AiAgentRunTraceEntry",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "user-message"
+            },
+            "content": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "kind",
+            "content",
+            "timestamp"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "assistant-delta"
+            },
+            "content": {
+              "type": "string"
+            },
+            "turnId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "content",
+            "turnId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "assistant-complete"
+            },
+            "content": {
+              "type": "string"
+            },
+            "turnId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "content",
+            "turnId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "reasoning"
+            },
+            "item": {
+              "type": "object",
+              "title": "AiAgentRunTraceReasoning"
+            }
+          },
+          "required": [
+            "kind",
+            "item"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "tool-call"
+            },
+            "item": {
+              "type": "object",
+              "title": "AiAgentRunTraceToolCall"
+            }
+          },
+          "required": [
+            "kind",
+            "item"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "error"
+            },
+            "message": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "kind",
+            "message",
+            "timestamp"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "system-message"
+            },
+            "content": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "kind",
+            "content",
+            "timestamp"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "AiAgentRunTraceSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRunTraceSnapshot",
+      "properties": {
+        "streamText": {
+          "type": "string"
+        },
+        "reasoningText": {
+          "type": "string"
+        },
+        "isStreaming": {
+          "type": "boolean"
+        },
+        "isReasoning": {
+          "type": "boolean"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiAgentRunTraceEntry"
+          }
+        },
+        "toolCalls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiAgentRunTraceToolCall"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentRunTraceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRunTraceOptions",
+      "properties": {
+        "argsPreviewLimit": {
+          "type": "number"
+        },
+        "resultPreviewLimit": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.now.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.now.return": {
+          "type": "number"
+        }
+      }
+    },
+    "AiAgentRunTrace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRunTrace",
+      "$defs": {
+        "method.snapshot.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.snapshot.return": {
+          "$ref": "#/$defs/AiAgentRunTraceSnapshot"
+        },
+        "method.subscribe.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "AiAgentRunTraceListener"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.appendUserMessage.params": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendUserMessage.return": true,
+        "method.appendDelta.params": {
+          "type": "object",
+          "properties": {
+            "delta": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendDelta.return": true,
+        "method.appendReasoning.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendReasoning.return": true,
+        "method.appendEvent.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "../chat/chat-types.ts.json#/$defs/AiAgentStreamEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendEvent.return": true,
+        "method.appendToolCall.params": {
+          "type": "object",
+          "properties": {
+            "record": {
+              "$ref": "../chat/chat-types.ts.json#/$defs/AiAgentToolCallRecord"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendToolCall.return": true,
+        "method.appendError.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendError.return": true,
+        "method.markAborted.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.markAborted.return": true,
+        "method.finish.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.finish.return": true,
+        "method.reset.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reset.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.683Z",
+  "models": {
+    "AiAgentRunTraceToolCall": {
+      "name": "AiAgentRunTraceToolCall",
+      "jsdoc": "工具调用轨迹条目：单次 function tool 调用的 headless 投影",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 工具名称（如 model_script / module_action） */\n    toolName: string;\n    /** 调用参数的截断预览文本 */\n    argsPreview: string;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** 工具循环轮次序号（从 1 开始） */\n    round: number;\n    /** OpenAI function call ID，可能为 null（非 function calling 场景） */\n    callId: string | null;\n    /** 调用结果状态：success=成功 / error=失败 */\n    status: 'success' | 'error';\n    /** 调用结果的截断摘要文本，可能为 null */\n    resultSummary: string | null;\n    /** 调用耗时（毫秒） */\n    durationMs: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 工具名称（如 model_script / module_action） */\n    toolName: string;\n    /** 调用参数的截断预览文本 */\n    argsPreview: string;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** 工具循环轮次序号（从 1 开始） */\n    round: number;\n    /** OpenAI function call ID，可能为 null（非 function calling 场景） */\n    callId: string | null;\n    /** 调用结果状态：success=成功 / error=失败 */\n    status: 'success' | 'error';\n    /** 调用结果的截断摘要文本，可能为 null */\n    resultSummary: string | null;\n    /** 调用耗时（毫秒） */\n    durationMs: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "toolName",
+              "jsdoc": "工具名称（如 model_script / module_action）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "argsPreview",
+              "jsdoc": "调用参数的截断预览文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "jsdoc": "所属轮次 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "round",
+              "jsdoc": "工具循环轮次序号（从 1 开始）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "callId",
+              "jsdoc": "OpenAI function call ID，可能为 null（非 function calling 场景）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "调用结果状态：success=成功 / error=失败",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultSummary",
+              "jsdoc": "调用结果的截断摘要文本，可能为 null",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "durationMs",
+              "jsdoc": "调用耗时（毫秒）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentRunTraceReasoning": {
+      "name": "AiAgentRunTraceReasoning",
+      "jsdoc": "推理过程轨迹条目：模型 reasoning 输出的 headless 投影",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 推理文本内容 */\n    text: string;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** UI 是否默认折叠；轮次结束后自动折叠 */\n    collapsed: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 推理文本内容 */\n    text: string;\n    /** 所属轮次 ID */\n    turnId: string;\n    /** UI 是否默认折叠；轮次结束后自动折叠 */\n    collapsed: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "text",
+              "jsdoc": "推理文本内容",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turnId",
+              "jsdoc": "所属轮次 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "collapsed",
+              "jsdoc": "UI 是否默认折叠；轮次结束后自动折叠",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentRunTraceEntry": {
+      "name": "AiAgentRunTraceEntry",
+      "jsdoc": "Ai Agent Run Trace Entry 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    kind: 'user-message';\n    content: string;\n    timestamp: number;\n}> | Readonly<{\n    kind: 'assistant-delta';\n    content: string;\n    turnId: string;\n}> | Readonly<{\n    kind: 'assistant-complete';\n    content: string;\n    turnId: string;\n}> | Readonly<{\n    kind: 'reasoning';\n    item: AiAgentRunTraceReasoning;\n}> | Readonly<{\n    kind: 'tool-call';\n    item: AiAgentRunTraceToolCall;\n}> | Readonly<{\n    kind: 'error';\n    message: string;\n    timestamp: number;\n}> | Readonly<{\n    kind: 'system-message';\n    content: string;\n    timestamp: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'user-message';\n    content: string;\n    timestamp: number;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'assistant-delta';\n    content: string;\n    turnId: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'assistant-complete';\n    content: string;\n    turnId: string;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'reasoning';\n    item: AiAgentRunTraceReasoning;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'tool-call';\n    item: AiAgentRunTraceToolCall;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'error';\n    message: string;\n    timestamp: number;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    kind: 'system-message';\n    content: string;\n    timestamp: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AiAgentRunTraceSnapshot": {
+      "name": "AiAgentRunTraceSnapshot",
+      "jsdoc": "run trace 快照：headless 消费者订阅获得的完整只读投影",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前正在流式输出的文本（尚未完成一个完整 assistant 消息） */\n    streamText: string;\n    /** 当前正在流式输出的推理文本 */\n    reasoningText: string;\n    /** 是否正在流式输出 assistant 文本 */\n    isStreaming: boolean;\n    /** 是否正在流式输出推理文本 */\n    isReasoning: boolean;\n    /** 有序的展示条目列表（含 user-message / assistant-delta / reasoning / tool-call / error / system-message） */\n    entries: readonly AiAgentRunTraceEntry[];\n    /** 已完成的所有工具调用记录列表 */\n    toolCalls: readonly AiAgentRunTraceToolCall[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前正在流式输出的文本（尚未完成一个完整 assistant 消息） */\n    streamText: string;\n    /** 当前正在流式输出的推理文本 */\n    reasoningText: string;\n    /** 是否正在流式输出 assistant 文本 */\n    isStreaming: boolean;\n    /** 是否正在流式输出推理文本 */\n    isReasoning: boolean;\n    /** 有序的展示条目列表（含 user-message / assistant-delta / reasoning / tool-call / error / system-message） */\n    entries: readonly AiAgentRunTraceEntry[];\n    /** 已完成的所有工具调用记录列表 */\n    toolCalls: readonly AiAgentRunTraceToolCall[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "streamText",
+              "jsdoc": "当前正在流式输出的文本（尚未完成一个完整 assistant 消息）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reasoningText",
+              "jsdoc": "当前正在流式输出的推理文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isStreaming",
+              "jsdoc": "是否正在流式输出 assistant 文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isReasoning",
+              "jsdoc": "是否正在流式输出推理文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "entries",
+              "jsdoc": "有序的展示条目列表（含 user-message / assistant-delta / reasoning / tool-call / error / system-message）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolCalls",
+              "jsdoc": "已完成的所有工具调用记录列表",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentRunTraceOptions": {
+      "name": "AiAgentRunTraceOptions",
+      "jsdoc": "run trace 创建配置",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 自定义时间戳函数，默认 Date.now；测试中可注入确定性时钟 */\n    now?: () => number;\n    /** 工具调用参数预览截断长度，默认 200 字符 */\n    argsPreviewLimit?: number;\n    /** 工具调用结果预览截断长度，默认 300 字符 */\n    resultPreviewLimit?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 自定义时间戳函数，默认 Date.now；测试中可注入确定性时钟 */\n    now?: () => number;\n    /** 工具调用参数预览截断长度，默认 200 字符 */\n    argsPreviewLimit?: number;\n    /** 工具调用结果预览截断长度，默认 300 字符 */\n    resultPreviewLimit?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "argsPreviewLimit",
+              "jsdoc": "工具调用参数预览截断长度，默认 200 字符",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultPreviewLimit",
+              "jsdoc": "工具调用结果预览截断长度，默认 300 字符",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "now",
+              "jsdoc": "自定义时间戳函数，默认 Date.now；测试中可注入确定性时钟",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentRunTraceListener": {
+      "name": "AiAgentRunTraceListener",
+      "jsdoc": "Ai Agent Run Trace Listener 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(snapshot: AiAgentRunTraceSnapshot) => void",
+        "members": {}
+      }
+    },
+    "AiAgentRunTrace": {
+      "name": "AiAgentRunTrace",
+      "jsdoc": "headless run trace 接口：UI 无关的活跃 run 状态投影，不持有持久化历史",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 获取当前只读快照 */\n    snapshot(): AiAgentRunTraceSnapshot;\n    /** 订阅快照变化；返回取消订阅函数 */\n    subscribe(listener: AiAgentRunTraceListener): () => void;\n    /** 追加用户消息条目 */\n    appendUserMessage(content: string): void;\n    /** 追加模型文本增量（流式输出 token） */\n    appendDelta(delta: string): void;\n    /** 追加推理文本增量（流式输出 reasoning token） */\n    appendReasoning(text: string): void;\n    /** 从原始 SSE 事件派发内部状态变更（自动路由 delta/reasoning/result/error） */\n    appendEvent(event: AiAgentStreamEvent): void;\n    /** 追加工具调用完成记录 */\n    appendToolCall(record: AiAgentToolCallRecord): void;\n    /** 追加错误条目并清除流式状态 */\n    appendError(message: string): void;\n    /** 标记为用户主动中断，追加系统消息并结束当前 turn */\n    markAborted(message?: string): void;\n    /** 结束当前活跃 turn（如有），将 assistant-delta 转为 assistant-complete */\n    finish(): void;\n    /** 重置全部状态到空快照 */\n    reset(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 获取当前只读快照 */\n    snapshot(): AiAgentRunTraceSnapshot;\n    /** 订阅快照变化；返回取消订阅函数 */\n    subscribe(listener: AiAgentRunTraceListener): () => void;\n    /** 追加用户消息条目 */\n    appendUserMessage(content: string): void;\n    /** 追加模型文本增量（流式输出 token） */\n    appendDelta(delta: string): void;\n    /** 追加推理文本增量（流式输出 reasoning token） */\n    appendReasoning(text: string): void;\n    /** 从原始 SSE 事件派发内部状态变更（自动路由 delta/reasoning/result/error） */\n    appendEvent(event: AiAgentStreamEvent): void;\n    /** 追加工具调用完成记录 */\n    appendToolCall(record: AiAgentToolCallRecord): void;\n    /** 追加错误条目并清除流式状态 */\n    appendError(message: string): void;\n    /** 标记为用户主动中断，追加系统消息并结束当前 turn */\n    markAborted(message?: string): void;\n    /** 结束当前活跃 turn（如有），将 assistant-delta 转为 assistant-complete */\n    finish(): void;\n    /** 重置全部状态到空快照 */\n    reset(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "snapshot",
+              "jsdoc": "获取当前只读快照",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "AiAgentRunTraceSnapshot",
+                "sourcePath": "packages/spark-ai/src/agent/conversation/session/session-run-trace.ts"
+              }
+            },
+            {
+              "name": "subscribe",
+              "jsdoc": "订阅快照变化；返回取消订阅函数",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentRunTraceListener",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/session/session-run-trace.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "appendUserMessage",
+              "jsdoc": "追加用户消息条目",
+              "parameters": [
+                {
+                  "name": "content",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendDelta",
+              "jsdoc": "追加模型文本增量（流式输出 token）",
+              "parameters": [
+                {
+                  "name": "delta",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendReasoning",
+              "jsdoc": "追加推理文本增量（流式输出 reasoning token）",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendEvent",
+              "jsdoc": "从原始 SSE 事件派发内部状态变更（自动路由 delta/reasoning/result/error）",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentStreamEvent",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendToolCall",
+              "jsdoc": "追加工具调用完成记录",
+              "parameters": [
+                {
+                  "name": "record",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentToolCallRecord",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendError",
+              "jsdoc": "追加错误条目并清除流式状态",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "markAborted",
+              "jsdoc": "标记为用户主动中断，追加系统消息并结束当前 turn",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "finish",
+              "jsdoc": "结束当前活跃 turn（如有），将 assistant-delta 转为 assistant-complete",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reset",
+              "jsdoc": "重置全部状态到空快照",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

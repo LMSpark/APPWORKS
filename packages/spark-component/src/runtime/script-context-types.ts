@@ -32,6 +32,11 @@ import type {
 } from '@spark-appworks/spark-utils'
 import type {
   PageServiceCapability,
+  PageDataSpaceLayoutReader,
+  PageDataSpaceLayoutContent,
+  PageDataSpaceLayoutWriter,
+  PageDataSpaceDesignReader,
+  PageLocalDraftAccess,
 } from './app-services'
 
 // ==================== 路由快照 ====================
@@ -129,6 +134,26 @@ export type ScriptContext = {
    * 类型直接来自 page-config 的 runtime service contract，渲染层注入对应实现。
    */
   $page: PageServiceCapability & Pick<PageRuntime, 'getDataSet' | 'resolveView'>
+    & PageDataSpaceLayoutReader & PageDataSpaceLayoutWriter & PageDataSpaceLayoutContent
+    & PageLocalDraftAccess
+    & Readonly<{ readDataSpaceRelationDependencyOptions(): ReturnType<PageDataSpaceDesignReader['readRelationDependencyOptions']> }>
+    & Readonly<{
+      readDataSpaceModelSources(input: Parameters<NonNullable<PageDataSpaceDesignReader['modelSources']>['query']>[0]):
+        ReturnType<NonNullable<PageDataSpaceDesignReader['modelSources']>['query']>
+      prepareDataSpaceModelSource(source: Parameters<NonNullable<PageDataSpaceDesignReader['modelSources']>['prepare']>[0]):
+        ReturnType<NonNullable<PageDataSpaceDesignReader['modelSources']>['prepare']>
+    }>
+    & Readonly<{
+      openDataSpaceViews(scenarioId: string): Promise<Awaited<ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['open']>>['state']>
+      createDataSpaceViews(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['create']>[0]): Promise<Awaited<ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['create']>>['state']>
+      readDataSpaceViewModel(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['readModel']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['readModel']>
+      stageDataSpaceView(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['stage']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['stage']>
+      saveDataSpaceViews(scenarioId: string): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['save']>
+      verifyDataSpaceViews(scenarioId: string): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['verify']>
+      previewDataSpaceViewsRemote(scenarioId: string): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['previewRemote']>
+      adoptDataSpaceViews(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['adopt']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['adopt']>
+      previewDataSpaceView(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['preview']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['preview']>
+    }>
 
   /**
    * 脚本日志接口（已桥接到框架 Logger 传输链）。

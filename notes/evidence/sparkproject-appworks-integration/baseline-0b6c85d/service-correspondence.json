@@ -1,0 +1,279 @@
+{
+  "reference": "842dec4f11b333df904b9a4e26b6566b0802bab8",
+  "results": [
+    {
+      "resource": "application.documentation",
+      "intent": "export-sdd",
+      "method": "GET",
+      "endpoint": "/File/exportSDD",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "GET",
+          "path": "/api/File/exportSDD",
+          "sourceFile": "lowcode-file/src/main/java/com/htong/controller/DocExportController.java",
+          "sourceLine": 42,
+          "handler": "exportSDD"
+        }
+      ]
+    },
+    {
+      "resource": "application.documentation",
+      "intent": "export-srs",
+      "method": "GET",
+      "endpoint": "/File/exportSRS",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "GET",
+          "path": "/api/File/exportSRS",
+          "sourceFile": "lowcode-file/src/main/java/com/htong/controller/DocExportController.java",
+          "sourceLine": 26,
+          "handler": "exportSRS"
+        }
+      ]
+    },
+    {
+      "resource": "application.lifecycle",
+      "intent": "initialize-enterprise",
+      "method": "POST",
+      "endpoint": "/Enterprise/initEnt",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Enterprise/initEnt",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/EnterpriseController.java",
+          "sourceLine": 40,
+          "handler": "initEnt"
+        }
+      ]
+    },
+    {
+      "resource": "designer.code",
+      "intent": "initialize-code-data",
+      "method": "GET",
+      "endpoint": "/Codeing/CodeInitDataList",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "GET",
+          "path": "/api/Codeing/CodeInitDataList",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/CodeController.java",
+          "sourceLine": 147,
+          "handler": "CodeInitDataList"
+        }
+      ]
+    },
+    {
+      "resource": "designer.code",
+      "intent": "test-code",
+      "method": "POST",
+      "endpoint": "/Codeing/TestGetCodeString/{{busTableRowid}}",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Codeing/TestGetCodeString/{busTableId}",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/CodeController.java",
+          "sourceLine": 82,
+          "handler": "testGetCodeString"
+        }
+      ]
+    },
+    {
+      "resource": "designer.execution",
+      "intent": "run-single-node-test",
+      "method": "POST",
+      "endpoint": "/Workflow/runSingleNodeTest",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Workflow/runSingleNodeTest",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/WorkflowController.java",
+          "sourceLine": 50,
+          "handler": "runWorkflow"
+        }
+      ]
+    },
+    {
+      "resource": "designer.execution",
+      "intent": "run-workflow-test",
+      "method": "POST",
+      "endpoint": "/Workflow/runWorkflowTest",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Workflow/runWorkflowTest",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/WorkflowController.java",
+          "sourceLine": 60,
+          "handler": "runWorkflowTest"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "add-receiver",
+      "method": "POST",
+      "endpoint": "/Flow/FlowAddReceiveUser?stepId={{stepId}}&wfId={{wfId}}",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Flow/FlowAddReceiveUser",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 187,
+          "handler": "flowAddReceiveUser"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "back",
+      "method": "POST",
+      "endpoint": "/Flow/FlowBack",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Flow/FlowBack",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 134,
+          "handler": "flowBack"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "can-auto-submit-after",
+      "method": "POST",
+      "endpoint": "/Flow/CanAutoSubmitAfter",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Flow/CanAutoSubmitAfter",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 266,
+          "handler": "canAutoSubmitAfter"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "force-back",
+      "method": "POST",
+      "endpoint": "/Flow/FlowForceBack",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Flow/FlowForceBack",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 152,
+          "handler": "flowForceBack"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "get-execution-users",
+      "method": "GET",
+      "endpoint": "/Flow/GetExeUsers",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "GET",
+          "path": "/api/Flow/GetExeUsers",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 249,
+          "handler": "getExeUsers"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "get-option-actions",
+      "method": "GET",
+      "endpoint": "/Flow/GetOptionButtonHandleUserOptionData",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "GET",
+          "path": "/api/Flow/GetOptionButtonHandleUserOptionData",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 224,
+          "handler": "getOptionButtonHandleUserOptionData"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "get-step-history",
+      "method": "GET",
+      "endpoint": "/Flow/GetStepHistory",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "GET",
+          "path": "/api/Flow/GetStepHistory",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 40,
+          "handler": "getStepHistory"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "return-to-creator",
+      "method": "POST",
+      "endpoint": "/Flow/FlowToCreator",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Flow/FlowToCreator",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 168,
+          "handler": "flowToCreator"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "revoke",
+      "method": "POST",
+      "endpoint": "/Flow/FlowRevoke?curStepID={{curStepID}}&wfid={{wfid}}",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Flow/FlowRevoke",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 99,
+          "handler": "flowRevoke"
+        }
+      ]
+    },
+    {
+      "resource": "workflow.runtime",
+      "intent": "submit-or-start",
+      "method": "POST",
+      "endpoint": "/Flow/FlowSubmitOrStart",
+      "matched": 1,
+      "controllerEvidence": [
+        {
+          "method": "POST",
+          "path": "/api/Flow/FlowSubmitOrStart",
+          "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/FlowController.java",
+          "sourceLine": 78,
+          "handler": "flowSubmitOrStart"
+        }
+      ]
+    }
+  ],
+  "targetHead": "0b6c85d9979205cf733da8b0ba663c63e89ec395",
+  "kind": "static-controller-correspondence-not-deployment-or-side-effect-proof"
+}

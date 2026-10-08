@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/control/data-platform/data-space/design/expression/data-space-value-function-context",
+    "sourcePath": "src/views/app/control/data-platform/data-space/design/expression/data-space-value-function-context.ts",
+    "sourceFile": "src/views/app/control/data-platform/data-space/design/expression/data-space-value-function-context.ts",
+    "packageName": "app",
+    "modulePath": "views/app/control/data-platform/data-space/design/expression/data-space-value-function-context",
+    "jsdoc": "app 的 views/app/control/data-platform/data-space/design/expression/data-space-value-function-context 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T23:44:57.549Z",
+  "models": {}
+}

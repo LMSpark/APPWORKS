@@ -1,0 +1,46 @@
+{
+  "recordedAt": "2026-10-09T02:56:44.3787986+08:00",
+  "productionFiles": 8,
+  "testFiles": 4,
+  "apiDocs": 1,
+  "newProductionFiles": 2,
+  "baselineTypecheck": 0,
+  "finalTypecheck": 0,
+  "lint": {
+    "paths": 12,
+    "exit": 0
+  },
+  "aiCodegen": {
+    "exit": 0,
+    "files": 1021
+  },
+  "nativeTests": {
+    "exit": 0,
+    "passed": 21
+  },
+  "focusedBeforeFinalAddressGuard": {
+    "passed": 1072,
+    "suites": 54,
+    "exit": 0
+  },
+  "persistence": {
+    "exit": 0,
+    "passed": 13
+  },
+  "root": {
+    "failed": 0,
+    "passed": 2743,
+    "suites": 210,
+    "durationSeconds": 221.85,
+    "exit": 0
+  },
+  "finalHashesVerified": 13,
+  "onlineWrites": 0,
+  "fullCascadeMigrationComplete": false,
+  "remaining": [
+    "legacy query row-dependency replacement",
+    "unified cascade configuration CRUD",
+    "ordinary option component consumption",
+    "full AppWorks integration"
+  ]
+}

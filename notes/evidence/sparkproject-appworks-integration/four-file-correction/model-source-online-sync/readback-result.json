@@ -1,0 +1,331 @@
+{
+  "at": "2026-10-08T06:09:41.452Z",
+  "mode": "readback",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "toolId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "stage": "complete",
+  "outcomes": [
+    {
+      "metaName": "Base_DataModel",
+      "total": 2,
+      "rows": [
+        {
+          "rowid": "536CACBAE8A723F65264B47003D15850",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "Name": "copyTable",
+          "MetaName": "copyTable",
+          "Type": "数据库表",
+          "DbId": "0089C614F01742ED9B231FF6F71BA0F3",
+          "DbName": "testAdd"
+        },
+        {
+          "rowid": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "Name": "Base_DataSet",
+          "MetaName": "Base_DataSet",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat"
+        }
+      ]
+    },
+    {
+      "metaName": "Base_DataModel_Field",
+      "total": 28,
+      "rows": [
+        {
+          "rowid": "1E693DD247FE36260A123B59CE502F89",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "Name",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "1FBE82D0F1003F2DDDD7316A2FE8ACA1",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "description",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "205343735BFB2242929885BCED26F0BB",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "flowstate",
+          "type": "dataModel",
+          "FieldType": "int",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "214C7D3DB4F5ECE46FFE6B7FBD9B331D",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "lingma_sys_is_delete",
+          "type": "dataModel",
+          "FieldType": "bigint",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "3A03099B06FFE64F120B347C2420402D",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "wfid",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "42C218FBAC0B54DCFC2F6321E23C7BF6",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "inputParams",
+          "type": "dataModel",
+          "FieldType": "text",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "45A1E6933CB8446C2CB5628027FE9F04",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "createtime",
+          "type": "dataModel",
+          "FieldType": "datetime",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "76D5F5311110655CF223B2DA66EAC58D",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "createtime",
+          "type": "dataModel",
+          "FieldType": "datetime",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "85ABA74AB81D4530868AB52F305BBC27",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "lingma_sys_is_delete",
+          "type": "dataModel",
+          "FieldType": "int",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "98C31BB4C6FBBBD28E16338B6DF5AA1A",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "DefaultPermission",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "A2A2D12192DB717F148E138C459B2893",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "updateuser",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "A6F3BA299A20A296B42408A8334105CF",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "updatetime",
+          "type": "dataModel",
+          "FieldType": "datetime",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "AA2725603D67280B3D40B6EC35CAA8B4",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "sysid",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "B55F57764B265470FC98A2AA2462678D",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "createuser",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "B58D62F9830B4A1B48792BCC2032193C",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "ReportID",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "B67EB15137139137811909AD80F931EE",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "createuser",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "BF7E2AF1D287F9911C3D60CCAE8711A9",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "Type",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "C2950DF33976B26EA9D25582EB2041EB",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "ReportID",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "C525B3A9742E42CC6EF2C1CB01DED1F0",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "flowstate",
+          "type": "dataModel",
+          "FieldType": "int",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "D0A88E7940781AF845A0BD6CBCF36615",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "rowid",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 1,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "E115AF392BE2DE9619A8F10CA20C491A",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "updatetime",
+          "type": "dataModel",
+          "FieldType": "datetime",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "E26F65522A1784179CAAD43431B0F9D0",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "description",
+          "type": "dataModel",
+          "FieldType": "text",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "E35DD4974144DA7FC038C1FF40B89955",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "lingma_sys_ent",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 1,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "E864568E8A11B5FD7DED86B5A7985C2A",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "isCheckLogin",
+          "type": "dataModel",
+          "FieldType": "int",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "E9BB0F844DB001575DB859C913D22A9A",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "wfid",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "ECD729FBB5CD4AF81AB60F9DE27757EA",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "updateuser",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "EEA61C052FCE0648B3E4E2CC54655077",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "id",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 1,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "F78A4D8B32C4A47D1978B50D9BC9E992",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+          "Name": "lingma_sys_appid",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        }
+      ]
+    }
+  ],
+  "targetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "formalModel": {
+    "id": "B7B0D0E8F824E9CBFA2BEBEE6A76F465",
+    "name": "Base_DataSet",
+    "primaryKey": "rowid",
+    "fieldCount": 17
+  },
+  "runtimeQuery": {
+    "countReported": true,
+    "total": 1185,
+    "rows": 10
+  }
+}

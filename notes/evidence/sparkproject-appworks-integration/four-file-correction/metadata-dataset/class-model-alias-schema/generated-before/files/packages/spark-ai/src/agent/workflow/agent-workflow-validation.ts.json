@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/workflow/agent-workflow-validation",
+    "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-validation.ts",
+    "sourceFile": "packages/spark-ai/src/agent/workflow/agent-workflow-validation.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/workflow/agent-workflow-validation",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/workflow/agent-workflow-validation\n职责：校验 Agent Workflow Definition 的结构完整性，供发布和运行前验收复用。\n边界：默认只做同步 JSON 结构检查；不解析 ClassModel 运行时、不加载外部 workflow 文件。\nAI用途：需要判断 definition 是否可发布或可进入 dryRun 链路时，用本模块确认校验规则。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ValidateAgentWorkflowDefinitionOptions"
+    ]
+  },
+  "$defs": {
+    "ValidateAgentWorkflowDefinitionOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ValidateAgentWorkflowDefinitionOptions",
+      "properties": {
+        "strict": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T12:44:44.278Z",
+  "models": {
+    "ValidateAgentWorkflowDefinitionOptions": {
+      "name": "ValidateAgentWorkflowDefinitionOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    strict?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    strict?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "strict",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

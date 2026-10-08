@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-08T06:50:24.556Z",
+  "phase": "before",
+  "stage": "readModel",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "dataSpaceId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "failed": true,
+  "error": {
+    "name": "LowcodeApiError",
+    "message": "数据空间模型 shif 的正式主键无法映射到唯一有效输出字段"
+  }
+}

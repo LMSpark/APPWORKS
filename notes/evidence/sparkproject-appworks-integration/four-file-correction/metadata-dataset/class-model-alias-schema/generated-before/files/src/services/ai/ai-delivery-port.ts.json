@@ -1,0 +1,424 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/ai/ai-delivery-port",
+    "sourcePath": "src/services/ai/ai-delivery-port.ts",
+    "sourceFile": "src/services/ai/ai-delivery-port.ts",
+    "packageName": "app",
+    "modulePath": "services/ai/ai-delivery-port",
+    "jsdoc": "@module app:services/ai-delivery-port\n职责：定义 APP 层 AI 交付端口，把 Working Copy 的 save、trace 和 rollback 统一成可回执的结果。\n边界：只表达应用交付策略，不进入 spark-ai 内核，也不直接理解 pageDesign/projectPlanning 领域细节。\nAI用途：排查 Agent Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiDeliveryMode",
+      "AiDeliveryArtifact",
+      "AiDeliveryResult",
+      "AiDeliveryPort",
+      "AiDeliveryResultExtras"
+    ]
+  },
+  "$defs": {
+    "AiDeliveryMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "AiDeliveryMode",
+      "enum": [
+        "manual",
+        "auto"
+      ]
+    },
+    "AiDeliveryArtifact": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDeliveryArtifact",
+      "properties": {
+        "kind": {
+          "enum": [
+            "page-file",
+            "scenario-view",
+            "project-blueprint"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "dirty",
+            "saved",
+            "skipped",
+            "rolledBack"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiDeliveryResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDeliveryResult",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/AiDeliveryMode"
+        },
+        "status": {
+          "enum": [
+            "saved",
+            "skipped",
+            "rolledBack",
+            "failed"
+          ]
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiDeliveryArtifact"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiDeliveryPort": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDeliveryPort",
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/AiDeliveryMode"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "type": "object",
+              "title": "TContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<AiDeliveryResult>"
+        },
+        "method.trace.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "type": "object",
+              "title": "TContext"
+            },
+            "result": {
+              "$ref": "#/$defs/AiDeliveryResult"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.trace.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.rollback.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "type": "object",
+              "title": "TContext"
+            },
+            "error": {
+              "type": "object",
+              "title": "Error"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rollback.return": {
+          "type": "object",
+          "title": "Promise<AiDeliveryResult>"
+        }
+      }
+    },
+    "AiDeliveryResultExtras": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiDeliveryResultExtras",
+      "properties": {
+        "delivery": {
+          "$ref": "#/$defs/AiDeliveryResult"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T20:15:35.712Z",
+  "models": {
+    "AiDeliveryMode": {
+      "name": "AiDeliveryMode",
+      "jsdoc": "@module app:services/ai-delivery-port\n职责：定义 APP 层 AI 交付端口，把 Working Copy 的 save、trace 和 rollback 统一成可回执的结果。\n边界：只表达应用交付策略，不进入 spark-ai 内核，也不直接理解 pageDesign/projectPlanning 领域细节。\nAI用途：排查 Agent Run 结束后如何落盘、如何回执或失败时如何记录交付状态时，用本模块定位统一协议。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'manual' | 'auto'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'manual'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'auto'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AiDeliveryArtifact": {
+      "name": "AiDeliveryArtifact",
+      "jsdoc": "单次交付涉及的页面文件或项目蓝图变更摘要。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 产物类型。 */\n    kind: 'page-file' | 'scenario-view' | 'project-blueprint';\n    /** 产物名称（文件名或项目蓝图标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 产物类型。 */\n    kind: 'page-file' | 'scenario-view' | 'project-blueprint';\n    /** 产物名称（文件名或项目蓝图标识）。 */\n    name: string;\n    /** 产物当前交付状态。 */\n    status: 'dirty' | 'saved' | 'skipped' | 'rolledBack';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "产物类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "产物名称（文件名或项目蓝图标识）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "产物当前交付状态。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiDeliveryResult": {
+      "name": "AiDeliveryResult",
+      "jsdoc": "Agent Run 结束后的交付回执，包含模式、状态与产物列表。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    requestId?: string;\n    pageId?: string;\n    scenarioId?: string;\n    /** 交付模式（手动或自动）。 */\n    mode: AiDeliveryMode;\n    /** 交付最终状态。 */\n    status: 'saved' | 'skipped' | 'rolledBack' | 'failed';\n    /** 涉及的交付产物列表。 */\n    artifacts: readonly AiDeliveryArtifact[];\n    /** 可选的状态描述或错误信息。 */\n    message?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    requestId?: string;\n    pageId?: string;\n    scenarioId?: string;\n    /** 交付模式（手动或自动）。 */\n    mode: AiDeliveryMode;\n    /** 交付最终状态。 */\n    status: 'saved' | 'skipped' | 'rolledBack' | 'failed';\n    /** 涉及的交付产物列表。 */\n    artifacts: readonly AiDeliveryArtifact[];\n    /** 可选的状态描述或错误信息。 */\n    message?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "requestId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "jsdoc": "交付模式（手动或自动）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "交付最终状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "artifacts",
+              "jsdoc": "涉及的交付产物列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "可选的状态描述或错误信息。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiDeliveryPort": {
+      "name": "AiDeliveryPort",
+      "jsdoc": "应用层交付端口：负责 save、trace 与 rollback 三阶段契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 交付模式（manual 需人工确认，auto 自动落盘）。 */\n    readonly mode: AiDeliveryMode;\n    /** 执行交付落盘并返回回执。 */\n    save(context: TContext): Promise<AiDeliveryResult>;\n    /** 记录交付 trace（日志/遥测）。 */\n    trace(context: TContext, result: AiDeliveryResult): Promise<void>;\n    /** 交付失败时执行回滚并返回回执。 */\n    rollback(context: TContext, error: Error): Promise<AiDeliveryResult>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 交付模式（manual 需人工确认，auto 自动落盘）。 */\n    readonly mode: AiDeliveryMode;\n    /** 执行交付落盘并返回回执。 */\n    save(context: TContext): Promise<AiDeliveryResult>;\n    /** 记录交付 trace（日志/遥测）。 */\n    trace(context: TContext, result: AiDeliveryResult): Promise<void>;\n    /** 交付失败时执行回滚并返回回执。 */\n    rollback(context: TContext, error: Error): Promise<AiDeliveryResult>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "mode",
+              "jsdoc": "交付模式（manual 需人工确认，auto 自动落盘）。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "save",
+              "jsdoc": "执行交付落盘并返回回执。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "TContext",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "AiDeliveryResult",
+                    "sourcePath": "src/services/ai/ai-delivery-port.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "trace",
+              "jsdoc": "记录交付 trace（日志/遥测）。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "TContext",
+                    "refersToTypeParameter": true
+                  }
+                },
+                {
+                  "name": "result",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiDeliveryResult",
+                    "sourcePath": "src/services/ai/ai-delivery-port.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "rollback",
+              "jsdoc": "交付失败时执行回滚并返回回执。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "TContext",
+                    "refersToTypeParameter": true
+                  }
+                },
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "reference",
+                    "name": "Error"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "AiDeliveryResult",
+                    "sourcePath": "src/services/ai/ai-delivery-port.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiDeliveryResultExtras": {
+      "name": "AiDeliveryResultExtras",
+      "jsdoc": "附加在 Error 上的交付回执扩展字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 关联的交付回执。 */\n    delivery: AiDeliveryResult;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 关联的交付回执。 */\n    delivery: AiDeliveryResult;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "delivery",
+              "jsdoc": "关联的交付回执。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -73,7 +73,8 @@ async function navigateTab(fullPath: string): Promise<void> {
     currentProjectId !== null &&
     targetProjectId !== currentProjectId
   ) {
-    await projectSwitchService.switchAndReload(targetProjectId)
+    const receipt = await projectSwitchService.switchAndReload(targetProjectId)
+    receipt.assertCurrent()
   }
 
   if (await router.push(fullPath)) throw new Error('页面导航已取消，原实例保留')

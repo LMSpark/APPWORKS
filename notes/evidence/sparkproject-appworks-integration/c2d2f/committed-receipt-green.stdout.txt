@@ -1,0 +1,9 @@
+
+ RUN  v4.1.9 D:/SPARK_AppWorks/packages/spark-lowcode-api
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 43 skipped (44)
+   Start at  17:30:51
+   Duration  900ms (transform 547ms, setup 0ms, import 730ms, tests 4ms, environment 0ms)
+

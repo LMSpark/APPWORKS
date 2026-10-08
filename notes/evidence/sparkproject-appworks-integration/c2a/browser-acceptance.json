@@ -1,0 +1,54 @@
+{
+  "scope": "C2a production identity/menu/home recovery; no business writes or restricted-user validation",
+  "startedAt": "2026-10-07T07:01:42.254Z",
+  "finishedAt": "2026-10-07T07:06:40.263Z",
+  "base": "http://127.0.0.1:5274",
+  "legacyUniqueUrl": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/ui/service-management-page",
+  "firstNode": {
+    "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/table-and-view/ui/table-and-view-page?__sparkNavigationId=A8FB2B2B161125A16FD15ED9581CD15B",
+    "active": [
+      "表和视图管理"
+    ],
+    "connections": 4
+  },
+  "secondNode": {
+    "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/table-and-view/ui/table-and-view-page?__sparkNavigationId=28F30060CD75BA684B28EEF07732CB72",
+    "active": [
+      "项目蓝图人员管理项目蓝图数据资源数据库管理数据表和视图逻辑视图管理字典管理数据工作流业务流程设计报表管理权限配置",
+      "数据表和视图"
+    ],
+    "connections": 4
+  },
+  "wrongPath": {
+    "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/ui/service-management-page?__sparkNavigationId=28F30060CD75BA684B28EEF07732CB72",
+    "alert": "无法确定系统页面\n\n页面身份标记未命中当前导航，请从导航菜单重新选择。\n\n请从导航菜单重新选择。",
+    "businessHeadingCount": 0
+  },
+  "ambiguous": {
+    "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+    "alert": "无法确定系统页面\n\n当前路径对应多个导航项，请从导航菜单重新选择。\n\n请从导航菜单重新选择。",
+    "businessHeadingCount": 0
+  },
+  "homeRecovery": {
+    "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/ui/service-management-page?keep=1&keep=2&bare&blank=&__sparkNavigationId=78C58A7FE34F2987267A1E8AF10B2990#retain",
+    "keep": [
+      "1",
+      "2"
+    ],
+    "barePresent": true,
+    "blank": "",
+    "marker": "78C58A7FE34F2987267A1E8AF10B2990",
+    "hash": "#retain"
+  },
+  "errors": [],
+  "warnings": {
+    "count": 136,
+    "unmappedExisting": 135,
+    "expectedRecovery": 1
+  },
+  "pending": [
+    "native cache/edit-state isolation and close/revocation lifecycle C2c",
+    "full capability integration",
+    "restricted-account and backend write/readback acceptance"
+  ]
+}

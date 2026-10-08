@@ -1,0 +1,6 @@
+{
+  "finishedAt": "2026-10-07T12:34:19.7692045+08:00",
+  "exitCode": 0,
+  "startedAt": "2026-10-07T12:33:28.9392983+08:00",
+  "command": "pnpm run lint"
+}

@@ -1,0 +1,3030 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/shared-types",
+    "sourcePath": "packages/spark-component/src/components/shared-types.ts",
+    "sourceFile": "packages/spark-component/src/components/shared-types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/shared-types",
+    "jsdoc": "@module @spark-appworks/spark-component:components/shared-types\n职责：提供 shared types 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\n组件层共享类型——容器 & 字段均可引用。\nValueRef<T> 是 Vue Ref<T> 的最小结构约束，\n用于纯 TS 文件中接受 ref-like 对象而无需 import vue。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ValueRef",
+      "SparkNodeProps",
+      "SparkTitleContentProps",
+      "SparkDataDisplayProps",
+      "SparkFieldSemanticProps",
+      "SparkPrimaryActionTextProps",
+      "SparkReadonlyActionTextProps",
+      "SparkMultilineRowsProps",
+      "SparkMultilineFieldProps",
+      "SparkNumericMaxProps",
+      "SparkNumericBoundsProps",
+      "SparkMaxNumericFieldProps",
+      "SparkBoundedFieldProps",
+      "SparkRangeNumericFieldProps",
+      "SparkFileFieldProps",
+      "SparkFileUploadActionProps",
+      "SparkUploadFieldProps",
+      "SparkFilePickerFieldProps",
+      "SparkTemporalPickerProps",
+      "SparkRangeFilterProps",
+      "SparkRangeTemporalFieldProps",
+      "SparkOptionButtonStyleProps",
+      "SparkHierarchicalSelectionProps",
+      "SparkOptionValueMode",
+      "SparkOptionFieldProps",
+      "SparkButtonOptionFieldProps",
+      "SparkHierarchicalOptionFieldProps",
+      "SparkOptionSourceProps",
+      "SparkFloatingLayerProps",
+      "SparkGridLayoutProps",
+      "SparkTableModelProps",
+      "SparkCrudEventProps",
+      "SparkRowInteractionEventProps",
+      "SparkCrudDataContainerProps",
+      "SparkInteractiveDataContainerProps",
+      "SparkVisibilityEventProps",
+      "SparkVisibilityContainerProps"
+    ]
+  },
+  "$defs": {
+    "ValueRef": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ValueRef",
+      "properties": {
+        "value": {
+          "type": "object",
+          "title": "T"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkTitleContentProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkTitleContentProps",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkDataDisplayProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkDataDisplayProps",
+      "properties": {
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": true,
+        "dataField": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkFieldSemanticProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkFieldSemanticProps",
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onChange.params": {
+          "type": "object",
+          "properties": {
+            "args": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onChange.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "SparkPrimaryActionTextProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkPrimaryActionTextProps",
+      "properties": {
+        "buttonText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkReadonlyActionTextProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkReadonlyActionTextProps",
+      "properties": {
+        "readonlyButtonText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkMultilineRowsProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkMultilineRowsProps",
+      "properties": {
+        "rows": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkMultilineFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkMultilineFieldProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkFieldSemanticProps<TValue>"
+        },
+        {
+          "type": "object",
+          "title": "SparkMultilineRowsProps"
+        }
+      ],
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "rows": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkNumericMaxProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNumericMaxProps",
+      "properties": {
+        "max": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkNumericBoundsProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNumericBoundsProps",
+      "properties": {
+        "max": {
+          "type": "number"
+        },
+        "min": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkMaxNumericFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkMaxNumericFieldProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkFieldSemanticProps<TValue>"
+        },
+        {
+          "type": "object",
+          "title": "SparkNumericMaxProps"
+        }
+      ],
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "max": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkBoundedFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkBoundedFieldProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkFieldSemanticProps<TValue>"
+        },
+        {
+          "type": "object",
+          "title": "SparkNumericBoundsProps"
+        }
+      ],
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "max": {
+          "type": "number"
+        },
+        "min": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkRangeNumericFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkRangeNumericFieldProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkBoundedFieldProps<TValue>"
+        },
+        {
+          "type": "object",
+          "title": "SparkRangeFilterProps"
+        }
+      ],
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "max": {
+          "type": "number"
+        },
+        "min": {
+          "type": "number"
+        },
+        "filterMode": {
+          "const": "range"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkFileFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkFileFieldProps",
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "buttonText": {
+          "type": "string"
+        },
+        "accept": {
+          "type": "string"
+        },
+        "separator": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkFileUploadActionProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkFileUploadActionProps",
+      "properties": {
+        "readonlyButtonText": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkUploadFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkUploadFieldProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkFileFieldProps<TValue>"
+        },
+        {
+          "type": "object",
+          "title": "SparkFileUploadActionProps"
+        }
+      ],
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "buttonText": {
+          "type": "string"
+        },
+        "accept": {
+          "type": "string"
+        },
+        "separator": {
+          "type": "string"
+        },
+        "readonlyButtonText": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkFilePickerFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkFilePickerFieldProps",
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "buttonText": {
+          "type": "string"
+        },
+        "accept": {
+          "type": "string"
+        },
+        "separator": {
+          "type": "string"
+        },
+        "readonlyButtonText": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "multiple": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkTemporalPickerProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkTemporalPickerProps",
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "format": {
+          "type": "string"
+        },
+        "startPlaceholder": {
+          "type": "string"
+        },
+        "endPlaceholder": {
+          "type": "string"
+        },
+        "rangeSeparator": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkRangeFilterProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkRangeFilterProps",
+      "properties": {
+        "filterMode": {
+          "const": "range"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkRangeTemporalFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkRangeTemporalFieldProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkTemporalPickerProps<TValue>"
+        },
+        {
+          "type": "object",
+          "title": "SparkRangeFilterProps"
+        }
+      ],
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "format": {
+          "type": "string"
+        },
+        "startPlaceholder": {
+          "type": "string"
+        },
+        "endPlaceholder": {
+          "type": "string"
+        },
+        "rangeSeparator": {
+          "type": "string"
+        },
+        "filterMode": {
+          "const": "range"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkOptionButtonStyleProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkOptionButtonStyleProps",
+      "properties": {
+        "buttonStyle": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkHierarchicalSelectionProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkHierarchicalSelectionProps",
+      "properties": {
+        "checkStrictly": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkOptionValueMode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkOptionValueMode",
+      "enum": [
+        "auto",
+        "array",
+        "separated-string"
+      ]
+    },
+    "SparkOptionFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkOptionFieldProps",
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "TOption"
+          }
+        },
+        "optionLabelField": {
+          "type": "string"
+        },
+        "optionValueField": {
+          "type": "string"
+        },
+        "optionDisabledField": {
+          "type": "string"
+        },
+        "optionChildrenField": {
+          "type": "string"
+        },
+        "dataSource": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "optionDataViewKey": {
+          "type": "string"
+        },
+        "optionDataMember": true,
+        "optionDataField": {
+          "type": "string"
+        },
+        "valueSeparator": {
+          "type": "string"
+        },
+        "valueMode": {
+          "$ref": "#/$defs/SparkOptionValueMode"
+        },
+        "textSeparator": {
+          "type": "string"
+        },
+        "textStorageField": {
+          "type": "string"
+        },
+        "filterable": {
+          "type": "boolean"
+        },
+        "multiple": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkButtonOptionFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkButtonOptionFieldProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkOptionFieldProps<TValue, TOption>"
+        },
+        {
+          "type": "object",
+          "title": "SparkOptionButtonStyleProps"
+        }
+      ],
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "TOption"
+          }
+        },
+        "optionLabelField": {
+          "type": "string"
+        },
+        "optionValueField": {
+          "type": "string"
+        },
+        "optionDisabledField": {
+          "type": "string"
+        },
+        "optionChildrenField": {
+          "type": "string"
+        },
+        "dataSource": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "optionDataViewKey": {
+          "type": "string"
+        },
+        "optionDataMember": true,
+        "optionDataField": {
+          "type": "string"
+        },
+        "valueSeparator": {
+          "type": "string"
+        },
+        "valueMode": {
+          "$ref": "#/$defs/SparkOptionValueMode"
+        },
+        "textSeparator": {
+          "type": "string"
+        },
+        "textStorageField": {
+          "type": "string"
+        },
+        "filterable": {
+          "type": "boolean"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "buttonStyle": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkHierarchicalOptionFieldProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkHierarchicalOptionFieldProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkOptionFieldProps<TValue, TOption>"
+        },
+        {
+          "type": "object",
+          "title": "SparkHierarchicalSelectionProps"
+        }
+      ],
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "modelValue": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "value": {
+          "type": "object",
+          "title": "TValue"
+        },
+        "field": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "TOption"
+          }
+        },
+        "optionLabelField": {
+          "type": "string"
+        },
+        "optionValueField": {
+          "type": "string"
+        },
+        "optionDisabledField": {
+          "type": "string"
+        },
+        "optionChildrenField": {
+          "type": "string"
+        },
+        "dataSource": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "optionDataViewKey": {
+          "type": "string"
+        },
+        "optionDataMember": true,
+        "optionDataField": {
+          "type": "string"
+        },
+        "valueSeparator": {
+          "type": "string"
+        },
+        "valueMode": {
+          "$ref": "#/$defs/SparkOptionValueMode"
+        },
+        "textSeparator": {
+          "type": "string"
+        },
+        "textStorageField": {
+          "type": "string"
+        },
+        "filterable": {
+          "type": "boolean"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "checkStrictly": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkOptionSourceProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkOptionSourceProps",
+      "properties": {
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "TOption"
+          }
+        },
+        "optionLabelField": {
+          "type": "string"
+        },
+        "optionValueField": {
+          "type": "string"
+        },
+        "optionDisabledField": {
+          "type": "string"
+        },
+        "optionChildrenField": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkFloatingLayerProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkFloatingLayerProps",
+      "properties": {
+        "placement": {
+          "type": "string"
+        },
+        "effect": {
+          "enum": [
+            "dark",
+            "light"
+          ]
+        },
+        "offset": {
+          "type": "number"
+        },
+        "showAfter": {
+          "type": "number"
+        },
+        "hideAfter": {
+          "type": "number"
+        },
+        "showArrow": {
+          "type": "boolean"
+        },
+        "popperClass": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkGridLayoutProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkGridLayoutProps",
+      "properties": {
+        "gridColumns": {
+          "type": "number"
+        },
+        "gridGap": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "gridAutoRows": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkTableModelProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkTableModelProps",
+      "properties": {
+        "dataSource": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": true,
+        "dataField": {
+          "type": "string"
+        },
+        "showDataViewMeta": {
+          "type": "boolean"
+        },
+        "showAggregateSummary": {
+          "type": "boolean"
+        },
+        "showSelectionSummary": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkCrudEventProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkCrudEventProps",
+      "properties": {
+        "onAddRow": {
+          "type": "object",
+          "title": "AddRowHandler"
+        },
+        "onEditRow": {
+          "type": "object",
+          "title": "EditRowHandler"
+        },
+        "onRemoveRow": {
+          "type": "object",
+          "title": "RemoveRowHandler"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkRowInteractionEventProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkRowInteractionEventProps",
+      "properties": {
+        "onRowClick": {
+          "type": "object",
+          "title": "RowClickHandler"
+        },
+        "onSelectionChange": {
+          "type": "object",
+          "title": "RowSelectionHandler"
+        },
+        "onCurrentChange": {
+          "type": "object",
+          "title": "CurrentRowChangeHandler"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkCrudDataContainerProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkCrudDataContainerProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkTableModelProps"
+        },
+        {
+          "type": "object",
+          "title": "SparkCrudEventProps"
+        }
+      ],
+      "properties": {
+        "dataSource": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": true,
+        "dataField": {
+          "type": "string"
+        },
+        "showDataViewMeta": {
+          "type": "boolean"
+        },
+        "showAggregateSummary": {
+          "type": "boolean"
+        },
+        "showSelectionSummary": {
+          "type": "boolean"
+        },
+        "onAddRow": {
+          "type": "object",
+          "title": "AddRowHandler"
+        },
+        "onEditRow": {
+          "type": "object",
+          "title": "EditRowHandler"
+        },
+        "onRemoveRow": {
+          "type": "object",
+          "title": "RemoveRowHandler"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkInteractiveDataContainerProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SparkInteractiveDataContainerProps",
+      "allOf": [
+        {
+          "type": "object",
+          "title": "SparkCrudDataContainerProps"
+        },
+        {
+          "type": "object",
+          "title": "SparkRowInteractionEventProps"
+        }
+      ],
+      "properties": {
+        "dataSource": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": true,
+        "dataField": {
+          "type": "string"
+        },
+        "showDataViewMeta": {
+          "type": "boolean"
+        },
+        "showAggregateSummary": {
+          "type": "boolean"
+        },
+        "showSelectionSummary": {
+          "type": "boolean"
+        },
+        "onAddRow": {
+          "type": "object",
+          "title": "AddRowHandler"
+        },
+        "onEditRow": {
+          "type": "object",
+          "title": "EditRowHandler"
+        },
+        "onRemoveRow": {
+          "type": "object",
+          "title": "RemoveRowHandler"
+        },
+        "onRowClick": {
+          "type": "object",
+          "title": "RowClickHandler"
+        },
+        "onSelectionChange": {
+          "type": "object",
+          "title": "RowSelectionHandler"
+        },
+        "onCurrentChange": {
+          "type": "object",
+          "title": "CurrentRowChangeHandler"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SparkVisibilityEventProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkVisibilityEventProps",
+      "$defs": {
+        "method.onOpen.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onOpen.return": true,
+        "method.onClose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onClose.return": true,
+        "method.onOpened.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onOpened.return": true,
+        "method.onClosed.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onClosed.return": true
+      }
+    },
+    "SparkVisibilityContainerProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkVisibilityContainerProps",
+      "properties": {
+        "value": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T11:14:49.037Z",
+  "models": {
+    "ValueRef": {
+      "name": "ValueRef",
+      "jsdoc": "Value Ref 的引用结构。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 当前持有的值。\n     *\n     * 约定：\n     * - 调用方可以像操作 Vue ref 一样读取 `value`\n     * - 也可以直接覆写 `value`，用于在纯 TS 工具中完成状态同步\n     */\n    value: T;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "当前持有的值。\n约定：\n- 调用方可以像操作 Vue ref 一样读取 `value`\n- 也可以直接覆写 `value`，用于在纯 TS 工具中完成状态同步",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeProps": {
+      "name": "SparkNodeProps",
+      "jsdoc": "SPARK 组件共享基类（第一层）：所有 SPARK 组件 props 的统一起点。\n说明：\n- type 由渲染器路由与组件默认值共同决定\n- id 对应 SparkNode.id 的运行时映射\n- children 必须对齐 `SparkNode.children` 的真实运行时形态\n- registry 分支会直接把 `node.children` 透传给目标组件\n- `children` 允许包含文本子节点，因此不能错误收窄成 `SparkNode[]`\n- 只消费结构子节点的容器，应在本地使用 `getSparkNodeChildren()` 再收窄",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 组件类型标识。\n     *\n     * 来源通常是 `SparkNode.type`，也可能在运行时由组件默认值补齐，\n     * 主要用于渲染器路由、调试信息展示，以及少量组件内部的类型分支判断。\n     */\n    type?: string;\n    /**\n     * 组件实例的稳定标识。\n     *\n      * 它通常对应 `SparkNode.id`，可用于：\n     * - 页面脚本按名称查询节点\n     * - 事件回调、日志、调试面板定位具体组件\n     * - 某些容器对子节点做稳定 key 推导\n     */\n    id?: string;\n    /**\n     * 原始子节点载荷，必须严格对齐 `SparkNode.children` 的运行时形态。\n     *\n     * 注意：\n     * - 这里不只会出现结构化 `SparkNode`\n     * - 还可能出现字符串、数字等文本子节点\n     * - 只接受结构节点的组件，必须在本地显式收窄，而不能在共享层提前写死为 `SparkNode[]`\n     */\n    children?: SparkNodeChildren;\n    /**\n     * 权限不足时的呈现策略。\n     * - `disable`：保留可见但禁用（默认）\n     * - `hide`：直接隐藏组件\n     */\n    permissionDeniedMode?: 'disable' | 'hide';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "组件类型标识。\n来源通常是 `SparkNode.type`，也可能在运行时由组件默认值补齐，\n主要用于渲染器路由、调试信息展示，以及少量组件内部的类型分支判断。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "jsdoc": "组件实例的稳定标识。\n它通常对应 `SparkNode.id`，可用于：\n- 页面脚本按名称查询节点\n- 事件回调、日志、调试面板定位具体组件\n- 某些容器对子节点做稳定 key 推导",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "jsdoc": "原始子节点载荷，必须严格对齐 `SparkNode.children` 的运行时形态。\n注意：\n- 这里不只会出现结构化 `SparkNode`\n- 还可能出现字符串、数字等文本子节点\n- 只接受结构节点的组件，必须在本地显式收窄，而不能在共享层提前写死为 `SparkNode[]`",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionDeniedMode",
+              "jsdoc": "权限不足时的呈现策略。\n- `disable`：保留可见但禁用（默认）\n- `hide`：直接隐藏组件",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkTitleContentProps": {
+      "name": "SparkTitleContentProps",
+      "jsdoc": "标题 + 内容文本语义（容器/展示组件复用）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 标题位文本。\n     * 通常用于卡片头、统计标题、面板标题等“主说明”区域。\n     */\n    title?: string;\n    /**\n     * 主内容文本。\n     * 通常用于正文、摘要、补充说明，和 `title` 形成“标题 + 内容”的基础展示模型。\n     */\n    content?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "标题位文本。\n通常用于卡片头、统计标题、面板标题等“主说明”区域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "主内容文本。\n通常用于正文、摘要、补充说明，和 `title` 形成“标题 + 内容”的基础展示模型。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkDataDisplayProps": {
+      "name": "SparkDataDisplayProps",
+      "jsdoc": "展示组件值语义。\n适用于只读 display 组件：\n- 可以直接接收显式 `value`\n- 也可以通过 `field` 从当前上下文数据读取值\n注意：\n- 这里只描述“值来源”语义，不包含字段编辑语义\n- 组件自身仍应显式 `extends SparkNodeProps`，保持 props 入口可读",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 显式展示值。\n     *\n     * 适用于不依赖运行时上下文、直接由配置或外层受控传入的只读展示场景。\n     */\n    value?: TValue;\n    /** DataView 定位键，用于从页面数据空间读取展示值。 */\n    dataViewKey?: string;\n    /** DataView 成员枚举值。 */\n    dataMember?: DataMember | `${DataMember}`;\n    /** DataView 成员内部业务字段或点路径。 */\n    dataField?: string;\n    /**\n     * 数据字段绑定键。\n     *\n     * 常见语义是从当前上下文数据中读取 `currentRow[field]`，\n     * 用于详情展示、只读文本渲染或行内展示等场景。\n     */\n    field?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "显式展示值。\n适用于不依赖运行时上下文、直接由配置或外层受控传入的只读展示场景。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键，用于从页面数据空间读取展示值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "jsdoc": "DataView 成员枚举值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "jsdoc": "DataView 成员内部业务字段或点路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "jsdoc": "数据字段绑定键。\n常见语义是从当前上下文数据中读取 `currentRow[field]`，\n用于详情展示、只读文本渲染或行内展示等场景。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkFieldSemanticProps": {
+      "name": "SparkFieldSemanticProps",
+      "jsdoc": "字段语义层（无根）。\n只描述 field 组件自己的值/标签/占位等编辑语义，\n不引入 `SparkNodeProps`，以便具体组件能够显式挂在根层上而不形成重复继承。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 字段宽度。\n     *\n     * 主要用于输入类、选择类、文件类字段的控件宽度控制。\n     * 这里统一约定为数值宽度，由具体组件决定如何映射到样式层。\n     */\n    width?: number;\n    /**\n     * 表格列是否允许拖动列宽。\n     *\n     * 字段作为 r-table 列渲染时映射到 `el-table-column` 的 `resizable`。\n     */\n    resizable?: boolean;\n    /**\n     * 是否允许清空当前值。\n     *\n     * 适用于输入类、选择类、时间类、文件类等可回到“空值”状态的字段。\n     * 具体组件可按自身能力决定是否真正消费该配置。\n     */\n    clearable?: boolean;\n    /**\n     * 直接传入的受控字段值。\n     *\n     * 对应 Vue v-model 标准命名，支持 `v-model=\"xxx\"` 写法。\n     */\n    modelValue?: TValue;\n    /**\n     * 跨框架配置模型值。\n     *\n     * 页面配置可继续使用 `value` 表达字段当前值；Vue 渲染适配层会在下发组件前映射为 `modelValue`。\n     */\n    value?: TValue;\n    /**\n     * 字段绑定名。\n     *\n     * 常见语义是从当前上下文数据中读取 `currentRow[field]`，\n     * 也可作为表单写回、明细展示、列渲染时的字段定位键。\n     */\n    field?: string;\n    /**\n     * 展示标签。\n     * 常用于表单项标题、详情项名称、字段说明等“人类可读”的字段名展示。\n     */\n    label?: string;\n    /**\n     * 只读状态。\n     *\n     * 表示组件仍可见、通常仍参与布局，但不允许用户修改值；\n     * 它与完全禁用或隐藏是不同层级的语义。\n     */\n    readonly?: boolean;\n    /**\n     * 占位文案。\n     * 当组件无值且支持 placeholder 时，用来提示用户预期输入或显示内容格式。\n     */\n    placeholder?: string;\n    /**\n     * 字段值变更回调。\n     *\n     * 统一由字段控制层透传给事件分发器，替代隐式监听提取。\n     */\n    onChange?: (...args: unknown[]) => void | Promise<void>;\n    /**\n     * 表头/详情标题对齐方向。\n     * 用于表格表头及详情项标题的水平对齐控制。\n     */\n    titleAlign?: 'left' | 'center' | 'right';\n    /**\n     * 值区对齐方向。\n     * 用于表格单元格及详情项值区的水平对齐控制。\n     */\n    valueAlign?: 'left' | 'center' | 'right';\n    /**\n     * 表格表头单元格 CSS 类名。\n     * 直接映射到 `el-table-column` 的 `label-class-name`。\n     */\n    headerCellClassName?: string;\n    /**\n     * 表格单元格 CSS 类名。\n     * 直接映射到 `el-table-column` 的 `class-name`。\n     */\n    cellClassName?: string;\n    /**\n     * 详情/表单标题 CSS 类名。\n     */\n    titleClassName?: string;\n    /**\n     * 详情/表格值区 CSS 类名。\n     */\n    valueClassName?: string;\n    /**\n     * 是否允许排序。\n     * - true: 前端排序\n     * - 'custom': 服务端排序\n     * - false: 禁用排序\n     */\n    sortable?: boolean | 'custom';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "width",
+              "jsdoc": "字段宽度。\n主要用于输入类、选择类、文件类字段的控件宽度控制。\n这里统一约定为数值宽度，由具体组件决定如何映射到样式层。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resizable",
+              "jsdoc": "表格列是否允许拖动列宽。\n字段作为 r-table 列渲染时映射到 `el-table-column` 的 `resizable`。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "jsdoc": "是否允许清空当前值。\n适用于输入类、选择类、时间类、文件类等可回到“空值”状态的字段。\n具体组件可按自身能力决定是否真正消费该配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelValue",
+              "jsdoc": "直接传入的受控字段值。\n对应 Vue v-model 标准命名，支持 `v-model=\"xxx\"` 写法。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "跨框架配置模型值。\n页面配置可继续使用 `value` 表达字段当前值；Vue 渲染适配层会在下发组件前映射为 `modelValue`。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "jsdoc": "字段绑定名。\n常见语义是从当前上下文数据中读取 `currentRow[field]`，\n也可作为表单写回、明细展示、列渲染时的字段定位键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "展示标签。\n常用于表单项标题、详情项名称、字段说明等“人类可读”的字段名展示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "jsdoc": "只读状态。\n表示组件仍可见、通常仍参与布局，但不允许用户修改值；\n它与完全禁用或隐藏是不同层级的语义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "jsdoc": "占位文案。\n当组件无值且支持 placeholder 时，用来提示用户预期输入或显示内容格式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "jsdoc": "表头/详情标题对齐方向。\n用于表格表头及详情项标题的水平对齐控制。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "jsdoc": "值区对齐方向。\n用于表格单元格及详情项值区的水平对齐控制。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "jsdoc": "表格表头单元格 CSS 类名。\n直接映射到 `el-table-column` 的 `label-class-name`。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "jsdoc": "表格单元格 CSS 类名。\n直接映射到 `el-table-column` 的 `class-name`。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "jsdoc": "详情/表单标题 CSS 类名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "jsdoc": "详情/表格值区 CSS 类名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "jsdoc": "是否允许排序。\n- true: 前端排序\n- 'custom': 服务端排序\n- false: 禁用排序",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onChange",
+              "jsdoc": "字段值变更回调。\n统一由字段控制层透传给事件分发器，替代隐式监听提取。",
+              "parameters": [
+                {
+                  "name": "args",
+                  "type": {
+                    "type": "rest",
+                    "elementType": {
+                      "type": "array",
+                      "elementType": {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SparkPrimaryActionTextProps": {
+      "name": "SparkPrimaryActionTextProps",
+      "jsdoc": "主动作按钮文案。\n适用于带显式主操作按钮的字段，\n例如“选择”“上传”“浏览文件”。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 主动作按钮文案。\n     */\n    buttonText?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "buttonText",
+              "jsdoc": "主动作按钮文案。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkReadonlyActionTextProps": {
+      "name": "SparkReadonlyActionTextProps",
+      "jsdoc": "只读/查看类动作按钮文案。\n适用于字段在可编辑与只读模式之间切换时，\n主动作按钮文本也需要跟随切换的场景。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 只读或查看模式下的主动作按钮文案。\n     */\n    readonlyButtonText?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "readonlyButtonText",
+              "jsdoc": "只读或查看模式下的主动作按钮文案。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkMultilineRowsProps": {
+      "name": "SparkMultilineRowsProps",
+      "jsdoc": "多行输入可见行数语义。\n适用于 textarea、mention 的多行输入模式、\n以及带源码编辑区的 html-editor 这类“以文本区显示行数”为主的输入组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 多行输入的可见行数。\n     *\n     * 该值通常直接映射到底层 textarea 类组件的 `rows` 属性。\n     */\n    rows?: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "jsdoc": "多行输入的可见行数。\n该值通常直接映射到底层 textarea 类组件的 `rows` 属性。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkMultilineFieldProps": {
+      "name": "SparkMultilineFieldProps",
+      "jsdoc": "多行字段语义。\n适用于 textarea、mention、html-editor 这类建立在字段语义之上，\n同时复用多行行数配置的输入组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkFieldSemanticProps<TValue> & SparkMultilineRowsProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<TValue>",
+            "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkMultilineRowsProps",
+            "targetName": "SparkMultilineRowsProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkNumericMaxProps": {
+      "name": "SparkNumericMaxProps",
+      "jsdoc": "数值上界语义。\n适用于评分、数字输入、滑块等需要声明“最大允许值”或“最大档位”的数值字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 最大值。\n     */\n    max?: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "max",
+              "jsdoc": "最大值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkNumericBoundsProps": {
+      "name": "SparkNumericBoundsProps",
+      "jsdoc": "数值区间边界语义。\n适用于同时需要声明最小值和最大值的数值字段，\n例如 number / slider 这类连续区间输入组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNumericMaxProps & {\n    /**\n       * 最小值。\n       */\n    min?: number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNumericMaxProps",
+            "targetName": "SparkNumericMaxProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /**\n       * 最小值。\n       */\n    min?: number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "min",
+              "jsdoc": "最小值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkMaxNumericFieldProps": {
+      "name": "SparkMaxNumericFieldProps",
+      "jsdoc": "有上限的数值字段语义。\n适用于 rate 这类只声明最大档位、但不要求最小值边界的数值字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkFieldSemanticProps<TValue> & SparkNumericMaxProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<TValue>",
+            "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkNumericMaxProps",
+            "targetName": "SparkNumericMaxProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkBoundedFieldProps": {
+      "name": "SparkBoundedFieldProps",
+      "jsdoc": "有上下界的数值字段语义。\n适用于 slider、number 这类需要共同声明最小值和最大值的字段组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkFieldSemanticProps<TValue> & SparkNumericBoundsProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<TValue>",
+            "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkNumericBoundsProps",
+            "targetName": "SparkNumericBoundsProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkRangeNumericFieldProps": {
+      "name": "SparkRangeNumericFieldProps",
+      "jsdoc": "支持区间筛选的数值字段语义。\n适用于在普通数值输入与范围筛选之间切换的 number 类组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkBoundedFieldProps<TValue> & SparkRangeFilterProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkBoundedFieldProps<TValue>",
+            "targetName": "SparkBoundedFieldProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkRangeFilterProps",
+            "targetName": "SparkRangeFilterProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkFileFieldProps": {
+      "name": "SparkFileFieldProps",
+      "jsdoc": "文件字段核心语义。\n用于“字段值本身是文件路径/文件名字符串”的场景，\n统一收口文件类型过滤、字符串拼接规则，以及主动作按钮文案。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkFieldSemanticProps<TValue> & SparkPrimaryActionTextProps & {\n    /**\n       * 文件类型过滤条件。\n       *\n       * 一般透传给文件浏览/上传能力，例如 `image/*`、`.pdf,.docx`。\n       */\n    accept?: string;\n    /**\n     * 多文件字符串分隔符。\n     *\n     * 当一个字段以单个字符串承载多个文件值时，用它拼接文件名或路径。\n     */\n    separator?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<TValue>",
+            "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkPrimaryActionTextProps",
+            "targetName": "SparkPrimaryActionTextProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /**\n       * 文件类型过滤条件。\n       *\n       * 一般透传给文件浏览/上传能力，例如 `image/*`、`.pdf,.docx`。\n       */\n    accept?: string;\n    /**\n     * 多文件字符串分隔符。\n     *\n     * 当一个字段以单个字符串承载多个文件值时，用它拼接文件名或路径。\n     */\n    separator?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "accept",
+              "jsdoc": "文件类型过滤条件。\n一般透传给文件浏览/上传能力，例如 `image/*`、`.pdf,.docx`。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "separator",
+              "jsdoc": "多文件字符串分隔符。\n当一个字段以单个字符串承载多个文件值时，用它拼接文件名或路径。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkFileUploadActionProps": {
+      "name": "SparkFileUploadActionProps",
+      "jsdoc": "文件上传/浏览切换动作语义。\n适用于既可能上传，也可能只读浏览的文件字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkReadonlyActionTextProps & {\n    /**\n       * 上传目标地址。\n       *\n       * 当值为空或 `#` 时，字段通常会退化为纯浏览模式。\n       */\n    action?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkReadonlyActionTextProps",
+            "targetName": "SparkReadonlyActionTextProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /**\n       * 上传目标地址。\n       *\n       * 当值为空或 `#` 时，字段通常会退化为纯浏览模式。\n       */\n    action?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "action",
+              "jsdoc": "上传目标地址。\n当值为空或 `#` 时，字段通常会退化为纯浏览模式。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkUploadFieldProps": {
+      "name": "SparkUploadFieldProps",
+      "jsdoc": "上传类文件字段语义。\n适用于值仍是文件字段，但交互上需要上传目标地址与文件字段本体同时存在的组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkFileFieldProps<TValue> & SparkFileUploadActionProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkFileFieldProps<TValue>",
+            "targetName": "SparkFileFieldProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkFileUploadActionProps",
+            "targetName": "SparkFileUploadActionProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkFilePickerFieldProps": {
+      "name": "SparkFilePickerFieldProps",
+      "jsdoc": "可选择多个文件，并支持上传/浏览双动作的文件字段语义。\n适用于文件路径选择器、图片选择器这类“值仍是字符串，\n但交互上同时支持上传与浏览”的文件字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkFileFieldProps<TValue> & SparkFileUploadActionProps & {\n    /**\n       * 是否允许一次选择多个文件。\n       */\n    multiple?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkFileFieldProps<TValue>",
+            "targetName": "SparkFileFieldProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkFileUploadActionProps",
+            "targetName": "SparkFileUploadActionProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /**\n       * 是否允许一次选择多个文件。\n       */\n    multiple?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "multiple",
+              "jsdoc": "是否允许一次选择多个文件。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkTemporalPickerProps": {
+      "name": "SparkTemporalPickerProps",
+      "jsdoc": "时间类选择器的通用交互语义。\n适用于 date-picker / time-picker 这类既可能选择单值，\n也可能选择范围值的时间输入组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkFieldSemanticProps<TValue> & {\n    /**\n       * 显示格式。\n       *\n       * 只影响控件展示层，不直接决定底层实际写回值的格式。\n       */\n    format?: string;\n    /**\n     * 范围起点占位文案。\n     */\n    startPlaceholder?: string;\n    /**\n     * 范围终点占位文案。\n     */\n    endPlaceholder?: string;\n    /**\n     * 范围值中间的展示分隔文案。\n     */\n    rangeSeparator?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<TValue>",
+            "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /**\n       * 显示格式。\n       *\n       * 只影响控件展示层，不直接决定底层实际写回值的格式。\n       */\n    format?: string;\n    /**\n     * 范围起点占位文案。\n     */\n    startPlaceholder?: string;\n    /**\n     * 范围终点占位文案。\n     */\n    endPlaceholder?: string;\n    /**\n     * 范围值中间的展示分隔文案。\n     */\n    rangeSeparator?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "format",
+              "jsdoc": "显示格式。\n只影响控件展示层，不直接决定底层实际写回值的格式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "startPlaceholder",
+              "jsdoc": "范围起点占位文案。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "endPlaceholder",
+              "jsdoc": "范围终点占位文案。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rangeSeparator",
+              "jsdoc": "范围值中间的展示分隔文案。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkRangeFilterProps": {
+      "name": "SparkRangeFilterProps",
+      "jsdoc": "范围过滤字段语义。\n适用于既可作为普通输入字段，也可切换到“区间筛选”模式的组件，\n例如 number/date 这类在查询表单里支持单值与范围值两种交互的字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 过滤模式。\n     * 当值为 `range` 时，组件通常切换到范围筛选 UI。\n     */\n    filterMode?: 'range' | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "filterMode",
+              "jsdoc": "过滤模式。\n当值为 `range` 时，组件通常切换到范围筛选 UI。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkRangeTemporalFieldProps": {
+      "name": "SparkRangeTemporalFieldProps",
+      "jsdoc": "支持范围筛选的时间字段语义。\n适用于 date/date-range 一类既保留时间选择器能力，\n又能切换到范围筛选模式的字段组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkTemporalPickerProps<TValue> & SparkRangeFilterProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkTemporalPickerProps<TValue>",
+            "targetName": "SparkTemporalPickerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkRangeFilterProps",
+            "targetName": "SparkRangeFilterProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkOptionButtonStyleProps": {
+      "name": "SparkOptionButtonStyleProps",
+      "jsdoc": "选项按钮样式语义。\n适用于同一组选项既可以普通项渲染，\n也可以切换成“按钮式选项”渲染的字段组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 是否启用按钮样式。\n     *\n     * 例如把 radio 渲染成 `el-radio-button`，\n     * 或把 checkbox-group 渲染成 `el-checkbox-button`。\n     */\n    buttonStyle?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "buttonStyle",
+              "jsdoc": "是否启用按钮样式。\n例如把 radio 渲染成 `el-radio-button`，\n或把 checkbox-group 渲染成 `el-checkbox-button`。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkHierarchicalSelectionProps": {
+      "name": "SparkHierarchicalSelectionProps",
+      "jsdoc": "层级选择严格模式语义。\n适用于树形/级联类选择组件，用来声明父子节点是否保持联动选择。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 是否启用严格选择。\n     *\n     * 开启后，父子节点通常不再自动联动，\n     * 组件会把每个节点视作独立可选项。\n     */\n    checkStrictly?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "checkStrictly",
+              "jsdoc": "是否启用严格选择。\n开启后，父子节点通常不再自动联动，\n组件会把每个节点视作独立可选项。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkOptionValueMode": {
+      "name": "SparkOptionValueMode",
+      "jsdoc": "选项字段主值持久化模式。\n- `auto`：尽量保持当前宿主字段已有的值形态\n- `array`：始终以数组值持久化\n- `separated-string`：始终以分隔字符串持久化，分隔规则由 `valueSeparator` 决定",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'auto' | 'array' | 'separated-string'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'auto'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'array'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'separated-string'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkOptionFieldProps": {
+      "name": "SparkOptionFieldProps",
+      "jsdoc": "带选项字段属性（第三层）：\n为具备 field 语义的“选项类字段组件”统一收口静态选项、动态选项解析和常见行为开关。\n适用范围：\n- select / multi-select / radio / checkbox-group\n- cascader / tree-select / transfer\n- entity-picker / icon-picker 等基于候选项选择值的字段组件\n说明：\n- `options / optionLabelField / optionValueField / optionDisabledField / optionChildrenField` 继承自 `SparkOptionSourceProps`\n- `options` 表示本地静态候选项入口；若组件同时提供 `optionDataViewKey`，运行时通常先解析动态数据源，再在缺失时回退到本地 `options`\n- `optionDataViewKey` 负责指向动态选项数据源，而不是选项对象内部的主键字段\n- 某些组件可通过为 `SparkOptionFieldProps<TValue, TOption>` 传入更具体的 `TOption` 收窄本地 `options` 类型，无需在组件 props 中重复声明 `options`\n- 如果某组件只有“候选项结构”语义，而没有 field/value/placeholder 等字段语义，可直接复用 `SparkOptionSourceProps`",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkFieldSemanticProps<TValue> & SparkOptionSourceProps<TOption> & {\n    /**\n       * @internal 运行时数据线，由框架注入，不属于页面配置。\n       *\n       * 作用：\n       * - 为字段组件提供当前 DataView 上下文\n       * - 让组件可以结合 `optionDataViewKey` 等配置解析出真实选项列表\n       */\n    dataSource?: DataView;\n    /**\n     * 选项 DataView 定位键。\n     *\n     * 通常指向某个 DataView，例如 `Categories@default`，\n     * 组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。\n     */\n    optionDataViewKey?: string;\n    /** 选项来源 DataView 成员，默认 rows。 */\n    optionDataMember?: DataMember | `${DataMember}`;\n    /** 选项来源成员内部字段或路径。 */\n    optionDataField?: string;\n    /**\n     * 值分隔符。\n     *\n     * 当组件处于多选语义，但主字段 `field` 选择以单个字符串而不是数组形式持久化时，\n     * 使用该分隔符把多个候选值序列化到主字段中。\n     *\n     * 示例：\n     * - 当前选中值为 `[101, 102]`\n     * - `valueSeparator` 为 `,`\n     * - 最终写入 `field` 为 `101,102`\n     */\n    valueSeparator?: string;\n    /**\n     * 主值持久化模式。\n     *\n     * 用于声明当前选项字段把选中结果写回 `field` 时，应保留数组，\n     * 还是按 `valueSeparator` 序列化成单个字符串。\n     */\n    valueMode?: SparkOptionValueMode;\n    /**\n     * 文本分隔符。\n     *\n     * 当组件把候选项文本额外写入 `textStorageField`，且当前选择包含多个候选项时，\n     * 使用该分隔符拼接展示文本。\n     */\n    textSeparator?: string;\n    /**\n     * 文本储存字段。\n     *\n     * 主字段 `field` 仍负责持久化候选值；`textStorageField` 仅用于额外保存候选项文本，\n     * 例如把选中的 ID 存到 `userIds`，同时把姓名串存到 `userNames`。\n     */\n    textStorageField?: string;\n    /**\n     * 是否允许在候选项中搜索。\n     * 一般用于候选集较大、需要关键字过滤的组件。\n     */\n    filterable?: boolean;\n    /**\n     * 是否启用多选模式。\n     * 开启后，组件的值语义通常从单值切换为数组值。\n     */\n    multiple?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<TValue>",
+            "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkOptionSourceProps<TOption>",
+            "targetName": "SparkOptionSourceProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /**\n       * @internal 运行时数据线，由框架注入，不属于页面配置。\n       *\n       * 作用：\n       * - 为字段组件提供当前 DataView 上下文\n       * - 让组件可以结合 `optionDataViewKey` 等配置解析出真实选项列表\n       */\n    dataSource?: DataView;\n    /**\n     * 选项 DataView 定位键。\n     *\n     * 通常指向某个 DataView，例如 `Categories@default`，\n     * 组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。\n     */\n    optionDataViewKey?: string;\n    /** 选项来源 DataView 成员，默认 rows。 */\n    optionDataMember?: DataMember | `${DataMember}`;\n    /** 选项来源成员内部字段或路径。 */\n    optionDataField?: string;\n    /**\n     * 值分隔符。\n     *\n     * 当组件处于多选语义，但主字段 `field` 选择以单个字符串而不是数组形式持久化时，\n     * 使用该分隔符把多个候选值序列化到主字段中。\n     *\n     * 示例：\n     * - 当前选中值为 `[101, 102]`\n     * - `valueSeparator` 为 `,`\n     * - 最终写入 `field` 为 `101,102`\n     */\n    valueSeparator?: string;\n    /**\n     * 主值持久化模式。\n     *\n     * 用于声明当前选项字段把选中结果写回 `field` 时，应保留数组，\n     * 还是按 `valueSeparator` 序列化成单个字符串。\n     */\n    valueMode?: SparkOptionValueMode;\n    /**\n     * 文本分隔符。\n     *\n     * 当组件把候选项文本额外写入 `textStorageField`，且当前选择包含多个候选项时，\n     * 使用该分隔符拼接展示文本。\n     */\n    textSeparator?: string;\n    /**\n     * 文本储存字段。\n     *\n     * 主字段 `field` 仍负责持久化候选值；`textStorageField` 仅用于额外保存候选项文本，\n     * 例如把选中的 ID 存到 `userIds`，同时把姓名串存到 `userNames`。\n     */\n    textStorageField?: string;\n    /**\n     * 是否允许在候选项中搜索。\n     * 一般用于候选集较大、需要关键字过滤的组件。\n     */\n    filterable?: boolean;\n    /**\n     * 是否启用多选模式。\n     * 开启后，组件的值语义通常从单值切换为数组值。\n     */\n    multiple?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSource",
+              "jsdoc": "@internal 运行时数据线，由框架注入，不属于页面配置。\n作用：\n- 为字段组件提供当前 DataView 上下文\n- 让组件可以结合 `optionDataViewKey` 等配置解析出真实选项列表",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDataViewKey",
+              "jsdoc": "选项 DataView 定位键。\n通常指向某个 DataView，例如 `Categories@default`，\n组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDataMember",
+              "jsdoc": "选项来源 DataView 成员，默认 rows。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDataField",
+              "jsdoc": "选项来源成员内部字段或路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueSeparator",
+              "jsdoc": "值分隔符。\n当组件处于多选语义，但主字段 `field` 选择以单个字符串而不是数组形式持久化时，\n使用该分隔符把多个候选值序列化到主字段中。\n示例：\n- 当前选中值为 `[101, 102]`\n- `valueSeparator` 为 `,`\n- 最终写入 `field` 为 `101,102`",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueMode",
+              "jsdoc": "主值持久化模式。\n用于声明当前选项字段把选中结果写回 `field` 时，应保留数组，\n还是按 `valueSeparator` 序列化成单个字符串。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textSeparator",
+              "jsdoc": "文本分隔符。\n当组件把候选项文本额外写入 `textStorageField`，且当前选择包含多个候选项时，\n使用该分隔符拼接展示文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textStorageField",
+              "jsdoc": "文本储存字段。\n主字段 `field` 仍负责持久化候选值；`textStorageField` 仅用于额外保存候选项文本，\n例如把选中的 ID 存到 `userIds`，同时把姓名串存到 `userNames`。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterable",
+              "jsdoc": "是否允许在候选项中搜索。\n一般用于候选集较大、需要关键字过滤的组件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "multiple",
+              "jsdoc": "是否启用多选模式。\n开启后，组件的值语义通常从单值切换为数组值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkButtonOptionFieldProps": {
+      "name": "SparkButtonOptionFieldProps",
+      "jsdoc": "按钮化选项字段语义。\n适用于 radio / checkbox-group 这类既是选项字段，\n又支持按钮式渲染的组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkOptionFieldProps<TValue, TOption> & SparkOptionButtonStyleProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkOptionFieldProps<TValue, TOption>",
+            "targetName": "SparkOptionFieldProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkOptionButtonStyleProps",
+            "targetName": "SparkOptionButtonStyleProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkHierarchicalOptionFieldProps": {
+      "name": "SparkHierarchicalOptionFieldProps",
+      "jsdoc": "层级选项字段语义。\n适用于 cascader / tree-select 这类既是选项字段，\n又需要父子选择联动控制的组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkOptionFieldProps<TValue, TOption> & SparkHierarchicalSelectionProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkOptionFieldProps<TValue, TOption>",
+            "targetName": "SparkOptionFieldProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkHierarchicalSelectionProps",
+            "targetName": "SparkHierarchicalSelectionProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkOptionSourceProps": {
+      "name": "SparkOptionSourceProps",
+      "jsdoc": "选项源配置（源层通用）：\n只描述“候选项本身的结构”，不包含 field 语义，也不负责动态 DataViewKey 绑定。\n适合：\n- 静态枚举\n- 小规模本地 options\n- 构建期即可确定的树形/级联候选项\n注意：\n- 这里的 `options` 只是在类型层描述“本地直接传入的候选项”\n- 若具体字段组件还支持 `optionDataViewKey`，动态候选项会在运行时由共享解析链补进来，而不是受这里的静态类型声明限制",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 可选项数组。\n     * 通常用于静态枚举场景，例如状态、性别、开关类型等固定候选列表。\n     */\n    options?: TOption[];\n    /**\n     * 选项显示字段。\n     * 指定从选项对象的哪个字段读取展示文本。\n     */\n    optionLabelField?: string;\n    /**\n     * 选项值字段。\n      * 指定从选项对象的哪个字段读取最终写入字段主值的值。\n     */\n    optionValueField?: string;\n    /**\n     * 选项禁用字段。\n     * 指定从选项对象的哪个字段读取“当前候选项是否不可选”的布尔状态。\n     */\n    optionDisabledField?: string;\n    /**\n     * 子级字段名。\n     * 用于树形选择、级联选择等嵌套选项结构，指定子节点数组所在字段。\n     */\n    optionChildrenField?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "options",
+              "jsdoc": "可选项数组。\n通常用于静态枚举场景，例如状态、性别、开关类型等固定候选列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionLabelField",
+              "jsdoc": "选项显示字段。\n指定从选项对象的哪个字段读取展示文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionValueField",
+              "jsdoc": "选项值字段。\n指定从选项对象的哪个字段读取最终写入字段主值的值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionDisabledField",
+              "jsdoc": "选项禁用字段。\n指定从选项对象的哪个字段读取“当前候选项是否不可选”的布尔状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionChildrenField",
+              "jsdoc": "子级字段名。\n用于树形选择、级联选择等嵌套选项结构，指定子节点数组所在字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkFloatingLayerProps": {
+      "name": "SparkFloatingLayerProps",
+      "jsdoc": "浮层行为配置（容器层通用）：\n提供 popover、tooltip、dropdown 一类“挂载到目标元素附近”的浮层组件共通行为。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 浮层位置。\n     * 一般透传给底层 UI 库的 placement 语义，例如 top / bottom-start / right-end。\n     */\n    placement?: string;\n    /**\n     * 浮层主题。\n     * 通常对应浅色或深色两套视觉风格。\n     */\n    effect?: 'dark' | 'light';\n    /**\n     * 浮层与锚点之间的偏移量。\n     * 用于微调视觉距离，避免贴边或遮挡。\n     */\n    offset?: number;\n    /**\n     * 显示延迟，单位毫秒。\n     * 常用于 hover 浮层，避免鼠标轻扫时频繁闪现。\n     */\n    showAfter?: number;\n    /**\n     * 隐藏延迟，单位毫秒。\n     * 常用于改善 hover 离开时的交互容错。\n     */\n    hideAfter?: number;\n    /**\n     * 是否显示箭头。\n     * 用于增强浮层与目标元素之间的视觉指向关系。\n     */\n    showArrow?: boolean;\n    /**\n     * 浮层根节点附加 class。\n     * 供页面或主题层覆盖局部样式时使用。\n     */\n    popperClass?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "placement",
+              "jsdoc": "浮层位置。\n一般透传给底层 UI 库的 placement 语义，例如 top / bottom-start / right-end。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "effect",
+              "jsdoc": "浮层主题。\n通常对应浅色或深色两套视觉风格。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "offset",
+              "jsdoc": "浮层与锚点之间的偏移量。\n用于微调视觉距离，避免贴边或遮挡。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showAfter",
+              "jsdoc": "显示延迟，单位毫秒。\n常用于 hover 浮层，避免鼠标轻扫时频繁闪现。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hideAfter",
+              "jsdoc": "隐藏延迟，单位毫秒。\n常用于改善 hover 离开时的交互容错。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showArrow",
+              "jsdoc": "是否显示箭头。\n用于增强浮层与目标元素之间的视觉指向关系。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "popperClass",
+              "jsdoc": "浮层根节点附加 class。\n供页面或主题层覆盖局部样式时使用。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkGridLayoutProps": {
+      "name": "SparkGridLayoutProps",
+      "jsdoc": "Grid 布局容器语义。\n适用于 form、detail、dialog、section 等需要统一声明内容区 CSS Grid 布局的容器。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** CSS Grid 列数 */\n    gridColumns?: number;\n    /** 栅格间距 */\n    gridGap?: number | string;\n    /** 栅格行高 */\n    gridAutoRows?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "gridColumns",
+              "jsdoc": "CSS Grid 列数",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gridGap",
+              "jsdoc": "栅格间距",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gridAutoRows",
+              "jsdoc": "栅格行高",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkTableModelProps": {
+      "name": "SparkTableModelProps",
+      "jsdoc": "表级模型属性（第五层）：\n用于 DataView 驱动的数据容器，描述它们和页面数据空间的连接点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * @internal 运行时数据线，由框架注入，不属于页面配置。\n     *\n     * 它代表当前容器实际绑定到的 DataView。\n     */\n    dataSource?: DataView;\n    /**\n     * DataView 定位键。\n     * 固定格式为 `table@viewId` 或 `#scope@table@viewId`，用于把表级容器绑定到页面 DataSet 的某个视图。\n     */\n    dataViewKey?: string;\n    /** DataView 成员枚举值，用于读取 DataView 输出成员。 */\n    dataMember?: DataMember | `${DataMember}`;\n    /** DataView 成员内部业务字段或点路径。 */\n    dataField?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSource",
+              "jsdoc": "@internal 运行时数据线，由框架注入，不属于页面配置。\n它代表当前容器实际绑定到的 DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键。\n固定格式为 `table@viewId` 或 `#scope@table@viewId`，用于把表级容器绑定到页面 DataSet 的某个视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "jsdoc": "DataView 成员枚举值，用于读取 DataView 输出成员。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "jsdoc": "DataView 成员内部业务字段或点路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showDataViewMeta",
+              "jsdoc": "是否显示 DataView 元信息栏。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showAggregateSummary",
+              "jsdoc": "是否显示全量聚合摘要。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showSelectionSummary",
+              "jsdoc": "是否显示选区聚合摘要。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkCrudEventProps": {
+      "name": "SparkCrudEventProps",
+      "jsdoc": "数据容器 CRUD 事件（统一命名层）。\n为表格、列表等可编辑容器提供统一命名的增删改动作入口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 新增动作回调。\n     * 常由工具栏“新增”按钮、空态入口或快捷动作触发。\n     */\n    onAddRow?: AddRowHandler;\n    /**\n     * 编辑动作回调。\n     * 通常用于编辑当前行、双击行编辑或弹出编辑表单。\n     */\n    onEditRow?: EditRowHandler;\n    /**\n     * 删除动作回调。\n     * 常用于删除当前行、批量删除所选行，或触发删除确认流程。\n     */\n    onRemoveRow?: RemoveRowHandler;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "onAddRow",
+              "jsdoc": "新增动作回调。\n常由工具栏“新增”按钮、空态入口或快捷动作触发。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onEditRow",
+              "jsdoc": "编辑动作回调。\n通常用于编辑当前行、双击行编辑或弹出编辑表单。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onRemoveRow",
+              "jsdoc": "删除动作回调。\n常用于删除当前行、批量删除所选行，或触发删除确认流程。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkRowInteractionEventProps": {
+      "name": "SparkRowInteractionEventProps",
+      "jsdoc": "行交互事件（统一命名层）。\n用于承接用户对数据行的常见交互行为，并向上层暴露稳定的事件名。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 行点击回调。\n     * 用户点击某一行时触发，常用于详情联动、主子表级联或进入编辑态。\n     */\n    onRowClick?: RowClickHandler;\n    /**\n     * 选中集合变化回调。\n     * 多选表格或勾选容器在选中项增减后触发。\n     */\n    onSelectionChange?: RowSelectionHandler;\n    /**\n     * 当前行变化回调。\n     * 当前高亮行、焦点行或主选择行切换时触发。\n     */\n    onCurrentChange?: CurrentRowChangeHandler;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "onRowClick",
+              "jsdoc": "行点击回调。\n用户点击某一行时触发，常用于详情联动、主子表级联或进入编辑态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onSelectionChange",
+              "jsdoc": "选中集合变化回调。\n多选表格或勾选容器在选中项增减后触发。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onCurrentChange",
+              "jsdoc": "当前行变化回调。\n当前高亮行、焦点行或主选择行切换时触发。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SparkCrudDataContainerProps": {
+      "name": "SparkCrudDataContainerProps",
+      "jsdoc": "在数据容器基础上增加统一 CRUD 动作入口，适用于 form、detail、list、tree、table。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkTableModelProps & SparkCrudEventProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkTableModelProps",
+            "targetName": "SparkTableModelProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkCrudEventProps",
+            "targetName": "SparkCrudEventProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkInteractiveDataContainerProps": {
+      "name": "SparkInteractiveDataContainerProps",
+      "jsdoc": "在可编辑数据容器基础上继续收口行点击、选中集合变化、当前行变化等交互事件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkCrudDataContainerProps & SparkRowInteractionEventProps",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkCrudDataContainerProps",
+            "targetName": "SparkCrudDataContainerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkRowInteractionEventProps",
+            "targetName": "SparkRowInteractionEventProps"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SparkVisibilityEventProps": {
+      "name": "SparkVisibilityEventProps",
+      "jsdoc": "可见性生命周期事件（统一命名层）。\n适用于 dialog、drawer、popover 等具备显隐状态的组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /**\n     * 打开动作触发时回调。\n     * 一般用于进入显示流程前准备数据或记录埋点。\n     */\n    onOpen?: () => void;\n    /**\n     * 关闭动作触发时回调。\n     * 一般用于执行关闭确认、清理临时状态或通知外层。\n     */\n    onClose?: () => void;\n    /**\n     * 打开完成后回调。\n     * 适合执行依赖 DOM 已稳定可见的逻辑，例如 autofocus 或尺寸测量。\n     */\n    onOpened?: () => void;\n    /**\n     * 关闭完成后回调。\n     * 适合做最终清理、销毁临时资源或恢复外层页面状态。\n     */\n    onClosed?: () => void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "onOpen",
+              "jsdoc": "打开动作触发时回调。\n一般用于进入显示流程前准备数据或记录埋点。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onClose",
+              "jsdoc": "关闭动作触发时回调。\n一般用于执行关闭确认、清理临时状态或通知外层。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onOpened",
+              "jsdoc": "打开完成后回调。\n适合执行依赖 DOM 已稳定可见的逻辑，例如 autofocus 或尺寸测量。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onClosed",
+              "jsdoc": "关闭完成后回调。\n适合做最终清理、销毁临时资源或恢复外层页面状态。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SparkVisibilityContainerProps": {
+      "name": "SparkVisibilityContainerProps",
+      "jsdoc": "显隐容器语义。\n适用于 dialog、drawer 这类公开显隐生命周期事件的容器组件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkVisibilityEventProps & {\n    /**\n       * 跨框架显隐配置值。\n       *\n       * 页面配置可继续使用 `value` 表达容器显隐；Vue 渲染适配层会在下发组件前映射为 `modelValue`。\n       */\n    value?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkVisibilityEventProps",
+            "targetName": "SparkVisibilityEventProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /**\n       * 跨框架显隐配置值。\n       *\n       * 页面配置可继续使用 `value` 表达容器显隐；Vue 渲染适配层会在下发组件前映射为 `modelValue`。\n       */\n    value?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "跨框架显隐配置值。\n页面配置可继续使用 `value` 表达容器显隐；Vue 渲染适配层会在下发组件前映射为 `modelValue`。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

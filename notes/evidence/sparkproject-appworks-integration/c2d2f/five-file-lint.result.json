@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec eslint packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts src/services/project/navigation/project-navigation-guard.ts tests/runtime/auth-nav/application/project-navigation-guard.test.ts tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+  "cwd": "D:\\SPARK_AppWorks",
+  "started": "2026-10-07T17:30:08.9133010+08:00",
+  "ended": "2026-10-07T17:30:14.0160619+08:00",
+  "exitCode": 0,
+  "stdoutFile": "D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\c2d2f\\five-file-lint.stdout.txt"
+}

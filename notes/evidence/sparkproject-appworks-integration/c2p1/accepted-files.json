@@ -1,0 +1,14 @@
+{
+  "scope": "C2p1 accepted",
+  "at": "2026-10-07T14:14:22.8888714+08:00",
+  "files": [
+    {
+      "path": "packages/spark-app/src/router/dynamic.ts",
+      "sha256": "43B7FFDB8DC7405A97BFDEEB471AB8F3FCD1840989D37C3FC9C1A5F51C0581AF"
+    },
+    {
+      "path": "tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts",
+      "sha256": "93C10FA7FE30F52CB3B08279A6D9F5564088AB68D392CF89756BFFA7A516FAA1"
+    }
+  ]
+}

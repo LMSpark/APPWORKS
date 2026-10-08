@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-08T17:06:09.827Z",
+  "stage": "complete",
+  "writes": 0,
+  "reads": 137,
+  "failureVisible": true,
+  "metadata": [
+    {
+      "table": "Base_DataModel",
+      "rows": 7
+    },
+    {
+      "table": "Base_DataModel_Field",
+      "rows": 119
+    },
+    {
+      "table": "Base_DataSet",
+      "rows": 1
+    },
+    {
+      "table": "Base_DataModel_Relation",
+      "rows": 0
+    }
+  ],
+  "models": 7,
+  "remoteUnchanged": true,
+  "fileHash": "f86a7ff9cd155435d7a9c6a14f38e92a38b3e6f1eab04051fe8964fd2ba0c6b5",
+  "disposed": true
+}

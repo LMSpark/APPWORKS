@@ -71,6 +71,7 @@ import {
   parseTenantScope,
   stripTenantScope,
 } from './services/tenant-scope'
+import { ProjectNavigationGuard } from './services/project/navigation/project-navigation-guard'
 import type { Router } from 'vue-router'
 const {
   SparkApp,
@@ -81,6 +82,7 @@ const {
   getNavHomePath,
   registerBuiltinPlugins,
   resolveNavNodeRuntimeTarget,
+  SYSTEM_PAGE_NAVIGATION_ID_QUERY,
 } = SparkAppRuntime
 const startupLogger = createLogger('main')
 const PLATFORM_PATH_PREFIX = '/platform'
@@ -228,14 +230,23 @@ async function ensureCurrentScopedRouteIsNavigable(router: Router): Promise<void
     || navigationContainsPath(navTree.items, scopedPath)
   if (isKnownPath) return
 
-  const replacementPath = buildTenantPath(scope, getNavHomePath())
-  const replacementLocation = `${replacementPath}${window.location.search}${window.location.hash}`
+  const homeLocation = router.resolve(buildTenantPath(scope, navTree.homePath ?? getNavHomePath()))
+  const currentLocation = router.resolve(`${window.location.pathname}${window.location.search}${window.location.hash}`)
+  const mergedQuery = Object.fromEntries(
+    Object.entries(currentLocation.query).filter(([key]) => key !== SYSTEM_PAGE_NAVIGATION_ID_QUERY),
+  )
+  Object.assign(mergedQuery, homeLocation.query)
+  const replacementLocation = router.resolve({
+    path: homeLocation.path,
+    query: mergedQuery,
+    hash: homeLocation.hash || currentLocation.hash,
+  })
   startupLogger.warn('当前租户作用域路径未在项目导航中注册，已切换到项目首页', {
     currentPath: window.location.pathname,
-    replacementPath,
+    replacementPath: replacementLocation.fullPath,
   })
-  window.history.replaceState(window.history.state, '', replacementLocation)
-  await router.replace(replacementLocation)
+  window.history.replaceState(window.history.state, '', replacementLocation.fullPath)
+  await router.replace(replacementLocation.fullPath)
 }
 
 function mountStartupError(error: unknown, fallbackMessage: string): void {
@@ -371,8 +382,10 @@ async function startApp() {
         const principal = readLowcodePrincipal()
         if (principal?.enterpriseName === urlScope.tenantId && urlScope.projectId !== principal.applicationId) {
           startupLogger.info(`📌 URL 应用上下文预同步: ${principal.applicationId ?? 'catalog'} → ${urlScope.projectId}`)
-          if (urlScope.projectId === APPLICATION_CATALOG_PROJECT_ID) enterLowcodeApplicationCatalog()
-          else await activateLowcodeApplication(urlScope.projectId)
+          const receipt = urlScope.projectId === APPLICATION_CATALOG_PROJECT_ID
+            ? enterLowcodeApplicationCatalog()
+            : await activateLowcodeApplication(urlScope.projectId)
+          receipt.assertCurrent()
         }
       }
     }
@@ -447,44 +460,12 @@ async function startApp() {
 
         // ── 认证路由守卫（租户隔离） ──
         // publicPaths 从 Vue page registry scope='public' 自动派生，消除硬编码
-        router.beforeEach(async (to) => {
-          const publicHomePath = preAuthNavTree.homePath ?? '/'
-          const isPublicPath = publicPaths.has(to.path)
-          const isPublicUtilityPath = isPublicPath && to.path !== publicHomePath && to.path !== '/login'
-          if (!hasLowcodeSession()) {
-            // 未登录：停留在平台域（平台首页/登录页/平台公开页）
-            if (to.path.startsWith('/t/') || isPlatformWorkspacePath(to.path)) return publicHomePath
-            return isPublicPath ? undefined : publicHomePath
-          }
-          const principal = readLowcodePrincipal()
-          const tenantId = principal?.enterpriseName
-          const projectId = principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
-          if (!tenantId || !projectId) return '/login'
-          const currentScope = { tenantId, projectId }
-          // 已登录：默认进入租户主应用首页；但保留 about / hidden demos 这类平台静态工具页的直达访问。
-          if (isPublicUtilityPath) return undefined
-          if (isPlatformWorkspacePath(to.path)) return buildTenantPath(currentScope, getNavHomePath())
-          if (!to.path.startsWith('/t/')) return buildTenantPath(currentScope, getNavHomePath())
-
-          // 租户路径：验证 URL 中的 tenantId/projectId 与当前用户一致
-          const urlScope = parseTenantScope(to.path)
-          if (urlScope) {
-            if (urlScope.tenantId !== tenantId) {
-              // 租户不匹配 → 重定向到当前租户首页
-              const rest = stripTenantScope(to.path)
-              return { path: buildTenantPath(currentScope, rest || getNavHomePath()), query: to.query, hash: to.hash }
-            }
-            if (urlScope.projectId !== projectId) {
-              SparkAppRuntime.getDynamicRouter()?.assertPageRuntimesClean()
-              if (urlScope.projectId === APPLICATION_CATALOG_PROJECT_ID) enterLowcodeApplicationCatalog()
-              else await activateLowcodeApplication(urlScope.projectId)
-              SparkAppRuntime.getDynamicRouter()?.disposePageRuntimes()
-              await SparkAppRuntime.refreshRoutes()
-              return { path: to.path, query: to.query, hash: to.hash, replace: true }
-            }
-          }
-          return undefined
+        const navigationGuard = new ProjectNavigationGuard({
+          publicPaths,
+          publicHomePath: preAuthNavTree.homePath ?? '/',
+          isPlatformWorkspacePath,
         })
+        router.beforeEach((to) => navigationGuard.resolve(to))
 
         await ensureCurrentScopedRouteIsNavigable(router)
 

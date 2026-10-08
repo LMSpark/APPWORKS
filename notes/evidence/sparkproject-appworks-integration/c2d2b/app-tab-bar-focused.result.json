@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/app/services/project/application-switch.test.ts -t 'AppTabBar'",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:35:40.7567915Z",
+  "finishedAtUtc": "2026-10-07T08:35:47.9023668Z",
+  "exitCode": 1
+}

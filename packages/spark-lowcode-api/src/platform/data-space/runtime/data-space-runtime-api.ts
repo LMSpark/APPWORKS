@@ -5,15 +5,16 @@
  * AI用途：把 DataView 查询与同场景模型保存接入实际运行 owner。
  */
 /** 数据空间运行态 API；按场景与模型 Name 拥有原查询、权限基线和统一保存。 */
-import { DataViewFilter, type DataViewFilterTree, type DataView, type QueryParams } from '@spark-appworks/spark-data'
+import { DataViewFilter, type DataViewFilterTree, type DataView, type TableMetadata, type QueryParams } from '@spark-appworks/spark-data'
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope } from './data-space-runtime-contract.js'
 import { DataSpaceQueryCache } from './query/data-space-query-cache.js'
 import { DataSpaceRequest } from './protocol/data-space-request.js'
 import { DataSpaceQueryTable } from './protocol/data-space-query-table.js'
 import { captureDataSpaceViewQuery } from './query/data-space-query-options.js'
-import type { DataSpaceDesignApi } from '../design/data-space-design-api.js'
+import { DataSpaceDesignApi } from '../design/data-space-design-api.js'
 import type { DataSpaceQueryContext } from './query/data-space-query-context.js'
+import { DataSpaceSaveConfig } from './save/data-space-save-config.js'
 
 /** 运行 owner 的 HTTP 通道和请求身份读取器；scope 变更使旧基线失效。 */
 type DataSpaceRuntimeApiOptions = Readonly<{
@@ -21,7 +22,12 @@ type DataSpaceRuntimeApiOptions = Readonly<{
   readScope: () => DataSpaceRequestScope
 }>
 /** 统一保存命令；每个目标携带本 owner 的原查询上下文与候选变更。 */
-type DataSpaceRuntimeSaveCommand = Parameters<DataSpaceRequest['save']>[0]
+type DataSpaceRuntimeSaveChange = Parameters<DataSpaceRequest['save']>[0]['changes'][number]
+  & Readonly<{tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>}>
+type DataSpaceRuntimeSaveCommand = Readonly<{
+  changes: readonly DataSpaceRuntimeSaveChange[]
+  signal?: AbortSignal
+}>
 /** 实际保存回执和推进后的独立上下文；失败不产生确认结果。 */
 type DataSpaceRuntimeSaveResult = Awaited<ReturnType<DataSpaceRequest['save']>>
 type DataSpaceRuntimeQueryFlight = Promise<DataSpaceQueryContext>
@@ -72,8 +78,16 @@ export class DataSpaceRuntimeApi {
   }
 
   public bindModelView(view: DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>): void {
-    if (view.dataTable?.modelBinding?.modelId !== model.id || view.dataTable.modelBinding.modelName !== model.metaName) {
+    const table = view.dataTable
+    if (table?.modelBinding?.modelId !== model.id || table.modelBinding.modelName !== model.metaName) {
       throw new Error('SPARK_VIEW_MODEL_IDENTITY: 视图与正式模型身份不一致')
+    }
+    const formal = new Set(DataSpaceDesignApi.resolveOutputFields(model).map(field => field.canonicalName))
+    DataSpaceSaveConfig.validate(table)
+    for (const column of table.columns) {
+      if (column.computeExpression && formal.has(column.name)) {
+        throw new Error(`SPARK_MODEL_COMPUTED_COLLISION: 本地计算列与正式输出字段重名: ${column.name}`)
+      }
     }
     this.#modelViews.set(view, model)
     view.bindQueryExecutor(this)
@@ -83,10 +97,10 @@ export class DataSpaceRuntimeApi {
     const command = captureDataSpaceViewQuery(view, params)
     const model = this.#modelViews.get(view)
     if (model === undefined) return this.query(command.identity, command.options)
+    const outputFields = DataSpaceDesignApi.resolveOutputFields(model)
     const requestField = (output: string): string => {
-      const matches = model.fields.filter(field => field.canonicalName === output && field.output)
-      const field = matches[0]
-      if (!field || matches.length !== 1) throw new Error(`SPARK_MODEL_FIELD_UNRESOLVED: ${output}`)
+      const field = outputFields.find(candidate => candidate.canonicalName === output)
+      if (!field) throw new Error(`SPARK_MODEL_FIELD_UNRESOLVED: ${output}`)
       return field.name
     }
     const filterTree = (tree: DataViewFilterTree): DataViewFilterTree => 'logic' in tree
@@ -99,9 +113,17 @@ export class DataSpaceRuntimeApi {
         throw new Error('SPARK_MODEL_PROJECTION: 查询视图不能重定义正式模型输出')
       }
     }
-    const context = await this.query(command.identity, {...options,
-      ...(options.fields === undefined ? {} : {fields: options.fields.map(field => typeof field === 'string'
-        ? {name: requestField(field), alias: field} : {...field, name: requestField(field.alias ?? field.name), alias: field.alias ?? field.name})}),
+    const fields = options.fields?.map(field => {
+      if (typeof field === 'string') return {name: requestField(field)}
+      const {alias, ...projection} = field
+      return {...projection, name: requestField(alias ?? field.name)}
+    })
+    if (fields && model.primaryKey) {
+      const primaryKey = requestField(model.primaryKey)
+      if (!fields.some(field => field.name === primaryKey)) fields.push({name: primaryKey})
+    }
+    const context = await this.query(command.identity, {...options, outputFieldMode: 'REQUEST',
+      ...(fields === undefined ? {} : {fields}),
       ...(options.sort === undefined ? {} : {sort: options.sort.map(sort => ({...sort, field: requestField(sort.field)}))}),
       ...(options.filter ? {filter: toFilter(filterTree(options.filter.toJSON()))} : {}),
       ...(options.tree === undefined ? {} : {tree: {...options.tree, keyField: requestField(options.tree.keyField),
@@ -120,6 +142,7 @@ export class DataSpaceRuntimeApi {
       identity: new DataSpaceQueryTable(change.identity).identity, changes: structuredClone(change.changes) }))
     const keys = [...new Set(changes.map(change => this.resourceKey(scope, change.identity)))].sort()
     changes.forEach(change => this.assertContextOwner(scope, change))
+    const config = DataSpaceSaveConfig.resolve(changes)
     const previous = keys.map(key => this.#mutationFlights.get(key) ?? Promise.resolve())
     const run = Promise.all(previous.map(flight => flight.catch(() => undefined))).then(async () => {
       this.assertScope(scope)
@@ -130,7 +153,7 @@ export class DataSpaceRuntimeApi {
       }))
       this.assertScope(scope)
       changes.forEach(change => this.assertContextOwner(scope, change))
-      const receipts = await this.#saveRequest.save({ changes, ...(signal === undefined ? {} : { signal }) })
+      const receipts = await this.#saveRequest.save({ changes, config, ...(signal === undefined ? {} : { signal }) })
       this.assertScope(scope)
       receipts.forEach((receipt, index) => {
         const change = changes[index]

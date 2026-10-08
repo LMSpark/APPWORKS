@@ -44,7 +44,9 @@ formatDisplay?: (value: unknown) => string
    *
    * 注意：仅对来自行数据的值应用；`props.modelValue` 显式传入时直接使用（调用方负责类型正确性）。
    */
-  coerce: (rawValue: unknown) => TValue}
+  coerce: (rawValue: unknown) => TValue
+  /** 控件值写入数据字段前的显式格式转换，仍经过当前字段权限。 */
+  toSourceValue?: (value: TValue) => unknown}
 
 export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TValue>) {
   const { props, fallbackValue, formatDisplay } = options
@@ -172,13 +174,14 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     if (!isCurrentFieldEditable.value) return
     const row = currentRow.value
     if (row !== null && fieldName.value) {
+      const sourceValue = options.toSourceValue ? options.toSourceValue(value) : value
       if (perm.subtreeFieldPolicy !== 'unrestricted' && writeDataViewEditingValue({
         source: dataSource,
         row,
         field: fieldName.value,
-        value,
+        value: sourceValue,
       })) return
-      row[fieldName.value] = value
+      row[fieldName.value] = sourceValue
     }
   }
 

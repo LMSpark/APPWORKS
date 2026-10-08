@@ -1,0 +1,6 @@
+{
+  "startedAtUtc": "2026-10-07T09:14:25.0002427Z",
+  "finishedAtUtc": "2026-10-07T09:14:38.1687777Z",
+  "command": "pnpm run build",
+  "exitCode": 0
+}

@@ -13,15 +13,15 @@
 import type { Plugin } from 'vue'
 import { getGlobalPluginRegistry } from './registry'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { readProperty } from '@spark-appworks/spark-utils/internal'
 
 function isVuePlugin(value: unknown): value is Plugin {
   return typeof value === 'function'
-    || (isRecord(value) && typeof readProperty(value, 'install') === 'function')
+    || (isRecord(value) && typeof value['install'] === 'function')
 }
 
 function requireDefaultPlugin(module: unknown, moduleName: string): { default: Plugin } {
-  const defaultExport = readProperty(module, 'default')
+  // Dynamic-import namespaces expose package exports through getters.
+  const defaultExport = isRecord(module) ? module['default'] : undefined
   if (isVuePlugin(defaultExport)) return { default: defaultExport }
   if (isVuePlugin(module)) return { default: module }
   throw new Error(`插件模块 ${moduleName} 未提供有效的 Vue Plugin 默认导出`)

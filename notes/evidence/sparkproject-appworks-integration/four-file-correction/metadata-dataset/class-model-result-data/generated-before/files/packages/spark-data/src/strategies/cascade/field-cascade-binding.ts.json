@@ -1,0 +1,356 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/cascade/field-cascade-binding",
+    "sourcePath": "packages/spark-data/src/strategies/cascade/field-cascade-binding.ts",
+    "sourceFile": "packages/spark-data/src/strategies/cascade/field-cascade-binding.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/cascade/field-cascade-binding",
+    "jsdoc": "@spark-appworks/spark-data 的 strategies/cascade/field-cascade-binding 模块。\n导出 DtsTypeDeclarationModel symbol: DataViewFieldCascadeBinding（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataViewFieldCascadeBinding"
+    ]
+  },
+  "$defs": {
+    "DataViewFieldCascadeBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFieldCascadeBinding",
+      "properties": {
+        "definition": {
+          "$ref": "../../types.ts.json#/$defs/DataViewFieldCascade"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../dataset.ts.json#/$defs/DataSet"
+            },
+            "definition": {
+              "$ref": "../../types.ts.json#/$defs/DataViewFieldCascade"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.references.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.references.return": {
+          "type": "boolean"
+        },
+        "method.isTargetEdit.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            },
+            "event": {
+              "$ref": "../../types.ts.json#/$defs/DataViewEditingFieldChangeEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isTargetEdit.return": {
+          "type": "boolean"
+        },
+        "method.discardsTarget.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            },
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.discardsTarget.return": {
+          "type": "boolean"
+        },
+        "method.parents.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.parents.return": {
+          "type": "array",
+          "items": true
+        },
+        "method.targetReady.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.targetReady.return": {
+          "type": "boolean"
+        },
+        "method.captureTarget.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureTarget.return": {
+          "type": "object",
+          "properties": {
+            "value": true,
+            "isCurrent": {
+              "type": "object",
+              "title": "() => boolean"
+            },
+            "write": {
+              "type": "object",
+              "title": "(next: unknown) => void"
+            }
+          },
+          "required": [
+            "value",
+            "isCurrent",
+            "write"
+          ],
+          "additionalProperties": false
+        },
+        "method.options.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.options.return": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../data-view.ts.json#/$defs/DataView"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "isCurrent": {
+              "type": "object",
+              "title": "() => boolean"
+            },
+            "evaluate": {
+              "type": "object",
+              "title": "(current: unknown, rows: readonly DataRow[]) => {\n            status: \"valid\" | \"empty\" | \"invalid\";\n            retained: unknown;\n            hasRetained: boolean;\n        }"
+            }
+          },
+          "required": [
+            "view",
+            "fields",
+            "isCurrent",
+            "evaluate"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T20:17:10.404Z",
+  "models": {
+    "DataViewFieldCascadeBinding": {
+      "name": "DataViewFieldCascadeBinding",
+      "jsdoc": "行定位只在绑定边界存在；运行级联持有值快照和失效检查。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet, definition: DataViewFieldCascade)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet",
+                "sourcePath": "packages/spark-data/src/dataset.ts"
+              }
+            },
+            {
+              "name": "definition",
+              "type": {
+                "type": "reference",
+                "name": "DataViewFieldCascade",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "definition",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "references",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "isTargetEdit",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewEditingFieldChangeEvent",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "discardsTarget",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "array",
+                      "elementType": {
+                        "type": "union",
+                        "types": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "number"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "parents",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "unknown",
+                  "name": "readonly unknown[]"
+                }
+              }
+            },
+            {
+              "name": "targetReady",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "captureTarget",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        value: unknown;\n        isCurrent: () => boolean;\n        write: (next: unknown) => void;\n    }"
+              }
+            },
+            {
+              "name": "options",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        view: DataView;\n        fields: string[];\n        isCurrent: () => boolean;\n        evaluate: (current: unknown, rows: readonly DataRow[]) => {\n            status: \"valid\" | \"empty\" | \"invalid\";\n            retained: unknown;\n            hasRetained: boolean;\n        };\n    }"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

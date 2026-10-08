@@ -177,6 +177,8 @@ export {
   FieldTreeSelect,
   FieldUpload,
   FieldUserPicker,
+  FilterExpressionEditor,
+  FilterValueFunctionDialog,
   JsonTreeEditor,
   registerAllRenderers,
   RendererAffix,

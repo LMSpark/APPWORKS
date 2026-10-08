@@ -1,0 +1,14 @@
+[
+  {
+    "path": "config/pages/data-platform/data-space-design/pagedata.json",
+    "sha256": "4BA0A16FB099F8093ECE8C27C1AFDF5E34D71E21B2736D9691C78E74C314A004"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+    "sha256": "585CDE2E50441B4868753FDCA64FBD28F36FB940AD82C4009ACF138170AEBB2B"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-metadata.test.ts",
+    "sha256": "21DF8D0147150CE8630525D5307BE7D2312C2014B4A8ED9E0F93F13F4D9E047E"
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\types.ts",
+    "Hash": "579F1257A4E5AAD8CDCA142FDF45159CA5504FD2E553F60729ACD96A83AC4D68"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset.ts",
+    "Hash": "C1720BAC6F62F98CB9716D6A2EA651D424F0634B1F9BE7326C7C6C33CE1DE8E7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\dataset-crud-tool.ts",
+    "Hash": "58D53BFB272C31B54789623805582C5241A3AFAAAC259FC0699D8BA772BC44ED"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\dataset-crud-tool.test.ts",
+    "Hash": "A298C9D2C3A8EF9BA21349260855A260DD804603B0A1DFB9D3EAE8BDEAEE970B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\packages\\spark-data\\src\\tests\\dataset\\dataset-structure-crud.test.ts",
+    "Hash": "2FBC9D3EC0A0E74F4B7853FC09DDF5E385FECA14C098EC5EA317CB8EBF94D615"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\tests\\runtime\\auth-nav\\data-space\\metadata\\lowcode-data-space-persistence.test.ts",
+    "Hash": "3F31DE4FE4DEAA9EA32AF9DBEED83BB6A88A3EF98F68450B6911876C6266703F"
+  }
+]

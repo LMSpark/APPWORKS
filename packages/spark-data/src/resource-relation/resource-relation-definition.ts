@@ -1,0 +1,250 @@
+/**
+ * @module @spark-appworks/spark-data:resource-relation/resource-relation-definition
+ * 职责：归一化稳定模型关系表达式，并集中维护结构化条件引用。
+ * 边界：本地只执行 DataViewFilterLocal 已支持的常量和当前行字段函数。
+ */
+import type { DataResourceRelation } from '../types'
+import type { DataViewFilterTree } from '../query/filter/data-view-filter-contract'
+import { isRecord } from '@spark-appworks/spark-utils'
+import { DataViewFilter } from '../query/filter/data-view-filter'
+import { DataViewFilterLocal } from '../query/filter/data-view-filter-local'
+
+type RelationMatcherOptions = Readonly<{expression: DataViewFilterTree; parentTable: string; childTable: string; parent: Readonly<Record<string, unknown>>; parentFields: ReadonlySet<string>; childFields: ReadonlySet<string>}>
+type RelationFieldReferenceOptions = Readonly<{expression: DataViewFilterTree; parentTable: string; childTable: string; tableName: string; fieldName: string}>
+type RelationFieldRenameOptions = RelationFieldReferenceOptions & Readonly<{newFieldName: string}>
+type RelationTableRenameOptions = Readonly<{expression: DataViewFilterTree; parentTable: string; childTable: string; tableName: string; newTableName: string}>
+type RelationTableMetadata = Readonly<{columns: ReadonlyArray<Readonly<{name: string; isPrimaryKey?: boolean}>>}>
+
+const knownFunctions = new Set(['GetConstValue', 'GetTableField', 'GetRefData', 'GetGroupData', 'GetExpData'])
+
+export class ResourceRelationDefinition {
+  public static renameTable(options: RelationTableRenameOptions): DataViewFilterTree {
+    const {expression, parentTable, childTable, tableName, newTableName} = options
+    if (ResourceRelationDefinition.hasUnsafeFunction(expression)
+      || ResourceRelationDefinition.hasOpaqueExpression(expression, tableName)
+      || ((parentTable === tableName || childTable === tableName) && ResourceRelationDefinition.hasAnyOpaqueExpression(expression))) {
+      throw new Error(`relation contains an unresolvable value function for ${tableName}`)
+    }
+    const rename = (node: DataViewFilterTree): DataViewFilterTree => {
+      if ('logic' in node) return {logic: node.logic, filters: node.filters.map(rename)}
+      const value = node.value
+      let next = node
+      if (childTable === tableName && node.field.startsWith(`${tableName}.`)) next = {...next, field: `${newTableName}${node.field.slice(tableName.length)}`}
+      if (!isRecord(value)) return next
+      if (value['Type'] === 'GetTableField' && ResourceRelationDefinition.isQualifiedTableField(value['Field'], tableName)) {
+        return {...next, value: {...value, Field: `${newTableName}${value['Field'].slice(tableName.length)}`}}
+      }
+      if (value['Type'] === 'GetRefData' && value['RefTableName'] === tableName) return {...next, value: {...value, RefTableName: newTableName}}
+      if (value['Type'] === 'GetGroupData' && value['GroupTableName'] === tableName) return {...next, value: {...value, GroupTableName: newTableName}}
+      return next
+    }
+    return rename(expression)
+  }
+  public static renameField(options: RelationFieldRenameOptions): DataViewFilterTree {
+    const {expression, parentTable, childTable, tableName, fieldName, newFieldName} = options
+    if (ResourceRelationDefinition.hasUnsafeFunction(expression)
+      || ResourceRelationDefinition.hasOpaqueExpression(expression, tableName)
+      || ((parentTable === tableName || childTable === tableName) && ResourceRelationDefinition.hasAnyOpaqueExpression(expression))) {
+      throw new Error(`relation contains an unresolvable value function for ${tableName}`)
+    }
+    if (tableName !== parentTable && tableName !== childTable && !ResourceRelationDefinition.referencesNamedTable(expression, tableName)) return expression
+    const rename = (node: DataViewFilterTree): DataViewFilterTree => {
+      if ('logic' in node) return {logic: node.logic, filters: node.filters.map(rename)}
+      let next = node
+      if (childTable === tableName && node.field === fieldName) next = {...next, field: newFieldName}
+      else if (childTable === tableName && node.field === `${tableName}.${fieldName}`) next = {...next, field: `${tableName}.${newFieldName}`}
+      const value = next.value
+      if (!isRecord(value)) return next
+      if (value['Type'] === 'GetTableField' && ((parentTable === tableName && value['Field'] === fieldName) || value['Field'] === `${tableName}.${fieldName}`)) {
+        return {...next, value: {...value, Field: typeof value['Field'] === 'string' && value['Field'].includes('.') ? `${tableName}.${newFieldName}` : newFieldName}}
+      }
+      if (value['Type'] === 'GetRefData' && value['RefTableName'] === tableName) {
+        return {...next, value: {...value,
+          ...(value['RefFieldName'] === fieldName ? {RefFieldName: newFieldName} : {}),
+          ...(value['FkFieldName'] === fieldName ? {FkFieldName: newFieldName} : {}),
+        }}
+      }
+      if (value['Type'] === 'GetGroupData' && value['GroupTableName'] === tableName) {
+        return {...next, value: {...value,
+          ...(value['GroupField'] === fieldName ? {GroupField: newFieldName} : {}),
+          ...(value['Field'] === fieldName ? {Field: newFieldName} : {}),
+        }}
+      }
+      return next
+    }
+    return rename(expression)
+  }
+
+  public static referencesField(options: RelationFieldReferenceOptions): boolean {
+    const {expression, parentTable, childTable, tableName, fieldName} = options
+    if (ResourceRelationDefinition.hasOpaqueExpression(expression, tableName)
+      || ResourceRelationDefinition.hasUnsafeFunction(expression)
+      || ((parentTable === tableName || childTable === tableName) && ResourceRelationDefinition.hasAnyOpaqueExpression(expression))) {
+      throw new Error(`relation contains an unresolvable value function for ${tableName}`)
+    }
+    const inspect = (node: DataViewFilterTree): boolean => {
+      if ('logic' in node) return node.filters.some(inspect)
+      if (childTable === tableName && (node.field === fieldName || node.field === `${tableName}.${fieldName}`)) return true
+      const value = node.value
+      if (!isRecord(value)) return false
+      if (value['Type'] === 'GetTableField' && ((parentTable === tableName && value['Field'] === fieldName) || value['Field'] === `${tableName}.${fieldName}`)) return true
+      if (value['Type'] === 'GetRefData' && value['RefTableName'] === tableName) return value['RefFieldName'] === fieldName || value['FkFieldName'] === fieldName
+      if (value['Type'] === 'GetGroupData' && value['GroupTableName'] === tableName) return value['GroupField'] === fieldName || value['Field'] === fieldName
+      return false
+    }
+    return inspect(expression)
+  }
+
+  public static referencesTable(expression: DataViewFilterTree, tableName: string): boolean {
+    if (ResourceRelationDefinition.hasUnsafeFunction(expression) || ResourceRelationDefinition.hasOpaqueExpression(expression, tableName)) {
+      throw new Error(`relation contains an unresolvable value function for ${tableName}`)
+    }
+    const inspect = (node: DataViewFilterTree): boolean => {
+      if ('logic' in node) return node.filters.some(inspect)
+      const value = node.value
+      return isRecord(value) && ((value['Type'] === 'GetTableField' && ResourceRelationDefinition.isQualifiedTableField(value['Field'], tableName))
+        || (value['Type'] === 'GetRefData' && value['RefTableName'] === tableName)
+        || (value['Type'] === 'GetGroupData' && value['GroupTableName'] === tableName))
+    }
+    return inspect(expression)
+  }
+
+  private static referencesNamedTable(expression: DataViewFilterTree, tableName: string): boolean {
+    const inspect = (node: DataViewFilterTree): boolean => {
+      if ('logic' in node) return node.filters.some(inspect)
+      const value = node.value
+      return isRecord(value) && ((value['Type'] === 'GetTableField' && ResourceRelationDefinition.isQualifiedTableField(value['Field'], tableName))
+        || (value['Type'] === 'GetRefData' && value['RefTableName'] === tableName)
+        || (value['Type'] === 'GetGroupData' && value['GroupTableName'] === tableName))
+    }
+    return inspect(expression)
+  }
+
+  private static isQualifiedTableField(value: unknown, tableName: string): value is string {
+    if (typeof value !== 'string') return false
+    const separator = value.lastIndexOf('.')
+    return separator >= 0 && value.slice(0, separator) === tableName
+  }
+
+  private static hasOpaqueExpression(expression: DataViewFilterTree, tableName: string): boolean {
+    const inspect = (node: DataViewFilterTree): boolean => {
+      if ('logic' in node) return node.filters.some(inspect)
+      const value = node.value
+      return isRecord(value) && value['Type'] === 'GetExpData' && value['refTableName'] === tableName
+    }
+    return inspect(expression)
+  }
+
+  private static hasUnsafeFunction(expression: DataViewFilterTree): boolean {
+    const inspect = (node: DataViewFilterTree): boolean => {
+      if ('logic' in node) return node.filters.some(inspect)
+      const value = node.value
+      return isRecord(value) && typeof value['Type'] === 'string' && !knownFunctions.has(value['Type'])
+    }
+    return inspect(expression)
+  }
+  private static hasAnyOpaqueExpression(expression: DataViewFilterTree): boolean {
+    const inspect = (node: DataViewFilterTree): boolean => {
+      if ('logic' in node) return node.filters.some(inspect)
+      const value = node.value
+      return isRecord(value) && value['Type'] === 'GetExpData'
+    }
+    return inspect(expression)
+  }
+  public static createMatcher(options: RelationMatcherOptions): (child: Readonly<Record<string, unknown>>) => boolean {
+    const {expression, parentTable, childTable, parent, parentFields, childFields} = options
+    const parentReferences = new Set<string>()
+    const childReferences = new Set<string>()
+    const normalizeReference = (reference: string, expectedTable: string, fields: ReadonlySet<string>): string => {
+      const separator = reference.lastIndexOf('.')
+      const qualifier = separator < 0 ? '' : reference.slice(0, separator)
+      const field = separator < 0 ? reference : reference.slice(separator + 1)
+      if (qualifier && qualifier !== expectedTable) throw new Error(`关系过滤字段限定名不匹配: ${reference}`)
+      if (!fields.has(field)) throw new Error(`过滤表达式引用了不存在的字段 "${field}"`)
+      return field
+    }
+    const qualify = (node: DataViewFilterTree): DataViewFilterTree => {
+      if ('logic' in node) return {logic: node.logic, filters: node.filters.map(qualify)}
+      const childField = normalizeReference(node.field, childTable, childFields)
+      childReferences.add(childField)
+      const value = node.value
+      let qualifiedValue = value
+      if (isRecord(value) && value['Type'] === 'GetTableField' && typeof value['Field'] === 'string') {
+        const parentField = normalizeReference(value['Field'], parentTable, parentFields)
+        parentReferences.add(parentField)
+        qualifiedValue = {...value, Field: `parent:${parentField}`}
+      }
+      return {field: `child:${childField}`, operator: node.operator, ...(qualifiedValue !== undefined ? {value: qualifiedValue} : {})}
+    }
+    const parsed = DataViewFilter.parse(qualify(expression))
+    if (!parsed.ok) throw new Error(`invalid resource relation filterExpression: ${parsed.issues.map(issue => issue.message).join('; ')}`)
+    const matcher = new DataViewFilterLocal(parsed.value)
+    const validFields = new Set([...parentFields].map(field => `parent:${field}`).concat([...childFields].map(field => `child:${field}`)))
+    matcher.validateFields(validFields)
+    for (const field of parentReferences) {
+      if (!Object.hasOwn(parent, field)) throw new Error(`关系父行缺少字段 "${field}"`)
+    }
+    return child => {
+      const row: Record<string, unknown> = {}
+      for (const field of parentReferences) row[`parent:${field}`] = parent[field]
+      for (const field of childReferences) {
+        if (!Object.hasOwn(child, field)) throw new Error(`关系子行缺少字段 "${field}"`)
+      }
+      for (const field of childReferences) row[`child:${field}`] = child[field]
+      return matcher.matches(row)
+    }
+  }
+  public static normalize(value: unknown, tables: Readonly<Record<string, RelationTableMetadata>>): DataResourceRelation {
+    if (!isRecord(value)) throw new Error('resource relation must be an object')
+    const raw = value
+    if (raw['condition'] !== undefined) throw new Error('resource relation condition is an unsupported placeholder; use filterExpression')
+    const parentTable = raw['parentTable']
+    const childTable = raw['childTable']
+    if (typeof parentTable !== 'string' || !parentTable.trim() || typeof childTable !== 'string' || !childTable.trim()) throw new Error('resource relation endpoints are required')
+    if (!Object.hasOwn(tables, parentTable) || !Object.hasOwn(tables, childTable)) throw new Error('resource relation endpoints must exist in the DataSet')
+    let expression: DataViewFilterTree | undefined
+    if (raw['filterExpression'] !== undefined) {
+      const parsed = DataViewFilter.parse(raw['filterExpression'])
+      if (!parsed.ok) throw new Error(`invalid resource relation filterExpression: ${parsed.issues.map(issue => issue.message).join('; ')}`)
+      expression = parsed.value.toJSON()
+    }
+    const mappings = Array.isArray(raw['fieldMappings']) ? raw['fieldMappings'] : []
+    const legacyChild = raw['childField']
+    const legacyParent = raw['parentField']
+    if (!expression) {
+      const parentEntry = Object.entries(tables).find(([tableName]) => tableName === parentTable)
+      const childEntry = Object.entries(tables).find(([tableName]) => tableName === childTable)
+      if (parentEntry === undefined || childEntry === undefined) throw new Error('resource relation endpoints must exist in the DataSet')
+      const parent = parentEntry[1]
+      const child = childEntry[1]
+      const parentField = typeof legacyParent === 'string' ? legacyParent : parent.columns.find(column => column.isPrimaryKey)?.name ?? 'id'
+      const pairs = mappings.length > 0 ? mappings.map(item => {
+        if (!isRecord(item)) throw new Error('invalid legacy field mapping')
+        const pair = item
+        return {parent: pair['parentResourceField'], child: pair['childResourceField']}
+      }) : [{parent: parentField, child: legacyChild}]
+      if (pairs.some(pair => typeof pair.parent !== 'string' || typeof pair.child !== 'string')) throw new Error('resource relation requires filterExpression or legacy field mapping')
+      for (const pair of pairs) {
+        if (!parent.columns.some(column => column.name === pair.parent)) throw new Error(`legacy parent field does not exist: ${String(pair.parent)}`)
+        if (!child.columns.some(column => column.name === pair.child)) throw new Error(`legacy child field does not exist: ${String(pair.child)}`)
+      }
+      expression = {logic: 'and', filters: pairs.map(pair => {
+        if (typeof pair.child !== 'string' || typeof pair.parent !== 'string') throw new Error('resource relation requires field names')
+        return {logic: 'and', filters: [
+          {field: pair.child, operator: 'is-not-null'},
+          {field: pair.child, operator: 'eq', value: {Type: 'GetTableField', Field: pair.parent}},
+        ]}
+      })}
+    } else if (legacyChild !== undefined || legacyParent !== undefined || mappings.length > 0) {
+      throw new Error('resource relation cannot combine filterExpression with legacy field mapping')
+    }
+    return {
+      ...(typeof raw['relationId'] === 'string' ? {relationId: raw['relationId']} : {}),
+      ...(typeof raw['sourceRelationId'] === 'string' ? {sourceRelationId: raw['sourceRelationId']} : {}),
+      ...(typeof raw['relationName'] === 'string' ? {relationName: raw['relationName']} : {}),
+      parentTable, childTable, filterExpression: expression,
+      ...(typeof raw['cascadeUpdate'] === 'boolean' ? {cascadeUpdate: raw['cascadeUpdate']} : {}),
+      ...(typeof raw['cascadeDelete'] === 'boolean' ? {cascadeDelete: raw['cascadeDelete']} : {}),
+    }
+  }
+}

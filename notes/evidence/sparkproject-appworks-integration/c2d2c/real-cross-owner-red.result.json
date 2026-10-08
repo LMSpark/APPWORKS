@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts -t \"keeps the active URL, platform application, and native page instance aligned\"",
+  "exitCode": 1,
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:52:31.6733699Z",
+  "finishedAtUtc": "2026-10-07T08:52:38.4973607Z"
+}

@@ -1,0 +1,405 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/local-mutation-delegate",
+    "sourcePath": "packages/spark-data/src/strategies/local-mutation-delegate.ts",
+    "sourceFile": "packages/spark-data/src/strategies/local-mutation-delegate.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/local-mutation-delegate",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/local-mutation-delegate\n职责：提供 spark-data 数据管线中的 local mutation delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nLocalMutationDelegate — 本地内存变更委托\n承载 DataView 的本地行数据同步逻辑：\n- updateFromServer : 将服务端响应同步到 rows / total / page / pageSize\n- appendRow        : 追加单行\n- updateRowById    : 按主键就地更新行，同步选中状态引用\n- deleteRowById    : 按主键删除行，清理选中状态\n- replaceRows      : 整批替换行，清理无效选中引用\n私有辅助：\n- buildRowIndexMap : O(n) 构建 row→index 映射（加速 updateRowById 行对象替换）",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LocalMutationDelegate"
+    ]
+  },
+  "$defs": {
+    "EmitRowsChangedFn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EmitRowsChangedFn",
+      "additionalProperties": false
+    },
+    "PostMutationFn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PostMutationFn",
+      "additionalProperties": false
+    },
+    "LocalMutationDelegate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LocalMutationDelegate",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "host": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "emitRowsChanged": {
+              "$ref": "#/$defs/EmitRowsChangedFn"
+            },
+            "postMutation": {
+              "$ref": "#/$defs/PostMutationFn"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.buildRowIndexMap.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.buildRowIndexMap.return": {
+          "type": "object",
+          "title": "Map<DataRow, number>"
+        },
+        "method.updateFromServer.params": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../types.ts.json#/$defs/DataRow"
+                      }
+                    },
+                    "total": {
+                      "type": "number"
+                    },
+                    "page": {
+                      "type": "number"
+                    },
+                    "pageSize": {
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../types.ts.json#/$defs/DataRow"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateFromServer.return": true,
+        "method.appendRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendRow.return": true,
+        "method.updateRowById.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "data": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateRowById.return": {
+          "type": "boolean"
+        },
+        "method.deleteRowById.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteRowById.return": {
+          "type": "boolean"
+        },
+        "method.replaceRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceRows.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:51.021Z",
+  "models": {
+    "EmitRowsChangedFn": {
+      "name": "EmitRowsChangedFn",
+      "jsdoc": "Emit Rows Changed Fn 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (options?: {\n        selectionChanged?: boolean;\n    }): void;\n}",
+        "members": {}
+      }
+    },
+    "PostMutationFn": {
+      "name": "PostMutationFn",
+      "jsdoc": "Post Mutation Fn 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (affectedRows: DataRow[] | 'all' | null): void;\n}",
+        "members": {}
+      }
+    },
+    "LocalMutationDelegate": {
+      "name": "LocalMutationDelegate",
+      "jsdoc": "Local Mutation Delegate 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Local Mutation Delegate 实例。",
+          "signatureText": "constructor(host: DataView, emitRowsChanged: EmitRowsChangedFn, postMutation?: PostMutationFn | undefined)",
+          "parameters": [
+            {
+              "name": "host",
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "emitRowsChanged",
+              "type": {
+                "type": "reference",
+                "name": "EmitRowsChangedFn",
+                "sourcePath": "packages/spark-data/src/strategies/local-mutation-delegate.ts"
+              }
+            },
+            {
+              "name": "postMutation",
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PostMutationFn",
+                  "sourcePath": "packages/spark-data/src/strategies/local-mutation-delegate.ts"
+                }
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "buildRowIndexMap",
+              "jsdoc": "构建 row → index 映射（O(n)），供 updateRowById 原地更新 rowIndexMap 复用",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Map",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateFromServer",
+              "jsdoc": "将服务端响应同步到本地字段（rows / total / page / pageSize）",
+              "parameters": [
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        rows?: DataRow[];\n        total?: number;\n        page?: number;\n        pageSize?: number;\n    }"
+                      },
+                      {
+                        "type": "array",
+                        "elementType": {
+                          "type": "reference",
+                          "name": "DataRow",
+                          "sourcePath": "packages/spark-data/src/types.ts"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendRow",
+              "jsdoc": "本地追加一行，发射 rowsChanged",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "updateRowById",
+              "jsdoc": "本地按主键部分更新一行，发射 rowsChanged\n同步 currentRow / selectedRows 引用（引用已变，UI 需感知）\n@returns 是否成功（行不存在时 false）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "deleteRowById",
+              "jsdoc": "本地按主键删除一行，清理选中引用，发射 rowsChanged\n@returns 是否成功（行不存在时 false）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "replaceRows",
+              "jsdoc": "本地整批替换所有行，清理无效选中引用，发射 rowsChanged",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

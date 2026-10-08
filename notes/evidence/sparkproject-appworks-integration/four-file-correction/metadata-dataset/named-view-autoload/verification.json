@@ -1,0 +1,27 @@
+{
+  "recordedAt": "2026-10-09T01:47:50.5413565+08:00",
+  "productionFilesChanged": 3,
+  "changedTestFiles": 1,
+  "baselineTypecheck": 0,
+  "finalTypecheck": 0,
+  "lint": 0,
+  "aiCodegen": {
+    "files": 1019,
+    "exit": 0
+  },
+  "focused": {
+    "passed": 113,
+    "exit": 0,
+    "suites": 10
+  },
+  "rootSuite": {
+    "passed": 2730,
+    "seconds": 216.28,
+    "failed": 0,
+    "exit": 0,
+    "suites": 210
+  },
+  "hashesVerified": true,
+  "onlineWrites": 0,
+  "completeDataSet": false
+}

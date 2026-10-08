@@ -1,0 +1,896 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/conversation/transport/transport-types",
+    "sourcePath": "packages/spark-ai/src/agent/conversation/transport/transport-types.ts",
+    "sourceFile": "packages/spark-ai/src/agent/conversation/transport/transport-types.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/conversation/transport/transport-types",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/conversation/transport/transport-types\n职责：定义 Agent transport 层的 transport types 协议，把 session/tool-loop 事件投影为应用可消费事件。\n边界：只描述传输事件和回调契约，不实现业务注册、不保存会话，也不渲染 UI。\nAI用途：对齐 SSE、turn callback 或前端事件消费字段时，用本模块确认传输边界。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiAgentTransportToolSpec",
+      "AiAgentTransportMessage",
+      "AiAgentTransportToolCall",
+      "AiAgentStreamTurnInput",
+      "AiAgentPrepareSessionInput",
+      "AiAgentStreamTurnResult",
+      "AiAgentAppendMessagesInput",
+      "AiAgentAppSseEventSource",
+      "AiAgentTurnCallbacks"
+    ]
+  },
+  "$defs": {
+    "AiAgentTransportToolSpec": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentTransportToolSpec",
+      "properties": {
+        "type": {
+          "const": "function"
+        },
+        "function": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "parameters": {
+              "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+            },
+            "strict": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "name",
+            "description",
+            "parameters"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentTransportMessage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentTransportMessage",
+      "properties": {
+        "role": {
+          "enum": [
+            "user",
+            "assistant",
+            "system",
+            "tool"
+          ]
+        },
+        "content": {
+          "type": "string"
+        },
+        "tool_call_id": {
+          "type": "string"
+        },
+        "tool_calls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiAgentTransportToolCall"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentTransportToolCall": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentTransportToolCall",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "const": "function"
+        },
+        "function": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "arguments": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "arguments"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentStreamTurnInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentStreamTurnInput",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "../../business/scope-types.ts.json#/$defs/AiAgentScope"
+        },
+        "turn": {
+          "$ref": "../chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
+        },
+        "systemPrompt": {
+          "type": "string"
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiAgentTransportToolSpec"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiAgentTransportMessage"
+          }
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onStreamEvent.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "../chat/chat-types.ts.json#/$defs/AiAgentStreamEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onStreamEvent.return": true,
+        "method.onDelta.params": {
+          "type": "object",
+          "properties": {
+            "delta": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onDelta.return": true,
+        "method.onReasoning.params": {
+          "type": "object",
+          "properties": {
+            "reasoning": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onReasoning.return": true,
+        "method.onUsage.params": {
+          "type": "object",
+          "properties": {
+            "usage": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onUsage.return": true
+      }
+    },
+    "AiAgentPrepareSessionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentPrepareSessionInput",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "../../business/scope-types.ts.json#/$defs/AiAgentScope"
+        },
+        "systemPrompt": {
+          "type": "string"
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiAgentTransportToolSpec"
+          }
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentStreamTurnResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentStreamTurnResult",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "toolCalls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiAgentTransportToolCall"
+          }
+        },
+        "assistantMessagePersisted": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentAppendMessagesInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentAppendMessagesInput",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "../../business/scope-types.ts.json#/$defs/AiAgentScope"
+        },
+        "turn": {
+          "$ref": "../chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiAgentTransportMessage"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiAgentAppSseEventSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentAppSseEventSource",
+      "$defs": {
+        "method.on.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "app-sse-events.ts.json#/$defs/AiAgentAppSseEventName"
+            },
+            "listener": {
+              "type": "object",
+              "title": "(event: AiAgentAppSseEvent) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.on.return": {
+          "type": "object",
+          "title": "() => void"
+        }
+      }
+    },
+    "AiAgentTurnCallbacks": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentTurnCallbacks",
+      "$defs": {
+        "method.prepareSession.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AiAgentPrepareSessionInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareSession.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.executeTurn.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AiAgentStreamTurnInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeTurn.return": {
+          "type": "object",
+          "title": "Promise<AiAgentStreamTurnResult>"
+        },
+        "method.appendMessages.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/AiAgentAppendMessagesInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendMessages.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.687Z",
+  "models": {
+    "AiAgentTransportToolSpec": {
+      "name": "AiAgentTransportToolSpec",
+      "jsdoc": "传输层工具规约（对齐 OpenAI function tool spec）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 工具类型，当前固定为 'function'（对齐 OpenAI） */\n    type: 'function';\n    /** 函数定义：名称、描述、参数 JSON Schema、可选 strict 模式 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n        /** OpenAI strict function calling：要求模型参数严格匹配 JSON Schema。 */\n        readonly strict?: boolean;\n    };\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 工具类型，当前固定为 'function'（对齐 OpenAI） */\n    type: 'function';\n    /** 函数定义：名称、描述、参数 JSON Schema、可选 strict 模式 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n        /** OpenAI strict function calling：要求模型参数严格匹配 JSON Schema。 */\n        readonly strict?: boolean;\n    };\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "工具类型，当前固定为 'function'（对齐 OpenAI）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "function",
+              "jsdoc": "函数定义：名称、描述、参数 JSON Schema、可选 strict 模式",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentTransportMessage": {
+      "name": "AiAgentTransportMessage",
+      "jsdoc": "传输层消息（对齐 OpenAI message 格式，支持 tool_calls）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** system 对齐 OpenAI，但 SPARK 当前轮次 system prompt 走 AiAgentStreamTurnInput.systemPrompt */\n    role: 'user' | 'assistant' | 'system' | 'tool';\n    /** 消息文本内容 */\n    content: string;\n    /** role='tool' 时的工具调用 ID，与 AiAgentTransportToolCall.id 对应 */\n    tool_call_id?: string;\n    /** role='assistant' 时的工具调用列表（一次 assistant 消息可发起多个并行 tool call） */\n    tool_calls?: readonly AiAgentTransportToolCall[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** system 对齐 OpenAI，但 SPARK 当前轮次 system prompt 走 AiAgentStreamTurnInput.systemPrompt */\n    role: 'user' | 'assistant' | 'system' | 'tool';\n    /** 消息文本内容 */\n    content: string;\n    /** role='tool' 时的工具调用 ID，与 AiAgentTransportToolCall.id 对应 */\n    tool_call_id?: string;\n    /** role='assistant' 时的工具调用列表（一次 assistant 消息可发起多个并行 tool call） */\n    tool_calls?: readonly AiAgentTransportToolCall[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "role",
+              "jsdoc": "system 对齐 OpenAI，但 SPARK 当前轮次 system prompt 走 AiAgentStreamTurnInput.systemPrompt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "消息文本内容",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tool_call_id",
+              "jsdoc": "role='tool' 时的工具调用 ID，与 AiAgentTransportToolCall.id 对应",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tool_calls",
+              "jsdoc": "role='assistant' 时的工具调用列表（一次 assistant 消息可发起多个并行 tool call）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentTransportToolCall": {
+      "name": "AiAgentTransportToolCall",
+      "jsdoc": "传输层工具调用（对齐 OpenAI function tool call）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 工具调用 ID，用于关联 tool 角色消息的 tool_call_id */\n    id: string;\n    /** 调用类型，当前固定为 'function' */\n    type: 'function';\n    /** 函数调用详情：名称和 JSON 字符串形式的参数 */\n    function: {\n        readonly name: string;\n        readonly arguments: string;\n    };\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 工具调用 ID，用于关联 tool 角色消息的 tool_call_id */\n    id: string;\n    /** 调用类型，当前固定为 'function' */\n    type: 'function';\n    /** 函数调用详情：名称和 JSON 字符串形式的参数 */\n    function: {\n        readonly name: string;\n        readonly arguments: string;\n    };\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "工具调用 ID，用于关联 tool 角色消息的 tool_call_id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "调用类型，当前固定为 'function'",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "function",
+              "jsdoc": "函数调用详情：名称和 JSON 字符串形式的参数",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentStreamTurnInput": {
+      "name": "AiAgentStreamTurnInput",
+      "jsdoc": "AI turn 启动输入（模型事件通过 APP 公共 SSE 返回）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 会话 ID，标识后端持久化的对话上下文 */\n    sessionId: string;\n    /** 本次 turn 的业务作用域（含 kind / instanceId / eventModuleId） */\n    scope: AiAgentScope;\n    /** 轮次元数据 */\n    turn: AiAgentTurnMeta;\n    /** 系统提示词，追加到消息列表之前 */\n    systemPrompt: string;\n    /** 本次 turn 可调用的工具列表 */\n    tools: readonly AiAgentTransportToolSpec[];\n    /** 历史消息列表（含当前用户输入） */\n    messages: readonly AiAgentTransportMessage[];\n    /** 中断信号，触发后取消正在进行的 LLM 请求 */\n    signal?: AbortSignal;\n    /** 原始 AI turn 事件回调 */\n    onStreamEvent?: (event: AiAgentStreamEvent) => void;\n    /** 文本增量回调 */\n    onDelta?: (delta: string) => void;\n    /** 推理过程增量回调 */\n    onReasoning?: (reasoning: string) => void;\n    /** token 用量回调 */\n    onUsage?: (usage: Record<string, unknown>) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 会话 ID，标识后端持久化的对话上下文 */\n    sessionId: string;\n    /** 本次 turn 的业务作用域（含 kind / instanceId / eventModuleId） */\n    scope: AiAgentScope;\n    /** 轮次元数据 */\n    turn: AiAgentTurnMeta;\n    /** 系统提示词，追加到消息列表之前 */\n    systemPrompt: string;\n    /** 本次 turn 可调用的工具列表 */\n    tools: readonly AiAgentTransportToolSpec[];\n    /** 历史消息列表（含当前用户输入） */\n    messages: readonly AiAgentTransportMessage[];\n    /** 中断信号，触发后取消正在进行的 LLM 请求 */\n    signal?: AbortSignal;\n    /** 原始 AI turn 事件回调 */\n    onStreamEvent?: (event: AiAgentStreamEvent) => void;\n    /** 文本增量回调 */\n    onDelta?: (delta: string) => void;\n    /** 推理过程增量回调 */\n    onReasoning?: (reasoning: string) => void;\n    /** token 用量回调 */\n    onUsage?: (usage: Record<string, unknown>) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sessionId",
+              "jsdoc": "会话 ID，标识后端持久化的对话上下文",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "本次 turn 的业务作用域（含 kind / instanceId / eventModuleId）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "轮次元数据",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "systemPrompt",
+              "jsdoc": "系统提示词，追加到消息列表之前",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tools",
+              "jsdoc": "本次 turn 可调用的工具列表",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "messages",
+              "jsdoc": "历史消息列表（含当前用户输入）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "jsdoc": "中断信号，触发后取消正在进行的 LLM 请求",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onStreamEvent",
+              "jsdoc": "原始 AI turn 事件回调",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentStreamEvent",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/chat/chat-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDelta",
+              "jsdoc": "文本增量回调",
+              "parameters": [
+                {
+                  "name": "delta",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onReasoning",
+              "jsdoc": "推理过程增量回调",
+              "parameters": [
+                {
+                  "name": "reasoning",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onUsage",
+              "jsdoc": "token 用量回调",
+              "parameters": [
+                {
+                  "name": "usage",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentPrepareSessionInput": {
+      "name": "AiAgentPrepareSessionInput",
+      "jsdoc": "后端 V4 会话准备输入；用于在 executeTurn 前显式确保 session 存在且 scope 正确。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 会话 ID */\n    sessionId: string;\n    /** 业务作用域 */\n    scope: AiAgentScope;\n    /** 系统提示词 */\n    systemPrompt: string;\n    /** 工具列表 */\n    tools: readonly AiAgentTransportToolSpec[];\n    /** 中断信号 */\n    signal?: AbortSignal;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 会话 ID */\n    sessionId: string;\n    /** 业务作用域 */\n    scope: AiAgentScope;\n    /** 系统提示词 */\n    systemPrompt: string;\n    /** 工具列表 */\n    tools: readonly AiAgentTransportToolSpec[];\n    /** 中断信号 */\n    signal?: AbortSignal;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sessionId",
+              "jsdoc": "会话 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "业务作用域",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "systemPrompt",
+              "jsdoc": "系统提示词",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tools",
+              "jsdoc": "工具列表",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "jsdoc": "中断信号",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentStreamTurnResult": {
+      "name": "AiAgentStreamTurnResult",
+      "jsdoc": "AI turn 汇总结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 模型输出的完整文本内容 */\n    text: string;\n    /** 模型推理过程文本（如有） */\n    reasoning?: string;\n    /** 模型发起的工具调用列表 */\n    toolCalls: readonly AiAgentTransportToolCall[];\n    /** true 表示 transport 已把本轮 assistant 消息写入后端历史；工具循环只需追加 tool 结果。 */\n    assistantMessagePersisted?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 模型输出的完整文本内容 */\n    text: string;\n    /** 模型推理过程文本（如有） */\n    reasoning?: string;\n    /** 模型发起的工具调用列表 */\n    toolCalls: readonly AiAgentTransportToolCall[];\n    /** true 表示 transport 已把本轮 assistant 消息写入后端历史；工具循环只需追加 tool 结果。 */\n    assistantMessagePersisted?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "text",
+              "jsdoc": "模型输出的完整文本内容",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reasoning",
+              "jsdoc": "模型推理过程文本（如有）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolCalls",
+              "jsdoc": "模型发起的工具调用列表",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assistantMessagePersisted",
+              "jsdoc": "true 表示 transport 已把本轮 assistant 消息写入后端历史；工具循环只需追加 tool 结果。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentAppendMessagesInput": {
+      "name": "AiAgentAppendMessagesInput",
+      "jsdoc": "追加消息请求输入：将工具调用结果同步到后端会话",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 会话 ID */\n    sessionId: string;\n    /** 业务作用域 */\n    scope: AiAgentScope;\n    /** 轮次元数据 */\n    turn: AiAgentTurnMeta;\n    /** 待追加的消息列表（通常为 tool 角色的工具调用结果） */\n    messages: readonly AiAgentTransportMessage[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 会话 ID */\n    sessionId: string;\n    /** 业务作用域 */\n    scope: AiAgentScope;\n    /** 轮次元数据 */\n    turn: AiAgentTurnMeta;\n    /** 待追加的消息列表（通常为 tool 角色的工具调用结果） */\n    messages: readonly AiAgentTransportMessage[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sessionId",
+              "jsdoc": "会话 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "业务作用域",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "轮次元数据",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "messages",
+              "jsdoc": "待追加的消息列表（通常为 tool 角色的工具调用结果）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentAppSseEventSource": {
+      "name": "AiAgentAppSseEventSource",
+      "jsdoc": "APP SSE 事件源接口：按事件名订阅 APP 层推送的 SSE 事件",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 订阅指定事件名；返回取消订阅函数 */\n    on(name: AiAgentAppSseEventName, listener: (event: AiAgentAppSseEvent) => void): () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 订阅指定事件名；返回取消订阅函数 */\n    on(name: AiAgentAppSseEventName, listener: (event: AiAgentAppSseEvent) => void): () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "on",
+              "jsdoc": "订阅指定事件名；返回取消订阅函数",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentAppSseEventName",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts"
+                  }
+                },
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "event",
+                              "type": {
+                                "type": "reference",
+                                "name": "AiAgentAppSseEvent",
+                                "sourcePath": "packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentTurnCallbacks": {
+      "name": "AiAgentTurnCallbacks",
+      "jsdoc": "APP 层实现的三个 I/O 操作；spark-ai 只调用，不实现网络请求。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 可选：在 turn 前显式准备后端 session。 */\n    prepareSession?: (input: AiAgentPrepareSessionInput) => Promise<void>;\n    /** 启动一次模型 turn，聚合 APP SSE 事件后返回结果。 */\n    executeTurn: (input: AiAgentStreamTurnInput) => Promise<AiAgentStreamTurnResult>;\n    /** 将工具调用结果同步到后端会话。 */\n    appendMessages: (input: AiAgentAppendMessagesInput) => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 可选：在 turn 前显式准备后端 session。 */\n    prepareSession?: (input: AiAgentPrepareSessionInput) => Promise<void>;\n    /** 启动一次模型 turn，聚合 APP SSE 事件后返回结果。 */\n    executeTurn: (input: AiAgentStreamTurnInput) => Promise<AiAgentStreamTurnResult>;\n    /** 将工具调用结果同步到后端会话。 */\n    appendMessages: (input: AiAgentAppendMessagesInput) => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "prepareSession",
+              "jsdoc": "可选：在 turn 前显式准备后端 session。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentPrepareSessionInput",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/transport/transport-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "executeTurn",
+              "jsdoc": "启动一次模型 turn，聚合 APP SSE 事件后返回结果。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentStreamTurnInput",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/transport/transport-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "AiAgentStreamTurnResult",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/transport/transport-types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "appendMessages",
+              "jsdoc": "将工具调用结果同步到后端会话。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentAppendMessagesInput",
+                    "sourcePath": "packages/spark-ai/src/agent/conversation/transport/transport-types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

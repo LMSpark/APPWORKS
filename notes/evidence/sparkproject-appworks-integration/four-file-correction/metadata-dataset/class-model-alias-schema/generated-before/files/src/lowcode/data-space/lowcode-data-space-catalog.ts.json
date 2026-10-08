@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/lowcode-data-space-catalog",
+    "sourcePath": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
+    "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/lowcode-data-space-catalog",
+    "jsdoc": "app 的 lowcode/data-space/lowcode-data-space-catalog 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceCatalogRow, LowcodeDataSpaceCatalogResult, LowcodeDataSpaceCatalog（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDataSpaceCatalogRow",
+      "LowcodeDataSpaceCatalogResult",
+      "LowcodeDataSpaceCatalog"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceApplicationOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceApplicationOption",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceCatalogResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceCatalogResult",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "LowcodeDataSpaceCatalogRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "unresolvedCreatorCount": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceCatalogQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceCatalogQuery",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "sysid": {
+          "type": "string"
+        },
+        "page": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceCatalog": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceCatalog",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": true
+          },
+          "additionalProperties": false
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeDataSpaceCatalogQuery"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDataSpaceCatalogResult>"
+        },
+        "method.applications.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.applications.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeDataSpaceApplicationOption[]>"
+        },
+        "method.isCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isCurrent.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T10:25:53.418Z",
+  "models": {
+    "CatalogField": {
+      "name": "CatalogField",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof catalogFields[number]",
+        "members": {}
+      }
+    },
+    "LowcodeDataSpaceApplicationOption": {
+      "name": "LowcodeDataSpaceApplicationOption",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    value: string;\n    label: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    value: string;\n    label: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceCatalogRow": {
+      "name": "LowcodeDataSpaceCatalogRow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<CatalogField, string>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<CatalogField, string>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeDataSpaceCatalogResult": {
+      "name": "LowcodeDataSpaceCatalogResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rows: readonly LowcodeDataSpaceCatalogRow[];\n    total: number;\n    unresolvedCreatorCount: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rows: readonly LowcodeDataSpaceCatalogRow[];\n    total: number;\n    unresolvedCreatorCount: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unresolvedCreatorCount",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceCatalogQuery": {
+      "name": "LowcodeDataSpaceCatalogQuery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name?: string;\n    sysid?: string;\n    page?: number;\n    pageSize?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name?: string;\n    sysid?: string;\n    page?: number;\n    pageSize?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sysid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceCatalog": {
+      "name": "LowcodeDataSpaceCatalog",
+      "jsdoc": "Read-only owner for the formal Base_DataSet catalog and its original query permissions.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(scenarioId: unknown)",
+          "parameters": [
+            {
+              "name": "scenarioId",
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "query",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceCatalogQuery",
+                    "sourcePath": "src/lowcode/data-space/lowcode-data-space-catalog.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceCatalogResult",
+                    "sourcePath": "src/lowcode/data-space/lowcode-data-space-catalog.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "applications",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeDataSpaceApplicationOption[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "isCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

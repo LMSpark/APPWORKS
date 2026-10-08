@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/permission/permission-wire",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/permission/permission-wire",
+    "jsdoc": "权限设计态 wire 共享层：FormKey、GetData 查询封装与响应行解析工具。\n仅供 design 读路径复用；runtime 不依赖本模块。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PermissionDesignReader"
+    ]
+  },
+  "$defs": {
+    "PermissionDesignReader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionDesignReader",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readTable.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "field": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readTable.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<Record<string, unknown>>>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T07:32:10.538Z",
+  "models": {
+    "PermissionDesignReader": {
+      "name": "PermissionDesignReader",
+      "jsdoc": "权限设计态 QYVirtualPlat 表读取器；按 field=value 等值过滤拉取原始行。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "readTable",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Record",
+                      "typeArguments": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "unknown"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

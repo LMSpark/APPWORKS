@@ -1,0 +1,142 @@
+{
+  "at": "2026-10-08T09:48:05.760Z",
+  "targetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "stage": "save-new-target-file",
+  "writes": 1,
+  "requests": [
+    {
+      "path": "/api/File/content/text"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/File/content/text"
+    },
+    {
+      "path": "/api/File/content/text"
+    },
+    {
+      "path": "/api/File/UploadFile"
+    },
+    {
+      "path": "/api/File/DownFile"
+    }
+  ],
+  "filePresent": false,
+  "preimage": null,
+  "candidateSha256": "f86a7ff9cd155435d7a9c6a14f38e92a38b3e6f1eab04051fe8964fd2ba0c6b5",
+  "failed": true,
+  "error": "文件下载响应不是 ArrayBuffer"
+}

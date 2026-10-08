@@ -1,0 +1,499 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/runtime/container-layout",
+    "sourcePath": "packages/spark-component/src/components/containers/runtime/container-layout.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/runtime/container-layout.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/runtime/container-layout",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/runtime/container-layout\n职责：提供 container layout 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "UseContainerGridOptions",
+      "ContainerGridState",
+      "CompositeItemGridState"
+    ]
+  },
+  "$defs": {
+    "UseContainerGridOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseContainerGridOptions",
+      "properties": {
+        "children": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<SparkNode[]>"
+        },
+        "columns": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<number>"
+        },
+        "gap": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<number | string>"
+        },
+        "autoRows": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<string>"
+        },
+        "autoFitMinWidth": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<string>"
+        },
+        "defaultColSpan": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<number>"
+        },
+        "autoFillLastRow": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "children"
+      ],
+      "additionalProperties": false
+    },
+    "ContainerGridState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ContainerGridState",
+      "properties": {
+        "gridStyle": {
+          "type": "object",
+          "title": "ComputedRef<CSSProperties>"
+        },
+        "gridChildren": {
+          "type": "object",
+          "title": "ComputedRef<SparkNode[]>"
+        }
+      },
+      "required": [
+        "gridStyle",
+        "gridChildren"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.getChildGridStyle.params": {
+          "type": "object",
+          "properties": {
+            "child": {
+              "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getChildGridStyle.return": {
+          "type": "object",
+          "title": "CSSProperties"
+        }
+      }
+    },
+    "UseCompositeItemGridOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseCompositeItemGridOptions",
+      "$defs": {
+        "method.children.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.children.return": true,
+        "method.bodyClass.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.bodyClass.return": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "method.gridColumns.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.gridColumns.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.gridAutoRows.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.gridAutoRows.return": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "method.gridGap.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.gridGap.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "CompositeItemGridState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CompositeItemGridState",
+      "properties": {
+        "contentChildren": {
+          "type": "object",
+          "title": "ComputedRef<SparkNode[]>"
+        },
+        "contentBodyClass": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "contentGridStyle": {
+          "type": "object",
+          "title": "ComputedRef<CSSProperties>"
+        }
+      },
+      "required": [
+        "contentChildren",
+        "contentBodyClass",
+        "contentGridStyle"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.getContentChildGridStyle.params": {
+          "type": "object",
+          "properties": {
+            "child": {
+              "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getContentChildGridStyle.return": {
+          "type": "object",
+          "title": "CSSProperties"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T11:22:51.215Z",
+  "models": {
+    "UseContainerGridOptions": {
+      "name": "UseContainerGridOptions",
+      "jsdoc": "`useContainerGrid` 输入选项。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 子节点数组（响应式 getter 或 ref）。 */\n    children: MaybeRefOrGetter<SparkNode[]>;\n    /** 网格列数（默认 24）。 */\n    columns?: MaybeRefOrGetter<number>;\n    /** 网格间距（默认 0px，可为数字/CSS 字符串）。 */\n    gap?: MaybeRefOrGetter<number | string>;\n    /** 行高模板（默认 minmax(32px, auto)）。 */\n    autoRows?: MaybeRefOrGetter<string>;\n    /** auto-fit 最小宽度（如 '200px'），设置则启用 auto-fit 模式。 */\n    autoFitMinWidth?: MaybeRefOrGetter<string>;\n    /** 默认列跨度（子节点未指定时使用）。 */\n    defaultColSpan?: MaybeRefOrGetter<number>;\n    /** 最后一行不满时自动拉宽所有子元素以填满行宽。 */\n    autoFillLastRow?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "children",
+              "jsdoc": "子节点数组（响应式 getter 或 ref）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "columns",
+              "jsdoc": "网格列数（默认 24）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gap",
+              "jsdoc": "网格间距（默认 0px，可为数字/CSS 字符串）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoRows",
+              "jsdoc": "行高模板（默认 minmax(32px, auto)）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoFitMinWidth",
+              "jsdoc": "auto-fit 最小宽度（如 '200px'），设置则启用 auto-fit 模式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultColSpan",
+              "jsdoc": "默认列跨度（子节点未指定时使用）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoFillLastRow",
+              "jsdoc": "最后一行不满时自动拉宽所有子元素以填满行宽。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ContainerGridState": {
+      "name": "ContainerGridState",
+      "jsdoc": "`useContainerGrid` 返回状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 网格容器的 CSS 样式对象（display: grid + gridTemplateColumns 等）。 */\n    gridStyle: ComputedRef<CSSProperties>;\n    /** 计算子元素的 CSS 样式（传入节点和索引）。 */\n    getChildGridStyle: (child: SparkNode, index?: number) => CSSProperties;\n    /** 过滤后的子节点数组（供模板 v-for 遍历）。 */\n    gridChildren: ComputedRef<SparkNode[]>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "gridStyle",
+              "jsdoc": "网格容器的 CSS 样式对象（display: grid + gridTemplateColumns 等）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "gridChildren",
+              "jsdoc": "过滤后的子节点数组（供模板 v-for 遍历）。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "getChildGridStyle",
+              "jsdoc": "计算子元素的 CSS 样式（传入节点和索引）。",
+              "parameters": [
+                {
+                  "name": "child",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNode"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "CSSProperties"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "UseCompositeItemGridOptions": {
+      "name": "UseCompositeItemGridOptions",
+      "jsdoc": "Use Composite Item Grid Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 子节点集合。 */\n    children?: () => SparkNode['children'] | undefined;\n    /** 复合容器内容区 class；空值会被标准化为空字符串。 */\n    bodyClass?: () => string | null | undefined;\n    /** 复合容器内容区列数；字符串/数字都会被标准化为正整数。 */\n    gridColumns?: () => string | number | null | undefined;\n    /** 复合容器内容区自动行高；仅接受有效字符串。 */\n    gridAutoRows?: () => string | null | undefined;\n    /** 复合容器内容区间距；数字转 px，字符串按 CSS 原样透传。 */\n    gridGap?: () => string | number | null | undefined;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "children",
+              "jsdoc": "子节点集合。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "unknown",
+                  "name": "SparkNode['children']"
+                }
+              }
+            },
+            {
+              "name": "bodyClass",
+              "jsdoc": "复合容器内容区 class；空值会被标准化为空字符串。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "gridColumns",
+              "jsdoc": "复合容器内容区列数；字符串/数字都会被标准化为正整数。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "gridAutoRows",
+              "jsdoc": "复合容器内容区自动行高；仅接受有效字符串。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "gridGap",
+              "jsdoc": "复合容器内容区间距；数字转 px，字符串按 CSS 原样透传。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CompositeItemGridState": {
+      "name": "CompositeItemGridState",
+      "jsdoc": "`useCompositeItemGrid` 返回状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** content Children 字段。 */\n    contentChildren: ComputedRef<SparkNode[]>;\n    /** content Body Class 字段。 */\n    contentBodyClass: ComputedRef<string>;\n    /** content Grid Style 字段。 */\n    contentGridStyle: ComputedRef<CSSProperties>;\n    /** get Content Child Grid Style 回调。 */\n    getContentChildGridStyle: (child: SparkNode, index?: number) => CSSProperties;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "contentChildren",
+              "jsdoc": "content Children 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contentBodyClass",
+              "jsdoc": "content Body Class 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contentGridStyle",
+              "jsdoc": "content Grid Style 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "getContentChildGridStyle",
+              "jsdoc": "get Content Child Grid Style 回调。",
+              "parameters": [
+                {
+                  "name": "child",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkNode"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "CSSProperties"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

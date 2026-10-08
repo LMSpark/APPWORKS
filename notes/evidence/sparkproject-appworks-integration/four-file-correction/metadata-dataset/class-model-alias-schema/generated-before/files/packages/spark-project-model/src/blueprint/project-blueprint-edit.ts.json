@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:blueprint/project-blueprint-edit",
+    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+    "sourceFile": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "blueprint/project-blueprint-edit",
+    "jsdoc": "@module @spark-appworks/spark-project-model:blueprint/project-blueprint-edit\n职责：正式四组节点草稿与补丁转换。\n边界：只编辑领域内存，不提交远端。\nAI用途：生成或应用节点草稿时确认身份与组边界。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "BlueprintNodeDraft",
+      "BlueprintNodeDraftApplyResult"
+    ]
+  },
+  "$defs": {
+    "BlueprintNodeDraft": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeDraft",
+      "properties": {
+        "node": {
+          "$ref": "project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+        }
+      },
+      "required": [
+        "node"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintNodeDraftApplyResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodeDraftApplyResult",
+      "properties": {
+        "patch": {
+          "type": "object",
+          "title": "ProjectBlueprintNodePatch"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "patch",
+        "warnings"
+      ],
+      "additionalProperties": false
+    },
+    "BlueprintNodePatchTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BlueprintNodePatchTarget",
+      "$defs": {
+        "method.applyBlueprintPatch.params": {
+          "type": "object",
+          "properties": {
+            "patch": {
+              "type": "object",
+              "title": "ProjectBlueprintNodePatch"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyBlueprintPatch.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:59:31.327Z",
+  "models": {
+    "BlueprintNodeDraft": {
+      "name": "BlueprintNodeDraft",
+      "jsdoc": "以node包裹一个正式节点的编辑草稿。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    node: ProjectBlueprintTreeNodeData;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "node",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintNodeDraftApplyResult": {
+      "name": "BlueprintNodeDraftApplyResult",
+      "jsdoc": "草稿应用的正式组补丁和诊断，不代表远端保存回执。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    patch: ProjectBlueprintNodePatch;\n    warnings: string[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "patch",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "warnings",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "BlueprintNodePatchTarget": {
+      "name": "BlueprintNodePatchTarget",
+      "jsdoc": "可应用正式分组补丁的内存节点边界。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    applyBlueprintPatch(patch: ProjectBlueprintNodePatch): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "applyBlueprintPatch",
+              "parameters": [
+                {
+                  "name": "patch",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectBlueprintNodePatch",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

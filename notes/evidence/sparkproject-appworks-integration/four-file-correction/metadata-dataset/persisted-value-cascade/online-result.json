@@ -1,0 +1,246 @@
+{
+  "at": "2026-10-08T22:37:49.404Z",
+  "stage": "complete",
+  "writes": 0,
+  "reads": 115,
+  "files": [
+    {
+      "scenarioId": "97DCB03F75AADEAE6B102B062DB71CEA",
+      "present": true,
+      "hash": "f86a7ff9cd155435d7a9c6a14f38e92a38b3e6f1eab04051fe8964fd2ba0c6b5",
+      "validation": "valid",
+      "cascades": [],
+      "modelCount": 7
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "present": true,
+      "hash": "86ccf1cd4ae3b0a792ff91458074a691dd738955ce99bd21e65033267881a0c1",
+      "validation": "valid",
+      "cascades": [],
+      "modelCount": 4
+    }
+  ],
+  "selections": [],
+  "metadata": [
+    {
+      "name": "Base_DataModel",
+      "rows": 7,
+      "views": [
+        "default",
+        "modelOptions",
+        "apiInfoModels",
+        "designModels"
+      ]
+    },
+    {
+      "name": "Base_DataModel_Field",
+      "rows": 119,
+      "views": [
+        "default",
+        "modelFieldOptions",
+        "apiInfoFields",
+        "designFields"
+      ]
+    },
+    {
+      "name": "Base_DataSet",
+      "rows": 1,
+      "views": [
+        "default",
+        "designParameters"
+      ]
+    },
+    {
+      "name": "Base_DataModel_Relation",
+      "rows": 0,
+      "views": [
+        "default",
+        "designRelations"
+      ]
+    }
+  ],
+  "definition": [
+    {
+      "name": "shif",
+      "columns": 4,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "Json转数组",
+      "columns": 0,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "db_relation_show",
+      "columns": 0,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "View_TblList",
+      "columns": 0,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "TestJSON0819",
+      "columns": 6,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "copyTable",
+      "columns": 2,
+      "views": [
+        "default"
+      ]
+    },
+    {
+      "name": "Base_DataSet",
+      "columns": 1,
+      "views": [
+        "default"
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "name": "shif",
+      "success": true,
+      "state": 3,
+      "count": 2,
+      "total": 2,
+      "columns": [
+        {
+          "name": "val",
+          "type": "varchar",
+          "primary": false
+        },
+        {
+          "name": "txt",
+          "type": "varchar",
+          "primary": false
+        },
+        {
+          "name": "ordIdx",
+          "type": "int",
+          "primary": false
+        },
+        {
+          "name": "rowid",
+          "type": "varchar",
+          "primary": false
+        },
+        {
+          "name": "_pk",
+          "type": "string"
+        }
+      ],
+      "summary": [
+        {
+          "name": "val",
+          "types": [
+            "string"
+          ],
+          "distinct": 2,
+          "readable": true,
+          "writable": false
+        },
+        {
+          "name": "txt",
+          "types": [
+            "string"
+          ],
+          "distinct": 2,
+          "readable": true,
+          "writable": false
+        },
+        {
+          "name": "ordIdx",
+          "types": [
+            "number"
+          ],
+          "distinct": 2,
+          "readable": true,
+          "writable": false
+        },
+        {
+          "name": "rowid",
+          "types": [
+            "string"
+          ],
+          "distinct": 2,
+          "readable": true,
+          "writable": false
+        },
+        {
+          "name": "_pk",
+          "types": [
+            "undefined"
+          ],
+          "distinct": 1,
+          "readable": true,
+          "writable": false
+        }
+      ]
+    },
+    {
+      "name": "TestJSON0819",
+      "success": false,
+      "error": "[500] 权限不足，当前用户未获得资源 Base_JsonData 的查询权限；数据空间基线：未配置（按 none 处理）；操作码权限：不适用；元数据公开查询基线：IsVisible=0（未开放）。"
+    },
+    {
+      "name": "copyTable",
+      "success": false,
+      "error": "[500] 数据库不存在：testAdd"
+    },
+    {
+      "name": "Base_DataSet",
+      "success": true,
+      "state": 3,
+      "count": 1185,
+      "total": 1185,
+      "columns": [
+        {
+          "name": "rowid",
+          "type": "varchar",
+          "primary": true
+        },
+        {
+          "name": "_pk",
+          "type": "varchar"
+        }
+      ],
+      "summary": [
+        {
+          "name": "rowid",
+          "types": [
+            "string"
+          ],
+          "distinct": 1185,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "name": "_pk",
+          "types": [
+            "string"
+          ],
+          "distinct": 1185,
+          "readable": true,
+          "writable": false
+        }
+      ]
+    }
+  ],
+  "remoteUnchanged": true,
+  "candidateOnly": false
+}

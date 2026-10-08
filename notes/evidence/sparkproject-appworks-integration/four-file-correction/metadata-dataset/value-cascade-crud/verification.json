@@ -1,0 +1,43 @@
+{
+  "finalCrud": {
+    "exit": 0,
+    "suites": 2,
+    "passed": 27
+  },
+  "onlineWrites": 0,
+  "focused": {
+    "exit": 0,
+    "suites": 5,
+    "passed": 141
+  },
+  "root": {
+    "failed": 0,
+    "exit": 0,
+    "suites": 210,
+    "passed": 2748,
+    "durationSeconds": 193.2
+  },
+  "fullTaskComplete": false,
+  "lint": {
+    "exit": 0,
+    "paths": 6
+  },
+  "apiDocs": 1,
+  "remaining": [
+    "legacy query row-dependency replacement",
+    "ordinary option component consumption",
+    "ClassModel and designer integration",
+    "full AppWorks integration"
+  ],
+  "finalTypecheck": 0,
+  "productionFiles": 3,
+  "recordedAt": "2026-10-09T03:18:54.7620084+08:00",
+  "baselineTypecheck": 0,
+  "aiCodegen": {
+    "files": 1021,
+    "exit": 0
+  },
+  "newSourceFiles": 0,
+  "testFiles": 3,
+  "finalHashesVerified": 7
+}

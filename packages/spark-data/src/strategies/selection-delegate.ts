@@ -10,6 +10,7 @@ import { isDataRow } from '../core/data-row-guards'
 import type { DataRow } from '../types'
 import type { DataView } from '../data-view'
 import { pruneInvalidSelections } from '../core/utils'
+import { DataViewSelectionValue } from './selection/data-view-selection-value'
 
 const logger = Logger('DataView:Selection')
 
@@ -481,26 +482,12 @@ constructor(
   get value(): string {
     const host = this.host
     if (host.valueField !== undefined) {
-      const rows = host.selectedRows
-      if (Array.isArray(host.valueField)) {
-        const fields = host.valueField
-        const values: string[] = []
-        for (const r of rows) {
-          const parts = fields.map(f => {
-            const v: unknown = r[f]
-            return v !== undefined && v !== null ? String(v) : ''
-          })
-          if (parts.some(p => p !== '')) values.push(parts.join(':'))
-        }
-        return host.selectionDelimiter ? values.join(host.selectionDelimiter) : (values[0] ?? '')
-      }
-      const field = host.valueField
       const values: string[] = []
-      for (const r of rows) {
-        const v: unknown = r[field]
-        if (v !== undefined && v !== null) values.push(String(v))
+      for (const row of host.selectedRows) {
+        const token = DataViewSelectionValue.token(row, host.valueField)
+        if (token !== undefined) values.push(token)
       }
-      return host.selectionDelimiter ? values.join(host.selectionDelimiter) : (values[0] ?? '')
+      return DataViewSelectionValue.join(values, host.selectionDelimiter)
     }
     // 默认：主键快速路径
     if (!host.selectionDelimiter) {
@@ -513,9 +500,7 @@ constructor(
     const host = this.host
     if (!value) { this.clearSelectedRows(); return }
 
-    const tokens = host.selectionDelimiter
-      ? value.split(host.selectionDelimiter).map(s => s.trim()).filter(s => s !== '')
-      : [value.trim()].filter(s => s !== '')
+    const tokens = DataViewSelectionValue.split(value, host.selectionDelimiter)
     if (tokens.length === 0) { this.clearSelectedRows(); return }
 
     if (host.valueField !== undefined) {

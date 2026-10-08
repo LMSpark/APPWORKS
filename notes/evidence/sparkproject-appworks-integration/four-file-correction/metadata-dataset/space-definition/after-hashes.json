@@ -1,0 +1,50 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
+    "sha256": "33e386524ba5f96061a44afa02b37c889510bc92db90a0fd45a2fb951f89cc04"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "sha256": "6299387feb2c1039d7353ac6a056b3bb5658392eb9794b49e78c188cc1da199f"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+    "sha256": "8e9ff53d91bbff8e48a1a995e4200ecae7ac9723fccbe5aa53c6fc71a1165162"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
+    "sha256": "c11204c7c1f601d38961ee8cc942f2eab9c3dedbf9b856f0fb6724345f3267c2"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/lowcode-scenario-assembly.test.ts",
+    "sha256": "7b7c45f1c6b4e4f14d26a3329b75c32bccf7c6ac78a0f197a0d1d0a05bdb37b0"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts",
+    "sha256": "3a1fd0be7143bef142f071c31df37652b75e26cfd7029a967d37ced7ec80ead0"
+  },
+  {
+    "path": "tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts",
+    "sha256": "8b44e9806c407a807290d45cb432ab1117d73fe60e77bc06c0a39f16921e2298"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-metadata.test.ts",
+    "sha256": "9ce38180e3fab72ebc4fbe8b5add55b9f6ca38d29b2cb8d12f669493aff7e362"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts",
+    "sha256": "16a6053f550b0307909c47b6c893a4a1b1d828afc4691fce22a241257eee2528"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts",
+    "sha256": "97e4564c905a08c15e0c88c9ed2b6160194668fcd9fb760cddececa5df89cec5"
+  },
+  {
+    "path": "tests/runtime/page/catalog/data-space-four-file.test.ts",
+    "sha256": "6db7890a1ba5a9f54b1e658e30b0fc9aeb00bf77314f3d6da91af4020ca94334"
+  },
+  {
+    "path": "tests/runtime/page/design/data-space-design-four-file.test.ts",
+    "sha256": "9a7621d7cfdf000cd193c4ebaa2add6a54897728f5afa5d47b5e652590300854"
+  }
+]

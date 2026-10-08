@@ -1,0 +1,27 @@
+{
+  "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
+  "tables": {
+    "Base_NavigationInfo": {
+      "modelBinding": {
+        "modelId": "7AB874097A1E8711A42FD845939A6E05p000",
+        "modelName": "Base_NavigationInfo"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false
+        },
+        "catalogBindings": {
+          "autoLoad": false,
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "viewCascades": []
+}

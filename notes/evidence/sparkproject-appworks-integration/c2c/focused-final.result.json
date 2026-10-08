@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/page/runtime/system-page-identity-tabs.test.ts tests/runtime/page/runtime/page-runtime-tabs.test.ts tests/runtime/auth-nav/navigation-platform-paths.test.ts tests/auth-nav/navigation-platform-paths.test.ts --maxWorkers=1 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T07:31:51.2045745Z",
+  "finishedAt": "2026-10-07T07:32:02.0234433Z",
+  "exitCode": 0,
+  "stdoutLog": "notes/evidence/sparkproject-appworks-integration/c2c/focused-final.stdout.log"
+}

@@ -15,6 +15,7 @@ import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/p
 
 function createPageService(overrides?: Partial<PageServiceCapability>): PageServiceCapability {
   return {
+    copyText: async () => {},
     showMessage: () => {},
     showConfirm: async () => false,
     showPrompt: async () => null,

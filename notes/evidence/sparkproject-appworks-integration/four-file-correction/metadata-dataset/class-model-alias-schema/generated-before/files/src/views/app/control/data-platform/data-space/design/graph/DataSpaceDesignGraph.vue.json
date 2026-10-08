@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph",
+    "sourcePath": "src/views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.vue",
+    "sourceFile": "src/views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.vue",
+    "packageName": "app",
+    "modulePath": "views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph",
+    "jsdoc": "app 的 views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {
+    "MovedEdge": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MovedEdge",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "pointsList": {
+          "type": "array",
+          "items": {
+            "$ref": "DataSpaceDesignGraph.props.ts.json#/$defs/DataSpaceDesignGraphPoint"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "pointsList"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-08T02:30:34.057Z",
+  "models": {
+    "MovedEdge": {
+      "name": "MovedEdge",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: string;\n    pointsList: DataSpaceDesignGraphPoint[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pointsList",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

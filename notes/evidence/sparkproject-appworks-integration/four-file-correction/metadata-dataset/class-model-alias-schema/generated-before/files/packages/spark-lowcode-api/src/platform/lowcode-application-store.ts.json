@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/lowcode-application-store",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/lowcode-application-store",
+    "jsdoc": "当前选中应用上下文持久化：应用元数据 + 导航根 rowid。\n默认使用浏览器 localStorage；损坏数据会被清除而非返回半成品上下文。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeApplicationContext",
+      "LowcodeApplicationStoreOptions",
+      "LowcodeApplicationStore"
+    ]
+  },
+  "$defs": {
+    "LowcodeApplicationContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApplicationContext",
+      "properties": {
+        "application": {
+          "$ref": "lowcode-application.ts.json#/$defs/LowcodeApplication"
+        },
+        "navigationRootId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeApplicationStoreOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApplicationStoreOptions",
+      "properties": {
+        "storage": {
+          "$ref": "lowcode-session-store.ts.json#/$defs/LowcodeSessionStorage"
+        },
+        "applicationKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeApplicationStore": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeApplicationStore",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/LowcodeApplicationStoreOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LowcodeApplicationContext"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/LowcodeApplicationContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": true,
+        "method.clear.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clear.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T05:09:16.500Z",
+  "models": {
+    "LowcodeApplicationContext": {
+      "name": "LowcodeApplicationContext",
+      "jsdoc": "已选应用及其导航根身份；navigationRootId 来自 Base_NavigationInfo 唯一根节点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    application: LowcodeApplication;\n    navigationRootId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    application: LowcodeApplication;\n    navigationRootId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "application",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationRootId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeApplicationStoreOptions": {
+      "name": "LowcodeApplicationStoreOptions",
+      "jsdoc": "应用 store 配置；storage 缺省为 localStorage（非浏览器环境则无持久化）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    applicationKey?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    applicationKey?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "storage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationKey",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeApplicationStore": {
+      "name": "LowcodeApplicationStore",
+      "jsdoc": "当前选中应用的读写；save 会先校验再写入，避免脏数据落盘。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options?: LowcodeApplicationStoreOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeApplicationStoreOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "get",
+              "jsdoc": "读取应用上下文；解析失败时清除 storage 并返回 null。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeApplicationContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "持久化应用上下文；字段格式非法时抛 LowcodeApiError。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeApplicationContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clear",
+              "jsdoc": "清除已选应用上下文。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/permission/runtime/permission-runtime-api",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/permission/runtime/permission-runtime-api",
+    "jsdoc": "权限运行态只读 API：按 formKey 读取当前用户功能权限与资源级 allowAdd。\n与 design 入口分离；本模块不提供 mutation，运行态写回走数据空间 runtime。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PermissionRuntimeSnapshot",
+      "PermissionRuntimeApi"
+    ]
+  },
+  "$defs": {
+    "PermissionRuntimeSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionRuntimeSnapshot",
+      "properties": {
+        "formKey": {
+          "type": "string"
+        },
+        "authorizedFeatureTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowAddByResource": {
+          "type": "object",
+          "title": "Record<string, boolean>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PermissionRuntimeApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PermissionRuntimeApi",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "formKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<PermissionRuntimeSnapshot>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T07:32:17.613Z",
+  "models": {
+    "PermissionRuntimeSnapshot": {
+      "name": "PermissionRuntimeSnapshot",
+      "jsdoc": "运行态功能权限快照；childFun 与 allowAdd 来自 GetFormUserFunction。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    formKey: string;\n    authorizedFeatureTags: readonly string[];\n    allowAddByResource: Readonly<Record<string, boolean>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    formKey: string;\n    authorizedFeatureTags: readonly string[];\n    allowAddByResource: Readonly<Record<string, boolean>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "formKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "authorizedFeatureTags",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowAddByResource",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PermissionRuntimeApi": {
+      "name": "PermissionRuntimeApi",
+      "jsdoc": "权限运行态门面；只读查询，不涉及设计表写入。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "formKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PermissionRuntimeSnapshot",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

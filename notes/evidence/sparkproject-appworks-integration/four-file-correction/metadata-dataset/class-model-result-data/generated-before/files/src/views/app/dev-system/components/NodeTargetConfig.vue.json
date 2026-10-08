@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/components/NodeTargetConfig",
+    "sourcePath": "src/views/app/dev-system/components/NodeTargetConfig.vue",
+    "sourceFile": "src/views/app/dev-system/components/NodeTargetConfig.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/components/NodeTargetConfig",
+    "jsdoc": "@module app:views/app/dev-system/components/NodeTargetConfig\n职责：编辑导航目标和打开方式，按明确cfg目标创建工具。\n边界：正式kind与交付表面分离；工具创建走Workspace真实三文件能力。\nAI用途：选择原生页面、配置工具或外部链接并检查嵌入能力。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.636Z",
+  "models": {}
+}

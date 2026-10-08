@@ -1,0 +1,41 @@
+{
+  "capturedAt": "2026-10-07T17:02:59.653Z",
+  "probe": {
+    "exceptionDetails": {
+      "columnNumber": 48,
+      "exception": {
+        "className": "Error",
+        "description": "Error: Base_DataModel 缺少 views.default\n    at new ScenarioViewConfig (http://127.0.0.1:5273/packages/spark-project-model/src/scenario/scenario-view-config.ts:54:48)\n    at <anonymous>:1:279",
+        "objectId": "-3853244906167671503.17.36",
+        "subtype": "error",
+        "type": "object"
+      },
+      "exceptionId": 1,
+      "lineNumber": 54,
+      "scriptId": "131",
+      "stackTrace": {
+        "callFrames": [
+          {
+            "columnNumber": 47,
+            "functionName": "ScenarioViewConfig",
+            "lineNumber": 53,
+            "scriptId": "131",
+            "url": "http://127.0.0.1:5273/packages/spark-project-model/src/scenario/scenario-view-config.ts"
+          },
+          {
+            "columnNumber": 278,
+            "functionName": "",
+            "lineNumber": 0,
+            "scriptId": "2452",
+            "url": ""
+          }
+        ]
+      },
+      "text": "Uncaught (in promise) Error: Base_DataModel 缺少 views.default"
+    },
+    "result": {
+      "type": "object",
+      "value": {}
+    }
+  }
+}

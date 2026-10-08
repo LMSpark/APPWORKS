@@ -1,0 +1,22 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
+    "matches": true
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
+    "matches": true
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/index.ts",
+    "matches": true
+  },
+  {
+    "path": "src/lowcode/lowcode-runtime.ts",
+    "matches": true
+  },
+  {
+    "path": "tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+    "matches": true
+  }
+]

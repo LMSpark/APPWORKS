@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec eslint src/lowcode/lowcode-runtime.ts tests/runtime/auth-nav/lowcode-runtime-navigation.test.ts",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:20:35.2532232+08:00",
+  "finishedAt": "2026-10-07T14:20:39.7190681+08:00",
+  "exitCode": 0,
+  "log": "eslint-final.log"
+}

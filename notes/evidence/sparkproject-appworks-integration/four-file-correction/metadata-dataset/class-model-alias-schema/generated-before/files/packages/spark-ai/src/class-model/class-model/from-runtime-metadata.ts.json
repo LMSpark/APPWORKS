@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/from-runtime-metadata",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/from-runtime-metadata.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/from-runtime-metadata.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/from-runtime-metadata",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/from-runtime-metadata\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 from-runtime-metadata 能力，围绕 RuntimeDocumentInput 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/from-runtime-metadata 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "RuntimeDocumentInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeDocumentInput",
+      "properties": {
+        "$defs": {
+          "type": "object",
+          "title": "Record<string, JsonSchemaObject>"
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "AiRuntimeApiMetadataJson"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.499Z",
+  "models": {
+    "RuntimeDocumentInput": {
+      "name": "RuntimeDocumentInput",
+      "jsdoc": "Runtime Document Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 共享 JSON Schema 定义，映射为 ClassModelDocument.$defs。 */\n    $defs?: Readonly<Record<string, JsonSchemaObject>>;\n    /** 运行时 API 元数据数组；首元素作为 ClassModelDocument.module（真源），缺失时 throw。 */\n    modules: readonly AiRuntimeApiMetadataJson[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 共享 JSON Schema 定义，映射为 ClassModelDocument.$defs。 */\n    $defs?: Readonly<Record<string, JsonSchemaObject>>;\n    /** 运行时 API 元数据数组；首元素作为 ClassModelDocument.module（真源），缺失时 throw。 */\n    modules: readonly AiRuntimeApiMetadataJson[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "$defs",
+              "jsdoc": "共享 JSON Schema 定义，映射为 ClassModelDocument.$defs。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modules",
+              "jsdoc": "运行时 API 元数据数组；首元素作为 ClassModelDocument.module（真源），缺失时 throw。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

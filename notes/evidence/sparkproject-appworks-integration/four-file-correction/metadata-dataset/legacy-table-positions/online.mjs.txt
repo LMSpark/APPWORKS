@@ -1,0 +1,119 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+import {createHash} from 'node:crypto'
+import {createServer} from 'vite'
+
+for (const level of ['log', 'info', 'debug', 'warn', 'error']) console[level] = () => {}
+const appId = 'D99A1DCE9894698799101EFD70F8FC76'
+const targetId = '97DCB03F75AADEAE6B102B062DB71CEA'
+const metadataId = '8D1AB14DD8277F3E7017CD38F77B09FD'
+const report = {at: new Date().toISOString(), stage: 'initialize', writes: 0, reads: 0, files: [], selections: []}
+const hash = text => createHash('sha256').update(text).digest('hex')
+let server, session, candidate
+try {
+  const auth = JSON.parse(fs.readFileSync(0, 'utf8').replace(/^\uFEFF/, ''))
+  const storage = new Map()
+  Object.defineProperty(globalThis, 'localStorage', {configurable: true, value: {
+    getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value),
+    removeItem: key => storage.delete(key),
+  }})
+  server = await createServer({configFile: 'vitest.config.ts', logLevel: 'silent', server: {middlewareMode: true}})
+  const {lowcodeApi: api, lowcodeHttp: http, createLowcodeProjectGateways} = await server.ssrLoadModule('/src/lowcode/lowcode-runtime.ts')
+  const {openLowcodeDataSpaceDesignSession} = await server.ssrLoadModule('/src/lowcode/data-space/lowcode-data-space-design.ts')
+  const {ScenarioViewConfig} = await server.ssrLoadModule('/packages/spark-project-model/src/scenario/scenario-view-config.ts')
+  const {DataMember, resolveDataViewMember} = await server.ssrLoadModule('/packages/spark-data/src/core/data-view-key.ts')
+  const {RequestState} = await server.ssrLoadModule('/packages/spark-data/src/types.ts')
+  let authenticated = false
+  http.interceptors.request.use({onRequest: config => {
+    if (authenticated) {
+      assert.ok(['/api/DataOperation/GetData', '/api/File/content/text'].includes(config.url), 'READ_ONLY_PROBE: unexpected endpoint')
+      report.reads++
+    }
+    return {...config, baseURL: 'http://127.0.0.1:5273'}
+  }})
+  report.stage = 'login'
+  const enterprises = (await api.platform.listEnterprises()).filter(item => item.name === auth.enterpriseName || item.shortName === auth.enterpriseName)
+  assert.equal(enterprises.length, 1)
+  auth.enterpriseName = enterprises[0].shortName
+  await api.platform.login(auth)
+  auth.password = ''
+  await api.platform.activateApplication(appId)
+  authenticated = true
+  const gateway = createLowcodeProjectGateways(appId).scenarioViews
+  report.stage = 'inspect-persisted-cascades'
+  const remote = new Map()
+  for (const id of [targetId, metadataId]) {
+    const text = await gateway.readText(id)
+    remote.set(id, text)
+    const parsed = text === null ? null : JSON.parse(text)
+    let validation = 'missing'
+    if (text !== null) {
+      try {new ScenarioViewConfig(id, text); validation = 'valid'} catch (error) {validation = String(error.message).slice(0, 200)}
+    }
+    report.files.push({scenarioId: id, present: text !== null, hash: text === null ? null : hash(text), validation,
+      cascades: (parsed?.viewCascades ?? []).map(item => ({kind: item.kind ?? 'query', keys: Object.keys(item), valueFormat: item.valueFormat ?? null})),
+      modelCount: Object.keys(parsed?.tables ?? {}).length})
+  }
+  report.stage = 'single-target-dataset'
+  session = await openLowcodeDataSpaceDesignSession(targetId)
+  assert.equal(session.definitionError, null)
+  assert.equal(session.metadataDataSet.scenarioId, metadataId)
+  assert.equal(session.definitionDataSet.scenarioId, targetId)
+  const metadata = session.metadataDataSet
+  report.metadata = Object.entries(metadata.tables).map(([name, table]) => {
+    const view = table.views.default
+    assert.equal(view.rows.length, view.total)
+    assert.ok(view.rows.every(row => row[name === 'Base_DataSet' ? 'rowid' : 'dataSetId'] === targetId))
+    return {name, rows: view.rows.length, views: Object.keys(table.views)}
+  })
+  report.definition = Object.entries(session.definitionDataSet.tables).map(([name, table]) => ({
+    name, columns: table.columns.filter(column => !column.isComputed).length, views: Object.keys(table.views),
+  }))
+  report.stage='legacy-layout-import'
+  const {lowcodeDataSpaceLayout}=await server.ssrLoadModule('/src/lowcode/data-space/lowcode-data-space-layout.ts')
+  const source=await lowcodeDataSpaceLayout.createReader().readDataSpaceLayout(targetId)
+  report.legacy={present:source!==null,hash:source===null?null:hash(source)}
+  const before=session.viewState.text
+  if(source===null) {
+    await assert.rejects(session.stageLegacyTablePositions({expectedText:before,expectedLayoutText:''}),/DATA_SPACE_LAYOUT_MISSING/)
+    assert.equal(session.viewState.text,before)
+    report.legacy.outcome='explicit-missing-without-draft-change'
+  } else {
+    const graph=JSON.parse(source)
+    report.legacy.nodes=graph.nodes?.length
+    report.legacy.edges=graph.edges?.length
+    const staged=await session.stageLegacyTablePositions({expectedText:before,expectedLayoutText:source})
+    const positions=session.definitionDataSet.layout?.tablePositions??{}
+    for(const node of graph.nodes) {
+      const matches=Object.values(session.definitionDataSet.tables).filter(table=>table.modelBinding?.modelId===node.id)
+      assert.equal(matches.length,1)
+      assert.deepEqual(positions[matches[0].tableName],{x:node.x,y:node.y})
+    }
+    assert.deepEqual(JSON.parse(staged.text).tables,JSON.parse(before).tables)
+    assert.deepEqual(JSON.parse(staged.text).viewCascades,JSON.parse(before).viewCascades)
+    const repeated=await session.stageLegacyTablePositions({expectedText:staged.text,expectedLayoutText:source})
+    assert.equal(repeated.text,staged.text)
+    report.legacy.outcome='native-positions-staged-without-upload'
+    report.legacy.positions=Object.keys(positions).length
+    await session.stageDefinition({expectedText:staged.text,text:before})
+    assert.equal(session.viewState.dirty,false)
+    report.localDraftRestored=true
+    assert.equal(await lowcodeDataSpaceLayout.createReader().readDataSpaceLayout(targetId),source)
+  }
+  for (const [id, before] of remote) assert.equal(await gateway.readText(id), before)
+
+  report.remoteUnchanged = true
+  report.candidateOnly = true
+  report.stage = 'complete'
+} catch (error) {
+  report.failed = true
+  report.error = String(error.message ?? error).replace(/Bearer\s+\S+/gi, '[redacted]').replace(/eyJ[A-Za-z0-9_.-]+/g, '[redacted]').slice(0, 260)
+  process.exitCode = 1
+} finally {
+  candidate?.destroy()
+  session?.dispose()
+  await server?.close()
+  fs.writeFileSync(new URL('./online-result.json', import.meta.url), JSON.stringify(report, null, 2))
+  process.stdout.write(JSON.stringify(report, null, 2))
+}
+

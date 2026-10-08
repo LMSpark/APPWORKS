@@ -1,0 +1,10 @@
+[
+  {
+    "path": "config/pages/data-platform/data-space-design/pagedata.json",
+    "sha256": "86CCF1CD4AE3B0A792FF91458074A691DD738955CE99BD21E65033267881A0C1"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+    "sha256": "A0057809214843E252F2440FEA2E9EC88AB536A1227559DA255A2A6DA3BE2E92"
+  }
+]

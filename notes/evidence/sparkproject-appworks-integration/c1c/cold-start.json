@@ -1,0 +1,41 @@
+{
+  "startedAt": "2026-10-07T05:48:26.118Z",
+  "truncated": false,
+  "hasMore": false,
+  "scriptPaths": [
+    "/js/index-B52s59fZ.js",
+    "/js/rolldown-runtime-Cyuzqnbw.js",
+    "/js/spark-ai-Df9r-y8w.js",
+    "/js/element-plus-components-a-i-v7DIwDjy.js",
+    "/js/element-plus-components-j-r-CnIl9utZ.js",
+    "/js/spark-app-B8Weq_8o.js",
+    "/js/PageLoadError-BkexEFCC.js",
+    "/js/vue-page-registry-5M0Fk8DY.js",
+    "/js/spark-lowcode-api-DG6i_ajH.js",
+    "/js/element-plus-core-DicGYQt2.js",
+    "/js/element-plus-components-s-z-BqWehQcy.js",
+    "/js/vendor-forms-BdW7OS1u.js",
+    "/js/vendor-D0rnrS7r.js",
+    "/js/element-plus-CPEpUTE4.js",
+    "/js/_virtual_spark-components-DMHvFow2.js",
+    "/js/spark-component-WwUAajO0.js",
+    "/js/IconPicker-BvTIEoty.js",
+    "/js/ModuleContextBadge-BFbaaaSw.js",
+    "/js/HomePage-DG-3MWMa.js"
+  ],
+  "pluginErrors": [
+    {
+      "level": "error",
+      "message": "[plugins] ❌ Failed to load plugin \"element-plus\"\nError: 插件模块 element-plus 未提供有效的 Vue Plugin 默认导出\n    at uV (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:79824)\n    at Object.dV [as loader] (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:79893)\n    at async e.createInstance (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:78476)\n    at async e.loadPlugins (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:78948)\n    at async Ua (http://127.0.0.1:5274/js/index-B52s59fZ.js:2:66408) Object",
+      "timestamp": "2026-10-07T05:48:26.262Z",
+      "url": "http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js"
+    },
+    {
+      "level": "error",
+      "message": "[plugins] ❌ Failed to load plugin \"vxe-table\"\nError: 插件模块 vxe-table 未提供有效的 Vue Plugin 默认导出\n    at uV (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:79824)\n    at Object.fV [as loader] (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:80038)\n    at async e.createInstance (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:78476)\n    at async e.loadPlugins (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:78948)\n    at async Ua (http://127.0.0.1:5274/js/index-B52s59fZ.js:2:66408) Object",
+      "timestamp": "2026-10-07T05:48:26.300Z",
+      "url": "http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js"
+    }
+  ],
+  "conclusion": "Target page chunks absent from cold start; UI plugin errors require C1d before acceptance"
+}

@@ -8,8 +8,8 @@ import { DataViewFilter } from './query/filter/data-view-filter'
 import type { DataViewFilterTree } from './query/filter/data-view-filter-contract'
 
 import type {
-  DataSetContract, DataSetMetadata, TableMetadata, DataResourceRelation, DataViewCascade,
-  DataViewCascadeSelector, DataRow, DataColumn,
+  DataSetContract, DataSetMetadata, TableMetadata, DataResourceRelation, DataResourceRelationInput, DataViewCascade,
+  DataViewQueryCascade, DataViewCascadeSelector, DataViewFieldCascadeAddress, DataViewFieldCascadeState, DataRow, DataColumn,
   ColumnType, ViewChangeHandlers, CrudResult,
   DataSetSaveChangesOptions, DataSetSaveChangesResult, DataSetSaveChangesViewResult,
   DataSetSaveChangesConfig, DataSetTransactionOperation, DataSetTransactionRequest,
@@ -37,7 +37,11 @@ import type {
 import { DataTable } from './data-table'
 import { createCrudService } from './strategies/crud-service'
 import { normalizeDataSetMetadata, normalizeScenarioId } from './metadata'
-import { assertNoSeparator, getParentRows } from './core/utils'
+import { assertNoSeparator } from './core/utils'
+import { DataViewCascadeValueBinding } from './strategies/cascade/cascade-value-binding'
+import { ResourceRelationDefinition } from './resource-relation/resource-relation-definition'
+import { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
+import { DataViewFieldCascadeRuntime } from './strategies/cascade/field-cascade-runtime'
 
 /** @internal 从未知值推断列类型 */
 function inferColumnType(v: unknown): ColumnType {
@@ -140,7 +144,7 @@ tables: Record<string, TableMetadata>
     /** schema Version 字段。 */
 schemaVersion?: number | undefined
     /** table Relations 字段。 */
-resourceRelations?: DataResourceRelation[] | undefined
+resourceRelations?: DataResourceRelationInput[] | undefined
     /** view Dependencies 字段。 */
 viewCascades?: DataViewCascade[] | undefined
     /** version 字段。 */
@@ -223,14 +227,14 @@ function normalizeTableMap(rawTables: unknown): Record<string, TableMetadata> {
   return normalizedTables
 }
 
-function isDataResourceRelation(value: unknown): value is DataResourceRelation {
+function isDataResourceRelation(value: unknown): value is DataResourceRelationInput {
   const record = asRecord(value)
   return record !== null
     && typeof record['parentTable'] === 'string'
     && typeof record['childTable'] === 'string'
 }
 
-function readResourceRelations(value: unknown): DataResourceRelation[] | undefined {
+function readResourceRelations(value: unknown): DataResourceRelationInput[] | undefined {
   if (value === undefined) return undefined
   if (!Array.isArray(value) || !value.every(isDataResourceRelation)) {
     throw new Error('DataSet.fromJson: resourceRelations 必须是 DataResourceRelation 数组')
@@ -238,9 +242,11 @@ function readResourceRelations(value: unknown): DataResourceRelation[] | undefin
   return value
 }
 
-function isDataViewCascade(value: unknown): value is DataViewCascade {
+function isDataViewQueryCascade(value: unknown): value is DataViewQueryCascade {
   const record = asRecord(value)
   return record !== null
+    && (record['kind'] === undefined || record['kind'] === 'query')
+    && !Object.hasOwn(record, 'dependencyType')
     && typeof record['parentTable'] === 'string'
     && typeof record['parentViewId'] === 'string'
     && typeof record['childTable'] === 'string'
@@ -250,8 +256,8 @@ function isDataViewCascade(value: unknown): value is DataViewCascade {
     && record['filterBindings'].every((binding) => {
       const bindingRecord = asRecord(binding)
       return bindingRecord !== null
-        && typeof bindingRecord['sourceField'] === 'string'
-        && bindingRecord['sourceField'].trim() !== ''
+        && (bindingRecord['sourceField'] === undefined || (typeof bindingRecord['sourceField'] === 'string'
+          && bindingRecord['sourceField'].trim() !== ''))
         && typeof bindingRecord['targetField'] === 'string'
         && bindingRecord['targetField'].trim() !== ''
     })
@@ -259,10 +265,16 @@ function isDataViewCascade(value: unknown): value is DataViewCascade {
 
 function readViewCascades(value: unknown): DataViewCascade[] | undefined {
   if (value === undefined) return undefined
-  if (!Array.isArray(value) || !value.every(isDataViewCascade)) {
+  if (!Array.isArray(value)) {
     throw new Error('DataSet.fromJson: viewCascades 必须是 DataViewCascade 数组')
   }
-  return value
+  const cascades = value.map((item: unknown): DataViewCascade => {
+    if (isRecord(item) && item['kind'] === 'field') return DataViewFieldCascadeDefinition.parse(item)
+    if (isDataViewQueryCascade(item)) return item
+    throw new Error('DataSet.fromJson: viewCascades 必须是 DataViewCascade 数组')
+  })
+  DataViewFieldCascadeDefinition.validateAll(cascades)
+  return cascades
 }
 
 function isSaveChangesConfig(value: unknown): value is DataSetSaveChangesConfig {
@@ -321,7 +333,8 @@ function buildCanonicalDataSetConfig(rawJson: Record<string, unknown>): DataSetC
   if (scenarioId !== undefined) config.scenarioId = scenarioId
 
   const resourceRelations = readResourceRelations(rawJson['resourceRelations'])
-  if (resourceRelations !== undefined) config.resourceRelations = resourceRelations
+  if (resourceRelations !== undefined) config.resourceRelations = resourceRelations.map(relation =>
+    ResourceRelationDefinition.normalize(relation, config.tables))
 
   const viewCascades = readViewCascades(rawJson['viewCascades'])
   if (viewCascades !== undefined) config.viewCascades = viewCascades
@@ -413,9 +426,12 @@ export class DataSet extends SparkAIModel implements DataSetContract {
   _pageRoute?: unknown
 
   /** @internal DataView 级联索引：parentTable:parentViewId → target cascades */
-  private _childCascadeIdx = new Map<string, DataViewCascade[]>()
+  private _childCascadeIdx = new Map<string, DataViewQueryCascade[]>()
   /** @internal DataView 级联索引：childTable:childViewId → source cascades */
-  private _parentCascadeIdx = new Map<string, DataViewCascade[]>()
+  private _parentCascadeIdx = new Map<string, DataViewQueryCascade[]>()
+  private _fieldCascadeRuntime: DataViewFieldCascadeRuntime | undefined
+  private _fieldCascadeListeners = new Map<
+    (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void, () => void>()
 
   /** @internal 资源关系索引：parentTable → DataResourceRelation[]（聚合函数消费） */
   private _resourceChildRelationIdx = new Map<string, DataResourceRelation[]>()
@@ -464,7 +480,7 @@ export class DataSet extends SparkAIModel implements DataSetContract {
       tables: config.tables,
       schemaVersion: config.schemaVersion ?? 2,
       ...(config.scenarioId !== undefined ? { scenarioId: config.scenarioId } : {}),
-      ...(config.resourceRelations !== undefined ? { resourceRelations: config.resourceRelations } : {}),
+      ...(config.resourceRelations !== undefined ? { resourceRelations: config.resourceRelations.map(relation => ResourceRelationDefinition.normalize(relation, config.tables)) } : {}),
       ...(config.viewCascades !== undefined ? { viewCascades: config.viewCascades } : {}),
       ...(config.version !== undefined ? { version: config.version } : {}),
       ...(config.pageId !== undefined ? { pageId: config.pageId } : {}),
@@ -637,6 +653,11 @@ getRequestTemplateParams(): Record<string, unknown> {
       view.events.on('editingChanged', fn)
       entry.unsubs.push(() => view.events.off('editingChanged', fn))
     }
+    if (h.editingDiscarded !== undefined) {
+      const fn = (ids: ReadonlyArray<string | number> | undefined) => h.editingDiscarded?.(tn, vid, ids)
+      view.events.on('editingDiscarded', fn)
+      entry.unsubs.push(() => view.events.off('editingDiscarded', fn))
+    }
     if (h.cleared !== undefined) {
       const fn = () => h.cleared?.(tn, vid)
       view.events.on('cleared', fn)
@@ -721,20 +742,21 @@ getRequestTemplateParams(): Record<string, unknown> {
   }
 
   /**
-   * 触发所有标记了 `autoLoad: true` 的 default 视图自动加载。
+   * 触发所有标记了 `autoLoad: true` 的视图自动加载。
    *
    * 页面调用渲染层在构建 DataSet 后调用此方法；
    * 业务脚本不再需要在 `__init__` 中手动写 `view.loadFromServer()`。
    *
-   * 仅处理 default 视图——命名视图和从表通常由级联机制驱动。
+   * 父视图依赖与在途请求复用由各视图的 requestData 编排。
    */
   triggerAutoLoad(): void {
     for (const table of Object.values(this.tables)) {
-      const defaultView = table.getView('default')
-      if (defaultView?.autoLoad && defaultView.requestState === RequestState.Idle) {
-        defaultView.requestData().catch((err: unknown) => {
-          dsLogger.warn(`autoLoad 请求失败: ${table.tableName}`, err)
-        })
+      for (const view of table.viewList) {
+        if (view.autoLoad && view.requestState === RequestState.Idle) {
+          view.requestData().catch((err: unknown) => {
+            dsLogger.warn(`autoLoad 请求失败: ${table.tableName}@${view.viewId}`, err)
+          })
+        }
       }
     }
   }
@@ -746,7 +768,7 @@ getRequestTemplateParams(): Record<string, unknown> {
    * @param parentTable 父表名
    * @param parentViewId 父视图ID
    */
-  getChildCascades(parentTable: string, parentViewId: string): DataViewCascade[] {
+  getChildCascades(parentTable: string, parentViewId: string): DataViewQueryCascade[] {
     return this._childCascadeIdx.get(`${parentTable}:${parentViewId}`) ?? []
   }
 
@@ -755,54 +777,25 @@ getRequestTemplateParams(): Record<string, unknown> {
    * @param childTable 子表名
    * @param childViewId 子视图ID
    */
-  getParentCascades(childTable: string, childViewId: string): DataViewCascade[] {
+  getParentCascades(childTable: string, childViewId: string): DataViewQueryCascade[] {
     return this._parentCascadeIdx.get(`${childTable}:${childViewId}`) ?? []
   }
 
   /** 将 DataView 输入级联解析为目标视图过滤表达式。 */
-  resolveCascadeFilter(rel: DataViewCascade): DataViewFilterTree | undefined | null {
-    const parentView = this.getView(rel.parentTable, rel.parentViewId)
-    if (!parentView) return null
-
-    const parentRows = getParentRows(parentView, rel.dependencyType ?? 'currentRow')
-    const parentReady = parentView.requestState === RequestState.Loaded || parentView.rows.length > 0
-    if (!parentReady || parentRows.length === 0) return null
-
+  resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null {
+    const values = DataViewCascadeValueBinding.inputs(this, rel.filterBindings.map(binding => ({
+      tableName: rel.parentTable, viewId: rel.parentViewId,
+      ...(binding.sourceField === undefined ? {} : {field: binding.sourceField}),
+    })))
+    if (values === undefined) return null
     const filters: DataViewFilterTree[] = []
-    for (const binding of rel.filterBindings) {
-      const isComputedField = parentView.columns.some(
-        column => column.name === binding.sourceField && column.computeExpression !== undefined,
-      )
-      const values: Array<string | number | boolean | null> = []
-      const seen = new Set<unknown>()
-
-      for (const row of parentRows) {
-        if (binding.sourceField in row) {
-          const value = row[binding.sourceField]
-          if (value === undefined) {
-            if (!isComputedField) {
-              throw new Error(`远端级联过滤字段 "${binding.sourceField}" 解析为 undefined [${rel.childTable}:${rel.childViewId}]`)
-            }
-            continue
-          }
-          if (!seen.has(value)) {
-            seen.add(value)
-            values.push(toFilterScalar(value, binding.sourceField))
-          }
-        } else if (!isComputedField) {
-          throw new Error(`远端级联过滤引用了不存在的源字段 "${binding.sourceField}" [${rel.childTable}:${rel.childViewId}]`)
-        }
-      }
-
-      if (values.length === 0) return null
-
-      if (values.length > 1) {
-        filters.push(DataViewFilter.condition({ field: binding.targetField, operator: 'in', value: values }).toJSON())
-      } else {
-        const firstValue = values[0]
-        if (firstValue === undefined) return null
-        filters.push(DataViewFilter.condition({ field: binding.targetField, operator: 'eq', value: firstValue }).toJSON())
-      }
+    for (const [index, binding] of rel.filterBindings.entries()) {
+      const value = values[index]
+      filters.push(Array.isArray(value)
+        ? DataViewFilter.condition({field: binding.targetField, operator: 'in',
+          value: value.map((item: unknown) => toFilterScalar(item, binding.targetField))}).toJSON()
+        : DataViewFilter.condition({field: binding.targetField, operator: 'eq',
+          value: toFilterScalar(value, binding.targetField)}).toJSON())
     }
 
     if (filters.length === 1) return filters[0]
@@ -828,6 +821,7 @@ getRequestTemplateParams(): Record<string, unknown> {
     this._childCascadeIdx.clear()
     this._parentCascadeIdx.clear()
     for (const r of this.viewCascades ?? []) {
+      if (r.kind === 'field') continue
       const cKey = `${r.childTable}:${r.childViewId}`
       let cArr = this._parentCascadeIdx.get(cKey)
       if (!cArr) { cArr = []; this._parentCascadeIdx.set(cKey, cArr) }
@@ -856,11 +850,23 @@ getRequestTemplateParams(): Record<string, unknown> {
 
   /** @internal 重建运行时关系图与索引，并通知各视图刷新级联订阅/聚合解析。 */
   private _rebuildDataLinks(): void {
+    const fields = DataViewFieldCascadeDefinition.validateAll(this.viewCascades ?? [])
+    DataViewFieldCascadeDefinition.validateRuntime(fields, this)
+    for (const unsubscribe of this._fieldCascadeListeners.values()) unsubscribe()
+    this._fieldCascadeRuntime?.destroy()
     this._buildResourceRelationIndex()
     this._buildViewCascadeIndex()
 
+    this._fieldCascadeRuntime = new DataViewFieldCascadeRuntime(this, fields)
+    for (const listener of this._fieldCascadeListeners.keys()) {
+      this._fieldCascadeListeners.set(listener, this._fieldCascadeRuntime.onChange(listener))
+    }
+
     for (const table of Object.values(this.tables)) {
       table.onDataSetStructureReady()
+    }
+    for (const table of Object.values(this.tables)) {
+      for (const view of Object.values(table.views)) view.events.emit('configChanged')
     }
   }
 
@@ -874,21 +880,29 @@ getRequestTemplateParams(): Record<string, unknown> {
   }
 
   private _applyNormalizedMetadata(normalized: DataSetMetadata): void {
+    for (const unsubscribe of this._fieldCascadeListeners.values()) unsubscribe()
+    this._fieldCascadeRuntime?.destroy()
+    this._fieldCascadeRuntime = undefined
     this.dataSetName = normalized.dataSetName
     this.schemaVersion = normalized.schemaVersion ?? 2
-    this.resourceRelations = normalized.resourceRelations
+    this.resourceRelations = undefined
     this.viewCascades = normalized.viewCascades
     this.version = normalized.version
     this.pageId = normalized.pageId
     this.saveChangesConfig = normalized.saveChanges
     this.layout = normalized.layout
+    this._childCascadeIdx.clear()
+    this._parentCascadeIdx.clear()
     this._createTablesFromMetadata(normalized.tables)
+    this.resourceRelations = normalized.resourceRelations?.map(relation => ResourceRelationDefinition.normalize(relation, this.tables))
     this._rebuildDataLinks()
   }
 
     /** 执行 replace From Json 操作。 */
 replaceFromJson(json: DataSetMetadata | Record<string, unknown> | string): void {
-    const normalized = normalizeDataSetMetadata(DataSet.fromJson(json).toJson())
+    const candidate = DataSet.fromJson(json)
+    let normalized: DataSetMetadata
+    try { normalized = normalizeDataSetMetadata(candidate.toJson()) } finally { candidate.destroy() }
     if (normalized.scenarioId !== this.scenarioId) {
       throw new Error('DataSet.replaceFromJson: 场景身份不可变更，请重新装配运行 DataSet')
     }
@@ -988,14 +1002,17 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     if (!table) throw new Error(`Table "${tableName}" not found in DataSet "${this.dataSetName}"`)
 
     const relatedRelation = (this.resourceRelations ?? []).find(
-      rel => rel.parentTable === tableName || rel.childTable === tableName,
+      rel => rel.parentTable === tableName || rel.childTable === tableName || this._relationReferencesTable(rel, tableName),
     )
     if (relatedRelation) {
       throw new Error(`Table "${tableName}" is referenced by resourceRelations, remove resource relation first`)
     }
 
     const relatedCascade = (this.viewCascades ?? []).find(
-      dep => dep.parentTable === tableName || dep.childTable === tableName,
+      dep => dep.kind === 'field'
+        ? dep.tableName === tableName || dep.optionsView.tableName === tableName
+          || dep.parents.some(parent => parent.tableName === tableName)
+        : dep.parentTable === tableName || dep.childTable === tableName,
     )
     if (relatedCascade) {
       throw new Error(`Table "${tableName}" is referenced by viewCascades, remove cascade first`)
@@ -1008,19 +1025,24 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     this._rebindActiveSubscriptions()
   }
 
+  private _relationReferencesTable(relation: DataResourceRelation, tableName: string): boolean {
+    return ResourceRelationDefinition.referencesTable(relation.filterExpression, tableName)
+  }
+
   private _resolveResourceRelationIndex(selector: {
     parentTable: string
     childTable: string
+    relationId?: string
     parentField?: string
     childField?: string
   }): number {
-    this.resourceRelations ??= []
-    const matches = this.resourceRelations
+    const matches = (this.resourceRelations ?? [])
       .map((relation, index) => ({ relation, index }))
       .filter(({ relation }) => {
         if (relation.parentTable !== selector.parentTable || relation.childTable !== selector.childTable) return false
-        if (selector.parentField !== undefined && relation.parentField !== selector.parentField) return false
-        if (selector.childField !== undefined && relation.childField !== selector.childField) return false
+        if (selector.relationId !== undefined && relation.relationId !== selector.relationId) return false
+        if (selector.parentField !== undefined && !this._relationHasField(relation, selector.parentField, 'parent')) return false
+        if (selector.childField !== undefined && !this._relationHasField(relation, selector.childField, 'child')) return false
         return true
       })
 
@@ -1028,7 +1050,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       throw new Error(`Relation ${selector.parentTable}→${selector.childTable} not found`)
     }
     if (matches.length > 1) {
-      throw new Error(`Relation ${selector.parentTable}→${selector.childTable} is ambiguous, specify parentField/childField`)
+      throw new Error(`Relation ${selector.parentTable}→${selector.childTable} is ambiguous, specify relationId`)
     }
     const match = matches[0]
     if (!match) {
@@ -1037,70 +1059,56 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     return match.index
   }
 
-  private _resolveCascadeIndex(selector: DataViewCascadeSelector): number {
-    this.viewCascades ??= []
-    const idx = this.viewCascades.findIndex(dep => {
-      if (dep.parentTable !== selector.parentTable || dep.parentViewId !== selector.parentViewId) return false
-      if (dep.childTable !== selector.childTable || dep.childViewId !== selector.childViewId) return false
-      return selector.cascadeId === undefined || dep.cascadeId === selector.cascadeId
-    })
-    if (idx < 0) {
-      throw new Error(`Cascade ${selector.parentTable}:${selector.parentViewId}→${selector.childTable}:${selector.childViewId} not found`)
-    }
-    return idx
+  private _relationHasField(relation: DataResourceRelation, fieldName: string, side: 'parent' | 'child'): boolean {
+    return ResourceRelationDefinition.referencesField({expression: relation.filterExpression,
+      parentTable: relation.parentTable, childTable: relation.childTable,
+      tableName: side === 'parent' ? relation.parentTable : relation.childTable, fieldName})
   }
 
-  private _assertResourceRelationField(tableName: string, fieldName: string, role: 'Parent' | 'Child'): void {
-    const table = this.getTable(tableName)
-    if (!table) throw new Error(`${role} table "${tableName}" not found`)
-    if (!table.columns.some(column => column.name === fieldName)) {
-      throw new Error(`${role} field "${fieldName}" not found in table "${tableName}"`)
-    }
+  private _resolveCascadeIndex(selector: DataViewCascadeSelector, required = true): number {
+    if (!isRecord(selector)) throw new Error('Cascade selector must be an object')
+    const endpoints = [selector.parentTable, selector.parentViewId, selector.childTable, selector.childViewId]
+    const hasEndpoints = endpoints.some(value => value !== undefined)
+    if ((selector.cascadeId !== undefined && (typeof selector.cascadeId !== 'string' || !selector.cascadeId.trim()))
+      || (hasEndpoints && endpoints.some(value => typeof value !== 'string' || !value.trim()))
+      || (!hasEndpoints && selector.cascadeId === undefined)) throw new Error('Cascade selector requires an identity or complete endpoints')
+    const matches = (this.viewCascades ?? []).flatMap((cascade, index) => {
+      if (selector.cascadeId !== undefined && cascade.cascadeId !== selector.cascadeId) return []
+      if (hasEndpoints && (cascade.kind === 'field'
+        || cascade.parentTable !== selector.parentTable || cascade.parentViewId !== selector.parentViewId
+        || cascade.childTable !== selector.childTable || cascade.childViewId !== selector.childViewId)) return []
+      return [index]
+    })
+    if (matches.length > 1) throw new Error('Cascade selector is ambiguous; provide cascadeId')
+    const index = matches[0] ?? -1
+    if (required && index < 0) throw new Error('Cascade not found')
+    return index
+  }
+
+  /** 按唯一身份读取级联；旧 query 也可使用完整端点，歧义会报错。 */
+  getCascade(selector: DataViewCascadeSelector): DataViewCascade | undefined {
+    const index = this._resolveCascadeIndex(selector, false)
+    return this.viewCascades?.[index]
   }
 
   /**
    * 添加 DataResourceRelation（数据资源字段关系）。
    * @throws 引用的表/字段不存在或关系已重复时抛 Error
    */
-  addResourceRelation(params: {
-    parentTable: string
-    childTable: string
-    parentField: string
-    childField: string
-    relationName?: string
-  }): void {
-    this.resourceRelations ??= []
-
-    const parentTable = this.getTable(params.parentTable)
-    const childTable = this.getTable(params.childTable)
-    if (!parentTable) throw new Error(`Parent table "${params.parentTable}" not found`)
-    if (!childTable) throw new Error(`Child table "${params.childTable}" not found`)
-
-    if (!parentTable.columns.some((c) => c.name === params.parentField)) {
-      throw new Error(`Parent field "${params.parentField}" not found in table "${params.parentTable}"`)
-    }
-    if (!childTable.columns.some((c) => c.name === params.childField)) {
-      throw new Error(`Child field "${params.childField}" not found in table "${params.childTable}"`)
-    }
-
-    const dup = this.resourceRelations.some(
-      (r) =>
-        r.parentTable === params.parentTable &&
-        r.childTable === params.childTable &&
-        r.parentField === params.parentField &&
-        r.childField === params.childField,
-    )
-    if (dup) throw new Error(`Relation ${params.parentTable}→${params.childTable} already exists`)
-
-    const relation: DataResourceRelation = {
-      parentTable: params.parentTable,
-      childTable: params.childTable,
-      parentField: params.parentField,
-      childField: params.childField,
-      ...(params.relationName ? { relationName: params.relationName } : {}),
-    }
-    this.resourceRelations.push(relation)
+  addResourceRelation(params: DataResourceRelationInput): DataResourceRelation {
+    const relation = ResourceRelationDefinition.normalize(params, this.tables)
+    const parentTable = this.getTable(relation.parentTable)
+    const childTable = this.getTable(relation.childTable)
+    if (!parentTable) throw new Error(`Parent table "${relation.parentTable}" not found`)
+    if (!childTable) throw new Error(`Child table "${relation.childTable}" not found`)
+    const duplicate = (this.resourceRelations ?? []).some(existing => relation.relationId !== undefined
+      ? existing.relationId === relation.relationId
+      : JSON.stringify(existing.filterExpression) === JSON.stringify(relation.filterExpression)
+        && existing.parentTable === relation.parentTable && existing.childTable === relation.childTable)
+    if (duplicate) throw new Error(`Relation ${relation.parentTable}→${relation.childTable} already exists`)
+    this.resourceRelations = [...(this.resourceRelations ?? []), relation]
     this._rebuildDataLinks()
+    return relation
   }
 
   /**
@@ -1111,54 +1119,31 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     selector: {
       parentTable: string
       childTable: string
+      relationId?: string
       parentField?: string
       childField?: string
     },
     updates: Partial<DataResourceRelation>,
   ): DataResourceRelation {
-    this.resourceRelations ??= []
-
     const idx = this._resolveResourceRelationIndex(selector)
-    const current = this.resourceRelations[idx]
+    const current = this.resourceRelations?.[idx]
     if (!current) {
       throw new Error(`Relation ${selector.parentTable}→${selector.childTable} not found`)
     }
-    const nextParentTable = updates.parentTable ?? current.parentTable
-    const nextChildTable = updates.childTable ?? current.childTable
-    const nextParentField = updates.parentField ?? current.parentField
-    const nextChildField = updates.childField ?? current.childField
+    const next = ResourceRelationDefinition.normalize({...current, ...updates}, this.tables)
+    if (!this.getTable(next.parentTable) || !this.getTable(next.childTable)) throw new Error('Relation endpoints must reference existing tables')
 
-    if (!nextParentField) {
-      throw new Error(`Parent field is required for relation ${current.parentTable}→${current.childTable}`)
-    }
-    if (!nextChildField) {
-      throw new Error(`Child field is required for relation ${current.parentTable}→${current.childTable}`)
-    }
-
-    const next: DataResourceRelation = {
-      ...current,
-      ...updates,
-      parentTable: nextParentTable,
-      childTable: nextChildTable,
-      parentField: nextParentField,
-      childField: nextChildField,
-    }
-
-    this._assertResourceRelationField(next.parentTable, nextParentField, 'Parent')
-    this._assertResourceRelationField(next.childTable, nextChildField, 'Child')
-
-    const duplicate = this.resourceRelations.some((relation, relationIndex) => {
+    const duplicate = (this.resourceRelations ?? []).some((relation, relationIndex) => {
       if (relationIndex === idx) return false
-      return relation.parentTable === next.parentTable
-        && relation.childTable === next.childTable
-        && relation.parentField === next.parentField
-        && relation.childField === next.childField
+      if (next.relationId !== undefined && relation.relationId === next.relationId) return true
+      return next.relationId === undefined && relation.parentTable === next.parentTable && relation.childTable === next.childTable
+        && JSON.stringify(relation.filterExpression) === JSON.stringify(next.filterExpression)
     })
     if (duplicate) {
       throw new Error(`Relation ${next.parentTable}→${next.childTable} already exists`)
     }
 
-    this.resourceRelations[idx] = next
+    this.resourceRelations = (this.resourceRelations ?? []).map((relation, relationIndex) => relationIndex === idx ? next : relation)
     this._rebuildDataLinks()
     return next
   }
@@ -1170,28 +1155,36 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
   removeResourceRelation(selector: {
     parentTable: string
     childTable: string
+    relationId?: string
     parentField?: string
     childField?: string
   }): void
   removeResourceRelation(selector: {
     parentTable: string
     childTable: string
+    relationId?: string
     parentField?: string
     childField?: string
   }): void {
-    this.resourceRelations ??= []
-
     const idx = this._resolveResourceRelationIndex(selector)
-    const relation = this.resourceRelations[idx]
+    const relation = this.resourceRelations?.[idx]
     if (!relation) {
       throw new Error(`Relation ${selector.parentTable}→${selector.childTable} not found`)
     }
 
-    this.resourceRelations.splice(idx, 1)
+    this.resourceRelations = (this.resourceRelations ?? []).filter((_item, index) => index !== idx)
     this._rebuildDataLinks()
   }
 
-  private _assertCascadeShape(cascade: DataViewCascade): void {
+  private _assertCascadeShape(cascade: DataViewQueryCascade): void {
+    const input: unknown = cascade
+    const allowed = ['kind', 'cascadeId', 'sourceRelationId', 'parentTable', 'parentViewId',
+      'childTable', 'childViewId', 'filterBindings', 'autoLoad']
+    if (!isRecord(input) || Object.keys(input).some(key => !allowed.includes(key))
+      || (input['kind'] !== undefined && input['kind'] !== 'query')
+      || [input['parentTable'], input['parentViewId'], input['childTable'], input['childViewId']]
+        .some(value => typeof value !== 'string' || !value.trim())
+      || !Array.isArray(input['filterBindings'])) throw new Error('QUERY_CASCADE_CONFIG: invalid query definition')
     const parentTable = this.getTable(cascade.parentTable)
     if (!parentTable) throw new Error(`Parent table "${cascade.parentTable}" not found`)
     const childTable = this.getTable(cascade.childTable)
@@ -1204,7 +1197,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       throw new Error(`Cascade ${cascade.parentTable}:${cascade.parentViewId}→${cascade.childTable}:${cascade.childViewId} requires filterBindings`)
     }
     for (const binding of cascade.filterBindings) {
-      if (!parentView.columns.some(column => column.name === binding.sourceField)) {
+      if (binding.sourceField !== undefined && !parentView.columns.some(column => column.name === binding.sourceField)) {
         throw new Error(`Source field "${binding.sourceField}" not found in view "${cascade.parentTable}:${cascade.parentViewId}"`)
       }
       if (!childView.columns.some(column => column.name === binding.targetField)) {
@@ -1217,11 +1210,18 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * 添加 DataViewCascade（DataView 输入级联）。
    * @throws 级联引用非法或重复时抛 Error
    */
-  addCascade(cascade: DataViewCascade): void {
+  addCascade(cascade: DataViewCascade): DataViewCascade {
+    if (cascade.kind === 'field') {
+      const next = DataViewFieldCascadeDefinition.parse(cascade)
+      DataViewFieldCascadeDefinition.validateAll([...(this.viewCascades ?? []), next])
+      DataViewFieldCascadeDefinition.validateRuntime([next], this)
+      this.viewCascades = [...(this.viewCascades ?? []), next]
+      this._rebuildDataLinks()
+      return next
+    }
     this._assertCascadeShape(cascade)
-    this.viewCascades ??= []
-
-    const dup = this.viewCascades.some(dep => {
+    const dup = (this.viewCascades ?? []).some(dep => {
+      if (dep.kind === 'field') return dep.cascadeId === cascade.cascadeId
       if (cascade.cascadeId !== undefined && dep.cascadeId === cascade.cascadeId) return true
       return dep.parentTable === cascade.parentTable
         && dep.parentViewId === cascade.parentViewId
@@ -1233,11 +1233,13 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       throw new Error(`Cascade ${cascade.parentTable}:${cascade.parentViewId}→${cascade.childTable}:${cascade.childViewId} already exists`)
     }
 
-    this.viewCascades.push(deepClone({
-      ...cascade,
-      dependencyType: cascade.dependencyType ?? 'currentRow',
-    }))
+    const next = deepClone(cascade)
+    const candidates = [...(this.viewCascades ?? []), next]
+    const fields = DataViewFieldCascadeDefinition.validateAll(candidates)
+    DataViewFieldCascadeDefinition.validateRuntime(fields, this)
+    this.viewCascades = candidates
     this._rebuildDataLinks()
+    return next
   }
 
   /**
@@ -1248,39 +1250,33 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     selector: DataViewCascadeSelector,
     updates: Partial<DataViewCascade>,
   ): DataViewCascade {
-    this.viewCascades ??= []
-
     const idx = this._resolveCascadeIndex(selector)
-    const current = this.viewCascades[idx]
-    if (!current) {
-      throw new Error(`Cascade ${selector.parentTable}:${selector.parentViewId}→${selector.childTable}:${selector.childViewId} not found`)
+    const current = this.viewCascades?.[idx]
+    if (!current) throw new Error('Cascade not found')
+    if (!isRecord(updates)) throw new Error('Cascade updates must be an object')
+    if (Object.hasOwn(updates, 'kind') && (updates.kind ?? 'query') !== (current.kind ?? 'query')) {
+      throw new Error('Cascade kind cannot be changed')
     }
-    const next: DataViewCascade = {
-      ...current,
-      ...updates,
-      parentTable: updates.parentTable ?? current.parentTable,
-      parentViewId: updates.parentViewId ?? current.parentViewId,
-      childTable: updates.childTable ?? current.childTable,
-      childViewId: updates.childViewId ?? current.childViewId,
-      filterBindings: updates.filterBindings ?? current.filterBindings,
+    let next: DataViewCascade
+    if (current.kind === 'field') {
+      next = DataViewFieldCascadeDefinition.parse({...current, ...updates})
+    } else {
+      const {kind, ...queryUpdates} = updates
+      if (kind === 'field') throw new Error('Cascade kind cannot be changed')
+      const candidate = deepClone({...current, ...queryUpdates, ...(kind === undefined ? {} : {kind})})
+      this._assertCascadeShape(candidate)
+      if ((this.viewCascades ?? []).some((dep, index) => index !== idx && dep.kind !== 'field'
+        && dep.parentTable === candidate.parentTable && dep.parentViewId === candidate.parentViewId
+        && dep.childTable === candidate.childTable && dep.childViewId === candidate.childViewId
+        && JSON.stringify(dep.filterBindings) === JSON.stringify(candidate.filterBindings))) {
+        throw new Error('Cascade already exists')
+      }
+      next = candidate
     }
-
-    this._assertCascadeShape(next)
-
-    const duplicate = this.viewCascades.some((dep, depIndex) => {
-      if (depIndex === idx) return false
-      if (next.cascadeId !== undefined && dep.cascadeId === next.cascadeId) return true
-      return dep.parentTable === next.parentTable
-        && dep.parentViewId === next.parentViewId
-        && dep.childTable === next.childTable
-        && dep.childViewId === next.childViewId
-        && JSON.stringify(dep.filterBindings) === JSON.stringify(next.filterBindings)
-    })
-    if (duplicate) {
-      throw new Error(`Cascade ${next.parentTable}:${next.parentViewId}→${next.childTable}:${next.childViewId} already exists`)
-    }
-
-    this.viewCascades[idx] = next
+    const candidates = (this.viewCascades ?? []).map((item, index) => index === idx ? next : item)
+    const fields = DataViewFieldCascadeDefinition.validateAll(candidates)
+    DataViewFieldCascadeDefinition.validateRuntime(fields, this)
+    this.viewCascades = candidates
     this._rebuildDataLinks()
     return next
   }
@@ -1290,12 +1286,29 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * @throws 级联不存在时抛 Error
    */
   removeCascade(selector: DataViewCascadeSelector): void {
-    this.viewCascades ??= []
-
     const idx = this._resolveCascadeIndex(selector)
-
-    this.viewCascades.splice(idx, 1)
+    this.viewCascades = (this.viewCascades ?? []).filter((_item, index) => index !== idx)
     this._rebuildDataLinks()
+  }
+
+  getFieldCascadeState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState {
+    if (!this._fieldCascadeRuntime) throw new Error('FIELD_CASCADE_RUNTIME: 未初始化')
+    return this._fieldCascadeRuntime.getState(address)
+  }
+
+  refreshFieldCascade(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState> {
+    if (!this._fieldCascadeRuntime) throw new Error('FIELD_CASCADE_RUNTIME: 未初始化')
+    return this._fieldCascadeRuntime.refresh(address)
+  }
+
+  onFieldCascadeChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void {
+    if (!this._fieldCascadeRuntime) throw new Error('FIELD_CASCADE_RUNTIME: 未初始化')
+    this._fieldCascadeListeners.get(listener)?.()
+    this._fieldCascadeListeners.set(listener, this._fieldCascadeRuntime.onChange(listener))
+    return () => {
+      this._fieldCascadeListeners.get(listener)?.()
+      this._fieldCascadeListeners.delete(listener)
+    }
   }
 
   // ===== 数据访问 =====
@@ -1314,6 +1327,9 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
   destroy(): void {
     if (this._destroyed) return
     this._destroyed = true
+    this._fieldCascadeRuntime?.destroy()
+    this._fieldCascadeRuntime = undefined
+    this._fieldCascadeListeners.clear()
 
     // 1. 清理 DataSet 级别的事件订阅
     for (const entry of this._activeViewSubs) {
@@ -1375,6 +1391,14 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     const targets = this.resolveSaveChangesTargets(options)
     const mode = options?.mode ?? this.saveChangesConfig?.mode ?? 'perView'
     this.assertScenarioSaveTargets(targets, mode, options)
+    if (this.scenarioId !== undefined) {
+      for (const target of targets) {
+        if (!hasPendingChanges(target.view, target.ids)
+          && !((options?.applyEditingRows ?? true) && hasEditingChanges(target.view, target.ids))) continue
+        target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
+          includeEditingRows: options?.applyEditingRows ?? true })
+      }
+    }
     if (mode === 'transaction') {
       return this.withCascadeSuspended(() => this.saveChangesInTransaction(targets, options))
     }

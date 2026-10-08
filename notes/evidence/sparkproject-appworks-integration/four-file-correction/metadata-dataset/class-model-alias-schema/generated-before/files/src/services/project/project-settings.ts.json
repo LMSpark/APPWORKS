@@ -1,0 +1,433 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/project-settings",
+    "sourcePath": "src/services/project/project-settings.ts",
+    "sourceFile": "src/services/project/project-settings.ts",
+    "packageName": "app",
+    "modulePath": "services/project/project-settings",
+    "jsdoc": "@module app:services/project/project-settings\n职责：项目运行时设置（HTTP）与壳层 UI 偏好（localStorage）。\n边界：只处理 app 层配置读写，不修改 spark-project-model 协议。\nAI用途：调整项目布局偏好或读取项目详情/导航元数据时，用本模块定位 HTTP 与 localStorage 接线。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ProjectDetail",
+      "ProjectHomeNodeOption",
+      "ProjectRuntimeSettings",
+      "ProjectRuntimeSettingsInput",
+      "SaveProjectRuntimeSettingsCommand",
+      "ProjectUiSettings"
+    ]
+  },
+  "$defs": {
+    "ProjectDetail": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectDetail",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "projectType": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "homeNodeId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "order": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "tenantId",
+        "projectId",
+        "name",
+        "projectType",
+        "icon",
+        "description",
+        "homeNodeId",
+        "order"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectHomeNodeOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectHomeNodeOption",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "path",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectRuntimeSettings": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectRuntimeSettings",
+      "properties": {
+        "project": {
+          "$ref": "#/$defs/ProjectDetail"
+        },
+        "childPlacement": {
+          "type": "object",
+          "title": "NavigationRootPlacement"
+        },
+        "rootModuleId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "homeNodeOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProjectHomeNodeOption"
+          }
+        }
+      },
+      "required": [
+        "project",
+        "childPlacement",
+        "rootModuleId",
+        "homeNodeOptions"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectRuntimeSettingsInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectRuntimeSettingsInput",
+      "properties": {
+        "childPlacement": {
+          "type": "object",
+          "title": "NavigationRootPlacement"
+        },
+        "homeNodeId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "childPlacement",
+        "homeNodeId"
+      ],
+      "additionalProperties": false
+    },
+    "SaveProjectRuntimeSettingsCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveProjectRuntimeSettingsCommand",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "current": {
+          "$ref": "#/$defs/ProjectRuntimeSettings"
+        },
+        "input": {
+          "$ref": "#/$defs/ProjectRuntimeSettingsInput"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectUiSettings": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectUiSettings",
+      "properties": {
+        "headerFirst": {
+          "type": "boolean"
+        },
+        "sidebarCollapsed": {
+          "type": "boolean"
+        },
+        "showFooter": {
+          "type": "boolean"
+        },
+        "pageMode": {
+          "$ref": "../../../packages/spark-app/src/navigation/useTabPages.ts.json#/$defs/PageMode"
+        }
+      },
+      "required": [
+        "headerFirst",
+        "sidebarCollapsed",
+        "showFooter",
+        "pageMode"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T12:08:10.560Z",
+  "models": {
+    "ProjectDetail": {
+      "name": "ProjectDetail",
+      "jsdoc": "项目详情：从后端 API 读取的项目元数据投影",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 租户 ID，多租户隔离标识 */\n    tenantId: string;\n    /** 项目 ID，项目唯一标识 */\n    projectId: string;\n    /** 项目名称 */\n    name: string;\n    /** 项目类型（如 lowcode / procode 等） */\n    projectType: string;\n    /** 项目图标资源标识 */\n    icon: string;\n    /** 项目描述 */\n    description: string;\n    /** 首页节点 ID，null 表示未配置首页 */\n    homeNodeId: string | null;\n    /** 项目排序权重，数值越小越靠前 */\n    order: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "jsdoc": "租户 ID，多租户隔离标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "项目 ID，项目唯一标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "jsdoc": "项目名称",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectType",
+              "jsdoc": "项目类型（如 lowcode / procode 等）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "icon",
+              "jsdoc": "项目图标资源标识",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "项目描述",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "homeNodeId",
+              "jsdoc": "首页节点 ID，null 表示未配置首页",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "order",
+              "jsdoc": "项目排序权重，数值越小越靠前",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectHomeNodeOption": {
+      "name": "ProjectHomeNodeOption",
+      "jsdoc": "首页节点候选项，从导航树中筛选可配置为首页的节点",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 节点 ID */\n    id: string;\n    /** 节点标题 */\n    title: string;\n    /** 节点路由路径 */\n    path: string;\n    /** 组合标签：\"{title} — {path}\"，用于下拉选择器展示 */\n    label: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "节点 ID",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "title",
+              "jsdoc": "节点标题",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "path",
+              "jsdoc": "节点路由路径",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "jsdoc": "组合标签：\"{title} — {path}\"，用于下拉选择器展示",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectRuntimeSettings": {
+      "name": "ProjectRuntimeSettings",
+      "jsdoc": "项目运行时设置：聚合项目详情、导航布局与首页候选列表，供 Shell 初始化使用",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 项目详情元数据 */\n    project: ProjectDetail;\n    /** 子页面放置位置：header=顶部标签栏 / sidebar=侧边栏 */\n    childPlacement: NavigationRootPlacement;\n    /** 导航根模块 ID，null 表示导航未加载；用于保存布局时定位后端节点 */\n    rootModuleId: string | null;\n    /** 可配置为首页的节点候选列表 */\n    homeNodeOptions: ProjectHomeNodeOption[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "project",
+              "jsdoc": "项目详情元数据",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "childPlacement",
+              "jsdoc": "子页面放置位置：header=顶部标签栏 / sidebar=侧边栏",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rootModuleId",
+              "jsdoc": "导航根模块 ID，null 表示导航未加载；用于保存布局时定位后端节点",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "homeNodeOptions",
+              "jsdoc": "可配置为首页的节点候选列表",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ProjectRuntimeSettingsInput": {
+      "name": "ProjectRuntimeSettingsInput",
+      "jsdoc": "保存项目运行时设置的输入参数，只包含用户可修改的字段",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 子页面放置位置 */\n    childPlacement: NavigationRootPlacement;\n    /** 首页节点 ID，null 表示清除首页配置 */\n    homeNodeId: string | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "childPlacement",
+              "jsdoc": "子页面放置位置",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "homeNodeId",
+              "jsdoc": "首页节点 ID，null 表示清除首页配置",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SaveProjectRuntimeSettingsCommand": {
+      "name": "SaveProjectRuntimeSettingsCommand",
+      "jsdoc": "保存项目运行时设置的命令参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 租户 ID */\n    tenantId: string;\n    /** 项目 ID */\n    projectId: string;\n    /** 当前生效的运行时设置（用于 diff 判断哪些字段需要保存） */\n    current: ProjectRuntimeSettings;\n    /** 用户修改后的输入参数 */\n    input: ProjectRuntimeSettingsInput;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 租户 ID */\n    tenantId: string;\n    /** 项目 ID */\n    projectId: string;\n    /** 当前生效的运行时设置（用于 diff 判断哪些字段需要保存） */\n    current: ProjectRuntimeSettings;\n    /** 用户修改后的输入参数 */\n    input: ProjectRuntimeSettingsInput;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tenantId",
+              "jsdoc": "租户 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "项目 ID",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "jsdoc": "当前生效的运行时设置（用于 diff 判断哪些字段需要保存）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "jsdoc": "用户修改后的输入参数",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectUiSettings": {
+      "name": "ProjectUiSettings",
+      "jsdoc": "项目 UI 偏好设置：持久化到 localStorage，不涉及后端 API",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 是否优先展示顶部头部（header-first 布局） */\n    headerFirst: boolean;\n    /** 侧边栏是否折叠 */\n    sidebarCollapsed: boolean;\n    /** 是否显示页脚 */\n    showFooter: boolean;\n    /** 页面模式：single=单页 / multi=多页标签 */\n    pageMode: PageMode;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "headerFirst",
+              "jsdoc": "是否优先展示顶部头部（header-first 布局）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sidebarCollapsed",
+              "jsdoc": "侧边栏是否折叠",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "showFooter",
+              "jsdoc": "是否显示页脚",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageMode",
+              "jsdoc": "页面模式：single=单页 / multi=多页标签",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

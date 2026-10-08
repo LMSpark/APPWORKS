@@ -91,8 +91,10 @@ describe('DevPreviewTab live refresh', () => {
     await nextTick()
 
     await flushPromises()
-    expect(wrapper.findComponent(RendererStub).props('pageRuntime')).not.toBe(instance)
+    const replacement = wrapper.findComponent(RendererStub).props('pageRuntime')
+    expect(replacement).not.toBe(instance)
     expect(instance?.['destroyed']).toBe(true)
     wrapper.unmount()
+    expect(replacement?.['destroyed']).toBe(true)
   })
 })

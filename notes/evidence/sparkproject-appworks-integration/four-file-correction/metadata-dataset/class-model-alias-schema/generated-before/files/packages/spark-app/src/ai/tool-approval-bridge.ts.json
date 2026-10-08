@@ -1,0 +1,457 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:ai/tool-approval-bridge",
+    "sourcePath": "packages/spark-app/src/ai/tool-approval-bridge.ts",
+    "sourceFile": "packages/spark-app/src/ai/tool-approval-bridge.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "ai/tool-approval-bridge",
+    "jsdoc": "@module @spark-appworks/spark-app:ai/tool-approval-bridge\n职责：提供应用壳层 tool-approval-bridge 能力，围绕 AiToolApprovalRequest、AiToolApprovalBridgeSnapshot、AiToolApprovalBridgeListener 等 6 个公开契约 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 ai/tool-approval-bridge。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiToolApprovalRequest",
+      "AiToolApprovalBridgeSnapshot",
+      "AiToolApprovalBridgeListener",
+      "AiToolApprovalRequestIdFactory",
+      "AiToolApprovalBridgeOptions",
+      "AiToolApprovalBridge"
+    ]
+  },
+  "$defs": {
+    "AiToolApprovalRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiToolApprovalRequest",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "moduleId": {
+          "type": "string"
+        },
+        "moduleInstanceId": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "toolName": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "title": "JsonParams"
+        },
+        "requestedAt": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiToolApprovalBridgeSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiToolApprovalBridgeSnapshot",
+      "properties": {
+        "pending": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiToolApprovalRequest"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiToolApprovalRequestIdFactory": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiToolApprovalRequestIdFactory",
+      "$defs": {
+        "method.createId.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "../../../spark-ai/src/agent/business/lifecycle-types.ts.json#/$defs/AiAgentBeforeFunctionCallOptions"
+            },
+            "sequence": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createId.return": {
+          "type": "string"
+        }
+      }
+    },
+    "AiToolApprovalBridgeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiToolApprovalBridgeOptions",
+      "properties": {
+        "idFactory": {
+          "$ref": "#/$defs/AiToolApprovalRequestIdFactory"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.now.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.now.return": {
+          "type": "number"
+        }
+      }
+    },
+    "AiToolApprovalBridge": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiToolApprovalBridge",
+      "properties": {
+        "beforeFunctionCall": {
+          "type": "object",
+          "title": "(options: AiAgentBeforeFunctionCallOptions) => Promise<AiAgentBeforeFunctionCallDirective>"
+        },
+        "cancelPending": {
+          "type": "object",
+          "title": "(reason?: string) => number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/AiToolApprovalBridgeOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listPending.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listPending.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiToolApprovalRequest"
+          }
+        },
+        "method.decide.params": {
+          "type": "object",
+          "properties": {
+            "requestId": {
+              "type": "string"
+            },
+            "directive": {
+              "$ref": "../../../spark-ai/src/agent/business/lifecycle-types.ts.json#/$defs/AiAgentBeforeFunctionCallDirective"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.decide.return": {
+          "type": "boolean"
+        },
+        "method.subscribe.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "AiToolApprovalBridgeListener"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.subscribe.return": {
+          "type": "object",
+          "title": "() => void"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.518Z",
+  "models": {
+    "AiToolApprovalRequest": {
+      "name": "AiToolApprovalRequest",
+      "jsdoc": "Ai Tool Approval Request 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 审批请求唯一标识。 */\n    id: string;\n    /** 发起 tool call 的业务模块 id。 */\n    moduleId: string;\n    /** 业务模块实例 id。 */\n    moduleInstanceId: string;\n    /** Agent 实例 id。 */\n    instanceId: string;\n    /** 待审批的工具名称。 */\n    toolName: string;\n    /** 工具调用参数。 */\n    args: JsonParams;\n    /** 请求创建时间戳（毫秒）。 */\n    requestedAt: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 审批请求唯一标识。 */\n    id: string;\n    /** 发起 tool call 的业务模块 id。 */\n    moduleId: string;\n    /** 业务模块实例 id。 */\n    moduleInstanceId: string;\n    /** Agent 实例 id。 */\n    instanceId: string;\n    /** 待审批的工具名称。 */\n    toolName: string;\n    /** 工具调用参数。 */\n    args: JsonParams;\n    /** 请求创建时间戳（毫秒）。 */\n    requestedAt: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "审批请求唯一标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "moduleId",
+              "jsdoc": "发起 tool call 的业务模块 id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "moduleInstanceId",
+              "jsdoc": "业务模块实例 id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "instanceId",
+              "jsdoc": "Agent 实例 id。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolName",
+              "jsdoc": "待审批的工具名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "args",
+              "jsdoc": "工具调用参数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requestedAt",
+              "jsdoc": "请求创建时间戳（毫秒）。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiToolApprovalBridgeSnapshot": {
+      "name": "AiToolApprovalBridgeSnapshot",
+      "jsdoc": "Ai Tool Approval Bridge Snapshot 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前待审批请求列表。 */\n    pending: readonly AiToolApprovalRequest[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前待审批请求列表。 */\n    pending: readonly AiToolApprovalRequest[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pending",
+              "jsdoc": "当前待审批请求列表。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiToolApprovalBridgeListener": {
+      "name": "AiToolApprovalBridgeListener",
+      "jsdoc": "Ai Tool Approval Bridge Listener 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(snapshot: AiToolApprovalBridgeSnapshot) => void",
+        "members": {}
+      }
+    },
+    "AiToolApprovalRequestIdFactory": {
+      "name": "AiToolApprovalRequestIdFactory",
+      "jsdoc": "Ai Tool Approval Request Id Factory 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 为 tool call 审批请求生成唯一 id。 */\n    createId(options: AiAgentBeforeFunctionCallOptions, sequence: number): string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 为 tool call 审批请求生成唯一 id。 */\n    createId(options: AiAgentBeforeFunctionCallOptions, sequence: number): string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "createId",
+              "jsdoc": "为 tool call 审批请求生成唯一 id。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentBeforeFunctionCallOptions"
+                  }
+                },
+                {
+                  "name": "sequence",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiToolApprovalBridgeOptions": {
+      "name": "AiToolApprovalBridgeOptions",
+      "jsdoc": "Ai Tool Approval Bridge Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 自定义当前时间戳来源（默认 Date.now）。 */\n    now?: () => number;\n    /** 自定义审批请求 id 工厂。 */\n    idFactory?: AiToolApprovalRequestIdFactory;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 自定义当前时间戳来源（默认 Date.now）。 */\n    now?: () => number;\n    /** 自定义审批请求 id 工厂。 */\n    idFactory?: AiToolApprovalRequestIdFactory;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "idFactory",
+              "jsdoc": "自定义审批请求 id 工厂。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "now",
+              "jsdoc": "自定义当前时间戳来源（默认 Date.now）。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AiToolApprovalBridge": {
+      "name": "AiToolApprovalBridge",
+      "jsdoc": "Ai Tool Approval Bridge 的语义模型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Ai Tool Approval Bridge 实例。",
+          "signatureText": "constructor(options?: AiToolApprovalBridgeOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "AiToolApprovalBridgeOptions",
+                "sourcePath": "packages/spark-app/src/ai/tool-approval-bridge.ts"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "beforeFunctionCall",
+              "jsdoc": "before Function Call 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cancelPending",
+              "jsdoc": "cancel Pending 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "listPending",
+              "jsdoc": "执行 list Pending 操作。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly AiToolApprovalRequest[]"
+              }
+            },
+            {
+              "name": "decide",
+              "jsdoc": "执行 decide 操作。",
+              "parameters": [
+                {
+                  "name": "requestId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "directive",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiAgentBeforeFunctionCallDirective"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "subscribe",
+              "jsdoc": "执行 subscribe 操作。",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reference",
+                    "name": "AiToolApprovalBridgeListener",
+                    "sourcePath": "packages/spark-app/src/ai/tool-approval-bridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

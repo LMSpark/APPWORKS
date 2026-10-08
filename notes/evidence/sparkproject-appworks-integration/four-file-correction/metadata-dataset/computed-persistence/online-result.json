@@ -1,0 +1,460 @@
+{
+  "at": "2026-10-08T11:28:24.206Z",
+  "targetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "stage": "complete",
+  "writes": 0,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/File/content/text"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    },
+    {
+      "path": "/api/DataOperation/GetData"
+    }
+  ],
+  "metadata": [
+    {
+      "name": "Base_DataModel",
+      "rows": 7
+    },
+    {
+      "name": "Base_DataModel_Field",
+      "rows": 119
+    },
+    {
+      "name": "Base_DataSet",
+      "rows": 1
+    },
+    {
+      "name": "Base_DataModel_Relation",
+      "rows": 0
+    }
+  ],
+  "computedDefinition": {
+    "tableName": "shif",
+    "formalFieldsPreserved": true,
+    "nativeFormulaRestored": true,
+    "allViewsIncludeLocalColumn": true,
+    "collisionRejectedBeforeDraftWrite": true,
+    "originalFileRestored": true,
+    "temporaryLocalEditOnly": true,
+    "onlineSaveAttempted": false
+  },
+  "disposed": true
+}

@@ -1,0 +1,27 @@
+{
+  "recordedAt": "2026-10-09T02:15:38.0589869+08:00",
+  "productionFilesChanged": 1,
+  "changedTestFiles": 1,
+  "contractDocsChanged": 1,
+  "baselineTypecheck": 0,
+  "finalTypecheck": 0,
+  "lint": 0,
+  "aiCodegen": {
+    "files": 1019,
+    "exit": 0
+  },
+  "focused": {
+    "suites": 15,
+    "exit": 0,
+    "passed": 212,
+    "failed": 0
+  },
+  "nativeTests": {
+    "exit": 0,
+    "passed": 16,
+    "failed": 0
+  },
+  "fullRootRerun": false,
+  "onlineWrites": 0,
+  "cascadeMigrationComplete": false
+}

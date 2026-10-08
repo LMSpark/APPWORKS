@@ -1,0 +1,389 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:schema/schema-types",
+    "sourcePath": "packages/spark-json-document/src/schema/schema-types.ts",
+    "sourceFile": "packages/spark-json-document/src/schema/schema-types.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "schema/schema-types",
+    "jsdoc": "@module @spark-appworks/spark-json-document:schema/schema-types\n职责：提供 JSON Document/schema 处理中的 schema types 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "JsonSchemaType",
+      "JsonSchema",
+      "JsonSchemaObject"
+    ]
+  },
+  "$defs": {
+    "JsonSchemaType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "JsonSchemaType",
+      "enum": [
+        "null",
+        "boolean",
+        "object",
+        "array",
+        "number",
+        "integer",
+        "string"
+      ]
+    },
+    "JsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "JsonSchema",
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "title": "JsonSchemaObject"
+        }
+      ]
+    },
+    "JsonSchemaObject": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "JsonSchemaObject",
+      "properties": {
+        "$ref": {
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JsonSchemaType"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/JsonSchemaType"
+              }
+            }
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "object",
+          "title": "Record<string, JsonSchema>"
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/JsonSchema"
+        },
+        "items": {
+          "$ref": "#/$defs/JsonSchema"
+        },
+        "prefixItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/JsonSchema"
+          }
+        },
+        "enum": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "const": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "default": true,
+        "examples": {
+          "type": "array",
+          "items": true
+        },
+        "oneOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/JsonSchema"
+          }
+        },
+        "anyOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/JsonSchema"
+          }
+        },
+        "allOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/JsonSchema"
+          }
+        },
+        "not": {
+          "$ref": "#/$defs/JsonSchema"
+        },
+        "maxLength": {
+          "type": "number"
+        },
+        "minLength": {
+          "type": "number"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:51.037Z",
+  "models": {
+    "JsonSchemaType": {
+      "name": "JsonSchemaType",
+      "jsdoc": "JSON Schema type 字段允许的类型字符串。\n支持联合类型数组，如 ['string', 'null'] 表示可选字符串。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'null' | 'boolean' | 'object' | 'array' | 'number' | 'integer' | 'string'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'null'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'boolean'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'object'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'array'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'number'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'integer'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'string'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "JsonSchema": {
+      "name": "JsonSchema",
+      "jsdoc": "JSON Schema 节点。\n- `true` : 接受任意值（无约束）\n- `false`: 拒绝任何值（用于禁止某字段）\n- `JsonSchemaObject`: 完整约束节点",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "boolean | JsonSchemaObject",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "boolean"
+          },
+          {
+            "kind": "union",
+            "typeText": "JsonSchemaObject",
+            "targetName": "JsonSchemaObject"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "JsonSchemaObject": {
+      "name": "JsonSchemaObject",
+      "jsdoc": "标准 JSON Schema 节点（Draft 2020-12 常用子集）。\n覆盖以下特性：\n- 类型声明：type / title / description\n- 对象约束：properties / required / additionalProperties\n- 数组约束：items / prefixItems\n- 枚举/常量：enum / const\n- 组合校验：oneOf / anyOf / allOf / not\n- 字符串校验：maxLength / minLength / pattern / format\n- 数字校验：minimum / maximum\n- 引用与示例：$ref / default / examples",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 保留标准 JSON Schema 扩展关键字与 resultSchema 文档型字段 */\n    readonly [keyword: string]: unknown;\n    /** JSON Reference，引用另一个 schema（可选） */\n    readonly $ref?: string;\n    /** 数据类型，支持联合类型数组 */\n    readonly type?: JsonSchemaType | readonly JsonSchemaType[];\n    /** 类型标题（可选） */\n    readonly title?: string;\n    /** 类型描述，会展示给 LLM */\n    readonly description?: string;\n    /** 属性定义：属性名 → Schema */\n    readonly properties?: Readonly<Record<string, JsonSchema>>;\n    /** 必填属性名列表 */\n    readonly required?: readonly string[];\n    /** 是否允许额外属性：false=拒绝，true=接受任意，JsonSchema=按 schema 校验 */\n    readonly additionalProperties?: JsonSchema;\n    /** 数组项 Schema（普通数组） */\n    readonly items?: JsonSchema;\n    /** 元组前缀项 Schema（固定长度元组） */\n    readonly prefixItems?: readonly JsonSchema[];\n    /** 枚举值列表，值必须是有效 JSON 类型 */\n    readonly enum?: ReadonlyArray<string | number | boolean | null>;\n    /** 常量值 */\n    readonly const?: string | number | boolean | null;\n    /** 默认值 */\n    readonly default?: unknown;\n    /** 示例值列表 */\n    readonly examples?: readonly unknown[];\n    /** 必须匹配其中一个 */\n    readonly oneOf?: readonly JsonSchema[];\n    /** 匹配任意一个 */\n    readonly anyOf?: readonly JsonSchema[];\n    /** 必须匹配所有 */\n    readonly allOf?: readonly JsonSchema[];\n    /** 不能匹配此 schema */\n    readonly not?: JsonSchema;\n    /** 最大长度 */\n    readonly maxLength?: number;\n    /** 最小长度 */\n    readonly minLength?: number;\n    /** 正则表达式模式 */\n    readonly pattern?: string;\n    /** 格式（如 email、date-time、uri 等） */\n    readonly format?: string;\n    /** 最小值 */\n    readonly minimum?: number;\n    /** 最大值 */\n    readonly maximum?: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "$ref",
+              "jsdoc": "JSON Reference，引用另一个 schema（可选）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "数据类型，支持联合类型数组",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "类型标题（可选）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "类型描述，会展示给 LLM",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "properties",
+              "jsdoc": "属性定义：属性名 → Schema",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "jsdoc": "必填属性名列表",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "additionalProperties",
+              "jsdoc": "是否允许额外属性：false=拒绝，true=接受任意，JsonSchema=按 schema 校验",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "items",
+              "jsdoc": "数组项 Schema（普通数组）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prefixItems",
+              "jsdoc": "元组前缀项 Schema（固定长度元组）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enum",
+              "jsdoc": "枚举值列表，值必须是有效 JSON 类型",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "const",
+              "jsdoc": "常量值",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "default",
+              "jsdoc": "默认值",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "examples",
+              "jsdoc": "示例值列表",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "oneOf",
+              "jsdoc": "必须匹配其中一个",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "anyOf",
+              "jsdoc": "匹配任意一个",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allOf",
+              "jsdoc": "必须匹配所有",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "not",
+              "jsdoc": "不能匹配此 schema",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxLength",
+              "jsdoc": "最大长度",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minLength",
+              "jsdoc": "最小长度",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pattern",
+              "jsdoc": "正则表达式模式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "format",
+              "jsdoc": "格式（如 email、date-time、uri 等）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minimum",
+              "jsdoc": "最小值",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maximum",
+              "jsdoc": "最大值",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -6,6 +6,7 @@
  */
 import type { InjectionKey } from 'vue'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
+import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import { getNavTree, refreshRoutes } from '@spark-appworks/spark-app'
 import {
@@ -19,7 +20,7 @@ import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 /** Project Switch Service 的语义模型。 */
 export type ProjectSwitchService = {
   /** 切换到指定项目并刷新壳层导航；projectId 为目标项目标识，切换后会重新加载路由和 ProjectWorkspace。 */
-  switchAndReload(projectId: string): Promise<void>
+  switchAndReload(projectId: string): Promise<LowcodeApplicationSelectionReceipt>
 }
 
 export const PROJECT_SWITCH_KEY: InjectionKey<ProjectSwitchService> = Symbol('project-switch')
@@ -135,8 +136,18 @@ export function syncCommittedNavigationFromRouter(): void {
 /**
  * 刷新后端授权运行菜单（单次 HTTP GET）并同步应用壳。
  */
-export async function reloadAndSyncNavigation(): Promise<RuntimeNavigation | null> {
-  const navTree = await refreshRoutes()
+export async function reloadAndSyncNavigation(
+  receipt?: LowcodeApplicationSelectionReceipt,
+): Promise<RuntimeNavigation | null> {
+  receipt?.assertCurrent()
+  let navTree: RuntimeNavigation | null
+  try {
+    navTree = await refreshRoutes()
+  } catch (error: unknown) {
+    receipt?.assertCurrent()
+    throw error
+  }
+  receipt?.assertCurrent()
   syncCommittedNavigation(navTree)
   return navTree
 }

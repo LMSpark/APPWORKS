@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:index",
+    "sourcePath": "packages/spark-json-document/src/index.ts",
+    "sourceFile": "packages/spark-json-document/src/index.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "index",
+    "jsdoc": "@module @spark-appworks/spark-json-document:index\n职责：提供 JSON Document/schema 处理中的 index 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。\n\n@packageDocumentation\n@spark-appworks/spark-json-document — 通用 JSON 文档编辑与 JSON Schema 工具包\n公共入口分为三个子域：\ncore/   — JSON 值类型、路径操作、解析序列化、值规整\nschema/ — JSON Schema 类型、构造器、校验器、路径解析、元数据注解\ntree/   — UUID 稳定树模型、策略注入、不可变变更、平铺往返\n所有符号从本桶文件显式导出；消费方直接 import from '@spark-appworks/spark-json-document'。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-08-10T11:40:03.580Z",
+  "models": {}
+}

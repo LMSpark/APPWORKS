@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:schema/schema-resolution",
+    "sourcePath": "packages/spark-json-document/src/schema/schema-resolution.ts",
+    "sourceFile": "packages/spark-json-document/src/schema/schema-resolution.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "schema/schema-resolution",
+    "jsdoc": "@module @spark-appworks/spark-json-document:schema/schema-resolution\n职责：提供 JSON Document/schema 处理中的 schema resolution 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。\n\n═══════════════════════════════════════════════════════════════\nschema/schema-resolution.ts — JSON Schema 路径解析\n═══════════════════════════════════════════════════════════════\n根据 JsonPath 在 JSON Schema 中解析对应节点的元信息（title/description/required/enum）。\n支持 $ref 解析、oneOf 分支选择、items/properties/additionalProperties 导航。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "JsonSchemaInfo"
+    ]
+  },
+  "$defs": {
+    "JsonSchemaInfo": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "JsonSchemaInfo",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "enumValues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "required",
+        "enumValues"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:51.036Z",
+  "models": {
+    "JsonSchemaInfo": {
+      "name": "JsonSchemaInfo",
+      "jsdoc": "Schema 路径解析结果",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 显示标题。 */\n    title: string;\n    /** description 字段。 */\n    description: string;\n    /** 是否必填。 */\n    required: boolean;\n    /** enum Values 字段。 */\n    enumValues: string[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "title",
+              "jsdoc": "显示标题。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "description 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "required",
+              "jsdoc": "是否必填。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "enumValues",
+              "jsdoc": "enum Values 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

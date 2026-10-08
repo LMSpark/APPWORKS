@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:core/useSparkComponent",
+    "sourcePath": "packages/spark-component/src/core/useSparkComponent.ts",
+    "sourceFile": "packages/spark-component/src/core/useSparkComponent.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "core/useSparkComponent",
+    "jsdoc": "@module @spark-appworks/spark-component:core/useSparkComponent\n职责：维护 @spark-appworks/spark-component 中 core/useSparkComponent 的模块能力，围绕 CapabilityKey、CapabilityContext、LoggerApi 等 11 个公开契约 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 core/useSparkComponent 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "UseSparkComponentReturn",
+      "UseSparkPageComponentReturn",
+      "UseSparkCapabilityReaderReturn",
+      "UseSparkComponentOptions",
+      "SparkNodeInput"
+    ]
+  },
+  "$defs": {
+    "UseSparkComponentReturn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseSparkComponentReturn",
+      "properties": {
+        "provider": {
+          "type": "object",
+          "additionalProperties": false
+        },
+        "isVisible": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "isDisabled": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "resolvedProps": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "sparkProvide": {
+          "type": "object",
+          "additionalProperties": false
+        },
+        "sparkConsume": {
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
+        },
+        "logger": {
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
+        }
+      },
+      "required": [
+        "provider",
+        "isVisible",
+        "isDisabled",
+        "resolvedProps",
+        "sparkProvide",
+        "sparkConsume",
+        "logger"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.sparkRemove.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityKey"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sparkRemove.return": true
+      }
+    },
+    "UseSparkPageComponentReturn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseSparkPageComponentReturn",
+      "$defs": {
+        "method.registerApi.params": {
+          "type": "object",
+          "properties": {
+            "api": true
+          },
+          "additionalProperties": false
+        },
+        "method.registerApi.return": true
+      },
+      "properties": {
+        "provider": {
+          "type": "object",
+          "additionalProperties": false
+        },
+        "isVisible": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "isDisabled": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "resolvedProps": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "sparkProvide": {
+          "type": "object",
+          "additionalProperties": false
+        },
+        "sparkConsume": {
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
+        },
+        "logger": {
+          "$ref": "../../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "isVisible",
+        "isDisabled",
+        "resolvedProps",
+        "sparkProvide",
+        "sparkConsume",
+        "logger"
+      ]
+    },
+    "UseSparkCapabilityReaderReturn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseSparkCapabilityReaderReturn",
+      "properties": {
+        "provider": {
+          "type": "object",
+          "additionalProperties": false
+        },
+        "sparkConsume": {
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/SparkCapabilityConsumer"
+        }
+      },
+      "required": [
+        "provider",
+        "sparkConsume"
+      ],
+      "additionalProperties": false
+    },
+    "UseSparkComponentOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UseSparkComponentOptions",
+      "properties": {
+        "parentContext": {
+          "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
+        }
+      },
+      "additionalProperties": false
+    },
+    "HostTypeResolverOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "HostTypeResolverOptions",
+      "properties": {
+        "hostTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResolvedHostType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolvedHostType",
+      "properties": {
+        "hostType": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "parentContext": {
+          "anyOf": [
+            {
+              "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "hostType",
+        "parentContext"
+      ],
+      "additionalProperties": false
+    },
+    "SparkNodeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SparkNodeInput",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "props": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "children": true,
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T12:37:59.750Z",
+  "models": {
+    "UseSparkComponentReturn": {
+      "name": "UseSparkComponentReturn",
+      "jsdoc": "组件上下文完整返回 — 容器 / 字段 / 页面组件的标准上下文入口。\n`provider` — provider 查询接口：\n- `nearestCapabilityProvider(key)` — 按能力键查最近 provider context\n- `nearestCapabilityProviderByKeys(keys)` — 按能力键集合查最近 provider context\n容器可通过上下文 type 语义驱动子级渲染模式，子级按需消费并自决。\n子级独立自决：收到能力后，自己决定何时消费、如何使用，保持渲染自主权。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** provider 字段。 */\n    provider: {\n        nearestCapabilityProvider<T>(name: CapabilityKey<T>): CapabilityContext | null;\n        nearestCapabilityProviderByKeys(keys: ReadonlyArray<CapabilityKey<unknown>>): CapabilityContext | null;\n    };\n    /** 是否 is Visible。 */\n    isVisible: {\n        readonly value: boolean;\n    };\n    /** 是否 is Disabled。 */\n    isDisabled: {\n        readonly value: boolean;\n    };\n    /** resolved Props 字段。 */\n    resolvedProps: {\n        readonly value: Record<string, unknown>;\n    };\n    /** spark Provide 字段。 */\n    sparkProvide: {\n        <T>(name: CapabilityKey<T>, implementation: T): void;\n    };\n    /** spark Remove 回调。 */\n    sparkRemove: <T>(name: CapabilityKey<T>) => void;\n    /** spark Consume 字段。 */\n    sparkConsume: SparkCapabilityConsumer;\n    /** 诊断日志接口。 */\n    logger: LoggerApi;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "provider",
+              "jsdoc": "provider 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isVisible",
+              "jsdoc": "是否 is Visible。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isDisabled",
+              "jsdoc": "是否 is Disabled。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resolvedProps",
+              "jsdoc": "resolved Props 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sparkProvide",
+              "jsdoc": "spark Provide 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sparkConsume",
+              "jsdoc": "spark Consume 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "logger",
+              "jsdoc": "诊断日志接口。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "sparkRemove",
+              "jsdoc": "spark Remove 回调。",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "CapabilityKey",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "UseSparkPageComponentReturn": {
+      "name": "UseSparkPageComponentReturn",
+      "jsdoc": "Use Spark Page Component Return 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "UseSparkComponentReturn & {\n    /** register Api 回调。 */\n    registerApi: (api: unknown) => void;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "UseSparkComponentReturn",
+            "targetName": "UseSparkComponentReturn"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** register Api 回调。 */\n    registerApi: (api: unknown) => void;\n}"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "registerApi",
+              "jsdoc": "register Api 回调。",
+              "parameters": [
+                {
+                  "name": "api",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "UseSparkCapabilityReaderReturn": {
+      "name": "UseSparkCapabilityReaderReturn",
+      "jsdoc": "轻量消费返回 — 仅消费能力、查询 provider，不创建自身上下文。\n由 `useSparkConsume()` 返回，供只需读取上下文的组件使用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** provider 字段。 */\n    provider: {\n        nearestCapabilityProvider<T>(name: CapabilityKey<T>): CapabilityContext | null;\n        nearestCapabilityProviderByKeys(keys: ReadonlyArray<CapabilityKey<unknown>>): CapabilityContext | null;\n    };\n    /** spark Consume 字段。 */\n    sparkConsume: SparkCapabilityConsumer;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "provider",
+              "jsdoc": "provider 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sparkConsume",
+              "jsdoc": "spark Consume 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "UseSparkComponentOptions": {
+      "name": "UseSparkComponentOptions",
+      "jsdoc": "Use Spark Component Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** parent Context 字段。 */\n    parentContext?: CapabilityContext;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "parentContext",
+              "jsdoc": "parent Context 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "HostTypeResolverOptions": {
+      "name": "HostTypeResolverOptions",
+      "jsdoc": "Host Type Resolver Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** host Types 字段。 */\n    hostTypes?: readonly string[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "hostTypes",
+              "jsdoc": "host Types 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolvedHostType": {
+      "name": "ResolvedHostType",
+      "jsdoc": "Resolved Host Type 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** host Type 字段。 */\n    hostType: string | null;\n    /** parent Context 字段。 */\n    parentContext: CapabilityContext | null;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "hostType",
+              "jsdoc": "host Type 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parentContext",
+              "jsdoc": "parent Context 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SparkNodeInput": {
+      "name": "SparkNodeInput",
+      "jsdoc": "Spark Node Input 的输入数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 类型标识。 */\n    type: string;\n    /** 组件属性集合。 */\n    props?: Record<string, unknown> | undefined;\n    /** 子节点集合。 */\n    children?: SparkNode['children'] | undefined;\n    /** 唯一标识。 */\n    id?: string | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "props",
+              "jsdoc": "组件属性集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "jsdoc": "子节点集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "jsdoc": "唯一标识。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

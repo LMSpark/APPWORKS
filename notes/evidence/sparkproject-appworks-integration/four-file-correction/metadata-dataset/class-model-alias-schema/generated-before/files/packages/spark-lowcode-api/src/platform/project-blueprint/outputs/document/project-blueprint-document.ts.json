@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/project-blueprint/outputs/document/project-blueprint-document",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/outputs/document/project-blueprint-document.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/project-blueprint/outputs/document/project-blueprint-document",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/project-blueprint/outputs/document/project-blueprint-document\n职责：定义既有文档导出端点的请求选项与 submitted 回执。\n边界：覆盖仅 legacy-menu-scope，不表示文件生成完成或完整蓝图交付。\nAI用途：准确解释文档任务提交结果，避免把 ACK 当生成成功。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeProjectBlueprintDocumentKind",
+      "LowcodeProjectBlueprintDocumentCoverage",
+      "LowcodeProjectBlueprintDocumentTask",
+      "LowcodeProjectBlueprintDocumentSubmitOptions"
+    ]
+  },
+  "$defs": {
+    "LowcodeProjectBlueprintDocumentKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LowcodeProjectBlueprintDocumentKind",
+      "enum": [
+        "requirements-specification",
+        "functional-design",
+        "system-detailed-design"
+      ]
+    },
+    "LowcodeProjectBlueprintDocumentCoverage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LowcodeProjectBlueprintDocumentCoverage",
+      "const": "legacy-menu-scope"
+    },
+    "LowcodeProjectBlueprintDocumentTask": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeProjectBlueprintDocumentTask",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/LowcodeProjectBlueprintDocumentKind"
+        },
+        "status": {
+          "const": "submitted"
+        },
+        "coverage": {
+          "$ref": "#/$defs/LowcodeProjectBlueprintDocumentCoverage"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LowcodeProjectBlueprintDocumentSubmitOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeProjectBlueprintDocumentSubmitOptions",
+      "properties": {
+        "level": {
+          "type": "number"
+        },
+        "includeText": {
+          "type": "boolean"
+        },
+        "includeHtml": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-06T20:57:27.511Z",
+  "models": {
+    "LowcodeProjectBlueprintDocumentKind": {
+      "name": "LowcodeProjectBlueprintDocumentKind",
+      "jsdoc": "可提交的 legacy 文档种类；对应 /api/File/export* 端点。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'requirements-specification' | 'functional-design' | 'system-detailed-design'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'requirements-specification'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'functional-design'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'system-detailed-design'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeProjectBlueprintDocumentCoverage": {
+      "name": "LowcodeProjectBlueprintDocumentCoverage",
+      "jsdoc": "文档覆盖范围；当前仅 legacy-menu-scope，表示按运行菜单候选节点导出。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'legacy-menu-scope'",
+        "members": {}
+      }
+    },
+    "LowcodeProjectBlueprintDocumentTask": {
+      "name": "LowcodeProjectBlueprintDocumentTask",
+      "jsdoc": "文档导出任务回执；status 恒为 submitted，不表示文件已生成完毕。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    kind: LowcodeProjectBlueprintDocumentKind;\n    status: 'submitted';\n    coverage: LowcodeProjectBlueprintDocumentCoverage;\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    kind: LowcodeProjectBlueprintDocumentKind;\n    status: 'submitted';\n    coverage: LowcodeProjectBlueprintDocumentCoverage;\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "coverage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeProjectBlueprintDocumentSubmitOptions": {
+      "name": "LowcodeProjectBlueprintDocumentSubmitOptions",
+      "jsdoc": "functional-design 提交选项；level/includeText/includeHtml 映射 legacy exportDesignDoc 查询参数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    level?: number;\n    includeText?: boolean;\n    includeHtml?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    level?: number;\n    includeText?: boolean;\n    includeHtml?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "level",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includeText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includeHtml",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

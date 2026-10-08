@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/control/data-platform/data-space/design/expression/DataSpaceValueFunctionEditor.props",
+    "sourcePath": "src/views/app/control/data-platform/data-space/design/expression/DataSpaceValueFunctionEditor.props.ts",
+    "sourceFile": "src/views/app/control/data-platform/data-space/design/expression/DataSpaceValueFunctionEditor.props.ts",
+    "packageName": "app",
+    "modulePath": "views/app/control/data-platform/data-space/design/expression/DataSpaceValueFunctionEditor.props",
+    "jsdoc": "app 的 views/app/control/data-platform/data-space/design/expression/DataSpaceValueFunctionEditor.props 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceValueFunctionEditorProps（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceValueFunctionEditorProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceValueFunctionEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceValueFunctionEditorProps",
+      "properties": {
+        "contextKey": {
+          "type": "string"
+        },
+        "modelValue": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "functionContext": {
+          "$ref": "../../../../../../../../packages/spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "contextKey"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T23:45:41.196Z",
+  "models": {
+    "DataSpaceValueFunctionEditorProps": {
+      "name": "DataSpaceValueFunctionEditorProps",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceValueFunctionEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    contextKey: string;\n    modelValue?: string | null;\n    functionContext?: DataViewFilterFunctionContext;\n    disabled?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "contextKey",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "functionContext",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

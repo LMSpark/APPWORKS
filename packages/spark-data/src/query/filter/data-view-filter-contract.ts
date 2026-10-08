@@ -94,7 +94,7 @@ export type DataViewFilterFunctionPredicate = (value: DataViewFilterValueFunctio
 export type DataViewFilterFunctionField = Readonly<{
   key: string
   label: string
-  control?: 'text' | 'password' | 'textarea' | 'select' | 'checkbox'
+  control?: 'text' | 'password' | 'textarea' | 'json' | 'select' | 'checkbox'
   required?: boolean
   multiple?: boolean
   options?: DataViewFilterFunctionOptions

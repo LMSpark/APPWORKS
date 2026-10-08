@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/tools/class-model-tool-specs",
+    "sourcePath": "packages/spark-ai/src/class-model/tools/class-model-tool-specs.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/tools/class-model-tool-specs.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/tools/class-model-tool-specs",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/tools/class-model-tool-specs\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 class-model-tool-specs 能力，围绕 ClassModelToolSpec 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/tools/class-model-tool-specs 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ClassModelToolSpec"
+    ]
+  },
+  "$defs": {
+    "ClassModelToolSpec": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelToolSpec",
+      "properties": {
+        "type": {
+          "const": "function"
+        },
+        "function": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "parameters": {
+              "$ref": "../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+            }
+          },
+          "required": [
+            "name",
+            "description",
+            "parameters"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T10:00:08.511Z",
+  "models": {
+    "ClassModelToolSpec": {
+      "name": "ClassModelToolSpec",
+      "jsdoc": "Class Model Tool Spec 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 工具类型，固定为 'function'，对齐 OpenAI function calling 协议。 */\n    type: 'function';\n    /** 工具定义：name 为 ClassModelToolName 枚举值，description 面向 LLM，parameters 为 Draft 2020-12 JSON Schema。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n    };\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 工具类型，固定为 'function'，对齐 OpenAI function calling 协议。 */\n    type: 'function';\n    /** 工具定义：name 为 ClassModelToolName 枚举值，description 面向 LLM，parameters 为 Draft 2020-12 JSON Schema。 */\n    function: {\n        readonly name: string;\n        readonly description: string;\n        readonly parameters: JsonSchemaObject;\n    };\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "工具类型，固定为 'function'，对齐 OpenAI function calling 协议。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "function",
+              "jsdoc": "工具定义：name 为 ClassModelToolName 枚举值，description 面向 LLM，parameters 为 Draft 2020-12 JSON Schema。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

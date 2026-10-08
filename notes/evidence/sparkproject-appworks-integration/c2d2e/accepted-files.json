@@ -1,0 +1,13 @@
+{
+  "scope": "C2d2e engineering review accepted; combined browser acceptance pending",
+  "files": [
+    {
+      "path": "src/App.vue",
+      "sha256": "3a95148f56da351927f0d0cf5b89e83d356be5bcf48e86cb179593197573acb6"
+    },
+    {
+      "path": "tests/app/services/project/application-switch.test.ts",
+      "sha256": "253f2a3de33d246dc6be12574525684661140ec3e0bd31eaf27108a38dc6e1e9"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/display/non-data-components/time/DisplayCalendar/DisplayCalendar.props",
+    "sourcePath": "packages/spark-component/src/components/display/non-data-components/time/DisplayCalendar/DisplayCalendar.props.ts",
+    "sourceFile": "packages/spark-component/src/components/display/non-data-components/time/DisplayCalendar/DisplayCalendar.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/display/non-data-components/time/DisplayCalendar/DisplayCalendar.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/display/non-data-components/time/DisplayCalendar/DisplayCalendar.props\n职责：定义 DisplayCalendar（display-calendar）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 display/static-display 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 display calendar 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RDisplayCalendarProps"
+    ],
+    "componentName": "DisplayCalendar",
+    "componentType": "display-calendar",
+    "componentLevel": "display",
+    "componentLayer": "static-display",
+    "componentDirectory": "display/non-data-components"
+  },
+  "$defs": {
+    "RDisplayCalendarProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RDisplayCalendarProps",
+      "properties": {
+        "value": {
+          "type": "object",
+          "title": "Date"
+        },
+        "range": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "object",
+              "title": "Date"
+            },
+            {
+              "type": "object",
+              "title": "Date"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.146Z",
+  "models": {
+    "RDisplayCalendarProps": {
+      "name": "RDisplayCalendarProps",
+      "jsdoc": "RDisplay Calendar Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DisplayCalendar",
+        "type": "display-calendar",
+        "level": "display",
+        "layer": "static-display",
+        "directory": "display/non-data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 当前日期 */\n    value?: Date;\n    /** 日期范围 [start, end] */\n    range?: [Date, Date];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 当前日期 */\n    value?: Date;\n    /** 日期范围 [start, end] */\n    range?: [Date, Date];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "当前日期",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "range",
+              "jsdoc": "日期范围 [start, end]",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

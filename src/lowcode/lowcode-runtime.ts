@@ -9,6 +9,7 @@ import type {
   RuntimeNavigation,
   RuntimeNavigationItem,
 } from '@spark-appworks/spark-app'
+import { SYSTEM_PAGE_NAVIGATION_ID_QUERY } from '@spark-appworks/spark-app'
 import type {
   PageFileReadCommand,
   ProjectBlueprintGateway,
@@ -20,7 +21,9 @@ import type {
 } from '@spark-appworks/spark-project-model'
 import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { createRequest } from '@spark-appworks/spark-utils'
+import { parseQuery } from 'vue-router'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
+import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 
 /** 当前真实登录身份与选中应用；未选中应用时 applicationId 为 null。 */
 export type LowcodePrincipal = Readonly<{
@@ -113,6 +116,7 @@ export function lowcodeApplicationCatalogNavigation(): RuntimeNavigation {
     }))
   return {
     title: 'SPARK 应用工场',
+    projectId: APPLICATION_CATALOG_PROJECT_ID,
     childPlacement: 'header',
     homePath: '/app-list',
     items,
@@ -214,6 +218,7 @@ function buildRuntimeNavigationItem(
     description: (record.capability.description ?? ''),
     itemKind,
     ...(target.path === undefined ? {} : { path: target.path }),
+    ...(record.dataSpace?.scenarioId === undefined ? {} : { blueprintScenarioId: record.dataSpace.scenarioId }),
     ...(record.navigation?.target?.startsWith('cfg:') === true ? { tool: {
       projectId: record.projectId, pageId: record.navigation.target.slice(4),
       ...(typeof record.source['VersionId'] === 'string' && record.source['VersionId'].trim() ? { versionId: record.source['VersionId'] } : {}),
@@ -226,15 +231,30 @@ function buildRuntimeNavigationItem(
   }
 }
 
-function firstRuntimePagePath(items: readonly RuntimeNavigationItem[]): string | undefined {
+function firstRuntimePage(items: readonly RuntimeNavigationItem[]): RuntimeNavigationItem | undefined {
   for (const item of items) {
     if ((item.itemKind === 'page' || item.itemKind === 'system-page') && item.path !== undefined) {
-      return item.path
+      return item
     }
-    const childPath = firstRuntimePagePath(item.children ?? [])
-    if (childPath !== undefined) return childPath
+    const child = firstRuntimePage(item.children ?? [])
+    if (child !== undefined) return child
   }
   return undefined
+}
+
+function systemPageLandingPath(item: RuntimeNavigationItem): string {
+  const path = item.path
+  if (path === undefined || item.itemKind !== 'system-page') return path ?? ''
+  const hashIndex = path.indexOf('#')
+  const routeTarget = path.slice(0, hashIndex < 0 ? undefined : hashIndex)
+  const hash = path.slice(hashIndex < 0 ? path.length : hashIndex)
+  const queryIndex = routeTarget.indexOf('?')
+  const query = queryIndex < 0 ? {} : parseQuery(routeTarget.slice(queryIndex + 1))
+  if (Object.prototype.hasOwnProperty.call(query, SYSTEM_PAGE_NAVIGATION_ID_QUERY)) {
+    throw new Error(`系统页面 landing target 使用保留身份参数：${item.id}`)
+  }
+  const separator = queryIndex < 0 ? '?' : '&'
+  return `${routeTarget}${separator}${encodeURIComponent(SYSTEM_PAGE_NAVIGATION_ID_QUERY)}=${encodeURIComponent(item.id)}${hash}`
 }
 
 function withShellSystemTools(businessChildren: readonly RuntimeNavigationItem[]): RuntimeNavigationItem[] {
@@ -286,7 +306,10 @@ export function assembleLowcodeRuntimeNavigation(
   const businessChildren = sortBlueprintRecords(
     candidates.filter(record => !candidateIds.has(record.parentNodeId)),
   ).map(record => buildRuntimeNavigationItem(record, childrenByParent, authorizationById))
-  const homePath = firstRuntimePagePath(businessChildren)
+  const landingItem = firstRuntimePage(businessChildren)
+  const homePath = landingItem?.itemKind === 'system-page'
+    ? systemPageLandingPath(landingItem)
+    : landingItem?.path
   return {
     id: input.navigationRootId,
     projectId: input.projectId,
@@ -301,31 +324,63 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
   const explicitProjectId = projectId?.trim()
   const activeContext = lowcodeApi.application.get()
   if (!explicitProjectId && activeContext === null) return lowcodeApplicationCatalogNavigation()
+  const executionScopeToken = lowcodeApi.readRequestScope().token
+  const assertExecutionScope = (): void => {
+    let currentScopeToken: string
+    try {
+      currentScopeToken = lowcodeApi.readRequestScope().token
+    } catch {
+      throw new Error('SPARK_EXECUTION_SCOPE_STALE: lowcode 导航读取期间执行身份或应用上下文已变化')
+    }
+    if (!lowcodeApi.session.isAuthenticated()
+      || currentScopeToken !== executionScopeToken
+      || lowcodeApi.application.get()?.navigationRootId !== activeContext?.navigationRootId) {
+      throw new Error('SPARK_EXECUTION_SCOPE_STALE: lowcode 导航读取期间执行身份或应用上下文已变化')
+    }
+  }
+  const readWithinExecutionScope = async <T>(request: Promise<T>): Promise<T> => {
+    try {
+      const result = await request
+      assertExecutionScope()
+      return result
+    } catch (error) {
+      assertExecutionScope()
+      throw error
+    }
+  }
   let application: LowcodePlatform.LowcodeApplication
   let navigationRootId: string
-  if (explicitProjectId && activeContext?.application.id !== explicitProjectId) {
-    const applications = await lowcodeApi.platform.listApplications()
-    const found = applications.find((item) => item.id === explicitProjectId)
-    if (found === undefined) throw new Error(`lowcode 应用不存在或无权访问：${explicitProjectId}`)
-    application = found
-    navigationRootId = await lowcodeApi.platform.resolveNavigationRootId(found.id)
-  } else if (activeContext !== null) {
-    application = activeContext.application
-    navigationRootId = activeContext.navigationRootId
-  } else {
-    throw new Error('缺少 lowcode 应用上下文')
+  try {
+    if (explicitProjectId && activeContext?.application.id !== explicitProjectId) {
+      const applications = await readWithinExecutionScope(lowcodeApi.platform.listApplications())
+      assertExecutionScope()
+      const found = applications.find((item) => item.id === explicitProjectId)
+      if (found === undefined) throw new Error(`lowcode 应用不存在或无权访问：${explicitProjectId}`)
+      application = found
+      navigationRootId = await readWithinExecutionScope(lowcodeApi.platform.resolveNavigationRootId(found.id))
+      assertExecutionScope()
+    } else if (activeContext !== null) {
+      application = activeContext.application
+      navigationRootId = activeContext.navigationRootId
+    } else {
+      throw new Error('缺少 lowcode 应用上下文')
+    }
+    const [records, authorization] = await Promise.all([
+      readWithinExecutionScope(lowcodeApi.blueprint.readRecords(application.id)),
+      readWithinExecutionScope(lowcodeApi.blueprint.readNavigationAuthorization(application.id, navigationRootId)),
+    ])
+    assertExecutionScope()
+    return assembleLowcodeRuntimeNavigation({
+      applicationName: application.name,
+      projectId: application.id,
+      navigationRootId,
+      records,
+      authorization,
+    })
+  } catch (error) {
+    assertExecutionScope()
+    throw error
   }
-  const [records, authorization] = await Promise.all([
-    lowcodeApi.blueprint.readRecords(application.id),
-    lowcodeApi.blueprint.readNavigationAuthorization(application.id, navigationRootId),
-  ])
-  return assembleLowcodeRuntimeNavigation({
-    applicationName: application.name,
-    projectId: application.id,
-    navigationRootId,
-    records,
-    authorization,
-  })
 }
 
 function projectBlueprintRecordNode(
@@ -572,16 +627,19 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
   }
 }
 
-export async function activateLowcodeApplication(applicationId: string): Promise<LowcodePlatform.LowcodeApplication> {
+/** 选择低代码应用并返回平台当前性凭据；异步恢复后须先检查凭据再执行后续副作用。 */
+export async function activateLowcodeApplication(
+  applicationId: string,
+  signal?: AbortSignal,
+): Promise<LowcodePlatform.LowcodeApplicationSelectionReceipt> {
   const normalizedId = applicationId.trim()
   if (!normalizedId) throw new Error('应用 ID 不能为空')
-  const applications = await lowcodeApi.platform.listApplications()
-  const application = applications.find((item) => item.id === normalizedId)
-  if (application === undefined) throw new Error(`lowcode 应用不存在或无权访问：${normalizedId}`)
-  await lowcodeApi.platform.selectApplication(application)
-  return application
+  const activation = await lowcodeApi.platform.activateApplication(normalizedId, signal)
+  activation.assertCurrent()
+  return activation
 }
 
-export function enterLowcodeApplicationCatalog(): void {
-  lowcodeApi.application.clear()
+/** 开始新的应用目录意图、清空当前应用，并返回平台签发的当前性凭据。 */
+export function enterLowcodeApplicationCatalog(): LowcodePlatform.LowcodeApplicationSelectionReceipt {
+  return lowcodeApi.platform.enterApplicationCatalog()
 }

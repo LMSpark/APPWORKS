@@ -18,6 +18,7 @@ import {
   resolveDataViewKey,
   resolveDataViewMember,
   resolveDataViewMemberBinding,
+  type DataRow,
 } from '@spark-appworks/spark-data'
 
 function createFixtureDataSet(): DataSet {
@@ -54,6 +55,35 @@ function createFixtureDataSet(): DataSet {
       },
     },
   })
+}
+
+async function createValueDataSet(hidden: readonly string[] = [], keys: readonly [string | number, string | number] = ['01', '02']) {
+  const rows: DataRow[] = [
+    {key: keys[0], code: 'A', text: 'A,B', amount: 0, enabled: false, nullable: null, tags: ['x', 'y'], details: {code: 'D'}},
+    {key: keys[1], code: 'B', text: 'A,B', amount: 2, enabled: true, nullable: 'set', tags: [], details: {}},
+  ]
+  const dataSet = DataSet.fromJson({scenarioId: 'VALUE', dataSetName: 'VALUE', tables: {Items: {
+    modelBinding: {modelId: 'MODEL', modelName: 'Items'},
+    columns: [{name: 'key', type: typeof keys[0] === 'number' ? 'number' : 'string', isPrimaryKey: true}, {name: 'code', type: 'string'},
+      {name: 'text', type: 'string'}, {name: 'amount', type: 'number'}, {name: 'enabled', type: 'boolean'},
+      {name: 'nullable', type: 'string'}, {name: 'tags', type: 'array'}, {name: 'details', type: 'object'}],
+    views: {default: {autoCurrentFirst: false, autoSelectFirst: false, valueField: 'code', selectionDelimiter: '|'}},
+  }}})
+  const view = dataSet.getView('Items', 'default')!
+  const read = (field: string) => hidden.includes(field) ? 'invisible' as const : 'visible' as const
+  view.bindQueryExecutor({executeQuery: async () => ({rows, total: rows.length,
+    assertIdentity: identity => {
+      if (identity.scenarioId !== 'VALUE' || identity.metaName !== 'Items') throw new Error('query identity mismatch')
+    },
+    rowKey: row => row['key'],
+    fieldAccess: (_key, field) => ({read: read(field), write: 'allowed', required: false,
+      component: 'editable', writeMode: 'editable'}),
+    readFieldAccess: (_row, field) => read(field),
+    addActionState: () => 'hidden', editActionState: () => 'hidden', deleteActionState: () => 'hidden',
+    createChildActionState: () => 'hidden', viewActionState: () => 'hidden',
+  })})
+  await view.loadFromServer()
+  return {dataSet, view}
 }
 
 describe('DataViewKey', () => {
@@ -206,5 +236,93 @@ describe('DataMember resolution', () => {
 
   it('extracts view identity from parsed keys', () => {
     expect(getDataViewIdentity(parseDataViewKey('#SharedDS@Users@grid')!)).toBe('Users.grid')
+  })
+})
+
+describe('native value binding and persisted selection format', () => {
+  const selection = {dataViewKey: 'Items@default', dataMember: DataMember.Value}
+
+  it('reads selected primary-key arrays while preserving configured string serialization and assignment', async () => {
+    const {dataSet, view} = await createValueDataSet()
+    try {
+      expect(resolveDataViewMember(selection, dataSet)).toEqual([])
+      expect(diagnoseDataViewMember(selection, dataSet).status).toBe('ok')
+      view.value = 'B|A'
+      expect(view.value).toBe('A|B')
+      expect(resolveDataViewMember(selection, dataSet)).toEqual(['01', '02'])
+      const binding = resolveDataViewMemberBinding(selection, dataSet)
+      expect(binding?.source).toBe(view)
+      expect(binding?.value).toEqual(['01', '02'])
+      const detached = binding?.value
+      if (!Array.isArray(detached)) throw new Error('selection value must be an array')
+      detached.pop()
+      expect(resolveDataViewMember(selection, dataSet)).toEqual(['01', '02'])
+      view.setCurrentRow(view.rows[0] ?? null)
+      expect(resolveDataViewMember(selection, dataSet)).toEqual(['01', '02'])
+      view.selectionDelimiter = ''
+      view.value = 'B'
+      expect(view.value).toBe('B')
+      expect(resolveDataViewMember(selection, dataSet)).toEqual(['02'])
+      view.value = ''
+      expect(resolveDataViewMember(selection, dataSet)).toEqual([])
+    } finally { dataSet.destroy() }
+  })
+
+  it('constructs field values from the pointer and edit overlay without interpreting serialized text', async () => {
+    const {dataSet, view} = await createValueDataSet()
+    const field = {...selection, dataField: 'text'}
+    try {
+      expect(resolveDataViewMember(field, dataSet)).toBeUndefined()
+      expect(diagnoseDataViewMember(field, dataSet).status).toBe('empty-current-row')
+      view.setCurrentRow(view.rows[0] ?? null)
+      expect(resolveDataViewMember(field, dataSet)).toBe('A,B')
+      expect(resolveDataViewMemberBinding(field, dataSet)?.value).toBe('A,B')
+      view.setCurrentRow(view.rows[1] ?? null)
+      expect(resolveDataViewMember(field, dataSet)).toBe('A,B')
+      view.updateEditingValue('02', 'text', 'Edited')
+      expect(resolveDataViewMember(field, dataSet)).toBe('Edited')
+      expect(view.rows[1]?.['text']).toBe('A,B')
+      view.discardEditingRows(['02'])
+      expect(resolveDataViewMember(field, dataSet)).toBe('A,B')
+      view.setCurrentRow(view.rows[0] ?? null)
+      expect(resolveDataViewMember({...selection, dataField: 'amount'}, dataSet)).toBe(0)
+      expect(resolveDataViewMember({...selection, dataField: 'enabled'}, dataSet)).toBe(false)
+      expect(resolveDataViewMember({...selection, dataField: 'nullable'}, dataSet)).toBeNull()
+      const tags = resolveDataViewMember({...selection, dataField: 'tags'}, dataSet)
+      if (!Array.isArray(tags)) throw new Error('field array must remain an array')
+      tags.push('detached')
+      expect(view.rows[0]?.['tags']).toEqual(['x', 'y'])
+      expect(resolveDataViewMember({...selection, dataField: 'details'}, dataSet)).toEqual({code: 'D'})
+      expect(resolveDataViewCapabilities({...selection, dataField: 'details'}, dataSet))
+        .toEqual({dataSource: view, dataRow: null})
+      expect(diagnoseDataViewMember(field, dataSet).status).toBe('ok')
+      expect(diagnoseDataViewMember({...selection, dataField: 'missing'}, dataSet).status).toBe('missing-field')
+    } finally { dataSet.destroy() }
+  })
+
+  it('rejects unreadable values using the same query permissions and reports disposed sources', async () => {
+    const {dataSet, view} = await createValueDataSet(['text', 'key'])
+    try {
+      view.setCurrentRow(view.rows[0] ?? null)
+      view.setSelectedRows([view.rows[0]!])
+      expect(() => resolveDataViewMember({...selection, dataField: 'text'}, dataSet)).toThrow('DATA_VIEW_VALUE_READ')
+      expect(diagnoseDataViewMember({...selection, dataField: 'text'}, dataSet).status).toBe('value-unavailable')
+      expect(() => resolveDataViewMember(selection, dataSet)).toThrow('DATA_VIEW_VALUE_READ')
+      view.destroy()
+      expect(diagnoseDataViewMember(selection, dataSet).status).toBe('value-unavailable')
+    } finally { dataSet.destroy() }
+  })
+
+  it('preserves numeric zero keys while the legacy primary-key string still round-trips', async () => {
+    const {dataSet, view} = await createValueDataSet([], [0, 2])
+    try {
+      delete view.valueField
+      view.value = '2|0'
+      expect(view.value).toBe('2|0')
+      expect(resolveDataViewMember(selection, dataSet)).toEqual([2, 0])
+      view.value = '0'
+      expect(view.value).toBe('0')
+      expect(resolveDataViewMember(selection, dataSet)).toEqual([0])
+    } finally { dataSet.destroy() }
   })
 })

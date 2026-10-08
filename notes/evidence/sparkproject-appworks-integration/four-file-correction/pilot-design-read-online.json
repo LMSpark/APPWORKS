@@ -1,0 +1,1409 @@
+{
+  "at": "2026-10-07T20:24:29.722Z",
+  "url": "http://127.0.0.1:5273/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/__tool/8D1AB14DD8277F3E7017CD38F77B09FD?scenarioId=8D1AB14DD8277F3E7017CD38F77B09FD&additionalScenarioIds=90A82E287930A234FEC3E687C94A93EA&dataSpaceId=90A82E287930A234FEC3E687C94A93EA&returnTo=/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/__tool/90A82E287930A234FEC3E687C94A93EA?scenarioId=90A82E287930A234FEC3E687C94A93EA%26additionalScenarioIds=8D1AB14DD8277F3E7017CD38F77B09FD%26additionalScenarioIds=7AB874097A1E8711A42FD845939A6E05",
+  "models": {
+    "buttons": [
+      "返回目录",
+      "重新加载"
+    ],
+    "rows": 6
+  },
+  "fieldsVerified": 218,
+  "relationshipsVerified": 0,
+  "layout": {
+    "nodes": 6,
+    "edges": 0,
+    "version": 1
+  },
+  "returnCatalogQueryPreserved": true,
+  "copyApi": {
+    "lines": 19,
+    "hasDataSetId": true,
+    "hasUserInfo": true
+  },
+  "bindingPath": "软件工坊[AppWorks] / 数据空间管理",
+  "reloadRequests": [
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST"
+    }
+  ],
+  "initialReadRequests": [
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST",
+      "file": "rule.json",
+      "customPath": "D99A1DCE9894698799101EFD70F8FC76/8D1AB14DD8277F3E7017CD38F77B09FD"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST",
+      "file": "script.js",
+      "customPath": "D99A1DCE9894698799101EFD70F8FC76/8D1AB14DD8277F3E7017CD38F77B09FD"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST",
+      "file": "style.css",
+      "customPath": "D99A1DCE9894698799101EFD70F8FC76/8D1AB14DD8277F3E7017CD38F77B09FD"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST",
+      "file": "pagedata.json",
+      "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/8D1AB14DD8277F3E7017CD38F77B09FD"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST",
+      "file": "pagedata.json",
+      "customPath": "D99A1DCE9894698799101EFD70F8FC76/SysForm/90A82E287930A234FEC3E687C94A93EA"
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel_Field"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataSet"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel_Relation"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Relation",
+          "filter": {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_NavigationInfo"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataSet"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_UserInfo"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel_Field"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_AppSystemList"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "Name",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Relation",
+          "filter": {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "90A82E287930A234FEC3E687C94A93EA"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FDp002"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FDp001"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FDp003"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "8D1AB14DD8277F3E7017CD38F77B09FDp000"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "44402ab3-7708-4a12-adaf-5d8a2e42b9ff"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EAp000"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "a30f1b5b-4a2f-432c-aa71-1b597bc36e11"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EAp001"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "acb04903-043f-4c99-9a57-a8e9bc95ce72"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "dataSetId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "90A82E287930A234FEC3E687C94A93EA"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dataModelId",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "e9f6c362-9ec9-4d77-bf62-cdcb5d2c1bbb"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "type",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "dataModel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel_Field"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel_Relation"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataModel"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_DataSet"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_NavigationInfo"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_UserInfo"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "View_TblList",
+          "filter": {
+            "Type": "and",
+            "Filters": [
+              {
+                "Type": "cond",
+                "Field": "tblname",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "Base_AppSystemList"
+                }
+              },
+              {
+                "Type": "cond",
+                "Field": "dbid",
+                "Operator": "equal",
+                "Value": null,
+                "ValueFun": {
+                  "Type": "GetConstValue",
+                  "Value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "6F8C35ECCE554F4881C965D271DF5FC8"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "5438CCE06B5F4D21B8110CEBF2565E0F"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "30045651CCCE46B0A2783C40481D55F3"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "00EB54040C01C782BFE79D4F3C4F7884"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "76C3DEEF94924984A54ACF02DA3F4497"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "C50CD4A8899A4415A2F4B687E234FC9D"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_TblField",
+          "filter": {
+            "Type": "cond",
+            "Field": "tblid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "1FD4DFAF725F4F759A45700BC6838F3C"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataSet",
+          "fields": [
+            "rowid",
+            "Name",
+            "Type",
+            "description"
+          ],
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "90A82E287930A234FEC3E687C94A93EA"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataSet",
+          "fields": [
+            "rowid",
+            "inputParams"
+          ],
+          "filter": {
+            "Type": "cond",
+            "Field": "rowid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "90A82E287930A234FEC3E687C94A93EA"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel",
+          "fields": [
+            "rowid",
+            "MetaName",
+            "description",
+            "Type",
+            "dataSetId"
+          ],
+          "filter": {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "90A82E287930A234FEC3E687C94A93EA"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Field",
+          "fields": [
+            "rowid",
+            "AsName",
+            "FieldType",
+            "IsOutput",
+            "IsPKey",
+            "dataSetId",
+            "dataModelId"
+          ],
+          "filter": {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "90A82E287930A234FEC3E687C94A93EA"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/DataOperation/GetData",
+      "method": "POST",
+      "tables": [
+        {
+          "name": "Base_DataModel_Relation",
+          "fields": [
+            "rowid",
+            "dataSetId",
+            "parentModId",
+            "childModId",
+            "depType",
+            "filter",
+            "cascadeDel"
+          ],
+          "filter": {
+            "Type": "cond",
+            "Field": "dataSetId",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "90A82E287930A234FEC3E687C94A93EA"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:5273/api/File/content/text",
+      "method": "POST",
+      "file": "90A82E287930A234FEC3E687C94A93EA.json",
+      "customPath": "SysForm"
+    }
+  ],
+  "consoleErrors": []
+}

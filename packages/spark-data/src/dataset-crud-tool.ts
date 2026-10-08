@@ -7,6 +7,7 @@
 import { DataSet } from './dataset'
 import { SnapshotHistory, deepClone, isRecord } from '@spark-appworks/spark-utils'
 import { isDataRow } from './core/data-row-guards'
+import { ResourceRelationDefinition } from './resource-relation/resource-relation-definition'
 import type { DataTable } from './data-table'
 import type { DataView } from './data-view'
 import type {
@@ -21,7 +22,10 @@ import type {
   TableMetadata,
   ViewMetadata,
   DataResourceRelation,
+  DataResourceRelationInput,
+  DataViewQueryCascade,
   DataViewCascade,
+  DataViewFieldCascade,
   DataViewCascadeSelector,
   TableSemanticMetadata,
   TableResourceType,
@@ -127,6 +131,8 @@ type ResourceRelationSelector = {
   parentTable: string
   /** 子表表名。 */
   childTable: string
+  /** 稳定关系 ID；存在多条同端点关系时用于精确定位。 */
+  relationId?: string
   /** 父表关联字段；同一父子表存在多条关系时用于消歧。 */
   parentField?: string
   /** 子表关联字段；同一父子表存在多条关系时用于消歧。 */
@@ -271,20 +277,6 @@ type DataSetCrudToolDeleteRowsParams = DataSetCrudToolViewSelectorParams & {
   ids: Array<string | number>
 }
 
-/** 创建表关系参数。 */
-type DataSetCrudToolCreateResourceRelationParams = {
-  /** 父表表名。 */
-  parentTable: string
-  /** 子表表名。 */
-  childTable: string
-  /** 父表关联字段。 */
-  parentField: string
-  /** 子表关联字段。 */
-  childField: string
-  /** 可选关系名称。 */
-  relationName?: string
-}
-
 /** 更新表关系参数。 */
 type DataSetCrudToolUpdateResourceRelationParams = {
   /** 用于定位原关系的选择器。 */
@@ -303,6 +295,10 @@ type DataSetCrudToolCreateCascadeParams = {
 type DataSetCrudToolUpdateCascadeParams = DataViewCascadeSelector & {
   /** 要合并到级联定义上的更新内容。 */
   updates: Partial<DataViewCascade>
+}
+
+type DataSetCrudToolCascadeFilter = Partial<Pick<DataViewQueryCascade, 'parentTable' | 'childTable'>> & {
+  kind?: DataViewCascade['kind']
 }
 
 /**
@@ -344,6 +340,7 @@ export class DataSetCrudTool {
   static fromDataSet(source: DataSet | Record<string, unknown> | string): DataSetCrudTool {
     if (source instanceof DataSet) {
       const tool = new DataSetCrudTool(source.dataSetName)
+      tool._dataSet.destroy()
       tool._dataSet = source
       tool.initializeHistory()
       return tool
@@ -370,7 +367,9 @@ export class DataSetCrudTool {
     current?: DataSetCrudTool,
     options?: { preserveHistory?: boolean },
   ): DataSetCrudTool {
-    const normalizedSnapshot = DataSet.fromJson(snapshot).toJson()
+    const candidate = DataSet.fromJson(snapshot)
+    let normalizedSnapshot: DataSetMetadata
+    try { normalizedSnapshot = candidate.toJson() } finally { candidate.destroy() }
 
     if (!current) {
       return DataSetCrudTool.fromJson(normalizedSnapshot)
@@ -504,7 +503,9 @@ export class DataSetCrudTool {
    * @param options 替换写入选项。
    */
   replaceFromJson(snapshot: DataSetMetadata | Record<string, unknown> | string, options?: DataSetCrudToolReplaceFromJsonOptions): void {
-    const normalizedSnapshot = DataSet.fromJson(snapshot).toJson()
+    const candidate = DataSet.fromJson(snapshot)
+    let normalizedSnapshot: DataSetMetadata
+    try { normalizedSnapshot = candidate.toJson() } finally { candidate.destroy() }
     this._dataSet.replaceFromJson(normalizedSnapshot)
     if (options?.commitHistory === false) {
       this.initializeHistory()
@@ -705,30 +706,31 @@ export class DataSetCrudTool {
     }
 
     if (snapshot.resourceRelations) {
-      snapshot.resourceRelations = snapshot.resourceRelations.map((relation) => ({
-        ...relation,
-        ...(relation.parentTable === tableName && relation.parentField === columnName ? { parentField: newColumnName } : {}),
-        ...(relation.childTable === tableName && relation.childField === columnName ? { childField: newColumnName } : {}),
-        ...(relation.fieldMappings === undefined ? {} : {
-          fieldMappings: relation.fieldMappings.map((mapping) => ({
-            parentResourceField: relation.parentTable === tableName && mapping.parentResourceField === columnName
-              ? newColumnName
-              : mapping.parentResourceField,
-            childResourceField: relation.childTable === tableName && mapping.childResourceField === columnName
-              ? newColumnName
-              : mapping.childResourceField,
-          })),
-        }),
-      }))
+      snapshot.resourceRelations = snapshot.resourceRelations.map(relation => {
+        try {
+          return {...relation, filterExpression: ResourceRelationDefinition.renameField({
+            expression: relation.filterExpression, parentTable: relation.parentTable, childTable: relation.childTable,
+            tableName, fieldName: columnName, newFieldName: newColumnName,
+          })}
+        } catch (error) {
+          throw new Error(`renameColumn: ${error instanceof Error ? error.message : String(error)}`)
+        }
+      })
     }
 
     if (snapshot.viewCascades) {
-      snapshot.viewCascades = snapshot.viewCascades.map((cascade) => ({
+      snapshot.viewCascades = snapshot.viewCascades.map((cascade) => cascade.kind === 'field' ? ({
         ...cascade,
+        ...(cascade.tableName === tableName ? {
+          targetField: cascade.targetField === columnName ? newColumnName : cascade.targetField,
+        } : {}),
+        parents: cascade.parents.map(parent => parent.tableName === tableName && parent.field === columnName
+          ? { ...parent, field: newColumnName } : parent),
+      }) : ({ ...cascade,
         filterBindings: cascade.filterBindings.map((binding) => ({
-          sourceField: cascade.parentTable === tableName && binding.sourceField === columnName
+          ...(binding.sourceField === undefined ? {} : {sourceField: cascade.parentTable === tableName && binding.sourceField === columnName
             ? newColumnName
-            : binding.sourceField,
+            : binding.sourceField}),
           targetField: cascade.childTable === tableName && binding.targetField === columnName
             ? newColumnName
             : binding.targetField,
@@ -752,29 +754,41 @@ export class DataSetCrudTool {
     const tableName = this.requireNonEmptyString(params.tableName, 'deleteColumn.tableName')
     const columnName = this.requireNonEmptyString(params.columnName, 'deleteColumn.columnName')
     const resourceRelation = (this.dataSet.resourceRelations ?? []).find((relation) => (
-      (relation.parentTable === tableName && (
-        relation.parentField === columnName
-        || relation.fieldMappings?.some(mapping => mapping.parentResourceField === columnName) === true
-      ))
-      || (relation.childTable === tableName && (
-        relation.childField === columnName
-        || relation.fieldMappings?.some(mapping => mapping.childResourceField === columnName) === true
-      ))
+      this.relationReferencesField(relation, tableName, columnName)
     ))
     if (resourceRelation !== undefined) {
       throw new Error(`deleteColumn: ${tableName}.${columnName} is referenced by resourceRelations`)
     }
     const viewCascade = (this.dataSet.viewCascades ?? []).find((cascade) => (
-      (cascade.parentTable === tableName
-        && cascade.filterBindings.some(binding => binding.sourceField === columnName))
-      || (cascade.childTable === tableName
-        && cascade.filterBindings.some(binding => binding.targetField === columnName))
+      cascade.kind === 'field'
+        ? (cascade.tableName === tableName && cascade.targetField === columnName)
+          || cascade.parents.some(parent => parent.tableName === tableName && (parent.field === columnName
+            || (parent.field === undefined && this.dataSet.getView(parent.tableName, parent.viewId)?.effectivePkFields.includes(columnName))))
+          || (cascade.optionsView.tableName === tableName && this.cascadeOptionsReferenceField(cascade, columnName))
+        : (cascade.parentTable === tableName
+          && cascade.filterBindings.some(binding => binding.sourceField === columnName
+            || (binding.sourceField === undefined && this.dataSet.getView(cascade.parentTable, cascade.parentViewId)?.effectivePkFields.includes(columnName))))
+          || (cascade.childTable === tableName
+            && cascade.filterBindings.some(binding => binding.targetField === columnName))
     ))
     if (viewCascade !== undefined) {
       throw new Error(`deleteColumn: ${tableName}.${columnName} is referenced by viewCascades`)
     }
     this.getTableOrThrow(tableName).removeColumn(columnName)
     this._afterWrite()
+  }
+
+  private cascadeOptionsReferenceField(cascade: DataViewFieldCascade, field: string): boolean {
+    const view = this.dataSet.getView(cascade.optionsView.tableName, cascade.optionsView.viewId)
+    if (!view) throw new Error('FIELD_CASCADE_VIEW: 选项视图不存在')
+    const values = view.valueField ?? view.effectivePkFields
+    return view.labelField === field || (typeof values === 'string' ? values === field : values.includes(field))
+  }
+
+  private relationReferencesField(relation: DataResourceRelation, tableName: string, fieldName: string): boolean {
+    return ResourceRelationDefinition.referencesField({
+      expression: relation.filterExpression, parentTable: relation.parentTable, childTable: relation.childTable, tableName, fieldName,
+    })
   }
 
   /**
@@ -900,19 +914,32 @@ export class DataSetCrudTool {
     snapshot.tables = nextTables
 
     if (snapshot.resourceRelations) {
-      snapshot.resourceRelations = snapshot.resourceRelations.map((relation) => ({
-        ...relation,
-        ...(relation.parentTable === tableName ? { parentTable: newTableName } : {}),
-        ...(relation.childTable === tableName ? { childTable: newTableName } : {}),
-      }))
+      snapshot.resourceRelations = snapshot.resourceRelations.map(relation => {
+        const filterExpression = ResourceRelationDefinition.renameTable({
+          expression: relation.filterExpression, parentTable: relation.parentTable, childTable: relation.childTable,
+          tableName, newTableName,
+        })
+        return {...relation,
+          ...(relation.parentTable === tableName ? {parentTable: newTableName} : {}),
+          ...(relation.childTable === tableName ? {childTable: newTableName} : {}),
+          filterExpression,
+        }
+      })
     }
 
     if (snapshot.viewCascades) {
-      snapshot.viewCascades = snapshot.viewCascades.map((cascade) => ({
-        ...cascade,
-        ...(cascade.parentTable === tableName ? { parentTable: newTableName } : {}),
-        ...(cascade.childTable === tableName ? { childTable: newTableName } : {}),
-      }))
+      snapshot.viewCascades = snapshot.viewCascades.map((cascade) => cascade.kind === 'field'
+        ? { ...cascade,
+          ...(cascade.tableName === tableName ? { tableName: newTableName } : {}),
+          parents: cascade.parents.map(parent => parent.tableName === tableName ? { ...parent, tableName: newTableName } : parent),
+          ...(cascade.optionsView.tableName === tableName ? {
+            optionsView: { ...cascade.optionsView, tableName: newTableName },
+          } : {}),
+        }
+        : { ...cascade,
+          ...(cascade.parentTable === tableName ? { parentTable: newTableName } : {}),
+          ...(cascade.childTable === tableName ? { childTable: newTableName } : {}),
+        })
     }
 
     const currentTablePositions = snapshot.layout?.tablePositions
@@ -1033,6 +1060,12 @@ export class DataSetCrudTool {
     // default 视图是 DataTable 基础组成部分，不允许删除。
     if (viewId === 'default') {
       throw new Error('Default view cannot be deleted')
+    }
+    if ((this.dataSet.viewCascades ?? []).some(cascade => cascade.kind === 'field'
+      && ((cascade.tableName === tableName && cascade.viewId === viewId)
+        || (cascade.optionsView.tableName === tableName && cascade.optionsView.viewId === viewId)
+        || cascade.parents.some(parent => parent.tableName === tableName && parent.viewId === viewId)))) {
+      throw new Error(`deleteView: ${tableName}@${viewId} is referenced by viewCascades`)
     }
     this.getTableOrThrow(tableName).destroyView(viewId)
     this._afterWrite()
@@ -1355,17 +1388,24 @@ export class DataSetCrudTool {
    *
    * @param selector 关系选择器。
    * @returns 命中的表关系；不存在时返回 undefined。
-   * @throws 当 selector 命中多条关系且未完成字段级消歧时抛错。
+   * @throws 当 selector 命中多条关系且未通过 relationId 消歧时抛错。
    */
   getResourceRelation(selector: ResourceRelationSelector): DataResourceRelation | undefined {
     const matches = (this.dataSet.resourceRelations ?? []).filter((relation) => {
       if (relation.parentTable !== selector.parentTable || relation.childTable !== selector.childTable) return false
-      if (selector.parentField !== undefined && relation.parentField !== selector.parentField) return false
-      if (selector.childField !== undefined && relation.childField !== selector.childField) return false
+      if (selector.relationId !== undefined && relation.relationId !== selector.relationId) return false
+      if (selector.parentField !== undefined && !ResourceRelationDefinition.referencesField({
+        expression: relation.filterExpression, parentTable: relation.parentTable, childTable: relation.childTable,
+        tableName: relation.parentTable, fieldName: selector.parentField,
+      })) return false
+      if (selector.childField !== undefined && !ResourceRelationDefinition.referencesField({
+        expression: relation.filterExpression, parentTable: relation.parentTable, childTable: relation.childTable,
+        tableName: relation.childTable, fieldName: selector.childField,
+      })) return false
       return true
     })
     if (matches.length > 1) {
-      throw new Error(`Relation ${selector.parentTable}→${selector.childTable} is ambiguous, specify parentField/childField`)
+      throw new Error(`Relation ${selector.parentTable}→${selector.childTable} is ambiguous, specify relationId`)
     }
     return matches[0]
   }
@@ -1377,13 +1417,9 @@ export class DataSetCrudTool {
    * @returns 新创建的表关系。
    * @throws 当父表、子表、字段不存在或关系重复时抛错。
    */
-  createResourceRelation(params: DataSetCrudToolCreateResourceRelationParams): DataResourceRelation {
-    this.dataSet.addResourceRelation(params)
+  createResourceRelation(params: DataResourceRelationInput): DataResourceRelation {
+    const relation = this.dataSet.addResourceRelation(params)
     this._afterWrite()
-    const relation = this.getResourceRelation(params)
-    if (!relation) {
-      throw new Error(`Relation "${params.parentTable}→${params.childTable}" not found`)
-    }
     return relation
   }
 
@@ -1421,11 +1457,16 @@ export class DataSetCrudTool {
   /**
    * 列出 DataSet 中的 DataView 输入级联。
    *
-   * @param filter 可选过滤条件，支持按 parentTable / childTable 过滤。
+   * @param filter 按类型、父输入表或子选项表过滤；省略时包含全部级联。
    * @returns 级联列表。
    */
-  listCascades(filter?: Partial<Pick<DataViewCascade, 'parentTable' | 'childTable'>>): DataViewCascade[] {
-    return (this.dataSet.viewCascades ?? []).filter((cascade) => {
+  listCascades(filter?: DataSetCrudToolCascadeFilter): DataViewCascade[] {
+    return (this.dataSet.viewCascades ?? []).filter(cascade => {
+      if (filter?.kind !== undefined && (cascade.kind ?? 'query') !== filter.kind) return false
+      if (cascade.kind === 'field') {
+        return (filter?.parentTable === undefined || cascade.parents.some(parent => parent.tableName === filter.parentTable))
+          && (filter?.childTable === undefined || cascade.optionsView.tableName === filter.childTable)
+      }
       if (filter?.parentTable !== undefined && cascade.parentTable !== filter.parentTable) return false
       if (filter?.childTable !== undefined && cascade.childTable !== filter.childTable) return false
       return true
@@ -1436,20 +1477,10 @@ export class DataSetCrudTool {
    * 获取一条 DataView 输入级联。
    *
    * @param params 级联定位参数。
-   * @param parentTable 父表名。
-   * @param childTable 子表名。
    * @returns 命中的级联；不存在时返回 undefined。
    */
   getCascade(params: DataViewCascadeSelector): DataViewCascade | undefined {
-    const parentTable = this.requireNonEmptyString(params.parentTable, 'getCascade.parentTable')
-    const parentViewId = this.requireNonEmptyString(params.parentViewId, 'getCascade.parentViewId')
-    const childTable = this.requireNonEmptyString(params.childTable, 'getCascade.childTable')
-    const childViewId = this.requireNonEmptyString(params.childViewId, 'getCascade.childViewId')
-    return (this.dataSet.viewCascades ?? []).find(cascade => {
-      if (cascade.parentTable !== parentTable || cascade.parentViewId !== parentViewId) return false
-      if (cascade.childTable !== childTable || cascade.childViewId !== childViewId) return false
-      return params.cascadeId === undefined || cascade.cascadeId === params.cascadeId
-    })
+    return this.dataSet.getCascade(params)
   }
 
   /**
@@ -1460,19 +1491,9 @@ export class DataSetCrudTool {
    * @throws 当级联引用非法时抛错。
    */
   createCascade(params: DataSetCrudToolCreateCascadeParams): DataViewCascade {
-    const cascadeInput = this.requireViewCascade(params.cascade, 'createCascade.cascade')
-    this.dataSet.addCascade(cascadeInput)
+    const cascadeInput = this.requireObjectArg(params.cascade, 'createCascade.cascade')
+    const cascade = this.dataSet.addCascade(cascadeInput)
     this._afterWrite()
-    const cascade = this.getCascade({
-      parentTable: cascadeInput.parentTable,
-      parentViewId: cascadeInput.parentViewId,
-      childTable: cascadeInput.childTable,
-      childViewId: cascadeInput.childViewId,
-      ...(cascadeInput.cascadeId !== undefined ? { cascadeId: cascadeInput.cascadeId } : {}),
-    })
-    if (!cascade) {
-      throw new Error(`Cascade ${cascadeInput.parentTable}→${cascadeInput.childTable} not found`)
-    }
     return cascade
   }
 
@@ -1480,25 +1501,12 @@ export class DataSetCrudTool {
    * 更新一条 DataView 输入级联。
    *
    * @param params 级联更新参数。
-   * @param parentTable 原父表名。
-   * @param childTable 原子表名。
-   * @param updates 级联更新内容。
    * @returns 更新后的级联。
    * @throws 当级联不存在或更新目标非法时抛错。
    */
   updateCascade(params: DataSetCrudToolUpdateCascadeParams): DataViewCascade {
-    const parentTable = this.requireNonEmptyString(params.parentTable, 'updateCascade.parentTable')
-    const parentViewId = this.requireNonEmptyString(params.parentViewId, 'updateCascade.parentViewId')
-    const childTable = this.requireNonEmptyString(params.childTable, 'updateCascade.childTable')
-    const childViewId = this.requireNonEmptyString(params.childViewId, 'updateCascade.childViewId')
-    const updates = this.requireObjectArg(params.updates, 'updateCascade.updates')
-    const result = this.dataSet.updateCascade({
-      parentTable,
-      parentViewId,
-      childTable,
-      childViewId,
-      ...(params.cascadeId !== undefined ? { cascadeId: params.cascadeId } : {}),
-    }, updates)
+    const {updates, ...selector} = params
+    const result = this.dataSet.updateCascade(selector, updates)
     this._afterWrite()
     return result
   }
@@ -1507,22 +1515,10 @@ export class DataSetCrudTool {
    * 删除一条 DataView 输入级联。
    *
    * @param params 级联定位参数。
-   * @param parentTable 父表名。
-   * @param childTable 子表名。
    * @throws 当级联不存在时抛错。
    */
   deleteCascade(params: DataViewCascadeSelector): void {
-    const parentTable = this.requireNonEmptyString(params.parentTable, 'deleteCascade.parentTable')
-    const parentViewId = this.requireNonEmptyString(params.parentViewId, 'deleteCascade.parentViewId')
-    const childTable = this.requireNonEmptyString(params.childTable, 'deleteCascade.childTable')
-    const childViewId = this.requireNonEmptyString(params.childViewId, 'deleteCascade.childViewId')
-    this.dataSet.removeCascade({
-      parentTable,
-      parentViewId,
-      childTable,
-      childViewId,
-      ...(params.cascadeId !== undefined ? { cascadeId: params.cascadeId } : {}),
-    })
+    this.dataSet.removeCascade(params)
     this._afterWrite()
   }
 
@@ -1564,26 +1560,6 @@ export class DataSetCrudTool {
       throw new Error(`${label} must be a non-empty array`)
     }
     return value
-  }
-
-  private requireViewCascade(value: DataViewCascade | Partial<DataViewCascade>, label: string): DataViewCascade {
-    this.requireObjectArg(value, label)
-    const parentTable = this.requireNonEmptyString(value.parentTable, `${label}.parentTable`)
-    const parentViewId = this.requireNonEmptyString(value.parentViewId, `${label}.parentViewId`)
-    const childTable = this.requireNonEmptyString(value.childTable, `${label}.childTable`)
-    const childViewId = this.requireNonEmptyString(value.childViewId, `${label}.childViewId`)
-    const filterBindings = this.requireNonEmptyArray(
-      value.filterBindings === undefined ? undefined : [...value.filterBindings],
-      `${label}.filterBindings`,
-    )
-    return {
-      ...value,
-      parentTable,
-      parentViewId,
-      childTable,
-      childViewId,
-      filterBindings,
-    }
   }
 
   private normalizeTableNameArg(

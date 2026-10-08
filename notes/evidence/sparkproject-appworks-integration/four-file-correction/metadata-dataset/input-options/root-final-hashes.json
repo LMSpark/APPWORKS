@@ -1,0 +1,17 @@
+[
+  {
+    "path": "packages/spark-data/src/data-view.ts",
+    "sha256": "9E32A378E01F74A5DA61064E7EFB381FE977F5691E180B7C188F32F96C4D7AB7",
+    "bytes": 126173
+  },
+  {
+    "path": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+    "sha256": "512A0BFB9A0B94A064F0BCE1FF69D496DFB6CE8776E7635B834126B36D850D2D",
+    "bytes": 25349
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+    "sha256": "1277EE49FC91DC15B61733DDDCBF1ABF5B255C502588F572BC6E331BE51DC35F",
+    "bytes": 14599
+  }
+]

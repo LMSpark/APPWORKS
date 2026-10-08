@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/actions/node-to-descriptor",
+    "sourcePath": "packages/spark-component/src/page/actions/node-to-descriptor.ts",
+    "sourceFile": "packages/spark-component/src/page/actions/node-to-descriptor.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/actions/node-to-descriptor",
+    "jsdoc": "@module @spark-appworks/spark-component:page/actions/node-to-descriptor\n职责：提供 node to descriptor 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nSparkNode → ActionDescriptor 翻译器\n将 BuiltinAction（按钮组件的 `props.action`）扁平字段映射为强类型的统一 descriptor。\n调用方拿到 descriptor 后由 `executeActionDescriptor` 执行，\n不命中内置动作名的按钮（自定义 onClick）返回 null，由调用方走 onClick 路径。\n## 翻译流程\n```\nSparkNode.props\n→ pickDecorator()  提取 UI 装饰字段\n→ pickDataViewKey() / pickIdField()  提取通用 CRUD 字段\n→ mapBuiltinAction()  按 BuiltinActionName switch 映射为具体 descriptor\n```",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T19:50:59.449Z",
+  "models": {}
+}

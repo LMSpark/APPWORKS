@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec eslint packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts packages/spark-app/src/router/system-page-identity/system-page-route-host.vue packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts packages/spark-app/src/router/dynamic.ts packages/spark-app/src/navigation/useTabPages.ts packages/spark-app/src/navigation/useNavigation.ts src/App.vue src/main.ts --max-warnings=0",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T07:32:21.3829206Z",
+  "finishedAt": "2026-10-07T07:32:26.4334987Z",
+  "exitCode": 0,
+  "stdoutLog": "notes/evidence/sparkproject-appworks-integration/c2c/lint-final.stdout.log"
+}

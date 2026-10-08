@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/conversation/ag-ui/index",
+    "sourcePath": "packages/spark-ai/src/agent/conversation/ag-ui/index.ts",
+    "sourceFile": "packages/spark-ai/src/agent/conversation/ag-ui/index.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/conversation/ag-ui/index",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/ag-ui/index\n职责：聚合 AG-UI adapter 类型和纯 mapper。\n边界：只作为 agent/ag-ui 子域出口，不注册运行时副作用。\nAI用途：需要查找 AG-UI 首版接入 API 时，从本模块开始。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-20T04:47:21.044Z",
+  "models": {}
+}

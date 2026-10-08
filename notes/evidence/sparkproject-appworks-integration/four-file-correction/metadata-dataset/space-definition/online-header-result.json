@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-08T13:28:35.513Z",
+  "stage": "explicit-name-projection",
+  "writes": 0,
+  "headers": [],
+  "failed": true,
+  "error": "Missing formal space name"
+}

@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:services/project/navigation/project-navigation-guard",
+    "sourcePath": "src/services/project/navigation/project-navigation-guard.ts",
+    "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
+    "packageName": "app",
+    "modulePath": "services/project/navigation/project-navigation-guard",
+    "jsdoc": "app 的 services/project/navigation/project-navigation-guard 模块。\n导出 DtsTypeDeclarationModel symbol: ProjectNavigationGuard（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "ProjectNavigationGuard"
+    ]
+  },
+  "$defs": {
+    "ProjectNavigationGuardOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectNavigationGuardOptions",
+      "properties": {
+        "publicPaths": {
+          "type": "object",
+          "title": "ReadonlySet<string>"
+        },
+        "publicHomePath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "publicPaths",
+        "publicHomePath"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.isPlatformWorkspacePath.params": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isPlatformWorkspacePath.return": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ProjectNavigationGuard": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectNavigationGuard",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ProjectNavigationGuardOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolve.params": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "type": "object",
+              "title": "RouteLocationNormalized"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolve.return": {
+          "type": "object",
+          "title": "Promise<NavigationGuardReturn>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T11:20:17.471Z",
+  "models": {
+    "ProjectNavigationGuardOptions": {
+      "name": "ProjectNavigationGuardOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    publicPaths: ReadonlySet<string>;\n    publicHomePath: string;\n    isPlatformWorkspacePath: (path: string) => boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "publicPaths",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "publicHomePath",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "isPlatformWorkspacePath",
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectNavigationGuard": {
+      "name": "ProjectNavigationGuard",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: ProjectNavigationGuardOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ProjectNavigationGuardOptions",
+                "sourcePath": "src/services/project/navigation/project-navigation-guard.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "resolve",
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalized"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "NavigationGuardReturn"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

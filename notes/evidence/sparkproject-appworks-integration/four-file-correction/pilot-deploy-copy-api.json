@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-10-07T17:33:11.884Z",
+  "matches": {
+    "design-pagedata.json": true,
+    "pagedata.json": true,
+    "rule.json": true,
+    "script.js": true,
+    "style.css": true
+  },
+  "ok": true,
+  "receipts": [
+    {
+      "asset": "design-pagedata.json",
+      "readback": true,
+      "saved": true
+    },
+    {
+      "asset": "script.js",
+      "readback": true,
+      "saved": true
+    }
+  ]
+}

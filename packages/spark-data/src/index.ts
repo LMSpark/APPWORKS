@@ -42,6 +42,8 @@ export type { FieldRenderState, PermissionActionContext } from './script-types'
 
 export { TreeManager } from './node-tree/tree-manager'
 export { DataSetCrudTool } from './dataset-crud-tool'
+export { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
+export { DataViewSelectionValue } from './strategies/selection/data-view-selection-value'
 
 // ===== Node Tree（页面节点树模型，从 spark-project-model 迁入）=====
 
@@ -167,11 +169,15 @@ export type {
   DataColumn,
   ColumnType,
   DataResourceRelation,
+  DataResourceRelationInput,
   DataResourceRelationFieldMapping,
   DataViewCascade,
+  DataViewQueryCascade,
+  DataViewFieldCascade,
+  DataViewFieldCascadeAddress,
+  DataViewFieldCascadeState,
   DataViewCascadeFilterBinding,
   DataViewCascadeSelector,
-  DependencyType,
   TableResourceType,
   TableBusinessCategory,
   TableModelBinding,

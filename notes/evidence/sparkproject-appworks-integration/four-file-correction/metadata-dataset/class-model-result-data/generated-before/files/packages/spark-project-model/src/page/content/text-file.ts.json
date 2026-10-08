@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:page/content/text-file",
+    "sourcePath": "packages/spark-project-model/src/page/content/text-file.ts",
+    "sourceFile": "packages/spark-project-model/src/page/content/text-file.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "page/content/text-file",
+    "jsdoc": "@module @spark-appworks/spark-project-model:page/content/text-file\n职责：提供项目模型层 text-file 能力，围绕 PageTextFile 处理导航、页面文件、配置内容、工作区或远端 IO 契约。\n边界：只表达项目/页面配置领域模型，不直接渲染组件，也不绕过 pageDesign 三文件链路。\nAI用途：规划导航、读写 page files 或理解 ProjectBlueprint/ProjectWorkspace 行为时，用本模块定位 page/content/text-file。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "PageTextFile"
+    ]
+  },
+  "$defs": {
+    "PageTextFile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageTextFile",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "fileName": {
+          "enum": [
+            "script.js",
+            "style.css"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "fileName": {
+              "enum": [
+                "script.js",
+                "style.css"
+              ]
+            },
+            "initialText": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getText.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getText.return": {
+          "type": "string"
+        },
+        "method.setText.params": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setText.return": true,
+        "method.loadText.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadText.return": true,
+        "method.markSaved.params": {
+          "type": "object",
+          "properties": {
+            "submittedText": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.markSaved.return": true,
+        "method.undo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.undo.return": {
+          "type": "boolean"
+        },
+        "method.redo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.redo.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.385Z",
+  "models": {
+    "PageTextFile": {
+      "name": "PageTextFile",
+      "jsdoc": "script.js或style.css文本owner，拥有独立撤销历史与保存基线。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定明确工具身份和文件名，以初始文本建立编辑基线。",
+          "signatureText": "constructor(pageId: string, fileName: 'script.js' | 'style.css', initialText?: string)",
+          "parameters": [
+            {
+              "name": "pageId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "fileName",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "script.js"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "style.css"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "initialText",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getText",
+              "jsdoc": "get Text 文本。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "setText",
+              "jsdoc": "set Text 文本。",
+              "parameters": [
+                {
+                  "name": "content",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "loadText",
+              "jsdoc": "load Text 文本。",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "markSaved",
+              "parameters": [
+                {
+                  "name": "submittedText",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "undo",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "redo",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

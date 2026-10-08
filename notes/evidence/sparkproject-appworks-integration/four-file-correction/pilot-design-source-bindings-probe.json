@@ -1,0 +1,113 @@
+{
+  "checkedAt": "2026-10-07T21:27:59.348Z",
+  "models": [
+    {
+      "error": "LowcodeApiError: 数据空间模型 View_TblList 的正式主键无法映射到唯一有效输出字段",
+      "metaName": "View_TblList"
+    },
+    {
+      "fields": [
+        {
+          "id": "0168BB1F0BBE49B8BF3EE4C3FC3E8418",
+          "name": "createuser",
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "id": "1A0D988FD96943FF91E5E051B97779D4",
+          "name": "lingma_sys_is_delete",
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "id": "2F16924D67CE487B9A01B68DCF30C56D",
+          "name": "updatetime",
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "id": "3A7DB4A557B04E60BECE07C82E818103",
+          "name": "createtime",
+          "primaryKey": false,
+          "type": "datetime"
+        },
+        {
+          "id": "3C6F1E73E4DD4173835DADAB035A24C5",
+          "name": "tblid",
+          "primaryKey": false,
+          "type": "char"
+        },
+        {
+          "id": "4109CD53677341349EEF592E25DF9BB4",
+          "name": "wfid",
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "id": "48923400C43E4DAAB51B4B037D9506E9",
+          "name": "rowid",
+          "primaryKey": true,
+          "type": "varchar"
+        },
+        {
+          "id": "5314162061EA4946A32FF1820F11D414",
+          "name": "enname",
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "id": "614BE6FC9071480A99325D5A9D441E25",
+          "name": "cnname",
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "id": "6505D0BD13F149DC954D8B688D1F0762",
+          "name": "ReportID",
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "id": "7B844292CE20422882DF6311AB0BB231",
+          "name": "IsPKey",
+          "primaryKey": false,
+          "type": "tinyint"
+        },
+        {
+          "id": "9163137289DA466CBBD2832F34CA513B",
+          "name": "flowstate",
+          "primaryKey": false,
+          "type": "int"
+        },
+        {
+          "id": "986D40A541FF43C99F9D9DF6DDC9C278",
+          "name": "DataType",
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "id": "9B9D3FE9862E468185BAF0A607D5D056",
+          "name": "updateuser",
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "id": "B42E2CD5E59E4068A7F835B9A0F8E73B",
+          "name": "description",
+          "primaryKey": false,
+          "type": "varchar"
+        },
+        {
+          "id": "F6C1DCD6DB8A44618322E91B432FB53B",
+          "name": "tblname",
+          "primaryKey": false,
+          "type": "varchar"
+        }
+      ],
+      "id": "8D1AB14DD8277F3E7017CD38F77B09FDp010",
+      "metaName": "Base_TblField",
+      "primaryKey": "rowid",
+      "sourceType": "数据库表"
+    }
+  ]
+}

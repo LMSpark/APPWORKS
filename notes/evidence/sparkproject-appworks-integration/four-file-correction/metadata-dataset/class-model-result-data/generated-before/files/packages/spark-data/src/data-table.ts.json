@@ -1,0 +1,796 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:data-table",
+    "sourcePath": "packages/spark-data/src/data-table.ts",
+    "sourceFile": "packages/spark-data/src/data-table.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "data-table",
+    "jsdoc": "@module @spark-appworks/spark-data:data-table\n职责：提供 spark-data 数据管线中的 data table 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataTableAddColumnsResult",
+      "DataTable"
+    ]
+  },
+  "$defs": {
+    "DataTableAddColumnsResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataTableAddColumnsResult",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "skipped": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "added",
+        "skipped"
+      ],
+      "additionalProperties": false
+    },
+    "DataTable": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataTable",
+      "properties": {
+        "dataSet": {
+          "$ref": "dataset.ts.json#/$defs/DataSet"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "resourceType": {
+          "$ref": "types.ts.json#/$defs/TableResourceType"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "modelBinding": {
+          "$ref": "types.ts.json#/$defs/TableModelBinding"
+        },
+        "businessCategory": {
+          "$ref": "types.ts.json#/$defs/TableBusinessCategory"
+        },
+        "api": {
+          "$ref": "types.ts.json#/$defs/CrudApi"
+        },
+        "crudConfig": {
+          "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+        },
+        "validator": {
+          "$ref": "validation/validation.ts.json#/$defs/DataValidator"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataRow"
+          }
+        },
+        "views": {
+          "type": "object",
+          "title": "Record<string, DataView>"
+        }
+      },
+      "required": [
+        "dataSet",
+        "tableName",
+        "columns",
+        "rows",
+        "views"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataColumn"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setDataSet.params": {
+          "type": "object",
+          "properties": {
+            "ds": {
+              "$ref": "dataset.ts.json#/$defs/DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setDataSet.return": true,
+        "method.onDataSetStructureReady.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDataSetStructureReady.return": true,
+        "method.getView.params": {
+          "type": "object",
+          "properties": {
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getView.return": {
+          "$ref": "data-view.ts.json#/$defs/DataView"
+        },
+        "method.getOrCreateView.params": {
+          "type": "object",
+          "properties": {
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getOrCreateView.return": {
+          "$ref": "data-view.ts.json#/$defs/DataView"
+        },
+        "method.forEachView.params": {
+          "type": "object",
+          "properties": {
+            "cb": {
+              "type": "object",
+              "title": "(view: DataView) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.forEachView.return": true,
+        "method.setApi.params": {
+          "type": "object",
+          "properties": {
+            "api": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/CrudApi"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setApi.return": true,
+        "method.setCrudConfig.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setCrudConfig.return": true,
+        "method.toJson.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toJson.return": {
+          "$ref": "types.ts.json#/$defs/TableMetadata"
+        },
+        "method.addColumns.params": {
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataColumn"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addColumns.return": {
+          "$ref": "#/$defs/DataTableAddColumnsResult"
+        },
+        "method.updateColumn.params": {
+          "type": "object",
+          "properties": {
+            "columnName": {
+              "type": "string"
+            },
+            "updates": {
+              "$ref": "types.ts.json#/$defs/DataColumn"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateColumn.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.removeColumn.params": {
+          "type": "object",
+          "properties": {
+            "columnName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeColumn.return": true,
+        "method.addRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addRows.return": {
+          "type": "number"
+        },
+        "method.addView.params": {
+          "type": "object",
+          "properties": {
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addView.return": {
+          "$ref": "data-view.ts.json#/$defs/DataView"
+        },
+        "method.destroyView.params": {
+          "type": "object",
+          "properties": {
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.destroyView.return": true,
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true,
+        "method.fromJson.params": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/TableMetadata"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromJson.return": {
+          "$ref": "#/$defs/DataTable"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.243Z",
+  "models": {
+    "DataTableAddColumnsResult": {
+      "name": "DataTableAddColumnsResult",
+      "jsdoc": "DataTable.addColumns 的执行结果摘要。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 实际追加成功的列名列表。 */\n    added: string[];\n    /** 因列名已存在而跳过的列名列表。 */\n    skipped: string[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "added",
+              "jsdoc": "实际追加成功的列名列表。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "skipped",
+              "jsdoc": "因列名已存在而跳过的列名列表。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataTable": {
+      "name": "DataTable",
+      "jsdoc": "DataTable - 管理单表的结构定义与配置\n说明：管理表结构（columns）、资源语义（resourceType/resourceId/businessCategory）、\n视图集合（DataView）、CRUD 配置（api, crudConfig）；\n其中 `api` 负责定义“各 CRUD 操作映射到哪个端点”，`crudConfig` 负责定义“调用这些端点时采用什么通用运行策略”。\n数据操作由 DataView 负责。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 DataTable 实例，并自动创建 `default` DataView。\n@param tableName 表名，在所属 DataSet 内必须唯一。\n@param columns 初始列定义；后续列变更必须通过公开方法维护派生状态。",
+          "signatureText": "constructor(tableName: string, columns?: DataColumn[])",
+          "parameters": [
+            {
+              "name": "tableName",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "columns",
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataColumn",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "所属 DataSet（由 DataSet 在构建时通过 setDataSet 设置，独立使用时为 undefined）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "tableName",
+              "jsdoc": "表名",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "columns",
+              "jsdoc": "列定义",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resourceType",
+              "jsdoc": "资源类型：描述该表背后真实对应的资源形态。\n例如数据库表、数据库视图、第三方 API、静态数据、字典表、逻辑视图等。\n当前建模约定下，只有 resourceType = 'static-data' 的表才应直接声明 rows；\n其他资源类型默认视为远端数据来源。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "jsdoc": "资源 ID：描述该表在外部资源系统中的稳定标识。\n示例：\n- 数据库表：`crm.customer`\n- 数据库视图：`vw_order_summary`\n- 第三方 API：`sap.business-partner`\n- 字典：`common.order-status`",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelBinding",
+              "jsdoc": "模型绑定：该表对应的后端模型身份（模型 ID 与查询用 Name）。\n运行绑定只读；模型改名或迁移时重新装配，保留页面内 tableName。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessCategory",
+              "jsdoc": "业务分类：描述该表在当前业务模型中的角色。\n例如主表、从表、引用表、静态数据表。\n注意：该字段仅用于语义建模，不代替 resourceRelations / viewCascades。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "api",
+              "jsdoc": "远端 CRUD 操作到端点的映射定义。\n语义：描述“每个操作对应哪个接口”。\n这里存放 list/create/retrieve/update/delete/batch/tree 等操作对应的 URL、HTTP 方法及端点级参数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "crudConfig",
+              "jsdoc": "CRUD 通用运行策略配置。\n语义：描述“调用端点时应用什么策略”。\n这里存放 timeout、retryCount、validateData、权限跳过、请求/响应转换等与端点无关的运行参数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "validator",
+              "jsdoc": "数据校验器（基于列定义创建）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "jsdoc": "内联静态行（来自 pagedata.json 配置）——级联内存过滤的 source of truth。\n与 DataView.rows 不同：DataView.rows 是当前视图（可能已过滤）的行；\n此字段存储全量原始行，供无 API 的内存级联过滤重复使用。\n按当前建模约定，该字段主要仅用于 resourceType = 'static-data' 的表；\n其他资源类型应视为远端数据来源，此字段通常保持空数组。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "views",
+              "jsdoc": "视图集合（包含 'default'）",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "setDataSet",
+              "jsdoc": "将 DataTable 绑定到 DataSet\n- 设置 `this.dataSet = ds`\n- 为已存在的所有视图建立级联订阅\n注意：`view.dataTable` 在视图创建时（构造函数 / getOrCreateView / fromJson）\n已确保赋值，此处不重复赋值，避免触发冗余的 syncFromConfig()。\n@param ds 所属 DataSet 实例。",
+              "parameters": [
+                {
+                  "name": "ds",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet",
+                    "sourcePath": "packages/spark-data/src/dataset.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDataSetStructureReady",
+              "jsdoc": "DataSet 资源关系与视图级联索引完成后调用——通知所有视图重编译含聚合的计算列并重算聚合行。\n封装后置重算职责：DataSet 只需调用此方法，不直接触碰 view 内部。\n遍历各视图委托给 view.onDataSetStructureReady()，DataSet 不需要了解视图内部细节。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getView",
+              "jsdoc": "获取已存在的视图（不会创建新视图）。\n@param viewId 视图 ID。",
+              "parameters": [
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataView",
+                  "sourcePath": "packages/spark-data/src/data-view.ts"
+                }
+              }
+            },
+            {
+              "name": "getOrCreateView",
+              "jsdoc": "获取或创建视图\n@param viewId - 视图 ID（'default' 为主视图）\n@returns 对应的 DataView 实例\n@behavior 若表已关联 DataSet，会为新视图设置 dataTable 引用并触发 setupCascade",
+              "parameters": [
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "forEachView",
+              "jsdoc": "遍历所有视图（包含 default 和命名视图）——DataSet 的内部实现可选择此入口，\n避免直接访问 `views` 属性（封装内部集合）。\n@param cb 每个视图都会调用一次的回调函数。",
+              "parameters": [
+                {
+                  "name": "cb",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "view",
+                              "type": {
+                                "type": "reference",
+                                "name": "DataView",
+                                "sourcePath": "packages/spark-data/src/data-view.ts"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setApi",
+              "jsdoc": "设置 CRUD 端点映射配置（支持字符串简写和 `true` 约定模式）\n@param api - CRUD 端点配置（完整对象 / 字符串基础路径 / `true` 约定）\n@remarks 配置变更时自动清除 CrudService 缓存，下次访问时重建",
+              "parameters": [
+                {
+                  "name": "api",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "CrudApi",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setCrudConfig",
+              "jsdoc": "设置 CRUD 通用运行策略（权限、超时、重试、转换等）\n@param config - CRUD 通用运行策略配置",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "toJson",
+              "jsdoc": "将 DataTable 序列化为 canonical TableMetadata（表核 + views 壳）。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "TableMetadata",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "addColumns",
+              "jsdoc": "向表追加列（同名列跳过不覆盖）。\n@param columns 待追加的列定义列表。\n@returns `{ added, skipped }` — 分别列出实际追加和因同名跳过的列名",
+              "parameters": [
+                {
+                  "name": "columns",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataColumn",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTableAddColumnsResult",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "updateColumn",
+              "jsdoc": "修改单列属性（不允许改 name）。\n@param columnName 要更新的列名。\n@param updates 要合并到列定义上的字段更新；name 会被忽略。\n@returns 被变更的字段名列表\n@throws 列不存在时抛 Error",
+              "parameters": [
+                {
+                  "name": "columnName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "updates",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataColumn",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "removeColumn",
+              "jsdoc": "删除列。\n@param columnName 要删除的列名。\n@throws 列不存在时抛 Error",
+              "parameters": [
+                {
+                  "name": "columnName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addRows",
+              "jsdoc": "写入内联静态行到 DataTable.rows 并同步到 default 视图。\n追加模式：新行 append 到 table.rows 尾部，default 视图用完整 rows 替换。\n@param rows 要追加的行数据列表。\n@returns 追加后的总行数",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "addView",
+              "jsdoc": "创建命名视图。\n@param viewId - 视图 ID\n@returns 新创建的 DataView\n@throws 当视图已存在时抛 Error",
+              "parameters": [
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "destroyView",
+              "jsdoc": "销毁指定视图\n@param viewId - 视图ID\n@remarks 调用视图的 destroy() 方法并从视图集合中移除",
+              "parameters": [
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "销毁所有视图（包括 default 视图）\n@remarks 应在 DataTable 不再使用时调用，防止内存泄漏",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "fromJson",
+              "jsdoc": "从表元数据恢复 DataTable。",
+              "parameters": [
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "TableMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

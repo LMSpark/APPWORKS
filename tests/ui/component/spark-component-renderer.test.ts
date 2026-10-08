@@ -35,6 +35,82 @@ test('SparkComponentRenderer forwards config.on listeners to rendered components
   expect(clickSpy).toHaveBeenCalledWith('payload')
 })
 
+test.each([
+  { branch: 'registry', eventName: 'update:modelValue' },
+  { branch: 'registry', eventName: 'update:model-value' },
+  { branch: 'global-el', eventName: 'update:modelValue' },
+  { branch: 'global-el', eventName: 'update:model-value' },
+] as const)('SparkComponentRenderer preserves the Vue model event name for $branch ($eventName)', async ({ branch, eventName }) => {
+  const ModelEventEmitter = defineComponent({
+    name: 'ElModelEventEmitter',
+    emits: [eventName],
+    setup(_, { emit }) {
+      return () => h('button', {
+        class: 'model-event-emitter',
+        onClick: () => emit(eventName, 'updated-value'),
+      }, 'update')
+    },
+  })
+  const componentType = branch === 'registry' ? `test-${eventName}` : 'el-model-event-emitter'
+  if (branch === 'registry') {
+    registry.register({ type: componentType, component: ModelEventEmitter })
+  }
+
+  const updateSpy = vi.fn()
+  const wrapper = mount(SparkComponentRendererSource, {
+    props: {
+      config: {
+        type: componentType,
+        props: { on: { [eventName]: updateSpy } },
+      },
+      parentContext: rootContext,
+    },
+    global: {
+      components: branch === 'global-el' ? { ElModelEventEmitter: ModelEventEmitter } : {},
+      provide: {
+        [SPARK_REGISTRY_KEY]: registry,
+      },
+    },
+  })
+
+  await wrapper.find('.model-event-emitter').trigger('click')
+  expect(updateSpy).toHaveBeenCalledWith('updated-value')
+})
+
+test.each([
+  { eventName: 'row-click', emittedName: 'row-click' },
+  { eventName: 'rowClick', emittedName: 'rowClick' },
+] as const)('SparkComponentRenderer preserves $eventName listener behavior', async ({ eventName, emittedName }) => {
+  const RowEventEmitter = defineComponent({
+    emits: [emittedName],
+    setup(_, { emit }) {
+      return () => h('button', {
+        class: 'row-event-emitter',
+        onClick: () => emit(emittedName, 'row-payload'),
+      }, 'row')
+    },
+  })
+  registry.register({ type: `test-${eventName}-emitter`, component: RowEventEmitter })
+  const rowSpy = vi.fn()
+  const wrapper = mount(SparkComponentRendererSource, {
+    props: {
+      config: {
+        type: `test-${eventName}-emitter`,
+        props: { on: { [eventName]: rowSpy } },
+      },
+      parentContext: rootContext,
+    },
+    global: {
+      provide: {
+        [SPARK_REGISTRY_KEY]: registry,
+      },
+    },
+  })
+
+  await wrapper.find('.row-event-emitter').trigger('click')
+  expect(rowSpy).toHaveBeenCalledWith('row-payload')
+})
+
 test('SparkComponentRenderer requires registry registration for generic Vue global components', () => {
   const SearchBar = defineComponent({
     name: 'SearchBar',

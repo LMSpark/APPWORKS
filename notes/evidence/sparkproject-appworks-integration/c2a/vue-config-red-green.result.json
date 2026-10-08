@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "startedAt": "2026-10-07T14:56:46.2013882+08:00",
+  "cwd": "D:\\SPARK_AppWorks",
+  "endedAt": "2026-10-07T14:56:48.9386353+08:00",
+  "command": "pnpm --filter @spark-appworks/spark-app exec vitest run src/router/__tests__/dynamic-auth-fallback.test.ts --maxWorkers=1 --reporter=dot"
+}

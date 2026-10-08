@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/blueprint-workspace/ReleasePane",
+    "sourcePath": "src/views/app/dev-system/blueprint-workspace/ReleasePane.vue",
+    "sourceFile": "src/views/app/dev-system/blueprint-workspace/ReleasePane.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/blueprint-workspace/ReleasePane",
+    "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/ReleasePane\n职责：编辑导航发布可见性和类型并展示运行资源摘要。\n边界：运行资源只读投影，发布写入由父工作台真实API确认。\nAI用途：设置正式节点导航发布参数并查看cfg或vue资源表面。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.633Z",
+  "models": {}
+}

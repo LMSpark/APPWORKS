@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-tree",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-tree.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-tree.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/query/data-space-query-tree",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-tree\n职责：规范化显式树查询参数。\n边界：SelfRefData 必须带树参数，且不能与其他 outputType 冲突。\nAI用途：生成明确关系字段、节点和查询方向。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T20:52:04.618Z",
+  "models": {}
+}

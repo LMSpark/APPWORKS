@@ -1,0 +1,7 @@
+{
+  "command": "pnpm run verify:dirs",
+  "exitCode": 0,
+  "startedAt": "2026-10-07T13:57:03.6887051+08:00",
+  "finishedAt": "2026-10-07T13:57:04.5374128+08:00",
+  "log": "verify-dirs.log"
+}

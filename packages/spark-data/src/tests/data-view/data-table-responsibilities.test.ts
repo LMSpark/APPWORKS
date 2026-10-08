@@ -105,7 +105,7 @@ describe('DataTable responsibilities (refactor verification)', () => {
       dataSetName: 'S',
       tables: {
         Departments: { tableName: 'Departments', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [{ id: 1 }] } } },
-        Users: { tableName: 'Users', columns: [{ name: 'id', type: 'number' }], views: { default: { rows: [{ id: 101, deptId: 1 }] } } }
+        Users: { tableName: 'Users', columns: [{ name: 'id', type: 'number' }, { name: 'deptId', type: 'number' }], views: { default: { rows: [{ id: 101, deptId: 1 }] } } }
       },
       resourceRelations: [
         { parentTable: 'Departments', childTable: 'Users', childField: 'deptId' }

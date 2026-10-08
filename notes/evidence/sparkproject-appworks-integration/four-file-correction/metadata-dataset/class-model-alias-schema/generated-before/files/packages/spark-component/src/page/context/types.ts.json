@@ -1,0 +1,461 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/context/types",
+    "sourcePath": "packages/spark-component/src/page/context/types.ts",
+    "sourceFile": "packages/spark-component/src/page/context/types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/context/types",
+    "jsdoc": "@module @spark-appworks/spark-component:page/context/types\n职责：定义 types 相关的内部类型契约，支撑渲染器、props、zero-code 和运行时状态协作。\n边界：只描述 component-runtime 的类型结构，不直接渲染界面，也不发起数据请求。\nAI用途：跨文件修改 types 行为或补齐配置类型时，用本模块确认共享类型边界。\n\n渲染器类型定义 — 脚本沙箱上下文与组件访问 API（执行层）\n页面渲染器 Props（编排层）已迁移至 SparkPageRenderer.vue <script> 块。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PageComponentAccessApi",
+      "PageContext"
+    ]
+  },
+  "$defs": {
+    "PageComponentAccessApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageComponentAccessApi",
+      "$defs": {
+        "method.get.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.get.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../spark-utils/src/script-types.ts.json#/$defs/ComponentInstanceSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.list.params": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.list.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../spark-utils/src/script-types.ts.json#/$defs/ComponentInstanceSnapshot"
+          }
+        },
+        "method.getApi.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getApi.return": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "T"
+        },
+        "method.getApisByType.params": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getApisByType.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "T"
+          }
+        }
+      }
+    },
+    "PageContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageContext",
+      "properties": {
+        "$components": {
+          "$ref": "#/$defs/PageComponentAccessApi"
+        },
+        "SparkData": true,
+        "h": true
+      },
+      "required": [
+        "$components",
+        "SparkData",
+        "h"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.setTimeout.params": {
+          "type": "object",
+          "properties": {
+            "handler": {
+              "type": "object",
+              "title": "(...args: unknown[]) => void"
+            },
+            "timeout": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setTimeout.return": {
+          "type": "number"
+        },
+        "method.clearTimeout.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.clearTimeout.return": true,
+        "method.setInterval.params": {
+          "type": "object",
+          "properties": {
+            "handler": {
+              "type": "object",
+              "title": "(...args: unknown[]) => void"
+            },
+            "timeout": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setInterval.return": {
+          "type": "number"
+        },
+        "method.clearInterval.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.clearInterval.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:19:12.175Z",
+  "models": {
+    "PageComponentAccessApi": {
+      "name": "PageComponentAccessApi",
+      "jsdoc": "页面脚本组件访问 API（由渲染器根节点注入）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 按组件 id 获取实例快照（只读元数据，不返回组件 API 对象） */\n    get(id: string): ComponentInstanceSnapshot | null;\n    /** 列出页面组件实例（可按 type 过滤，只读元数据） */\n    list(type?: string): ComponentInstanceSnapshot[];\n    /** 按组件 id 获取组件暴露 API（用于脚本调用组件能力） */\n    getApi<T = unknown>(id: string): T | null;\n    /** 按 type 获取同类组件 API 列表 */\n    getApisByType<T = unknown>(type: string): T[];\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "get",
+              "jsdoc": "按组件 id 获取实例快照（只读元数据，不返回组件 API 对象）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ComponentInstanceSnapshot"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "list",
+              "jsdoc": "列出页面组件实例（可按 type 过滤，只读元数据）",
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "ComponentInstanceSnapshot"
+                }
+              }
+            },
+            {
+              "name": "getApi",
+              "jsdoc": "按组件 id 获取组件暴露 API（用于脚本调用组件能力）",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getApisByType",
+              "jsdoc": "按 type 获取同类组件 API 列表",
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "T",
+                  "refersToTypeParameter": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PageContext": {
+      "name": "PageContext",
+      "jsdoc": "页面脚本运行时上下文。\n继承 `ScriptContext`（spark-project-model，框架无关契约），\n在此基础上添加 spark-component 层具体注入字段：\n- `$page.getDataSet(scenarioId)` — 当前调用的指定场景数据\n- `$components` — 覆盖为更完整的 `PageComponentAccessApi`\n- `SparkData` — 数据工具命名空间\n- `h` — 渲染函数（Render* 专用）\n- Timer API — 沙箱白名单",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ScriptContext & {\n    /** 组件访问 API（覆盖 ScriptContext 基类，提供更丰富方法） */\n    $components: PageComponentAccessApi;\n    /** SPARK 数据空间工具命名空间（createTreeManager 等，Render* 函数用） */\n    SparkData: typeof SparkData;\n    /** 渲染函数（运行时由渲染层注入，Render* 函数专用） */\n    h: typeof h;\n    /** set Timeout 回调。 */\n    setTimeout: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Timeout 回调。 */\n    clearTimeout: (id?: number) => void;\n    /** set Interval 回调。 */\n    setInterval: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Interval 回调。 */\n    clearInterval: (id?: number) => void;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ScriptContext",
+            "targetName": "ScriptContext"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 组件访问 API（覆盖 ScriptContext 基类，提供更丰富方法） */\n    $components: PageComponentAccessApi;\n    /** SPARK 数据空间工具命名空间（createTreeManager 等，Render* 函数用） */\n    SparkData: typeof SparkData;\n    /** 渲染函数（运行时由渲染层注入，Render* 函数专用） */\n    h: typeof h;\n    /** set Timeout 回调。 */\n    setTimeout: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Timeout 回调。 */\n    clearTimeout: (id?: number) => void;\n    /** set Interval 回调。 */\n    setInterval: (handler: (...args: unknown[]) => void, timeout?: number) => number;\n    /** clear Interval 回调。 */\n    clearInterval: (id?: number) => void;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "$components",
+              "jsdoc": "组件访问 API（覆盖 ScriptContext 基类，提供更丰富方法）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "SparkData",
+              "jsdoc": "SPARK 数据空间工具命名空间（createTreeManager 等，Render* 函数用）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "h",
+              "jsdoc": "渲染函数（运行时由渲染层注入，Render* 函数专用）",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "setTimeout",
+              "jsdoc": "set Timeout 回调。",
+              "parameters": [
+                {
+                  "name": "handler",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "args",
+                              "type": {
+                                "type": "rest",
+                                "elementType": {
+                                  "type": "array",
+                                  "elementType": {
+                                    "type": "intrinsic",
+                                    "name": "unknown"
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "timeout",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "clearTimeout",
+              "jsdoc": "clear Timeout 回调。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setInterval",
+              "jsdoc": "set Interval 回调。",
+              "parameters": [
+                {
+                  "name": "handler",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "args",
+                              "type": {
+                                "type": "rest",
+                                "elementType": {
+                                  "type": "array",
+                                  "elementType": {
+                                    "type": "intrinsic",
+                                    "name": "unknown"
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "timeout",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "clearInterval",
+              "jsdoc": "clear Interval 回调。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

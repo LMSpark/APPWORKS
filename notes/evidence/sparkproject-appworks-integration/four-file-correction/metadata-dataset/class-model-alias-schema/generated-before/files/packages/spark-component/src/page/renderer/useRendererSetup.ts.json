@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:page/renderer/useRendererSetup",
+    "sourcePath": "packages/spark-component/src/page/renderer/useRendererSetup.ts",
+    "sourceFile": "packages/spark-component/src/page/renderer/useRendererSetup.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "page/renderer/useRendererSetup",
+    "jsdoc": "@module @spark-appworks/spark-component:page/renderer/useRendererSetup\n职责：提供 use Renderer Setup 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nuseRendererSetup — 渲染器共享基础设施 Composable\n提取自 SparkPageRenderer 渲染器的公共模式：\n- SPARK 能力上下文（useSparkComponent + PAGE_RUNTIME_SERVICES）\n- 加载状态机（loading / error + 竞态保护）\n差异化逻辑（DataSet / CSS scope / 脚本沙箱 / fetch）\n保留在各自消费方中，通过 `runLoad` 的回调注入。\n@example\n```typescript\nconst { router, sparkProvide, loading, error, runLoad }\n= useRendererSetup('page-renderer', pageLogger)\nasync function load() {\nawait runLoad(async (isStale) => {\nconst data = await fetchSomething()\nif (isStale()) return  // 竞态：已被更新的请求取代\napplyData(data)\n}, props.onError)\n}\n```",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "RendererSetupReturn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererSetupReturn",
+      "properties": {
+        "router": {
+          "type": "object",
+          "title": "Router"
+        },
+        "sparkProvide": true,
+        "sparkConsume": true,
+        "loading": {
+          "type": "object",
+          "title": "Ref<boolean>"
+        },
+        "error": {
+          "type": "object",
+          "title": "Ref<string>"
+        },
+        "componentRegistry": {
+          "$ref": "../../core/capability-keys.ts.json#/$defs/PageComponentRegistry"
+        },
+        "pageRuntimeServices": {
+          "type": "object",
+          "title": "PageRuntimeServicesCapability"
+        }
+      },
+      "required": [
+        "router",
+        "sparkProvide",
+        "sparkConsume",
+        "loading",
+        "error",
+        "componentRegistry",
+        "pageRuntimeServices"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.runLoad.params": {
+          "type": "object",
+          "properties": {
+            "fn": {
+              "type": "object",
+              "title": "(isStale: () => boolean) => Promise<void>"
+            },
+            "onError": {
+              "type": "object",
+              "title": "(err: Error) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.runLoad.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:50.989Z",
+  "models": {
+    "RendererSetupReturn": {
+      "name": "RendererSetupReturn",
+      "jsdoc": "Renderer Setup Return 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 路由能力实例（消费方如 buildPageService / 页面动作可能需要） */\n    router: Router;\n    /** SPARK 能力提供函数（含 CapabilityTypeMap 类型重载） */\n    sparkProvide: UseSparkComponentReturn['sparkProvide'];\n    /** SPARK 能力消费函数（优先本地，再沿 parent 链查找） */\n    sparkConsume: UseSparkComponentReturn['sparkConsume'];\n    /** 是否正在加载 */\n    loading: Ref<boolean>;\n    /** 加载失败的错误消息（空字符串表示无错误） */\n    error: Ref<string>;\n    /** 页面级组件注册中心（实例 + API） */\n    componentRegistry: PageComponentRegistry;\n    /** 页面运行时服务能力载荷（用于下游注入到 DataSet 等运行时） */\n    pageRuntimeServices: PageRuntimeServicesCapability;\n    /**\n     * 带竞态保护的异步加载封装\n     *\n     * 每次调用递增序列号；如果在 `fn` 执行期间出现新的 `runLoad` 调用，\n     * `isStale()` 返回 `true`，旧请求的结果会被静默丢弃。\n     *\n     * @param fn      实际加载逻辑；执行中可随时调用 `isStale()` 检查是否已过期\n     * @param onError 错误回调（仅对未过期请求触发，通常传入 `props.onError`）\n     */\n    runLoad: (fn: (isStale: () => boolean) => Promise<void>, onError?: (err: Error) => void) => Promise<void>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "router",
+              "jsdoc": "路由能力实例（消费方如 buildPageService / 页面动作可能需要）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sparkProvide",
+              "jsdoc": "SPARK 能力提供函数（含 CapabilityTypeMap 类型重载）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sparkConsume",
+              "jsdoc": "SPARK 能力消费函数（优先本地，再沿 parent 链查找）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loading",
+              "jsdoc": "是否正在加载",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "error",
+              "jsdoc": "加载失败的错误消息（空字符串表示无错误）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "componentRegistry",
+              "jsdoc": "页面级组件注册中心（实例 + API）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageRuntimeServices",
+              "jsdoc": "页面运行时服务能力载荷（用于下游注入到 DataSet 等运行时）",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "runLoad",
+              "jsdoc": "带竞态保护的异步加载封装\n每次调用递增序列号；如果在 `fn` 执行期间出现新的 `runLoad` 调用，\n`isStale()` 返回 `true`，旧请求的结果会被静默丢弃。\n@param fn 实际加载逻辑；执行中可随时调用 `isStale()` 检查是否已过期\n@param onError 错误回调（仅对未过期请求触发，通常传入 `props.onError`）",
+              "parameters": [
+                {
+                  "name": "fn",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "isStale",
+                              "type": {
+                                "type": "reflection",
+                                "declaration": {
+                                  "signatures": [
+                                    {
+                                      "parameters": [],
+                                      "type": {
+                                        "type": "intrinsic",
+                                        "name": "boolean"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "reference",
+                            "name": "Promise",
+                            "typeArguments": [
+                              {
+                                "type": "intrinsic",
+                                "name": "void"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "onError",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "err",
+                              "type": {
+                                "type": "reference",
+                                "name": "Error"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

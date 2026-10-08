@@ -1,0 +1,909 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/crud-service",
+    "sourcePath": "packages/spark-data/src/strategies/crud-service.ts",
+    "sourceFile": "packages/spark-data/src/strategies/crud-service.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/crud-service",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/crud-service\n职责：提供 spark-data 数据管线中的 crud service 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\n业务层网络CRUD服务\n基于 spark-utils HTTP客户端，封装标准CRUD操作\n与 DataSet/DataTable 深度集成，支持权限和数据转换",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CrudService"
+    ]
+  },
+  "$defs": {
+    "CrudService": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CrudService",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "api": {
+              "$ref": "../types.ts.json#/$defs/CrudApi"
+            },
+            "httpConfigOrClient": {
+              "anyOf": [
+                {
+                  "$ref": "../../../spark-utils/src/http/types.ts.json#/$defs/RequestConfig"
+                },
+                {
+                  "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+                }
+              ]
+            },
+            "endpointContextProvider": {
+              "type": "object",
+              "title": "() => Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getHttpClient.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getHttpClient.return": {
+          "$ref": "../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "method.create.params": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "object",
+              "title": "T"
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.create.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<T>>"
+        },
+        "method.retrieve.params": {
+          "type": "object",
+          "properties": {
+            "pk": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.retrieve.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<T>>"
+        },
+        "method.update.params": {
+          "type": "object",
+          "properties": {
+            "pk": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "data": {
+              "type": "object",
+              "title": "T"
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.update.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<T>>"
+        },
+        "method.delete.params": {
+          "type": "object",
+          "properties": {
+            "pk": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.delete.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<boolean>>"
+        },
+        "method.list.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "../types.ts.json#/$defs/QueryParams"
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.list.return": {
+          "type": "object",
+          "title": "Promise<CrudResult>"
+        },
+        "method.executeTransaction.params": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "../types.ts.json#/$defs/DataSetTransactionRequest"
+            },
+            "endpoint": {
+              "$ref": "../types.ts.json#/$defs/HttpEndpoint"
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeTransaction.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<T>>"
+        },
+        "method.batchCreate.params": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "T"
+              }
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.batchCreate.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<BatchResult>>"
+        },
+        "method.batchUpdate.params": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "T"
+              }
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.batchUpdate.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<BatchResult>>"
+        },
+        "method.batchDelete.params": {
+          "type": "object",
+          "properties": {
+            "pks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Record<string, unknown>"
+              }
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.batchDelete.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<BatchResult>>"
+        },
+        "method.importData.params": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "object",
+              "title": "File"
+            },
+            "config": {
+              "$ref": "../../../spark-utils/src/http/types.ts.json#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.importData.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<{\n        imported: number;\n        failed: number;\n    }>>"
+        },
+        "method.exportData.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "../types.ts.json#/$defs/QueryParams"
+            },
+            "config": {
+              "$ref": "../types.ts.json#/$defs/CrudOperationConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.exportData.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<Blob>>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.720Z",
+  "models": {
+    "CrudService": {
+      "name": "CrudService",
+      "jsdoc": "业务层CRUD服务\n封装网络请求，提供类型安全的CRUD操作\n自动处理权限、数据转换、分页等业务逻辑",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建CRUD服务实例\n@param api CRUD API配置\n@param httpConfigOrClient 可选：HTTP 客户端配置对象 **或** 已有 HttpClientBase 实例（共享 auth/拦截器）",
+          "signatureText": "constructor(api: CrudApi, httpConfigOrClient?: Partial<RequestConfig> | HttpClientBase, endpointContextProvider?: () => Record<string, unknown>)",
+          "parameters": [
+            {
+              "name": "api",
+              "type": {
+                "type": "reference",
+                "name": "CrudApi",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "httpConfigOrClient",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "RequestConfig"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "reference",
+                    "name": "HttpClientBase"
+                  }
+                ]
+              },
+              "flags": {
+                "isOptional": true
+              }
+            },
+            {
+              "name": "endpointContextProvider",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "getHttpClient",
+              "jsdoc": "获取内部 HTTP 客户端实例（供 TreeManager 等模块共享拦截器/认证/配置）\n@returns HttpClientBase 实例",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            },
+            {
+              "name": "create",
+              "jsdoc": "创建记录\n@param data 记录数据\n@param config CRUD操作配置（包含权限快照）\n@returns CRUD操作结果",
+              "parameters": [
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "retrieve",
+              "jsdoc": "查询单条记录\n@param pk 服务端 PK payload（如 { id: 1 } 或 { orderId: 1, productId: 10 }）\n@param config CRUD操作配置（包含权限快照）\n@returns CRUD操作结果",
+              "parameters": [
+                {
+                  "name": "pk",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "update",
+              "jsdoc": "更新记录\n@param pk 服务端 PK payload（如 { id: 1 } 或 { orderId: 1, productId: 10 }）\n@param data 更新数据\n@param config CRUD操作配置（包含权限快照）\n@returns CRUD操作结果",
+              "parameters": [
+                {
+                  "name": "pk",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "delete",
+              "jsdoc": "删除记录\n@param pk 服务端 PK payload（如 { id: 1 } 或 { orderId: 1, productId: 10 }）\n@param config CRUD操作配置（包含权限快照）\n@returns CRUD操作结果",
+              "parameters": [
+                {
+                  "name": "pk",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "list",
+              "jsdoc": "查询列表（支持分页）\n@param params 查询参数（包含权限令牌）\n@param config CRUD操作配置（包含权限快照）\n@returns CRUD操作结果",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "executeTransaction",
+              "jsdoc": "执行 execute Transaction 操作。",
+              "parameters": [
+                {
+                  "name": "request",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetTransactionRequest",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                },
+                {
+                  "name": "endpoint",
+                  "type": {
+                    "type": "reference",
+                    "name": "HttpEndpoint",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "batchCreate",
+              "jsdoc": "批量创建\n@param items 记录数据数组\n@param config CRUD操作配置（包含权限快照）\n@returns 批量操作结果",
+              "parameters": [
+                {
+                  "name": "items",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Partial",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "T",
+                          "refersToTypeParameter": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "BatchResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "batchUpdate",
+              "jsdoc": "批量更新\n@param items 更新数据数组（必须包含主键字段）\n@param config CRUD操作配置（包含权限快照）\n@returns 批量操作结果",
+              "parameters": [
+                {
+                  "name": "items",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Partial",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "T",
+                          "refersToTypeParameter": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "BatchResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "batchDelete",
+              "jsdoc": "批量删除\n@param pks 服务端 PK payload 数组（如 [{ id: 1 }, { id: 2 }]）\n@param config 请求配置\n@returns 批量操作结果",
+              "parameters": [
+                {
+                  "name": "pks",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Record",
+                      "typeArguments": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "unknown"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "BatchResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "importData",
+              "jsdoc": "导入数据\n@param file 上传的文件\n@param config 请求配置\n@returns 导入结果",
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "reference",
+                    "name": "File"
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "RequestConfig"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        imported: number;\n        failed: number;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "exportData",
+              "jsdoc": "导出数据\n@param params 导出参数\n@param config CRUD操作配置（包含权限快照）\n@returns 导出结果（Blob）",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "CrudOperationConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Blob"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

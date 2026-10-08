@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/display/data-components/visual/DisplayAvatar/DisplayAvatar.props",
+    "sourcePath": "packages/spark-component/src/components/display/data-components/visual/DisplayAvatar/DisplayAvatar.props.ts",
+    "sourceFile": "packages/spark-component/src/components/display/data-components/visual/DisplayAvatar/DisplayAvatar.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/display/data-components/visual/DisplayAvatar/DisplayAvatar.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/display/data-components/visual/DisplayAvatar/DisplayAvatar.props\n职责：定义 DisplayAvatar（r-avatar）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 display/data-display 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 display avatar 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RAvatarProps"
+    ],
+    "componentName": "DisplayAvatar",
+    "componentType": "r-avatar",
+    "componentLevel": "display",
+    "componentLayer": "data-display",
+    "componentDirectory": "display/data-components"
+  },
+  "$defs": {
+    "RAvatarProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RAvatarProps",
+      "properties": {
+        "avatarSize": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "const": "large"
+            },
+            {
+              "const": "default"
+            },
+            {
+              "const": "small"
+            }
+          ]
+        },
+        "shape": {
+          "enum": [
+            "circle",
+            "square"
+          ]
+        },
+        "src": {
+          "type": "string"
+        },
+        "srcSet": {
+          "type": "string"
+        },
+        "alt": {
+          "type": "string"
+        },
+        "fit": {
+          "enum": [
+            "fill",
+            "contain",
+            "cover",
+            "none",
+            "scale-down"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:30:27.139Z",
+  "models": {
+    "RAvatarProps": {
+      "name": "RAvatarProps",
+      "jsdoc": "RAvatar Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DisplayAvatar",
+        "type": "r-avatar",
+        "level": "display",
+        "layer": "data-display",
+        "directory": "display/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkDataDisplayProps<string> & {\n    /** 头像尺寸 */\n    avatarSize?: number | 'large' | 'default' | 'small';\n    /** 头像形状 */\n    shape?: 'circle' | 'square';\n    /** 图片地址 */\n    src?: string;\n    /** 响应式图像集合 */\n    srcSet?: string;\n    /** 图片替代文本 */\n    alt?: string;\n    /** 图片填充方式 */\n    fit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';\n    /** 文本头像内容 */\n    text?: string;\n    /** 图标名称 */\n    icon?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkDataDisplayProps<string>",
+            "targetName": "SparkDataDisplayProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 头像尺寸 */\n    avatarSize?: number | 'large' | 'default' | 'small';\n    /** 头像形状 */\n    shape?: 'circle' | 'square';\n    /** 图片地址 */\n    src?: string;\n    /** 响应式图像集合 */\n    srcSet?: string;\n    /** 图片替代文本 */\n    alt?: string;\n    /** 图片填充方式 */\n    fit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';\n    /** 文本头像内容 */\n    text?: string;\n    /** 图标名称 */\n    icon?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "avatarSize",
+              "jsdoc": "头像尺寸",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "shape",
+              "jsdoc": "头像形状",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "src",
+              "jsdoc": "图片地址",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "srcSet",
+              "jsdoc": "响应式图像集合",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "alt",
+              "jsdoc": "图片替代文本",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fit",
+              "jsdoc": "图片填充方式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "jsdoc": "文本头像内容",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "jsdoc": "图标名称",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

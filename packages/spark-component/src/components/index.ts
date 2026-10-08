@@ -193,6 +193,9 @@ export {
   FieldTreeNodeSummary,
 } from './fields/non-data-components/index.js'
 
+export { default as FilterExpressionEditor } from './containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue'
+export { default as FilterValueFunctionDialog } from './containers/filter/value/FilterValueFunctionDialog/FilterValueFunctionDialog.vue'
+
 export type {
   RTreeNodeSummaryProps,
 } from './fields/non-data-components/index.js'

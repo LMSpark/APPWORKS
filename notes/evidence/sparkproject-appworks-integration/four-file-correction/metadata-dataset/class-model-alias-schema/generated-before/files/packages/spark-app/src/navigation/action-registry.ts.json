@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:navigation/action-registry",
+    "sourcePath": "packages/spark-app/src/navigation/action-registry.ts",
+    "sourceFile": "packages/spark-app/src/navigation/action-registry.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "navigation/action-registry",
+    "jsdoc": "@module @spark-appworks/spark-app:navigation/action-registry\n职责：提供应用壳层 action-registry 能力，围绕 NavigationActionContext、NavigationActionHandler、NavigationActionRegistry 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 navigation/action-registry。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "NavigationActionContext",
+      "NavigationActionHandler",
+      "NavigationActionRegistry"
+    ]
+  },
+  "$defs": {
+    "NavigationActionContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavigationActionContext",
+      "properties": {
+        "command": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "runtime-navigation.ts.json#/$defs/RuntimeNavigationItem"
+        },
+        "source": {
+          "enum": [
+            "navigation",
+            "toolbar",
+            "user-menu",
+            "app-shell"
+          ]
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "additionalProperties": false
+    },
+    "NavigationActionHandler": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavigationActionHandler",
+      "additionalProperties": false
+    },
+    "NavigationActionRegistry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NavigationActionRegistry",
+      "$defs": {
+        "method.register.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "handler": {
+              "$ref": "#/$defs/NavigationActionHandler"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.register.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.unregister.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.unregister.return": {
+          "type": "boolean"
+        },
+        "method.has.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.has.return": {
+          "type": "boolean"
+        },
+        "method.execute.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "context": {
+              "type": "object",
+              "title": "Omit<NavigationActionContext, 'command'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.execute.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.getCommands.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getCommands.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-08-09T21:25:34.632Z",
+  "models": {
+    "NavigationActionContext": {
+      "name": "NavigationActionContext",
+      "jsdoc": "Navigation Action Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** command 字段。 */\n    command: string;\n    /** node 字段。 */\n    node?: RuntimeNavigationItem;\n    /** 来源对象。 */\n    source?: 'navigation' | 'toolbar' | 'user-menu' | 'app-shell';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "command",
+              "jsdoc": "command 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "node",
+              "jsdoc": "node 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "来源对象。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NavigationActionHandler": {
+      "name": "NavigationActionHandler",
+      "jsdoc": "Navigation Action Handler 的回调函数契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (context: NavigationActionContext): void | Promise<void>;\n}",
+        "members": {}
+      }
+    },
+    "NavigationActionRegistry": {
+      "name": "NavigationActionRegistry",
+      "jsdoc": "Navigation Action Registry 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 注册 command 到 handler 的映射；返回卸载函数，调用即反注册；重复注册会覆盖 */\n    register(command: string, handler: NavigationActionHandler): () => void;\n    /** 按 command 取消注册；返回是否实际移除（command 不存在时返回 false） */\n    unregister(command: string): boolean;\n    /** 检查 command 是否已注册 */\n    has(command: string): boolean;\n    /** 按 command 查找并执行 handler；context 会与 command 合并为完整 NavigationActionContext；未注册时返回 false */\n    execute(command: string, context?: Omit<NavigationActionContext, 'command'>): Promise<boolean>;\n    /** 返回当前所有已注册的 command 标识列表 */\n    getCommands(): string[];\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "register",
+              "jsdoc": "注册 command 到 handler 的映射；返回卸载函数，调用即反注册；重复注册会覆盖",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "handler",
+                  "type": {
+                    "type": "reference",
+                    "name": "NavigationActionHandler",
+                    "sourcePath": "packages/spark-app/src/navigation/action-registry.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "unregister",
+              "jsdoc": "按 command 取消注册；返回是否实际移除（command 不存在时返回 false）",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "has",
+              "jsdoc": "检查 command 是否已注册",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "execute",
+              "jsdoc": "按 command 查找并执行 handler；context 会与 command 合并为完整 NavigationActionContext；未注册时返回 false",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "Omit",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "NavigationActionContext",
+                        "sourcePath": "packages/spark-app/src/navigation/action-registry.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "command"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getCommands",
+              "jsdoc": "返回当前所有已注册的 command 标识列表",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

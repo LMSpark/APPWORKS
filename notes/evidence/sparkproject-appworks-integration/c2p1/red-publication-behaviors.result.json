@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts --maxWorkers=1 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:04:11.3353342+08:00",
+  "finishedAt": "2026-10-07T14:04:14.0674578+08:00",
+  "exitCode": 1,
+  "log": "red-publication-behaviors.log"
+}

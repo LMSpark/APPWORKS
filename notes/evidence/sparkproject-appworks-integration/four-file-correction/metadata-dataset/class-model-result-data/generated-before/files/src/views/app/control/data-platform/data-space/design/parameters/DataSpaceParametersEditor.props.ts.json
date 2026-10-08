@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.props",
+    "sourcePath": "src/views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.props.ts",
+    "sourceFile": "src/views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.props.ts",
+    "packageName": "app",
+    "modulePath": "views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.props",
+    "jsdoc": "app 的 views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.props 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceParameterItem, DataSpaceParameterUpdate, DataSpaceParametersEditorProps（共 3 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceParameterItem",
+      "DataSpaceParameterUpdate",
+      "DataSpaceParametersEditorProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceParameterItem": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceParameterItem",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "DataSpaceParameterUpdate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceParameterUpdate",
+      "properties": {
+        "index": {
+          "type": "number"
+        },
+        "item": {
+          "$ref": "#/$defs/DataSpaceParameterItem"
+        },
+        "field": {
+          "enum": [
+            "Name",
+            "Description",
+            "IsBusParam"
+          ]
+        },
+        "value": true
+      },
+      "required": [
+        "index",
+        "item",
+        "field",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceParametersEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceParametersEditorProps",
+      "properties": {
+        "modelValue": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceParameterItem"
+          }
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "modelValue"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T21:42:40.598Z",
+  "models": {
+    "DataSpaceParameterItem": {
+      "name": "DataSpaceParameterItem",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceParametersEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceParameterUpdate": {
+      "name": "DataSpaceParameterUpdate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceParametersEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    index: number;\n    item: DataSpaceParameterItem;\n    field: 'Name' | 'Description' | 'IsBusParam';\n    value: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    index: number;\n    item: DataSpaceParameterItem;\n    field: 'Name' | 'Description' | 'IsBusParam';\n    value: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "index",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "item",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceParametersEditorProps": {
+      "name": "DataSpaceParametersEditorProps",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceParametersEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    modelValue: readonly DataSpaceParameterItem[];\n    disabled?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    modelValue: readonly DataSpaceParameterItem[];\n    disabled?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelValue",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

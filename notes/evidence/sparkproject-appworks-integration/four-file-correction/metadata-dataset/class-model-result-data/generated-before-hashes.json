@@ -1,0 +1,3046 @@
+[
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\.dts-manifest.json",
+    "Hash": "9F557023026B22B39854079CB4225F6B3B1A449D9674F354E57508F119DD7123"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\manifest.json",
+    "Hash": "BB99F22F89DD8E1A1CA5A6B279DC5FC0BC34494D0C3A2911BE7D176C84E88B81"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\semantic-gaps.json",
+    "Hash": "26DFA84EC33C755734931F9DF483EE0A2CBB533A2716E2940131691F6BAE2765"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\index.ts.json",
+    "Hash": "67D389AF67D7730710584A6DCFD03A364EF2FFB86524C747786F67CD9613AB59"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\index.ts.json",
+    "Hash": "DDC0E903F936E6590F3C83EEFEAC99027B8CDF8D2BF3E997DB023F1476D6AE86"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\business-kit.ts.json",
+    "Hash": "4D183C19458AAB8D12AF23A61001101E21D9F2E4C4C46E014B8571E0F8D3FEAC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\business-scope.ts.json",
+    "Hash": "E2EF13073EB8C14D71385F206CDF095CED4958CB40553F41832A3721E2717F84"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\business-session.ts.json",
+    "Hash": "0CB14581532C1E8C6DDDA7DB950F2351E50704A5F6D66361BF85CD8CC2B01823"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\business-task.ts.json",
+    "Hash": "2FCAA4488C0857AC970D8DF246269C0257D64A423909C89053C55377DB687560"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\class-model-agent-adapter.ts.json",
+    "Hash": "B2DF09D9444637C7DB97107582FA512E7C15C389E04DF5F4FA068918B2899676"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\lifecycle-types.ts.json",
+    "Hash": "ABE20537FBBFC43E7C2EA3CD1DDEBBC2E623D45F03E5F633EB79B2865D37393B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\registration-types.ts.json",
+    "Hash": "69207992B1DC30EA475D1DE3736008C6A854D6D3DE4FDB57ABD5C95DEC4E858F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\scope-types.ts.json",
+    "Hash": "B4B58F280A748B5C5FAECBE2A92A8F8B6BC197AF70553F693555BC81C30310B5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\host\\ai-host.ts.json",
+    "Hash": "8DBC572CB83E0769FFFB32A8FEE30062663D072030101DE97C3C58C612270F43"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\host\\business-registry.ts.json",
+    "Hash": "4FC9767D36394BD3678E5D7057D6129E4EDD289B0D2AA4AEBE73845DFE6D476E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\business\\host\\host-options.ts.json",
+    "Hash": "68F247ACB1D7790FA59B4C73F894EE791B325BFBBC84B5D75F6D24A253E77F8F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\ag-ui\\ag-ui-mapper.ts.json",
+    "Hash": "9058FA6026A43F05D74224925F1743E3C9FF72F5577D31E16DE350FFAA02F7D9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\ag-ui\\ag-ui-types.ts.json",
+    "Hash": "2031B9CECBB3CF7FB49491BD2619BB0DF070444D5992767978B71DBF0791C868"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\ag-ui\\index.ts.json",
+    "Hash": "065CEB1B69842D111367C1FE5D09B6F7A87E19174B2894CDD9AD9A503FC0A8B1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\chat\\chat-types.ts.json",
+    "Hash": "6CBE81A60DF2952E1587BA014193650627CC94C5B9D5F8046540208F872732FA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\session\\default-session-store.ts.json",
+    "Hash": "45CD65C3715B237170B05F75DCC4ADA3E01A69D73B65F1A9FA272F29D5A68EAC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\session\\session-diagnostics.ts.json",
+    "Hash": "8922916663B743E16C7C8E1E1D3BCCB5F57BA6674950D3C90B3B82F7DDE17163"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\session\\session-run-trace.ts.json",
+    "Hash": "0C78F171A69788871579BB38FC65241C76BB2DDB2B68507617D60669BA8A2393"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\session\\session-types.ts.json",
+    "Hash": "D7E81F8CA0AEC31CD15B1E93EEFD7A2BDF71B90A067161543485F50B3E318F1C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\transport\\app-sse-events.ts.json",
+    "Hash": "2F114281BFDFAD603C29781A5E5B9FE84E0360A49C7E9FC043399A872FE8958E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\transport\\transport-turn.ts.json",
+    "Hash": "BA8CB51F04E79507727D85AD04F98DAA80B86F2FF209A4C3CDD768A1199F7C1E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\conversation\\transport\\transport-types.ts.json",
+    "Hash": "FEFF1FFE13F3E21B1AB45CFCAE2B19BC150BE25D06CAFE1DB169FA8D6ECC9E4B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\dts-native-script-runner.ts.json",
+    "Hash": "FE38AFE875B03E6405051487E32994D6ADE9ED8530CEF67B2BD859C9C7D027B7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\index.ts.json",
+    "Hash": "ED0FCC41F2084DFD1D28E82D4771600A9E4F9CDF3F200FFA8A23CD8E097F7C31"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\native-script-context.ts.json",
+    "Hash": "8E0B9C138EC817961C5258BF2BD2B0BD95691C42D48CB522EEB960C4B490A477"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\native-script-runner.ts.json",
+    "Hash": "DFA148B50EB8054A3632CF2FB657E8CDAC75E1771C955BF439AB7173C08191E0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\native-runtime\\native-script-sandbox.ts.json",
+    "Hash": "392B831D7487FFBCEEDAD250B7BE5081D0C25CFB497D835354EBA5A8615C1F38"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\diagnostic-events.ts.json",
+    "Hash": "691774D7D07F694E54C76F5A609B0A39D5761B84928787E73D17F2D87CCB120E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\function-call-recovery-enricher.ts.json",
+    "Hash": "BCEAB51FF233734DB945117B7F4172286626A1EE72147EBA79CB7142E8D6E1E5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\payload-codec.ts.json",
+    "Hash": "9881BF2879359C35D69C27FF33BB0B4D90537399B1A5B7464B1377B58BB7FB73"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\result-mapper.ts.json",
+    "Hash": "616CFDCC1CBD7242B7FFEBF03BD8C986547988A9412FA63571896BD805F9D621"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\tool-call-executor.ts.json",
+    "Hash": "0F786D89D18E47B93E305A2F0817FCD57214ED218FD945A3669C61A1E5FC9DAD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\tool-loop-runner.ts.json",
+    "Hash": "55A04C49D79C5E3D34F3DA50D857C97D2D870CEABC7D22AFB38B04AB4D8C4DC9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-loop\\turn-event-collector.ts.json",
+    "Hash": "5015D38CE4C7B6E5A8932AB2C5A0CC8E3368FAF593A046F34A942F3491B6D705"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-runtime\\index.ts.json",
+    "Hash": "65BEEF75BED55ACA5D9FBA905C326E58BE52827F563FBA92D74191773F2B3A65"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\tool-runtime\\tool-runtime-types.ts.json",
+    "Hash": "F723E2869B049023F2172AE50E924B9423110B288CFD97F1A32F2253ED1BD763"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\agent-workflow-definition.ts.json",
+    "Hash": "2BBBCBABA23CE11FE3EA4E10561B6876D4F3721EE12925A4F82E8D0D8133C7DD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\agent-workflow-dry-run.ts.json",
+    "Hash": "395AD0BEB0094A3A1025E37B4981C4788AE6DA3226250CED4E4538ED911082B1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\agent-workflow-runtime.ts.json",
+    "Hash": "368730848673C978D7A2F45DA22BB0FA88B49A69CA6B40F7B58243A5141D5CB7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\agent-workflow-validation.ts.json",
+    "Hash": "4C825631DC2DC2A6E331774314CC69740A8206794F840013279E9C853D08A3F6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\agent\\workflow\\index.ts.json",
+    "Hash": "3949C847A04EAC7B57152D247E8477039DE579C2A66485BBFEFBC645BDDB949F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\index.ts.json",
+    "Hash": "1A47DCB8DC45D959EBF80E8C87F93ED199F199D6DAE051E3AFB3D2BAA1900973"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\consistency.ts.json",
+    "Hash": "9AE7BCEE615D03F84D8011F4FDD646D4331D6C9A39AC0B9384F9D1600A5E1057"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-surface-to-runtime-api.ts.json",
+    "Hash": "52D846B3CF5383DAC6980E5F77A95D9CD5C6C62A30B0AE100A466F49FA0ACFA0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\dts-surface-types.ts.json",
+    "Hash": "B4F0C6A00C83D8D1C292CDEFF8E2E0871197E90B6F00AD4975BF47C0C3322E98"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\from-runtime-metadata.ts.json",
+    "Hash": "F2C53BCDC2E68DC6A85DD60F11046AC12A955E4D5EDD76898EEE7630E276AD09"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\index.ts.json",
+    "Hash": "04F3C199BECDD5F2BF23C34724B417D4E6B00F6F8E2086559CFBEFBFB0F4AD1E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\model-projection.ts.json",
+    "Hash": "52C10C399852E14A4584FB58892C89921BCCACD1A884D174E7748B9A504BF475"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\signature-renderer.ts.json",
+    "Hash": "96982E99BF721D75468ADCA16ED1FFEC92DBD81F535BEC51B6A00FB98879E7E0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\types.ts.json",
+    "Hash": "9EA273D9BFF601435699418AD79B20CCE181D422E83BD9F5B8BCB77D8CAD5815"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\build-dts-class-model-bundle.ts.json",
+    "Hash": "F7EC2C1D9C1925D864C118751856BEA70E34EE2C07960949F7FFF7C9E71D4750"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\build-index.ts.json",
+    "Hash": "7E60825A0D375C0FE87E6C5BCB5FD337BA0B40CF706BD6B04823D59B41BFB07C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\class-model-emit-fs.ts.json",
+    "Hash": "0A808E42BB126DB69B7FDB539D4348851EF25777318D77C5318FFE73E3EC4888"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\class-model-emit-path.ts.json",
+    "Hash": "AF585CB6E4437FABF2D57DC27C51B5C2318D9A2E3E93699F48F0E35BEF91AF8D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\dts-bundle-types.ts.json",
+    "Hash": "CF538FF757CBF5F27E487C4085CD72A2F564276D72A579B9C694D2203279DE4A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\dts-bundle-url.ts.json",
+    "Hash": "36F8416078C2437D331883943B8DC97614C85D02F7C132FD2A35408DCF7B6C8E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\dts-class-model-bundle-loader.ts.json",
+    "Hash": "31B181969706252D5D65969A27912C9BDB45E0580B065FAE4ECA19166DB71E03"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\bundle\\read-dts-class-model-bundle-json.ts.json",
+    "Hash": "6CAA6B5A0D26A5B34A82E22D884FD9A224ADB86F2D9058F5E3654E2D29D8A7E4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\declaration\\dts-ast-utils.ts.json",
+    "Hash": "37984C4642FCDAC25DA572556D535531312B08B13C9153994072D9467F32CFB3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\declaration\\dts-enum-schema.ts.json",
+    "Hash": "E7D0D87507C684125ACFC997923C9029EDC2448773F5F0CEE6A361FBA0F76F8C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\declaration\\dts-jsdoc-reader.ts.json",
+    "Hash": "EFB16A71126C4973EAA1F738C6FDCD982AE2609AD77FF29CDA46B75378C84296"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\declaration\\dts-type-meta-ops.ts.json",
+    "Hash": "5D1F32EFFB20BFDE3E8AF36F92CB9DB7AE5E95109971CEA09518A6CE07F496B2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\declaration\\dts-type-schema.ts.json",
+    "Hash": "7A00F07AFF5E504D5218D577F239EE64807D67177CE748D504BB97D36B34DEF8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\declaration\\project-from-declarations.ts.json",
+    "Hash": "84029CFC5FEED7A5AF3B8279C8F968C721737B490684E4B6F8D5228114C0BBF6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\declaration\\reflection-connectivity.ts.json",
+    "Hash": "9665FC4EDED6D2A6FF7CB9C609245B83780FA7F6473E44AEEAA613B6758B8AB8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\class-model-declaration-schema.ts.json",
+    "Hash": "687E4C8BF82ED1FD56A64B8AEDC4A62F1750602A7CDB3A17B454FBD350B0199A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\class-model-json-schema-def-keys.ts.json",
+    "Hash": "E2617A8CFCF1CA9934B8CA9C5E5BD6F4DA3BB2A31C72B2F48C4C39008CBE6FD0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\class-model-runtime-schema.ts.json",
+    "Hash": "0303E3F4A4F8CB1CFE685867C86DDD260A96A057333BAB6311A04C34228D067C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\class-model-schema-projection.ts.json",
+    "Hash": "27E3F4E505E96FFF47C9F5EABFBD93E6B4484D5A09885E5940EAC6A4BEFC570A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\class-model-to-json-schema.ts.json",
+    "Hash": "729F652F796CDAFCB6AD90735A137E332601632E198D7D2B08EDAD20FCA49DAA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\json-schema-emit.ts.json",
+    "Hash": "AE38901ADE50E68DAD5B9DC0700D115FAB29BC934D4B531A561F487A98B8B7FD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\json-schema-to-type.ts.json",
+    "Hash": "A562651041956148FD201E5B64B96F8E772F18AA95DDA4418D41F0D8B6856769"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\class-model\\schema\\model-json-schema-ref.ts.json",
+    "Hash": "95063EB615C9B40768A42470E8C0E121AF94B171AB14CD02D17399EF27A85AE4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\class-model-knowledge-service.ts.json",
+    "Hash": "CB94C279CF0AF7E25D671B36AB62936859E65A14976991656E628DB722C76DA0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\dts-bundle-class-model-knowledge-service.ts.json",
+    "Hash": "4F1DE3F423021AA4DA46A4FFD93A23EEB7A59456C3EE3C3C328BC566C32E3381"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\index.ts.json",
+    "Hash": "A30B3FEE2410BE36C5D9F93CCFEDD42F0935BDC365BC4A7C090BCBB2C20E9B48"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\worker-knowledge-api.ts.json",
+    "Hash": "29D014C2773F1D2B28758B3BA8B40001366BE6825622F723126851812487F545"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\worker-knowledge-client.ts.json",
+    "Hash": "D6BE03A25DE7B28C4B156973DAE4618450D0AC50A97A60008867B1202C96E16F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\worker-knowledge-handler.ts.json",
+    "Hash": "AFC8436B20F88F79F739DD9360C44F51761EBD9E51FF4FB369EA33201A42B7C0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\projection\\dts-renderer.ts.json",
+    "Hash": "9F16C82928143AC9E771AB8BC565F523363059A56E2AB78BDDDD7ADF9265EA99"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\knowledge\\projection\\index.ts.json",
+    "Hash": "673FF4B5D3B02E4196D0CC59846F3C59FBAD737CF7CA0C83F0ED435F671CC691"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\ai-api-object-metadata-schema.ts.json",
+    "Hash": "B357B61BD0576BDC1CFCB1B4A2BCC332848B32DF638C608CC481D4E85F6C39AE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\index.ts.json",
+    "Hash": "2AA4F8427484510DA4E10CC20B958EB1206D869E00278CA5E1B6D823BA293751"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\json-schema-dereference.ts.json",
+    "Hash": "0956A253A2E56400A931458AF3D06D6A0BF0624216EA04CC5C8F902E1ED48E19"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\metadata-graph.ts.json",
+    "Hash": "FACF01FD3917AACB1C3BDB02F15D83A246C5A3015CB48816A57D51F998F2A623"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\resolve-api-object-metadata.ts.json",
+    "Hash": "A09D1E884EA022622FCB734D311517D0AD56095221C6D77AF3D4D7197DB820B2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\metadata\\validate-api-object-metadata.ts.json",
+    "Hash": "C07732A52EB63AF61A089868DE0938928EEEB968023A0BF9A7F152141139592B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\recovery\\class-model-failure-mode-recovery.ts.json",
+    "Hash": "8BF76875837475AE03FBEBDED174290DAD81A5D8EE2763C85CBD6D6B0A2CB7A6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\recovery\\index.ts.json",
+    "Hash": "D00FCFEF937F5AB48423CA87AA72B3B3A0606D4AC7C356BAD649756C1C3BA889"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\runtime\\class-model-runtime.ts.json",
+    "Hash": "813B3689AC749537959486FAA9EE157E4EFFAD44F66A38C399E007996015BCFB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\runtime\\index.ts.json",
+    "Hash": "0745313DB628BA949D08E403387A1FA0B0C86ADBFB2C3406FE11FFDAAD032AF8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\tools\\class-model-tool-schema-recovery.ts.json",
+    "Hash": "FE9C91E88EB2E869278C586A151B40D68DBA5A3528E193699CFE191BFABA0FE2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\tools\\class-model-tool-specs.ts.json",
+    "Hash": "BBA1DDF5DB23C94D97ED7059B2FD45A81F22D75F4C26AB54A543ED892D8CD825"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\tools\\index.ts.json",
+    "Hash": "9D2A04748C215358CD2160D821AD09ADCF27BB2AB846D46FD8556FB4C56C9FE2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-ai\\src\\class-model\\tools\\tool-names.ts.json",
+    "Hash": "55844D9D5444ACD321C4EA316193296EA5EE932DB737B0AD6F8FBC847DBA765F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\constants.ts.json",
+    "Hash": "CBB44B8890D8DE8B9271219AB9153F50BDEBBF06B848A92F94B937566DDEBACC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\env.ts.json",
+    "Hash": "289AAAEF5CBC8197DF306268C19167EC924B3B750F9C1BC6E039F3E790E7C5BE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\index.ts.json",
+    "Hash": "41DAE3E73B738A327F9C0A1F9BBA6D83CA9530981E6ACDDC2ADC5A9E95165575"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\namespace.ts.json",
+    "Hash": "EB1415C28C94A2D1C23F8A4053D3C4E1E290F04B50F12E8437934A6F14A5D8AF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\types.ts.json",
+    "Hash": "E4D7475DD8C33BFAA1FA8DC1A502FA3AFC47AC63790B25E365DB7C485D4BA72E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\useServices.ts.json",
+    "Hash": "9697ACBED99560F89018197F878563170DE1E119ECB6D113F38014F6B3960C68"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\ai\\ai-run-adapter.ts.json",
+    "Hash": "B779C61CCA7379FBE5305E8838BEA7711B91C14F60CFC9B832687EE7F285EFCA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\ai\\index.ts.json",
+    "Hash": "5E1FD178CDB957412DDCD2162E42476E5838A75EE175E7F01729206EE36A8445"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\ai\\tool-approval-bridge.ts.json",
+    "Hash": "AFFED5D52FDC7CF88BC1BB3F65520F72BDA2100AABBF593845461336E94A428B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\app\\app-context.ts.json",
+    "Hash": "7551A6DE51A5C51B04E8FEB6EB0A717075B815357F773261CA7625B508DD9CA7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\app\\auto-register.ts.json",
+    "Hash": "09D2BE0A252A7747F322810AA051E0A7D6EBF182E1D09BBC1EE7E63D4F2AD0E3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\app\\bootstrap.ts.json",
+    "Hash": "4B31E85AF878E7CE8DA8744D174C5793CBD642EF138518B16DBDE630F2610555"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\app\\error-handler.ts.json",
+    "Hash": "3D60D295948B05E12C69186CD1B188EC5E9BE4CF7637DC2D6111F3B6DA195503"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\app\\start.ts.json",
+    "Hash": "41B02425382C53300163F4F4EF0EB140874372C7B726DE0B3A48BC5597CF31C0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\app\\config\\index.ts.json",
+    "Hash": "D7BC6D99D8E5A963685BB8FF5088AFD13559B71C0CAA5841A0B9D1476A2D8060"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\logger\\index.ts.json",
+    "Hash": "0221F9AD689C6972C5B4D6B11323D27C4DA0D87A6D2BBEA05E4B85BA537B8C23"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\navigation\\action-registry.ts.json",
+    "Hash": "8B34EC1862398EDD4EEFB4F0C82E17D462DB670DF9A754FC153266848897C5A6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\navigation\\nav-access.ts.json",
+    "Hash": "4AA2CF9301ABA0A6CD7A1C023F70043CB171D05052710CB16A98947F29AB06A1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\navigation\\nav-types.ts.json",
+    "Hash": "FFEF8E1EEC3FB6F963834C4458C90BC63F3EC3B1A231834CF64FBD25DE3DD089"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\navigation\\runtime-navigation.ts.json",
+    "Hash": "2EE5600A17D56F6BCBC93AC0FDF24D56DD3F45C26EE2DA892B7C6E6D67EEA95B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\navigation\\runtime-target.ts.json",
+    "Hash": "08D1C0FE6C79398B95925668E72B29B723BEFF68FA42D7EED0606D807513CF61"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\navigation\\useColorScheme.ts.json",
+    "Hash": "CD268B146B3B0968548F7920F5870278BF978EB596B35CD032B57D49C162F9F6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\navigation\\useNavigation.ts.json",
+    "Hash": "7D04F8A1C3AE2EE2E2A853B8F2FA64DB63C17B50C52C687955F27CEF9D6AB5CB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\navigation\\useTabPages.ts.json",
+    "Hash": "C61B1CEACC5FA6061F117EE099F1CA7515E260922D947BCF0287867F94AB3505"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\cross-project-ref-page.ts.json",
+    "Hash": "0EE8DE6135C6F61015D1FAA878F86C1CC61E969878B19416257822BD4506E090"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\cross-project-ref-route.ts.json",
+    "Hash": "4824F10A4687CE7C405370984049BB69C3CFD982FFC4488D21B9E6E64CC533A5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\dynamic.ts.json",
+    "Hash": "85635312B6E0958BF02785576AF6A53825F0A7A842BD88CDF997C5F26A80E46C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\external-link-frame-page.ts.json",
+    "Hash": "DCDAEEBBF8FFBDAF20701529505E1622751FC15C7CA8B0F2D0D2CC659AA4FBCD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\guards.ts.json",
+    "Hash": "0B36C229CD8DCCFEDA418E60BB0D0453C5AE797AB0F11D325E9A71FE632DF93F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\invalid-system-page.ts.json",
+    "Hash": "9C8EA8B88D20ED21B391F11E04ADBAD10100FB549D02EA1F1361CD02C6DC6A86"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\page-runtime-pool.ts.json",
+    "Hash": "E972EEF1BBBE2C326B4107BFAC255AC70FF060618A63CBA24C9DB8B06642B262"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\route-helpers.ts.json",
+    "Hash": "9276C1664A68A212580F0AE4FF7D588776491CF76AF224170FB3B55DC406110F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\system-page-identity\\system-page-identity-pool.ts.json",
+    "Hash": "99D25A1813DC81554F12E12D739A0D06D97A80B89CC1FCFA0EBEA2E5EE77B64A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\system-page-identity\\system-page-identity-resolver.ts.json",
+    "Hash": "07391CF5BA3ED6F4059E2A640560F712E700DE11F8CE3A73151790AB2750F3E5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\router\\system-page-identity\\system-page-route-host.vue.json",
+    "Hash": "48B9657462BE5D02FE5C14F77EECBEE3A9EFFF8EB8039B4803EA2C85D7F6C655"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\shell\\page-ui\\AppPageUiHost.vue.json",
+    "Hash": "B36F616C99CCCB12D8513FA0305FD91372CCBF6DF9F192712498E956CA9FA978"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\shell\\page-ui\\pageUiService.ts.json",
+    "Hash": "FFF915F4A914508B28CA4D76F0BD15984BEAAAB60B8BA49E828E1B42A8F61890"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\shell\\plugins\\index.ts.json",
+    "Hash": "EEA04620F0A3368A32B946909D6A2722621762322BA1E2079EDE2C66C9D0C0AF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\shell\\plugins\\presets.ts.json",
+    "Hash": "A663398A14989668D2FE32A88EA09441194B75F4C8058CB28C3D0A3A1EC139C6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\shell\\plugins\\registry.ts.json",
+    "Hash": "5A0DBD4502DA34C0A68B0059E7BA7D31D1B139C7958975994BF3B79779E027B3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-app\\src\\shell\\theme\\index.ts.json",
+    "Hash": "D4AA0030E09D18C3C4D4C466F5761C19CCAA6E41C0B76BBCF119C24962A667C5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\index.ts.json",
+    "Hash": "D596EB1CDB5850D0EE64280D63DEA5B01532E21E2C95AC14DEA8FC1A4A81B8AF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\index.ts.json",
+    "Hash": "571885974D01B3FDFBFB5F95E795423992887A4D4A94A8A35AE264B8CE34027C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\types.ts.json",
+    "Hash": "13410C82C31C1C5AA1B65EF8F3014F94C337D94809277EEDFEDB1F83EA860360"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\approval\\AiToolApprovalCard\\AiToolApprovalCard.props.ts.json",
+    "Hash": "C2C8DD0F96642CC66EAB8D1F6B94F99ABD064F8B4BC6830EA05FD87BF58E3208"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\approval\\AiToolApprovalCard\\AiToolApprovalCard.vue.json",
+    "Hash": "70BD078357D71DC2826A97C5D28F89FF1DF8A209CBA4326E7A57426483DC4A37"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\approval\\AiToolApprovalPanel\\AiToolApprovalPanel.props.ts.json",
+    "Hash": "4613300842623AB647691E3A2059697137A2CC0382A2FFF9BACC3D4F9394D6F3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\approval\\AiToolApprovalPanel\\AiToolApprovalPanel.vue.json",
+    "Hash": "29568EECA81F47F52A89065EC0B33055C8CED48C44F5453CE6B6092279187F96"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\diagnostics\\AiSessionTracePanel\\AiSessionTracePanel.props.ts.json",
+    "Hash": "29B7DA851551BB6DFFEDC09BDE4A80A3A6071B587A0E8F54C2D957CF6F4BE735"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\diagnostics\\AiSessionTracePanel\\AiSessionTracePanel.vue.json",
+    "Hash": "AE0A1D35D58F8CECF3BE51919E57ED35797BAFD8F37EB95939D5E7401135E74E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\diagnostics\\SessionDiagnosticsPanel\\SessionDiagnosticsPanel.props.ts.json",
+    "Hash": "CC62BE91968E43D357A7E7B11A5927702A5A7220AD7D8598BB60E520393C692E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\diagnostics\\SessionDiagnosticsPanel\\SessionDiagnosticsPanel.vue.json",
+    "Hash": "502E5FA306C6717C2C73D57C331FB331B5AC3D3D0B3E5F30609ADF5192C65150"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\session\\SessionChatBubble\\SessionChatBubble.props.ts.json",
+    "Hash": "E7404B1DA818D237565DBAB4DD8283FAE3F3109C3685BEF6500C0435E14A7C5B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\session\\SessionChatBubble\\SessionChatBubble.vue.json",
+    "Hash": "53079A7CB31999D76041BE3AA1FFE461D7065CF00F35F409F75B104908C46284"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\session\\SessionReasoningBlock\\SessionReasoningBlock.props.ts.json",
+    "Hash": "B7BE365104EC862D28C70732CE6667991B3D83AF600E60625EA3E465AEBCFE00"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\session\\SessionReasoningBlock\\SessionReasoningBlock.vue.json",
+    "Hash": "E09591492C6EEAFE13A4609409D3E7AB5AAD2DB06535FF2A89C84203ECA7CF23"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\session\\SessionStreamView\\SessionStreamView.props.ts.json",
+    "Hash": "F7B0EB955C41423BD00BB617C3B392825420A37115BDDAA236162B1711626259"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\session\\SessionStreamView\\SessionStreamView.vue.json",
+    "Hash": "B95EB048325481992A52B69AB7FFF6EEC9863E7D4B9556EE7B1A4C9B5DC72C58"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\session\\SessionToolCallCard\\SessionToolCallCard.props.ts.json",
+    "Hash": "E7C82605E14F1B472DD945A1371CF97D580D86F88674EFCE685D4541FB4486DD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\session\\SessionToolCallCard\\SessionToolCallCard.vue.json",
+    "Hash": "7EE4BA2772BC8E7E709A1A34F89A65BFBDEC28A38D5F843E954AB0941A2B5EA5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SparkAgentPanel\\SparkAgentPanel.props.ts.json",
+    "Hash": "28DC9B2E5C16A17984E0CE1FA66DDE693C39FFA21F6BC2D0884CBA9039371491"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\ai\\components\\SparkAgentPanel\\SparkAgentPanel.vue.json",
+    "Hash": "CB94ADF298905F91C0B5E6AE1F98A8F464ECA3775F5F08C57771E86BFA152AC5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\create-passthrough.ts.json",
+    "Hash": "7F60A1A67ADD7BAF3BE1491371F7153B4747B93CBB63238AF5E765164732BAA4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\index.ts.json",
+    "Hash": "09896F5663651B2244A0748F72352D4DB4B833CBBFBE21F2F2C65F401945CF41"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\internal.ts.json",
+    "Hash": "FE1F745AB14A47D0156B1AD007E19001EBEBAD0B032440B08C0F264B9B3F9B96"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\register-renderers.ts.json",
+    "Hash": "094E3FC1F4F0420F31841CB3F939A648973D2F4F51F999183BA10015EA881A6E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\shared-types.ts.json",
+    "Hash": "7FED5F6689B23D4D171D75323B3BB948BC1AF8CAA1F4B66241232378B47234AE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\SparkComponentRenderer.vue.json",
+    "Hash": "FB1989D76F53444B5C9ABE8EB6CD860BC97D8B327CC88BC5873F7C40EF00F861"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\index.ts.json",
+    "Hash": "AB8A729A6EE28B4FCC672CB1A471F209FBE9E376436C96D54E54B81543E254AC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\data-row-utils.ts.json",
+    "Hash": "DEB3A81B7F11A8B71A22A09840DADF5851C290E570C48D9382B5DED0D5F13632"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\DataViewMetaBar.vue.json",
+    "Hash": "3131AF87909D5059C5FA5134195911A07CEBEC30B9C81FC58DB68489617D36A4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\index.ts.json",
+    "Hash": "8603FAB1927FDDFA9AE92E04EA43F3456270CF748F0590359C300FA780F38508"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\view-data-source.ts.json",
+    "Hash": "A3F96C2C8637AF4C199E61DD18B7E4415FFFEC35ACCAE4FECC9B1318BCD6741A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\view-runtime-state.ts.json",
+    "Hash": "A788A7C21EF61DD336D4DF125CEBAA7A1C14A5A29E4A178DDDE45904904689D7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\view-tree-state.ts.json",
+    "Hash": "1B1461CD097DA48D14D04B4DDD3B304D094CADAA22537F98F443D3E0016F2C13"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\zero-code-shared.ts.json",
+    "Hash": "8B53709C98FEA363700296A5424B7AA3F6C95851B12FB7AC8B4BAEFE514A8611"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\index.ts.json",
+    "Hash": "FF73E2E81C75BF3C3F981E5E766B650577A37C3E72FB098DA8C953BB0E810828"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\RendererDetail.props.ts.json",
+    "Hash": "B6C39DCD32B9B87A110BEDC96C6EC855EC11E291F14FE8F1242720D2B2CA4FD2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\RendererDetail.vue.json",
+    "Hash": "4318082FBF476DB2163CEDBCA7BEB10745CAFBD33970FDDC72F6E59849B7220A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\types.ts.json",
+    "Hash": "67A68D8F6A48D299C2FDD97D2F501C366CC3BF731C11CFA63DD76748877DB28A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererDetail\\zero-code.ts.json",
+    "Hash": "72021256436AB11DAE8FB1C7ECD7B768DF4E1E9A61D031B72E949E3FC228421E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\index.ts.json",
+    "Hash": "2A266A3E265C68F262CF263A569B92D28A6EADE5989B6AF01FB18D4C08B079F8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\RendererForm.props.ts.json",
+    "Hash": "D1E4FBD66F2036D7169004BD4C55A95CC7E1D8126B3186D3857F047184435092"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\RendererForm.vue.json",
+    "Hash": "E4F8AB3565FC60242DF1C05C78CB1C3DD876241FD02FFAAC5FBAC5FE75C6B981"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\types.ts.json",
+    "Hash": "9A29522109159FF6C3281824F3BB22EC589B784A61343F66B39F48B9CCCD9F1D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererForm\\zero-code.ts.json",
+    "Hash": "3345FB341BFD62535C17514F51D495DA6D0CF3D40A1425A6C3C88FA3B62B9472"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\index.ts.json",
+    "Hash": "40DB7ED10306E4BF537758A9D409A4CDDD57F66A256C6D72E2C86B7A65B3F71E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\RendererList.props.ts.json",
+    "Hash": "363FEC2871330AC41F15C1E2A81686DEEC4BA67E3F8278C73F3F813E31BA25A8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\RendererList.vue.json",
+    "Hash": "A32AA7DACB09B371165F6CE82D34EA137DC5CD409AB907DD49B37866F0A1D5BB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\types.ts.json",
+    "Hash": "2D86F8CCD3DE72DF91CC0DA19DCDFD63C4CC5C56A6A03D7B8E135C189EA2A350"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererList\\zero-code.ts.json",
+    "Hash": "9FD287ED9CDF4B063900BE5E790572B18A10858505CAB79A352BD763F8A6D271"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\index.ts.json",
+    "Hash": "401EFF2B75CBCFFBA211F9B271BE47FE424A91952E9F8FED53AA2B33BCEAED2E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\RendererTable.props.ts.json",
+    "Hash": "D45F5C26AE77E26D629E81403F87B5A9F6619245E3BA61361D411C36A701512D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\RendererTable.vue.json",
+    "Hash": "81CAF66630FB8CAEAA02D70154671CAF66865000D1D3EA6FC61C4E11B0AB6A01"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\types.ts.json",
+    "Hash": "1E353AD7F1488536E7DCC7B5500F9BEB2D1FF56CDEC2CF7CA99A094ADFE50971"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTable\\zero-code.ts.json",
+    "Hash": "3AF31C2226A4596614B8ED5139FB1FCEDDE7A125FE22A3A8B0B90DE84EE5BDD7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\index.ts.json",
+    "Hash": "0CAE45E1C861F0845DA59F8F833DC1A289C33F18B66C73AA953004CB665AC85E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\input.ts.json",
+    "Hash": "DAE197FD76B2D61674E366A2BA8230F5246FE2686EF17AA8D123F478E18A3F0D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\RendererTree.props.ts.json",
+    "Hash": "3B6592C801F2B090C8F801DC9180F5575E295AF6949BA95BD6AF700A78DED2B3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\RendererTree.vue.json",
+    "Hash": "F7925B4D22C0BBC1CF42F4C85B482D101A60496973A7AD879B35A385D14FFD2D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\types.ts.json",
+    "Hash": "99D6804B2CF94A9D1E3E31B8910154D41D92C5795567201EA5FF9D9F2B7D9619"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererTree\\zero-code.ts.json",
+    "Hash": "6155DF820952B184A08F9F739B16A61A509DC594327574B77A30060ACD037828"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\index.ts.json",
+    "Hash": "ED27C87D7ABD783B1B2DA914208172349D24D8C8D93C060D0DB2A2F1EC910EA9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\RendererVirtualCard.props.ts.json",
+    "Hash": "86AB1CA65FF2C6BA052896BCF1DEC4FAB8191E063A76FEACA2FA88F46D8DBECC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\RendererVirtualCard.vue.json",
+    "Hash": "855BF9B7A66D2DA8580FAB75279ACA29F7006F7CD807F8E53EA25886F069BBB9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\types.ts.json",
+    "Hash": "A7361A459B410CFC8AF98C3D3CB7AEC3A1C1271A6C8288AC128E0438B74581FB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\virtual-card-paging.ts.json",
+    "Hash": "23361D9567B825A5AF9342EDB5396A2B4E81A68B2C4CE28A8514D1BA8EB21743"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\data-views\\RendererVirtualCard\\zero-code.ts.json",
+    "Hash": "E122819AF39C5CDC21E59CC060C42A5E15ED5C9CC9656D1085A439AF01D46AEA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\expression\\FilterExpressionEditor\\FilterExpressionEditor.props.ts.json",
+    "Hash": "5F9FDE8EC98B9F997BC785606FD5449BAE80F58762FEB0AF63E5F2B5B141DFE2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\expression\\FilterExpressionEditor\\FilterExpressionEditor.vue.json",
+    "Hash": "0831746DD78898CE02526EADA1ACDAB0D614CA8933EB34E2E670008A003B4ADA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\expression\\FilterExpressionGroup\\FilterExpressionGroup.props.ts.json",
+    "Hash": "EC9BF45B7C502535C2EE935FD123F5B895AF12FA2B17004CE10B2087BC38C51E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\expression\\FilterExpressionGroup\\FilterExpressionGroup.vue.json",
+    "Hash": "24B74D1A425461D84584C3FB3DE8B5B2B55C536F0B3982EF08F3E9CCF1089CE4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\value\\FilterValueFunctionDialog\\FilterValueFunctionDialog.props.ts.json",
+    "Hash": "A3A685256E54B31144A8651F4C586ACA658E7C0F60471DF8DBE13FFC7C91D607"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\filter\\value\\FilterValueFunctionDialog\\FilterValueFunctionDialog.vue.json",
+    "Hash": "52258DB881E65A6B731515B2A7B245D5EF42987004875FE949F02A3090D037CD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\index.ts.json",
+    "Hash": "7402A974910CE0D1ACBDD3D39E64BCA72B74E58252CFCB3C447513566A3008DF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\state.ts.json",
+    "Hash": "65F200CF56715A09EAE4B334B22841DECCDFF8966E029EC50B35F99CAEAD4471"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\action\\RendererButton\\RendererButton.props.ts.json",
+    "Hash": "D4C8EDC46D5F394965E7BCD14AABA6E2B050A606E012705EED2FCE03AFEC0A78"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\action\\RendererButton\\RendererButton.vue.json",
+    "Hash": "AB0720192C4B56FEC8E9B2CED7ED914208462AA5834A4473E188CDCF1A60273C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\action\\RendererButton\\useActionButtonRuntime.ts.json",
+    "Hash": "0909423B63A9C561E9EC392A643204B9E1F3F23BC3A833EB01AD0A61768560B5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\action\\RendererToolbar\\RendererToolbar.types.ts.json",
+    "Hash": "603CF073FFFB55163C8E74C47E3ACFD2EC4F72EFE91E0194561D860A41A7B1B7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\action\\RendererToolbar\\RendererToolbar.vue.json",
+    "Hash": "454EE9C670B49A85819E31A04297ECCB7C051A36DFC1109C5E816533AB8B1706"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererAnchor\\RendererAnchor.props.ts.json",
+    "Hash": "2F4F7C70B0D725EF0E4AF5ABF4222E745FEF2B49F2E96910A1D771691A80C882"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererAnchor\\RendererAnchor.vue.json",
+    "Hash": "45F282AF492A0B85B0F29551749C957D9A6080925BC2A59133A9C1BF08EC5A43"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererAnchor\\RendererAnchorLink.props.ts.json",
+    "Hash": "946E05506AFD37112A98DDD30931EEA6805E492944F0CF4895AB32498E435BCD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererAnchor\\RendererAnchorLink.vue.json",
+    "Hash": "F9327EF773B589CDFD0A83211AD270FF0FDCC52B638E7B512925AD82728C7392"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererLink\\RendererLink.props.ts.json",
+    "Hash": "514EB5CEF09BA9C70877C7B5E13C096FB6014AB31C2FBCEEA14075EC7751B5BB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererLink\\RendererLink.vue.json",
+    "Hash": "356FCBDDD291CFA86E5358F55D04A58A74E3771EA95BF5DB989FCACCB68CEDD1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererSteps\\index.ts.json",
+    "Hash": "1B8764C4C2B27908D6EF694E24099938F2445B62197ACB8245751B6962B132CE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererSteps\\RendererStepItem.vue.json",
+    "Hash": "D3EC7F68A796614BB7B7B073DA591741DD81F025C70AA5198C6EAFF138507B87"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererSteps\\RendererSteps.props.ts.json",
+    "Hash": "44C1BE0A2F33BC47042105970952555923AAB8177A6D645F0647FB2E71E39BFA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererSteps\\RendererSteps.vue.json",
+    "Hash": "590AEB2DF955133486DF984D9487F5862AB98B111891896198FA4A61AE5B3153"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererSteps\\types.ts.json",
+    "Hash": "B03FDC5CAE6EEC68087C0E7C7090AC3640B90CEC5EEEBB0CDA313D2B4EA86E17"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererSteps\\zero-code.ts.json",
+    "Hash": "43EDA8C05C08719896774C1AFE810D4BC7CC7335FDDC331009E0AA1C302E0E47"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererTabs\\index.ts.json",
+    "Hash": "EE67874793C3B36AC2060F2178038DCA05AD4A397471BA6D922D1AB5127E3362"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererTabs\\RendererTabPane.vue.json",
+    "Hash": "5D98C46F59FAD5F909FB9BDA11FD4096D60419598877DFC7AA2FC76969FC88EE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererTabs\\RendererTabs.props.ts.json",
+    "Hash": "40C030F37B02731FF4203C56E7B83E23EC6749672EAE4AB1381166595DFF853E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererTabs\\RendererTabs.vue.json",
+    "Hash": "9E7DAB0D49512183CFB3F25648E2A70997D70256304AE7E7472343D9ADFCF36E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererTabs\\types.ts.json",
+    "Hash": "AA528A4649A5788644ED2426A92685D9AA86D7EE988E99F562FA961DAC238A1C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\navigation\\RendererTabs\\zero-code.ts.json",
+    "Hash": "DE6C027748D514F94EA976CA7B46AC6D92F6B7545D5FD478A37A168692D875CE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDialog\\index.ts.json",
+    "Hash": "05BDBB89FFAC1527A6A370E0152B72384C73D08677A46490E982BE1DDAC7D141"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDialog\\RendererDialog.props.ts.json",
+    "Hash": "85BD6C51CD249B0D950CD6E1ADE02907D456DB5654F739AC165DD3C353FDDA50"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDialog\\RendererDialog.vue.json",
+    "Hash": "FD68F7BC75CF85A6976326BB839E011D7117E943895E1ECC7EDDA3F374D87FF7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDialog\\zero-code.ts.json",
+    "Hash": "848F7573D5336A592200800D2A2ADD6B7D0C701481EC8DF9363562A9808C8FF1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDrawer\\index.ts.json",
+    "Hash": "B61B8C0FAB10C344D17983C56E1FB19948442D5AAE9A2CCF6BA86DA553E5B000"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDrawer\\RendererDrawer.props.ts.json",
+    "Hash": "F98E717A97BE5504272D0C0EFF030E52247BB82A2047D8E795DEE078DF4D61EB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDrawer\\RendererDrawer.vue.json",
+    "Hash": "E32507DDB3EFB73A802C2A8D3C8A3A850F912CE4B50A3C6F52569265A76058A9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDrawer\\zero-code.ts.json",
+    "Hash": "87F2E066F9C8B794F4B0DE0E4C35215AE7D83FD5002095DC0721DE8FE57073D7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDropdown\\RendererDropdown.props.ts.json",
+    "Hash": "9663DD4BF09A952622B3026CEF046E72D352A5CC0A0BBE2C25C45F7DB0763D7B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererDropdown\\RendererDropdown.vue.json",
+    "Hash": "4059C3511B1CB60CE4CBBE974D3223A1408011EC1A3E97C74D328512F9819F3E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererPopconfirm\\RendererPopconfirm.props.ts.json",
+    "Hash": "D69575028DA2A57AC3B3FFD4EC93C89E308EE05CF073BD8EF248C2E24A94C67A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererPopconfirm\\RendererPopconfirm.vue.json",
+    "Hash": "77CF9547E0805DB487DEB7EFF9E62CD6879124D8AECF257558B319FB2476FF2C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererPopover\\RendererPopover.props.ts.json",
+    "Hash": "2FCFA51BB78B94B970FD677F532DEEC674FB84623E0DAC844D925E0EE80411F6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererPopover\\RendererPopover.vue.json",
+    "Hash": "5B6E638516C7BD3E45E4F043A3D1B9FE660C91E8957354BC2CEE1F7D01E7F15D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererTooltip\\RendererTooltip.props.ts.json",
+    "Hash": "BF048E7EC71D3B808D18A7C758213B1B510BEDF8ACD2CE2382B945E26F03AD77"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererTooltip\\RendererTooltip.vue.json",
+    "Hash": "00B71324BF8A6876A454A98272B3517DD92E003E6C0794F976745A38C7C41774"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererTour\\RendererTour.props.ts.json",
+    "Hash": "E09E61FB5BC4CEB0E8DF25A6AD7A6D210FF482D5E9B3EB36C114DEA2FECA24C5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\overlay\\RendererTour\\RendererTour.vue.json",
+    "Hash": "A3F741C0F33CEDE6971A73F0171C0C3F50F7D2FEFA636791C349C70D9E15CE4B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererCard\\RendererCard.props.ts.json",
+    "Hash": "E585BC335D1CF6CCE68584FD8ECF3E10D59B15A3972D0457327546D9A0587200"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererCard\\RendererCard.vue.json",
+    "Hash": "46471341D3ADB81514F7F6666F48506E02413CC03D692445F79D347FB4F6F42A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererCollapse\\index.ts.json",
+    "Hash": "05888FFA3D1D1DC9FDD9C28784492A6B377E40FBF45AB137A92B3761BDA31E06"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererCollapse\\RendererCollapse.props.ts.json",
+    "Hash": "C99572141D2B3350457B2A55BAC8D0D5ECD26B08575364E8F6D2EB5CB78FD5C3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererCollapse\\RendererCollapse.vue.json",
+    "Hash": "28977ECEE81FCA15879177C1F706BB37FE0549BE5154F41E3BBD0E6DBB46B55C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererCollapse\\RendererCollapseItem.vue.json",
+    "Hash": "3D1E3525B3A76ECB2746A2D369B0F910EDED4A66BF19B2571334BF17BEA9068A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererCollapse\\types.ts.json",
+    "Hash": "D52F69B6FD432388E85438ADDE8349E154B7F2B54A4CA93FE5BF9BE4CD2E10D0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererCollapse\\zero-code.ts.json",
+    "Hash": "828528654008478C9DCD447685D2A11248DFCE038586861C50428DAA3770B40C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererDivider\\RendererDivider.props.ts.json",
+    "Hash": "88AEE6B28BC065973EEFF54BE0A3E4C272F708344102B664F9F596665EAC73DF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererDivider\\RendererDivider.vue.json",
+    "Hash": "A012ECE3A6705238C588D04662600F26306784B4F2A7CA3D67D062CE9914AA96"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererPageHeader\\RendererPageHeader.props.ts.json",
+    "Hash": "C14536EB7646115AB7A90EC9F5FEEAA933D79797F032B27C211A2542FF9F9128"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererPageHeader\\RendererPageHeader.vue.json",
+    "Hash": "AA06E150AE9D42D50A153A782B28291D2E4731373F39004CE13873A03999E571"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererSection\\index.ts.json",
+    "Hash": "28E6FB5900EB2C8B8359D1293FB46E0985A59E169DBD68D3DF577CC153A4077A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererSection\\RendererSection.props.ts.json",
+    "Hash": "699B0A353BF61FB419790EF99D40B5AE5B3B6324BBE40C0E3E598BED9B5CDA82"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererSection\\RendererSection.vue.json",
+    "Hash": "CEAF107CC12CC7F25EE096E880E3FBB287597C74D37DFA392E80DB7036529624"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererSection\\types.ts.json",
+    "Hash": "6E95755306C34BFE2B64035F84206D01D22088A97C456F5215721F2412F460A3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererSection\\zero-code.ts.json",
+    "Hash": "B371026BC4DB5BC386137696CD06F436A3700479762FD8A9AA61996B8FB5B76A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererSpace\\RendererSpace.props.ts.json",
+    "Hash": "0909D78C5400A849CD20CC714F54A5CB9D1DEF501585C255084B0B0CB7B2C808"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\layout\\structure\\RendererSpace\\RendererSpace.vue.json",
+    "Hash": "1B57C65417381FB08B1B491B34A003401D3302BDF1DA37D907D14A6954AC9334"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\container-filter.ts.json",
+    "Hash": "30CD75EF5AA2F3E5847EC31A8160CE8B18B36ED4CF839C192CA86DB6CD9F43DA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\container-form-detail.ts.json",
+    "Hash": "D28568AE3C5F7AD32C4B54BC04AFF300D2DB2C74351CEC7AF5027903545661E5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\container-layout.ts.json",
+    "Hash": "D5D85C20615C754B74E65A6C9908AB7634A2C3321A060AC492338B74809C6750"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\container-ui.ts.json",
+    "Hash": "CDB03922EB05B0CAEF4DA07D379B6BFB9086949C788652ED9C9A829DACC63C78"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\index.ts.json",
+    "Hash": "104DB7216FA3C962038B9A57F7D74304A15A12293CCB30676561EF5396D43DFC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\runtime\\useDataViewEventBridge.ts.json",
+    "Hash": "081045638182D6C896A1583987697FFD93E0788185A9523350EF789FE9C9D491"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\index.ts.json",
+    "Hash": "9936E32F1644F4FC8809F74A57676B74EA5B3F99356F9069C54B8619BE27118A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\interactionControl.ts.json",
+    "Hash": "A23D34859D417007BCE660FF1B2B9543D9B532151E0191ABDCDA6989EE6B3B77"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\RendererActions.types.ts.json",
+    "Hash": "10A2B9E46B24FD7FEEA792A5F34EA0CC52A10CC0E3B9CF9616124FD156540525"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\useEventDefaults.ts.json",
+    "Hash": "1CC1C6BA57FEC4DCA24F6280952F55FADB7602726D0B2F9E7201C14FB4C9CE17"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\visibility-container-zero-code.ts.json",
+    "Hash": "EA030F9B5D6B376430F5EA340086F0C62BD39A5EE00E5100004C03F331028F72"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\crud\\base-container-api.ts.json",
+    "Hash": "BC81D8071BFE55722C47B651F120161433266650BE74EC8D5F1ECEF471896545"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\crud\\base-crud-methods.ts.json",
+    "Hash": "0AE3B5E813AD7ABEE377754B054D120C9AD66D2EB11A93CB214D799237BB0F4A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\crud\\crud-defaults.ts.json",
+    "Hash": "310BB3BC1DEE966BB5D0F0BF2F608F8930D516D43771F3D28423D9023B1252BA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\crud\\crud-result-helpers.ts.json",
+    "Hash": "A61B303A1160906F06560391ABAFBAE146CD23D5132F2ACD7FAD77F05EB10394"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\scope\\RendererFieldScope.vue.json",
+    "Hash": "1D16ABBC27689F962A7E3E9CF3F8E796990A6D5AF001A29F772D55F970B6B87D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\scope\\RendererHostScope.vue.json",
+    "Hash": "DB43ABDFEFCCBF5487E84C7890C647C5C3D4F65CEA84A2CEDD71C5711679E649"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\scope\\row-mirror-sync.ts.json",
+    "Hash": "2C953E02115F8F5F5115BE83164059111C2A01279B12D6333087ECEF9A635FC8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\support\\scope\\scopeFactories.ts.json",
+    "Hash": "9ADBBB097C671A2046F026FC6C9ADB36CC03DBFF1D5273C1E08A4F9C836DA27D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererEditor.types.ts.json",
+    "Hash": "2D19FFC143803FD417EFAAA143543DF031FB5D05E774A6F4F4F336927FA6664A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererEditor.vue.json",
+    "Hash": "60F68515F5B0D0954784F32E72C879B4F59421768EE738A032596C737DD707C2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererFilter.types.ts.json",
+    "Hash": "9E720A5A34A7B3C36CC216C78305F266D161D5665224FD781715E825E43EB5D7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererFilter.vue.json",
+    "Hash": "AA235079E34533C3059A8F53F9637970093A38954046FD113727B8FA352CF8F3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererFooter.types.ts.json",
+    "Hash": "D968784808C02F4A410A30E3847CC45BBE7D6310344C9D2418516B12D94F9651"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererFooter.vue.json",
+    "Hash": "F1C42B04624B1B611C438028C377A7504E417D37FE40888FF5D9A634C85A7500"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererHeader.types.ts.json",
+    "Hash": "3410BE9C5560D555381B1D992AB6ED89B74304EB063713BAC8E5DF00316FD9D5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererHeader.vue.json",
+    "Hash": "6985A1433D0A879B716B84CD0F45733B35D6FFD2BD6FBED647D2639D30A1FAC4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererTail.types.ts.json",
+    "Hash": "761550ECD33C87AC72290013434C9510C28E4790E97B1360C5E3822918DE358E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\containers\\zones\\RendererTail.vue.json",
+    "Hash": "6EF0A1C19C8DEFF1FD3BCAF7603A1606568C72DA0519B274A57E1FFFDCCA64AB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\useDisplayDataSource.ts.json",
+    "Hash": "E9CF9E94A0CD536B1E3D76D1BE0DA8F9EE95EAEB4B86B0E5997F2C508662906B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\index.ts.json",
+    "Hash": "839EB34109F10087EAF200914C8BD652FF28ADF9068BFCABBC8BF6E696BFDAF4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayPagination\\DisplayPagination.props.ts.json",
+    "Hash": "4B9723A931E0214106824C4DC68CC71AFFE7979D434D2123CC0D7C51265D5EC1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\DisplayPagination\\DisplayPagination.vue.json",
+    "Hash": "8E74B3A7F01B14602D664682100FCB2146D03C6B680E28A82B222AD3D5188B5F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\value\\DisplayBadge\\DisplayBadge.props.ts.json",
+    "Hash": "E17FF55EDF5E6C94CC66F59E672588648E8D64B51179515EE3315A8BBC4F7259"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\value\\DisplayBadge\\DisplayBadge.vue.json",
+    "Hash": "D9ED20867CC5012685164E36D6D711CC9385ACFC2A53A873722DA677664D1382"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\value\\DisplayStatistic\\DisplayStatistic.props.ts.json",
+    "Hash": "2C289615D3B7BC2F7D994502F07953AA55A510A93C324E185EBAA5A73217DC21"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\value\\DisplayStatistic\\DisplayStatistic.vue.json",
+    "Hash": "88F51D40FEC0B071F147953330983D00D6A881B9232FDF76E9E202DF41B0DAEE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\value\\DisplayTag\\DisplayTag.props.ts.json",
+    "Hash": "E87DEBB8FCDE2C6FF8F01F07C8007813DD631D5A31878D11B7E9A2CB5FBD93D0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\value\\DisplayTag\\DisplayTag.vue.json",
+    "Hash": "E420C25B6B8EF81FC953ADE083B8414774C31197B8AB472CE5BCFD643999DAC9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\value\\DisplayText\\DisplayText.props.ts.json",
+    "Hash": "6163813AD1C3C94934AA73684F34E39DC21BD87EA505ECB8DFF6DABB9759D395"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\value\\DisplayText\\DisplayText.vue.json",
+    "Hash": "971E6DBA69EE5FFE59B33297A3EBB9D9E05657B641E2A3A24352DBE9BA2EA9DA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\visual\\DisplayAvatar\\DisplayAvatar.props.ts.json",
+    "Hash": "97E8F16419C0929E7C0DA5BDADA9CA25F20DA22A527D99576CFA1E7F4892417C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\visual\\DisplayAvatar\\DisplayAvatar.vue.json",
+    "Hash": "D4982C75FF4960878C284B9640CBC3327219FEB0D3119460F7DD83291DCDC26B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\visual\\DisplayImage\\DisplayImage.props.ts.json",
+    "Hash": "1C1EFB66C00A590D669F07F3E8DCAE4197323369C34F786FD0DA9C3F61A8FA67"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\visual\\DisplayImage\\DisplayImage.vue.json",
+    "Hash": "FEA1143351AD365DE1B2538CD1E9F5B196300C44B02E00D9E3663432614D3A2F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\visual\\DisplayProgress\\DisplayProgress.props.ts.json",
+    "Hash": "88B5A6305819284C557FB49EFA87ADCAEA8CB882F3CB18C5F003B35E4326C622"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\data-components\\visual\\DisplayProgress\\DisplayProgress.vue.json",
+    "Hash": "08280BE8E5E3130E409B7A7E3DEE24C3AB895DB4C2242FD45C71230D20EBC8C0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\index.ts.json",
+    "Hash": "76C5E3B0C6334619DC27168C2442FEC9945A0FA05E194024CE26AD1D109C7A61"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayIcon\\DisplayIcon.props.ts.json",
+    "Hash": "6C66CB6223F20F7B72C75B14753F881B26CC39E411487CAB9792E5217E47D37B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\DisplayIcon\\DisplayIcon.vue.json",
+    "Hash": "52906F4384C9E77EAD1A150CB8DC7ED506888B68CC84EFEDF4878F1B1D8A90EB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\feedback\\DisplayAlert\\DisplayAlert.props.ts.json",
+    "Hash": "2AA83BD6EE52F390483C859DA82960B77F1915A9446B96FF48C403360C278D5C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\feedback\\DisplayAlert\\DisplayAlert.vue.json",
+    "Hash": "8F8A00223B8612BF0E35BDA543A0AE6C4A0A5A90851D75BB20CBB99B01365DDB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\feedback\\DisplayEmpty\\DisplayEmpty.props.ts.json",
+    "Hash": "824287652CE43220849DFB76D7C165592B164AFE32D441BF27A5F2FC37237F62"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\feedback\\DisplayEmpty\\DisplayEmpty.vue.json",
+    "Hash": "3774E70DC03ED34F6564029E1E5BDFE5007FA872E33384AD3E2D1C3D7688930D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\feedback\\DisplayResult\\DisplayResult.props.ts.json",
+    "Hash": "30DA7BA947DB257EE28B3C15C06DDEFEA8D0FD38D776A200F76C50D33E0FC58D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\feedback\\DisplayResult\\DisplayResult.vue.json",
+    "Hash": "4C415ABAADE35F6D6E3C498BC5A8CE1910766392416E9F49CAA8FA4E09376F54"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\feedback\\DisplaySkeleton\\DisplaySkeleton.props.ts.json",
+    "Hash": "01DA2AEF5CA88D56959784148652766DD5277ED37AA9CBDCE29440AD4FED3C3A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\feedback\\DisplaySkeleton\\DisplaySkeleton.vue.json",
+    "Hash": "7E64F0257F4CDF2B8C163F6B542E81291DDDA9404E1BCF60F356789521ACF077"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\structure\\DisplayBreadcrumb\\DisplayBreadcrumb.props.ts.json",
+    "Hash": "37EE42D50D0D1C04C91349FD0B697945682F1BDB78A25960E68FF11E8FBB2A8C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\structure\\DisplayBreadcrumb\\DisplayBreadcrumb.vue.json",
+    "Hash": "6401F897915E42BFA77F58494CD8BBE126E80424C93519CA67F05DABA9B46F83"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\structure\\DisplayBreadcrumb\\DisplayBreadcrumbItem.props.ts.json",
+    "Hash": "58EE96B2C6F3F203B7A5EBB0767365969E0E3C40362FDE667350994B7B8A820E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\structure\\DisplayBreadcrumb\\DisplayBreadcrumbItem.vue.json",
+    "Hash": "C2E110789CE35FBF0322A27805A95728D4863A77BD543D8678D3F546E23D4D91"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\structure\\DisplayDescriptions\\DisplayDescriptions.props.ts.json",
+    "Hash": "48A22E6C917AFC79AA5C4BBB6DC3CC64C6DE7518137C5E3FE7F275A0539C50DF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\structure\\DisplayDescriptions\\DisplayDescriptions.vue.json",
+    "Hash": "4FC4262A254E5C1C6F838224B8A405501D4F583C7EA33AFA08C8D27D44085852"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\structure\\DisplayDescriptions\\DisplayDescriptionsItem.props.ts.json",
+    "Hash": "0B13B6AD37022F5ECC4B44AF052F8A5776714DD4828AF70F1EFD88FCC3D212FD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\structure\\DisplayDescriptions\\DisplayDescriptionsItem.vue.json",
+    "Hash": "3A1A9E864AB7498D06163F10F1F6C2184E81DC7937E0759051B3C7CED19EE82F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\time\\DisplayCalendar\\DisplayCalendar.props.ts.json",
+    "Hash": "4C7AFB1A9AD4A2728310DC7F52DF507EAF5FF4D0FCBC553F49E718D5EB2DE0A2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\time\\DisplayCalendar\\DisplayCalendar.vue.json",
+    "Hash": "58FFEE2BE3C83977B76D68BC26B78C8C3A0DD3D2EC05C038651C2CD469909357"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\time\\DisplayCountdown\\DisplayCountdown.props.ts.json",
+    "Hash": "DF8E8AB6130A305C81CF01CC81A9D6DDA45CC8A7B90D294603E7087E8BD72C23"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\time\\DisplayCountdown\\DisplayCountdown.vue.json",
+    "Hash": "9B971CDDB1B55516F453687A7C112692313AE434932840FC300EF68F9462F2C2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\time\\DisplayTimeline\\DisplayTimeline.vue.json",
+    "Hash": "94FAC9B5045165E59EF6E8DF73CE14E81F21D5B4107100D4A86354073DB89D6C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\time\\DisplayTimeline\\DisplayTimelineItem.props.ts.json",
+    "Hash": "4FA0180E60DA4CDEAF17FD5F3883FBBD97F76BD6B33A666FC5FA9E219C0F1EAD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\display\\non-data-components\\time\\DisplayTimeline\\DisplayTimelineItem.vue.json",
+    "Hash": "F6CE4D0EA766D9D338E75D4A2F34A97179874F46705E5D5EA883584C7BEA9DE5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\editors\\index.ts.json",
+    "Hash": "27FB546A51A31D6614B62EFA1FE4FF84CAFD9672A1A67CA1D276E05D2953E75D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\editors\\JsonTreeEditor.vue.json",
+    "Hash": "7435753C5BA92FFF46B02FC52AE6F2F8B25C7E18F47A99150EFFA8742E13C694"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\editors\\SparkCodeEditor.vue.json",
+    "Hash": "EEA6A5E08DE9BDCE9114874EBF8C694E54790BC86409A4AABCB3F325274EE59C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\editors\\SparkJsonEditor.vue.json",
+    "Hash": "FDD10082A88B22748ED313B6AADA7534FF6111CAF45FA45984F840571EEFD79A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\columnFormRules.ts.json",
+    "Hash": "0BE6A8141EAA7FE690E218EB9D2566C6B4EF8E3DA37797799C59621DF7C30906"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\createPickerPreset.ts.json",
+    "Hash": "A009C9B0E6AEB8C29022C0BE16996995B3C6B71F714740D0F7CCCAA4D93D0B4B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\actions\\useFieldActionMode.ts.json",
+    "Hash": "E0457995163F0495789A1F77A725B6AFEC66F7352820E6A51FDA79598ED967E5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\actions\\useFileFieldActions.ts.json",
+    "Hash": "59E794C6C7CBCE2F3BC1F0A433F7C1A98D61E039CC6A38F6E00CCE1BFDD49321"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\actions\\useSelectorFieldActions.ts.json",
+    "Hash": "F7AC94D454B7B52FEB1587F2CB865BDEB528085AA6D73006695D201065B5CB9F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\dataViewEditing.ts.json",
+    "Hash": "10F5FACF7F6D764DC35AE55EAE26A3A71DBC08FF2692BD116D93D3322C3E8BFF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\field-composable-props.ts.json",
+    "Hash": "EEC45BB7672305C675476D09FCB57A35DDD7F1984C62A8F2DF4CF7C8AB15ADFE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\tableColumnContext.ts.json",
+    "Hash": "69FC2BA86A85E3CEA910FF2B556E94B346818B52A80864BEBFAE283192CA5E67"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\useActiveFieldRow.ts.json",
+    "Hash": "B92DE9B2470E4DB2EB93A84D7975629BE624554272B5FE3B52FFBC731E2A2FF7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\useFieldContext.ts.json",
+    "Hash": "6E1C355CBBA385B0E11B663EBA1F9EB232E12DA80678A3F9186BE1C867FB75FC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\useFieldPermission.ts.json",
+    "Hash": "DB3853BE15B81E235AC6872E656E25E0A2466A4C150EE9531F7781D78E868415"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\context\\useResolvedFieldContext.ts.json",
+    "Hash": "CDD320A61048F052554AE3E346959F31B7C653E226081E849314C2099F260CD6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\index.ts.json",
+    "Hash": "7A386E44DD94BD671A83D0DEC2E402CE09934DC2177FB7B64E7DCF3EB9D374DF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldCheckbox\\FieldCheckbox.props.ts.json",
+    "Hash": "C6A3D64AD83E644B0B5BEBDA62CA61CE9471A4639FF267A6D837CF0BC869D5C5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldCheckbox\\FieldCheckbox.vue.json",
+    "Hash": "750A8B4A9F0240B4D98D68DE5BEE60531BCE6FB3BFEB7C8BC84E58868ADED754"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldCheckboxGroup\\FieldCheckboxGroup.props.ts.json",
+    "Hash": "127EBD2E51441520353A62989DB6F0CF47A7668ABAE4CFF82EF9B02B634B61D6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldCheckboxGroup\\FieldCheckboxGroup.vue.json",
+    "Hash": "4E0986777F76FAC0D05F387F087143BE9FA9F801AA453AE253CB6FE99CEAC636"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldCheckTag\\FieldCheckTag.props.ts.json",
+    "Hash": "A6F97B100C8A1CA2958709E96B82EBBFEABC58947877114FBE0DB3FE94EAF9EC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldCheckTag\\FieldCheckTag.vue.json",
+    "Hash": "05A3475390C5ED2F7EEF7A4A0A51B908CBC92CF31282FBCC9D45315502CA4E78"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldMultiSelect\\FieldMultiSelect.props.ts.json",
+    "Hash": "93350D0142186622847F5C0AC91EF654BD38D9A6D35798368BD8E072A5052F8C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldMultiSelect\\FieldMultiSelect.vue.json",
+    "Hash": "F59BC92387615E577EF0FA197738BDAA3BF36E0C6CDB32499D714B4A09A1BBB9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldRadio\\FieldRadio.props.ts.json",
+    "Hash": "2C16596329EB025138221A2A6E452956E772F0ADCFA5EF4A4AD8769FAD46C895"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldRadio\\FieldRadio.vue.json",
+    "Hash": "9CF72AE4314E605D0F302A638598739723DD0D11AFFA9DEE3E797359DC581E05"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldSegmented\\FieldSegmented.props.ts.json",
+    "Hash": "AA921322B6B89347F99CD2355F52A945B811F1CC0D1B4EE87283B69CE254BF86"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldSegmented\\FieldSegmented.vue.json",
+    "Hash": "E4110AC35587DC21794141674015A279E82FB0CFBFFB445AABEDAD4EABE56510"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldSelect\\FieldSelect.props.ts.json",
+    "Hash": "0EB129AE69A0EA5C74D3BE1094B727C1F46D0F8A6729A7C74F36A3737E72F3E0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\choice\\FieldSelect\\FieldSelect.vue.json",
+    "Hash": "831504655A07F70972A19B48599B5ADDFB1FEAB7A37038D94F96C1E6F21785BF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\state\\useBasicFieldState.ts.json",
+    "Hash": "CAA9A16A1C6B8260867C1517634EABBEE579952B2C626D3AB45E323CDD8E4727"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\state\\useChoiceFieldState.ts.json",
+    "Hash": "E738CD879A5EC4181574E4FE957AB4592B1314F580FF5B7D10AEC9CE3A200785"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\state\\useEntityPickerState.ts.json",
+    "Hash": "980FF988F9AC21EED06C1070BE9E04B12D7F90837351E9D7A43609FEC31FBC6C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\state\\useFieldControlState.ts.json",
+    "Hash": "958FEC9485A72AA38F5D5B07A73D7861619F9580AECDD636B8212F553C718693"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\state\\useFileFieldState.ts.json",
+    "Hash": "DFED172E8B3B996C25FE726B74C267432E74AB8E5391A2030C8FBE168C8C1F27"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\state\\useHtmlEditorState.ts.json",
+    "Hash": "8CCD766B4B761C1FE92A8F01E30DDF75DA5D08EC5FD51CB7490246C5EB7615FC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\state\\useOptionFieldState.ts.json",
+    "Hash": "F28AA901D20988AD95F1D366B26CEF5595B487DA26FA60BDB65249C9FAC2D83F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\value\\fieldValueCoercion.ts.json",
+    "Hash": "BE054A79F5E280C936950E3A91E86CCFE1BB431BC9DA0F859754A6375959E955"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\value\\useControlledFieldChange.ts.json",
+    "Hash": "FF5A2088D66802C82CF1892706DF698733F55CD72DA3454C8B6013880DED883D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\value\\useRangeFilterMode.ts.json",
+    "Hash": "FBC34BF984CBD4FB45DB9CC9A691624E74EA0AAEFF17A24DE69F57507DA9F993"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\composables\\value\\useSwitchNullValue.ts.json",
+    "Hash": "3D8A09063FF658DEE06160DE5EE09A559875B198EF69A692D252ACA7C9D4858D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\datetime\\FieldDate\\FieldDate.props.ts.json",
+    "Hash": "4135028FEECBDEE634F9A234C1E1BBD6F319C0F87440455428D2A3B7599B45F0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\datetime\\FieldDate\\FieldDate.vue.json",
+    "Hash": "2C064B01582B139E8BFC69F59A979EF41CBC0C455CBD8E52F93F365198667625"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\datetime\\FieldTimePicker\\FieldTimePicker.props.ts.json",
+    "Hash": "1F69BA776F4521F23B991DF10AF8C71E86854FA3CC877AC77B867FF5D1F92622"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\datetime\\FieldTimePicker\\FieldTimePicker.vue.json",
+    "Hash": "8B18D61E4E292AA6044DC40E3EC33CD8A35E2631CD1BE81F27704C2490D27F0A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\datetime\\FieldTimeSelect\\FieldTimeSelect.props.ts.json",
+    "Hash": "CE38D36CF826111DDD1A9321B77929FF9F30F97ED1C2B085AFBBF9E7BE3BAF01"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\datetime\\FieldTimeSelect\\FieldTimeSelect.vue.json",
+    "Hash": "E6B547D542A452692BF316A0716EC6D6D7E5D92FAC6AADA34FA8912B977EF130"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\file\\FieldFileBrowser\\FieldFileBrowser.props.ts.json",
+    "Hash": "1042612DA07DE267BD9A7AFD60BEB729EC16C5847A6ACB0A64278C8C0558D5C6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\file\\FieldFileBrowser\\FieldFileBrowser.vue.json",
+    "Hash": "064E9AEE13BEB570567E154ED9600A193B098DC4C60AD03E2C18C9C1FD28D1D7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\file\\FieldFilePath\\FieldFilePath.props.ts.json",
+    "Hash": "D5349F925F92FE50D969ED7B4E4AD5AA03363512990D48490520E90E5695E681"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\file\\FieldFilePath\\FieldFilePath.vue.json",
+    "Hash": "44EBEA0CF0D98E67A5126E2EE7DE2A151C13957611215B9CFEFF1795F728FB04"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\file\\FieldImage\\FieldImage.props.ts.json",
+    "Hash": "06983975304556A7988FC689E742E813A64EBDDBC524AD67BA40304BD220BDEA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\file\\FieldImage\\FieldImage.vue.json",
+    "Hash": "273D675C537FF4CEF80ABB05E5B51CA1407D32737DACCE6953A8839F61F10E7D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\file\\FieldUpload\\FieldUpload.props.ts.json",
+    "Hash": "AE243CB466E89907CF5EAA26B5B8635E91339BA6334D63859A84C2FEEC1CD085"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\file\\FieldUpload\\FieldUpload.vue.json",
+    "Hash": "0E25D7018F7A939F88E2CE1350DBA44CBD2F8FD5A2E36D324D0F61B22C6F9245"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldCascader\\FieldCascader.props.ts.json",
+    "Hash": "5040802BB2E0DD7065A8A180E86E24FC3C1BF6158FCECF6D0AD137135FF64D1D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldCascader\\FieldCascader.vue.json",
+    "Hash": "32A651A1AD9D6D9C99FFEFFBCB5B337457E07BD29838864B6AFE47F5D85975F8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldDeptPicker\\FieldDeptPicker.vue.json",
+    "Hash": "346E171EA9C49996E741E9EECD691CFBABE131195ABB6CF63545B4946643983A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldEntityPicker\\FieldEntityPicker.props.ts.json",
+    "Hash": "9E0D1930D6B29378D9C25D806C56A1F3C721CFBD4CB512E04DE99B907F68D6DB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldEntityPicker\\FieldEntityPicker.vue.json",
+    "Hash": "AD541E7928FD49AFE136E454F5CFA0347DE2CD8AD92FAA38FBD68ACA9E0CFE7F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldProductPicker\\FieldProductPicker.vue.json",
+    "Hash": "B307653E3084BAB9452CF88BD79FBDF2B519B8C7C22BE83E54263D0721BF9CDA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldTransfer\\FieldTransfer.props.ts.json",
+    "Hash": "317DB709F1491709CB894BEA91002444A703A756DA650B7D9B58FE94BBE6E3CF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldTransfer\\FieldTransfer.vue.json",
+    "Hash": "7D8C8B6D66331EDE87ACE78E0F431BAA1C548B33AA69279C6282113155E99B4D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldTreeSelect\\FieldTreeSelect.props.ts.json",
+    "Hash": "6B053C8106E14B6D09B22434740B4404C41D9BDFE79437F465EC708E52F7E289"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldTreeSelect\\FieldTreeSelect.vue.json",
+    "Hash": "5DF5637149313D5852C3C1AB6218905BC46C11F9F7AC45CBA5193F4C570758E3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\picker\\FieldUserPicker\\FieldUserPicker.vue.json",
+    "Hash": "C759C7DCF195A1775DA56F008640A689D5BEE1C8F32F968B95889FC0350A006D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldAutocomplete\\FieldAutocomplete.props.ts.json",
+    "Hash": "5E9DC7B0E627A0A00FF0648A7A11545C24E46FEDA8D5311917F158C2D1296089"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldAutocomplete\\FieldAutocomplete.vue.json",
+    "Hash": "E4CA74019FF7C83629BB98095BB59C2E7FC0F5E571E6222F2B5F22774E4AE95B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldHtmlEditor\\FieldHtmlEditor.props.ts.json",
+    "Hash": "F26E1972E33640A73BC6E84CF4465D2A30BCFCDD2A12BBCC61645312D344E4B1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldHtmlEditor\\FieldHtmlEditor.vue.json",
+    "Hash": "80BD25C62AE7777F67D6BCFF5F86B9845995C918EBF7E2DB6D9633F462F9E2EA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldMention\\FieldMention.props.ts.json",
+    "Hash": "B3D291DE6531D4085B4B0EFF69D0B37B7B3FEC5B378B16D854CFEC8273B91E0B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldMention\\FieldMention.vue.json",
+    "Hash": "FCB5771BFE29CD98B2B3D68A118269F719DEC5B02724FEDD508CDB6BC5BA47AB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldText\\FieldText.props.ts.json",
+    "Hash": "5F2345FA8B8229EF94E966C92DF3E6E83EDE09C3C34F73C4FB229AE87F2AB431"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldText\\FieldText.vue.json",
+    "Hash": "A138E501E2D9611C0429E72891600472F1768FF954A3B69376DD2B585A47F9AD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldTextarea\\FieldTextarea.props.ts.json",
+    "Hash": "44E3350F99F13EA6D93C546282B84A0B67DB343BF0FD07CFCC4F91EBFDF99DCF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\text\\FieldTextarea\\FieldTextarea.vue.json",
+    "Hash": "BD2ED5E78ECBBDB0EEB8E1CF4DAAF332DB7DDAB926687CD7274AB8E64D8DE7E8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldColor\\FieldColor.props.ts.json",
+    "Hash": "494DE996218F4AD34E96AD6E9E9238F2EEF127A88BEA714F08018D8F0D0327D4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldColor\\FieldColor.vue.json",
+    "Hash": "F50FDF14DC9122925C792C3B128F53E015D654FC0A66928A4E18510543563754"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldIcon\\FieldIcon.props.ts.json",
+    "Hash": "23544CCE0059304079C7592C6658898E1C304BDF1D66CE8C6AD17E1108C0A16B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldIcon\\FieldIcon.vue.json",
+    "Hash": "BD4354F3665C30DC77E45098A7A401B21ED0D25C958877140CB133445C0D07F1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldNumber\\FieldNumber.props.ts.json",
+    "Hash": "00428E106E1F4EA868BBBC25C8FA5E63078E535117498CDD0EB9A266D54EF57A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldNumber\\FieldNumber.vue.json",
+    "Hash": "7C423E389B75C5DE099B30A48D62E0E5ABA480C25713A391FDCF2897E4501296"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldRate\\FieldRate.props.ts.json",
+    "Hash": "B67B2C2750F5D21712BE16DCA995DB07757D172514F88CE435ADA8D08986C9BE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldRate\\FieldRate.vue.json",
+    "Hash": "15DA7FDD6AEEA078D0E8EB100A830637B4283228D5D58FA7924B461454706900"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldSlider\\FieldSlider.props.ts.json",
+    "Hash": "892BA0F87EA8BBFFC368C8AD4467443153C253DD1A45EC93DC261A6DC985A264"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldSlider\\FieldSlider.vue.json",
+    "Hash": "A49071724B5354A745E89AA45185F7CA580707E843648F30A4D29DE6D46E5BCB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldSwitch\\FieldSwitch.props.ts.json",
+    "Hash": "847A88B80E8856667B77B4A88161934FE69E660265FDEA7132FD8DD69D020AD0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\data-components\\value\\FieldSwitch\\FieldSwitch.vue.json",
+    "Hash": "55DEBA1BCD3C8AC6A83DC1BCE3AC085610D285E6251D1527DD2D65A4D15D34C2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\non-data-components\\FieldContextRenderer.vue.json",
+    "Hash": "021BD982F4BDF12B7239EC2D642F787687DEC0B1D94166E140B028A84D198DD0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\non-data-components\\index.ts.json",
+    "Hash": "7EF55061E7A0371B3BF1EA7363279019698696BDAE75C2A44E2191FADE1CC8AE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\non-data-components\\TreeNodeSummary.props.ts.json",
+    "Hash": "FF2FF78F7EFC3C0801F61A47B147FA2B1634BC44194290D5E0E81546612D9948"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\non-data-components\\TreeNodeSummary.vue.json",
+    "Hash": "F365DBDDECE5A1A42BC688C06F4A1147A6B3E03E7E431317E7F76573335F1B60"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\options\\index.ts.json",
+    "Hash": "4C5E529D6A1BAB40BAEFB56603D086E454F3CB805A586BD811F02B1C38E51A5B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\options\\option-normalization.ts.json",
+    "Hash": "496B7697770EED6B8FD71B5CED7F4CD984C94FB862667EB15DB51033181329DC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\options\\option-source.ts.json",
+    "Hash": "946070B40274721FE3D6FB8A2FD353AA8C691C0FEA984894063D043AFF26052C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\options\\useFieldCascadeOptions.ts.json",
+    "Hash": "A51D3AE310ED60E59C18F228BF0D223D18F6E46EFC1FA790892329C69B908C2E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\fields\\options\\useFieldOptions.ts.json",
+    "Hash": "7EF8E887BE20872A2761ABF601BB394AE25D04CDF0211F99D50D01A451DDB27B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\support\\beforeRender.ts.json",
+    "Hash": "934D0EFE8E5AF2649D9C8061000CF47954D22C2FE9C84E2E03EA342F5FDC09DF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\components\\support\\UnregisteredNodeFallback.vue.json",
+    "Hash": "3AD89191BF65D5825926C24A866B5587D88DFFF1CD86A30D7C3E3431C02BF35B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\capability-context.ts.json",
+    "Hash": "5E1F37AD83B9A4BAACA805446EEF187F7387583DFFD2E016E9E2F2AF83A10008"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\capability-keys.ts.json",
+    "Hash": "70FCE9C0D75A9CA93A25D9CD94B649C62D9860CE72D35189F2A7043C6419C1D9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\index.ts.json",
+    "Hash": "85DACC7E4AC35DCAF1454C63BB1D7D7E865843BADB2FF22852659B3E8D076A69"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\types.ts.json",
+    "Hash": "AD6A96F765ADE9285001AE109B21048B9BFC8DA113E48C2BCBC1660C36C84960"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\useSparkComponent.ts.json",
+    "Hash": "2FC7C0B33E1E8580E10002AF7D21B2D091BA7FD52CEABEEA6EB5DCA3E8A5F8FE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\system\\index.ts.json",
+    "Hash": "691F082DAC8EF613D9B5F0048E1F3A7FB92252107F4EFEB719DAA49133394282"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\system\\keys.ts.json",
+    "Hash": "5742580458775FE8E9A80E0A7C00C3066441DFDA15FE2A7E1F6B752484C7CBD0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\system\\plugin.ts.json",
+    "Hash": "714280ACEF0C7ACC21A38435FC00DBC62000401A748469021C0C164F987F677B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\system\\registry.ts.json",
+    "Hash": "40FFBF7CAC9F0A6D58DC3F5B6AD6178E5B9C1A91F3379667923AE880EEA97C88"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\core\\system\\spark.ts.json",
+    "Hash": "CAE41DDEE8D25E9D5257B69C8D107BF6CBD8B3066BCD891436AFC90CBA656EED"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\createSandbox.ts.json",
+    "Hash": "E54B5834135331B50E39D5A79E4E7D3FC3548D254CF51645790111A40AC38D1F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\index.ts.json",
+    "Hash": "9A8A7AE11B1E916EE7C3E10C4D7EEB2BD8B38DEF8397A2C5BF9370FD5CA69F29"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\action-data.ts.json",
+    "Hash": "6476FBF15AA3F797C9DC51A42F32A57E5EE843302715546CF62AC9D82482E04F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\action-executor.ts.json",
+    "Hash": "47C082C6E525B813231AA8CB3C18F55F524CF584582664C95F08DF5D660C95F5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\action-types.ts.json",
+    "Hash": "0ED726057DA401D0EF2A84ED614B17AA08569AE1CD2303B1E77BCDD5F736B6DF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\button-templates.ts.json",
+    "Hash": "4BDDBA5AC43F07C2AFF6681FF80173D1661FBD85C3B36A465D0146B50E7BCCF1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\executor-helpers.ts.json",
+    "Hash": "B0AFE4CFE3ACB126227091C7CCBFA02838271E67B19C086265AF49EB609181BB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\index.ts.json",
+    "Hash": "E29D78DF3EC2146997E2041008E670765E4698E6FA8A98E58F9BE254E27AB934"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\actions\\node-to-descriptor.ts.json",
+    "Hash": "37CDD62F85CD72C96050CFB47FC741C14A1AE813EE6D84527296C9EA1317F4D3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\binding\\bind-normalize.ts.json",
+    "Hash": "B88AFA8197759C138645174815966C0CF41C1A34CBB34B5F8034CF81DF7EDDA1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\binding\\build-page-children.ts.json",
+    "Hash": "752D62E13654B3B6213DE687C1EB50F7D4B584C44DC54E6BB150AC54BCFD3B85"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\binding\\index.ts.json",
+    "Hash": "7752E41C97782EE769E8E72C2840406BC8F1744A3E8FB9CE310827D0775A3270"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\context\\buildPageContext.ts.json",
+    "Hash": "2AADC3EF6696400E4684D8DE3F0B1170A3225DBEFA813051F982D2D2C713D375"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\context\\page-component-registry.ts.json",
+    "Hash": "FD1E81180C2C2EE45F2353904C483FCC940AA006FFE8EBF10CBA861CDD675976"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\context\\types.ts.json",
+    "Hash": "9B99A3908A09BB4E982B80A25D10F6329B274221A2552EB191A7DAD37FE48B5A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\renderer\\scopeCSS.ts.json",
+    "Hash": "AEB7D1BAC7ECE45D821263BC7AE5700E3668C23D25DDE2DABB0C46B654E53DD6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\renderer\\SparkPageRenderer.vue.json",
+    "Hash": "436FB0F9731565E6F86CD97DFD3E1F0C5AD2E6A9A6A1F5302FB317A6024FAEF1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\renderer\\useCssScope.ts.json",
+    "Hash": "22BAF53C45EEF1198B9AB8C0B8FDE471C28656B6FEDC23977E80B592C306E11F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\renderer\\useRendererSetup.ts.json",
+    "Hash": "1A83339CB36DDAED5A796FC93EA28171BC5BDA53986D25779E4BD3023A16184C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\services\\buildPageService.ts.json",
+    "Hash": "7C552E1725FC2385B1C1F682799B63499A3EE9C3120BCE6F8DB1CDE7A0D1C807"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\services\\pageLogger.ts.json",
+    "Hash": "AF7A72EE9050C1BA9EFF2801CB3150926B5438B6A5DB115D98661D5067212D38"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\page\\services\\providePageRuntimeServices.ts.json",
+    "Hash": "2393580F55321A8557EC7B11F8D790E98A1340987FD2D0EC3E370E02A71F44DC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\permission\\index.ts.json",
+    "Hash": "1CB183DEC880F5EBBBC3AD94C6D0FFF4E43AF6B40DE121EE041BB56FB3F342D0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\permission\\PermissionResolver.ts.json",
+    "Hash": "6946DFF598F9430B622860351A7DA6E7146E12668EDDDA0C3B9A7CD8F0CA1EB6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\permission\\usePermission.ts.json",
+    "Hash": "5A17856B93007C881F9B95E6FA315771EE464B0F4A8241218B0C39AFA0731912"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\runtime\\app-services.ts.json",
+    "Hash": "BD3F2300E51F1ACA324E7AE8CFE38D660E1DAE18135E97CA70AE86A7E251AB80"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\runtime\\index.ts.json",
+    "Hash": "EB40A50EFF9607900E4F50EFC61E842B18B88FF010510B6788AC5D4F5E104A0A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-component\\src\\runtime\\script-context-types.ts.json",
+    "Hash": "347FC2E3E51C0164582657695F12C5C20050532CD7E34C53B77E002A337B0F84"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\data-table.ts.json",
+    "Hash": "95D5A156ADE5FD1430D90FB3070CCEB96A358A15C3815BDCE298FD3FC8C2948A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\data-view.ts.json",
+    "Hash": "ED0B312AD67A871F2B18F046F9B20ECE8A6B049EED837CF73B88AFAF8593F92D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\dataset-crud-tool.ts.json",
+    "Hash": "8AA6D05D975C59D67846256E0FA8A36F907310A7D717278B64CDBF157CC39F8A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\dataset-history.ts.json",
+    "Hash": "2C7EFEEDDC775B7E50C48670FC1DFF64A95593D52EEB8FA01DE844C3A0F2E209"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\dataset.ts.json",
+    "Hash": "83FC2C2FA70D890F444D0DB370ADE2E7104192F047DA957580AA7475B7F86C55"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\index.ts.json",
+    "Hash": "A2BA2FCC62127B293D82B0ACB670AD1AF9E4121AED3A695A0F7DAED8E8A6EC51"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\metadata.ts.json",
+    "Hash": "FAC8576CDF6E42CD7425DAE639C8CC7D17CA057348E4DD071286E4A0F8FE6C53"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\script-types.ts.json",
+    "Hash": "4F07FCFFC92DA8DC06CCE8E21690DBE0263DD35F1EF2BF4A338B256312A560FB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\spark-data.ts.json",
+    "Hash": "3FBFB0DA05F810B2537B971A804AA278A92E0882FE2BF21D34B16C92F903923B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\types.ts.json",
+    "Hash": "109DF0EEF974257C1F0DB3C591DBFFC3F76DAB06609E40D8FDD29D7A990641DE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\core\\data-row-guards.ts.json",
+    "Hash": "861D68C27CE3868416D117237912B2368A142755601CDF58507FEA7C6961A6C0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\core\\data-view-key.ts.json",
+    "Hash": "2728158271A0D4AB2E1E3504A53C3D0A1BC12B5440CECB321DAD29D110C2C844"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\core\\event-emitter.ts.json",
+    "Hash": "3A0A912605FF567946A5B4049F36D30CCBDA5E5EA6F8971A057A01CEAC188F44"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\core\\primary-key-generator.ts.json",
+    "Hash": "E1FFA4B6DE6B102DC1A30632BF2F55534D136679891C68C382404E6BFE21F471"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\core\\url-template.ts.json",
+    "Hash": "D444C4A333EB1746F1FD4C04BF5F2283779BCE6A013898EDBC0D0657CF6341B3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\core\\utils.ts.json",
+    "Hash": "E655833AA7717164C71D94090EF0D38D41679ABAE79FD4C6B0FD406C1CEF7EFA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\node-tree\\index.ts.json",
+    "Hash": "67A90BC8F75D5CCF536EB1CBA8859B52277DEB4FAE90B731884E4A56649724FD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\node-tree\\spark-node-tree.ts.json",
+    "Hash": "6DF213B3C0E725BDA43872FD388CD0618AA19EF6DD502B29D1BC93CF99687DA4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\node-tree\\spark-node.ts.json",
+    "Hash": "8DEF5BB2FE3DEAB42543AAC7FE170E7EC48D6675E47D76C599B84739926E6F01"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\node-tree\\tree-manager.ts.json",
+    "Hash": "A2BA05258269D983F0543FBF66DACEF9C05F83AF1B587A72C4737FFFCEFA898D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\query\\filter\\data-view-filter-catalog.ts.json",
+    "Hash": "B54BFB1CF043AE4BE4A8F2D42242DF4288A0F164119478A93F33F6F67499998B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\query\\filter\\data-view-filter-contract.ts.json",
+    "Hash": "E0167FDC67F2CF707586F425B0B78A43B1504AFDF8C314BFCE191D80454C6E48"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\query\\filter\\data-view-filter-local.ts.json",
+    "Hash": "355EEFDEFF27F1EF282A99565EB73723A1875082295424F3F835C5D6F3D3BDDD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\query\\filter\\data-view-filter.ts.json",
+    "Hash": "4063D094376E47DC8AC37638976B4472BAFE26C9DDBD3DAF1B02FF89359AD3D8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\resource-relation\\resource-relation-definition.ts.json",
+    "Hash": "B36166BC5752CAEB9785BE98BEE66426C209D99E633EAE5470D7F5E1054ED01F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\aggregate-delegate.ts.json",
+    "Hash": "0A3F1864662A109340A6DBA85FD8CDE5EB39CB93876CC4C320F26E3D3193A610"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\cascade-delegate.ts.json",
+    "Hash": "EA217525D6F79914317337934B5E97B93C3CE7009931FB0A1EB78C202DF43591"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\computed-column-delegate.ts.json",
+    "Hash": "2F8E744BC41F24C75EFA257157CFB1159EE6F47F127CBDBFE02FAD119762D54E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\crud-delegate.ts.json",
+    "Hash": "D3D8A58C9C3F4AE0E626D9777F89BD73A5373E50FAA53D5357DB3BE482858D65"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\crud-service.ts.json",
+    "Hash": "7914170E4050ED4EA4B99B4CC8C527AB3D937EFF83EB0100EB87BA8E7C48215F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\dirty-tracking-delegate.ts.json",
+    "Hash": "FB047033CBC2607217530883173DC970A0419A479991B6038D6EB3AD324EA723"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\index.ts.json",
+    "Hash": "BA8B449C6FE5BAF3602973B498443F3E6BC5149BA5A913AF21B2D2032C55BCDD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\local-mutation-delegate.ts.json",
+    "Hash": "470D2D12E28731828AB2961F40D36CF3B8F1A6CA065FAE950D3977520E3988E5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\primary-key-delegate.ts.json",
+    "Hash": "C2BB8474E8666292D56A1B79077E0203EB30C9C17968B67832762209814F34D2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\selection-delegate.ts.json",
+    "Hash": "E6468E93D18D0C4D000D191DD666E6D5E544D9C84FFCDEF771841C69877FBA1A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\types.ts.json",
+    "Hash": "1A8A27A77117B5F80071511C334D8B3DFCB283397D03CF192A4EDD6395B43B91"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\cascade\\cascade-value-binding.ts.json",
+    "Hash": "3B66FCC6A935EF5EB4D3EAAABD94FCDB279335CDB57F7C57E4277E8FE9EF27B6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-binding.ts.json",
+    "Hash": "7F5E1B4CB3E28DD3EB1DC9ED3702E31DDD0E0B28E56706FD8CABAAD170088C96"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-definition.ts.json",
+    "Hash": "0F4336BC8A3936A147C396123CC8C470536238C5F7BA6577232DE4D05CAC8978"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\cascade\\field-cascade-runtime.ts.json",
+    "Hash": "7000A31086E776C2CB60BD3777F940B44487EA5D41C238A3B771DEC66C4C0805"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\strategies\\selection\\data-view-selection-value.ts.json",
+    "Hash": "D282DBA7718C1E9EE53DF9355B2C741CC4D763F810A524127DB345948EC4FAE3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\validation\\column-validation.ts.json",
+    "Hash": "117E36A372D8EEAACC8538C3DA246F12393C27D0DD81FC1555957E93BF63CFA4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-data\\src\\validation\\validation.ts.json",
+    "Hash": "7341DDB7ED8D741436B826D338E5D5842F5DC0CB1DD769EAAB09F5D663217FCE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\index.ts.json",
+    "Hash": "F5F78669BE2579382285D5B2E869A5C5849B406F8495475F39B5C2BD6447B169"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\core\\coercion.ts.json",
+    "Hash": "4955BCC20A9563E1CB5D584F9D168872503A32D3D23571548A50CB9FAA628FDC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\core\\index.ts.json",
+    "Hash": "1C65A206DB3614C9B62277D4705B61495C4FF2544274978E5268B4D6E4AF7A60"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\core\\json-path.ts.json",
+    "Hash": "C68D3AE617A05990E50991A56E26FC9697ABE45C85FFE3837496A2937AF2C1F0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\core\\json-result-path.ts.json",
+    "Hash": "840CE5F22B6BC26B0C77BA4FB793C7C3BCA409AB5758B3E9B09A6F36E6106400"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\core\\json-types.ts.json",
+    "Hash": "683ED5823ED7BEC40C0910CB4AFE6EBB29649ECDB7264803A1BC32BAF4BC13AA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\core\\parse.ts.json",
+    "Hash": "1E58926AB3AF799F6EA6E45533C69934772540CF2184BCD20FD80DE882F21855"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\index.ts.json",
+    "Hash": "4C5E7EB07624800BB4E3AFF3AE80959825AF9B92C8E236BC675272BC11649071"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-attach.ts.json",
+    "Hash": "35F2BF1F79F3B79A4966459291BE8194839AC7EA513C065130B10594F18D6921"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-defs.ts.json",
+    "Hash": "70C652DD41C5BA400868D801B211FAE28BFD27755DE3C75FE7B397AC958C8406"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-dereference.ts.json",
+    "Hash": "AB6C6DBFCCD87CD6A4E911AD7B4766EDA4D6856190C815D076C8DBD151797B63"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-draft2020-audit.ts.json",
+    "Hash": "5BD8F80D89958098683D1B5464157A46B74DD21A9D20B3B7AAFB5D6EED1E5063"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-helpers.ts.json",
+    "Hash": "E2BA21E67DF3B132BFAE6EC66D81B5E51A34D8BFF055E0030CD66D7B9187FF17"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-resolution.ts.json",
+    "Hash": "4D55F5C585832A42B913FCE92CF47303B8CD0C6BD38CB4DA6B5B955D70DB2101"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-standardize.ts.json",
+    "Hash": "4F2A1ABBE4B1A078B0A9FE569396D90E120D5B7C8C407CD45EDFD147FB905B3F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-types.ts.json",
+    "Hash": "EA0E1E227117DD4F6865C5110BC99252A50EDFCDE52D02F6C134DAA3CF477F14"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\schema-validator.ts.json",
+    "Hash": "CB050424C6584F41EBED94A629FC3240720FD977CA190A5B3C959F368DB37D24"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\schema\\with-meta.ts.json",
+    "Hash": "9746600F857A717964BF3DC1F09838297CC4CEB79E8D4C72580E370C26327A71"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\index.ts.json",
+    "Hash": "C1AD69FEE1AA33798C450134CDD567672BDE210B4B8FA171F7E81ED43CA69EEC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-build.ts.json",
+    "Hash": "66A85E6A5CD8B38306228CF6F2E1AB4D7F8C8313E17433A3CDC5D2901511B2A8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-flatten.ts.json",
+    "Hash": "1EC20A8177344A9437B1ED2FFD2DAF046F59A7E05FAEBADC8160E77C74EE399A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-mutation.ts.json",
+    "Hash": "195EB6BC1C98360C37DFD44750F75727DF5E9A5CFBF1EBAD1DB7DE8ACA6EF655"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-policy.ts.json",
+    "Hash": "922B0B6D5F26E94D26215AE48EFAE33213FB1CF8BFC6368F44E1AFB25F4B9B99"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-types.ts.json",
+    "Hash": "FC902E9584401CA3F6C07E66C05F16118AC56F90FCED0C41AA0AF07508EB63E4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-json-document\\src\\tree\\tree-utils.ts.json",
+    "Hash": "78F603E3640DE595BFCDD805D3768D1C396443D80F7699C8504760133D2C1129"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\index.ts.json",
+    "Hash": "B075DAE390AB3C4C50635D34F2002E58A2786E85ED52AEEBB7DC85A86E82B9BB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\lowcode-api.ts.json",
+    "Hash": "68D4F876C8B04E8FE3DDC0B72CDF5FAFE6D9DA5B38A1C518BB26B4ED1860623E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\catalog\\lowcode-catalog-api.ts.json",
+    "Hash": "81459A03FD14CBD112F226265775B296DB6FFF9555FB9DA3BBEFB6A4CCEB5D3A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\contracts\\lowcode-send-code.ts.json",
+    "Hash": "337AF4F724284C9D1BBE0A60EF91BB0EBAC051657B0782097B84B75DC9285928"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\contracts\\lowcode-wire-query.ts.json",
+    "Hash": "49529277DA03E07A00078F51D701689532972765FC0D38E8E624E761D952E76D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\core\\lowcode-api-error.ts.json",
+    "Hash": "53004C1BC3D2446D76EEB3968172DDFDAE48F3968AA8373BDDF139454146F351"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\core\\lowcode-client.ts.json",
+    "Hash": "940925B405B02B7C6EFB0DEDA6C1DE09106FBDB8B4E0023CEF24C0A909ED08F9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\design\\lowcode-design-api.ts.json",
+    "Hash": "CFDF19D6726BF74887841068C1740AB2F82CE43FB92BE6CA50C6FAEEE8CAC889"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\design\\lowcode-design-file-upload.ts.json",
+    "Hash": "FB0C3234AA74EB462CC95BC5DFD7CC9DA3F8DAD558ACF08099F0992597251DC4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-application-store.ts.json",
+    "Hash": "5720ACCD46884E3850DE7FD224E704AF2E265A8556AC90B0AF5550000BE5284F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-application.ts.json",
+    "Hash": "818FE59270A24AECCC41101F902DE9FAB8EDAF5999464628F1368944D9383890"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-enterprise.ts.json",
+    "Hash": "BB5EF34F9EF1127EFAA0841D0AA46E70B7AD8F82560A800946C12C8794E78D2C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-navigation.ts.json",
+    "Hash": "2F6DB55D4ACF12B1A2998E723DA2944FF7A3B9E06672FAD6100C6B71667E8F6D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-platform-api.ts.json",
+    "Hash": "EA73B5A35C005683C403E558DF4561025BF2CC00DE62A7AEADB41599B1CD6875"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\lowcode-session-store.ts.json",
+    "Hash": "75DEAF3BD50250D21D5258D920DE47020960CB9240A095A49BDD81373594DD7E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\data-space-api.ts.json",
+    "Hash": "52D0807F2CD9633EFD258542ECDD2989796573CA10697A3EA447E20CC0CB9C7A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\data-space-resource-type-wire.ts.json",
+    "Hash": "571973F121561A3A389C56EA990C8D9D787B739D6EF2576A52F9A35185C8B41E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\data-space.ts.json",
+    "Hash": "85EE29E5CA789855BF8AACC3026DD5ECC37E1359ECB5DFFF7CA1601BC7C7A378"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\design\\data-space-design-api.ts.json",
+    "Hash": "DC159BD0CD25629C21C89B7D2DCFC9B74F8F53FAC6E79D95222B24FFCC82D0B4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\design\\data-space-design-mutation.ts.json",
+    "Hash": "700A8FEFBFCDE0EA7E04E4E57C9B0848CFB956F63244B3E2B2379D131AD9E908"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\data-space-runtime-api.ts.json",
+    "Hash": "CD0EBA653A748318B6CEFD321FD86A51F31DE30823AC3513792D3902E2EF8C98"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\data-space-runtime-contract.ts.json",
+    "Hash": "5141C2A588949117CE7F92B7D896825EB653FE0468BB13AFCB74347D12BF35B6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-filter.ts.json",
+    "Hash": "0A81D18C596C0C5EA02682915C4EAAE71EBE32BC19CA0A077BAD14B7DBC77643"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-pagination.ts.json",
+    "Hash": "49C8C48366034F0615C44C8FDA456DD29B14F0F50D296237F8D7427C4439D37B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-permission.ts.json",
+    "Hash": "59D2BED6D28CE9E96DBAD91CE4FF7932D64E011626317470C065B6E4E33FDF79"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-query-table.ts.json",
+    "Hash": "403426AF1A00982430C8EE79485168A5642CFA4C570EC0C3BFFD376DA5D9FF6E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-request.ts.json",
+    "Hash": "CD589E480324FBFCD30C3FB60FE467D8FBAC7CFE7DA0AA83871B83EABD6588B7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-value-function.ts.json",
+    "Hash": "C199DDC791517E88338EF9363E32B08DD8DF4095A41E67A074ADE34E7094B552"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\protocol\\data-space-wire-contract.ts.json",
+    "Hash": "27372E39A959E3AD63C60264B2B0E754322FDA200A260DC926B36F130578AAB7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-cache.ts.json",
+    "Hash": "6CABEB5DCC3218D1CF12A89A252A8ED79C410C03DA9F5F0899017401BC0D0FA3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-context.ts.json",
+    "Hash": "E160304A228E690212937159F5FB45A624A90ADCF3FB139BF1C9D29798CB56C4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-options.ts.json",
+    "Hash": "49E48836A1E35984DD9263AA15C3468C2D82611604AADABF88F589245C4D03C1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-resource.ts.json",
+    "Hash": "90C1A39410CFF78E07A1FA45F1CFFFA1516E9A3C8EB920A07F8993372E0CD6BA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\query\\data-space-query-tree.ts.json",
+    "Hash": "83A628F34271F082E061348A903A5EE47E2B1079D238EE64324E2771405A2D4D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\save\\data-space-save-config.ts.json",
+    "Hash": "FEF61FF29FBC22C5E9399BCBDA261D18DC9748E9BAF3356657E41990E000BCF7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\save\\data-space-save-guard.ts.json",
+    "Hash": "D6B7D11337A4088B49B3364880232D17D9E3AF43862DABB2D9E05E6B3FEFF88C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\save\\data-space-save-order.ts.json",
+    "Hash": "9EEEA5F392B21C14F1B7EE74C9FBA84D5DD98F9CA1AE6E072E10BB442D05B7F3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\data-space\\runtime\\save\\data-space-save-result.ts.json",
+    "Hash": "723747B7C75B3DC05300A32B278D3144DD641806305536A9AAE7F2EE326D7C65"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\permission-api.ts.json",
+    "Hash": "65E44623D6E86962EB71B0DE2E532FBC0796D0B0F6C85F95BEB5A7B52423E7AC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\permission-wire.ts.json",
+    "Hash": "3468CA6135B8C6535B20AA5886AED744341753918FFC84232AC1A74A370873D3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\design\\permission-design-api.ts.json",
+    "Hash": "ED3C594E5B7D3E33C3FB89B4A4CA7C7A2F7FD7BA6E4F3DC0B3F095AEDF699F3B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\design\\permission-design-mutation.ts.json",
+    "Hash": "CBDB418897B95774AFC1E7BC6E38C6526E1DDCABDB1E286717F6FBDB558A41EA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\permission\\runtime\\permission-runtime-api.ts.json",
+    "Hash": "B9BDE82C0B7D79EDA0826D3251F67C8161002F1DDEEC202F848884BADB920E38"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\project-blueprint-api.ts.json",
+    "Hash": "0662062CA92967F1CF31A58B8E81AF203E7B6A41FF28DB5B5DE8502809BC5047"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\project-blueprint-file-version.ts.json",
+    "Hash": "78F9EEA19C11E64A191566207136D87F0828E72C377002EE50367D5415F8F0EB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\project-blueprint-wire.ts.json",
+    "Hash": "278F0E2F1791C7E1F3067A98FDBC47A3CAF9AA828175AE1C708930D9D5D3104E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\project-blueprint.ts.json",
+    "Hash": "CAE7E9635EE2DF778C1FBC19A56C9E9823D6A3E9C313A2DDA4144E99568B32B3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\platform\\project-blueprint\\outputs\\document\\project-blueprint-document.ts.json",
+    "Hash": "0EADF2D4D30D8ABA6C3815A4C5864C8064D5370F7E2668448A50090DF680EFD8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-lowcode-api\\src\\realtime\\lowcode-realtime-api.ts.json",
+    "Hash": "27F74972DCCB242EDB8744B44159FED64F9C1ABCC2E35F62BEBDCC2F3EEE0ACE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\index.ts.json",
+    "Hash": "C50706D3D62A43E95D084B34CC87A7C01F5DA63096E764AD3A58891F684CECED"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\blueprint\\project-blueprint-edit.ts.json",
+    "Hash": "32AC081007DBFB54C5530280B7E92E2C47F0E1CF1E95C8CD31C377F2C860F6F2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\blueprint\\project-blueprint-index.ts.json",
+    "Hash": "11F941D0C296A66C6809163BDB210C46212D87AFAE23F9A2D4F729A4C2EFA74F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\blueprint\\project-blueprint-node.ts.json",
+    "Hash": "857411F9912D6AB3197F32BFB2A81ABBEBE4C0E161F1432F8334EB773EE23164"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\blueprint\\project-blueprint-tree.ts.json",
+    "Hash": "53F0890D93EECFA8F82E600CFACD9925FBB4BAB0BBA20098EE62A852925FBCCA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\io\\http.ts.json",
+    "Hash": "C459739AA9153F7A76BDFA83E8DE24A07703CB5CE9B0A8F2A88A33484EE234C3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\io\\page-content-loader.ts.json",
+    "Hash": "B0E422956029E70E96F777E012C9D4B8EB6A1DF608430A106FCB413DE2363FD4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\io\\page-file-api.ts.json",
+    "Hash": "6D0751AC849429396A975A0C9F8032736AA3CE2C452B11FE8F9D4E864EF5CB65"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\io\\project-blueprint-client.ts.json",
+    "Hash": "AE7AB9277DBF89505203CEF4E85F870A9C46A370F22FF6F0B96A0F71B98C98FB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\io\\project-reference-client.ts.json",
+    "Hash": "DC37504952DC97200B9CA5988BF7EB0968F4A06BC03A3C33EC3C5B3854A4DF98"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\page\\compile-files.ts.json",
+    "Hash": "54DDBF8D085423A140B2AC50012751912DCB8783F418D485B595833B1025E44B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\page\\page-file.ts.json",
+    "Hash": "7BB91BC664272E3DC8FDF85B545D25A1BADEBE1D2511762EE2A88C09A211ECC2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\page\\page-tool.ts.json",
+    "Hash": "2A6685742301F7CF2AAB03373C3B83947C8FA448E662226A78855B5EBC2FFE3B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\page\\runtime-page.ts.json",
+    "Hash": "F35B897DB441D18F8713613B8C752D167F3A3BB235E372FC6B7333C14B50BAC0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\page\\content\\rule-file.ts.json",
+    "Hash": "75F885FA579E081C2D3DA904202440E00CE4EDF7A4C1EB38EA9AEDD0A46A73CE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\page\\content\\runtime-content.ts.json",
+    "Hash": "81C9D205709EBA87742F09AA94ECAD6D6AB33D63E549D78C88ACA4464D0C871D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\page\\content\\text-file.ts.json",
+    "Hash": "1DF7D9B5BEB0F3E883D4B47E7A6C81C09E15B8D3025B020C1F1238158DBFF644"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-blueprint.ts.json",
+    "Hash": "773E646E3F62FECD2D26E625535DCD92F15743A4461A4AA19D1321895DE5AA21"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-design.ts.json",
+    "Hash": "51ECAAAAEFD771DC7C73EFBABCE92F72721051ECAD5C2485D2344503BE1208FC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-session.ts.json",
+    "Hash": "6764EEDBA89AD20C4301944977B997D3B866CFDC66992313627AF4C9A3975891"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-types.ts.json",
+    "Hash": "8AB6C11A08F01E8AAE6A5F9C305F7360A8830DEB7BCE3E7F225DB84995EB36C5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\project\\project-workspace.ts.json",
+    "Hash": "9CEC427FA193F867F824684FAE0C6A420BC4095B64CE26E35C26D9823B3A0218"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\scenario\\scenario-view-config.ts.json",
+    "Hash": "EE58A060EBE50AB8E785E520E9B9D3966C376D12C8F0BCB95222A235B1983C08"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-project-model\\src\\scenario\\scenario-view-file.ts.json",
+    "Hash": "AC99E145F6513BB9735F07E37347F1F8FA3DAE3A963E5DB2D5714125386213FF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\ai-model.ts.json",
+    "Hash": "5A3F2FED9362C8C955416091F7BB9C89F7FD34CDC36CB5C91E4AB25B1134732C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\clone.ts.json",
+    "Hash": "C2AFF71B3FE8A8BE6C92A493BCA98C9029F662D9BD3E5DE5877E4E4346DA800D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\error-utils.ts.json",
+    "Hash": "52E428FACE9E66B7FCD34A79C84AAC9229D9D3794CF41338B0E7C264F0C8F981"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\index.ts.json",
+    "Hash": "9DA19243D0952A9BA11389266F5C0C5E95D2490B90CAA9EA931DE51385A819D4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\logger.ts.json",
+    "Hash": "BF90671BAC4012299FBA2AB68465E4AFB44C76E2E60F9CABDEA63826702193DA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\navigation-surface.ts.json",
+    "Hash": "DC267B0E80632404EB51DF917407A6A0B826CBADBA8376C14D482124F3D80BF1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\permission-mode.ts.json",
+    "Hash": "03AFDFCCC7AEA17E8880DE48970E5DA9266DF5C1B5434E213476FD379F67241E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\project-blueprint-node-kind.ts.json",
+    "Hash": "C87F2345BA40E1DF439734A64FE45988BBC49F1511822621BC954FD6513539FE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\sandbox.ts.json",
+    "Hash": "0A6661441F2F868CC2E20E7E6FF248C0B5E1FAEBF4B8186192FD6ED76C4A8D6B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\script-types.ts.json",
+    "Hash": "D25B727E72EF2A1EA94E3B65AC252F2F930A0EC242ABBC2DCA0C521BE234301A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\snapshot-history.ts.json",
+    "Hash": "888B5125A4316515BD462C8CA0AB8291D3E936149666F3566E9A2B8DE4F37973"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\capability\\core.ts.json",
+    "Hash": "4CEC6271D95E933057C3283AB5A8CBBBEBB902164A800211EF169C8DE5A4F3BA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\capability\\helpers.ts.json",
+    "Hash": "16B1625EA50D5F82487AE325F39BBF945B771B47CE28EC4FBDF17BED0987015F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\capability\\index.ts.json",
+    "Hash": "D7A48F02C04BDFE8620723877D10DA58CECC11461EFAB746E47FF042FB77F756"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\http\\beacon.ts.json",
+    "Hash": "AB21D9B0848D2C223B5D707FB388514C25A1CC86208DAD38848C0E402D293198"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\http\\FileLoader.ts.json",
+    "Hash": "F02E734EE2A4C1175BAB4648A803363E64C770B4DB5550F33737D8B3D48FA865"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\http\\guards.ts.json",
+    "Hash": "485BF03AC6A824291E8BEDA54A18DA7D437E407317EC160C5E288AA58DE6ED97"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\http\\HttpClientBase.ts.json",
+    "Hash": "E0DE248E96665C18A001FBC1F17F4E2C402ACFC40A9B4E4D0B6599391310C7C5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\http\\HttpClientFactory.ts.json",
+    "Hash": "A9F44C572175B09F37302CE229362C5BAF9B41668E99F9BB2FF9B0438F89D735"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\http\\index.ts.json",
+    "Hash": "3C5996CCE2438AFB85C346C5339B3A9F72525E5A9CA59ED5415B75F5310D2AD0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\http\\Request.ts.json",
+    "Hash": "D0CE54BA3E1D45FA2B1674B34066E68824FAE278D5D6235B8E39C055FA2448EC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\http\\types.ts.json",
+    "Hash": "8F61145FC23BCCBB268565806BB3010549129805CAB8EBD15EB0E2442074130A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\internal\\guards.ts.json",
+    "Hash": "F3BCF1E279C312FC1160EABB3B12E58895B57A58A6B2AE88F65B24CA9AB5DA88"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\packages\\spark-utils\\src\\internal\\index.ts.json",
+    "Hash": "5C2F5C32788A2596CD83A6B794FE6585AA794842E1CB2A3EA4E437AB330AFE81"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\App.vue.json",
+    "Hash": "FAB0B29345B45B26E1F3F2B086C22910EABB1F54BF26FF0ECF1B418E7703E288"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\main.ts.json",
+    "Hash": "18A95C42A40B366993DFB287C46780768D18238656F95A6FF670657A6B9C83C1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\components\\ErrorFallback.vue.json",
+    "Hash": "4599F98EB8C431132923A84F34176A54111F11CEAFC61822815C9D7D8D5155CD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\components\\IconPicker.vue.json",
+    "Hash": "7E6CDC5C277E7E46A95DD378D1CFE80C50CA9C60C6DB5A9CB2B653C0030E29A3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\components\\ModuleContextBadge.vue.json",
+    "Hash": "57177D14E82466F3C5B04B3D967363A656873AB9B9CC51F1EA28BA336910098F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\components\\NavIcon.vue.json",
+    "Hash": "CD577BB2B577FBF44C16A99082D8A538BECD435C629220162A615EBDB2A90F29"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\components\\page-loading\\PageLoadError.vue.json",
+    "Hash": "4176C2EFFC5D8AD1F1895F431E911425150696F07E6E59CCB48F710790DFAECB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\composables\\useNotifications.ts.json",
+    "Hash": "EA30EF85ECA7C295011519096F0E4601E846786EE949ED5038365753375FEC08"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\composables\\useTenantRouter.ts.json",
+    "Hash": "47D1EA428104300A47ACD59C3A1BA056DA59EDE60905936B9F96619FEC262FC4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\AppBreadcrumb.vue.json",
+    "Hash": "BD7FC9F0AEEA97BA80111A4495341D4F7ACC398A77717EE2700BF7715229ADE2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\AppFooter.vue.json",
+    "Hash": "97173AC303CB0DD68E0FE6882745838AA5DBC42D10A5C9FD08328F602FDA9A2D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\AppHeader.vue.json",
+    "Hash": "713EAC116720D726A7C4372D4CB719812D57B6F6FF7DEE4387E0B85EE2E52615"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\AppLayout.vue.json",
+    "Hash": "DE1170DFC30DD0789405BF884273142F8D1F11D4AB46B357A5F25CE92E5FBC03"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\AppSidebar.vue.json",
+    "Hash": "BD0FF24CF373B3A81117E0FDF21AF258FCA85D21187CCE631C99910059BD95D7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\AppSidebarNode.vue.json",
+    "Hash": "2F8779C4792A26E57F707C8B20CC223FC400F16819FB80C087887F1D7EF70112"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\AppTabBar.vue.json",
+    "Hash": "F8949247772894141A493B3C86AE2292E58B03ACC90D03524EAB4C07205F61E2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\NavContextSelector.vue.json",
+    "Hash": "BB8B0FE65AE3C1DBCC9310BB353275FEA086166F563A4C07F976FBE71E6F4DA9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\NavHeaderBar.vue.json",
+    "Hash": "96E6391A599FBDCC9C263D217D6E9671C58DF678FCB416F29F16D7575E5FA5B3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\layout\\ThemeConfigurator.vue.json",
+    "Hash": "465A4ECE4D4E260F94DA793F0657A318FC8BA4D7611C37ECDBF02C581440BBD3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\lowcode\\lowcode-runtime.ts.json",
+    "Hash": "6833D6B12B7995B1A22EAD54CECD1FE74B995AF5A3F641F76299B2554AE15F77"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\lowcode\\data-space\\lowcode-data-space-assembler.ts.json",
+    "Hash": "9D70EE8F55D90C3FECF145C99D33289305A188472886371800029C28D79BA187"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\lowcode\\data-space\\lowcode-data-space-catalog.ts.json",
+    "Hash": "671F8CE974431804AC86EBC5995E8F14817854001F54C8D4729395572BBA1664"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\lowcode\\data-space\\lowcode-data-space-design.ts.json",
+    "Hash": "D01A42C20B670D1ECE5C7171467C6FEB4325653E02284969F089209D54E47F36"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\lowcode\\data-space\\lowcode-data-space-layout.ts.json",
+    "Hash": "1E23CEF921E6CAC498FD0E70556695FCD63575365EFD8884F10573CDBED57B80"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\lowcode\\data-space\\lowcode-data-space-runtime.ts.json",
+    "Hash": "A41DA29BD8E557FF26D8C8100BB797EEDBA7533E0D6C86DC0E84937F8B3F75E8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\lowcode\\data-space\\lowcode-model-relation-adapter.ts.json",
+    "Hash": "14A9746FD1B206E9F80920175552F6E256BEC2663ABBA4E78F4EE326C4773E91"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\lowcode\\data-space\\model-source\\lowcode-data-space-model-source-reader.ts.json",
+    "Hash": "9F99CC1F0EF4DF023BD97630685FD02DA20F240C319C1E1B3A3D5CDD8A1F4174"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\lowcode\\data-space\\view-design\\lowcode-data-space-view-design.ts.json",
+    "Hash": "B18FBD47265D6A1C5567AC85E7F484B528269E54F27DC3C43960733378049E9B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\registries\\vue-page-registry.ts.json",
+    "Hash": "948B4A544611F44C19728062721F7C26DEADD0F3B83523AA673CA08DB47E9B11"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\class-model-knowledge.worker.ts.json",
+    "Hash": "1850F7D841B66DD67CFCF3FD059AEFCE0491F56AB244CCC6B2BDD5C87AE778D0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\sse-events.ts.json",
+    "Hash": "54D50EB2D6292DBED50740FE63A9675EFDDA5C2CCC26D77D579246BD597E2C03"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\tenant-scope.ts.json",
+    "Hash": "FF9A19093F87415D6907C6E387A8D72C5D465F010CC52F7EFF6C54EA1D152D8D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\workflow-designs.ts.json",
+    "Hash": "EC2ABB1882DBD098D7039FAC113C3BB802D944C3F4C4E5995FEC994DBF295FDB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\ai\\agent-workflow-bindings.ts.json",
+    "Hash": "58B0A9F15607A7B42CB9D5E05CCCDFED46E706BD2F8E67CB80DABA75D57933F0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\ai\\ai-agent-run.ts.json",
+    "Hash": "ABD1565F7E668D2D8A12B5545763CFB82037D609B909BD195D731832DD71153B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\ai\\ai-delivery-port.ts.json",
+    "Hash": "2B909C497F568CFEA0453E6A12855643D517934C8CB4A268C44D3A728171548A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\ai\\ai-turn-bridge.ts.json",
+    "Hash": "EB69BE19DF89A69B5F3546887CE601558B8E1FA17E5A11C952D139C5A502379D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\class-model-artifacts\\artifact-urls.ts.json",
+    "Hash": "76E32CF1D4A1AA5343BD8B3C724C2FE959DC0DCBE9BC5DB64DC1791A1DE80E84"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\page-design\\page-design-agent-run-provider.ts.json",
+    "Hash": "5E9D34BA0054BB5BE93C683392A9C2E8C0010A1C3798C75E827A7476AFDCB7EE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\page-design\\page-design-agent-workflow-binding.ts.json",
+    "Hash": "92336006112A65F496E42FE0086BD9A0A6B5E09FD994B3273820BCBA435B7CEA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\page-design\\page-design-ai-runner.ts.json",
+    "Hash": "6B6C12CD5385243C10F4EA7EAD89BDEB7CC47FBB627425D000978D162415E57F"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\page-design\\page-design-gates.ts.json",
+    "Hash": "F4ABFDD949D00CF20FED81B2468AF463F368ABACF9D37AB6175DDF865A2A8421"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\page-design\\page-design-headless.ts.json",
+    "Hash": "4024C1A83A74C6844F21ECF0C47427518B3123A30175B6D831D8311A0AE3E802"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\page-design\\page-design-operation-guard.ts.json",
+    "Hash": "932B74EB82532060F6A061825E4E4D10B03785E033571DA2B74EA9B67F910D7E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project\\project-settings.ts.json",
+    "Hash": "C667B153364D821F76677B3B66A60F7E2C1F2BEA6BC27D6F572B1B3E0D31B8F5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project\\project-shell.ts.json",
+    "Hash": "A083B1AE310672A9938C9E5483A2F2A647B7B5E5D2962629C746648A54C66611"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project\\navigation\\project-navigation-guard.ts.json",
+    "Hash": "28E047D56AEC924CA9763805FEBF29ABAF6588DC5664D0902E065F088329EBCA"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project-model-artifacts\\index.ts.json",
+    "Hash": "A98A01765FB05FFCB17B14BE251FFD2E24395DA2A0F2733731A70765454A4BD6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project-model-artifacts\\rule-editor.ts.json",
+    "Hash": "A43AC720B8CDCD850A0084BB7548E3FB2710FB62A640E08D12A983A1708A8285"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project-planning\\project-planning-agent-run-provider.ts.json",
+    "Hash": "45BD359839EB9BF0A1AEFC2337355A5B249149D9BF2EDE02269B225B51CBA61C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project-planning\\project-planning-agent-workflow-binding.ts.json",
+    "Hash": "888274F8EAF4E69814BE1AB520F4D79DC4AAD486C4C0ACE81577B868F80AF153"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project-planning\\project-planning-ai-runner.ts.json",
+    "Hash": "DD3B5CAA9C9741A01D1848B0CB8ACE6B7239D2502BF2B57D8CFFD7436F3F6C31"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project-planning\\project-planning-attachments.ts.json",
+    "Hash": "537584A63F737AC3465CEBD8311DB69823D5B93F57BADD586AB8931095FBE187"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\services\\project-planning\\project-planning-headless.ts.json",
+    "Hash": "A81F994A1961814C0B47906393DFC9AB19AA7359640441F5BB0F4488CCA15F21"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\CapabilityDemo.vue.json",
+    "Hash": "51C8635E5A3762AD7C2DD956D67F1A7A47D53BF17117076E26C2D142D773DDF5"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\CustomRTableDemo.vue.json",
+    "Hash": "F26C274C213AFA329629733E22A1B3BF1F357677CD83033128C182F45E41E3DB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\Dashboard.vue.json",
+    "Hash": "BCF51740D4CF3851E8CBD142EC6369C54297CBBCE79BBD5802AA6FFA51E75FD3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\DBMS.vue.json",
+    "Hash": "44CE6492E7DC1B13E74C6F955F5008F9F3867DAB0D5BADC2D7AB084C974FDBD7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\RFormCompareDemo.vue.json",
+    "Hash": "B61E76EF197EC47CA69E423BA1E664B3EFF83DCE30ED914B322B9680C73233F6"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\TemplateDslDemo.vue.json",
+    "Hash": "0C9C46D6549B357B825DE29CB259301372550FDF1163F241952B33D13F535E7D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\WorkflowDesigns.vue.json",
+    "Hash": "611857E27F6556CCFB20C5B77A95C91855D0FD316FA9BBB5B22931D68C7F2068"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\catalog\\DataSpaceCatalogPage.vue.json",
+    "Hash": "A5BD106D12E8E44D5C218861BE8965903C15AA5E20FC21E06AE86011A7D03734"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\design\\expression\\data-space-value-function-context.ts.json",
+    "Hash": "B0CE1B652BD7F4F5801909516FA5F45C7AAC66019273B26F842D804DBF885C33"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\design\\expression\\DataSpaceFilterEditor.props.ts.json",
+    "Hash": "778B3E0D1974333C50EC8AA277FC4E8B357366BA7B094C77DE142584BCE0205A"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\design\\expression\\DataSpaceFilterEditor.vue.json",
+    "Hash": "771FD3931663B7D735BD4166E6C6F4C2DB5DD582FDC6148F0CFE933D7347B6AD"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\design\\expression\\DataSpaceValueFunctionEditor.props.ts.json",
+    "Hash": "21510ADA3578260F0339D34F35A2FEE67DCCF13CAE279BA09FF0CF0C2A34F042"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\design\\expression\\DataSpaceValueFunctionEditor.vue.json",
+    "Hash": "219F7D961C385D0D3128A2D5C1DA3D52CB23B06753F7BF77F30C005113B52DB0"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\design\\graph\\DataSpaceDesignGraph.props.ts.json",
+    "Hash": "84697DDE5BD0D866F05192125BB6FE8F793B2D0490EE3F13E6BB2AB771CD19F7"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\design\\graph\\DataSpaceDesignGraph.vue.json",
+    "Hash": "AA90AA20BE952A6D5937C724500A9ADEBA29D5C655BB73AAE8B899B1F8294578"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\design\\parameters\\DataSpaceParametersEditor.props.ts.json",
+    "Hash": "EAEBB2F8FEA904631434101F40E216F0CD66ED1B9B7E76762799A0F33535B4B3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\control\\data-platform\\data-space\\design\\parameters\\DataSpaceParametersEditor.vue.json",
+    "Hash": "FE4DF195D091935C05BE7A4B8EFD119DE46C673C85F8B368B3156A993E7C2DBC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\childPlacementLabels.ts.json",
+    "Hash": "86A6637B9764F4749BB4B8A64DC06A7638BABEEA33AE7A46E7DBBCB01D82D317"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\DevDataSetDesigner.vue.json",
+    "Hash": "8927D2105986C9A63FC0F133BCE7115FACFA07EB31CED41578C7401B86AD131B"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\DevFileEditor.vue.json",
+    "Hash": "CED3CB510921DC5A7C29C7FFFF3BE57A50D24A312C529CBE37E5FC964A288791"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\DevNodeProps.vue.json",
+    "Hash": "C091D034C8DCE84EAE6EEB1B61F6E71043C88D7ABA5DF96F7710FFE9456B8081"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\DevPreviewTab.vue.json",
+    "Hash": "B5BAEE57B9CEA843966508AF65698C21D331773923408498B1BF3FBB6BA6E04E"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\DevSystem.vue.json",
+    "Hash": "52820E4F12E8663AA99DA6C1103B78C5659DC61FDB6CDE43F7C95CB976F81239"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\ProjectBlueprintTree.vue.json",
+    "Hash": "547E2CBFCDBCC84897F1B228B385A64E7C2D056AC6D2C0CD5C39E5F3932BFBA3"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\ProjectPlanningDocumentImportDialog.vue.json",
+    "Hash": "9F372E7E7F640D13FA0D4BCD8DD534C70607AA50DED6E7519D5EEC056C0B2CFC"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\useDevState.ts.json",
+    "Hash": "7662732C962F869E7C55B8683CD757A3F7D60FB0A99579F3A2C7242636B1E352"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\useDevSystem.ts.json",
+    "Hash": "BEB5CB49831A50CA5C423071B385EC5BA7F41EB3F1A32449071F7387FECCB855"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\BlueprintWorkspace.vue.json",
+    "Hash": "CBB8EE780D9FDFC3D9C55EE3E28793F29F42D416A825740470BB062879ACB08C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\DataPlanningPane.vue.json",
+    "Hash": "6F17212A525F260A5258A37FB0DE54B690E7C629661B21F9CBC71B4B27726243"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\DeliveryPane.vue.json",
+    "Hash": "C48FFB1B650D9E6D5F66C64AAEC25375D0C2E8BC92E6FE258290AF07F3CA7B7D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\EstimatePane.vue.json",
+    "Hash": "3C5432A3A4BB48F76F2662D17B52D2CFD2F79D645AF82573B77575A42C427356"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\PlanningPane.vue.json",
+    "Hash": "D94F8250D091EC81EEA0DCABD8E06CA2B12806BA9DCA273D1755BD238185B93C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\PrototypePane.vue.json",
+    "Hash": "EF75C215E6F513C325C19CDED518EE5431078E521AB78A1AD64A955778A7CB56"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\blueprint-workspace\\ReleasePane.vue.json",
+    "Hash": "C08785BDADDD78F6C6AED14FD596767F87331C07EE18E4F232E6057A52051C92"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\components\\NodeBasicInfo.vue.json",
+    "Hash": "0532EDC9AD6B7C7916137E026CCDB78C4A54E6A5F7B3C294ED0D34C65CABAFDB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\components\\NodeLayoutConfig.vue.json",
+    "Hash": "1124195A3FEE2A11CC7735BC7C18E8B521C7718739364D9C318060DC22A07294"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\components\\NodeStateConfig.vue.json",
+    "Hash": "F68FE54B498F19CC54EA401B6DC5EFB9F154BC8923728D6CBA7772CAA4A7AECB"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\components\\NodeTargetConfig.vue.json",
+    "Hash": "467F8093B64A00F4229173D494DEAAF0474F25495E3A5F2DE5986D4FBF909FDF"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\composables\\useDevFileEditor.ts.json",
+    "Hash": "F950CA5AD173EFC6186B556CBE8A851A039F94927459A8546BC653C26CE79A85"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\dev-system\\composables\\useNodeKindFlags.ts.json",
+    "Hash": "55FFAB28E11513D6812EE7CC7AF05B43EED27836EA0DF2C03AECDBC7608A06E1"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\workflow-designs\\workflow-design-class-model.ts.json",
+    "Hash": "3D34BD3290FCBCF6A9C49E8147B015383627F798D6AE1FE9B0781F4A374298E2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\workflow-designs\\workflow-design-fields.ts.json",
+    "Hash": "9A0E4B57C0BDD351A52CBCB4AD2051325E05EFA084269E6096BD31E6ACFC2AB2"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\workflow-designs\\workflow-design-flow.ts.json",
+    "Hash": "41E492111DBD02494191807FE4B88024BCAD0BADC9E13590FF664BD7FDA1259C"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\workflow-designs\\workflow-design-shell.ts.json",
+    "Hash": "4BAD5B34FC35AF7F9F580F37BE74024C19EB6585390B368101D18FADE4285C0D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\app\\workflow-designs\\workflow-design-view-types.ts.json",
+    "Hash": "91FA2C92FF7C70782D7225D700B6BE2E8682EF12BFD2F1726E0BE86CB35D7A91"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\platform\\About.vue.json",
+    "Hash": "B0B2B8023E25C06E616BC7882B2E0E1C0403AFCB573B3B50D8CDC3252FEEDBCE"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\platform\\HomePage.vue.json",
+    "Hash": "ADD892C68BF05D086B831E90FA22171C31DC1A3FB75EEA42C3C2EB0A0DBAC590"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\platform\\LoginView.vue.json",
+    "Hash": "9CDDE38C04B357FDB133B861AB2C36305CC43904F57DF6EE238A0133903891E9"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\platform\\PlatformApps.vue.json",
+    "Hash": "75F42518C2F594A21D9D1BB919980FA3D3E1F7223BD47F65BCC86695B58EAF96"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\platform\\PlatformTenantManagement.vue.json",
+    "Hash": "03513E61932E7C830AB0C40BD3DB6167A6B4652DB814B221DDFF23D73125A02D"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\platform\\TenantConfigPanel.vue.json",
+    "Hash": "70BFC470A330A3181152E5F38B85F3C73DE5BC20CA878CA11F15006E5585C0A8"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\tenant\\AppList.vue.json",
+    "Hash": "63B8F7A8F99A07A99FE6B4D1410DE3E03F4252194005ED6B697DADE8540EC924"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\tenant\\AppProjectSettingsDialog.vue.json",
+    "Hash": "D1956C8EC49971227AA4A2E3FEA97A2A5EE2A9136FFA0C9A9EB52CFB865C1FD4"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\tenant\\CacheManager.vue.json",
+    "Hash": "70D9E63E42B0E34E1D9ACBB8CDF91AE3187102A8D70C941CFA0A1756F5444135"
+  },
+  {
+    "Path": "D:\\SPARK_AppWorks\\generated\\dts-class-model\\files\\src\\views\\tenant\\Settings.vue.json",
+    "Hash": "C88A61E93EE28AEB397D749079784B62592B92A30C60C3C2AB70F2C6EB028FAF"
+  }
+]

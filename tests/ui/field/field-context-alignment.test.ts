@@ -6,9 +6,10 @@
  *       valueClassName → 内部 span.field-table-value 的 class
  */
 import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { computed, defineComponent, h } from 'vue'
+import { config as testUtilsConfig, flushPromises, mount } from '@vue/test-utils'
+import { computed, defineComponent, h, nextTick } from 'vue'
 import type { Component } from 'vue'
+import ElementPlus, { ElTable, ElTableColumn } from 'element-plus'
 import { Spark, PAGE_COMPONENT_REGISTRY, FieldSelect, FieldText, useSparkContextScope } from '@spark-appworks/spark-component'
 import FieldContextRenderer from '../../../packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue'
 import { useFieldContext } from '../../../packages/spark-component/src/components/fields/context/useFieldContext'
@@ -87,6 +88,8 @@ const isTableCellVisible = (_row: DataRow): boolean => false
 function getTableCellId(row: DataRow): string {
   return String(requireRecord(row, 'table cell row')['id'] ?? '')
 }
+
+type FieldTableCellSlotProps = { row: DataRow; value: string }
 
 function readAlign(value: unknown): 'left' | 'center' | 'right' | undefined {
   if (value === 'left' || value === 'center' || value === 'right') return value
@@ -475,5 +478,59 @@ describe('字段宿主推导会考虑中间层', () => {
     expect(col.exists()).toBe(true)
     expect(col.attributes('data-prop')).toBe('name')
     expect(col.attributes('data-label')).toBe('姓名')
+  })
+})
+
+describe('真实 Element Plus 表格中的隐藏字段', () => {
+  it('隐藏行不回退读取原值，且自定义单元格插槽只处理可显示行', async () => {
+    const rows: DataRow[] = [
+      { id: 'hidden', secret: 'hidden-raw-secret', visibility: 'hidden' },
+      { id: 'visible', secret: 'visible-value', visibility: 'visible' },
+      { id: 'masked', secret: 'masked-raw-secret', display: '••••', visibility: 'masked' },
+    ]
+    const slotRows: string[] = []
+    const TableWithField = defineComponent({
+      setup() {
+        useSparkContextScope('r-table')
+        return () => h(ElTable, { data: rows }, {
+          default: () => h(FieldContextRenderer, {
+            displayLabel: 'Secret',
+            fieldName: 'secret',
+            isTableCellHidden: row => row['visibility'] === 'hidden',
+            getTableCellDisplayValue: row => String(row['display'] ?? row['secret'] ?? ''),
+          }, {
+            'table-cell': ({ row, value }: FieldTableCellSlotProps) => {
+              if (typeof row['id'] === 'string') slotRows.push(row['id'])
+              return h('span', { class: 'custom-table-cell' }, value)
+            },
+          }),
+        })
+      },
+    })
+
+    const previousStubs = testUtilsConfig.global.stubs ?? {}
+    const realTableStubs = { ...previousStubs }
+    delete realTableStubs['el-table']
+    realTableStubs['el-table-column'] = ElTableColumn
+    testUtilsConfig.global.stubs = realTableStubs
+    try {
+      const wrapper = mount(TableWithField, {
+        global: {
+          plugins: [Spark.createPlugin(), ElementPlus],
+          stubs: { 'el-table': false, SparkComponentRenderer: true },
+        },
+      })
+
+      await nextTick()
+      await flushPromises()
+      expect(wrapper.html()).not.toContain('hidden-raw-secret')
+      expect(wrapper.html()).not.toContain('masked-raw-secret')
+      expect(wrapper.text()).toContain('visible-value')
+      expect(wrapper.text()).toContain('••••')
+      expect(slotRows).toEqual(['visible', 'masked'])
+      wrapper.unmount()
+    } finally {
+      testUtilsConfig.global.stubs = previousStubs
+    }
   })
 })

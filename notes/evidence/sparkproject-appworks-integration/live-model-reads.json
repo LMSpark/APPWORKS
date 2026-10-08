@@ -1,0 +1,157 @@
+{
+  "probeCorrection": "Initial 401 was caused by duplicated Bearer prefix in the probe, corrected to match LowcodePlatformApi.stripBearer; not counted as product failure",
+  "previousAttempts": [
+    {
+      "id": "D1",
+      "model": "Base_DataSet",
+      "scenarioId": "90A82E287930A234FEC3E687C94A93EA",
+      "nodeId": "90A82E287930A234FEC3E687C94A93EA",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "query": {
+        "Table": [
+          {
+            "DISTINCT": false,
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "inputParams": [],
+            "IsBusinessMain": 1,
+            "Filter": {
+              "Type": "cond",
+              "Operator": "equal",
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "D99A1DCE9894698799101EFD70F8FC76"
+              },
+              "Field": "sysid",
+              "Value": null
+            }
+          }
+        ],
+        "PageParam": {
+          "size": 5,
+          "index": 1
+        }
+      },
+      "readOnly": true,
+      "at": "2026-10-07T06:55:02.4994825+08:00",
+      "httpStatus": 401,
+      "errorBody": "\r\n{\r\n  \"code\": 401,\r\n  \"msg\": \"\\u8BA4\\u8BC1\\u5931\\u8D25\\uFF0C\\u8BF7\\u91CD\\u65B0\\u767B\\u5F55\"\r\n}"
+    },
+    {
+      "id": "D6",
+      "model": "_Base_DictType",
+      "scenarioId": "EDB0E34486FFB903E896E5C281230961",
+      "nodeId": "EDB0E34486FFB903E896E5C281230961",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "query": {
+        "Table": [
+          {
+            "DISTINCT": false,
+            "Name": "_Base_DictType",
+            "OutputType": "Table",
+            "inputParams": [],
+            "IsBusinessMain": 1,
+            "Filter": {
+              "Type": "cond",
+              "Operator": "equal",
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "D99A1DCE9894698799101EFD70F8FC76"
+              },
+              "Field": "AppId",
+              "Value": null
+            }
+          }
+        ],
+        "PageParam": {
+          "size": 5,
+          "index": 1
+        }
+      },
+      "readOnly": true,
+      "at": "2026-10-07T06:55:02.6375291+08:00",
+      "httpStatus": 401,
+      "errorBody": "\r\n{\r\n  \"code\": 401,\r\n  \"msg\": \"\\u8BA4\\u8BC1\\u5931\\u8D25\\uFF0C\\u8BF7\\u91CD\\u65B0\\u767B\\u5F55\"\r\n}"
+    }
+  ],
+  "results": [
+    {
+      "id": "D1",
+      "model": "Base_DataSet",
+      "scenarioId": "90A82E287930A234FEC3E687C94A93EA",
+      "nodeId": "90A82E287930A234FEC3E687C94A93EA",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "query": {
+        "PageParam": {
+          "index": 1,
+          "size": 5
+        },
+        "Table": [
+          {
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "inputParams": [],
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "ValueFun": {
+                "Value": "D99A1DCE9894698799101EFD70F8FC76",
+                "Type": "GetConstValue"
+              },
+              "Field": "sysid",
+              "Value": null,
+              "Operator": "equal"
+            },
+            "Name": "Base_DataSet"
+          }
+        ]
+      },
+      "readOnly": true,
+      "at": "2026-10-07T06:55:37.6482692+08:00",
+      "code": 200,
+      "total": 68,
+      "rowCount": 5,
+      "hasDataEnvelope": true,
+      "message": "操作成功"
+    },
+    {
+      "id": "D6",
+      "model": "_Base_DictType",
+      "scenarioId": "EDB0E34486FFB903E896E5C281230961",
+      "nodeId": "EDB0E34486FFB903E896E5C281230961",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "query": {
+        "PageParam": {
+          "index": 1,
+          "size": 5
+        },
+        "Table": [
+          {
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "inputParams": [],
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "ValueFun": {
+                "Value": "D99A1DCE9894698799101EFD70F8FC76",
+                "Type": "GetConstValue"
+              },
+              "Field": "AppId",
+              "Value": null,
+              "Operator": "equal"
+            },
+            "Name": "_Base_DictType"
+          }
+        ]
+      },
+      "readOnly": true,
+      "at": "2026-10-07T06:55:37.9684085+08:00",
+      "code": 200,
+      "total": 4,
+      "rowCount": 4,
+      "hasDataEnvelope": true,
+      "message": "操作成功"
+    }
+  ]
+}

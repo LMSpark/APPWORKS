@@ -1,0 +1,52 @@
+{
+  "capturedAt": "2026-10-07T17:04:43.883Z",
+  "probe": {
+    "result": {
+      "type": "object",
+      "value": [
+        {
+          "denied": [],
+          "rows": 6,
+          "sample": [
+            {
+              "Name": "Base_NavigationInfo",
+              "Type": "数据库表",
+              "dataSetId": "90A82E287930A234FEC3E687C94A93EA",
+              "rowid": "44402ab3-7708-4a12-adaf-5d8a2e42b9ff"
+            },
+            {
+              "Name": "Base_DataSet",
+              "Type": "数据库表",
+              "dataSetId": "90A82E287930A234FEC3E687C94A93EA",
+              "rowid": "90A82E287930A234FEC3E687C94A93EAp000"
+            }
+          ],
+          "table": "Base_DataModel"
+        },
+        {
+          "denied": [],
+          "rows": 218,
+          "sample": [
+            {
+              "IsPKey": 0,
+              "Name": "SysId",
+              "dataModelId": "44402ab3-7708-4a12-adaf-5d8a2e42b9ff",
+              "dataSetId": "90A82E287930A234FEC3E687C94A93EA",
+              "rowid": "0500E571B07C9249FBAE0BA8FC666982",
+              "type": "dataModel"
+            },
+            {
+              "IsPKey": 0,
+              "Name": "ValueFun",
+              "dataModelId": "a30f1b5b-4a2f-432c-aa71-1b597bc36e11",
+              "dataSetId": "90A82E287930A234FEC3E687C94A93EA",
+              "rowid": "05B7ACF843A56CAEB4648F49EFDE2355",
+              "type": "dataModel"
+            }
+          ],
+          "table": "Base_DataModel_Field"
+        }
+      ]
+    }
+  }
+}

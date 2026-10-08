@@ -1,0 +1,168 @@
+- banner:
+  - generic: SPARK · D99A1DCE9894698799101EFD70F8FC76
+  - navigation:
+    - generic: SPARK 工具
+    - generic: 数据库管理
+    - generic: 外部服务管理
+    - generic: 半结构化数据
+    - generic: 文件数据管理
+    - generic: 结构化配置
+    - generic: 数据空间管理
+    - generic: 业务流程管理
+    - generic: 业务报表管理
+    - generic: 安全防护管理
+    - generic: 应用系统管理
+    - generic: 人力资源管理
+    - generic: 系统支持管理
+    - generic: 企业管理
+  - separator
+  - button "系 系统管理员":
+    - generic: 系
+    - generic: 系统管理员
+- generic: 页面工具
+- generic: ×
+- main:
+  - heading "数据空间设计" [level=2]
+  - status: 数据空间设计信息已加载
+  - button "返回目录":
+    - generic: 返回目录
+  - button "重新加载":
+    - generic: 重新加载
+  - button "编辑输入参数":
+    - generic: 编辑输入参数
+  - tablist:
+    - tab "概览"
+    - tab "模型" [active] [selected]
+    - tab "字段"
+    - tab "关系"
+    - tab "关系图"
+  - tabpanel "模型":
+    - button "从来源新增模型":
+      - generic: 从来源新增模型
+    - table:
+      - rowgroup:
+        - row "模型 ID 注册名 来源名 描述 类型":
+          - columnheader "模型 ID":
+            - generic: 模型 ID
+          - columnheader "注册名":
+            - generic: 注册名
+          - columnheader "来源名":
+            - generic: 来源名
+          - columnheader "描述":
+            - generic: 描述
+          - columnheader "类型":
+            - generic: 类型
+    - table:
+      - rowgroup:
+        - row "23242F5DF24156A738D99A9270802B24 shif shif 是否 字典":
+          - cell "23242F5DF24156A738D99A9270802B24":
+            - generic: 23242F5DF24156A738D99A9270802B24
+          - cell "shif":
+            - generic: shif
+          - cell "shif":
+            - generic: shif
+          - cell "是否":
+            - generic: 是否
+          - cell "字典":
+            - generic: 字典
+        - row "2E2EE885581B4B21940479EBDC3402C9 Json转数组 Json转数组 接口":
+          - cell "2E2EE885581B4B21940479EBDC3402C9":
+            - generic: 2E2EE885581B4B21940479EBDC3402C9
+          - cell "Json转数组":
+            - generic: Json转数组
+          - cell "Json转数组":
+            - generic: Json转数组
+          - cell
+          - cell "接口":
+            - generic: 接口
+        - row "3A91837FD1EFF10F2B9FF90FF771989C db_relation_show db_relation_show 视图":
+          - cell "3A91837FD1EFF10F2B9FF90FF771989C":
+            - generic: 3A91837FD1EFF10F2B9FF90FF771989C
+          - cell "db_relation_show":
+            - generic: db_relation_show
+          - cell "db_relation_show":
+            - generic: db_relation_show
+          - cell
+          - cell "视图":
+            - generic: 视图
+        - row "49B82918D1DF5273C5EC752D208621EE View_TblList View_TblList 表表视图 数据库视图":
+          - cell "49B82918D1DF5273C5EC752D208621EE":
+            - generic: 49B82918D1DF5273C5EC752D208621EE
+          - cell "View_TblList":
+            - generic: View_TblList
+          - cell "View_TblList":
+            - generic: View_TblList
+          - cell "表表视图":
+            - generic: 表表视图
+          - cell "数据库视图":
+            - generic: 数据库视图
+        - row "4F2240B23F1F951EC6356AA576F28165 TestJSON0819 TestJSON0819 JSON":
+          - cell "4F2240B23F1F951EC6356AA576F28165":
+            - generic: 4F2240B23F1F951EC6356AA576F28165
+          - cell "TestJSON0819":
+            - generic: TestJSON0819
+          - cell "TestJSON0819":
+            - generic: TestJSON0819
+          - cell
+          - cell "JSON":
+            - generic: JSON
+        - row "536CACBAE8A723F65264B47003D15850 copyTable copyTable 复制表 数据库表":
+          - cell "536CACBAE8A723F65264B47003D15850":
+            - generic: 536CACBAE8A723F65264B47003D15850
+          - cell "copyTable":
+            - generic: copyTable
+          - cell "copyTable":
+            - generic: copyTable
+          - cell "复制表":
+            - generic: 复制表
+          - cell "数据库表":
+            - generic: 数据库表
+        - row "B7B0D0E8F824E9CBFA2BEBEE6A76F465 Base_DataSet Base_DataSet 数据空间定义表 数据库表":
+          - cell "B7B0D0E8F824E9CBFA2BEBEE6A76F465":
+            - generic: B7B0D0E8F824E9CBFA2BEBEE6A76F465
+          - cell "Base_DataSet":
+            - generic: Base_DataSet
+          - cell "Base_DataSet":
+            - generic: Base_DataSet
+          - cell "数据空间定义表":
+            - generic: 数据空间定义表
+          - cell "数据库表":
+            - generic: 数据库表
+    - generic: 注册名
+    - textbox "注册名": shif
+    - generic: 来源名
+    - textbox "来源名": shif
+    - generic: 描述
+    - textbox "描述": 是否
+    - generic: 来源类型
+    - textbox "来源类型": 字典
+    - generic: 输出类型
+    - combobox "输出类型"
+    - generic: 单表查询
+    - generic: 父字段
+    - combobox "父字段"
+    - generic: 请选择
+    - generic: 是否包含子数据字段
+    - textbox "是否包含子数据字段"
+    - generic: 自引用输出类型
+    - combobox "自引用输出类型"
+    - generic: 直接子节点
+    - generic: 顶层父级 ID
+    - textbox "顶层父级 ID"
+    - generic: 缓存类型
+    - combobox "缓存类型"
+    - generic: 请选择
+    - generic: 请求完成配置
+    - textbox "请求完成配置"
+    - button "编辑完整过滤":
+      - generic: 编辑完整过滤
+    - group "业务模型":
+      - generic: 业务模型
+      - checkbox "业务模型"
+      - generic: 业务模型
+    - group "主业务模型":
+      - generic: 主业务模型
+      - checkbox "主业务模型"
+      - generic: 主业务模型
+- contentinfo:
+  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场

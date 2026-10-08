@@ -1,0 +1,420 @@
+--- before/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts
++++ after/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts
+@@ -125,6 +125,7 @@
+ }>
+ /** 单场景模型目录或关系读取身份；调用方 guard 与请求 scope 共同拒绝迟到结果。 */
+ type DataSpaceFormalScenarioReadInput = Omit<DataSpaceFormalReadInput, 'metaName'>
++type DataSpaceFormalSpaceDefinition = Readonly<{ dataSpaceId: string; name: string }>
+ /** 正式关系消费合同；过滤由唯一 codec 解码，视图和字段引用由场景装配验证。 */
+ type DataSpaceFormalRelation = Omit<LowcodeModelRelationRecord, 'filterExpression'> & Readonly<{
+   filterExpression: DataViewFilter
+@@ -600,6 +601,31 @@
+     return Object.freeze(outputs)
+   }
+ 
++  /** 仅读取正式空间名称，不扩展模型、目录或输入参数。 */
++  public async readSpaceDefinition(input: DataSpaceFormalScenarioReadInput): Promise<DataSpaceFormalSpaceDefinition> {
++    const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
++    const dataSpaceId = requiredText(input.dataSpaceId, 'dataSpaceId')
++    const scope = this.readScope().token
++    const assertCurrent = () => {
++      input.assertCurrent?.()
++      if (this.readScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 正式空间读取身份已失效')
++    }
++    assertCurrent()
++    const result = await this.runtime.query({ scenarioId: designScenarioId, metaName: DATA_SPACE_TABLE }, {
++      filter: DataViewFilter.condition({ field: 'rowid', operator: 'eq', value: dataSpaceId }),
++      fields: ['rowid', 'Name'], page: { index: 1, size: 2 },
++    })
++    assertCurrent()
++    const row = result.rows[0]
++    if (!result.countReported || result.total !== 1 || result.rows.length !== 1 || row?.['rowid'] !== dataSpaceId
++      || typeof row['Name'] !== 'string' || !row['Name'].trim()
++      || result.readFieldAccess(row, 'rowid') !== 'visible' || result.readFieldAccess(row, 'Name') !== 'visible') {
++      throw new LowcodeApiError(0, `正式数据空间名称必须唯一且可读: ${dataSpaceId}`)
++    }
++    assertCurrent()
++    return Object.freeze({ dataSpaceId, name: row['Name'] })
++  }
++
+   /** 以真实场景模型目录发现 Name，再复用正式单模型读取；不借物理 catalog 猜测字段。 */
+   public async readModels(input: DataSpaceFormalScenarioReadInput): Promise<readonly DataSpaceFormalModel[]> {
+     const designScenarioId = requiredText(input.designScenarioId, 'designScenarioId')
+--- before/src/lowcode/data-space/lowcode-data-space-assembler.ts
++++ after/src/lowcode/data-space/lowcode-data-space-assembler.ts
+@@ -10,9 +10,11 @@
+ 
+ /** readModel 返回的正式模型定义，持有模型身份及规范输出字段。 */
+ type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
++type FormalSpace = Readonly<{dataSpaceId: string; name: string}>
+ /** 装配输入：同场景视图配置与后端正式模型、关系，不从物理资源猜定义。 */
+ export type LowcodeDataSpaceAssemblerInput = Readonly<{
+  config: ScenarioViewConfig
++ space: FormalSpace
+  models: readonly FormalModel[]
+  relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>
+ }>
+@@ -106,6 +108,8 @@
+  /** 模型关系只生成结构映射；只有场景明确配置 viewCascades 才装配前端输入级联。 */
+  public assemble(input: LowcodeDataSpaceAssemblerInput): LowcodeDataSpaceAssembly {
+   if (!(input.config instanceof ScenarioViewConfig)) throw new Error('SCENARIO_VIEW_CONFIG_INSTANCE: 必须使用已校验的场景配置')
++  if (input.space.dataSpaceId !== input.config.scenarioId || typeof input.space.name !== 'string'
++   || !input.space.name.trim()) throw new Error('SCENARIO_SPACE_DEFINITION: 正式空间身份或名称无效')
+   const config = input.config.toJSON()
+   const tables: Record<string, unknown> = {}
+   const bindings = new Map<string, FormalModel>()
+@@ -129,7 +133,7 @@
+   }
+   const relations = new LowcodeModelRelationAdapter().adapt(input.relations, bindings)
+   const explicit = config['viewCascades']
+-  const dataSet = DataSet.fromJson({ scenarioId: input.config.scenarioId, dataSetName: input.config.scenarioId, tables,
++  const dataSet = DataSet.fromJson({ scenarioId: input.config.scenarioId, dataSetName: input.space.name, tables,
+    resourceRelations: relations.resourceRelations,
+    viewCascades: explicit === undefined ? [] : explicit,
+    ...('schemaVersion' in config ? {schemaVersion: config['schemaVersion']} : {}),
+--- before/src/lowcode/data-space/lowcode-data-space-runtime.ts
++++ after/src/lowcode/data-space/lowcode-data-space-runtime.ts
+@@ -32,12 +32,13 @@
+   names.add(table['modelBinding']['modelName'])
+  }
+  const formalInput = {designScenarioId, dataSpaceId: scenarioId, ...(input.assertCurrent ? {assertCurrent: input.assertCurrent} : {})}
+- const [models, relations] = await Promise.all([
++ const [space, models, relations] = await Promise.all([
++  lowcodeApi.dataSpace.design.readSpaceDefinition(formalInput),
+   Promise.all([...names].map(metaName => lowcodeApi.dataSpace.design.readModel({...formalInput, metaName}))),
+   lowcodeApi.dataSpace.design.readRelations(formalInput),
+  ])
+  input.assertCurrent?.()
+- return new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config: input.config, models, relations})
++ return new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config: input.config, space, models, relations})
+ }
+ 
+ /** PageRuntime 场景装配入口：读取场景视图文件并装配，期间请求应用或身份变化即失败并销毁。 */
+--- before/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts
++++ after/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts
+@@ -318,6 +318,54 @@
+ }
+ 
+ const formalInput = { designScenarioId: 'DESIGN-1', dataSpaceId: 'SPACE-1', metaName: 'Orders' }
++const formalSpaceInput = { designScenarioId: 'DESIGN-1', dataSpaceId: 'SPACE-1' }
++function formalSpaceRow(change: Record<string, unknown> = {}): FormalDesignRow {
++  return { rowid: 'SPACE-1', Name: '  薪资正式空间  ', inputParams: '[secret]',
++    lingma_sys_key: 'ROW-KEY', lingma_sys_params: { r: ['rowid', 'Name'] }, ...change }
++}
++describe('DataSpaceDesignApi formal space definition', () => {
++  it('reads only rowid and Name once with the target filter and preserves the formal Name', async () => {
++    const http = new DataSpaceFormalFixtureHttpClient()
++    http.results.push(formalResult([formalSpaceRow()]))
++    const space = await formalApi(http).dataSpace.design.readSpaceDefinition(formalSpaceInput)
++    expect(space).toEqual({dataSpaceId: 'SPACE-1', name: '  薪资正式空间  '})
++    expect(Object.isFrozen(space)).toBe(true)
++    expect(http.requests).toHaveLength(1)
++    expect(http.requests[0]?.data).toMatchObject({Table: [{Name: 'Base_DataSet',
++      Filter: {Field: 'rowid', ValueFun: {Value: 'SPACE-1'}},
++      Fields: [{Name: 'rowid', IsOutput: true}, {Name: 'Name', IsOutput: true}]}],
++    PageParam: {index: 1, size: 2}})
++    expect(http.requests[0]?.headers).toMatchObject({'x-FormKey': 'DESIGN-1'})
++  })
++
++  it.each([
++    formalResult([]), formalResult([formalSpaceRow()], 2),
++    formalResult([formalSpaceRow(), formalSpaceRow()]),
++    formalResult([formalSpaceRow({rowid: 'OTHER'})]),
++    formalResult([formalSpaceRow({Name: ''})]),
++    formalResult([formalSpaceRow({Name: 7})]),
++    formalResult([formalSpaceRow({lingma_sys_params: {h: ['Name']}})]),
++    formalResult([formalSpaceRow({lingma_sys_params: {r: ['rowid', 'Name'], m: ['Name']}})]),
++    formalResult([formalSpaceRow({lingma_sys_params: {h: ['rowid']}})]),
++  ])('rejects absent, ambiguous, foreign, invalid or unreadable formal names', async result => {
++    const http = new DataSpaceFormalFixtureHttpClient()
++    http.results.push(result)
++    await expect(formalApi(http).dataSpace.design.readSpaceDefinition(formalSpaceInput)).rejects.toThrow()
++    expect(http.requests).toHaveLength(1)
++  })
++
++  it('rejects stale scope and caller guard without delivering the name', async () => {
++    const http = new DataSpaceFormalFixtureHttpClient()
++    const api = formalApi(http)
++    http.results.push(formalResult([formalSpaceRow()]))
++    http.onResponse = () => { api.application.clear() }
++    await expect(api.dataSpace.design.readSpaceDefinition(formalSpaceInput)).rejects.toThrow('SPARK_EXECUTION_SCOPE')
++    const untouched = new DataSpaceFormalFixtureHttpClient()
++    await expect(formalApi(untouched).dataSpace.design.readSpaceDefinition({...formalSpaceInput,
++      assertCurrent: () => {throw new Error('PAGE_INSTANCE_STALE')}})).rejects.toThrow('PAGE_INSTANCE_STALE')
++    expect(untouched.requests).toHaveLength(0)
++  })
++})
+ function formalRelation(index = 0): FormalDesignRow {
+   return { rowid: `REL-${index}`, dataSetId: 'SPACE-1', parentModId: 'MODEL-1', childModId: 'MODEL-2',
+     parentTable: 'Orders', childTable: 'OrderLines', depType: 'currentRow', cascadeDel: 1,
+--- before/tests/runtime/auth-nav/data-space/lowcode-scenario-assembly.test.ts
++++ after/tests/runtime/auth-nav/data-space/lowcode-scenario-assembly.test.ts
+@@ -8,13 +8,15 @@
+ const formal = { id: 'MODEL', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: 'physical_orders', sourceId: 'DB', sourceType: 'table', primaryKey: 'orderId', businessMain: true,
+  fields: [{ id: 'KEY', modelId: 'MODEL', name: 'rowid', canonicalName: 'orderId', type: 'string', primaryKey: true, description: '', output: true, computed: false, order: 0, orderType: '', raw: {} }], raw: {} }
+ const config = new ScenarioViewConfig('SCENE', JSON.stringify({ scenarioId: 'SCENE', tables: { Orders: { modelBinding: { modelId: 'MODEL', modelName: 'QueryOrders' }, views: { default: {}, detail: { pageSize: 5 } } } } }))
++const space = {dataSpaceId: 'SCENE', name: '订单正式空间'}
+ 
+ describe('formal scenario assembly', () => {
+  it('keeps local table name and every view with formal model output identity', () => {
+   const http = new NoRequest()
+   const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({ token: 'scope', headers: {} })})
+-  const result = new LowcodeDataSpaceAssembler(runtime, http).assemble({ config, models: [formal], relations: [] })
++  const result = new LowcodeDataSpaceAssembler(runtime, http).assemble({ config, space, models: [formal], relations: [] })
+   expect(result.dataSet.scenarioId).toBe('SCENE')
++  expect(result.dataSet.dataSetName).toBe('订单正式空间')
+   expect(result.dataSet.getTable('Orders')?.modelBinding).toEqual({ modelId: 'MODEL', modelName: 'QueryOrders' })
+   expect(result.dataSet.getView('Orders', 'default')?.primaryKey).toBe('orderId')
+   expect(result.dataSet.getView('Orders', 'detail')?.pageSize).toBe(5)
+@@ -24,7 +26,15 @@
+  it('rejects model identity mismatch rather than skipping the table', () => {
+   const http = new NoRequest()
+   const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({ token: 'scope', headers: {} })})
+-  expect(() => new LowcodeDataSpaceAssembler(runtime, http).assemble({ config, models: [{...formal,id:'OTHER'}], relations: [] })).toThrow(/模型/)
++  expect(() => new LowcodeDataSpaceAssembler(runtime, http).assemble({ config, space, models: [{...formal,id:'OTHER'}], relations: [] })).toThrow(/模型/)
++ })
++ it('requires a matching formal space identity and nonempty legal Name', () => {
++  const http = new NoRequest()
++  const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {}})})
++  for (const invalid of [{...space, dataSpaceId: 'OTHER'}, {...space, name: ''}, {...space, name: '@reserved'}]) {
++   expect(() => new LowcodeDataSpaceAssembler(runtime, http).assemble({config, space: invalid,
++    models: [formal], relations: []})).toThrow()
++  }
+  })
+ })
+ 
+@@ -33,7 +43,7 @@
+ it('permits a view output selection only when it matches its formal field identity',()=>{
+  const config = new ScenarioViewConfig('SCENE',JSON.stringify({scenarioId:'SCENE',tables:{Orders:{modelBinding:{modelId:'MODEL',modelName:'QueryOrders'},views:{default:{fieldProjection:[projection]}}}}}))
+  const http = new NoRequest(); const runtime = new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+- const result = new LowcodeDataSpaceAssembler(runtime,http).assemble({config,models:[formal],relations:[]})
++ const result = new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space,models:[formal],relations:[]})
+  expect(result.dataSet.getView('Orders','default')?.fieldProjection[0]?.viewField).toBe('orderId')
+  result.dataSet.destroy()
+ })
+@@ -41,6 +51,6 @@
+  const http = new NoRequest(); const runtime = new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  for(const field of [{...projection,viewField:'renamed'}, {...projection,expression:'arbitrary()'}]) {
+   const config = new ScenarioViewConfig('SCENE',JSON.stringify({scenarioId:'SCENE',tables:{Orders:{modelBinding:{modelId:'MODEL',modelName:'QueryOrders'},views:{default:{fieldProjection:[field]}}}}}))
+-  expect(()=>new LowcodeDataSpaceAssembler(runtime,http).assemble({config,models:[formal],relations:[]})).toThrow(/正式模型/)
++  expect(()=>new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space,models:[formal],relations:[]})).toThrow(/正式模型/)
+  }
+ })
+--- before/tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts
++++ after/tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts
+@@ -1,8 +1,10 @@
+ import { beforeEach, describe, expect, it, vi } from 'vitest'
++import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+ 
+ const mocks = vi.hoisted(() => ({
+   readRequestScope: vi.fn(),
+   readText: vi.fn(),
++  readSpaceDefinition: vi.fn(),
+   readModel: vi.fn(),
+   readRelations: vi.fn(),
+ }))
+@@ -10,7 +12,8 @@
+ vi.mock('@/lowcode/lowcode-runtime', () => ({
+   lowcodeApi: {
+     readRequestScope: mocks.readRequestScope,
+-    dataSpace: { design: { readModel: mocks.readModel, readRelations: mocks.readRelations }, runtime: {} },
++    dataSpace: { design: { readSpaceDefinition: mocks.readSpaceDefinition,
++      readModel: mocks.readModel, readRelations: mocks.readRelations }, runtime: {} },
+   },
+   lowcodeHttp: {},
+   createLowcodeProjectGateways: () => ({ scenarioViews: { readText: mocks.readText } }),
+@@ -42,4 +45,31 @@
+     await expect(loadLowcodeRuntimeScenario({ projectId: 'APP', scenarioId: 'SCENE' })).rejects.toThrow('SCENARIO_VIEW_FILE_MISSING')
+     expect(mocks.readModel).not.toHaveBeenCalled()
+   })
++
++  it('reads formal space even when no tables are configured, keeping scenario identity separate from Name', async () => {
++    mocks.readRequestScope.mockReturnValue(scope('t1', 'APP'))
++    mocks.readText.mockResolvedValue(JSON.stringify({scenarioId: 'SCENE', tables: {}}))
++    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: 'SCENE', name: '正式场景名称'})
++    mocks.readRelations.mockResolvedValue([])
++    const dataSet = await loadLowcodeRuntimeScenario({projectId: 'APP', scenarioId: 'SCENE'})
++    expect(dataSet.scenarioId).toBe('SCENE')
++    expect(dataSet.dataSetName).toBe('正式场景名称')
++    expect(mocks.readSpaceDefinition).toHaveBeenCalledWith(expect.objectContaining({
++      designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: 'SCENE'}))
++    expect(mocks.readModel).not.toHaveBeenCalled()
++    dataSet.destroy()
++  })
++
++  it('rejects a formal space result returned after request scope changed', async () => {
++    let resolveSpace!: (value: {dataSpaceId: string; name: string}) => void
++    mocks.readRequestScope.mockReturnValue(scope('t1', 'APP'))
++    mocks.readText.mockResolvedValue(JSON.stringify({scenarioId: 'SCENE', tables: {}}))
++    mocks.readSpaceDefinition.mockReturnValue(new Promise(resolve => {resolveSpace = resolve}))
++    mocks.readRelations.mockResolvedValue([])
++    const pending = loadLowcodeRuntimeScenario({projectId: 'APP', scenarioId: 'SCENE'})
++    await vi.waitFor(() => expect(mocks.readSpaceDefinition).toHaveBeenCalledOnce())
++    mocks.readRequestScope.mockReturnValue(scope('t2', 'APP'))
++    resolveSpace({dataSpaceId: 'SCENE', name: '迟到名称'})
++    await expect(pending).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
++  })
+ })
+--- before/tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts
++++ after/tests/runtime/auth-nav/lowcode-data-space-runtime.test.ts
+@@ -601,7 +601,7 @@
+   const config = new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables, ...(options.viewCascades === undefined ? {} : {viewCascades: options.viewCascades})}))
+   const relations = snapshot.relations.map(relation => ({...relation,
+     filterExpression: DataViewFilter.group({logic:'and', filters:[{field: 'departmentId',operator:'eq',value:{Type:'GetTableField', Field:'id'}}]})}))
+-  return {config, models, relations}
++  return {config, space: {dataSpaceId: scenarioId, name: snapshot.name}, models, relations}
+ }
+ 
+ describe('lowcode data-space DataView runtime', () => {
+--- before/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-metadata.test.ts
++++ after/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-metadata.test.ts
+@@ -6,7 +6,7 @@
+ import type { RequestConfig } from '@spark-appworks/spark-utils'
+ 
+ const mocks = vi.hoisted(() => ({
+-  scope: vi.fn(), readModel: vi.fn(), readRelations: vi.fn(), request: vi.fn(),
++  scope: vi.fn(), readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRelations: vi.fn(), request: vi.fn(),
+ }))
+ 
+ vi.mock('@/lowcode/lowcode-runtime', async () => {
+@@ -20,7 +20,7 @@
+   const http = new FixtureHttp()
+   return { lowcodeHttp: http, lowcodeApi: {
+     readRequestScope: mocks.scope,
+-    dataSpace: {design: {readModel: mocks.readModel, readRelations: mocks.readRelations},
++    dataSpace: {design: {readSpaceDefinition: mocks.readSpaceDefinition, readModel: mocks.readModel, readRelations: mocks.readRelations},
+       runtime: new DataSpaceRuntimeApi({http, readScope: mocks.scope})},
+   }, createLowcodeProjectGateways: () => { throw new Error('target pagedata must not be read') } }
+ })
+@@ -81,6 +81,8 @@
+     vi.clearAllMocks()
+     mocks.scope.mockReturnValue({token: 'SCOPE-1', headers: {'X-AppId': 'APP-1'}})
+     mocks.readModel.mockImplementation(async ({metaName}: {metaName: string}) => formalModel(metaName))
++    mocks.readSpaceDefinition.mockImplementation(async ({dataSpaceId}: {dataSpaceId: string}) =>
++      ({dataSpaceId, name: '元数据正式空间'}))
+     mocks.readRelations.mockResolvedValue([])
+     installRows(rowsFor())
+   })
+@@ -107,6 +109,9 @@
+     expect(first).toBeInstanceOf(DataSet)
+     expect(second).not.toBe(first)
+     expect(first.scenarioId).toBe(DATA_SPACE_DESIGN_FORM_KEY)
++    expect(first.dataSetName).toBe('元数据正式空间')
++    expect(mocks.readSpaceDefinition).toHaveBeenCalledWith(expect.objectContaining({
++      designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: DATA_SPACE_DESIGN_FORM_KEY}))
+     for (const tableName of tables) {
+       const table = first.getTable(tableName)
+       expect(table?.columns.some(column => column.name === 'rowid')).toBe(true)
+--- before/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
++++ after/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+@@ -52,6 +52,7 @@
+   if (text !== null) stored.set('SPACE', text)
+   let models = [model('ParentModel', 'ParentSource', ['id', 'title']),
+     model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])]
++  let formalSpaceName = '正式空间名称'
+   const openOwner = () => {
+     const workspace = new ProjectWorkspace({projectId: 'APP',
+       pageFiles: {readPageFile: async () => {throw new Error('unexpected page read')}},
+@@ -65,7 +66,7 @@
+     const assembler = new LowcodeDataSpaceAssembler(runtime, http)
+     const assemble = async (scenarioId: string, file: ScenarioViewFile) => {
+       if (file.scenarioId !== scenarioId) throw new Error('scenario identity mismatch')
+-      return assembler.assemble({config: file.value, models, relations})
++      return assembler.assemble({config: file.value, space: {dataSpaceId: scenarioId, name: formalSpaceName}, models, relations})
+     }
+     const service = new LowcodeDataSpaceViewDesign({workspace, assemble, assertScope: () => undefined,
+       readModel: async input => {
+@@ -75,7 +76,8 @@
+       }})
+     return {workspace, service, assemble, assembler, http}
+   }
+-  return {stored, openOwner, setModels: (next: FormalModel[]) => {models = next}}
++  return {stored, openOwner, setModels: (next: FormalModel[]) => {models = next},
++    setSpaceName: (name: string) => {formalSpaceName = name}}
+ }
+ 
+ const parentShared = {scenarioId: 'SPACE', tableName: 'Parents', modelId: 'ParentModel',
+@@ -170,11 +172,16 @@
+     expect(saved.dirty).toBe(false)
+     expect(saved.revision).toBeGreaterThan(0)
+     expect(storage.stored.get('SPACE')).toBe(saved.text)
++    expect(saved.text).not.toContain('正式空间名称')
+ 
+     const reopened = storage.openOwner()
+     const read = await reopened.service.open('SPACE')
+     const firstAssembly = await reopened.assemble('SPACE', read.dirtySource)
++    expect(firstAssembly.dataSet.dataSetName).toBe('正式空间名称')
++    storage.setSpaceName('正式空间新名称')
+     const secondAssembly = await reopened.assemble('SPACE', read.dirtySource)
++    expect(secondAssembly.dataSet.dataSetName).toBe('正式空间新名称')
++    expect(read.dirtySource.getText()).toBe(saved.text)
+     const dataSet = firstAssembly.dataSet
+     expect(dataSet.toJson()).toMatchObject({schemaVersion: 3, version: 0,
+       layout: {tablePositions: {Parents: {x: -2.5, y: 0}}}, saveChanges: {mode: 'perView'}})
+--- before/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts
++++ after/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts
+@@ -69,7 +69,7 @@
+       },
+       assemble: async (id: string, file: ScenarioViewFile) => {
+         if (id !== file.scenarioId) throw new Error('wrong target')
+-        const result = assembler.assemble({config: file.value, models, relations: []})
++        const result = assembler.assemble({config: file.value, space: {dataSpaceId: id, name: '正式空间名称'}, models, relations: []})
+         produced.push(result.dataSet)
+         candidateReady?.()
+         await assembleGate
+--- before/tests/runtime/page/catalog/data-space-four-file.test.ts
++++ after/tests/runtime/page/catalog/data-space-four-file.test.ts
+@@ -298,7 +298,7 @@
+   let scopeToken = 'catalog-test-scope'
+   const runtime = new DataSpaceRuntimeApi({ http, readScope: () => ({ token: scopeToken, headers: {} }) })
+   const assembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({
+-    config: runtimeConfig, models: formalModels(), relations: [],
++    config: runtimeConfig, space: {dataSpaceId: scenarioId, name: '目录空间'}, models: formalModels(), relations: [],
+   })
+   const designConfig = new ScenarioViewConfig(designScenarioId,
+     readFileSync(resolve(process.cwd(), 'config/pages/data-platform/data-space-design/pagedata.json'), 'utf8'))
+@@ -333,11 +333,12 @@
+     ] }),
+   ]
+   const designAssembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({ config: designConfig,
++    space: {dataSpaceId: designScenarioId, name: '设计空间'},
+     models: designModels, relations: [] })
+   const blueprintConfig = new ScenarioViewConfig(blueprintScenarioId,
+     readFileSync(resolve(process.cwd(), 'config/pages/application/project-blueprint/pagedata.json'), 'utf8'))
+   const blueprintAssembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({
+-    config: blueprintConfig, models: formalModels(), relations: [],
++    config: blueprintConfig, space: {dataSpaceId: blueprintScenarioId, name: '蓝图空间'}, models: formalModels(), relations: [],
+   })
+   const tool = markRaw(new PageTool({ pageId }))
+   tool.hydrateFileText('rule.json', readFileSync(resolve(pageRoot, 'rule.json'), 'utf8'))
+@@ -1336,7 +1337,7 @@
+     const http = new CatalogFixtureHttpClient()
+     const runtime = new DataSpaceRuntimeApi({ http, readScope: () => ({ token: 'catalog-test-scope', headers: {} }) })
+     const assembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({
+-      config: runtimeConfig, models: formalModels(), relations: [],
++      config: runtimeConfig, space: {dataSpaceId: scenarioId, name: '目录空间'}, models: formalModels(), relations: [],
+     })
+     const tool = markRaw(new PageTool({ pageId }))
+     tool.hydrateFileText('rule.json', ruleText)
+--- before/tests/runtime/page/design/data-space-design-four-file.test.ts
++++ after/tests/runtime/page/design/data-space-design-four-file.test.ts
+@@ -132,7 +132,7 @@
+     ['f14', 'Expression', 'string', false], ['f15', 'allowAIAdd', 'number', false]] }),
+   model({ id: `${designId}p003`, name: 'Base_DataModel_Relation', primaryKey: 'rowid', fields: [['rel0', 'rowid', 'string', true],
+     ['rel1', 'dataSetId', 'string', false], ['rel2', 'parentModId', 'string', false], ['rel3', 'childModId', 'string', false],
+-    ['rel4', 'depType', 'string', false], ['rel5', 'filter', 'string', false], ['rel6', 'cascadeDel', 'boolean', false],
++    ['rel4', 'depType', 'string', false], ['rel5', 'filter', 'string', false], ['rel6', 'cascadeDel', 'int', false],
+     ['rel7', 'parentTable', 'string', false], ['rel8', 'childTable', 'string', false]] }),
+ ]
+ 
+@@ -319,7 +319,9 @@
+   for (const id of [designId, catalogId]) {
+     const text = readFileSync(resolve(id === designId ? pageRoot : 'config/pages/data-platform/data-space-catalog', 'pagedata.json'), 'utf8')
+     const config = new ScenarioViewConfig(id, text)
+-    assemblies.set(id, new LowcodeDataSpaceAssembler(runtime, http).assemble({ config, models: formalModels, relations: [] }).dataSet)
++    assemblies.set(id, new LowcodeDataSpaceAssembler(runtime, http).assemble({ config,
++      space: {dataSpaceId: id, name: id === designId ? '设计空间' : '目录空间'},
++      models: formalModels, relations: [] }).dataSet)
+   }
+   const tool = markRaw(new PageTool({ pageId: designId }))
+   for (const name of ['rule.json', 'script.js', 'style.css'] as const) tool.hydrateFileText(name, readFileSync(resolve(pageRoot, name), 'utf8'))

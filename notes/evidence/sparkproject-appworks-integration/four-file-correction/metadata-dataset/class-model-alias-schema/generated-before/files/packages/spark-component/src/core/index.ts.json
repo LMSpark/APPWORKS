@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:core/index",
+    "sourcePath": "packages/spark-component/src/core/index.ts",
+    "sourceFile": "packages/spark-component/src/core/index.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "core/index",
+    "jsdoc": "@module @spark-appworks/spark-component:core/index\n职责：汇总导出 core 的组件、props、types 和 zero-code 能力。\n边界：只维护目录级公开表面，不实现具体渲染逻辑，也不创建新的运行时状态。\nAI用途：判断某个组件能力是否应对外暴露或被注册表扫描时，用本模块确认导出入口。\n\ncore 层入口。\n聚合 spark-component 的基础内核：\n- useSparkComponent\n- 核心类型\n- capability keys",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T02:17:10.240Z",
+  "models": {}
+}

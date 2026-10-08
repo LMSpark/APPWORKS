@@ -1,0 +1,565 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/workflow/agent-workflow-runtime",
+    "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts",
+    "sourceFile": "packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/workflow/agent-workflow-runtime",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/workflow/agent-workflow-runtime\n职责：把 Agent Workflow Definition 的 runtimeBinding 声明与 app 注入能力解释成可注册的 Agent registration。\n边界：不导入 app 层模型、编辑器或 UI；只通过泛型 binding 接口组合 ClassModel runtime。\nAI用途：需要从设计器发布 definition 激活 AI host 时，用本模块确认解释器接线。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AgentWorkflowModuleConstructor",
+      "AgentWorkflowRuntimeKnowledge",
+      "AgentWorkflowRuntimeGateResult",
+      "AgentWorkflowRuntimeGateCommand",
+      "AgentWorkflowRuntimeSystemPromptCommand",
+      "AgentWorkflowRuntimeBindings",
+      "InterpretAgentWorkflowDefinitionCommand",
+      "ActivateAgentWorkflowFromDefinitionCommand",
+      "AgentWorkflowInterpretedRegistration"
+    ]
+  },
+  "$defs": {
+    "AgentWorkflowRuntimeKnowledge": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowRuntimeKnowledge",
+      "properties": {
+        "provider": {
+          "type": "object",
+          "title": "ClassModelKnowledgeProvider"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentWorkflowRuntimeGateResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowRuntimeGateResult",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "fix": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentWorkflowRuntimeGateCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowRuntimeGateCommand",
+      "properties": {
+        "editorSource": {
+          "type": "string"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeGateRule"
+          }
+        },
+        "options": {
+          "$ref": "../business/lifecycle-types.ts.json#/$defs/AiAgentBeforeFunctionCallOptions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentWorkflowRuntimeSystemPromptCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowRuntimeSystemPromptCommand",
+      "properties": {
+        "editorSource": {
+          "type": "string"
+        },
+        "template": {
+          "type": "string"
+        },
+        "hints": {
+          "type": "array",
+          "items": {
+            "$ref": "agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeConditionalHint"
+          }
+        },
+        "input": {
+          "type": "object",
+          "title": "JsonParams"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentWorkflowRuntimeBindings": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowRuntimeBindings",
+      "properties": {
+        "executableRegistry": {
+          "type": "object",
+          "title": "Record<string, AgentWorkflowModuleConstructor<TInstance>>"
+        },
+        "editorGetterRegistry": {
+          "type": "object",
+          "title": "Record<string, (context: AiAgentRuntimeContext) => TInstance>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.manifestUrlResolver.params": {
+          "type": "object",
+          "properties": {
+            "ref": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.manifestUrlResolver.return": {
+          "type": "string"
+        },
+        "method.knowledgeProviderFactory.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeModelProjectionRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.knowledgeProviderFactory.return": {
+          "$ref": "#/$defs/AgentWorkflowRuntimeKnowledge"
+        },
+        "method.gateExecutor.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/AgentWorkflowRuntimeGateCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.gateExecutor.return": {
+          "$ref": "#/$defs/AgentWorkflowRuntimeGateResult"
+        },
+        "method.systemPromptInterpolator.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/AgentWorkflowRuntimeSystemPromptCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.systemPromptInterpolator.return": {
+          "type": "string"
+        }
+      }
+    },
+    "InterpretAgentWorkflowDefinitionCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InterpretAgentWorkflowDefinitionCommand",
+      "properties": {
+        "definition": {
+          "$ref": "agent-workflow-definition.ts.json#/$defs/AgentWorkflowDefinition"
+        },
+        "bindings": {
+          "$ref": "#/$defs/AgentWorkflowRuntimeBindings"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ActivateAgentWorkflowFromDefinitionCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActivateAgentWorkflowFromDefinitionCommand",
+      "properties": {
+        "definition": {
+          "$ref": "agent-workflow-definition.ts.json#/$defs/AgentWorkflowDefinition"
+        },
+        "bindings": {
+          "$ref": "#/$defs/AgentWorkflowRuntimeBindings"
+        },
+        "host": {
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHost"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentWorkflowInterpretedRegistration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowInterpretedRegistration",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "moduleId": {
+          "type": "string"
+        },
+        "rootClassName": {
+          "type": "string"
+        },
+        "registration": {
+          "$ref": "../business/registration-types.ts.json#/$defs/AiAgentRegistration"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.227Z",
+  "models": {
+    "AgentWorkflowModuleConstructor": {
+      "name": "AgentWorkflowModuleConstructor",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "new (...args: never[]) => TInstance",
+        "members": {}
+      }
+    },
+    "AgentWorkflowRuntimeKnowledge": {
+      "name": "AgentWorkflowRuntimeKnowledge",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    provider: ClassModelKnowledgeProvider;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    provider: ClassModelKnowledgeProvider;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "provider",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowRuntimeGateResult": {
+      "name": "AgentWorkflowRuntimeGateResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    ok: boolean;\n    reason?: string;\n    fix?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    ok: boolean;\n    reason?: string;\n    fix?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ok",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reason",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fix",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowRuntimeGateCommand": {
+      "name": "AgentWorkflowRuntimeGateCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    editorSource: string;\n    rules: readonly AgentWorkflowNodeGateRule[];\n    options: AiAgentBeforeFunctionCallOptions;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    editorSource: string;\n    rules: readonly AgentWorkflowNodeGateRule[];\n    options: AiAgentBeforeFunctionCallOptions;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "editorSource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rules",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowRuntimeSystemPromptCommand": {
+      "name": "AgentWorkflowRuntimeSystemPromptCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    editorSource: string;\n    template: string;\n    hints: readonly AgentWorkflowNodeConditionalHint[];\n    input: JsonParams;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    editorSource: string;\n    template: string;\n    hints: readonly AgentWorkflowNodeConditionalHint[];\n    input: JsonParams;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "editorSource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "template",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hints",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowRuntimeBindings": {
+      "name": "AgentWorkflowRuntimeBindings",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    manifestUrlResolver: (ref: string) => string;\n    /** 宿主允许的可执行类白名单，键为 `moduleSpecifier#exportName`；definition 不能据此加载任意模块。 */\n    executableRegistry: Readonly<Record<string, AgentWorkflowModuleConstructor<TInstance>>>;\n    editorGetterRegistry: Readonly<Record<string, (context: AiAgentRuntimeContext) => TInstance>>;\n    knowledgeProviderFactory: (config: AgentWorkflowNodeModelProjectionRef) => AgentWorkflowRuntimeKnowledge;\n    gateExecutor?: (command: AgentWorkflowRuntimeGateCommand) => AgentWorkflowRuntimeGateResult;\n    systemPromptInterpolator: (command: AgentWorkflowRuntimeSystemPromptCommand) => string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    manifestUrlResolver: (ref: string) => string;\n    /** 宿主允许的可执行类白名单，键为 `moduleSpecifier#exportName`；definition 不能据此加载任意模块。 */\n    executableRegistry: Readonly<Record<string, AgentWorkflowModuleConstructor<TInstance>>>;\n    editorGetterRegistry: Readonly<Record<string, (context: AiAgentRuntimeContext) => TInstance>>;\n    knowledgeProviderFactory: (config: AgentWorkflowNodeModelProjectionRef) => AgentWorkflowRuntimeKnowledge;\n    gateExecutor?: (command: AgentWorkflowRuntimeGateCommand) => AgentWorkflowRuntimeGateResult;\n    systemPromptInterpolator: (command: AgentWorkflowRuntimeSystemPromptCommand) => string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "executableRegistry",
+              "jsdoc": "宿主允许的可执行类白名单，键为 `moduleSpecifier#exportName`；definition 不能据此加载任意模块。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editorGetterRegistry",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "manifestUrlResolver",
+              "parameters": [
+                {
+                  "name": "ref",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "knowledgeProviderFactory",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "AgentWorkflowNodeModelProjectionRef",
+                    "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "AgentWorkflowRuntimeKnowledge",
+                "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts"
+              }
+            },
+            {
+              "name": "gateExecutor",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "AgentWorkflowRuntimeGateCommand",
+                    "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "AgentWorkflowRuntimeGateResult",
+                "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts"
+              }
+            },
+            {
+              "name": "systemPromptInterpolator",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "AgentWorkflowRuntimeSystemPromptCommand",
+                    "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-runtime.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "InterpretAgentWorkflowDefinitionCommand": {
+      "name": "InterpretAgentWorkflowDefinitionCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    definition: AgentWorkflowDefinition;\n    bindings: AgentWorkflowRuntimeBindings<TInstance>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    definition: AgentWorkflowDefinition;\n    bindings: AgentWorkflowRuntimeBindings<TInstance>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "definition",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bindings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ActivateAgentWorkflowFromDefinitionCommand": {
+      "name": "ActivateAgentWorkflowFromDefinitionCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "InterpretAgentWorkflowDefinitionCommand<TInstance> & Readonly<{\n    host: AiAgentHost;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "InterpretAgentWorkflowDefinitionCommand<TInstance>",
+            "targetName": "InterpretAgentWorkflowDefinitionCommand"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    host: AiAgentHost;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "host",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowInterpretedRegistration": {
+      "name": "AgentWorkflowInterpretedRegistration",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    alias: string;\n    moduleId: string;\n    rootClassName: string;\n    registration: AiAgentRegistration;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    alias: string;\n    moduleId: string;\n    rootClassName: string;\n    registration: AiAgentRegistration;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "alias",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "moduleId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootClassName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "registration",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

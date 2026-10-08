@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-10-09T01:12:08.1153853+08:00",
+  "pathsVerified": 3,
+  "typecheckBefore": 0,
+  "typecheckAfter": 0,
+  "lint": 0,
+  "aiCodegen": 0,
+  "focusedPassed": 147,
+  "apiPassed": 540,
+  "rootPassed": 2724,
+  "rootFailed": 2,
+  "rootSuitesPassed": 208,
+  "rootSuitesFailed": 2,
+  "rootExit": 1,
+  "isolatedRootFailures": 2,
+  "onlineStage": "complete",
+  "onlineWrites": 0,
+  "sourceUnchangedSinceChecks": true
+}

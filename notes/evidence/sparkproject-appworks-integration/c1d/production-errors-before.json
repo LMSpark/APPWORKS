@@ -1,0 +1,14 @@
+[
+  {
+    "level": "error",
+    "message": "[plugins] ❌ Failed to load plugin \"element-plus\"\nError: 插件模块 element-plus 未提供有效的 Vue Plugin 默认导出\n    at uV (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:79824)\n    at Object.dV [as loader] (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:79893)\n    at async e.createInstance (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:78476)\n    at async e.loadPlugins (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:78948)\n    at async Ua (http://127.0.0.1:5274/js/index-B52s59fZ.js:2:66408) Object",
+    "timestamp": "2026-10-07T05:48:26.262Z",
+    "url": "http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js"
+  },
+  {
+    "level": "error",
+    "message": "[plugins] ❌ Failed to load plugin \"vxe-table\"\nError: 插件模块 vxe-table 未提供有效的 Vue Plugin 默认导出\n    at uV (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:79824)\n    at Object.fV [as loader] (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:80038)\n    at async e.createInstance (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:78476)\n    at async e.loadPlugins (http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js:51:78948)\n    at async Ua (http://127.0.0.1:5274/js/index-B52s59fZ.js:2:66408) Object",
+    "timestamp": "2026-10-07T05:48:26.300Z",
+    "url": "http://127.0.0.1:5274/js/spark-app-B8Weq_8o.js"
+  }
+]

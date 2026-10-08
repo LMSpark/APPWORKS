@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:snapshot-history",
+    "sourcePath": "packages/spark-utils/src/snapshot-history.ts",
+    "sourceFile": "packages/spark-utils/src/snapshot-history.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "snapshot-history",
+    "jsdoc": "@module @spark-appworks/spark-utils:snapshot-history\n职责：提供框架无关基础设施 snapshot-history 能力，围绕 SnapshotHistory 支撑 capability、HTTP、日志、脚本类型或历史快照。\n边界：保持底层工具包纯净，不依赖 Vue、spark-data 或应用壳层，也不承载业务配置。\nAI用途：需要跨包复用基础能力或确认底层协议时，用本模块理解 snapshot-history。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SnapshotHistory"
+    ]
+  },
+  "$defs": {
+    "SnapshotHistory": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SnapshotHistory",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "_limit": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.push.params": {
+          "type": "object",
+          "properties": {
+            "snapshot": {
+              "type": "object",
+              "title": "T"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.push.return": true,
+        "method.undo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.undo.return": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "T"
+        },
+        "method.redo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.redo.return": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "T"
+        },
+        "method.clear.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clear.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:38:13.634Z",
+  "models": {
+    "SnapshotHistory": {
+      "name": "SnapshotHistory",
+      "jsdoc": "通用快照历史管理器 — push / undo / redo / cursor。\n设计目标：\n1. 纯 TypeScript，零框架依赖。\n2. 供 SparkNodeTree 和 DataSetCrudTool 共用，消除重复的 _history[] + _cursor 模式。\n3. 内存级轻量快照，非持久化（StorageAdapter 面向 localStorage，不同场景）。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Snapshot History 实例。",
+          "signatureText": "constructor(_limit?: number)",
+          "parameters": [
+            {
+              "name": "_limit",
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "push",
+              "jsdoc": "追加快照。截断 cursor 之后的前进条目（标准分支语义），超出限额时移除最旧条目。",
+              "parameters": [
+                {
+                  "name": "snapshot",
+                  "type": {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "undo",
+              "jsdoc": "撤销：cursor 后退一步，返回前一个快照；不可撤销时返回 null。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "redo",
+              "jsdoc": "重做：cursor 前进一步，返回下一个快照；不可重做时返回 null。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "clear",
+              "jsdoc": "清空全部历史。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

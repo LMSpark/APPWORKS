@@ -1,0 +1,30 @@
+[
+  {
+    "sha256": "8D089BA55B75FCC4E9C832318C8FD997BF785F5801B78F0B28583502B23487AC",
+    "path": "packages/spark-data/src/types.ts"
+  },
+  {
+    "sha256": "D79FC0F1911B77F49BCE6DA377A8A27B6B428CA4BA96E11C5071AEAE023EF098",
+    "path": "packages/spark-data/src/dataset.ts"
+  },
+  {
+    "sha256": "2DB02207C48E8FDA807D3A26A05DC983D734EB8E8B63861389E9FE508A8AB046",
+    "path": "packages/spark-data/src/dataset-crud-tool.ts"
+  },
+  {
+    "sha256": "F22547FBE359FE4ED4CACD92BED09AEB5A849F04334BF167C2E22D5A2B924F3C",
+    "path": "packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts"
+  },
+  {
+    "sha256": "53B8EE349CBA4ACCEF63E6E86C91AF621C9D7A57EB232BDD8387432BAC6DCC18",
+    "path": "packages/spark-data/src/tests/dataset/dataset-structure-crud.test.ts"
+  },
+  {
+    "sha256": "CC2CFC2CFE1BB0A197AB4DE12C8B718327423322FE9BFBD9D80AFF11AC82F838",
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts"
+  },
+  {
+    "sha256": "C942B43CF09E8FCABA4831EF8DF7D865DED2FC4E29E58EEF1202BFC5FF509E9C",
+    "path": "packages/spark-data/API.md"
+  }
+]

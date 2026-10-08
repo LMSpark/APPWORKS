@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/blueprint-workspace/EstimatePane",
+    "sourcePath": "src/views/app/dev-system/blueprint-workspace/EstimatePane.vue",
+    "sourceFile": "src/views/app/dev-system/blueprint-workspace/EstimatePane.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/blueprint-workspace/EstimatePane",
+    "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/EstimatePane\n职责：编辑当前节点估算与交付责任字段。\n边界：仅发出保存动作，真实写入及节点身份校验由父工作台执行。\nAI用途：维护节点工作量并按当前节点ID关联项目经理任务。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.630Z",
+  "models": {}
+}

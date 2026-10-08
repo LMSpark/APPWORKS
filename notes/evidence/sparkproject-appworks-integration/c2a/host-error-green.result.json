@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/dynamic-router-platform-pages.test.ts --maxWorkers=1 --reporter=dot -t \"shows an identity error and mounts no business page\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T14:31:21.6731879+08:00",
+  "finishedAt": "2026-10-07T14:31:24.4788617+08:00",
+  "exitCode": 1,
+  "log": "host-error-green.log"
+}

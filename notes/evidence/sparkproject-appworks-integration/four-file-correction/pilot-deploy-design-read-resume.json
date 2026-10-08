@@ -1,0 +1,145 @@
+{
+  "capturedAt": "2026-10-07T20:13:16.753Z",
+  "ruleStructuralDiffs": [
+    {
+      "path": "root.children.1.children.0.id",
+      "after": "RenderDesignStatus__0_0_1_0"
+    },
+    {
+      "path": "root.children.1.children.0.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.0.children.0.children.0.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.0.children.0.children.1.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.0.children.0.children.2.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.0.children.0.children.3.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.0.children.1.children.0.id",
+      "after": "RenderDesignParameters__0_0_4_0_0_1_0"
+    },
+    {
+      "path": "root.children.4.children.0.children.0.children.1.children.0.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.0.children.2.children.0.id",
+      "after": "RenderDesignLayout__0_0_4_0_0_2_0"
+    },
+    {
+      "path": "root.children.4.children.0.children.0.children.2.children.0.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.0.id",
+      "after": "r-tab-pane__0_0_4_0_0"
+    },
+    {
+      "path": "root.children.4.children.0.children.1.children.0.children.0.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.1.children.0.children.1.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.1.children.0.children.2.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.1.children.0.children.3.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.1.id",
+      "after": "r-tab-pane__0_0_4_0_1"
+    },
+    {
+      "path": "root.children.4.children.0.children.2.children.0.children.0.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.2.children.0.children.1.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.2.children.0.children.2.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.2.children.0.children.3.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.2.children.0.children.4.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.2.id",
+      "after": "r-tab-pane__0_0_4_0_2"
+    },
+    {
+      "path": "root.children.4.children.0.children.3.children.0.children.0.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.3.children.0.children.1.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.3.children.0.children.2.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.3.children.0.children.3.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.3.children.0.children.4.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.3.children.0.children.5.children",
+      "after": []
+    },
+    {
+      "path": "root.children.4.children.0.children.3.id",
+      "after": "r-tab-pane__0_0_4_0_3"
+    }
+  ],
+  "canonicalRuleMatches": true,
+  "result": {
+    "result": {
+      "type": "object",
+      "value": {
+        "at": "2026-10-07T20:13:16.748Z",
+        "checks": {
+          "8D1AB14DD8277F3E7017CD38F77B09FD": true,
+          "90A82E287930A234FEC3E687C94A93EA": true,
+          "catalog/script.js": true,
+          "design/rule.json": true,
+          "design/script.js": true,
+          "design/style.css": true
+        },
+        "ok": true,
+        "ruleComparison": "PageTool.getFileText(rule.json)",
+        "saved": [
+          "design/script.js",
+          "design/style.css",
+          "catalog/script.js"
+        ]
+      }
+    }
+  }
+}

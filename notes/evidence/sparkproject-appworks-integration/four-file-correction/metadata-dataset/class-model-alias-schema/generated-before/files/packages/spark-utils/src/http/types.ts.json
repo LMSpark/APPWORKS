@@ -1,0 +1,1593 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-utils:http/types",
+    "sourcePath": "packages/spark-utils/src/http/types.ts",
+    "sourceFile": "packages/spark-utils/src/http/types.ts",
+    "packageName": "@spark-appworks/spark-utils",
+    "modulePath": "http/types",
+    "jsdoc": "@module @spark-appworks/spark-utils:http/types\n职责：提供框架无关的 types 基础工具能力，支撑日志、HTTP、capability、克隆或快照等通用场景。\n边界：必须保持纯 TypeScript 基础层，不依赖 Vue、spark-data、spark-component 或应用运行时。\nAI用途：需要复用底层工具或判断包边界是否被破坏时，用本模块确认最底层能力语义。\n\nHTTP 模块类型定义\n@packageDocumentation",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "Method",
+      "RequestConfig",
+      "HttpResponse",
+      "ApiEnvelope",
+      "ApiEnvelopeError",
+      "ApiEnvelopeContext",
+      "ApiEnvelopeEvent",
+      "RequestError",
+      "RequestInterceptor",
+      "ResponseInterceptor",
+      "HttpClientFactoryOptions",
+      "CacheExpirationTier",
+      "FileLoadOptions",
+      "CacheEntry",
+      "FileLoadResult",
+      "FileLoaderEventMap"
+    ]
+  },
+  "$defs": {
+    "Method": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Method",
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ]
+    },
+    "RequestConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequestConfig",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "method": {
+          "$ref": "#/$defs/Method"
+        },
+        "headers": {
+          "type": "object",
+          "title": "Record<string, string>"
+        },
+        "params": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "data": true,
+        "timeout": {
+          "type": "number"
+        },
+        "responseType": {
+          "enum": [
+            "arraybuffer",
+            "blob",
+            "document",
+            "json",
+            "text",
+            "formdata"
+          ]
+        },
+        "baseURL": {
+          "type": "string"
+        },
+        "cache": {
+          "type": "boolean"
+        },
+        "cacheKey": {
+          "type": "string"
+        },
+        "cacheExpiry": {
+          "type": "number"
+        },
+        "retry": {
+          "type": "number"
+        },
+        "retryDelay": {
+          "type": "number"
+        },
+        "signal": {
+          "type": "object",
+          "title": "AbortSignal"
+        },
+        "withCredentials": {
+          "type": "boolean"
+        },
+        "meta": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "keepalive": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "additionalProperties": false
+    },
+    "HttpResponse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "HttpResponse",
+      "properties": {
+        "data": {
+          "type": "object",
+          "title": "T"
+        },
+        "status": {
+          "type": "number"
+        },
+        "statusText": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "title": "Record<string, string>"
+        }
+      },
+      "required": [
+        "data",
+        "status",
+        "statusText",
+        "headers"
+      ],
+      "additionalProperties": false
+    },
+    "ApiEnvelope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiEnvelope",
+      "properties": {
+        "protocolVersion": {
+          "const": 4
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "T"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ApiEnvelopeError"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "context": {
+          "$ref": "#/$defs/ApiEnvelopeContext"
+        },
+        "event": {
+          "$ref": "#/$defs/ApiEnvelopeEvent"
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "ok"
+      ],
+      "additionalProperties": false
+    },
+    "ApiEnvelopeError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiEnvelopeError",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "retryPolicy": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "category"
+      ],
+      "additionalProperties": false
+    },
+    "ApiEnvelopeContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiEnvelopeContext",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "object",
+          "properties": {
+            "moduleId": {
+              "type": "string"
+            },
+            "moduleInstanceId": {
+              "type": "string"
+            },
+            "instanceId": {
+              "type": "string"
+            },
+            "runtimeInstanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "sessionId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "turn": {
+          "type": "object",
+          "properties": {
+            "turnId": {
+              "type": "string"
+            },
+            "turnKey": {
+              "type": "string"
+            },
+            "seq": {
+              "type": "number"
+            },
+            "baseRevision": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "stream": {
+          "type": "object",
+          "properties": {
+            "streamId": {
+              "type": "string"
+            },
+            "streamKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApiEnvelopeEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiEnvelopeEvent",
+      "properties": {
+        "transport": {
+          "enum": [
+            "http",
+            "sse"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "terminal": {
+          "type": "boolean"
+        },
+        "sequence": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RequestError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequestError",
+      "properties": {
+        "config": {
+          "$ref": "#/$defs/RequestConfig"
+        },
+        "code": {
+          "type": "string"
+        },
+        "status": {
+          "type": "number"
+        },
+        "response": true
+      },
+      "required": [
+        "config"
+      ],
+      "additionalProperties": false
+    },
+    "RequestInterceptor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequestInterceptor",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onRequest.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "#/$defs/RequestConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onRequest.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RequestConfig"
+            },
+            {
+              "type": "object",
+              "title": "Promise<RequestConfig>"
+            }
+          ]
+        },
+        "method.onRequestError.params": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "$ref": "#/$defs/RequestError"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onRequestError.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "ResponseInterceptor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResponseInterceptor",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onResponse.params": {
+          "type": "object",
+          "properties": {
+            "response": {
+              "$ref": "#/$defs/HttpResponse"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onResponse.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HttpResponse"
+            },
+            {
+              "type": "object",
+              "title": "Promise<HttpResponse<T>>"
+            }
+          ]
+        },
+        "method.onResponseError.params": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "$ref": "#/$defs/RequestError"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onResponseError.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RequestError"
+            },
+            {
+              "type": "object",
+              "title": "Promise<RequestError>"
+            }
+          ]
+        }
+      }
+    },
+    "CacheExpirationTier": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CacheExpirationTier",
+      "properties": {
+        "level": {
+          "type": "number"
+        },
+        "maxAge": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "level",
+        "maxAge"
+      ],
+      "additionalProperties": false
+    },
+    "FileLoadOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileLoadOptions",
+      "properties": {
+        "baseUrl": {
+          "type": "string"
+        },
+        "storage": {
+          "enum": [
+            "localStorage",
+            "sessionStorage",
+            "memory"
+          ]
+        },
+        "cachePrefix": {
+          "type": "string"
+        },
+        "request": {
+          "$ref": "HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "timeout": {
+          "type": "number"
+        },
+        "headers": {
+          "type": "object",
+          "title": "Record<string, string>"
+        },
+        "fallbackToCache": {
+          "type": "boolean"
+        },
+        "expirationTiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CacheExpirationTier"
+          }
+        },
+        "defaultExpirationLevel": {
+          "type": "number"
+        },
+        "maxCacheSize": {
+          "type": "number"
+        },
+        "maxStorageBytes": {
+          "type": "number"
+        },
+        "maxStorageTotalBytes": {
+          "type": "number"
+        },
+        "maxEntryStorageBytes": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "baseUrl"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.getHeaders.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getHeaders.return": {
+          "type": "object",
+          "title": "Record<string, string>"
+        }
+      }
+    },
+    "CacheEntry": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CacheEntry",
+      "properties": {
+        "data": {
+          "type": "object",
+          "title": "T"
+        },
+        "sourceTimestamp": {
+          "type": "string"
+        },
+        "cachedAt": {
+          "type": "number"
+        },
+        "lastAccess": {
+          "type": "number"
+        },
+        "expirationLevel": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "data",
+        "sourceTimestamp",
+        "cachedAt",
+        "lastAccess",
+        "expirationLevel"
+      ],
+      "additionalProperties": false
+    },
+    "FileLoadResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileLoadResult",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object",
+          "title": "T"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "fromCache": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": "string"
+        },
+        "notModified": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "number"
+        },
+        "reason": {
+          "enum": [
+            "not-found",
+            "network",
+            "invalid-response",
+            "parse",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "success",
+        "fromCache"
+      ],
+      "additionalProperties": false
+    },
+    "FileLoaderEventMap": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FileLoaderEventMap",
+      "properties": {
+        "file-loaded": {
+          "type": "object",
+          "properties": {
+            "fileName": {
+              "type": "string"
+            },
+            "fromCache": {
+              "type": "boolean"
+            },
+            "timestamp": {
+              "type": "string"
+            },
+            "notModified": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "fileName",
+            "fromCache"
+          ],
+          "additionalProperties": false
+        },
+        "file-missing": {
+          "type": "object",
+          "properties": {
+            "fileName": {
+              "type": "string"
+            },
+            "status": {
+              "type": "number"
+            },
+            "reason": {
+              "const": "not-found"
+            }
+          },
+          "required": [
+            "fileName",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "file-error": {
+          "type": "object",
+          "properties": {
+            "fileName": {
+              "type": "string"
+            },
+            "status": {
+              "type": "number"
+            },
+            "error": {
+              "type": "string"
+            },
+            "reason": {
+              "enum": [
+                "network",
+                "invalid-response",
+                "parse",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "fileName",
+            "error",
+            "reason"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "file-loaded",
+        "file-missing",
+        "file-error"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-05T10:07:52.907Z",
+  "models": {
+    "Method": {
+      "name": "Method",
+      "jsdoc": "Method 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'GET'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'POST'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'PUT'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'PATCH'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'DELETE'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "RequestConfig": {
+      "name": "RequestConfig",
+      "jsdoc": "请求配置",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 资源地址。 */\n    url: string;\n    /** 请求方法或动作方法。 */\n    method?: Method;\n    /** 请求头集合。 */\n    headers?: Record<string, string>;\n    /** 参数集合。 */\n    params?: Record<string, unknown>;\n    /** 业务数据载荷。 */\n    data?: unknown;\n    /** 超时时间。 */\n    timeout?: number;\n    /** 响应类型（默认 json） */\n    responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'formdata';\n    /** base URL 地址。 */\n    baseURL?: string;\n    /** cache 字段。 */\n    cache?: boolean;\n    /** cache Key 键。 */\n    cacheKey?: string;\n    /** 缓存过期（ms，默认 300000） */\n    cacheExpiry?: number;\n    /** 重试次数（默认 0） */\n    retry?: number;\n    /** 重试延迟（ms，默认 1000） */\n    retryDelay?: number;\n    /** AbortSignal —— 用于取消请求（组件卸载时中止在途请求） */\n    signal?: AbortSignal;\n    /** 跨域请求携带 cookie（对应 axios withCredentials / fetch credentials:'include'） */\n    withCredentials?: boolean;\n    /** 自定义元数据（透传给拦截器） */\n    meta?: Record<string, unknown>;\n    /** fetch-only: 页面卸载时保持连接（日志传输场景） */\n    keepalive?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "url",
+              "jsdoc": "资源地址。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "method",
+              "jsdoc": "请求方法或动作方法。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "jsdoc": "请求头集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "params",
+              "jsdoc": "参数集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "data",
+              "jsdoc": "业务数据载荷。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timeout",
+              "jsdoc": "超时时间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "responseType",
+              "jsdoc": "响应类型（默认 json）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baseURL",
+              "jsdoc": "base URL 地址。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cache",
+              "jsdoc": "cache 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cacheKey",
+              "jsdoc": "cache Key 键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cacheExpiry",
+              "jsdoc": "缓存过期（ms，默认 300000）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retry",
+              "jsdoc": "重试次数（默认 0）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retryDelay",
+              "jsdoc": "重试延迟（ms，默认 1000）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signal",
+              "jsdoc": "AbortSignal —— 用于取消请求（组件卸载时中止在途请求）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "withCredentials",
+              "jsdoc": "跨域请求携带 cookie（对应 axios withCredentials / fetch credentials:'include'）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "meta",
+              "jsdoc": "自定义元数据（透传给拦截器）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "keepalive",
+              "jsdoc": "fetch-only: 页面卸载时保持连接（日志传输场景）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "HttpResponse": {
+      "name": "HttpResponse",
+      "jsdoc": "HTTP 响应（不泄露 axios 实现）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 业务数据载荷。 */\n    data: T;\n    /** 当前状态。 */\n    status: number;\n    /** status Text 文本。 */\n    statusText: string;\n    /** 请求头集合。 */\n    headers: Record<string, string>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "data",
+              "jsdoc": "业务数据载荷。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "status",
+              "jsdoc": "当前状态。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "statusText",
+              "jsdoc": "status Text 文本。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "headers",
+              "jsdoc": "请求头集合。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ApiEnvelope": {
+      "name": "ApiEnvelope",
+      "jsdoc": "SPARK v4 API envelope。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** protocol Version 字段。 */\n    protocolVersion: 4;\n    /** ok 字段。 */\n    ok: boolean;\n    /** 业务数据载荷。 */\n    data?: T | null;\n    /** 错误对象或错误信息。 */\n    error?: ApiEnvelopeError | null;\n    /** 运行上下文。 */\n    context?: ApiEnvelopeContext;\n    /** event 字段。 */\n    event?: ApiEnvelopeEvent;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "protocolVersion",
+              "jsdoc": "protocol Version 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "ok",
+              "jsdoc": "ok 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "jsdoc": "业务数据载荷。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "错误对象或错误信息。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "jsdoc": "运行上下文。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "event",
+              "jsdoc": "event 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ApiEnvelopeError": {
+      "name": "ApiEnvelopeError",
+      "jsdoc": "Api Envelope Error 的错误信息。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 稳定错误码或诊断码。 */\n    code: string;\n    /** 用户可读消息。 */\n    message: string;\n    /** category 字段。 */\n    category: string;\n    /** severity 字段。 */\n    severity?: string;\n    /** retry Policy 字段。 */\n    retryPolicy?: string;\n    /** details 字段。 */\n    details?: Record<string, unknown>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "jsdoc": "稳定错误码或诊断码。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "message",
+              "jsdoc": "用户可读消息。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "category",
+              "jsdoc": "category 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "severity",
+              "jsdoc": "severity 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "retryPolicy",
+              "jsdoc": "retry Policy 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "details",
+              "jsdoc": "details 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ApiEnvelopeContext": {
+      "name": "ApiEnvelopeContext",
+      "jsdoc": "Api Envelope Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** request Id 标识。 */\n    requestId?: string;\n    /** tenant Id 标识。 */\n    tenantId?: string;\n    /** project Id 标识。 */\n    projectId?: string;\n    /** username 字段。 */\n    username?: string;\n    /** 业务作用域。 */\n    scope?: {\n        moduleId?: string;\n        moduleInstanceId?: string;\n        instanceId?: string;\n        runtimeInstanceId?: string;\n    };\n    /** session 字段。 */\n    session?: {\n        sessionId?: string;\n    };\n    /** turn 字段。 */\n    turn?: {\n        turnId?: string;\n        turnKey?: string;\n        seq?: number;\n        baseRevision?: number;\n    };\n    /** stream 字段。 */\n    stream?: {\n        streamId?: string;\n        streamKey?: string;\n    };\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "requestId",
+              "jsdoc": "request Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tenantId",
+              "jsdoc": "tenant Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "project Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "username",
+              "jsdoc": "username 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "业务作用域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "session",
+              "jsdoc": "session 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "turn",
+              "jsdoc": "turn 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "stream",
+              "jsdoc": "stream 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ApiEnvelopeEvent": {
+      "name": "ApiEnvelopeEvent",
+      "jsdoc": "Api Envelope Event 的事件载荷。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** transport 字段。 */\n    transport?: 'http' | 'sse';\n    /** 显示或业务名称。 */\n    name?: string;\n    /** terminal 字段。 */\n    terminal?: boolean;\n    /** sequence 字段。 */\n    sequence?: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "transport",
+              "jsdoc": "transport 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "显示或业务名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "terminal",
+              "jsdoc": "terminal 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sequence",
+              "jsdoc": "sequence 字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RequestError": {
+      "name": "RequestError",
+      "jsdoc": "Request Error 的错误信息。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Error & {\n    /** 配置对象。 */\n    config: RequestConfig;\n    /** 稳定错误码或诊断码。 */\n    code?: string;\n    /** 当前状态。 */\n    status?: number;\n    /** 响应对象。 */\n    response?: unknown;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Error",
+            "targetName": "Error"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 配置对象。 */\n    config: RequestConfig;\n    /** 稳定错误码或诊断码。 */\n    code?: string;\n    /** 当前状态。 */\n    status?: number;\n    /** 响应对象。 */\n    response?: unknown;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "jsdoc": "配置对象。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "code",
+              "jsdoc": "稳定错误码或诊断码。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "当前状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "response",
+              "jsdoc": "响应对象。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RequestInterceptor": {
+      "name": "RequestInterceptor",
+      "jsdoc": "Request Interceptor 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 显示或业务名称。 */\n    name?: string;\n    /** on Request 事件回调。 */\n    onRequest?: (config: RequestConfig) => RequestConfig | Promise<RequestConfig>;\n    /**\n     * 请求阶段错误回调。\n     *\n     * 当前版本中，此回调在**同一拦截器**的 `onRequest` 抛出异常时被调用，\n     * 允许拦截器自行记录或处理自身引发的错误。异常仍会向上传播。\n     */\n    onRequestError?: (error: RequestError) => void | Promise<void>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "显示或业务名称。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onRequest",
+              "jsdoc": "on Request 事件回调。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "RequestConfig",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "RequestConfig",
+                        "sourcePath": "packages/spark-utils/src/http/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onRequestError",
+              "jsdoc": "请求阶段错误回调。\n当前版本中，此回调在**同一拦截器**的 `onRequest` 抛出异常时被调用，\n允许拦截器自行记录或处理自身引发的错误。异常仍会向上传播。",
+              "parameters": [
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestError",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ResponseInterceptor": {
+      "name": "ResponseInterceptor",
+      "jsdoc": "Response Interceptor 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 显示或业务名称。 */\n    name?: string;\n    /** on Response 事件回调。 */\n    onResponse?: <T>(response: HttpResponse<T>) => HttpResponse<T> | Promise<HttpResponse<T>>;\n    /** on Response Error 事件回调。 */\n    onResponseError?: (error: RequestError) => RequestError | Promise<RequestError>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "显示或业务名称。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onResponse",
+              "jsdoc": "on Response 事件回调。",
+              "parameters": [
+                {
+                  "name": "response",
+                  "type": {
+                    "type": "reference",
+                    "name": "HttpResponse",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "HttpResponse",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "HttpResponse",
+                        "sourcePath": "packages/spark-utils/src/http/types.ts",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "T",
+                            "refersToTypeParameter": true
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onResponseError",
+              "jsdoc": "on Response Error 事件回调。",
+              "parameters": [
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestError",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "RequestError",
+                    "sourcePath": "packages/spark-utils/src/http/types.ts"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "RequestError",
+                        "sourcePath": "packages/spark-utils/src/http/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "HttpClientFactoryOptions": {
+      "name": "HttpClientFactoryOptions",
+      "jsdoc": "createHttpClient 工厂参数",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Partial<RequestConfig>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Partial<RequestConfig>",
+            "targetName": "Partial"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "CacheExpirationTier": {
+      "name": "CacheExpirationTier",
+      "jsdoc": "缓存过期策略级别定义",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 级别编号 */\n    level: number;\n    /** 最大闲置时间（毫秒），Infinity 表示永不过期 */\n    maxAge: number;\n    /** 级别说明 */\n    description?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "level",
+              "jsdoc": "级别编号",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "maxAge",
+              "jsdoc": "最大闲置时间（毫秒），Infinity 表示永不过期",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "级别说明",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileLoadOptions": {
+      "name": "FileLoadOptions",
+      "jsdoc": "File Load Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** API 基础路径（文件 HTTP 加载使用） */\n    baseUrl: string;\n    /** 缓存存储方式 */\n    storage?: 'localStorage' | 'sessionStorage' | 'memory';\n    /** 缓存键前缀 */\n    cachePrefix?: string;\n    /** 自定义 HTTP client；用于复用上层认证、租户作用域或 URL 重写能力 */\n    request?: HttpClientBase;\n    /** 超时（ms） */\n    timeout?: number;\n    /** 自定义请求头（静态） */\n    headers?: Record<string, string>;\n    /** 动态请求头回调（每次请求时调用，优先级高于 headers） */\n    getHeaders?: () => Record<string, string>;\n    /** 网络失败时降级到缓存 */\n    fallbackToCache?: boolean;\n    /**\n     * 过期策略级别定义（默认：0=永不过期, 1=3天, 2=7天, 3=15天, 4=30天）\n     * 可自定义级别定义\n     */\n    expirationTiers?: CacheExpirationTier[];\n    /** 默认过期级别（默认 3 = 15天），对应 expirationTiers 中的 level */\n    defaultExpirationLevel?: number;\n    /** 最大缓存条目数（默认 100），超过按 LRU 清理 */\n    maxCacheSize?: number;\n    /** 当前 cachePrefix 在 Web Storage 中最多占用的估算字节数，超过按 LRU 清理 */\n    maxStorageBytes?: number;\n    /** Web Storage 总占用的估算字节上限；只驱逐当前缓存前缀下的条目 */\n    maxStorageTotalBytes?: number;\n    /** 单个 Web Storage 缓存项最大估算字节数，超过则跳过持久化 */\n    maxEntryStorageBytes?: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "baseUrl",
+              "jsdoc": "API 基础路径（文件 HTTP 加载使用）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "storage",
+              "jsdoc": "缓存存储方式",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cachePrefix",
+              "jsdoc": "缓存键前缀",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "request",
+              "jsdoc": "自定义 HTTP client；用于复用上层认证、租户作用域或 URL 重写能力",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timeout",
+              "jsdoc": "超时（ms）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "jsdoc": "自定义请求头（静态）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fallbackToCache",
+              "jsdoc": "网络失败时降级到缓存",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expirationTiers",
+              "jsdoc": "过期策略级别定义（默认：0=永不过期, 1=3天, 2=7天, 3=15天, 4=30天）\n可自定义级别定义",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "defaultExpirationLevel",
+              "jsdoc": "默认过期级别（默认 3 = 15天），对应 expirationTiers 中的 level",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxCacheSize",
+              "jsdoc": "最大缓存条目数（默认 100），超过按 LRU 清理",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxStorageBytes",
+              "jsdoc": "当前 cachePrefix 在 Web Storage 中最多占用的估算字节数，超过按 LRU 清理",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxStorageTotalBytes",
+              "jsdoc": "Web Storage 总占用的估算字节上限；只驱逐当前缓存前缀下的条目",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxEntryStorageBytes",
+              "jsdoc": "单个 Web Storage 缓存项最大估算字节数，超过则跳过持久化",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getHeaders",
+              "jsdoc": "动态请求头回调（每次请求时调用，优先级高于 headers）",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CacheEntry": {
+      "name": "CacheEntry",
+      "jsdoc": "通用缓存条目（泛型）\n- 文件内容：T = string\n- DataSet、编译后脚本、编译后规则等计算结果：T = 具体类型",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 缓存的数据（文件原始内容或任意计算结果） */\n    data: T;\n    /**\n     * 来源时间戳（来自文件服务器的 mtime、版本号或任意标识）\n     * 对比此字段判断缓存是否仍有效。\n     */\n    sourceTimestamp: string;\n    /** 缓存创建时间（毫秒时间戳，用于兜底） */\n    cachedAt: number;\n    /** 最后访问时间（毫秒时间戳，用于滑动过期 + LRU 清理） */\n    lastAccess: number;\n    /** 过期级别（0=永不过期, 1=3天, 2=7天, 3=15天, 4=30天） */\n    expirationLevel: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "data",
+              "jsdoc": "缓存的数据（文件原始内容或任意计算结果）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sourceTimestamp",
+              "jsdoc": "来源时间戳（来自文件服务器的 mtime、版本号或任意标识）\n对比此字段判断缓存是否仍有效。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "cachedAt",
+              "jsdoc": "缓存创建时间（毫秒时间戳，用于兜底）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lastAccess",
+              "jsdoc": "最后访问时间（毫秒时间戳，用于滑动过期 + LRU 清理）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expirationLevel",
+              "jsdoc": "过期级别（0=永不过期, 1=3天, 2=7天, 3=15天, 4=30天）",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FileLoadResult": {
+      "name": "FileLoadResult",
+      "jsdoc": "File Load Result 的返回结果。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** success 字段。 */\n    success: boolean;\n    /** 业务数据载荷。 */\n    data?: T;\n    /** 来源时间戳 */\n    timestamp?: string;\n    /** from Cache 字段。 */\n    fromCache: boolean;\n    /** 错误对象或错误信息。 */\n    error?: string;\n    /** not Modified 字段。 */\n    notModified?: boolean;\n    /** 失败状态码（如 404） */\n    status?: number;\n    /** 失败原因（用于上游订阅消费，不再依赖字符串匹配） */\n    reason?: 'not-found' | 'network' | 'invalid-response' | 'parse' | 'unknown';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "success",
+              "jsdoc": "success 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "data",
+              "jsdoc": "业务数据载荷。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timestamp",
+              "jsdoc": "来源时间戳",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fromCache",
+              "jsdoc": "from Cache 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "error",
+              "jsdoc": "错误对象或错误信息。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "notModified",
+              "jsdoc": "not Modified 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "jsdoc": "失败状态码（如 404）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reason",
+              "jsdoc": "失败原因（用于上游订阅消费，不再依赖字符串匹配）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FileLoaderEventMap": {
+      "name": "FileLoaderEventMap",
+      "jsdoc": "FileLoader 事件映射（用于全链路订阅消费）",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** file loaded 字段。 */\n    'file-loaded': {\n        fileName: string;\n        fromCache: boolean;\n        timestamp?: string;\n        notModified?: boolean;\n    };\n    /** file missing 字段。 */\n    'file-missing': {\n        fileName: string;\n        status?: number;\n        reason: 'not-found';\n    };\n    /** file error 字段。 */\n    'file-error': {\n        fileName: string;\n        status?: number;\n        error: string;\n        reason: 'network' | 'invalid-response' | 'parse' | 'unknown';\n    };\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "file-loaded",
+              "jsdoc": "file loaded 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "file-missing",
+              "jsdoc": "file missing 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "file-error",
+              "jsdoc": "file error 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

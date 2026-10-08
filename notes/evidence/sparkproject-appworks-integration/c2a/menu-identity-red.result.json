@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/navigation-platform-paths.test.ts --maxWorkers=1 --reporter=dot -t \"same-path system-page nodes|reserved target markers\"",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAt": "2026-10-07T06:36:09.7149086Z",
+  "finishedAt": "2026-10-07T06:36:16.1642081Z",
+  "exitCode": 1
+}

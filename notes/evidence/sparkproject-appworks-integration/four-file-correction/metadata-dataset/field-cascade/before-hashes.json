@@ -1,0 +1,46 @@
+[
+  {
+    "path": "packages/spark-data/src/types.ts",
+    "sha256": "c1784cd39228f306e3bd96e3a3af3cba5b7dc01b23594a3d41cb765154a815af"
+  },
+  {
+    "path": "packages/spark-data/src/index.ts",
+    "sha256": "6fc2c63bdf976c8d8c29ef45f0140f90a36e1dae56848eef6944b95dcce89d5c"
+  },
+  {
+    "path": "packages/spark-data/src/dataset.ts",
+    "sha256": "6f537aecac19e1d46fa53b83f7bcb5ca4d792d21a794a71df843cb9c01fbf242"
+  },
+  {
+    "path": "packages/spark-data/src/dataset-crud-tool.ts",
+    "sha256": "75efc3c110267270c4a6e86c73215764c5cf4a885f54be9100a8b5ef6ab9803a"
+  },
+  {
+    "path": "packages/spark-data/src/data-view.ts",
+    "sha256": "9e32a378e01f74a5da61064e7efb381fe977f5691e180b7c188f32f96c4d7ab7"
+  },
+  {
+    "path": "packages/spark-data/src/strategies/cascade-delegate.ts",
+    "sha256": "e222e712a2e1fa4881bd2c8401ea413d8af2432b4d4ece52fbf3d55f5963d6db"
+  },
+  {
+    "path": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
+    "sha256": "23046de948a16f3721c0729c40babcceeb51bc35c69f0a0a172d52ca6e72217a"
+  },
+  {
+    "path": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
+    "sha256": "7f44f8597b39f7d09edb8fbbf84eacd794d3c740118ff0df8a030491e88e24e4"
+  },
+  {
+    "path": "packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts",
+    "sha256": "8a0b137ea1aea917636111fd8c22fd6aa284aa2cc5a6c1257320a862d25d9f49"
+  },
+  {
+    "path": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+    "sha256": "47740557b943889a5ba352d0c3e504972cd71365eb93f00a5f97a81c5e252bf0"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts",
+    "sha256": "81c7d0f1380b35cd861a6b945d2a5019cbe03dd6696ab0d68db12344356cf281"
+  }
+]

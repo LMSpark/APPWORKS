@@ -1,0 +1,7 @@
+{
+  "startedAt": "2026-10-07T14:54:22.3952401+08:00",
+  "endedAt": "2026-10-07T14:54:37.9315412+08:00",
+  "command": "pnpm run typecheck",
+  "cwd": "D:\\SPARK_AppWorks",
+  "exitCode": 0
+}

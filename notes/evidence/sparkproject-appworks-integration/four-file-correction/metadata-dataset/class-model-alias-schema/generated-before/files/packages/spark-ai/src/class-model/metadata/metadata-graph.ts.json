@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/metadata/metadata-graph",
+    "sourcePath": "packages/spark-ai/src/class-model/metadata/metadata-graph.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/metadata/metadata-graph.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/metadata/metadata-graph",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/metadata/metadata-graph\n职责：维护 @spark-appworks/spark-ai 中 class-model/metadata/metadata-graph 的 AiApiMetadataGraphEdge、AiApiMetadataGraphNode、AiApiNestedApiRecord语义。\n边界：只服务 spark-ai 包内部的 Agent/DtsTypeDeclarationModel 能力，不直接耦合应用页面或 Vue 组件。\nAI用途：定位 spark-ai 公共 API、运行时协议或知识索引字段时，用本模块作为语义入口。\n\nmetadata 对象图遍历。\n协议真源线：模型（AiApiObjectMetadata）→ 属性 || 方法（action）→ 子模块（嵌套 api）。\n实例由会话 scope 钉死；LLM 发现走 metadata 图，执行走 model_script 对象链，不用 /kind[id] path。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiApiMetadataGraphEdge",
+      "AiApiMetadataGraphNode",
+      "AiApiNestedApiRecord"
+    ]
+  },
+  "$defs": {
+    "AiApiMetadataGraphEdge": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiApiMetadataGraphEdge",
+      "properties": {
+        "parentKind": {
+          "type": "string"
+        },
+        "via": {
+          "enum": [
+            "attribute",
+            "action"
+          ]
+        },
+        "viaName": {
+          "type": "string"
+        },
+        "child": {
+          "$ref": "ai-api-object-metadata-schema.ts.json#/$defs/AiApiObjectMetadata"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiApiMetadataGraphNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiApiMetadataGraphNode",
+      "properties": {
+        "api": {
+          "$ref": "ai-api-object-metadata-schema.ts.json#/$defs/AiApiObjectMetadata"
+        },
+        "parentKind": {
+          "type": "string"
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AiApiMetadataGraphEdge"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "AiApiNestedApiRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiApiNestedApiRecord",
+      "properties": {
+        "api": {
+          "$ref": "ai-api-object-metadata-schema.ts.json#/$defs/AiApiObjectMetadata"
+        },
+        "parentKind": {
+          "type": "string"
+        },
+        "via": true,
+        "viaName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-06-14T22:53:14.744Z",
+  "models": {
+    "AiApiMetadataGraphEdge": {
+      "name": "AiApiMetadataGraphEdge",
+      "jsdoc": "从父模型到子模型的边：经可读/可写属性，或经 action 的 resultApis。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 父 API 对象的 kind 标识。 */\n    parentKind: string;\n    /** 到达子 API 的边类型：属性引用或 action 返回值。 */\n    via: 'attribute' | 'action';\n    /** 边上的属性名或 action 名。 */\n    viaName: string;\n    /** 边指向的子 API 对象元数据。 */\n    child: AiApiObjectMetadata;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 父 API 对象的 kind 标识。 */\n    parentKind: string;\n    /** 到达子 API 的边类型：属性引用或 action 返回值。 */\n    via: 'attribute' | 'action';\n    /** 边上的属性名或 action 名。 */\n    viaName: string;\n    /** 边指向的子 API 对象元数据。 */\n    child: AiApiObjectMetadata;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "parentKind",
+              "jsdoc": "父 API 对象的 kind 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "via",
+              "jsdoc": "到达子 API 的边类型：属性引用或 action 返回值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viaName",
+              "jsdoc": "边上的属性名或 action 名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "child",
+              "jsdoc": "边指向的子 API 对象元数据。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiApiMetadataGraphNode": {
+      "name": "AiApiMetadataGraphNode",
+      "jsdoc": "metadata 图中的一个节点（含出边）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前节点对应的 API 对象元数据。 */\n    api: AiApiObjectMetadata;\n    /** 父节点 kind；根节点为 undefined。 */\n    parentKind?: string;\n    /** 从当前节点出发的所有 metadata 边。 */\n    edges: readonly AiApiMetadataGraphEdge[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前节点对应的 API 对象元数据。 */\n    api: AiApiObjectMetadata;\n    /** 父节点 kind；根节点为 undefined。 */\n    parentKind?: string;\n    /** 从当前节点出发的所有 metadata 边。 */\n    edges: readonly AiApiMetadataGraphEdge[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "api",
+              "jsdoc": "当前节点对应的 API 对象元数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentKind",
+              "jsdoc": "父节点 kind；根节点为 undefined。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edges",
+              "jsdoc": "从当前节点出发的所有 metadata 边。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiApiNestedApiRecord": {
+      "name": "AiApiNestedApiRecord",
+      "jsdoc": "扁平嵌套 API 记录，供 guide 投影或注册 companion（迁移期）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 嵌套 API 对象元数据。 */\n    api: AiApiObjectMetadata;\n    /** 首次发现该嵌套 API 时的父 kind。 */\n    parentKind: string;\n    /** 首次发现时的边类型（属性或 action）。 */\n    via: AiApiMetadataGraphEdge['via'];\n    /** 首次发现时的属性名或 action 名。 */\n    viaName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 嵌套 API 对象元数据。 */\n    api: AiApiObjectMetadata;\n    /** 首次发现该嵌套 API 时的父 kind。 */\n    parentKind: string;\n    /** 首次发现时的边类型（属性或 action）。 */\n    via: AiApiMetadataGraphEdge['via'];\n    /** 首次发现时的属性名或 action 名。 */\n    viaName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "api",
+              "jsdoc": "嵌套 API 对象元数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parentKind",
+              "jsdoc": "首次发现该嵌套 API 时的父 kind。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "via",
+              "jsdoc": "首次发现时的边类型（属性或 action）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viaName",
+              "jsdoc": "首次发现时的属性名或 action 名。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

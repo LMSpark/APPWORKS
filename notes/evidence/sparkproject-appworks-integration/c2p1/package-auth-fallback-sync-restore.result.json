@@ -1,0 +1,8 @@
+{
+  "command": "pnpm exec vitest run src/router/__tests__/dynamic-auth-fallback.test.ts --maxWorkers=1 --reporter=dot",
+  "cwd": "D:\\SPARK_AppWorks\\packages\\spark-app",
+  "startedAt": "2026-10-07T14:11:49.2894767+08:00",
+  "finishedAt": "2026-10-07T14:11:51.8384665+08:00",
+  "exitCode": 0,
+  "logPath": "D:\\SPARK_AppWorks\\notes\\evidence\\sparkproject-appworks-integration\\c2p1\\package-auth-fallback-sync-restore.log"
+}

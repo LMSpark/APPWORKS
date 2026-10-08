@@ -1,0 +1,5168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:data-view",
+    "sourcePath": "packages/spark-data/src/data-view.ts",
+    "sourceFile": "packages/spark-data/src/data-view.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "data-view",
+    "jsdoc": "@module @spark-appworks/spark-data:data-view\n职责：提供 spark-data 数据管线中的 data view 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nDataView — 数据视图，SPARK 数据层的统一交互枢纽。\n引用链：DataView → DataTable → DataSet。\n级联加载：子订阅父，父不知子。\n请求编排：requestData(上行) / refresh(下行) / requestState(唯一状态源)。\n委托分工：CrudDelegate / CascadeDelegate / SelectionDelegate / etc.",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewRecomputeColumnsOptions",
+      "DataViewServerRowsPayload",
+      "DataView"
+    ]
+  },
+  "$defs": {
+    "DataViewEventMap": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewEventMap",
+      "properties": {
+        "currentRowChanged": {
+          "type": "array",
+          "prefixItems": [
+            true,
+            true
+          ]
+        },
+        "selectedRowsChanged": {
+          "type": "array",
+          "prefixItems": [
+            true,
+            true
+          ]
+        },
+        "rowsChanged": {
+          "type": "array",
+          "prefixItems": []
+        },
+        "editingFieldChanged": {
+          "type": "array",
+          "prefixItems": [
+            true
+          ]
+        },
+        "editingChanged": {
+          "type": "array",
+          "prefixItems": []
+        },
+        "editingDiscarded": {
+          "type": "array",
+          "prefixItems": [
+            true
+          ]
+        },
+        "cleared": {
+          "type": "array",
+          "prefixItems": []
+        },
+        "configChanged": {
+          "type": "array",
+          "prefixItems": []
+        },
+        "requestStateChanged": {
+          "type": "array",
+          "prefixItems": [
+            true
+          ]
+        },
+        "mutatingChanged": {
+          "type": "array",
+          "prefixItems": [
+            true
+          ]
+        },
+        "summaryChanged": {
+          "type": "array",
+          "prefixItems": []
+        },
+        "selectionSummaryChanged": {
+          "type": "array",
+          "prefixItems": []
+        },
+        "crud:before": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "object",
+              "title": "CrudLifecycleEvent"
+            }
+          ]
+        },
+        "crud:after": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "object",
+              "title": "CrudLifecycleEvent"
+            }
+          ]
+        }
+      },
+      "required": [
+        "currentRowChanged",
+        "selectedRowsChanged",
+        "rowsChanged",
+        "editingFieldChanged",
+        "editingChanged",
+        "editingDiscarded",
+        "cleared",
+        "configChanged",
+        "requestStateChanged",
+        "mutatingChanged",
+        "summaryChanged",
+        "selectionSummaryChanged",
+        "crud:before",
+        "crud:after"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewRecomputeColumnsOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewRecomputeColumnsOptions",
+      "properties": {
+        "emit": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewServerRowsPayload": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewServerRowsPayload",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "page": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewQueryIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQueryIdentity",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewActionState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewActionState",
+      "enum": [
+        "hidden",
+        "disabled",
+        "enabled"
+      ]
+    },
+    "DataViewFieldAccess": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFieldAccess",
+      "properties": {
+        "read": {
+          "enum": [
+            "invisible",
+            "masked",
+            "visible"
+          ]
+        },
+        "write": {
+          "enum": [
+            "denied",
+            "allowed"
+          ]
+        },
+        "component": {
+          "enum": [
+            "hidden",
+            "readonly",
+            "editable"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "writeMode": {
+          "enum": [
+            "required",
+            "editable",
+            "readonly"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewQueryResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQueryResult",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewQueryRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertIdentity.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "$ref": "#/$defs/DataViewQueryIdentity"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertIdentity.return": true,
+        "method.rowKey.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "DataViewQueryRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rowKey.return": true,
+        "method.prepareNewRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "DataViewQueryRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareNewRow.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.fieldAccess.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fieldAccess.return": {
+          "$ref": "#/$defs/DataViewFieldAccess"
+        },
+        "method.readFieldAccess.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "object",
+              "title": "DataViewQueryRow"
+            },
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readFieldAccess.return": true,
+        "method.addActionState.params": {
+          "type": "object",
+          "properties": {
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        },
+        "method.editActionState.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.editActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        },
+        "method.deleteActionState.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        },
+        "method.createChildActionState.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createChildActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        },
+        "method.viewActionState.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": true,
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.viewActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        }
+      }
+    },
+    "DataViewQueryExecutor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQueryExecutor",
+      "$defs": {
+        "method.executeQuery.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "#/$defs/DataView"
+            },
+            "params": {
+              "$ref": "types.ts.json#/$defs/QueryParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeQuery.return": {
+          "type": "object",
+          "title": "Promise<DataViewQueryResult>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/DataViewQuerySaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<DataViewQuerySaveReceipt[]>"
+        }
+      }
+    },
+    "DataViewOptionQueryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewOptionQueryOptions",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "context": {
+          "type": "object",
+          "title": "DataViewQueryContext"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewQuerySaveChanges": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQuerySaveChanges",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewQueryRow"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewQueryRow"
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewQueryRow"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewQuerySaveChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQuerySaveChange",
+      "properties": {
+        "identity": {
+          "$ref": "#/$defs/DataViewQueryIdentity"
+        },
+        "tableConfig": {
+          "type": "object",
+          "title": "Pick<TableMetadata, 'api' | 'crudConfig'>"
+        },
+        "context": {
+          "$ref": "#/$defs/DataViewQueryResult"
+        },
+        "changes": {
+          "$ref": "#/$defs/DataViewQuerySaveChanges"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewQuerySaveCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQuerySaveCommand",
+      "properties": {
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewQuerySaveChange"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewQuerySaveReceipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQuerySaveReceipt",
+      "properties": {
+        "metaName": {
+          "type": "string"
+        },
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewQueryRow"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewQueryRow"
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataViewQueryRow"
+          }
+        },
+        "changedFields": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "context": {
+          "$ref": "#/$defs/DataViewQueryResult"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewQuerySaveTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQuerySaveTarget",
+      "properties": {
+        "view": {
+          "$ref": "#/$defs/DataView"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewQuerySaveValidationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQuerySaveValidationInput",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "includeEditingRows": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataView",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "fieldProjection": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataViewFieldProjection"
+          }
+        },
+        "queryContext": {
+          "type": "object",
+          "title": "DataViewQueryContext"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataRow"
+          }
+        },
+        "_currentRowId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "_selectedRowIds": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "valueField": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "labelField": {
+          "type": "string"
+        },
+        "selectionDelimiter": {
+          "type": "string"
+        },
+        "total": {
+          "type": "number"
+        },
+        "page": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        },
+        "loadingError": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Error"
+        },
+        "requestState": {
+          "$ref": "types.ts.json#/$defs/RequestState"
+        },
+        "mutating": {
+          "type": "boolean"
+        },
+        "mutatingError": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Error"
+        },
+        "sortExpression": {
+          "$ref": "types.ts.json#/$defs/SortExpression"
+        },
+        "autoCurrentFirst": {
+          "type": "boolean"
+        },
+        "autoSelectFirst": {
+          "type": "boolean"
+        },
+        "treeConfig": {
+          "$ref": "types.ts.json#/$defs/TreeConfig"
+        },
+        "autoLoad": {
+          "type": "boolean"
+        },
+        "autoLoadConfigured": {
+          "type": "boolean"
+        },
+        "commitMode": {
+          "$ref": "types.ts.json#/$defs/CommitMode"
+        },
+        "aggregates": {
+          "type": "object",
+          "title": "Record<string, AggregateColumnConfig>"
+        },
+        "treeManager": {
+          "$ref": "node-tree/tree-manager.ts.json#/$defs/TreeManager"
+        },
+        "rowIndexMap": {
+          "type": "object",
+          "title": "Map<DataRow, number>"
+        },
+        "events": {
+          "$ref": "types.ts.json#/$defs/SparkEventEmitter"
+        },
+        "logger": {
+          "type": "object",
+          "title": "import(\"@spark-appworks/spark-utils\").LoggerApi"
+        }
+      },
+      "required": [
+        "tableName",
+        "viewId",
+        "fieldProjection",
+        "queryContext",
+        "rows",
+        "_currentRowId",
+        "_selectedRowIds",
+        "selectionDelimiter",
+        "total",
+        "page",
+        "pageSize",
+        "loadingError",
+        "requestState",
+        "mutating",
+        "mutatingError",
+        "autoCurrentFirst",
+        "autoSelectFirst",
+        "autoLoad",
+        "autoLoadConfigured",
+        "commitMode",
+        "logger"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindQueryExecutor.params": {
+          "type": "object",
+          "properties": {
+            "executor": {
+              "$ref": "#/$defs/DataViewQueryExecutor"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindQueryExecutor.return": true,
+        "method.queryOptionRows.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DataViewOptionQueryOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryOptionRows.return": {
+          "type": "object",
+          "title": "Promise<DataRow[]>"
+        },
+        "method.fieldAccess.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fieldAccess.return": {
+          "$ref": "#/$defs/DataViewFieldAccess"
+        },
+        "method.computedInputIsVisible.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            },
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.computedInputIsVisible.return": {
+          "type": "boolean"
+        },
+        "method.computedQueryToken.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.computedQueryToken.return": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "method.addActionState.params": {
+          "type": "object",
+          "properties": {
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        },
+        "method.editActionState.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.editActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        },
+        "method.deleteActionState.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        },
+        "method.createChildActionState.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createChildActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        },
+        "method.viewActionState.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "available": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.viewActionState.return": {
+          "$ref": "#/$defs/DataViewActionState"
+        },
+        "method.resetPrimaryKey.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resetPrimaryKey.return": true,
+        "method.setCurrentRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "originatorId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setCurrentRow.return": true,
+        "method.setCurrentRowById.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "originatorId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setCurrentRowById.return": {
+          "type": "boolean"
+        },
+        "method.setSelectedRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataRow"
+              }
+            },
+            "originatorId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setSelectedRows.return": true,
+        "method.addSelectedRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addSelectedRows.return": {
+          "type": "number"
+        },
+        "method.removeSelectedRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeSelectedRows.return": {
+          "type": "number"
+        },
+        "method.removeSelectedRowsById.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeSelectedRowsById.return": {
+          "type": "number"
+        },
+        "method.clearSelectedRows.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearSelectedRows.return": true,
+        "method.setComputedContext.params": {
+          "type": "object",
+          "properties": {
+            "ctx": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setComputedContext.return": true,
+        "method.recomputeColumns.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DataViewRecomputeColumnsOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.recomputeColumns.return": true,
+        "method.stripComputedColumns.params": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stripComputedColumns.return": {
+          "$ref": "types.ts.json#/$defs/DataRow"
+        },
+        "method.onDataSetStructureReady.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDataSetStructureReady.return": true,
+        "method.getColumn.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getColumn.return": {
+          "$ref": "types.ts.json#/$defs/DataColumn"
+        },
+        "method.getDataSet.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getDataSet.return": {
+          "$ref": "dataset.ts.json#/$defs/DataSet"
+        },
+        "method.getPkKey.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getPkKey.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "method.buildServerPk.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.buildServerPk.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.requestData.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.requestData.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadFromServer.params": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "$ref": "types.ts.json#/$defs/QueryParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadFromServer.return": {
+          "type": "object",
+          "title": "Promise<CrudResult>"
+        },
+        "method.retrieveRecord.params": {
+          "type": "object",
+          "properties": {
+            "pk": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "options": {
+              "$ref": "types.ts.json#/$defs/RetrieveRecordOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.retrieveRecord.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<DataRow>>"
+        },
+        "method.retrieveRecordById.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "options": {
+              "$ref": "types.ts.json#/$defs/RetrieveRecordOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.retrieveRecordById.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<DataRow>>"
+        },
+        "method.loadTreeNested.params": {
+          "type": "object",
+          "properties": {
+            "rootId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "limit": {
+              "type": "number"
+            },
+            "depthLimit": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadTreeNested.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<NestedTreeNode[]>>"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.rejectCascade.params": {
+          "type": "object",
+          "properties": {
+            "error": true
+          },
+          "additionalProperties": false
+        },
+        "method.rejectCascade.return": true,
+        "method.applyInMemoryCascade.params": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyInMemoryCascade.return": true,
+        "method.updateFromServer.params": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/DataViewServerRowsPayload"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "types.ts.json#/$defs/DataRow"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateFromServer.return": true,
+        "method.appendRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appendRow.return": true,
+        "method.updateRowById.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "data": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.updateRowById.return": {
+          "type": "boolean"
+        },
+        "method.deleteRowById.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.deleteRowById.return": {
+          "type": "boolean"
+        },
+        "method.replaceRows.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replaceRows.return": true,
+        "method.hasEditingChanges.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasEditingChanges.return": {
+          "type": "boolean"
+        },
+        "method.getEditingPatch.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getEditingPatch.return": {
+          "$ref": "types.ts.json#/$defs/DataRow"
+        },
+        "method.getEditingRow.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getEditingRow.return": {
+          "anyOf": [
+            {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.updateEditingValue.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "field": {
+              "type": "string"
+            },
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.updateEditingValue.return": {
+          "$ref": "types.ts.json#/$defs/DataRow"
+        },
+        "method.discardEditingRows.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.discardEditingRows.return": {
+          "type": "number"
+        },
+        "method.discardPendingChanges.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.discardPendingChanges.return": {
+          "type": "number"
+        },
+        "method.applyEditingRows.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyEditingRows.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<DataViewApplyEditingRowsResult>>"
+        },
+        "method.addRow.params": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addRow.return": {
+          "type": "object",
+          "title": "Promise<DataRow | CrudResult<DataRow>>"
+        },
+        "method.removeRow.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeRow.return": {
+          "type": "object",
+          "title": "Promise<boolean | CrudResult<boolean>>"
+        },
+        "method.editRowById.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "data": {
+              "$ref": "types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.editRowById.return": {
+          "type": "object",
+          "title": "Promise<boolean | CrudResult<DataRow>>"
+        },
+        "method.getDirtyChanges.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getDirtyChanges.return": {
+          "$ref": "strategies/dirty-tracking-delegate.ts.json#/$defs/RowDiff"
+        },
+        "method.saveChanges.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveChanges.return": {
+          "type": "object",
+          "title": "Promise<CrudResult<SaveChangesData>>"
+        },
+        "method.saveQueryViews.params": {
+          "type": "object",
+          "properties": {
+            "targets": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewQuerySaveTarget"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveQueryViews.return": {
+          "type": "object",
+          "title": "Promise<Array<CrudResult<SaveChangesData>>>"
+        },
+        "method.assertQuerySaveColumns.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataViewQuerySaveValidationInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertQuerySaveColumns.return": true,
+        "method.clearAll.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clearAll.return": true,
+        "method.resetState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resetState.return": true,
+        "method.cleanupInvalidSelections.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cleanupInvalidSelections.return": {
+          "type": "boolean"
+        },
+        "method.loadTreeChildren.params": {
+          "type": "object",
+          "properties": {
+            "parentId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "limit": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadTreeChildren.return": {
+          "type": "object",
+          "title": "Promise<FlatTreeNode[]>"
+        },
+        "method.loadTreePath.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadTreePath.return": {
+          "type": "object",
+          "title": "Promise<TreePath>"
+        },
+        "method.expandTreeToNode.params": {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.expandTreeToNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.moveTreeNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "newParentId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "index": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.moveTreeNode.return": {
+          "type": "object",
+          "title": "Promise<DataRow | null>"
+        },
+        "method.searchTreeNested.params": {
+          "type": "object",
+          "properties": {
+            "keyword": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.searchTreeNested.return": {
+          "type": "object",
+          "title": "Promise<NestedTreeSearchResult[]>"
+        },
+        "method.setPage.params": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setPage.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.setPageSize.params": {
+          "type": "object",
+          "properties": {
+            "pageSize": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setPageSize.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.setSort.params": {
+          "type": "object",
+          "properties": {
+            "sort": {
+              "$ref": "types.ts.json#/$defs/SortExpression"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setSort.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.setFilter.params": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setFilter.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.executeFilter.params": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeFilter.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.destroy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.destroy.return": true,
+        "method.isDestroyed.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isDestroyed.return": {
+          "type": "boolean"
+        },
+        "method.applyViewConfig.params": {
+          "type": "object",
+          "properties": {
+            "vc": {
+              "$ref": "types.ts.json#/$defs/ViewMetadata"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyViewConfig.return": true,
+        "method.configure.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "types.ts.json#/$defs/ViewMetadata"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.configure.return": true,
+        "method.setAggregates.params": {
+          "type": "object",
+          "properties": {
+            "aggregates": {
+              "type": "object",
+              "title": "Record<string, AggregateColumnConfig>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setAggregates.return": true,
+        "method.setTreeConfig.params": {
+          "type": "object",
+          "properties": {
+            "treeConfig": {
+              "$ref": "types.ts.json#/$defs/TreeConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setTreeConfig.return": true,
+        "method.initAutoSelection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.initAutoSelection.return": true,
+        "method.toJson.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toJson.return": {
+          "$ref": "types.ts.json#/$defs/ViewMetadata"
+        },
+        "method.fromJson.params": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/ViewMetadata"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fromJson.return": {
+          "$ref": "#/$defs/DataView"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-08T19:49:11.588Z",
+  "models": {
+    "DataViewEventMap": {
+      "name": "DataViewEventMap",
+      "jsdoc": "DataView 事件映射",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, any[]> & {\n    /** 当前行变化 */\n    currentRowChanged: [currentRow: DataRow | null, originatorId?: string];\n    /** 选中行变化 */\n    selectedRowsChanged: [selectedRows: DataRow[], originatorId?: string];\n    /** 行数据批量变化（防抖 16ms） */\n    rowsChanged: [];\n    /** 编辑态字段变化 */\n    editingFieldChanged: [event: DataViewEditingFieldChangeEvent];\n    /** 编辑态 patch 集合变化 */\n    editingChanged: [];\n    /** 显式取消编辑；undefined 表示全部行 */\n    editingDiscarded: [ids: ReadonlyArray<string | number> | undefined];\n    /** 数据已清空 */\n    cleared: [];\n    /** 视图配置变化（分页、排序、过滤、主键、树、聚合等） */\n    configChanged: [];\n    /** 请求状态变化（Idle→Loading→Loaded/Failed） */\n    requestStateChanged: [requestState: RequestState];\n    /** CRUD 变更状态变化 */\n    mutatingChanged: [mutating: boolean];\n    /** aggregateResult 已重算 */\n    summaryChanged: [];\n    /** selectionAggregateResult 已单独重算（仅选中行变更时触发，数据变更走 summaryChanged） */\n    selectionSummaryChanged: [];\n    /** CRUD 提交前事件——业务脚本可调用 event.cancel() 取消操作 */\n    'crud:before': [CrudLifecycleEvent];\n    /** CRUD 提交后事件——业务脚本可根据 result 执行联动 */\n    'crud:after': [CrudLifecycleEvent];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Record<string, any[]>",
+            "targetName": "Record"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 当前行变化 */\n    currentRowChanged: [currentRow: DataRow | null, originatorId?: string];\n    /** 选中行变化 */\n    selectedRowsChanged: [selectedRows: DataRow[], originatorId?: string];\n    /** 行数据批量变化（防抖 16ms） */\n    rowsChanged: [];\n    /** 编辑态字段变化 */\n    editingFieldChanged: [event: DataViewEditingFieldChangeEvent];\n    /** 编辑态 patch 集合变化 */\n    editingChanged: [];\n    /** 显式取消编辑；undefined 表示全部行 */\n    editingDiscarded: [ids: ReadonlyArray<string | number> | undefined];\n    /** 数据已清空 */\n    cleared: [];\n    /** 视图配置变化（分页、排序、过滤、主键、树、聚合等） */\n    configChanged: [];\n    /** 请求状态变化（Idle→Loading→Loaded/Failed） */\n    requestStateChanged: [requestState: RequestState];\n    /** CRUD 变更状态变化 */\n    mutatingChanged: [mutating: boolean];\n    /** aggregateResult 已重算 */\n    summaryChanged: [];\n    /** selectionAggregateResult 已单独重算（仅选中行变更时触发，数据变更走 summaryChanged） */\n    selectionSummaryChanged: [];\n    /** CRUD 提交前事件——业务脚本可调用 event.cancel() 取消操作 */\n    'crud:before': [CrudLifecycleEvent];\n    /** CRUD 提交后事件——业务脚本可根据 result 执行联动 */\n    'crud:after': [CrudLifecycleEvent];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "currentRowChanged",
+              "jsdoc": "当前行变化",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectedRowsChanged",
+              "jsdoc": "选中行变化",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rowsChanged",
+              "jsdoc": "行数据批量变化（防抖 16ms）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editingFieldChanged",
+              "jsdoc": "编辑态字段变化",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editingChanged",
+              "jsdoc": "编辑态 patch 集合变化",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editingDiscarded",
+              "jsdoc": "显式取消编辑；undefined 表示全部行",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "cleared",
+              "jsdoc": "数据已清空",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "configChanged",
+              "jsdoc": "视图配置变化（分页、排序、过滤、主键、树、聚合等）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestStateChanged",
+              "jsdoc": "请求状态变化（Idle→Loading→Loaded/Failed）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mutatingChanged",
+              "jsdoc": "CRUD 变更状态变化",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "summaryChanged",
+              "jsdoc": "aggregateResult 已重算",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "selectionSummaryChanged",
+              "jsdoc": "selectionAggregateResult 已单独重算（仅选中行变更时触发，数据变更走 summaryChanged）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "crud:before",
+              "jsdoc": "CRUD 提交前事件——业务脚本可调用 event.cancel() 取消操作",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "crud:after",
+              "jsdoc": "CRUD 提交后事件——业务脚本可根据 result 执行联动",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataViewRecomputeColumnsOptions": {
+      "name": "DataViewRecomputeColumnsOptions",
+      "jsdoc": "手动重算计算列时的通知选项。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 是否发出 rowsChanged 及聚合通知；false 表示仅更新内部派生值。 */\n    emit?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "emit",
+              "jsdoc": "是否发出 rowsChanged 及聚合通知；false 表示仅更新内部派生值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewServerRowsPayload": {
+      "name": "DataViewServerRowsPayload",
+      "jsdoc": "服务端行数据响应载荷。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 服务端返回的行数据列表。 */\n    rows?: DataRow[];\n    /** 服务端返回的总行数。 */\n    total?: number;\n    /** 服务端返回或确认的当前页码。 */\n    page?: number;\n    /** 服务端返回或确认的每页行数。 */\n    pageSize?: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "jsdoc": "服务端返回的行数据列表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "jsdoc": "服务端返回的总行数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "page",
+              "jsdoc": "服务端返回或确认的当前页码。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "jsdoc": "服务端返回或确认的每页行数。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQueryIdentity": {
+      "name": "DataViewQueryIdentity",
+      "jsdoc": "原查询绑定的场景与正式模型 Name；结果和保存上下文必须匹配此身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    metaName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    metaName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQueryRow": {
+      "name": "DataViewQueryRow",
+      "jsdoc": "查询 owner 提供的只读业务行；视图复制后编辑，原行保留为私有保存基线。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewActionState": {
+      "name": "DataViewActionState",
+      "jsdoc": "后端权限与当前可用状态共同决定的动作呈现，不等价于保存授权。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'hidden' | 'disabled' | 'enabled'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'hidden'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'disabled'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'enabled'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewFieldAccess": {
+      "name": "DataViewFieldAccess",
+      "jsdoc": "字段读取、写入和组件呈现的独立通道；必填事实与写白名单由查询 owner 提供。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    read: 'invisible' | 'masked' | 'visible';\n    write: 'denied' | 'allowed';\n    component: 'hidden' | 'readonly' | 'editable';\n    required: boolean;\n    writeMode: 'required' | 'editable' | 'readonly';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    read: 'invisible' | 'masked' | 'visible';\n    write: 'denied' | 'allowed';\n    component: 'hidden' | 'readonly' | 'editable';\n    required: boolean;\n    writeMode: 'required' | 'editable' | 'readonly';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "read",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "write",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "component",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "writeMode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQueryResult": {
+      "name": "DataViewQueryResult",
+      "jsdoc": "单次查询的私有结果能力；持有原行身份、权限呈现与新增身份准备，不公开签名快照。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertIdentity",
+              "parameters": [
+                {
+                  "name": "identity",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryIdentity",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "rowKey",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryRow",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            },
+            {
+              "name": "prepareNewRow",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryRow",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "fieldAccess",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFieldAccess",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "readFieldAccess",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryRow",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "DataViewFieldAccess['read']"
+              }
+            },
+            {
+              "name": "addActionState",
+              "parameters": [
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "editActionState",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "deleteActionState",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "createChildActionState",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "viewActionState",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQueryExecutor": {
+      "name": "DataViewQueryExecutor",
+      "jsdoc": "一次运行绑定的查询保存 owner；保存消费原查询上下文，数据层不依赖具体 API 包。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "executeQuery",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewQueryResult",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQuerySaveCommand",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataViewQuerySaveReceipt",
+                      "sourcePath": "packages/spark-data/src/data-view.ts"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataViewOptionQueryOptions": {
+      "name": "DataViewOptionQueryOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fields: readonly string[];\n    context?: DataViewQueryContext;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fields: readonly string[];\n    context?: DataViewQueryContext;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQuerySaveChanges": {
+      "name": "DataViewQuerySaveChanges",
+      "jsdoc": "按新增、更新、删除分组的待保存业务行，捕获时已经剥离前端计算字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    added?: readonly DataViewQueryRow[];\n    changed?: readonly DataViewQueryRow[];\n    deleted?: readonly DataViewQueryRow[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    added?: readonly DataViewQueryRow[];\n    changed?: readonly DataViewQueryRow[];\n    deleted?: readonly DataViewQueryRow[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "added",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQuerySaveChange": {
+      "name": "DataViewQuerySaveChange",
+      "jsdoc": "单模型保存输入，明确绑定原查询身份、私有上下文与当前变更。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    identity: DataViewQueryIdentity;\n    tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>;\n    context: DataViewQueryResult;\n    changes: DataViewQuerySaveChanges;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    identity: DataViewQueryIdentity;\n    tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>;\n    context: DataViewQueryResult;\n    changes: DataViewQuerySaveChanges;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableConfig",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQuerySaveCommand": {
+      "name": "DataViewQuerySaveCommand",
+      "jsdoc": "同场景不同模型的一次保存命令；同模型多脏视图被拒绝，不承诺事务。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    changes: readonly DataViewQuerySaveChange[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    changes: readonly DataViewQuerySaveChange[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQuerySaveReceipt": {
+      "name": "DataViewQuerySaveReceipt",
+      "jsdoc": "模型保存回执；真实接受行、逐行更新字段和新上下文用于接纳结果并保留在途新编辑。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    metaName: string;\n    added: readonly DataViewQueryRow[];\n    changed: readonly DataViewQueryRow[];\n    deleted: readonly DataViewQueryRow[];\n    changedFields: ReadonlyArray<readonly string[]>;\n    context: DataViewQueryResult;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "metaName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "added",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changedFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQuerySaveTarget": {
+      "name": "DataViewQuerySaveTarget",
+      "jsdoc": "保存目标视图及可选本地行定位集合；省略 ids 时捕获全部待提交变更。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    view: DataView;\n    ids?: Array<string | number>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    view: DataView;\n    ids?: Array<string | number>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ids",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQuerySaveValidationInput": {
+      "name": "DataViewQuerySaveValidationInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    ids?: Array<string | number>;\n    includeEditingRows: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    ids?: Array<string | number>;\n    includeEditingRows: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "ids",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includeEditingRows",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataView": {
+      "name": "DataView",
+      "jsdoc": "DataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建数据视图实例。\n@param tableName 视图所属表名。\n@param viewId 视图 ID，默认 `default` 表示主数据视图。",
+          "signatureText": "constructor(tableName: string, viewId?: string)",
+          "parameters": [
+            {
+              "name": "tableName",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "viewId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "DataSource",
+            "targetName": "DataSource"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "数据表名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewId",
+              "jsdoc": "视图标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldProjection",
+              "jsdoc": "当前模型视图对 DataTable 资源字段的稳定投影。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "queryContext",
+              "jsdoc": "每次查询的输入参数；与私有的结果权限上下文分离。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rows",
+              "jsdoc": "行数据集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_currentRowId",
+              "jsdoc": "当前行主键值（null 表示未选中）。通过 currentRow getter 取对应行对象",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "_selectedRowIds",
+              "jsdoc": "多选行主键值列表。通过 selectedRows getter 取对应行对象数组",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "valueField",
+              "jsdoc": "值字段名（用于 value getter/setter 序列化），未指定时回退到主键字段",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelField",
+              "jsdoc": "标签显示字段名（用于 labels/label getter），未指定时回退到主键值字符串",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectionDelimiter",
+              "jsdoc": "值序列化分隔符（默认 ','）。非空=多选，空字符串=单选",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "total",
+              "jsdoc": "总记录数。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "page",
+              "jsdoc": "当前页码。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pageSize",
+              "jsdoc": "分页大小。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "loadingError",
+              "jsdoc": "loading Error 错误信息。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "requestState",
+              "jsdoc": "请求状态机，见 {@link RequestState}。唯一状态源，勿另设布尔标志。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mutating",
+              "jsdoc": "增删改批网络请求进行中（与 requestState 独立，可同时为 true）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mutatingError",
+              "jsdoc": "最近一次增删改批操作的错误；成功或未发起时为 null",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "sortExpression",
+              "jsdoc": "sort Expression 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoCurrentFirst",
+              "jsdoc": "请求成功后是否自动 currentRow = rows[0]（默认 true）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "autoSelectFirst",
+              "jsdoc": "请求成功后是否自动 selectedRows = [rows[0]]（默认 true）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "treeConfig",
+              "jsdoc": "树结构字段配置",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoLoad",
+              "jsdoc": "DataSet 初始化后是否自动加载数据（默认 false）",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "autoLoadConfigured",
+              "jsdoc": "autoLoad 是否来自显式视图配置，而不是类默认值。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "commitMode",
+              "jsdoc": "增删改提交模式（默认 `'immediate'`）。\n- `'immediate'`：每次 addRow/editRowById/removeRow 立即调用网络 CRUD（如已配置 API）\n- `'staged'`：仅修改内存并标脏，调用 saveChanges() 批量提交",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "aggregates",
+              "jsdoc": "视图级聚合配置——行变更后自动重算 aggregateResult / selectionAggregateResult。仅由 applyViewConfig() 初始化",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "treeManager",
+              "jsdoc": "tree Manager 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rowIndexMap",
+              "jsdoc": "行索引缓存（用于加速 updateRowById 行对象替换）——由 LocalMutationDelegate 管理，内部状态勿直接操作",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "events",
+              "jsdoc": "事件总线——独立事件模型（currentRowChanged / selectedRowsChanged / rowsChanged / cleared / configChanged / requestStateChanged / mutatingChanged）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "logger",
+              "jsdoc": "诊断日志接口。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "bindQueryExecutor",
+              "jsdoc": "一次运行只绑定一个查询 owner；改变绑定必须重新装配，数据层不依赖 API 包。",
+              "parameters": [
+                {
+                  "name": "executor",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryExecutor",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "queryOptionRows",
+              "jsdoc": "Query one complete option set without replacing this view's rows or query permission.",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewOptionQueryOptions",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "fieldAccess",
+              "jsdoc": "返回字段双通道呈现；查询失败暂停写入，不公开原权限或保存凭据。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFieldAccess",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "computedInputIsVisible",
+              "jsdoc": "@internal Configured calculations consume only fields visible in this view's current query.",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "computedQueryToken",
+              "jsdoc": "@internal Independent generation token for computed reads; never exposes the query owner context.",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "object"
+                }
+              }
+            },
+            {
+              "name": "addActionState",
+              "jsdoc": "新增呈现来自原查询模型权限，旧结果期间只保留展示。",
+              "parameters": [
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "editActionState",
+              "jsdoc": "行编辑呈现来自原 E 汇总，并受当前结果可写状态约束。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "deleteActionState",
+              "jsdoc": "删除呈现消费后端行权限。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "createChildActionState",
+              "jsdoc": "树行新增子行呈现消费后端 c，不由模型新增权限推测。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "viewActionState",
+              "jsdoc": "查看只消费已登记返回行的身份。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewActionState",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "resetPrimaryKey",
+              "jsdoc": "清除显式覆盖，恢复从 DataTable 列定义自动推导主键",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setCurrentRow",
+              "jsdoc": "设置当前行（自动提取主键存储，null 清除）。\n@param row 要设为当前行的行对象；null 表示清除当前行。\n@param originatorId 可选变更来源标识，用于级联订阅方避免回环。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "originatorId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setCurrentRowById",
+              "jsdoc": "通过主键设置当前行（行不存在时返回 false）。\n@param id 目标行主键值；null 表示清除当前行。\n@param originatorId 可选变更来源标识，用于级联订阅方避免回环。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "originatorId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "setSelectedRows",
+              "jsdoc": "设置多选行（覆盖式）。\n@param rows 新的选中行列表。\n@param originatorId 可选变更来源标识，用于级联订阅方避免回环。",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                },
+                {
+                  "name": "originatorId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addSelectedRows",
+              "jsdoc": "追加多选行（返回实际新增数量）。\n@param rows 要追加到选中集的行列表。",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "removeSelectedRows",
+              "jsdoc": "移除多选行（返回实际移除数量）。\n@param rows 要从选中集中移除的行列表。",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "removeSelectedRowsById",
+              "jsdoc": "通过主键批量移除多选行（返回实际移除数量）。\n@param ids 要从选中集中移除的行主键值列表。",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "clearSelectedRows",
+              "jsdoc": "清空多选行",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setComputedContext",
+              "jsdoc": "设置计算列共享上下文（表达式中通过 ctx 引用），重新编译并对现有 rows 求值。\n@param ctx 计算列表达式可通过 ctx 读取的共享上下文。",
+              "parameters": [
+                {
+                  "name": "ctx",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "recomputeColumns",
+              "jsdoc": "手动触发全量计算列重新求值 + 聚合重算。常规行操作已自动触发，仅用于特殊场景。\n@param options 重算通知选项。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewRecomputeColumnsOptions",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "stripComputedColumns",
+              "jsdoc": "@internal 从数据对象中移除计算列字段，返回浅拷贝；无计算列时返回原对象。",
+              "parameters": [
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Partial",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onDataSetStructureReady",
+              "jsdoc": "@internal DataSet 资源关系与视图级联索引完成后由 DataTable 调用——重挂级联订阅并重编译计算列（含聚合 resolver）",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getColumn",
+              "jsdoc": "按名称获取单个列定义\n@param name 列名（精确匹配）\n@returns 对应的列定义，不存在时返回 undefined\n@example ```ts\nconst col = view.getColumn('price')\nif (col) {\nconsole.log(col.label)   // '单价'\nconsole.log(col.type)    // 'number'\n}\n```",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataColumn",
+                  "sourcePath": "packages/spark-data/src/types.ts"
+                }
+              }
+            },
+            {
+              "name": "getDataSet",
+              "jsdoc": "@internal 返回 DataSet 实例",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSet",
+                  "sourcePath": "packages/spark-data/src/dataset.ts"
+                }
+              }
+            },
+            {
+              "name": "getPkKey",
+              "jsdoc": "获取行的主键值（标量）。\n@param row 目标行。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "buildServerPk",
+              "jsdoc": "从行数据构建服务端 PK payload。\n@param row 目标行。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "requestData",
+              "jsdoc": "视图级加载编排器（幂等：requestState≠Idle 时直接返回）。外部应使用 refresh() 或 loadFromServer()。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadFromServer",
+              "jsdoc": "从服务器拉取列表（带防重入 + 请求 ID 竞态保护）。\n@param params 查询参数；省略时由当前视图配置生成。",
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "retrieveRecord",
+              "jsdoc": "按服务端 PK 拉取单条记录。\n默认会将结果同步回本地 rows；可选设为当前行。\n@param pk 服务端主键 payload。\n@param options 单条记录拉取后的同步选项。",
+              "parameters": [
+                {
+                  "name": "pk",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "RetrieveRecordOptions",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "retrieveRecordById",
+              "jsdoc": "按本地主键值拉取单条记录。\n若本地已存在该行，会优先构造真实服务端 PK；否则回退到 `{ [primaryKey]: id }`。\n@param id 本地主键值。\n@param options 单条记录拉取后的同步选项。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "RetrieveRecordOptions",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadTreeNested",
+              "jsdoc": "无未保存修改时加载嵌套树；拒绝发生在请求前，不改变原查询状态。",
+              "parameters": [
+                {
+                  "name": "rootId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "limit",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "depthLimit",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "array",
+                        "elementType": {
+                          "type": "reference",
+                          "name": "NestedTreeNode",
+                          "sourcePath": "packages/spark-data/src/types.ts"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "拒绝覆盖未保存变更；通过检查后置 Idle 并按当前视图输入重新查询。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "rejectCascade",
+              "jsdoc": "级联输入失败使在途结果失效；未保存编辑仍保留原查询上下文供显式处理。",
+              "parameters": [
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "applyInMemoryCascade",
+              "jsdoc": "无 API 时的内存级联过滤（从 DataTable.rows 按依赖过滤条件写入视图）。\n@param filter 已合并所有输入值与视图自身条件的过滤表达式。",
+              "parameters": [
+                {
+                  "name": "filter",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataViewFilterTree",
+                      "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "updateFromServer",
+              "jsdoc": "将服务端响应同步到本地字段（rows / total / page / pageSize）——splice 保持数组引用稳定。\n@param data 服务端返回的行数组或行数据响应载荷。",
+              "parameters": [
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataViewServerRowsPayload",
+                        "sourcePath": "packages/spark-data/src/data-view.ts"
+                      },
+                      {
+                        "type": "array",
+                        "elementType": {
+                          "type": "reference",
+                          "name": "DataRow",
+                          "sourcePath": "packages/spark-data/src/types.ts"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "appendRow",
+              "jsdoc": "本地追加一行，触发计算列求值 + 聚合重算 + rowsChanged。\n@param row 要追加的行。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "updateRowById",
+              "jsdoc": "本地按主键部分更新一行；返回是否成功（行不存在时 false）。\n@param id 目标行主键值。\n@param data 要合并到目标行上的字段更新。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "deleteRowById",
+              "jsdoc": "本地按主键删除一行，清理选中引用；返回是否成功（行不存在时 false）。\n@param id 目标行主键值。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "replaceRows",
+              "jsdoc": "无未保存变更时整批替换行，并清理无效选中引用。\n@param rows 新的完整行列表。",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "hasEditingChanges",
+              "jsdoc": "是否存在编辑态变更。\n@param id 可选行主键值；省略时检查是否存在任意编辑态变更。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getEditingPatch",
+              "jsdoc": "获取指定行当前编辑态 patch。\n@param id 目标行主键值。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Partial",
+                  "typeArguments": [
+                    {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "getEditingRow",
+              "jsdoc": "获取指定行的编辑态 overlay；未编辑时返回当前 DataView 行。\n@param id 目标行主键值。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "updateEditingValue",
+              "jsdoc": "将 UI 字段值写入编辑态，不直接污染 rows。\n@param id 目标行主键值。\n@param field 要编辑的字段名。\n@param value 新字段值。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataRow",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "discardEditingRows",
+              "jsdoc": "丢弃指定行或全部编辑态变更。\n@param ids 可选行主键值列表；省略时丢弃全部编辑态变更。",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "discardPendingChanges",
+              "jsdoc": "丢弃 query-backed 视图的待提交本地状态；后续重新查询由调用方显式发起。",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "number"
+              }
+            },
+            {
+              "name": "applyEditingRows",
+              "jsdoc": "将编辑态 patch 应用到现有 editRowById 管线。\n@param ids 可选行主键值列表；省略时应用全部编辑态变更。",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataViewApplyEditingRowsResult",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addRow",
+              "jsdoc": "本地新增行。commitMode='staged' 时标记为 pending-create（saveChanges 统一提交）；\ncommitMode='immediate' 且已配置 API 时立即调用 crud.createRecord。\n@param data 新行数据。",
+              "parameters": [
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "CrudResult",
+                        "sourcePath": "packages/spark-data/src/types.ts",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "DataRow",
+                            "sourcePath": "packages/spark-data/src/types.ts"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeRow",
+              "jsdoc": "本地删除行。commitMode='staged' 时标记为 pending-delete（saveChanges 统一提交）；\ncommitMode='immediate' 且已配置 API 时立即调用 crud.deleteRecord。\n@param id 目标行主键值。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "CrudResult",
+                        "sourcePath": "packages/spark-data/src/types.ts",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "editRowById",
+              "jsdoc": "手工编辑指定行（标脏）。commitMode='staged' 时仅更新内存并标脏；\ncommitMode='immediate' 且已配置 API 时立即调用 crud.updateRecord。\n连续编辑同一行只保留首次编辑前的快照。\n@param id 目标行主键值。\n@param data 要合并到目标行上的字段更新。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "CrudResult",
+                        "sourcePath": "packages/spark-data/src/types.ts",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "DataRow",
+                            "sourcePath": "packages/spark-data/src/types.ts"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getDirtyChanges",
+              "jsdoc": "获取指定行的字段级变更明细（行不脏时返回 {}）。\n@param id 目标行主键值。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "RowDiff",
+                "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+              }
+            },
+            {
+              "name": "saveChanges",
+              "jsdoc": "原查询视图由统一 owner 保存并按真实字段回执接纳；本地 CRUD 视图沿用逐行提交。\n@param ids 可选行主键值列表；省略时保存全部脏行。",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "CrudResult",
+                    "sourcePath": "packages/spark-data/src/types.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "SaveChangesData",
+                        "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveQueryViews",
+              "jsdoc": "同一场景的视图在 class 内捕获私有基线，由同一 owner 一次保存并接纳真实回执。",
+              "parameters": [
+                {
+                  "name": "targets",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataViewQuerySaveTarget[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "CrudResult",
+                      "sourcePath": "packages/spark-data/src/types.ts",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "SaveChangesData",
+                          "sourcePath": "packages/spark-data/src/strategies/dirty-tracking-delegate.ts"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertQuerySaveColumns",
+              "jsdoc": "@internal DataSet 在应用任何编辑缓冲前复用原查询列校验，不改变保存状态。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQuerySaveValidationInput",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "clearAll",
+              "jsdoc": "无未保存变更时清空状态并发射 cleared 事件。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "resetState",
+              "jsdoc": "重置行数据和选中状态，并将 requestState 重置为 Idle。\n有未保存变更时拒绝重置；显式保存或放弃由调用方先行处理。\n通过领域事件通知订阅者刷新 rows / selection / request / aggregate / editing。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cleanupInvalidSelections",
+              "jsdoc": "清理已不在 rows 中的选中状态，返回是否发生了清理（委托给 SelectionDelegate）",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "loadTreeChildren",
+              "jsdoc": "拉取直接子节点并写入缓存（对应 /tree/children）。\n@param parentId 父节点 ID；null 表示根级节点。\n@param limit 最大返回子节点数。",
+              "parameters": [
+                {
+                  "name": "parentId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "limit",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "FlatTreeNode",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadTreePath",
+              "jsdoc": "获取节点祖先链 ID（对应 /tree/path）。\n@param id 目标节点 ID。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "TreePath",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "expandTreeToNode",
+              "jsdoc": "展开到目标节点，差量补齐缓存（对应 /tree/path + /tree/subtree）。\n@param targetId 目标节点 ID。",
+              "parameters": [
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "moveTreeNode",
+              "jsdoc": "执行 move Tree Node 操作。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "newParentId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "searchTreeNested",
+              "jsdoc": "嵌套模式远端搜索（对应 /tree/nested/search）。\n@param keyword 搜索关键字。\n@param limit 最大返回匹配节点数。",
+              "parameters": [
+                {
+                  "name": "keyword",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "limit",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "NestedTreeSearchResult",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setPage",
+              "jsdoc": "设置当前页；远端视图自动重新查询。\n@param page 新页码。",
+              "parameters": [
+                {
+                  "name": "page",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setPageSize",
+              "jsdoc": "设置每页条数并重置页码为 1；远端视图自动重新查询。\n@param pageSize 新每页行数。",
+              "parameters": [
+                {
+                  "name": "pageSize",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setSort",
+              "jsdoc": "设置排序表达式；远端视图自动重新查询。\n@param sort 新排序表达式；undefined 表示清除排序。",
+              "parameters": [
+                {
+                  "name": "sort",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "SortExpression",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "setFilter",
+              "jsdoc": "设置过滤表达式并重置页码为 1；表达式变更后由数据层自动处理数据。\n@param filter 新过滤表达式；undefined 表示清除过滤。",
+              "parameters": [
+                {
+                  "name": "filter",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataViewFilterTree",
+                      "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "executeFilter",
+              "jsdoc": "显式执行过滤：即使表达式未变化也会处理数据（用于“查询”按钮语义）。\n@param filter 要执行的过滤表达式；undefined 表示清除过滤。",
+              "parameters": [
+                {
+                  "name": "filter",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataViewFilterTree",
+                      "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "销毁视图，释放所有订阅、委托和外部引用\n应在资源释放时调用，防止内存泄漏。\n销毁顺序：级联委托 → CRUD 委托 → 防抖定时器 → 事件总线 → 行数据 → TreeManager → DataTable 引用",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "isDestroyed",
+              "jsdoc": "检查视图是否已销毁",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "applyViewConfig",
+              "jsdoc": "将 ViewMetadata 配置字段应用到当前视图实例（不创建新实例，不处理 rows）。\n@param vc 要应用的视图配置片段。",
+              "parameters": [
+                {
+                  "name": "vc",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ViewMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "configure",
+              "jsdoc": "执行 configure 操作。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ViewMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setAggregates",
+              "jsdoc": "设置 Aggregates。",
+              "parameters": [
+                {
+                  "name": "aggregates",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "AggregateColumnConfig",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setTreeConfig",
+              "jsdoc": "set Tree Config 配置。",
+              "parameters": [
+                {
+                  "name": "treeConfig",
+                  "type": {
+                    "type": "reference",
+                    "name": "TreeConfig",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "initAutoSelection",
+              "jsdoc": "对已有 rows 应用 autoCurrentFirst / autoSelectFirst 初始化选中状态（静态数据路径用）",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "toJson",
+              "jsdoc": "执行 to Json 操作。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ViewMetadata",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "fromJson",
+              "jsdoc": "执行 from Json 操作。",
+              "parameters": [
+                {
+                  "name": "data",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ViewMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

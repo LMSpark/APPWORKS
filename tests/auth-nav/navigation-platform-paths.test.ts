@@ -11,8 +11,10 @@ type NavigateToPath = {
   (path: string): void}
 
 const refreshRoutesMock = vi.hoisted(() => vi.fn<() => Promise<RuntimeNavigation | null>>())
+const getDynamicRouterMock = vi.hoisted(() => vi.fn(() => null))
 
 vi.mock('../../packages/spark-app/src/navigation/nav-access', () => ({
+  getDynamicRouter: getDynamicRouterMock,
   refreshRoutes: refreshRoutesMock,
 }))
 

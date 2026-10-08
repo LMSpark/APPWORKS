@@ -1,0 +1,422 @@
+--- a/packages/spark-data/src/validation/validation.ts
++++ b/packages/spark-data/src/validation/validation.ts
+@@ -69,15 +69,7 @@
+    * @returns 校验结果
+    */
+   validate(row: DataRow): ValidationResult {
+-    const errors: ValidationError[] = []
+-
+-    // 1. 字段级校验（基于列定义）
+-    for (const col of this.schema.columns) {
+-      if (col.isComputed || col.computeExpression) continue
+-      const value = row[col.name]
+-      const fieldErrors = this.validateField(col, value)
+-      errors.push(...fieldErrors)
+-    }
++    const { errors } = this.validateColumns(row)
+ 
+     // 2. 自定义行级校验
+     if (this.schema.validate) {
+@@ -92,6 +84,16 @@
+       errors
+     }
+   }
++
++  /** 仅执行原生列规则；fields 省略时检查全部非计算列。 */
++  validateColumns(row: DataRow, fields?: ReadonlySet<string>): ValidationResult {
++    const errors: ValidationError[] = []
++    for (const col of this.schema.columns) {
++      if (col.isComputed || col.computeExpression || (fields !== undefined && !fields.has(col.name))) continue
++      errors.push(...this.validateField(col, row[col.name]))
++    }
++    return { valid: errors.length === 0, errors }
++  }
+ 
+   /**
+    * 批量校验多行数据
+--- a/packages/spark-data/src/data-view.ts
++++ b/packages/spark-data/src/data-view.ts
+@@ -173,6 +173,7 @@
+ type DataViewQuerySaveRow = Readonly<{ id: string | number; row: DataRow }>
+ /** 保存目标视图及可选本地行定位集合；省略 ids 时捕获全部待提交变更。 */
+ type DataViewQuerySaveTarget = Readonly<{ view: DataView; ids?: Array<string | number> }>
++type DataViewQuerySaveValidationInput = Readonly<{ ids?: Array<string | number>; includeEditingRows: boolean }>
+ type DataViewQuerySaveCapture = Readonly<{
+   executor: DataViewQueryExecutor
+   identity: DataViewQueryIdentity
+@@ -2189,7 +2190,10 @@
+ 
+   /** 同一场景的视图在 class 内捕获私有基线，由同一 owner 一次保存并接纳真实回执。 */
+   static async saveQueryViews(targets: readonly DataViewQuerySaveTarget[]): Promise<Array<CrudResult<SaveChangesData>>> {
++    for (const target of targets) target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
++      includeEditingRows: false })
+     const captures = targets.map(target => ({ view: target.view, capture: target.view.captureQuerySave(target.ids) }))
++    for (const { view, capture } of captures) view.validateQuerySaveColumns(capture)
+     const active = captures.filter(({ capture }) => capture.added.length + capture.changed.length + capture.deleted.length > 0)
+     const first = active[0]
+     if (first === undefined) return captures.map(() => ({ success: true, message: '没有待提交的变更',
+@@ -2258,6 +2262,60 @@
+     return { executor, identity: this.queryIdentity(), context, added, changed, deleted }
+   }
+ 
++  private validateQuerySaveColumns(capture: DataViewQuerySaveCapture): void {
++    const validator = this.validator
++    if (validator === undefined) return
++    const check = (row: DataRow, fields?: ReadonlySet<string>): void => {
++      const columns = dataRowFromPartial(Object.fromEntries(Object.entries(row).filter(([field]) => !field.startsWith('lingma_sys_'))))
++      const error = validator.validateColumns(columns, fields).errors[0]
++      if (error !== undefined) throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}.${error.field}: ${error.message}`)
++    }
++    const addedFields = new Set(this._dataTable?.columns.filter(column => !column.name.startsWith('lingma_sys_'))
++      .map(column => column.name))
++    for (const item of capture.added) check(item.row, addedFields)
++    for (const item of capture.changed) {
++      if (this.querySaveKey(capture.context, item.row) === '') {
++        throw new Error(`DATA_VIEW_SAVE_BASELINE: ${this.tableName}@${this.viewId} 缺少唯一原查询行`)
++      }
++      const originals = capture.context.rows.filter(row =>
++        this.querySaveKey(capture.context, row) === this.querySaveKey(capture.context, item.row))
++      const original = originals[0]
++      if (originals.length !== 1 || original === undefined) {
++        throw new Error(`DATA_VIEW_SAVE_BASELINE: ${this.tableName}@${this.viewId} 缺少唯一原查询行`)
++      }
++      const fields = new Set(Object.entries(item.row).filter(([field, value]) =>
++        !field.startsWith('lingma_sys_') && value !== undefined && !this.effectivePkFields.includes(field)
++        && !this.sameQuerySaveValue(value, original[field])).map(([field]) => field))
++      check(item.row, fields)
++    }
++  }
++
++  /** @internal DataSet 在应用任何编辑缓冲前复用原查询列校验，不改变保存状态。 */
++  assertQuerySaveColumns(input: DataViewQuerySaveValidationInput): void {
++    this.assertResultWritable()
++    const executor = this.#queryExecutor
++    const context = this.currentQueryResult()
++    if (executor?.save === undefined || context === undefined) throw new Error('DATA_VIEW_SAVE_OWNER: 保存需要原查询上下文及统一 owner')
++    const selected = input.ids === undefined ? undefined : new Set(input.ids)
++    const accepts = (id: string | number): boolean => selected === undefined || selected.has(id)
++    const addedIds = [...this.dirtyTrackingDelegate.pendingCreateIds].filter(accepts)
++    const deletedIds = this.dirtyTrackingDelegate.pendingDeleteIds
++    const changedIds = new Set([...this.dirtyTrackingDelegate.dirtyRowIds].filter(accepts))
++    if (input.includeEditingRows) {
++      for (const id of this._editingPatches.keys()) if (accepts(id)) changedIds.add(id)
++    }
++    const rowFor = (id: string | number): DataRow => {
++      const current = this.getRowById(id)
++      if (current === null) throw new Error(`DATA_VIEW_SAVE_ROW: 未找到待提交行 ${String(id)}`)
++      const overlay = input.includeEditingRows ? this._editingPatches.get(id) : undefined
++      return dataRowFromPartial(this.stripComputedColumns(structuredClone({ ...current, ...overlay })))
++    }
++    const added = addedIds.map(id => ({ id, row: rowFor(id) }))
++    const changed = [...changedIds].filter(id => !this.dirtyTrackingDelegate.pendingCreateIds.has(id) && !deletedIds.has(id))
++      .map(id => ({ id, row: rowFor(id) }))
++    this.validateQuerySaveColumns({ executor, identity: this.queryIdentity(), context, added, changed, deleted: [] })
++  }
++
+   private validateQuerySaveReceipt(command: DataViewQuerySaveAcceptance): void {
+     const { identity, context, added, changed, deleted, receipt } = command
+     receipt.context.assertIdentity(identity)
+--- a/packages/spark-data/src/dataset.ts
++++ b/packages/spark-data/src/dataset.ts
+@@ -1404,6 +1404,14 @@
+     const targets = this.resolveSaveChangesTargets(options)
+     const mode = options?.mode ?? this.saveChangesConfig?.mode ?? 'perView'
+     this.assertScenarioSaveTargets(targets, mode, options)
++    if (this.scenarioId !== undefined) {
++      for (const target of targets) {
++        if (!hasPendingChanges(target.view, target.ids)
++          && !((options?.applyEditingRows ?? true) && hasEditingChanges(target.view, target.ids))) continue
++        target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
++          includeEditingRows: options?.applyEditingRows ?? true })
++      }
++    }
+     if (mode === 'transaction') {
+       return this.withCascadeSuspended(() => this.saveChangesInTransaction(targets, options))
+     }
+--- /dev/null
++++ b/packages/spark-data/src/tests/crud/query-save-validation.test.ts
+@@ -0,0 +1,224 @@
++import { describe, expect, it, vi } from 'vitest'
++import { DataSet } from '../../dataset'
++import { DataView } from '../../data-view'
++import type { DataRow } from '../../types'
++import { DataValidator } from '../../validation/validation'
++
++function query(tableName: string, rows: DataRow[]) {
++  return {
++    rows, total: rows.length,
++    assertIdentity(identity: { scenarioId: string; metaName: string }) {
++      if (identity.scenarioId !== 'SPACE' || identity.metaName !== tableName) throw new Error('identity mismatch')
++    },
++    rowKey: (row: DataRow) => row['id'],
++    prepareNewRow: (row: DataRow) => ({ ...row, id: 'TEMP' }),
++    fieldAccess: () => ({ read: 'visible' as const, write: 'allowed' as const,
++      component: 'editable' as const, required: false, writeMode: 'editable' as const }),
++    readFieldAccess: () => 'visible' as const,
++    addActionState: () => 'enabled' as const, editActionState: () => 'enabled' as const,
++    deleteActionState: () => 'enabled' as const, createChildActionState: () => 'enabled' as const,
++    viewActionState: () => 'enabled' as const,
++  }
++}
++
++describe('formal query-save column validation', () => {
++  it('keeps the old whole-row callback in validate while column-only validation omits it', () => {
++    const callback = vi.fn(() => [{ field: 'title', message: 'whole row', code: 'CUSTOM' }])
++    const validator = new DataValidator({ columns: [{ name: 'title', type: 'string', required: true }], validate: callback })
++    expect(validator.validateColumns({ title: 'Good' }).valid).toBe(true)
++    expect(callback).not.toHaveBeenCalled()
++    expect(validator.validate({ title: 'Good' }).errors.map(error => error.code)).toEqual(['CUSTOM'])
++    expect(callback).toHaveBeenCalledTimes(1)
++  })
++
++  it('rejects a changed invalid configured field before the query save owner', async () => {
++    const dataSet = DataSet.fromJson({ scenarioId: 'SPACE', dataSetName: 'SPACE', tables: {
++      Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true },
++          { name: 'title', type: 'string', required: true, minLength: 2 }], views: { default: {} } },
++    } })
++    const view = dataSet.getView('Orders')!
++    const save = vi.fn(async () => { throw new Error('owner was called') })
++    view.bindQueryExecutor({ executeQuery: async () => query('Orders', [{ id: '1', title: 'Before' }]), save })
++    await view.loadFromServer()
++    view.commitMode = 'staged'
++    expect(await view.editRowById('1', { title: '' })).toBe(true)
++    await expect(view.saveChanges()).rejects.toThrow('title')
++    expect(save).not.toHaveBeenCalled()
++    expect(view.rows[0]?.['title']).toBe('')
++    dataSet.destroy()
++  })
++
++  it('preflights all selected views before applying a valid draft in another model', async () => {
++    const dataSet = DataSet.fromJson({ scenarioId: 'SPACE', dataSetName: 'SPACE', tables: {
++      Items: { tableName: 'Items', modelBinding: { modelId: 'ITEM', modelName: 'Items' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'title', type: 'string', required: true }],
++        views: { default: {} } },
++      Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'title', type: 'string', required: true }],
++        views: { default: {} } },
++    } })
++    const items = dataSet.getView('Items')!
++    const orders = dataSet.getView('Orders')!
++    const save = vi.fn(async () => { throw new Error('owner was called') })
++    const executor = { executeQuery: async (view: typeof items) => query(view.tableName, [{ id: '1', title: 'Before' }]), save }
++    items.bindQueryExecutor(executor)
++    orders.bindQueryExecutor(executor)
++    await items.loadFromServer()
++    await orders.loadFromServer()
++    items.updateEditingValue('1', 'title', 'Valid')
++    orders.updateEditingValue('1', 'title', '')
++    await expect(dataSet.saveChanges()).rejects.toThrow('Orders@default.title')
++    expect(save).not.toHaveBeenCalled()
++    expect(items.getEditingPatch('1')).toEqual({ title: 'Valid' })
++    expect(orders.getEditingPatch('1')).toEqual({ title: '' })
++    expect(items.rows[0]?.['title']).toBe('Before')
++    expect(orders.rows[0]?.['title']).toBe('Before')
++    expect(items.dirtyTracking.hasPendingChanges()).toBe(false)
++    expect(orders.dirtyTracking.hasPendingChanges()).toBe(false)
++    dataSet.destroy()
++  })
++
++  it('does not rebase an earlier reverted dirty row when a later query-save row fails validation', async () => {
++    const dataSet = DataSet.fromJson({ scenarioId: 'SPACE', dataSetName: 'SPACE', tables: {
++      Items: { tableName: 'Items', modelBinding: { modelId: 'ITEM', modelName: 'Items' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'title', type: 'string', required: true }],
++        views: { default: {} } },
++      Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'title', type: 'string', required: true }],
++        views: { default: {} } },
++    } })
++    const items = dataSet.getView('Items')!
++    const orders = dataSet.getView('Orders')!
++    const save = vi.fn(async () => { throw new Error('owner was called') })
++    const executor = { executeQuery: async (view: typeof items) => query(view.tableName, [{ id: '1', title: 'Before' }]), save }
++    items.bindQueryExecutor(executor)
++    orders.bindQueryExecutor(executor)
++    await items.loadFromServer()
++    await orders.loadFromServer()
++    await items.editRowById('1', { title: 'Temporary' })
++    await items.editRowById('1', { title: 'Before' })
++    await orders.editRowById('1', { title: '' })
++    expect(items.dirtyTracking.isDirty('1')).toBe(true)
++    await expect(DataView.saveQueryViews([{ view: items }, { view: orders }])).rejects.toThrow('Orders@default.title')
++    expect(items.dirtyTracking.isDirty('1')).toBe(true)
++    expect(orders.dirtyTracking.isDirty('1')).toBe(true)
++    expect(save).not.toHaveBeenCalled()
++    dataSet.destroy()
++  })
++
++  it('checks all configured input columns for new rows and leaves deletion values alone', async () => {
++    const dataSet = DataSet.fromJson({ scenarioId: 'SPACE', dataSetName: 'SPACE', tables: {
++      Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true },
++          { name: 'title', type: 'string', required: true, minLength: 2 },
++          { name: 'amount', type: 'number', min: 0 }], views: { default: {} } },
++    } })
++    const view = dataSet.getView('Orders')!
++    const save = vi.fn(async () => { throw new Error('owner reached') })
++    view.bindQueryExecutor({ executeQuery: async () => query('Orders', [{ id: '1', title: '', amount: -1 }]), save })
++    await view.loadFromServer()
++    await view.addRow({ amount: -2 })
++    await expect(view.saveChanges()).rejects.toThrow('Orders@default.title')
++    expect(save).not.toHaveBeenCalled()
++    expect(view.dirtyTracking.isPendingCreate('TEMP')).toBe(true)
++    view.updateRowById('TEMP', { title: 'Good', amount: -2 })
++    await expect(view.saveChanges()).rejects.toThrow('Orders@default.amount')
++    expect(save).not.toHaveBeenCalled()
++    view.updateRowById('TEMP', { amount: 0 })
++    await view.removeRow('1')
++    await expect(view.saveChanges()).rejects.toThrow('owner reached')
++    expect(save).toHaveBeenCalledTimes(1)
++    dataSet.destroy()
++  })
++
++  it('validates only the updated delta and accepts explicit new values despite a hidden old field', async () => {
++    const dataSet = DataSet.fromJson({ scenarioId: 'SPACE', dataSetName: 'SPACE', tables: {
++      Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true },
++          { name: 'title', type: 'string', required: true, minLength: 2 },
++          { name: 'amount', type: 'number', min: 0 }], views: { default: {} } },
++    } })
++    const view = dataSet.getView('Orders')!
++    const save = vi.fn(async () => { throw new Error('owner reached') })
++    const context = { ...query('Orders', [{ id: '1', title: '', amount: 2 }]),
++      fieldAccess: (_key: unknown, field: string) => ({ read: field === 'title' ? 'invisible' as const : 'visible' as const,
++        write: 'allowed' as const, component: field === 'title' ? 'hidden' as const : 'editable' as const,
++        required: false, writeMode: 'editable' as const }),
++      readFieldAccess: (_row: DataRow, field: string) => field === 'title' ? 'invisible' as const : 'visible' as const }
++    view.bindQueryExecutor({ executeQuery: async () => context, save })
++    await view.loadFromServer()
++    expect(view.fieldAccess(view.rows[0] ?? null, 'title').read).toBe('invisible')
++    await view.editRowById('1', { amount: 3 })
++    await expect(view.saveChanges()).rejects.toThrow('owner reached')
++    expect(save).toHaveBeenCalledTimes(1)
++    await view.editRowById('1', { title: 'X' })
++    await expect(view.saveChanges()).rejects.toThrow('Orders@default.title')
++    expect(save).toHaveBeenCalledTimes(1)
++    await view.editRowById('1', { title: 'New' })
++    await expect(view.saveChanges()).rejects.toThrow('owner reached')
++    expect(save).toHaveBeenCalledTimes(2)
++    dataSet.destroy()
++  })
++
++  it('respects selected row ids and applyEditingRows false without reading an unselected invalid draft', async () => {
++    const dataSet = DataSet.fromJson({ scenarioId: 'SPACE', dataSetName: 'SPACE', tables: {
++      Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true },
++          { name: 'title', type: 'string', required: true }], views: { default: {} } },
++    } })
++    const view = dataSet.getView('Orders')!
++    const save = vi.fn(async () => { throw new Error('owner reached') })
++    view.bindQueryExecutor({ executeQuery: async () => query('Orders', [
++      { id: '1', title: 'Before' }, { id: '2', title: 'Before' },
++    ]), save })
++    await view.loadFromServer()
++    view.updateEditingValue('1', 'title', '')
++    await view.editRowById('2', { title: 'Valid' })
++    await expect(dataSet.saveChanges({ views: [{ tableName: 'Orders', viewId: 'default', ids: ['2'] }] }))
++      .rejects.toThrow('owner reached')
++    expect(view.getEditingPatch('1')).toEqual({ title: '' })
++    expect(view.rows[0]?.['title']).toBe('Before')
++    await expect(dataSet.saveChanges({ applyEditingRows: false })).rejects.toThrow('owner reached')
++    expect(save).toHaveBeenCalledTimes(2)
++    await expect(dataSet.saveChanges({ views: [{ tableName: 'Orders', viewId: 'default', ids: [] }] }))
++      .resolves.toMatchObject({ success: true, data: { savedCount: 0 } })
++    expect(save).toHaveBeenCalledTimes(2)
++    dataSet.destroy()
++  })
++
++  it('ignores computed values and rejects a duplicate original query identity before save', async () => {
++    const dataSet = DataSet.fromJson({ scenarioId: 'SPACE', dataSetName: 'SPACE', tables: {
++      Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true },
++          { name: 'amount', type: 'number', min: 0 },
++          { name: 'total', type: 'number', computeExpression: 'amount * 2', min: 100 }], views: { default: {} } },
++    } })
++    const view = dataSet.getView('Orders')!
++    const payloads: string[] = []
++    const save = vi.fn(async (command: unknown) => { payloads.push(JSON.stringify(command)); throw new Error('owner reached') })
++    view.bindQueryExecutor({ executeQuery: async () => query('Orders', [{ id: '1', amount: 1 }]), save })
++    await view.loadFromServer()
++    await view.editRowById('1', { amount: 2 })
++    await expect(view.saveChanges()).rejects.toThrow('owner reached')
++    expect(payloads).toHaveLength(1)
++    expect(payloads[0]).not.toContain('"total":4')
++    dataSet.destroy()
++
++    const duplicate = DataSet.fromJson({ scenarioId: 'SPACE', dataSetName: 'SPACE', tables: {
++      Orders: { tableName: 'Orders', modelBinding: { modelId: 'ORDER', modelName: 'Orders' },
++        columns: [{ name: 'id', type: 'string', isPrimaryKey: true },
++          { name: 'amount', type: 'number', min: 0 }], views: { default: {} } },
++    } })
++    const duplicateView = duplicate.getView('Orders')!
++    const duplicateSave = vi.fn(async () => { throw new Error('owner reached') })
++    duplicateView.bindQueryExecutor({ executeQuery: async () => query('Orders', [
++      { id: '1', amount: 1 }, { id: '1', amount: 1 },
++    ]), save: duplicateSave })
++    await duplicateView.loadFromServer()
++    await duplicateView.editRowById('1', { amount: 2 })
++    await expect(duplicateView.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_BASELINE')
++    expect(duplicateSave).not.toHaveBeenCalled()
++    duplicate.destroy()
++  })
++})
+--- a/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
++++ b/tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts
+@@ -38,10 +38,11 @@
+ class QueryHttp extends HttpClientBase {
+   readonly requests: RequestConfig[] = []
+   result: unknown = {primaryKeyField: 'id', allowAdd: false, data: {Items: [], Count: 0}}
++  saveResult: unknown = {maplistedit: [{ParentSource: [{id: 'P1', title: 'Changed', price: 3, qty: 4}]}]}
+   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+     this.requests.push(config)
+     return {data: {Code: 200, Result: config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD'
+-      ? {maplistedit: [{ParentSource: [{id: 'P1', title: 'Changed', price: 3, qty: 4}]}]} : this.result},
++      ? this.saveResult : this.result},
+     status: 200, statusText: 'OK', headers: {}}
+   }
+ }
+@@ -348,6 +349,44 @@
+     await expect(changed.assemble('SPACE', stale.dirtySource)).rejects.toThrow('未解析到唯一正式输出字段')
+     expect(storage.stored.get('SPACE')).toBe(saved.text)
+   })
++  it('validates persisted column rules before formal DataSet save and accepts the corrected receipt', async () => {
++    const storage = fixture()
++    storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'amount'], ['amount']),
++      model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
++    const first = storage.openOwner()
++    const opened = await first.service.open('SPACE')
++    const draft = structuredClone(opened.state.config)
++    const tables = draft['tables']
++    if (!isRecord(tables) || !isRecord(tables['Parents'])) throw new Error('missing Parents')
++    tables['Parents']['columns'] = [{name: 'title', required: true, minLength: 2, maxLength: 6,
++      pattern: '^A', patternMessage: 'must start A'}, {name: 'amount', min: 0, max: 10}]
++    opened.dirtySource.setText(JSON.stringify(draft))
++    const saved = await first.service.save('SPACE')
++    const reopened = storage.openOwner()
++    const read = await reopened.service.open('SPACE')
++    const assembly = await reopened.assemble('SPACE', read.dirtySource)
++    const dataSet = assembly.dataSet
++    const view = dataSet.getView('Parents', 'shared')!
++    reopened.http.result = {primaryKeyField: 'id', allowAdd: false,
++      data: {Items: [{id: 'P1', title: 'Before', amount: 5, lingma_sys_key: 'SIGNED',
++        lingma_sys_params: {r: ['id', 'title', 'amount'], e: ['title', 'amount']}}], Count: 1}}
++    await view.loadFromServer()
++    view.updateEditingValue('P1', 'title', 'X')
++    await expect(dataSet.saveChanges()).rejects.toThrow('Parents@shared.title')
++    expect(reopened.http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD'))
++      .toHaveLength(0)
++    expect(view.getEditingPatch('P1')).toEqual({title: 'X'})
++    expect(view.rows[0]?.['title']).toBe('Before')
++    view.updateEditingValue('P1', 'title', 'Alex')
++    reopened.http.saveResult = {maplistedit: [{ParentSource: [{id: 'P1', title: 'Alex', amount: 5}]}]}
++    await expect(dataSet.saveChanges()).resolves.toMatchObject({success: true, data: {savedCount: 1}})
++    const saves = reopened.http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
++    expect(saves).toHaveLength(1)
++    expect(JSON.stringify(saves[0]?.data)).toContain('Alex')
++    expect(storage.stored.get('SPACE')).toBe(saved.text)
++    expect(dataSet.resourceRelations).toMatchObject([{sourceRelationId: 'REL'}])
++    dataSet.destroy()
++  })
+   it('stages two model-owned views, saves and reopens native configuration with database columns', async () => {
+     const storage = fixture()
+     const first = storage.openOwner()

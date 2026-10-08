@@ -102,19 +102,20 @@ function getPaneKey(pane: SparkNode, index: number): string | number {
 }
 
 function getPaneComponentProps(pane: SparkNode): Record<string, unknown> {
-  const resolvedId = nodeId(pane)
   return {
-    ...(resolvedId !== undefined ? { id: resolvedId } : {}),
     ...(pane.children !== undefined ? { children: pane.children } : {}),
     ...nodeInputProps(pane),
   }
 }
 
 function createPaneRendererConfig(pane: SparkNode, index: number): SparkNode {
+  const resolvedId = nodeId(pane)
   return {
     type: 'r-tab-pane',
+    ...(resolvedId !== undefined ? { id: resolvedId } : {}),
     props: {
       ...getPaneComponentProps(pane),
+      name: getPaneName(pane, index),
       index,
     },
   }

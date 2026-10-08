@@ -1,0 +1,17 @@
+[
+  {
+    "path": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
+    "before": "B92257C9291031A3CCA89729EB9045C7FC00B6C9342F430CE120059134E84351",
+    "after": "D62464DE6F7D894CDC67497F450A58CA916BE06BDD811DCF884137FE60091FCD"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-design-session.test.ts",
+    "before": "DE585CEA94AF28CFEECAB5243BB7B146097B47C55AA028F69F849E435CE30B30",
+    "after": "F19E361ED48F95E51F402940AE40EFC937953F4F3BB1A077E6B32406C42E8F47"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-definition-recovery.test.ts",
+    "before": null,
+    "after": "00E843C77BA29C606292A78E17D99598D029EDB3DB37F3753FAFC4955D306AD9"
+  }
+]

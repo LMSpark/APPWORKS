@@ -1,0 +1,391 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/workflow/agent-workflow-dry-run",
+    "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts",
+    "sourceFile": "packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/workflow/agent-workflow-dry-run",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/workflow/agent-workflow-dry-run\n职责：作为运行时承载适配器消费 AgentWorkflowDefinition，按 workflowId 绑定 Host 并执行 dryRun 验收链。\n边界：definition 不保存注册信息；本模块只在运行时把 workflowId 解析到 Host 可执行对象。\nAI用途：需要验证运行时是否能承载 workflow definition 时，用本模块确认链路。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AgentWorkflowActivation",
+      "AgentWorkflowRuntimeBinding",
+      "AgentWorkflowBindings",
+      "ResolveAgentWorkflowActivationCommand",
+      "ActivateAgentWorkflowDefinitionCommand",
+      "AgentWorkflowDryRunCommand",
+      "AgentWorkflowDryRunResult"
+    ]
+  },
+  "$defs": {
+    "AgentWorkflowActivation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowActivation",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "moduleId": {
+          "type": "string"
+        },
+        "rootClassName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentWorkflowRuntimeBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowRuntimeBinding",
+      "properties": {
+        "alias": {
+          "type": "string"
+        },
+        "moduleId": {
+          "type": "string"
+        },
+        "rootClassName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.create.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.create.return": {
+          "$ref": "../business/registration-types.ts.json#/$defs/AiAgentRegistration"
+        }
+      }
+    },
+    "AgentWorkflowBindings": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowBindings",
+      "properties": {
+        "workflows": {
+          "type": "object",
+          "title": "Record<string, AgentWorkflowRuntimeBinding<TInput>>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResolveAgentWorkflowActivationCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolveAgentWorkflowActivationCommand",
+      "properties": {
+        "definition": {
+          "$ref": "agent-workflow-definition.ts.json#/$defs/AgentWorkflowDefinition"
+        },
+        "bindings": {
+          "$ref": "#/$defs/AgentWorkflowBindings"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ActivateAgentWorkflowDefinitionCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ActivateAgentWorkflowDefinitionCommand",
+      "properties": {
+        "definition": {
+          "$ref": "agent-workflow-definition.ts.json#/$defs/AgentWorkflowDefinition"
+        },
+        "bindings": {
+          "$ref": "#/$defs/AgentWorkflowBindings"
+        },
+        "host": {
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHost"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentWorkflowDryRunCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowDryRunCommand",
+      "properties": {
+        "definition": {
+          "$ref": "agent-workflow-definition.ts.json#/$defs/AgentWorkflowDefinition"
+        },
+        "bindings": {
+          "$ref": "#/$defs/AgentWorkflowBindings"
+        },
+        "host": {
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHost"
+        },
+        "input": {
+          "type": "object",
+          "title": "TInput"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentWorkflowDryRunResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowDryRunResult",
+      "properties": {
+        "host": {
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHost"
+        },
+        "activation": {
+          "$ref": "#/$defs/AgentWorkflowActivation"
+        },
+        "dryRun": {
+          "$ref": "../business/host/ai-host.ts.json#/$defs/AiAgentHostDryRunResult"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.226Z",
+  "models": {
+    "AgentWorkflowActivation": {
+      "name": "AgentWorkflowActivation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    alias: string;\n    moduleId: string;\n    rootClassName?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    alias: string;\n    moduleId: string;\n    rootClassName?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "alias",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "moduleId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootClassName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowRuntimeBinding": {
+      "name": "AgentWorkflowRuntimeBinding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    alias: string;\n    moduleId: string;\n    rootClassName?: string;\n    create: () => AiAgentRegistration<TInput>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    alias: string;\n    moduleId: string;\n    rootClassName?: string;\n    create: () => AiAgentRegistration<TInput>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "alias",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "moduleId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootClassName",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "create",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "AiAgentRegistration",
+                "sourcePath": "packages/spark-ai/src/agent/business/registration-types.ts",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "TInput",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowBindings": {
+      "name": "AgentWorkflowBindings",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflows: Readonly<Record<string, AgentWorkflowRuntimeBinding<TInput>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflows: Readonly<Record<string, AgentWorkflowRuntimeBinding<TInput>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflows",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolveAgentWorkflowActivationCommand": {
+      "name": "ResolveAgentWorkflowActivationCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    definition: AgentWorkflowDefinition;\n    bindings: AgentWorkflowBindings<TInput>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    definition: AgentWorkflowDefinition;\n    bindings: AgentWorkflowBindings<TInput>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "definition",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bindings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ActivateAgentWorkflowDefinitionCommand": {
+      "name": "ActivateAgentWorkflowDefinitionCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ResolveAgentWorkflowActivationCommand<TInput> & Readonly<{\n    host: AiAgentHost;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ResolveAgentWorkflowActivationCommand<TInput>",
+            "targetName": "ResolveAgentWorkflowActivationCommand"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    host: AiAgentHost;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "host",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowDryRunCommand": {
+      "name": "AgentWorkflowDryRunCommand",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ActivateAgentWorkflowDefinitionCommand<TInput> & Readonly<{\n    input: TInput;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ActivateAgentWorkflowDefinitionCommand<TInput>",
+            "targetName": "ActivateAgentWorkflowDefinitionCommand"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    input: TInput;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowDryRunResult": {
+      "name": "AgentWorkflowDryRunResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    host: AiAgentHost;\n    activation: AgentWorkflowActivation;\n    dryRun: AiAgentHostDryRunResult;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    host: AiAgentHost;\n    activation: AgentWorkflowActivation;\n    dryRun: AiAgentHostDryRunResult;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "host",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "activation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dryRun",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -176,6 +176,7 @@ export class DataSpaceQueryTable {
     const tree = options.tree
     return {
       Table: [table],
+      ...(options.outputFieldMode === undefined ? {} : {OutputFieldMode: options.outputFieldMode}),
       ...(options.pageIndex === undefined || options.pageSize === undefined ? {}
         : { PageParam: { index: options.pageIndex, size: options.pageSize } }),
       ...(tree === undefined ? {} : { keyField: tree.keyField, parentField: tree.parentField,

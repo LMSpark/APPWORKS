@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-07T20:39:41.703Z",
+  "result": {
+    "result": {
+      "type": "object",
+      "value": [
+        {
+          "file": "script.js",
+          "readbackEqual": true,
+          "submittedLength": 21264
+        },
+        {
+          "file": "style.css",
+          "readbackEqual": true,
+          "submittedLength": 745
+        },
+        {
+          "file": "rule.json",
+          "readbackEqual": true,
+          "submittedLength": 14521
+        }
+      ]
+    }
+  }
+}

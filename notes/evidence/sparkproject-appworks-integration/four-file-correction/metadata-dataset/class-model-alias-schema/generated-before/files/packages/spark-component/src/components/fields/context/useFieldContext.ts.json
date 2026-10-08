@@ -1,0 +1,487 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/context/useFieldContext",
+    "sourcePath": "packages/spark-component/src/components/fields/context/useFieldContext.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/context/useFieldContext.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/context/useFieldContext",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useFieldContext\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/useFieldContext 的字段上下文投影。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/useFieldContext 的声明、导出和使用边界时，从本模块开始。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FieldContextProps"
+    ]
+  },
+  "$defs": {
+    "FieldContextProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldContextProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "displayLabel": {
+          "type": "string"
+        },
+        "fieldName": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number"
+        },
+        "resizable": {
+          "type": "boolean"
+        },
+        "titleAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "valueAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "headerCellClassName": {
+          "type": "string"
+        },
+        "cellClassName": {
+          "type": "string"
+        },
+        "titleClassName": {
+          "type": "string"
+        },
+        "valueClassName": {
+          "type": "string"
+        },
+        "sortable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "custom"
+            }
+          ]
+        },
+        "mergedChildren": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+          }
+        },
+        "isCurrentFieldHidden": {
+          "type": "boolean"
+        },
+        "shouldRenderCurrentField": {
+          "type": "boolean"
+        },
+        "currentDisplayValue": {
+          "type": "string"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "../columnFormRules.ts.json#/$defs/FormItemRule"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "displayLabel",
+        "fieldName",
+        "width",
+        "sortable",
+        "mergedChildren",
+        "isCurrentFieldHidden",
+        "shouldRenderCurrentField",
+        "currentDisplayValue",
+        "validationRules"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.isTableCellHidden.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isTableCellHidden.return": {
+          "type": "boolean"
+        },
+        "method.getTableCellDisplayValue.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getTableCellDisplayValue.return": {
+          "type": "string"
+        }
+      }
+    },
+    "FieldPermissionForContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldPermissionForContext",
+      "properties": {
+        "fieldName": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "displayLabel": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "isCurrentFieldHidden": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "shouldRenderCurrentField": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "currentDisplayValue": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "validationRules": {
+          "type": "object",
+          "title": "ComputedRef<FormItemRule[]>"
+        }
+      },
+      "required": [
+        "fieldName",
+        "displayLabel",
+        "isCurrentFieldHidden",
+        "shouldRenderCurrentField",
+        "currentDisplayValue",
+        "validationRules"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.isTableCellHidden.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isTableCellHidden.return": {
+          "type": "boolean"
+        },
+        "method.getTableCellDisplayValue.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getTableCellDisplayValue.return": {
+          "type": "string"
+        }
+      }
+    },
+    "FieldContextInputProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldContextInputProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-08-10T12:24:44.091Z",
+  "models": {
+    "FieldContextProps": {
+      "name": "FieldContextProps",
+      "jsdoc": "Field Context Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 类型标识。 */\n    type: string;\n    /** display Label 字段。 */\n    displayLabel: string;\n    /** 绑定字段名。 */\n    fieldName: string;\n    /** width 字段。 */\n    width: number | undefined;\n    /** resizable 字段。 */\n    resizable?: boolean;\n    /** title Align 字段。 */\n    titleAlign?: 'left' | 'center' | 'right';\n    /** value Align 字段。 */\n    valueAlign?: 'left' | 'center' | 'right';\n    /** header Cell Class Name 名称。 */\n    headerCellClassName?: string;\n    /** cell Class Name 名称。 */\n    cellClassName?: string;\n    /** title Class Name 名称。 */\n    titleClassName?: string;\n    /** value Class Name 名称。 */\n    valueClassName?: string;\n    /** sortable 字段。 */\n    sortable: boolean | 'custom';\n    /** merged Children 字段。 */\n    mergedChildren: SparkNode[];\n    /** 是否 is Current Field Hidden。 */\n    isCurrentFieldHidden: boolean;\n    /** 是否 should Render Current Field。 */\n    shouldRenderCurrentField: boolean;\n    /** current Display Value 字段。 */\n    currentDisplayValue: string;\n    /** 是否 is Table Cell Hidden。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** get Table Cell Display Value 回调。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** validation Rules 字段。 */\n    validationRules: FormItemRule[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "displayLabel",
+              "jsdoc": "display Label 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldName",
+              "jsdoc": "绑定字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "width",
+              "jsdoc": "width 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "resizable",
+              "jsdoc": "resizable 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleAlign",
+              "jsdoc": "title Align 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueAlign",
+              "jsdoc": "value Align 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headerCellClassName",
+              "jsdoc": "header Cell Class Name 名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cellClassName",
+              "jsdoc": "cell Class Name 名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "titleClassName",
+              "jsdoc": "title Class Name 名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueClassName",
+              "jsdoc": "value Class Name 名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sortable",
+              "jsdoc": "sortable 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mergedChildren",
+              "jsdoc": "merged Children 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isCurrentFieldHidden",
+              "jsdoc": "是否 is Current Field Hidden。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "shouldRenderCurrentField",
+              "jsdoc": "是否 should Render Current Field。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentDisplayValue",
+              "jsdoc": "current Display Value 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "validationRules",
+              "jsdoc": "validation Rules 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "isTableCellHidden",
+              "jsdoc": "是否 is Table Cell Hidden。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getTableCellDisplayValue",
+              "jsdoc": "get Table Cell Display Value 回调。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FieldPermissionForContext": {
+      "name": "FieldPermissionForContext",
+      "jsdoc": "Field Permission For Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 绑定字段名。 */\n    fieldName: ComputedRef<string>;\n    /** display Label 字段。 */\n    displayLabel: ComputedRef<string>;\n    /** 是否 is Current Field Hidden。 */\n    isCurrentFieldHidden: ComputedRef<boolean>;\n    /** 是否 should Render Current Field。 */\n    shouldRenderCurrentField: ComputedRef<boolean>;\n    /** current Display Value 字段。 */\n    currentDisplayValue: ComputedRef<string>;\n    /** 是否 is Table Cell Hidden。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** get Table Cell Display Value 回调。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** validation Rules 字段。 */\n    validationRules: ComputedRef<FormItemRule[]>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "fieldName",
+              "jsdoc": "绑定字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "displayLabel",
+              "jsdoc": "display Label 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isCurrentFieldHidden",
+              "jsdoc": "是否 is Current Field Hidden。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "shouldRenderCurrentField",
+              "jsdoc": "是否 should Render Current Field。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "currentDisplayValue",
+              "jsdoc": "current Display Value 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "validationRules",
+              "jsdoc": "validation Rules 字段。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "isTableCellHidden",
+              "jsdoc": "是否 is Table Cell Hidden。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getTableCellDisplayValue",
+              "jsdoc": "get Table Cell Display Value 回调。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FieldContextInputProps": {
+      "name": "FieldContextInputProps",
+      "jsdoc": "Field Context Input Props 的属性契约。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>> & {\n    /** 类型标识。 */\n    type: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>>",
+            "targetName": "FieldComposableProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
+            "targetName": "FieldComposableProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 类型标识。 */\n    type: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

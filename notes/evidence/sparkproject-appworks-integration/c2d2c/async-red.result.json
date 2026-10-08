@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/application/project-navigation-guard.test.ts -t 'cancels|does not redirect|preserves the same|receipt expires'",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:46:38.7394297Z",
+  "finishedAtUtc": "2026-10-07T08:46:45.6683303Z",
+  "exitCode": 1
+}

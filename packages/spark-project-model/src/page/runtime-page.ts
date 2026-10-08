@@ -7,6 +7,7 @@
 import { deepClone, isRecord } from '@spark-appworks/spark-utils'
 import type { DataSet, DataView } from '@spark-appworks/spark-data'
 import type { PageTool, PageToolDefinition } from './page-tool'
+import { PageContentRuntime } from './content/runtime-content'
 
 /** 一次页面调用的工具、明确场景列表及真实装配回调；局部绑定仅使用显式主场景。 */
 export type PageRuntimeOptions = {
@@ -19,6 +20,7 @@ export type PageRuntimeOptions = {
 }
 /** 不可变调用身份快照，重载保持 instanceId，场景身份不能取默认首空间。 */
 export type PageRuntimeCall = Readonly<{ instanceId: string; pageId: string; scenarioIds: readonly string[]; mainScenarioId?: string }>
+type ExternalDirtySource = Readonly<{ isDirty: boolean; subscribe(listener: () => void): () => void }>
 /** 一次页面调用拥有自身数据空间、代次和销毁边界；工具定义不持业务数据。 */
 export class PageRuntime {
   readonly tool: PageTool
@@ -26,6 +28,9 @@ export class PageRuntime {
   readonly #loadScenario: PageRuntimeOptions['loadScenario']
   readonly #loadTool: PageRuntimeOptions['loadTool']
   readonly #dataSets = new Map<string,DataSet>()
+  readonly #content = new Map<string,PageContentRuntime>()
+  readonly #contentListeners = new Set<() => void>()
+  readonly #externalDirtySources = new Map<string, { source: ExternalDirtySource; unsubscribe: () => void }>()
   #generation = 0
   #destroyed = false
   #loaded = false
@@ -47,14 +52,29 @@ export class PageRuntime {
   /** 干净实例才允许刷新，失效旧代次并销毁旧数据集，保持调用身份。 */
   async reload():Promise<void> {
     this.#assertAlive();if(this.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 运行实例有未保存编辑，不能刷新配置')
+    this.#clearExternalDirtySources()
     this.#generation++;this.#loaded=false;this.#loading=undefined
+    for(const content of this.#content.values())content.dispose()
+    this.#content.clear()
     for(const ds of this.#dataSets.values())ds.destroy()
     this.#dataSets.clear()
     await this.load()
   }
   get destroyed():boolean { return this.#destroyed }
   get isLoaded():boolean { return this.#loaded && !this.#destroyed }
-  get isDirty():boolean { for(const ds of this.#dataSets.values())for(const table of Object.values(ds.tables))for(const view of Object.values(table.views))if(view.dirtyTracking.hasPendingChanges() || view.editingRows.length > 0)return true;return false }
+  get isDirty():boolean { if([...this.#externalDirtySources.values()].some(entry=>entry.source.isDirty))return true;if([...this.#content.values()].some(content=>content.isDirty))return true;for(const ds of this.#dataSets.values())for(const table of Object.values(ds.tables))for(const view of Object.values(table.views))if(view.dirtyTracking.hasPendingChanges() || view.editingRows.length > 0)return true;return false }
+  setExternalDirtySource(key:string,source:ExternalDirtySource|null):void {
+    this.#assertAlive();if(!key.trim())throw new Error('PAGE_RUNTIME_EXTERNAL_DIRTY_KEY: 配置 owner 身份不能为空')
+    const previous=this.#externalDirtySources.get(key)
+    if(previous?.source===source)return
+    if(previous?.source.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 不能替换有未保存修改的配置 owner')
+    previous?.unsubscribe();this.#externalDirtySources.delete(key)
+    if(source){const unsubscribe=source.subscribe(()=>{for(const listener of this.#contentListeners)listener()});this.#externalDirtySources.set(key,{source,unsubscribe})}
+    for(const listener of this.#contentListeners)listener()
+  }
+  #clearExternalDirtySources():void { for(const entry of this.#externalDirtySources.values())entry.unsubscribe();this.#externalDirtySources.clear() }
+  getContent(key:string):PageContentRuntime { this.#assertAlive();if(!key)throw new Error('页面内容身份不能为空');let content=this.#content.get(key);if(!content){content=new PageContentRuntime();content.subscribe(()=>{for(const listener of this.#contentListeners)listener()});this.#content.set(key,content)}return content }
+  onContentChange(listener:()=>void):()=>void { this.#assertAlive();this.#contentListeners.add(listener);return ()=>this.#contentListeners.delete(listener) }
   /** 装载工具与每个声明场景；迟到或身份错误的数据集销毁并显式失败。 */
   async load():Promise<void> {
     this.#assertAlive();if(this.isLoaded)return;if(this.#loading)return this.#loading
@@ -106,7 +126,7 @@ export class PageRuntime {
     visit(definition.rule);return definition
   }
   /** 销毁本次调用全部 DataSet，并使尚未完成的装配代次失效。 */
-  dispose():void { if(this.#destroyed)return;this.#destroyed=true;this.#loaded=false;this.#generation++;for(const ds of this.#dataSets.values())ds.destroy();this.#dataSets.clear() }
+  dispose():void { if(this.#destroyed)return;this.#destroyed=true;this.#loaded=false;this.#generation++;this.#clearExternalDirtySources();for(const content of this.#content.values())content.dispose();this.#content.clear();this.#contentListeners.clear();for(const ds of this.#dataSets.values())ds.destroy();this.#dataSets.clear() }
   #assertAlive():void { if(this.#destroyed)throw new Error('PAGE_RUNTIME_DESTROYED: 页面调用已销毁') }
   #assertGeneration(generation:number):void { this.#assertAlive();if(generation!==this.#generation)throw new Error('PAGE_RUNTIME_STALE: 页面调用代次已失效') }
 }

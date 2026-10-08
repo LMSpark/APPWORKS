@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/runtime/auth-nav/application/project-navigation-guard.test.ts -t \"fails once when refresh succeeds with a navigation tree for the wrong application\"",
+  "finishedAtUtc": "2026-10-07T09:06:07.4645735Z",
+  "exitCode": 0,
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T09:06:00.9668943Z"
+}

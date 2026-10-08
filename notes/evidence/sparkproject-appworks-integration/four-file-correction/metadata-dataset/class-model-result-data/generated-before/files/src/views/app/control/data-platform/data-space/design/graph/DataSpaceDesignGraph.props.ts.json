@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.props",
+    "sourcePath": "src/views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.props.ts",
+    "sourceFile": "src/views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.props.ts",
+    "packageName": "app",
+    "modulePath": "views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.props",
+    "jsdoc": "app 的 views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.props 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceDesignGraphPoint, DataSpaceDesignGraphNode, DataSpaceDesignGraphEdge, DataSpaceDesignGraphProps（共 4 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceDesignGraphPoint",
+      "DataSpaceDesignGraphNode",
+      "DataSpaceDesignGraphEdge",
+      "DataSpaceDesignGraphProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceDesignGraphPoint": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignGraphPoint",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceDesignGraphNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignGraphNode",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "x",
+        "y",
+        "title",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceDesignGraphEdge": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignGraphEdge",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "pointsList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceDesignGraphPoint"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceDesignGraphProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceDesignGraphProps",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceDesignGraphNode"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceDesignGraphEdge"
+          }
+        },
+        "contextKey": {
+          "type": "string"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "selectedId": {
+          "type": "string"
+        },
+        "draggableIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-08T02:25:43.094Z",
+  "models": {
+    "DataSpaceDesignGraphPoint": {
+      "name": "DataSpaceDesignGraphPoint",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceDesignGraph"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    x: number;\n    y: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    x: number;\n    y: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "x",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceDesignGraphNode": {
+      "name": "DataSpaceDesignGraphNode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceDesignGraph"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    x: number;\n    y: number;\n    title: string;\n    description: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    x: number;\n    y: number;\n    title: string;\n    description: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "x",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceDesignGraphEdge": {
+      "name": "DataSpaceDesignGraphEdge",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceDesignGraph"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    source: string;\n    target: string;\n    pointsList?: readonly DataSpaceDesignGraphPoint[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    source: string;\n    target: string;\n    pointsList?: readonly DataSpaceDesignGraphPoint[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pointsList",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceDesignGraphProps": {
+      "name": "DataSpaceDesignGraphProps",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceDesignGraph"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    nodes: readonly DataSpaceDesignGraphNode[];\n    edges: readonly DataSpaceDesignGraphEdge[];\n    contextKey?: string;\n    disabled?: boolean;\n    selectedId?: string;\n    draggableIds?: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    nodes: readonly DataSpaceDesignGraphNode[];\n    edges: readonly DataSpaceDesignGraphEdge[];\n    contextKey?: string;\n    disabled?: boolean;\n    selectedId?: string;\n    draggableIds?: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edges",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextKey",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectedId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draggableIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

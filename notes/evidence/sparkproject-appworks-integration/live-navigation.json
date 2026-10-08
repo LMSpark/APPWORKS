@@ -1,0 +1,801 @@
+{
+  "time": "2026-10-06T22:47:48.3985576Z",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "tenant": "NewApp",
+  "source": "actual authorized GetNavigationMenus response",
+  "code": 200,
+  "nodes": [
+    {
+      "id": "A0FA2BA0CF0C82B40DF6A319A3D5831D",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "数据库管理",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "外部服务管理",
+      "target": "vue:/features/integration/api-management/ui/api-management-page",
+      "scenarioId": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "params": null
+    },
+    {
+      "id": "A63ED0065A3692044913565A16E16D67",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "半结构化数据",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "9EFFD97B4156A0D81C5CEAFFCC75381E",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "文件数据管理",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "C24764B008CAE96205D6AA6C8487FE52",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "结构化配置",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "90A82E287930A234FEC3E687C94A93EA",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "数据空间管理",
+      "target": "vue:/features/data-platform/data-set-management/ui/data-set-list-page",
+      "scenarioId": "90A82E287930A234FEC3E687C94A93EA",
+      "params": null
+    },
+    {
+      "id": "48E2195E703207B46E8F73250E0EB9E3",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "业务流程管理",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "FB291E325272007AEED8921C28B93CFD",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "业务报表管理",
+      "target": "vue:/features/integration/report/ui/report-management-page",
+      "scenarioId": "FB291E325272007AEED8921C28B93CFD",
+      "params": null
+    },
+    {
+      "id": "F4052F3F068CCAB21910EA5633EC7F88",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "安全防护管理",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "A73BFB70B8EA48FA84C4D8F3CD4F20BD",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "应用系统管理",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "9D26D23E5A9DD0D31619D776114405E8",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "人力资源管理",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "6DA2948858EE3C55476751E2722EE0B4",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "系统支持管理",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "7FADEE997F7E851B095EDB27F9C4771C",
+      "parentId": "D99A1DCE9894698799101EFD70F8FC76",
+      "title": "企业管理",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "5914FF981A7DF228ED88BBDB71353470",
+      "parentId": "7FADEE997F7E851B095EDB27F9C4771C",
+      "title": "入驻管理",
+      "target": "vue:/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page",
+      "scenarioId": "5914FF981A7DF228ED88BBDB71353470",
+      "params": null
+    },
+    {
+      "id": "C06D41607B6258106F35A0A319B71804",
+      "parentId": "7FADEE997F7E851B095EDB27F9C4771C",
+      "title": "申请列表",
+      "target": "vue:/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
+      "scenarioId": "C06D41607B6258106F35A0A319B71804",
+      "params": null
+    },
+    {
+      "id": "47DA54EA853C8780976D43CF2369B096",
+      "parentId": "7FADEE997F7E851B095EDB27F9C4771C",
+      "title": "我的申请",
+      "target": "vue:/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page",
+      "scenarioId": "47DA54EA853C8780976D43CF2369B096",
+      "params": null
+    },
+    {
+      "id": "78C58A7FE34F2987267A1E8AF10B2990",
+      "parentId": "A0FA2BA0CF0C82B40DF6A319A3D5831D",
+      "title": "服务器管理",
+      "target": "vue:/features/data-platform/database-management/ui/service-management-page",
+      "scenarioId": "78C58A7FE34F2987267A1E8AF10B2990",
+      "params": null
+    },
+    {
+      "id": "62DB03B06A489600FFF86F3640D5C0E7",
+      "parentId": "A0FA2BA0CF0C82B40DF6A319A3D5831D",
+      "title": "数据库管理",
+      "target": "vue:/DataBaseManage/DataBaseManage/index",
+      "scenarioId": "62DB03B06A489600FFF86F3640D5C0E7",
+      "params": null
+    },
+    {
+      "id": "A8FB2B2B161125A16FD15ED9581CD15B",
+      "parentId": "A0FA2BA0CF0C82B40DF6A319A3D5831D",
+      "title": "表和视图管理",
+      "target": "vue:/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "scenarioId": "A8FB2B2B161125A16FD15ED9581CD15B",
+      "params": null
+    },
+    {
+      "id": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "parentId": "A63ED0065A3692044913565A16E16D67",
+      "title": "JSON数据管理",
+      "target": "vue:/features/data-platform/semi-structured/json-data/ui/json-data-page",
+      "scenarioId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "params": null
+    },
+    {
+      "id": "36B01771C627B9BF5CD493DC75B996A1",
+      "parentId": "A63ED0065A3692044913565A16E16D67",
+      "title": "电子表格导入导出配置",
+      "target": "vue:/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page",
+      "scenarioId": "36B01771C627B9BF5CD493DC75B996A1",
+      "params": null
+    },
+    {
+      "id": "EDF7DE3E5723E127F98B2A119BE81BF9",
+      "parentId": "9EFFD97B4156A0D81C5CEAFFCC75381E",
+      "title": "文件管理",
+      "target": "vue:/FileDataManager/FileManager/index",
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "A133D679691178F192D7E9DA06829506",
+      "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+      "title": "数据编码",
+      "target": "vue:/features/data-platform/structured-config/data-code/ui/data-code-list-page",
+      "scenarioId": "A133D679691178F192D7E9DA06829506",
+      "params": null
+    },
+    {
+      "id": "EDB0E34486FFB903E896E5C281230961",
+      "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+      "title": "数据字典",
+      "target": "vue:/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "scenarioId": "EDB0E34486FFB903E896E5C281230961",
+      "params": null
+    },
+    {
+      "id": "EB720370EF06A5A656838F87E0716D6B",
+      "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+      "title": "逻辑视图",
+      "target": "vue:/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "scenarioId": "EB720370EF06A5A656838F87E0716D6B",
+      "params": null
+    },
+    {
+      "id": "5E9676B1E38860B023921F48FB4370DE",
+      "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+      "title": "数据工作流",
+      "target": "vue:/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+      "params": null
+    },
+    {
+      "id": "88A4D51B01702C3856F4632E234BF34B",
+      "parentId": "C24764B008CAE96205D6AA6C8487FE52",
+      "title": "维度设计",
+      "target": "vue:/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+      "scenarioId": "88A4D51B01702C3856F4632E234BF34B",
+      "params": null
+    },
+    {
+      "id": "87F0EF6AD1B64D67FFE597E7E3285994",
+      "parentId": "48E2195E703207B46E8F73250E0EB9E3",
+      "title": "模型管理",
+      "target": "vue:/features/workflow/flow-model/ui/flow-model-list-page",
+      "scenarioId": "87F0EF6AD1B64D67FFE597E7E3285994",
+      "params": null
+    },
+    {
+      "id": "3074BAF05FB59C2E0CB879C126A49989",
+      "parentId": "F4052F3F068CCAB21910EA5633EC7F88",
+      "title": "导航权限配置",
+      "target": "vue:/features/governance/navigation-permission/ui/navigation-permission-page",
+      "scenarioId": "3074BAF05FB59C2E0CB879C126A49989",
+      "params": null
+    },
+    {
+      "id": "D3F8C26067DD48BE7246A6ABDF4F3253",
+      "parentId": "F4052F3F068CCAB21910EA5633EC7F88",
+      "title": "角色分类管理",
+      "target": "vue:/features/governance/role-management/ui/role-management-page",
+      "scenarioId": "D3F8C26067DD48BE7246A6ABDF4F3253",
+      "params": null
+    },
+    {
+      "id": "3A45C53F29C2C005FF21AA06B2BCA133",
+      "parentId": "F4052F3F068CCAB21910EA5633EC7F88",
+      "title": "脱敏规则配置",
+      "target": "vue:/features/governance/desensitization-rule/ui/desensitization-rule-page",
+      "scenarioId": "3A45C53F29C2C005FF21AA06B2BCA133",
+      "params": null
+    },
+    {
+      "id": "0C70F74793F9E858B71E0DBDEC784D57",
+      "parentId": "A73BFB70B8EA48FA84C4D8F3CD4F20BD",
+      "title": "应用系统列表",
+      "target": "vue:/features/application/application-manager/ui/application-manager-page",
+      "scenarioId": "0C70F74793F9E858B71E0DBDEC784D57",
+      "params": null
+    },
+    {
+      "id": "62DA8FCF193CDF0CBA4464726E76338C",
+      "parentId": "A73BFB70B8EA48FA84C4D8F3CD4F20BD",
+      "title": "项目蓝图",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "439BD7FB0463A2FE197B9167234A81D0",
+      "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+      "title": "人员管理",
+      "target": "vue:/features/governance/role-management/ui/role-user-page",
+      "scenarioId": "439BD7FB0463A2FE197B9167234A81D0",
+      "params": null
+    },
+    {
+      "id": "7AB874097A1E8711A42FD845939A6E05",
+      "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+      "title": "项目蓝图",
+      "target": "vue:/features/application/application-function-management/ui/application-function-page",
+      "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
+      "params": null
+    },
+    {
+      "id": "55A2B31E13461FF55D7495D6CC4EE7FB",
+      "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+      "title": "数据资源",
+      "target": null,
+      "scenarioId": null,
+      "params": null
+    },
+    {
+      "id": "93DF05182084B1F0E8DA7283E83BBE0C",
+      "parentId": "55A2B31E13461FF55D7495D6CC4EE7FB",
+      "title": "数据库管理",
+      "target": "vue:/features/application/application-context/ui/application-database-relations-page",
+      "scenarioId": "93DF05182084B1F0E8DA7283E83BBE0C",
+      "params": null
+    },
+    {
+      "id": "28F30060CD75BA684B28EEF07732CB72",
+      "parentId": "55A2B31E13461FF55D7495D6CC4EE7FB",
+      "title": "数据表和视图",
+      "target": "vue:/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "scenarioId": "28F30060CD75BA684B28EEF07732CB72",
+      "params": null
+    },
+    {
+      "id": "BBA48156BAF054754E038C3A4FCBCD65",
+      "parentId": "55A2B31E13461FF55D7495D6CC4EE7FB",
+      "title": "逻辑视图管理",
+      "target": "vue:/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "scenarioId": "BBA48156BAF054754E038C3A4FCBCD65",
+      "params": null
+    },
+    {
+      "id": "CB52B21B26AD20AADDC4498613C3078D",
+      "parentId": "55A2B31E13461FF55D7495D6CC4EE7FB",
+      "title": "字典管理",
+      "target": "vue:/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "scenarioId": "CB52B21B26AD20AADDC4498613C3078D",
+      "params": null
+    },
+    {
+      "id": "E0BB79BA59101F76628F1448D6351B4E",
+      "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+      "title": "数据工作流",
+      "target": "vue:/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "scenarioId": "E0BB79BA59101F76628F1448D6351B4E",
+      "params": null
+    },
+    {
+      "id": "23D8B53174DB7195CC3AE82099BDD675",
+      "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+      "title": "业务流程设计",
+      "target": "vue:/features/workflow/flow-model/ui/flow-model-list-page",
+      "scenarioId": "23D8B53174DB7195CC3AE82099BDD675",
+      "params": null
+    },
+    {
+      "id": "1B43F5D4B5EE1699E4A18BAE48EAB0FC",
+      "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+      "title": "报表管理",
+      "target": "vue:/features/integration/report/ui/report-management-page",
+      "scenarioId": "1B43F5D4B5EE1699E4A18BAE48EAB0FC",
+      "params": null
+    },
+    {
+      "id": "1364C6047118E0FCA201CFC79D8596A5",
+      "parentId": "62DA8FCF193CDF0CBA4464726E76338C",
+      "title": "权限配置",
+      "target": "vue:/features/governance/navigation-permission/ui/navigation-permission-page",
+      "scenarioId": "3074BAF05FB59C2E0CB879C126A49989",
+      "params": null
+    },
+    {
+      "id": "4138A7C47ECB96EA85CA61A8A8B7191F",
+      "parentId": "9D26D23E5A9DD0D31619D776114405E8",
+      "title": "机构管理",
+      "target": "vue:/features/organization/organization-structure/ui/organization-structure-page",
+      "scenarioId": "4138A7C47ECB96EA85CA61A8A8B7191F",
+      "params": null
+    },
+    {
+      "id": "0A835EB88AAC2BDFBDE344477C6827BB",
+      "parentId": "9D26D23E5A9DD0D31619D776114405E8",
+      "title": "岗位管理",
+      "target": "vue:/features/organization/job-management/ui/job-management-page",
+      "scenarioId": "0A835EB88AAC2BDFBDE344477C6827BB",
+      "params": null
+    },
+    {
+      "id": "1B7FD70E326717B8E4B611D0431FFCBA",
+      "parentId": "9D26D23E5A9DD0D31619D776114405E8",
+      "title": "人员管理",
+      "target": "vue:/features/organization/user-management/ui/user-management-page",
+      "scenarioId": "1B7FD70E326717B8E4B611D0431FFCBA",
+      "params": null
+    },
+    {
+      "id": "348D1C50B204C779AABBE2489C5E2FDF",
+      "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+      "title": "缓存管理",
+      "target": "vue:/features/system/cache-management/ui/cache-management-page",
+      "scenarioId": "348D1C50B204C779AABBE2489C5E2FDF",
+      "params": null
+    },
+    {
+      "id": "E328FBBF518141973C575D612CD75151",
+      "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+      "title": "流程监控",
+      "target": "vue:/features/system/flow-monitor/ui/flow-monitor-page",
+      "scenarioId": "E328FBBF518141973C575D612CD75151",
+      "params": null
+    },
+    {
+      "id": "70D5D8FACCC201A822F64B16A441BE8F",
+      "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+      "title": "数据恢复",
+      "target": "vue:/features/system/data-recovery/ui/data-recovery-page",
+      "scenarioId": "70D5D8FACCC201A822F64B16A441BE8F",
+      "params": null
+    },
+    {
+      "id": "5B54AEBD5BD1BBC72710D4022589A404",
+      "parentId": "6DA2948858EE3C55476751E2722EE0B4",
+      "title": "BUG管理",
+      "target": "vue:/features/system/bug-manage/ui/bug-manage-page",
+      "scenarioId": "5B54AEBD5BD1BBC72710D4022589A404",
+      "params": null
+    }
+  ],
+  "targets": [
+    {
+      "id": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "title": "外部服务管理",
+      "path": "/features/integration/api-management/ui/api-management-page",
+      "scenarioId": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "source": null
+    },
+    {
+      "id": "90A82E287930A234FEC3E687C94A93EA",
+      "title": "数据空间管理",
+      "path": "/features/data-platform/data-set-management/ui/data-set-list-page",
+      "scenarioId": "90A82E287930A234FEC3E687C94A93EA",
+      "source": null
+    },
+    {
+      "id": "FB291E325272007AEED8921C28B93CFD",
+      "title": "业务报表管理",
+      "path": "/features/integration/report/ui/report-management-page",
+      "scenarioId": "FB291E325272007AEED8921C28B93CFD",
+      "source": null
+    },
+    {
+      "id": "5914FF981A7DF228ED88BBDB71353470",
+      "title": "入驻管理",
+      "path": "/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page",
+      "scenarioId": "5914FF981A7DF228ED88BBDB71353470",
+      "source": null
+    },
+    {
+      "id": "C06D41607B6258106F35A0A319B71804",
+      "title": "申请列表",
+      "path": "/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
+      "scenarioId": "C06D41607B6258106F35A0A319B71804",
+      "source": null
+    },
+    {
+      "id": "47DA54EA853C8780976D43CF2369B096",
+      "title": "我的申请",
+      "path": "/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page",
+      "scenarioId": "47DA54EA853C8780976D43CF2369B096",
+      "source": null
+    },
+    {
+      "id": "78C58A7FE34F2987267A1E8AF10B2990",
+      "title": "服务器管理",
+      "path": "/features/data-platform/database-management/ui/service-management-page",
+      "scenarioId": "78C58A7FE34F2987267A1E8AF10B2990",
+      "source": "src/views/app/DBMS.vue"
+    },
+    {
+      "id": "62DB03B06A489600FFF86F3640D5C0E7",
+      "title": "数据库管理",
+      "path": "/DataBaseManage/DataBaseManage/index",
+      "scenarioId": "62DB03B06A489600FFF86F3640D5C0E7",
+      "source": "src/views/app/DBMS.vue"
+    },
+    {
+      "id": "A8FB2B2B161125A16FD15ED9581CD15B",
+      "title": "表和视图管理",
+      "path": "/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "scenarioId": "A8FB2B2B161125A16FD15ED9581CD15B",
+      "source": "src/views/app/DBMS.vue"
+    },
+    {
+      "id": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "title": "JSON数据管理",
+      "path": "/features/data-platform/semi-structured/json-data/ui/json-data-page",
+      "scenarioId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "source": null
+    },
+    {
+      "id": "36B01771C627B9BF5CD493DC75B996A1",
+      "title": "电子表格导入导出配置",
+      "path": "/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page",
+      "scenarioId": "36B01771C627B9BF5CD493DC75B996A1",
+      "source": null
+    },
+    {
+      "id": "EDF7DE3E5723E127F98B2A119BE81BF9",
+      "title": "文件管理",
+      "path": "/FileDataManager/FileManager/index",
+      "scenarioId": null,
+      "source": null
+    },
+    {
+      "id": "A133D679691178F192D7E9DA06829506",
+      "title": "数据编码",
+      "path": "/features/data-platform/structured-config/data-code/ui/data-code-list-page",
+      "scenarioId": "A133D679691178F192D7E9DA06829506",
+      "source": null
+    },
+    {
+      "id": "EDB0E34486FFB903E896E5C281230961",
+      "title": "数据字典",
+      "path": "/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "scenarioId": "EDB0E34486FFB903E896E5C281230961",
+      "source": null
+    },
+    {
+      "id": "EB720370EF06A5A656838F87E0716D6B",
+      "title": "逻辑视图",
+      "path": "/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "scenarioId": "EB720370EF06A5A656838F87E0716D6B",
+      "source": null
+    },
+    {
+      "id": "5E9676B1E38860B023921F48FB4370DE",
+      "title": "数据工作流",
+      "path": "/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+      "source": null
+    },
+    {
+      "id": "88A4D51B01702C3856F4632E234BF34B",
+      "title": "维度设计",
+      "path": "/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+      "scenarioId": "88A4D51B01702C3856F4632E234BF34B",
+      "source": null
+    },
+    {
+      "id": "87F0EF6AD1B64D67FFE597E7E3285994",
+      "title": "模型管理",
+      "path": "/features/workflow/flow-model/ui/flow-model-list-page",
+      "scenarioId": "87F0EF6AD1B64D67FFE597E7E3285994",
+      "source": null
+    },
+    {
+      "id": "3074BAF05FB59C2E0CB879C126A49989",
+      "title": "导航权限配置",
+      "path": "/features/governance/navigation-permission/ui/navigation-permission-page",
+      "scenarioId": "3074BAF05FB59C2E0CB879C126A49989",
+      "source": null
+    },
+    {
+      "id": "D3F8C26067DD48BE7246A6ABDF4F3253",
+      "title": "角色分类管理",
+      "path": "/features/governance/role-management/ui/role-management-page",
+      "scenarioId": "D3F8C26067DD48BE7246A6ABDF4F3253",
+      "source": null
+    },
+    {
+      "id": "3A45C53F29C2C005FF21AA06B2BCA133",
+      "title": "脱敏规则配置",
+      "path": "/features/governance/desensitization-rule/ui/desensitization-rule-page",
+      "scenarioId": "3A45C53F29C2C005FF21AA06B2BCA133",
+      "source": null
+    },
+    {
+      "id": "0C70F74793F9E858B71E0DBDEC784D57",
+      "title": "应用系统列表",
+      "path": "/features/application/application-manager/ui/application-manager-page",
+      "scenarioId": "0C70F74793F9E858B71E0DBDEC784D57",
+      "source": "src/views/tenant/AppList.vue"
+    },
+    {
+      "id": "439BD7FB0463A2FE197B9167234A81D0",
+      "title": "人员管理",
+      "path": "/features/governance/role-management/ui/role-user-page",
+      "scenarioId": "439BD7FB0463A2FE197B9167234A81D0",
+      "source": null
+    },
+    {
+      "id": "7AB874097A1E8711A42FD845939A6E05",
+      "title": "项目蓝图",
+      "path": "/features/application/application-function-management/ui/application-function-page",
+      "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
+      "source": null
+    },
+    {
+      "id": "93DF05182084B1F0E8DA7283E83BBE0C",
+      "title": "数据库管理",
+      "path": "/features/application/application-context/ui/application-database-relations-page",
+      "scenarioId": "93DF05182084B1F0E8DA7283E83BBE0C",
+      "source": null
+    },
+    {
+      "id": "28F30060CD75BA684B28EEF07732CB72",
+      "title": "数据表和视图",
+      "path": "/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "scenarioId": "28F30060CD75BA684B28EEF07732CB72",
+      "source": "src/views/app/DBMS.vue"
+    },
+    {
+      "id": "BBA48156BAF054754E038C3A4FCBCD65",
+      "title": "逻辑视图管理",
+      "path": "/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "scenarioId": "BBA48156BAF054754E038C3A4FCBCD65",
+      "source": null
+    },
+    {
+      "id": "CB52B21B26AD20AADDC4498613C3078D",
+      "title": "字典管理",
+      "path": "/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "scenarioId": "CB52B21B26AD20AADDC4498613C3078D",
+      "source": null
+    },
+    {
+      "id": "E0BB79BA59101F76628F1448D6351B4E",
+      "title": "数据工作流",
+      "path": "/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "scenarioId": "E0BB79BA59101F76628F1448D6351B4E",
+      "source": null
+    },
+    {
+      "id": "23D8B53174DB7195CC3AE82099BDD675",
+      "title": "业务流程设计",
+      "path": "/features/workflow/flow-model/ui/flow-model-list-page",
+      "scenarioId": "23D8B53174DB7195CC3AE82099BDD675",
+      "source": null
+    },
+    {
+      "id": "1B43F5D4B5EE1699E4A18BAE48EAB0FC",
+      "title": "报表管理",
+      "path": "/features/integration/report/ui/report-management-page",
+      "scenarioId": "1B43F5D4B5EE1699E4A18BAE48EAB0FC",
+      "source": null
+    },
+    {
+      "id": "1364C6047118E0FCA201CFC79D8596A5",
+      "title": "权限配置",
+      "path": "/features/governance/navigation-permission/ui/navigation-permission-page",
+      "scenarioId": "3074BAF05FB59C2E0CB879C126A49989",
+      "source": null
+    },
+    {
+      "id": "4138A7C47ECB96EA85CA61A8A8B7191F",
+      "title": "机构管理",
+      "path": "/features/organization/organization-structure/ui/organization-structure-page",
+      "scenarioId": "4138A7C47ECB96EA85CA61A8A8B7191F",
+      "source": null
+    },
+    {
+      "id": "0A835EB88AAC2BDFBDE344477C6827BB",
+      "title": "岗位管理",
+      "path": "/features/organization/job-management/ui/job-management-page",
+      "scenarioId": "0A835EB88AAC2BDFBDE344477C6827BB",
+      "source": null
+    },
+    {
+      "id": "1B7FD70E326717B8E4B611D0431FFCBA",
+      "title": "人员管理",
+      "path": "/features/organization/user-management/ui/user-management-page",
+      "scenarioId": "1B7FD70E326717B8E4B611D0431FFCBA",
+      "source": null
+    },
+    {
+      "id": "348D1C50B204C779AABBE2489C5E2FDF",
+      "title": "缓存管理",
+      "path": "/features/system/cache-management/ui/cache-management-page",
+      "scenarioId": "348D1C50B204C779AABBE2489C5E2FDF",
+      "source": "src/views/tenant/CacheManager.vue"
+    },
+    {
+      "id": "E328FBBF518141973C575D612CD75151",
+      "title": "流程监控",
+      "path": "/features/system/flow-monitor/ui/flow-monitor-page",
+      "scenarioId": "E328FBBF518141973C575D612CD75151",
+      "source": null
+    },
+    {
+      "id": "70D5D8FACCC201A822F64B16A441BE8F",
+      "title": "数据恢复",
+      "path": "/features/system/data-recovery/ui/data-recovery-page",
+      "scenarioId": "70D5D8FACCC201A822F64B16A441BE8F",
+      "source": null
+    },
+    {
+      "id": "5B54AEBD5BD1BBC72710D4022589A404",
+      "title": "BUG管理",
+      "path": "/features/system/bug-manage/ui/bug-manage-page",
+      "scenarioId": "5B54AEBD5BD1BBC72710D4022589A404",
+      "source": null
+    }
+  ],
+  "duplicates": [
+    {
+      "path": "/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "nodes": [
+        {
+          "id": "A8FB2B2B161125A16FD15ED9581CD15B",
+          "title": "表和视图管理",
+          "scenarioId": "A8FB2B2B161125A16FD15ED9581CD15B"
+        },
+        {
+          "id": "28F30060CD75BA684B28EEF07732CB72",
+          "title": "数据表和视图",
+          "scenarioId": "28F30060CD75BA684B28EEF07732CB72"
+        }
+      ]
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "nodes": [
+        {
+          "id": "EDB0E34486FFB903E896E5C281230961",
+          "title": "数据字典",
+          "scenarioId": "EDB0E34486FFB903E896E5C281230961"
+        },
+        {
+          "id": "CB52B21B26AD20AADDC4498613C3078D",
+          "title": "字典管理",
+          "scenarioId": "CB52B21B26AD20AADDC4498613C3078D"
+        }
+      ]
+    },
+    {
+      "path": "/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "nodes": [
+        {
+          "id": "EB720370EF06A5A656838F87E0716D6B",
+          "title": "逻辑视图",
+          "scenarioId": "EB720370EF06A5A656838F87E0716D6B"
+        },
+        {
+          "id": "BBA48156BAF054754E038C3A4FCBCD65",
+          "title": "逻辑视图管理",
+          "scenarioId": "BBA48156BAF054754E038C3A4FCBCD65"
+        }
+      ]
+    },
+    {
+      "path": "/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "nodes": [
+        {
+          "id": "5E9676B1E38860B023921F48FB4370DE",
+          "title": "数据工作流",
+          "scenarioId": "5E9676B1E38860B023921F48FB4370DE"
+        },
+        {
+          "id": "E0BB79BA59101F76628F1448D6351B4E",
+          "title": "数据工作流",
+          "scenarioId": "E0BB79BA59101F76628F1448D6351B4E"
+        }
+      ]
+    },
+    {
+      "path": "/features/governance/navigation-permission/ui/navigation-permission-page",
+      "nodes": [
+        {
+          "id": "3074BAF05FB59C2E0CB879C126A49989",
+          "title": "导航权限配置",
+          "scenarioId": "3074BAF05FB59C2E0CB879C126A49989"
+        },
+        {
+          "id": "1364C6047118E0FCA201CFC79D8596A5",
+          "title": "权限配置",
+          "scenarioId": "3074BAF05FB59C2E0CB879C126A49989"
+        }
+      ]
+    },
+    {
+      "path": "/features/integration/report/ui/report-management-page",
+      "nodes": [
+        {
+          "id": "FB291E325272007AEED8921C28B93CFD",
+          "title": "业务报表管理",
+          "scenarioId": "FB291E325272007AEED8921C28B93CFD"
+        },
+        {
+          "id": "1B43F5D4B5EE1699E4A18BAE48EAB0FC",
+          "title": "报表管理",
+          "scenarioId": "1B43F5D4B5EE1699E4A18BAE48EAB0FC"
+        }
+      ]
+    },
+    {
+      "path": "/features/workflow/flow-model/ui/flow-model-list-page",
+      "nodes": [
+        {
+          "id": "87F0EF6AD1B64D67FFE597E7E3285994",
+          "title": "模型管理",
+          "scenarioId": "87F0EF6AD1B64D67FFE597E7E3285994"
+        },
+        {
+          "id": "23D8B53174DB7195CC3AE82099BDD675",
+          "title": "业务流程设计",
+          "scenarioId": "23D8B53174DB7195CC3AE82099BDD675"
+        }
+      ]
+    }
+  ],
+  "relationsCount": 1,
+  "businessWrites": 0
+}

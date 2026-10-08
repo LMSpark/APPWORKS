@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "startedAt": "2026-10-07T14:57:00.2019367+08:00",
+  "command": "pnpm exec eslint packages/spark-app/vitest.config.ts",
+  "endedAt": "2026-10-07T14:57:06.2594803+08:00",
+  "cwd": "D:\\SPARK_AppWorks"
+}

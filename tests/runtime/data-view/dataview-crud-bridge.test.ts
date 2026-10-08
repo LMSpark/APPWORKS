@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { SparkData } from '@spark-appworks/spark-data'
+import { RequestState, SparkData } from '@spark-appworks/spark-data'
 import type { DataRow, DataView } from '@spark-appworks/spark-data'
 import { createRequest } from '@spark-appworks/spark-utils'
 import { isActionDescriptorDisabled } from '../../../packages/spark-component/src/page/actions/executor-helpers'
@@ -61,8 +61,105 @@ async function createDataView(options: GrantDataViewPermissionOptions = {}) {
   return { dataSet, view }
 }
 
+it('keeps keyless DataView reads tied to the current original query row', async () => {
+  const dataSet = SparkData.createDataSet({ dataSetName: 'KeylessDS', scenarioId: 'SCENE', tables: {
+    Picker: { tableName: 'Picker', modelBinding: { modelId: 'MODEL', modelName: 'Picker' },
+      columns: [{ name: 'id', type: 'string' }, { name: 'name', type: 'string' }], views: { default: {} } },
+  } })
+  const view = dataSet.getView('Picker', 'default')
+  if (!view) throw new Error('missing keyless view')
+  view.primaryKey = ''
+  const identity = { scenarioId: 'SCENE', metaName: 'Picker' }
+  const table = new DataSpaceQueryTable(identity)
+  const context = new DataSpaceQueryContext({ identity, scope: 'fixture', readScope: () => 'fixture',
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd: true, data: { Items: [
+      { id: 'WIRE-ID', name: 'Visible', secret: 'Hidden', masked: 'Mask',
+        lingma_sys_params: { e: ['name'], h: ['secret'], m: ['masked'] } },
+    ], Count: 1 } } }) })
+  const formal = { id: 'MODEL', metaName: 'Picker', name: 'Picker', sourceName: 'dictionary', sourceId: '',
+    sourceType: '字典', primaryKey: '', businessMain: false, raw: {}, fields: [
+      { id: 'FIELD', modelId: 'MODEL', name: 'name', canonicalName: 'name', type: 'string', primaryKey: false,
+        description: '', output: true, computed: false, order: 0, orderType: '', raw: {} },
+    ] }
+  context.bindFormalModel(formal)
+  let nextContext = context
+  let failNext = false
+  const observedReads: string[] = []
+  view.events.on('rowsChanged', () => {
+    const current = view.rows[0]
+    if (current) observedReads.push(view.fieldAccess(current, 'name').read)
+  })
+  view.bindQueryExecutor({ executeQuery: async () => {
+    if (failNext) throw new Error('QUERY_FAILED')
+    return nextContext
+  } })
+  await view.loadFromServer()
+  await Promise.resolve()
+  const row = view.rows[0]
+  if (!row) throw new Error('missing keyless row')
+  expect(view.getPkKey(row)).toBeUndefined()
+  expect(view.fieldAccess(row, 'name')).toMatchObject({ read: 'visible', write: 'denied', component: 'readonly' })
+  expect(view.fieldAccess(row, 'secret').read).toBe('invisible')
+  expect(view.fieldAccess(row, 'masked').read).toBe('masked')
+  expect(view.fieldAccess({ ...row }, 'name').read).toBe('invisible')
+  expect(observedReads).toContain('visible')
+  expect(observedReads).not.toContain('invisible')
+  expect(view.addActionState()).toBe('hidden')
+  expect(view.editActionState(row)).toBe('hidden')
+  expect(view.deleteActionState(row)).toBe('hidden')
+  failNext = true
+  await view.refresh()
+  expect(view.requestState).toBe(RequestState.Failed)
+  expect(view.fieldAccess(row, 'name').read).toBe('visible')
+  failNext = false
+  nextContext = new DataSpaceQueryContext({ identity, scope: 'fixture', readScope: () => 'fixture',
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd: true, data: { Items: [
+      { id: 'WIRE-ID', name: 'New', lingma_sys_params: { e: ['name'] } },
+    ], Count: 1 } } }) })
+  nextContext.bindFormalModel(formal)
+  vi.spyOn(view, 'updateFromServer').mockImplementationOnce(() => { throw new Error('REPLACEMENT_FAILED') })
+  await view.refresh()
+  expect(view.requestState).toBe(RequestState.Failed)
+  expect(view.fieldAccess(row, 'name').read).toBe('visible')
+  await view.refresh()
+  const newRow = view.rows[0]
+  if (!newRow) throw new Error('missing refreshed row')
+  expect(view.fieldAccess(row, 'name').read).toBe('invisible')
+  expect(view.fieldAccess(newRow, 'name').read).toBe('visible')
+  expect(view.fieldAccess(context.rows[0] ?? null, 'name').read).toBe('invisible')
+  view.clearAll()
+  expect(view.fieldAccess(newRow, 'name').read).toBe('invisible')
+  dataSet.destroy()
+})
+
+it('does not promote duplicate keyed rows through original-row read access', async () => {
+  const dataSet = SparkData.createDataSet({ dataSetName: 'KeyedDS', scenarioId: 'SCENE', tables: {
+    Users: { tableName: 'Users', modelBinding: { modelId: 'MODEL', modelName: 'Users' },
+      columns: [{ name: 'id', type: 'string', isPrimaryKey: true }, { name: 'name', type: 'string' }],
+      views: { default: {} } },
+  } })
+  const view = dataSet.getView('Users', 'default')
+  if (!view) throw new Error('missing keyed view')
+  const identity = { scenarioId: 'SCENE', metaName: 'Users' }
+  const table = new DataSpaceQueryTable(identity)
+  const context = new DataSpaceQueryContext({ identity, scope: 'fixture', readScope: () => 'fixture',
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd: false, data: { Items: [
+      { id: 'SAME', name: 'First', lingma_sys_params: { e: ['name'] } },
+      { id: 'SAME', name: 'Second', lingma_sys_params: { e: ['name'] } },
+    ], Count: 2 } } }) })
+  view.bindQueryExecutor({ executeQuery: async () => context })
+  await view.loadFromServer()
+  const first = view.rows[0]
+  if (!first) throw new Error('missing keyed row')
+  expect(context.readFieldAccess(context.rows[0] ?? {}, 'name')).toBe('visible')
+  expect(view.fieldAccess(first, 'name').read).toBe('invisible')
+  expect(view.fieldAccess(first, 'name').write).toBe('denied')
+  dataSet.destroy()
+})
+
 function createPageService(overrides: Partial<PageServiceCapability> = {}): PageServiceCapability {
   return {
+    copyText: vi.fn(async () => {}),
     showMessage: vi.fn(),
     showConfirm: vi.fn(async () => true),
     showPrompt: vi.fn(async () => null),
@@ -481,6 +578,48 @@ describe('DataView CRUD bridge', () => {
     )
 
     expect(pageService.showMessage).toHaveBeenCalledWith('Alice||••••', 'info')
+  })
+})
+
+describe('query-backed pending change discard', () => {
+  it('restores a failed query-backed edit from the original strong query baseline', async () => {
+    const { dataSet, view } = await createDataView()
+    expect(await view.editRowById(1, { name: 'Unsaved' })).toBe(true)
+    view.updateEditingValue(1, 'name', 'Editor draft')
+
+    expect(view.discardPendingChanges()).toBe(1)
+
+    expect(view.rows[0]?.['name']).toBe('Alice')
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.hasEditingChanges()).toBe(false)
+    await view.refresh()
+    dataSet.destroy()
+  })
+
+  it('rejects stale query permissions without clearing local state', async () => {
+    const { dataSet, view, invalidate } = await createMessageDataView()
+    await view.editRowById(1, { name: 'Unsaved' })
+    invalidate()
+
+    expect(() => view.discardPendingChanges()).toThrow('SPARK_QUERY_CONTEXT_STALE')
+    expect(view.rows[0]?.['name']).toBe('Unsaved')
+    expect(view.dirtyTracking.isDirty(1)).toBe(true)
+    dataSet.destroy()
+  })
+
+  it('rejects local CRUD views without a strong query owner baseline', async () => {
+    const dataSet = SparkData.createDataSet({ dataSetName: 'LocalOnly', tables: {
+      Users: { tableName: 'Users', columns: [{ name: 'id', type: 'number', isPrimaryKey: true },
+        { name: 'name', type: 'string' }], views: { default: { rows: [{ id: 1, name: 'Alice' }] } } },
+    } })
+    const view = dataSet.getView('Users', 'default')
+    if (!view) throw new Error('local view fixture missing')
+    await view.editRowById(1, { name: 'Unsaved' })
+
+    expect(() => view.discardPendingChanges()).toThrow('DATA_VIEW_DISCARD_OWNER')
+    expect(view.rows[0]?.['name']).toBe('Unsaved')
+    expect(view.dirtyTracking.isDirty(1)).toBe(true)
+    dataSet.destroy()
   })
 })
 

@@ -1,0 +1,141 @@
+{
+  "at": "2026-10-08T06:03:46.289Z",
+  "mode": "readback",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "toolId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "stage": "complete",
+  "outcomes": [
+    {
+      "metaName": "Base_DataModel",
+      "total": 1,
+      "rows": [
+        {
+          "rowid": "536CACBAE8A723F65264B47003D15850",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "Name": "copyTable",
+          "MetaName": "copyTable",
+          "Type": "数据库表",
+          "DbId": "0089C614F01742ED9B231FF6F71BA0F3",
+          "DbName": "testAdd"
+        }
+      ]
+    },
+    {
+      "metaName": "Base_DataModel_Field",
+      "total": 11,
+      "rows": [
+        {
+          "rowid": "45A1E6933CB8446C2CB5628027FE9F04",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "createtime",
+          "type": "dataModel",
+          "FieldType": "datetime",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "85ABA74AB81D4530868AB52F305BBC27",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "lingma_sys_is_delete",
+          "type": "dataModel",
+          "FieldType": "int",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "A2A2D12192DB717F148E138C459B2893",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "updateuser",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "A6F3BA299A20A296B42408A8334105CF",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "updatetime",
+          "type": "dataModel",
+          "FieldType": "datetime",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "B58D62F9830B4A1B48792BCC2032193C",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "ReportID",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "B67EB15137139137811909AD80F931EE",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "createuser",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "C525B3A9742E42CC6EF2C1CB01DED1F0",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "flowstate",
+          "type": "dataModel",
+          "FieldType": "int",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "E26F65522A1784179CAAD43431B0F9D0",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "description",
+          "type": "dataModel",
+          "FieldType": "text",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "E35DD4974144DA7FC038C1FF40B89955",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "lingma_sys_ent",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 1,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "E9BB0F844DB001575DB859C913D22A9A",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "wfid",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 0,
+          "IsOutput": 0
+        },
+        {
+          "rowid": "EEA61C052FCE0648B3E4E2CC54655077",
+          "dataSetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "dataModelId": "536CACBAE8A723F65264B47003D15850",
+          "Name": "id",
+          "type": "dataModel",
+          "FieldType": "varchar",
+          "IsPKey": 1,
+          "IsOutput": 1
+        }
+      ]
+    }
+  ],
+  "targetId": "97DCB03F75AADEAE6B102B062DB71CEA"
+}

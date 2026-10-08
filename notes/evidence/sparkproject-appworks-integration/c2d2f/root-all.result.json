@@ -1,0 +1,6 @@
+{
+  "command": "pnpm exec vitest run --maxWorkers=2 --reporter=dot",
+  "finishedAtUtc": "2026-10-07T09:33:57.8292808Z",
+  "exitCode": 0,
+  "startedAtUtc": "2026-10-07T09:31:31.0417270Z"
+}

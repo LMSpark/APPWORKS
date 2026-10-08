@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-permission",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/protocol/data-space-permission",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-permission\n职责：从原查询行的后端权限快照派生消费权限。\n边界：读 h/m 与写 E/R 独立，新增子项只接受明确 c=true。\nAI用途：正确消费字段、行操作和缺失权限策略。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceMissingAuthPolicy",
+      "DataSpaceFieldAccess",
+      "DataSpaceRowPermission"
+    ]
+  },
+  "$defs": {
+    "DataSpaceMissingAuthPolicy": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSpaceMissingAuthPolicy",
+      "enum": [
+        "allow",
+        "deny",
+        "deny-when-system-key",
+        "visible-readonly"
+      ]
+    },
+    "DataSpaceFieldAccess": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFieldAccess",
+      "properties": {
+        "read": {
+          "enum": [
+            "invisible",
+            "masked",
+            "visible"
+          ]
+        },
+        "write": {
+          "enum": [
+            "denied",
+            "allowed"
+          ]
+        },
+        "component": {
+          "enum": [
+            "hidden",
+            "readonly",
+            "editable"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "writeMode": {
+          "enum": [
+            "required",
+            "editable",
+            "readonly"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRowPermissionOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRowPermissionOptions",
+      "properties": {
+        "row": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Record<string, unknown>"
+        },
+        "missingAuthPolicy": {
+          "$ref": "#/$defs/DataSpaceMissingAuthPolicy"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRowPermission": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRowPermission",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DataSpaceRowPermissionOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fieldAccess.params": {
+          "type": "object",
+          "properties": {
+            "fieldName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fieldAccess.return": {
+          "$ref": "#/$defs/DataSpaceFieldAccess"
+        },
+        "method.allowDelete.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.allowDelete.return": {
+          "type": "boolean"
+        },
+        "method.allowAddChild.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.allowAddChild.return": {
+          "type": "boolean"
+        },
+        "method.allowEdit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.allowEdit.return": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:52:04.609Z",
+  "models": {
+    "DataSpaceMissingAuthPolicy": {
+      "name": "DataSpaceMissingAuthPolicy",
+      "jsdoc": "原行缺少权限快照时的显式策略；不推断新增子项授权。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'allow' | 'deny' | 'deny-when-system-key' | 'visible-readonly'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'allow'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'deny'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'deny-when-system-key'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'visible-readonly'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceFieldAccess": {
+      "name": "DataSpaceFieldAccess",
+      "jsdoc": "字段读、写双通道投影；required 只在 E 可写且 R 必填时成立。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    read: 'invisible' | 'masked' | 'visible';\n    write: 'denied' | 'allowed';\n    component: 'hidden' | 'readonly' | 'editable';\n    required: boolean;\n    writeMode: 'required' | 'editable' | 'readonly';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    read: 'invisible' | 'masked' | 'visible';\n    write: 'denied' | 'allowed';\n    component: 'hidden' | 'readonly' | 'editable';\n    required: boolean;\n    writeMode: 'required' | 'editable' | 'readonly';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "read",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "write",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "component",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "required",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "writeMode",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRowPermissionOptions": {
+      "name": "DataSpaceRowPermissionOptions",
+      "jsdoc": "原查询行及缺失权限策略；只读取行内系统权限快照。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    row?: Readonly<Record<string, unknown>> | null;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    row?: Readonly<Record<string, unknown>> | null;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "row",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "missingAuthPolicy",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRowPermission": {
+      "name": "DataSpaceRowPermission",
+      "jsdoc": "后端权限快照；R 是 E 中的必填字段，写授权消费 E，h/m 不撤销写授权。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "复制并冻结后端权限集合；h/m 不清除 E，c 必须是 true。",
+          "signatureText": "constructor(options: DataSpaceRowPermissionOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRowPermissionOptions",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "fieldAccess",
+              "parameters": [
+                {
+                  "name": "fieldName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceFieldAccess",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts"
+              }
+            },
+            {
+              "name": "allowDelete",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "allowAddChild",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "allowEdit",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec vitest run tests/app/config/vue-page-registry.test.ts tests/app/config/spark-components-loading.test.ts --maxWorkers=1 --reporter=dot",
+  "exitCode": 0,
+  "startedAt": "2026-10-07T13:46:55.2769135+08:00",
+  "finishedAt": "2026-10-07T13:46:58.5453139+08:00",
+  "log": "focused-tests.log"
+}

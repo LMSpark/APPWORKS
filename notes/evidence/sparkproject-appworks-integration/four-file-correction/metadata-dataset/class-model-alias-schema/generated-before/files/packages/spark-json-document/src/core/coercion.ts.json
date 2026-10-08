@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-json-document:core/coercion",
+    "sourcePath": "packages/spark-json-document/src/core/coercion.ts",
+    "sourceFile": "packages/spark-json-document/src/core/coercion.ts",
+    "packageName": "@spark-appworks/spark-json-document",
+    "modulePath": "core/coercion",
+    "jsdoc": "@module @spark-appworks/spark-json-document:core/coercion\n职责：提供 JSON Document/schema 处理中的 coercion 能力，支撑 schema 标准化、审计和元数据保留。\n边界：只处理 JSON schema/document 结构，不耦合应用页面、Vue 组件或 AI 会话状态。\nAI用途：校验或标准化配置 schema 时，用本模块确认 JSON 文档层的规则来源。\n\n═══════════════════════════════════════════════════════════════\ncore/coercion.ts — 将任意运行时值规整为 JSON 安全值\n═══════════════════════════════════════════════════════════════\n两个公开函数：\n- coerceJsonValue(value) — 尽力转换（lossy）：跳过 NaN/undefined/循环引用，\nSymbol/BigInt/Date/URL 转字符串，TypedArray 转 number[]。\n- coerceStrictJsonValue(value) — 严格转换：遇到 NaN/Infinity/BigInt/Symbol/\n循环引用/无效 Date 时返回 undefined，不静默转换非 JSON 安全值。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-11T12:48:51.028Z",
+  "models": {}
+}

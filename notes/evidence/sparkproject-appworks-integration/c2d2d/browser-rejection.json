@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-07T09:17:47.105Z",
+  "build": "c2d2d",
+  "action": "AppList enter existing isolation test application",
+  "failure": "应用导航根节点应唯一，实际 0 个",
+  "urlApplication": "D99A1DCE9894698799101EFD70F8FC76",
+  "actualSessionApplication": "D99A1DCE9894698799101EFD70F8FC76",
+  "renderedHeading": "无法确定系统页面",
+  "result": "reject combined acceptance: old native page reset before unsuccessful activation",
+  "note": "Initial localStorage read was wrong channel; verified actual sessionStorage application key from runtime source. No business writes."
+}

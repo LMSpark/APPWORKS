@@ -1,0 +1,1362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/runtime/useDataViewEventBridge",
+    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/runtime/useDataViewEventBridge",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/runtime/useDataViewEventBridge\n职责：提供 use Data View Event Bridge 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nuseDataViewEventBridge.ts\nDataView → Vue 细粒度事件桥。\n基于 view.events.on/off 注册容器状态回调，带 originatorId 过滤，\n防止 UI 与 DataView 之间循环回写。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewBridgeEventName",
+      "DataViewBridgeBaseContext",
+      "CurrentRowChangedContext",
+      "SelectedRowsChangedContext",
+      "RowsChangedContext",
+      "ClearedContext",
+      "RequestStateChangedContext",
+      "SummaryChangedContext",
+      "SelectionSummaryChangedContext",
+      "MutatingChangedContext",
+      "ConfigChangedContext",
+      "EditingChangedContext",
+      "OriginatorFilterContext",
+      "DataViewEventBridgeOptions"
+    ]
+  },
+  "$defs": {
+    "DataViewBridgeEventName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewBridgeEventName",
+      "enum": [
+        "currentRowChanged",
+        "selectedRowsChanged",
+        "rowsChanged",
+        "cleared",
+        "requestStateChanged",
+        "summaryChanged",
+        "selectionSummaryChanged",
+        "mutatingChanged",
+        "configChanged",
+        "editingChanged"
+      ]
+    },
+    "DataViewBridgeBaseContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewBridgeBaseContext",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "$ref": "#/$defs/DataViewBridgeEventName"
+        }
+      },
+      "required": [
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "CurrentRowChangedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CurrentRowChangedContext",
+      "properties": {
+        "row": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "originatorId": {
+          "type": "string"
+        },
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "currentRowChanged"
+        }
+      },
+      "required": [
+        "row",
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "SelectedRowsChangedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SelectedRowsChangedContext",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "originatorId": {
+          "type": "string"
+        },
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "selectedRowsChanged"
+        }
+      },
+      "required": [
+        "rows",
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "RowsChangedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RowsChangedContext",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "rowsChanged"
+        }
+      },
+      "required": [
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "ClearedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClearedContext",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "cleared"
+        }
+      },
+      "required": [
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "RequestStateChangedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequestStateChangedContext",
+      "properties": {
+        "state": {
+          "type": "object",
+          "title": "DataViewRequestState"
+        },
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "requestStateChanged"
+        }
+      },
+      "required": [
+        "state",
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "SummaryChangedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SummaryChangedContext",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "summaryChanged"
+        }
+      },
+      "required": [
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "SelectionSummaryChangedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SelectionSummaryChangedContext",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "selectionSummaryChanged"
+        }
+      },
+      "required": [
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "MutatingChangedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MutatingChangedContext",
+      "properties": {
+        "mutating": {
+          "type": "boolean"
+        },
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "mutatingChanged"
+        }
+      },
+      "required": [
+        "mutating",
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "ConfigChangedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ConfigChangedContext",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "configChanged"
+        }
+      },
+      "required": [
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "EditingChangedContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EditingChangedContext",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "const": "editingChanged"
+        }
+      },
+      "required": [
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "OriginatorFilterContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OriginatorFilterContext",
+      "properties": {
+        "originatorId": {
+          "type": "string"
+        },
+        "view": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "eventName": {
+          "enum": [
+            "currentRowChanged",
+            "selectedRowsChanged"
+          ]
+        }
+      },
+      "required": [
+        "originatorId",
+        "view",
+        "eventName"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewEventBridgeOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewEventBridgeOptions",
+      "properties": {
+        "resolvedView": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "ignoreOriginatorId": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "resolvedView"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.shouldDispatchByOriginatorId.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/OriginatorFilterContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.shouldDispatchByOriginatorId.return": {
+          "type": "boolean"
+        },
+        "method.onDetached.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDetached.return": true,
+        "method.onAttached.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onAttached.return": true,
+        "method.onCurrentRowChanged.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/CurrentRowChangedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onCurrentRowChanged.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onSelectedRowsChanged.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/SelectedRowsChangedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onSelectedRowsChanged.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onRowsChanged.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/RowsChangedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onRowsChanged.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onCleared.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/ClearedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onCleared.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onRequestStateChanged.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/RequestStateChangedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onRequestStateChanged.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onSummaryChanged.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/SummaryChangedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onSummaryChanged.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onSelectionSummaryChanged.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/SelectionSummaryChangedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onSelectionSummaryChanged.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onMutatingChanged.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/MutatingChangedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onMutatingChanged.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onConfigChanged.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/ConfigChangedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onConfigChanged.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onEditingChanged.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/EditingChangedContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onEditingChanged.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.onIgnoredByOriginatorId.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/OriginatorFilterContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onIgnoredByOriginatorId.return": true,
+        "method.onError.params": {
+          "type": "object",
+          "properties": {
+            "error": true,
+            "context": {
+              "$ref": "#/$defs/DataViewBridgeBaseContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onError.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-06-11T12:48:50.964Z",
+  "models": {
+    "DataViewBridgeEventName": {
+      "name": "DataViewBridgeEventName",
+      "jsdoc": "DataView 事件名（桥接层内部统一使用）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'currentRowChanged' | 'selectedRowsChanged' | 'rowsChanged' | 'cleared' | 'requestStateChanged' | 'summaryChanged' | 'selectionSummaryChanged' | 'mutatingChanged' | 'configChanged' | 'editingChanged'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'currentRowChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'selectedRowsChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'rowsChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'cleared'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'requestStateChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'summaryChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'selectionSummaryChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'mutatingChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'configChanged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'editingChanged'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewRequestState": {
+      "name": "DataViewRequestState",
+      "jsdoc": "Data View Request State 的运行状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataView['requestState']",
+        "members": {}
+      }
+    },
+    "DataViewBridgeBaseContext": {
+      "name": "DataViewBridgeBaseContext",
+      "jsdoc": "桥接层基础上下文：用于统一错误处理、诊断与日志。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: DataViewBridgeEventName;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "CurrentRowChangedContext": {
+      "name": "CurrentRowChangedContext",
+      "jsdoc": "Current Row Changed Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前行数据。 */\n    row: DataRow | null;\n    /** originator Id 标识。 */\n    originatorId?: string;\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'currentRowChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "row",
+              "jsdoc": "当前行数据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "originatorId",
+              "jsdoc": "originator Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SelectedRowsChangedContext": {
+      "name": "SelectedRowsChangedContext",
+      "jsdoc": "Selected Rows Changed Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 行数据集合。 */\n    rows: DataRow[];\n    /** originator Id 标识。 */\n    originatorId?: string;\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'selectedRowsChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "rows",
+              "jsdoc": "行数据集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "originatorId",
+              "jsdoc": "originator Id 标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RowsChangedContext": {
+      "name": "RowsChangedContext",
+      "jsdoc": "Rows Changed Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'rowsChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ClearedContext": {
+      "name": "ClearedContext",
+      "jsdoc": "Cleared Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'cleared';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RequestStateChangedContext": {
+      "name": "RequestStateChangedContext",
+      "jsdoc": "Request State Changed Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前运行状态。 */\n    state: DataViewRequestState;\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'requestStateChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "jsdoc": "当前运行状态。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SummaryChangedContext": {
+      "name": "SummaryChangedContext",
+      "jsdoc": "Summary Changed Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'summaryChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SelectionSummaryChangedContext": {
+      "name": "SelectionSummaryChangedContext",
+      "jsdoc": "Selection Summary Changed Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'selectionSummaryChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "MutatingChangedContext": {
+      "name": "MutatingChangedContext",
+      "jsdoc": "Mutating Changed Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** mutating 字段。 */\n    mutating: boolean;\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'mutatingChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "mutating",
+              "jsdoc": "mutating 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ConfigChangedContext": {
+      "name": "ConfigChangedContext",
+      "jsdoc": "Config Changed Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'configChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "EditingChangedContext": {
+      "name": "EditingChangedContext",
+      "jsdoc": "Editing Changed Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'editingChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "OriginatorFilterContext": {
+      "name": "OriginatorFilterContext",
+      "jsdoc": "Originator Filter Context 的运行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** originator Id 标识。 */\n    originatorId: string | undefined;\n    /** view 字段。 */\n    view: DataView;\n    /** event Name 名称。 */\n    eventName: 'currentRowChanged' | 'selectedRowsChanged';\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "originatorId",
+              "jsdoc": "originator Id 标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "view",
+              "jsdoc": "view 字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "eventName",
+              "jsdoc": "event Name 名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataViewEventBridgeOptions": {
+      "name": "DataViewEventBridgeOptions",
+      "jsdoc": "DataView 事件桥接的配置项。\n设计目标：\n- 让调用方只声明“需要哪些事件回调”，桥接层负责注册与清理。\n- 对 originatorId 提供统一过滤点，避免由每个调用方重复实现。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 已解析 DataView（为空时桥接层处于 detached 状态）。 */\n    resolvedView: {\n        readonly value: DataView | null;\n    };\n    /** 命中该 originatorId 的事件会被过滤。 */\n    ignoreOriginatorId?: string;\n    /** 自定义 originatorId 过滤策略（返回 false 则不分发）。 */\n    shouldDispatchByOriginatorId?: (context: OriginatorFilterContext) => boolean;\n    /** 总开关：false 时不注册任何监听。 */\n    enabled?: boolean;\n    /** 当 view 为空或 enabled=false 时触发（可做 UI 复位）。 */\n    onDetached?: () => void;\n    /** 每次成功绑定到 view 时触发。 */\n    onAttached?: (view: DataView) => void;\n    /** currentRowChanged 事件回调。 */\n    onCurrentRowChanged?: (context: CurrentRowChangedContext) => void | Promise<void>;\n    /** selectedRowsChanged 事件回调。 */\n    onSelectedRowsChanged?: (context: SelectedRowsChangedContext) => void | Promise<void>;\n    /** rowsChanged 事件回调。 */\n    onRowsChanged?: (context: RowsChangedContext) => void | Promise<void>;\n    /** cleared 事件回调。 */\n    onCleared?: (context: ClearedContext) => void | Promise<void>;\n    /** requestStateChanged 事件回调。 */\n    onRequestStateChanged?: (context: RequestStateChangedContext) => void | Promise<void>;\n    /** summaryChanged 事件回调。 */\n    onSummaryChanged?: (context: SummaryChangedContext) => void | Promise<void>;\n    /** selectionSummaryChanged 事件回调。 */\n    onSelectionSummaryChanged?: (context: SelectionSummaryChangedContext) => void | Promise<void>;\n    /** mutatingChanged 事件回调。 */\n    onMutatingChanged?: (context: MutatingChangedContext) => void | Promise<void>;\n    /** configChanged 事件回调。 */\n    onConfigChanged?: (context: ConfigChangedContext) => void | Promise<void>;\n    /** editingChanged 事件回调。 */\n    onEditingChanged?: (context: EditingChangedContext) => void | Promise<void>;\n    /** 事件被 originatorId 过滤时触发。 */\n    onIgnoredByOriginatorId?: (context: OriginatorFilterContext) => void;\n    /** 统一错误处理；未提供时默认抛错。 */\n    onError?: (error: unknown, context: DataViewBridgeBaseContext) => void;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "resolvedView",
+              "jsdoc": "已解析 DataView（为空时桥接层处于 detached 状态）。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "ignoreOriginatorId",
+              "jsdoc": "命中该 originatorId 的事件会被过滤。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enabled",
+              "jsdoc": "总开关：false 时不注册任何监听。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "shouldDispatchByOriginatorId",
+              "jsdoc": "自定义 originatorId 过滤策略（返回 false 则不分发）。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "OriginatorFilterContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "onDetached",
+              "jsdoc": "当 view 为空或 enabled=false 时触发（可做 UI 复位）。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onAttached",
+              "jsdoc": "每次成功绑定到 view 时触发。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onCurrentRowChanged",
+              "jsdoc": "currentRowChanged 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "CurrentRowChangedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onSelectedRowsChanged",
+              "jsdoc": "selectedRowsChanged 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "SelectedRowsChangedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onRowsChanged",
+              "jsdoc": "rowsChanged 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "RowsChangedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onCleared",
+              "jsdoc": "cleared 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "ClearedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onRequestStateChanged",
+              "jsdoc": "requestStateChanged 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "RequestStateChangedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onSummaryChanged",
+              "jsdoc": "summaryChanged 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "SummaryChangedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onSelectionSummaryChanged",
+              "jsdoc": "selectionSummaryChanged 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "SelectionSummaryChangedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onMutatingChanged",
+              "jsdoc": "mutatingChanged 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "MutatingChangedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onConfigChanged",
+              "jsdoc": "configChanged 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "ConfigChangedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onEditingChanged",
+              "jsdoc": "editingChanged 事件回调。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "EditingChangedContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onIgnoredByOriginatorId",
+              "jsdoc": "事件被 originatorId 过滤时触发。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "OriginatorFilterContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onError",
+              "jsdoc": "统一错误处理；未提供时默认抛错。",
+              "parameters": [
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewBridgeBaseContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:router/system-page-identity/system-page-route-host",
+    "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue",
+    "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-route-host.vue",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "router/system-page-identity/system-page-route-host",
+    "jsdoc": "@spark-appworks/spark-app 的 router/system-page-identity/system-page-route-host 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-07T07:13:00.216Z",
+  "models": {}
+}

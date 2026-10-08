@@ -1,0 +1,117 @@
+{
+  "reference": "842dec4f11b333df904b9a4e26b6566b0802bab8",
+  "operations": [
+    {
+      "file": "apps/appworks/src/data/api/ApplicationManager/ApplicationManager.ts",
+      "line": 950,
+      "operation": "query",
+      "metaName": "application.documentation",
+      "intent": null
+    },
+    {
+      "file": "apps/appworks/src/data/api/ApplicationManager/EnterpriseRegistManager.ts",
+      "line": 726,
+      "operation": "create",
+      "metaName": "application.lifecycle",
+      "intent": "initialize-enterprise"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowAppendUser.ts",
+      "line": 149,
+      "operation": "query",
+      "metaName": "workflow.runtime",
+      "intent": "get-execution-users"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowAppendUser.ts",
+      "line": 173,
+      "operation": "create",
+      "metaName": "workflow.runtime",
+      "intent": "add-receiver"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowAppendUser.ts",
+      "line": 186,
+      "operation": "create",
+      "metaName": "workflow.runtime",
+      "intent": "revoke"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowRunDetail.ts",
+      "line": 276,
+      "operation": "query",
+      "metaName": "workflow.runtime",
+      "intent": "get-option-actions"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowRunDetail.ts",
+      "line": 292,
+      "operation": "create",
+      "metaName": "workflow.runtime",
+      "intent": "force-back"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowRunPage.ts",
+      "line": 410,
+      "operation": "query",
+      "metaName": "workflow.runtime",
+      "intent": "get-option-actions"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowRunPage.ts",
+      "line": 435,
+      "operation": "create",
+      "metaName": "workflow.runtime",
+      "intent": "force-back"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowRunPage.ts",
+      "line": 452,
+      "operation": "create",
+      "metaName": "workflow.runtime",
+      "intent": "can-auto-submit-after"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowRunPage.ts",
+      "line": 466,
+      "operation": "create",
+      "metaName": "workflow.runtime",
+      "intent": "submit-or-start"
+    },
+    {
+      "file": "apps/appworks/src/data/api/FlowManage/FlowRunPage.ts",
+      "line": 543,
+      "operation": "create",
+      "metaName": "workflow.runtime",
+      "intent": null
+    },
+    {
+      "file": "apps/appworks/src/data/api/StructuredConfig/DataCodeEdit.ts",
+      "line": 434,
+      "operation": "create",
+      "metaName": "designer.code",
+      "intent": "test-code"
+    },
+    {
+      "file": "apps/appworks/src/data/api/StructuredConfig/DataCodeEdit.ts",
+      "line": 523,
+      "operation": "query",
+      "metaName": "designer.code",
+      "intent": "initialize-code-data"
+    },
+    {
+      "file": "apps/appworks/src/data/api/StructuredConfig/DataWorkFlowDesign.ts",
+      "line": 1339,
+      "operation": "create",
+      "metaName": "designer.execution",
+      "intent": "run-workflow-test"
+    },
+    {
+      "file": "apps/appworks/src/data/api/StructuredConfig/DataWorkFlowDesign.ts",
+      "line": 1357,
+      "operation": "create",
+      "metaName": "designer.execution",
+      "intent": "run-single-node-test"
+    }
+  ]
+}

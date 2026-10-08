@@ -1,0 +1,11 @@
+{
+  "ok": false,
+  "checks": [
+    {
+      "level": "error",
+      "code": "SCRIPT_EXECUTION_FAILED",
+      "message": "脚本执行失败: can't resolve reference #/$defs/DataSetCrudToolCreateCascadeParams from id #",
+      "hint": "检查脚本语法与 ClassModel 契约后重试。按 tool result RECOVERY_HINT 修正；契约见 model_action_guide / model_class_guide（ClassModel 知识索引）。"
+    }
+  ]
+}

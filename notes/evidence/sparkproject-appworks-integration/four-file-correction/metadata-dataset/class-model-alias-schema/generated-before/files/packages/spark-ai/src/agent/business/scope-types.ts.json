@@ -1,0 +1,360 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:agent/business/scope-types",
+    "sourcePath": "packages/spark-ai/src/agent/business/scope-types.ts",
+    "sourceFile": "packages/spark-ai/src/agent/business/scope-types.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "agent/business/scope-types",
+    "jsdoc": "@module @spark-appworks/spark-ai:agent/business/scope-types\n职责：定义 AI 业务坐标、scope、runtime context、turn key 和 stream key 的类型模型。\n边界：只表达作用域数据结构，不生成 ID、不校验输入，也不依赖具体 Host 或 session 实现。\nAI用途：跨模块传递业务定位或诊断 turn/stream 归属时，用本模块确认字段边界。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AiAgentTarget",
+      "AiAgentScope",
+      "AiAgentRuntimeContext",
+      "AiAgentAppendMessageOptions"
+    ]
+  },
+  "$defs": {
+    "AiAgentTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentTarget",
+      "properties": {
+        "businessRegistrationId": {
+          "type": "string"
+        },
+        "businessInstanceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "businessRegistrationId": {
+              "type": "string"
+            },
+            "businessInstanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "AiAgentScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentScope",
+      "properties": {
+        "businessRegistrationId": {
+          "type": "string"
+        },
+        "businessInstanceId": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "runtimeInstanceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "businessRegistrationId": {
+              "type": "string"
+            },
+            "businessInstanceId": {
+              "type": "string"
+            },
+            "instanceId": {
+              "type": "string"
+            },
+            "runtimeInstanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "AiAgentRuntimeContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentRuntimeContext",
+      "properties": {
+        "moduleId": {
+          "type": "string"
+        },
+        "moduleInstanceId": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "moduleId": {
+              "type": "string"
+            },
+            "moduleInstanceId": {
+              "type": "string"
+            },
+            "instanceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "AiAgentAppendMessageOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AiAgentAppendMessageOptions",
+      "properties": {
+        "moduleId": {
+          "type": "string"
+        },
+        "moduleInstanceId": {
+          "type": "string"
+        },
+        "instanceId": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentMessageRole"
+        },
+        "content": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "../conversation/session/session-types.ts.json#/$defs/AiAgentMessageSource"
+        },
+        "metadata": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:17:10.221Z",
+  "models": {
+    "AiAgentTarget": {
+      "name": "AiAgentTarget",
+      "jsdoc": "业务定位基类，用两个 ID 精确定位一个顶层业务实例：\nbusinessRegistrationId — 顶层 kind（对应 BusinessRegistry 中的注册项）\nbusinessInstanceId     — 顶层实例 ID（同一次会话内不变）",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Ai Agent Target 实例。",
+          "signatureText": "constructor(businessRegistrationId: string, businessInstanceId: string)",
+          "parameters": [
+            {
+              "name": "businessRegistrationId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "businessInstanceId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "businessRegistrationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "businessInstanceId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentScope": {
+      "name": "AiAgentScope",
+      "jsdoc": "业务作用域（继承自定位基类），在业务定位基础上追加运行时标识。\ninstanceId        — 顶层实例 ID，参与 kind + instanceId 生成后端 sessionId\nruntimeInstanceId — 工具 runtime 内部实例 ID（当前同顶层实例 ID）\nScope 是 tool-loop-runner 的核心持有对象，贯穿整个会话生命周期，\n同时也是 turnKey / streamKey 的数据来源。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Ai Agent Scope 实例。",
+          "signatureText": "constructor(businessRegistrationId: string, businessInstanceId: string, instanceId: string, runtimeInstanceId: string)",
+          "parameters": [
+            {
+              "name": "businessRegistrationId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "businessInstanceId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "instanceId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "runtimeInstanceId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "AiAgentTarget",
+            "targetName": "AiAgentTarget"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "instanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtimeInstanceId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentRuntimeContext": {
+      "name": "AiAgentRuntimeContext",
+      "jsdoc": "传递给生命周期回调的精简上下文。\nmoduleId         — 业务模块 ID（对应 registration.moduleId）\nmoduleInstanceId — 顶层模块实例 ID（pageId、leaveDraftId 等）\ninstanceId       — 顶层实例 ID；后端 sessionId 由 moduleId + instanceId 生成\n与 Scope 的区别：不含 businessRegistrationId / businessInstanceId，\n因为生命周期回调已在具体业务实例内部执行，无需重复定位。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "创建 Ai Agent Runtime Context 实例。",
+          "signatureText": "constructor(moduleId: string, moduleInstanceId: string, instanceId: string)",
+          "parameters": [
+            {
+              "name": "moduleId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "moduleInstanceId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "instanceId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "moduleId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "moduleInstanceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "instanceId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AiAgentAppendMessageOptions": {
+      "name": "AiAgentAppendMessageOptions",
+      "jsdoc": "Ai Agent Append Message Options 的调用配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "AiAgentRuntimeContext & Readonly<{\n    /** 消息角色：user / assistant / system / tool */\n    role: AiAgentMessageRole;\n    /** 消息正文 */\n    content: string;\n    /** 消息来源标注（用于区分用户输入 / LLM 输出 / 工具返回值） */\n    source?: AiAgentMessageSource;\n    /** 附加元数据（如工具调用 ID、token 用量等） */\n    metadata?: Record<string, unknown>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "AiAgentRuntimeContext",
+            "targetName": "AiAgentRuntimeContext"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 消息角色：user / assistant / system / tool */\n    role: AiAgentMessageRole;\n    /** 消息正文 */\n    content: string;\n    /** 消息来源标注（用于区分用户输入 / LLM 输出 / 工具返回值） */\n    source?: AiAgentMessageSource;\n    /** 附加元数据（如工具调用 ID、token 用量等） */\n    metadata?: Record<string, unknown>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "role",
+              "jsdoc": "消息角色：user / assistant / system / tool",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "消息正文",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "消息来源标注（用于区分用户输入 / LLM 输出 / 工具返回值）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metadata",
+              "jsdoc": "附加元数据（如工具调用 ID、token 用量等）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

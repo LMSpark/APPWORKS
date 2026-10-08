@@ -1,0 +1,336 @@
+{
+  "at": "2026-10-07T10:08:05.246Z",
+  "environment": "production preview5274; authorized administrator; reads only",
+  "url": "http://127.0.0.1:5274/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/data-set-management/ui/data-set-list-page?__sparkNavigationId=90A82E287930A234FEC3E687C94A93EA",
+  "applicationOptionCount": 1,
+  "filter": {
+    "rows": 10,
+    "allLabelsMatch": true,
+    "pagination": "共 68 条\n每页 \n10\n20\n50\n 条\n上一页\n第 1 页\n下一页"
+  },
+  "returnTab": {
+    "selected": "D99A1DCE9894698799101EFD70F8FC76",
+    "pagination": "共 68 条\n每页 \n10\n20\n50\n 条\n上一页\n第 2 页\n下一页"
+  },
+  "clear": {
+    "selected": "",
+    "pagination": "共 1184 条\n每页 \n10\n20\n50\n 条\n上一页\n第 1 页\n下一页"
+  },
+  "reset": {
+    "selected": "",
+    "name": "",
+    "pagination": "共 1184 条\n每页 \n10\n20\n50\n 条\n上一页\n第 1 页\n下一页"
+  },
+  "wire": [
+    {
+      "Table": [
+        {
+          "Name": "Base_AppSystemList",
+          "PrimaryKeyFields": "rowid",
+          "OutputType": "Table",
+          "Type": "数据库表",
+          "Filter": null,
+          "inputParams": [],
+          "DISTINCT": true,
+          "IsBusinessMain": 1,
+          "RelationFilterType": "and"
+        }
+      ]
+    },
+    {
+      "Table": [
+        {
+          "Name": "Base_AppSystemList",
+          "OutputType": "Table",
+          "Filter": null,
+          "inputParams": [],
+          "DISTINCT": false,
+          "IsBusinessMain": 1,
+          "Fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            },
+            {
+              "Name": "AppDesc",
+              "IsOutput": true
+            },
+            {
+              "Name": "AppName",
+              "IsOutput": true
+            }
+          ]
+        }
+      ],
+      "PageParam": {
+        "index": 1,
+        "size": 500
+      }
+    },
+    {
+      "Table": [
+        {
+          "Name": "Base_DataSet",
+          "OutputType": "Table",
+          "Filter": null,
+          "inputParams": [],
+          "DISTINCT": false,
+          "IsBusinessMain": 1,
+          "Fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            },
+            {
+              "Name": "Name",
+              "IsOutput": true
+            },
+            {
+              "Name": "Type",
+              "IsOutput": true
+            },
+            {
+              "Name": "description",
+              "IsOutput": true
+            },
+            {
+              "Name": "sysid",
+              "IsOutput": true
+            },
+            {
+              "Name": "createuser",
+              "IsOutput": true
+            },
+            {
+              "Name": "createtime",
+              "IsOutput": true,
+              "OrderType": "descending",
+              "Order": 1
+            }
+          ]
+        }
+      ],
+      "PageParam": {
+        "index": 1,
+        "size": 10
+      }
+    },
+    {
+      "Table": [
+        {
+          "Name": "Base_DataSet",
+          "OutputType": "Table",
+          "Filter": {
+            "Type": "cond",
+            "Field": "sysid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "D99A1DCE9894698799101EFD70F8FC76"
+            }
+          },
+          "inputParams": [],
+          "DISTINCT": false,
+          "IsBusinessMain": 1,
+          "Fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            },
+            {
+              "Name": "Name",
+              "IsOutput": true
+            },
+            {
+              "Name": "Type",
+              "IsOutput": true
+            },
+            {
+              "Name": "description",
+              "IsOutput": true
+            },
+            {
+              "Name": "sysid",
+              "IsOutput": true
+            },
+            {
+              "Name": "createuser",
+              "IsOutput": true
+            },
+            {
+              "Name": "createtime",
+              "IsOutput": true,
+              "OrderType": "descending",
+              "Order": 1
+            }
+          ]
+        }
+      ],
+      "PageParam": {
+        "index": 1,
+        "size": 10
+      }
+    },
+    {
+      "Table": [
+        {
+          "Name": "Base_DataSet",
+          "OutputType": "Table",
+          "Filter": {
+            "Type": "cond",
+            "Field": "sysid",
+            "Operator": "equal",
+            "Value": null,
+            "ValueFun": {
+              "Type": "GetConstValue",
+              "Value": "D99A1DCE9894698799101EFD70F8FC76"
+            }
+          },
+          "inputParams": [],
+          "DISTINCT": false,
+          "IsBusinessMain": 1,
+          "Fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            },
+            {
+              "Name": "Name",
+              "IsOutput": true
+            },
+            {
+              "Name": "Type",
+              "IsOutput": true
+            },
+            {
+              "Name": "description",
+              "IsOutput": true
+            },
+            {
+              "Name": "sysid",
+              "IsOutput": true
+            },
+            {
+              "Name": "createuser",
+              "IsOutput": true
+            },
+            {
+              "Name": "createtime",
+              "IsOutput": true,
+              "OrderType": "descending",
+              "Order": 1
+            }
+          ]
+        }
+      ],
+      "PageParam": {
+        "index": 2,
+        "size": 10
+      }
+    },
+    {
+      "Table": [
+        {
+          "Name": "Base_DataSet",
+          "OutputType": "Table",
+          "Filter": null,
+          "inputParams": [],
+          "DISTINCT": false,
+          "IsBusinessMain": 1,
+          "Fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            },
+            {
+              "Name": "Name",
+              "IsOutput": true
+            },
+            {
+              "Name": "Type",
+              "IsOutput": true
+            },
+            {
+              "Name": "description",
+              "IsOutput": true
+            },
+            {
+              "Name": "sysid",
+              "IsOutput": true
+            },
+            {
+              "Name": "createuser",
+              "IsOutput": true
+            },
+            {
+              "Name": "createtime",
+              "IsOutput": true,
+              "OrderType": "descending",
+              "Order": 1
+            }
+          ]
+        }
+      ],
+      "PageParam": {
+        "index": 1,
+        "size": 10
+      }
+    },
+    {
+      "Table": [
+        {
+          "Name": "Base_DataSet",
+          "OutputType": "Table",
+          "Filter": null,
+          "inputParams": [],
+          "DISTINCT": false,
+          "IsBusinessMain": 1,
+          "Fields": [
+            {
+              "Name": "rowid",
+              "IsOutput": true
+            },
+            {
+              "Name": "Name",
+              "IsOutput": true
+            },
+            {
+              "Name": "Type",
+              "IsOutput": true
+            },
+            {
+              "Name": "description",
+              "IsOutput": true
+            },
+            {
+              "Name": "sysid",
+              "IsOutput": true
+            },
+            {
+              "Name": "createuser",
+              "IsOutput": true
+            },
+            {
+              "Name": "createtime",
+              "IsOutput": true,
+              "OrderType": "descending",
+              "Order": 1
+            }
+          ]
+        }
+      ],
+      "PageParam": {
+        "index": 1,
+        "size": 10
+      }
+    }
+  ],
+  "consoleErrorCount": 0,
+  "limitations": [
+    "administrator sample only",
+    "no writes",
+    "no host-bound application context"
+  ],
+  "sessionRecovery": "previous preview tab unavailable; independent tab5 logged in using existing authorized account; tenant selected from actual dropdown; user tab3 preserved"
+}

@@ -1,0 +1,86 @@
+{
+  "at": "2026-10-08T07:02:39.914Z",
+  "phase": "after",
+  "stage": "complete",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "dataSpaceId": "97DCB03F75AADEAE6B102B062DB71CEA",
+  "model": {
+    "id": "23242F5DF24156A738D99A9270802B24",
+    "name": "shif",
+    "primaryKey": "",
+    "fields": [
+      {
+        "name": "val",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "name": "txt",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "name": "ordIdx",
+        "output": true,
+        "primaryKey": false
+      },
+      {
+        "name": "rowid",
+        "output": true,
+        "primaryKey": false
+      }
+    ]
+  },
+  "firstView": {
+    "rowCount": 2,
+    "total": 2,
+    "fields": [
+      {
+        "field": "val",
+        "read": "visible",
+        "write": "denied",
+        "component": "readonly",
+        "required": false,
+        "writeMode": "readonly"
+      },
+      {
+        "field": "txt",
+        "read": "visible",
+        "write": "denied",
+        "component": "readonly",
+        "required": false,
+        "writeMode": "readonly"
+      },
+      {
+        "field": "ordIdx",
+        "read": "visible",
+        "write": "denied",
+        "component": "readonly",
+        "required": false,
+        "writeMode": "readonly"
+      },
+      {
+        "field": "rowid",
+        "read": "visible",
+        "write": "denied",
+        "component": "readonly",
+        "required": false,
+        "writeMode": "readonly"
+      }
+    ],
+    "add": "hidden",
+    "edit": "hidden",
+    "delete": "hidden",
+    "child": "hidden"
+  },
+  "secondView": {
+    "rowCount": 2,
+    "total": 2,
+    "isolatedRows": true
+  },
+  "refresh": {
+    "oldRowDenied": true,
+    "currentRowReadable": true,
+    "secondViewStillReadable": true
+  }
+}

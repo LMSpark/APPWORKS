@@ -1,0 +1,16 @@
+{
+  "packages/spark-data/src/types.ts": "ed693478386367cbf14c0ff53e64538b31f6f9545219c93d65321d5483678954",
+  "packages/spark-data/src/index.ts": "8acd3bf5202072d625cc35e4cf703d8a1173c6d9af4830be95feee3dc1bf050b",
+  "packages/spark-data/src/dataset.ts": "6595f585d86e5d47b365c83abeeede87bee4c8ac4216b42287b74ddd68ee216e",
+  "packages/spark-data/src/dataset-crud-tool.ts": "eef9ed20c70c73741347df3d736d4de4e706b5b75701aaa3eed2318a2aaff800",
+  "packages/spark-data/src/data-view.ts": "2d546800772184677b6bb62dad8a652c2563a8a4fa353d2470fd29be4b7fb2f4",
+  "packages/spark-data/src/strategies/cascade-delegate.ts": "b2234849d3254b35e319d710db51e08f35b92cd624fad5f7342e032a8b8747a4",
+  "packages/spark-data/src/strategies/cascade/field-cascade-definition.ts": "7702903ae84f01cc8eb4c8fd7399e3935805a9dc5651a91431cf1b5d137ddd54",
+  "packages/spark-data/src/strategies/cascade/field-cascade-runtime.ts": "51dd8a5bf78b53c63c1eddce2e692d38941b3b6a3492f154ec11a7a25dc047c4",
+  "packages/spark-project-model/src/scenario/scenario-view-config.ts": "181b4e6b37bbc967a8da0c525b13d42f333d238d82c2ae0cb679b89f6ac6c208",
+  "src/lowcode/data-space/lowcode-data-space-assembler.ts": "7f44f8597b39f7d09edb8fbbf84eacd794d3c740118ff0df8a030491e88e24e4",
+  "packages/spark-data/src/tests/dataset/field-cascade.test.ts": "eb7a5486f0812167dca08b6c1d3ff4c00e95f7c1d357296f166259f93c7bc78a",
+  "packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts": "0af6b8778fe2dee5867a69ea7ae1906101f8c3c00e15d2e623e4d60b85c99910",
+  "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts": "c516b9c526644529c49077d651725f04ac72f3ac86408851612c65ad22926b8c",
+  "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-persistence.test.ts": "15917dc2729fb7158f66bca172f08db793153d4a9cc15fe34c09ef47511aab31"
+}

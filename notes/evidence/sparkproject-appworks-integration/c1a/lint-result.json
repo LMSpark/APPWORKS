@@ -1,0 +1,5 @@
+{
+  "command": "pnpm exec eslint src/registries/vue-page-registry.ts src/components/page-loading/PageLoadError.vue tests/app/config/vue-page-registry.test.ts",
+  "exitCode": 0,
+  "log": "lint.log"
+}

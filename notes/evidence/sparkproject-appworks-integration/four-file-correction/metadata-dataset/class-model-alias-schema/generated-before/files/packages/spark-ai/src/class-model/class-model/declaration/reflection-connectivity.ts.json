@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-ai:class-model/class-model/declaration/reflection-connectivity",
+    "sourcePath": "packages/spark-ai/src/class-model/class-model/declaration/reflection-connectivity.ts",
+    "sourceFile": "packages/spark-ai/src/class-model/class-model/declaration/reflection-connectivity.ts",
+    "packageName": "@spark-appworks/spark-ai",
+    "modulePath": "class-model/class-model/declaration/reflection-connectivity",
+    "jsdoc": "@module @spark-appworks/spark-ai:class-model/class-model/declaration/reflection-connectivity\n职责：维护 DTS DtsTypeDeclarationModel 知识链路中的 reflection-connectivity 能力，围绕 ClassModelReflectionConnectivityIssue 提供声明投影、协议读取、知识查询或运行时适配。\n边界：只服务 .d.ts => JSON => guide 的知识索引链路，不直接执行业务页面逻辑。\nAI用途：当需要判断 DtsTypeDeclarationModel 在 class-model/class-model/reflection-connectivity 这一段如何生成、加载或投影时，用本模块定位职责。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ClassModelReflectionConnectivityIssue"
+    ]
+  },
+  "$defs": {
+    "ClassModelReflectionConnectivityIssue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelReflectionConnectivityIssue",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-07T02:20:17.708Z",
+  "models": {
+    "ClassModelReflectionConnectivityIssue": {
+      "name": "ClassModelReflectionConnectivityIssue",
+      "jsdoc": "Class Model Reflection Connectivity Issue 的语义模型。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 问题编码：REFLECTION_MODEL_PROJECTION_FAILED = 投影失败，REFLECTION_KIND_UNREACHABLE_VIA_ATTRIBUTES = 不可达，REFLECTION_ATTRIBUTE_API_DISCONNECTED = 属性链断路。 */\n    code: string;\n    /** 不一致位置：kind 名或 '{owner}.attributes.{name}' 形式的点分路径。 */\n    path: string;\n    /** 人类可读的差异描述，包含具体 className 和失败原因。 */\n    message: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 问题编码：REFLECTION_MODEL_PROJECTION_FAILED = 投影失败，REFLECTION_KIND_UNREACHABLE_VIA_ATTRIBUTES = 不可达，REFLECTION_ATTRIBUTE_API_DISCONNECTED = 属性链断路。 */\n    code: string;\n    /** 不一致位置：kind 名或 '{owner}.attributes.{name}' 形式的点分路径。 */\n    path: string;\n    /** 人类可读的差异描述，包含具体 className 和失败原因。 */\n    message: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "code",
+              "jsdoc": "问题编码：REFLECTION_MODEL_PROJECTION_FAILED = 投影失败，REFLECTION_KIND_UNREACHABLE_VIA_ATTRIBUTES = 不可达，REFLECTION_ATTRIBUTE_API_DISCONNECTED = 属性链断路。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "不一致位置：kind 名或 '{owner}.attributes.{name}' 形式的点分路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "message",
+              "jsdoc": "人类可读的差异描述，包含具体 className 和失败原因。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

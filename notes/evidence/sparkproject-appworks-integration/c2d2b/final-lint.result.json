@@ -1,0 +1,7 @@
+{
+  "command": "pnpm exec eslint src/services/project/project-shell.ts src/App.vue src/views/tenant/AppList.vue src/views/platform/PlatformApps.vue src/views/platform/PlatformTenantManagement.vue src/layout/AppTabBar.vue packages/spark-app/src/router/dynamic.ts tests/app/dev/navigation-sync.test.ts tests/app/services/project/application-switch.test.ts tests/runtime/page/runtime/system-page-identity-tabs.test.ts",
+  "cwd": "D:\\SPARK_AppWorks",
+  "startedAtUtc": "2026-10-07T08:41:58.0229148Z",
+  "finishedAtUtc": "2026-10-07T08:42:08.7659879Z",
+  "exitCode": 0
+}

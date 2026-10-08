@@ -1,0 +1,596 @@
+var catalogSearchName = ''
+var catalogSearchApp = ''
+var catalogRequestError = ''
+var catalogSaveUncertain = false
+var catalogOperationBusy = false
+var catalogUnknownId = ''
+
+function catalogTargetIsCurrent(view, row, id) {
+  return $page.resolveView('Base_DataSet@catalog') === view
+    && view.currentRow === row && view.rows.includes(row) && view.getPkKey(row) === id
+}
+
+function catalogPageIsStale(error) {
+  return error instanceof Error && error.message.startsWith('PAGE_RUNTIME_STALE:')
+}
+
+async function loadCreatorRows() {
+  const data = $page.resolveView('Base_DataSet@catalog')
+  const users = $page.resolveView('Base_UserInfo@catalogUsers')
+  const ids = [...new Set(data.rows.flatMap((row) => {
+    if (data.fieldAccess(row, 'createuser').read !== 'visible') return []
+    const value = row.createuser
+    return value == null || String(value).trim() === '' ? [] : [String(value).trim()]
+  }))]
+  if (ids.length === 0) return
+  await users.loadFromServer({ fields: ['ID', 'ROWID', 'UserName'],
+    filter: { field: 'ROWID', operator: 'in', value: ids }, allPages: true })
+}
+
+async function __init__() {
+  const view = $page.resolveView('Base_DataSet@catalog')
+  const apps = $page.resolveView('Base_AppSystemList@catalogApps')
+  await apps.loadFromServer({ fields: ['rowid', 'AppDesc', 'AppName'], allPages: true })
+  await view.loadFromServer({ fields: ['rowid', 'Name', 'Type', 'description', 'sysid', 'createuser', 'createtime'] })
+  await loadCreatorRows()
+}
+
+async function applyCatalogFilter() {
+  if (catalogOperationBusy || catalogSaveUncertain) return
+  const view = $page.resolveView('Base_DataSet@catalog')
+  const terms = []
+  if (catalogSearchName.trim()) {
+    terms.push({ logic: 'or', filters: [
+      { field: 'Name', operator: 'contains', value: catalogSearchName.trim() },
+      { field: 'rowid', operator: 'eq', value: catalogSearchName.trim() },
+    ] })
+  }
+  if (catalogSearchApp) terms.push({ field: 'sysid', operator: 'eq', value: catalogSearchApp })
+  const filter = terms.length > 1 ? { logic: 'and', filters: terms }
+    : terms.length === 1 ? terms[0] : undefined
+  try {
+    catalogRequestError = ''
+    await view.executeFilter(filter)
+    if (view.loadingError) throw new Error(view.loadingError)
+    await loadCreatorRows()
+  } catch (error) {
+    catalogRequestError = error instanceof Error ? error.message : String(error)
+    throw error
+  }
+}
+
+async function changeCatalogPage(page) {
+  if (catalogOperationBusy || catalogSaveUncertain) return
+  const view = $page.resolveView('Base_DataSet@catalog')
+  try {
+    catalogRequestError = ''
+    await view.setPage(page)
+    if (view.loadingError) throw new Error(view.loadingError)
+    await loadCreatorRows()
+  } catch (error) {
+    catalogRequestError = error instanceof Error ? error.message : String(error)
+    throw error
+  }
+}
+
+async function changeCatalogPageSize(event) {
+  if (catalogOperationBusy || catalogSaveUncertain) return
+  const view = $page.resolveView('Base_DataSet@catalog')
+  try {
+    catalogRequestError = ''
+    await view.setPageSize(Number(event.target.value))
+    if (view.loadingError) throw new Error(view.loadingError)
+    await loadCreatorRows()
+  } catch (error) {
+    catalogRequestError = error instanceof Error ? error.message : String(error)
+    throw error
+  }
+}
+
+async function addCatalogEntry() {
+  if (catalogOperationBusy || catalogSaveUncertain) return
+  catalogOperationBusy = true
+  const view = $page.resolveView('Base_DataSet@catalog')
+  try {
+    if (catalogSaveUncertain) {
+      $page.showMessage(`上次保存结果未知（${catalogUnknownId}）。请刷新确认服务端状态后再新增。`, 'warning')
+      return
+    }
+    if (view.addActionState() !== 'enabled') {
+      $page.showMessage('当前没有数据空间新增权限', 'warning')
+      return
+    }
+    const apps = $page.resolveView('Base_AppSystemList@catalogApps')
+    const options = apps.rows.flatMap((row) => {
+      if (apps.fieldAccess(row, 'rowid').read !== 'visible') return []
+      const value = row.rowid
+      if (typeof value !== 'string' || !value.trim()) return []
+      let label = ''
+      for (const field of ['AppDesc', 'AppName']) {
+        const access = apps.fieldAccess(row, field)
+        if (access.read === 'masked') { label = '••••'; break }
+        if (access.read === 'visible' && row[field] != null && String(row[field]).trim()) {
+          label = String(row[field]).trim()
+          break
+        }
+      }
+      return [{ value: value.trim(), label: label || value.trim() }]
+    })
+    const selected = await $page.selectEntities({ title: '选择所属应用', entityName: '应用', searchable: true,
+      multiple: false, options })
+    if (selected.length === 0) return
+    const sysid = String(selected[0].value).trim()
+    if (!options.some((option) => option.value === sysid)) throw new Error('所选应用不在当前可读候选项中')
+    const name = await $page.showPrompt('请输入数据空间名称（最多100字）', '新增数据空间', { placeholder: '名称' })
+    if (name === null) return
+    const normalizedName = name.trim()
+    if (!normalizedName) {
+      $page.showMessage('数据空间名称不能为空', 'warning')
+      return
+    }
+    if (normalizedName.length > 100) {
+      $page.showMessage('数据空间名称不能超过100字', 'warning')
+      return
+    }
+    const description = await $page.showPrompt('请输入描述（最多500字）', '新增数据空间', { placeholder: '描述' })
+    if (description === null) return
+    const normalizedDescription = description.trim()
+    if (normalizedDescription.length > 500) {
+      $page.showMessage('数据空间描述不能超过500字', 'warning')
+      return
+    }
+    if (view.addActionState() !== 'enabled') {
+      $page.showMessage('新增权限已变化，请刷新后重试', 'warning')
+      return
+    }
+    const row = await view.addRow({ Name: normalizedName, Type: 'datasource',
+      description: normalizedDescription, sysid })
+    const id = view.getPkKey(row)
+    if (typeof id !== 'string' && typeof id !== 'number') throw new Error('新增数据空间缺少本地正式主键')
+    catalogUnknownId = String(id)
+    catalogSaveUncertain = true
+    try {
+      const result = await view.dataSet.saveChanges({ views: [{ tableName: 'Base_DataSet', viewId: 'catalog', ids: [id] }] })
+      if (!result.success) throw new Error('数据空间保存未确认成功')
+      catalogSaveUncertain = false
+      catalogUnknownId = ''
+    } catch (error) {
+      catalogRequestError = error instanceof Error ? error.message : String(error)
+      if (catalogSaveUncertain) {
+        $page.showMessage(`数据空间保存结果未知（${catalogUnknownId}）：${catalogRequestError}。请刷新确认后再操作。`, 'error')
+        return
+      }
+      throw error
+    }
+    try {
+      await view.refresh()
+      if (view.loadingError) throw new Error(view.loadingError)
+      await loadCreatorRows()
+      $page.showMessage('数据空间已保存', 'success')
+    } catch (error) {
+      catalogRequestError = error instanceof Error ? error.message : String(error)
+      $page.showMessage(`数据空间已保存，刷新失败：${catalogRequestError}`, 'error')
+    }
+  } catch (error) {
+    catalogRequestError = error instanceof Error ? error.message : String(error)
+    if (!catalogPageIsStale(error)) $page.showMessage(`新增数据空间失败：${catalogRequestError}`, 'error')
+  } finally {
+    catalogOperationBusy = false
+  }
+}
+
+async function editCatalogEntry(view, row) {
+  if (catalogOperationBusy || catalogSaveUncertain) return
+  catalogOperationBusy = true
+  const id = view.getPkKey(row)
+  try {
+    if ((typeof id !== 'string' && typeof id !== 'number') || !catalogTargetIsCurrent(view, row, id)) return
+    if (view.editActionState(row) !== 'enabled') {
+      $page.showMessage('当前没有此数据空间的编辑权限', 'warning')
+      return
+    }
+    const editable = ['Name', 'description'].filter(field => view.fieldAccess(row, field).write === 'allowed')
+    if (editable.length === 0) {
+      $page.showMessage('当前没有可编辑的数据空间字段', 'warning')
+      return
+    }
+    const input = {}
+    for (const field of editable) {
+      const access = view.fieldAccess(row, field)
+      const visibleValue = access.read === 'visible' ? row[field] : undefined
+      const defaultValue = visibleValue == null ? '' : String(visibleValue)
+      const title = field === 'Name' ? '编辑数据空间名称' : '编辑数据空间描述'
+      const label = field === 'Name' ? '名称' : '描述'
+      const value = await $page.showPrompt(`请输入${label}${field === 'Name' ? '（最多100字）' : '（最多500字）'}`, title,
+        { placeholder: label, ...(access.read === 'visible' ? { defaultValue } : {}) })
+      if (!catalogTargetIsCurrent(view, row, id)) return
+      if (value === null) return
+      const normalized = value.trim()
+      if (field === 'Name' && !normalized) {
+        $page.showMessage('数据空间名称不能为空', 'warning')
+        return
+      }
+      if (view.fieldAccess(row, field).required && !normalized) {
+        $page.showMessage(`数据空间${label}不能为空`, 'warning')
+        return
+      }
+      if (normalized.length > (field === 'Name' ? 100 : 500)) {
+        $page.showMessage(`数据空间${label}不能超过${field === 'Name' ? 100 : 500}字`, 'warning')
+        return
+      }
+      input[field] = normalized
+    }
+    if (!catalogTargetIsCurrent(view, row, id)) return
+    if (view.editActionState(row) !== 'enabled') {
+      $page.showMessage('编辑权限已变化，请刷新后重试', 'warning')
+      return
+    }
+    const patch = {}
+    for (const field of editable) {
+      if (view.fieldAccess(row, field).write !== 'allowed') {
+        $page.showMessage('字段编辑权限已变化，请刷新后重试', 'warning')
+        return
+      }
+      if (view.fieldAccess(row, field).read !== 'visible') {
+        patch[field] = input[field]
+        continue
+      }
+      const original = row[field]
+      if (field === 'description' && original == null && input[field] === '') continue
+      if (String(original ?? '') !== input[field]) patch[field] = input[field]
+    }
+    if (Object.keys(patch).length === 0) return
+    const updated = await view.editRowById(id, patch)
+    if (updated === false || (typeof updated === 'object' && !updated.success)) {
+      throw new Error(typeof updated === 'object' ? updated.message ?? '数据空间暂存编辑失败' : '目标数据空间已不存在')
+    }
+    catalogUnknownId = String(id)
+    catalogSaveUncertain = true
+    try {
+      const result = await view.dataSet.saveChanges({ views: [{ tableName: 'Base_DataSet', viewId: 'catalog', ids: [id] }] })
+      if (!result.success) throw new Error(result.message ?? '数据空间保存未确认成功')
+      catalogSaveUncertain = false
+      catalogUnknownId = ''
+    } catch (error) {
+      catalogRequestError = error instanceof Error ? error.message : String(error)
+      if (catalogSaveUncertain) {
+        $page.showMessage(`当前记录保存结果未知：${catalogRequestError}。请刷新确认后再操作。`, 'error')
+        return
+      }
+      throw error
+    }
+    try {
+      await view.refresh()
+      if (view.loadingError) throw new Error(view.loadingError)
+      const refreshed = view.rows.find(item => view.getPkKey(item) === id)
+      await loadCreatorRows()
+      $page.showMessage(refreshed ? '数据空间已保存' : '数据空间已保存，当前记录已不在列表中', 'success')
+    } catch (error) {
+      catalogRequestError = error instanceof Error ? error.message : String(error)
+      if (!catalogPageIsStale(error)) $page.showMessage(`数据空间已保存，刷新失败：${catalogRequestError}`, 'error')
+    }
+  } catch (error) {
+    catalogRequestError = error instanceof Error ? error.message : String(error)
+    if (!catalogPageIsStale(error)) $page.showMessage(`编辑数据空间失败：${catalogRequestError}`, 'error')
+  } finally {
+    catalogOperationBusy = false
+  }
+}
+
+async function deleteCatalogEntry(view, row) {
+  if (catalogOperationBusy || catalogSaveUncertain) return
+  catalogOperationBusy = true
+  const id = view.getPkKey(row)
+  let saveStarted = false
+  try {
+    if ((typeof id !== 'string' && typeof id !== 'number') || !catalogTargetIsCurrent(view, row, id)) return
+    if (view.deleteActionState(row) !== 'enabled') {
+      $page.showMessage('当前没有此数据空间的删除权限', 'warning')
+      return
+    }
+    const confirmed = await $page.showConfirm('确认删除当前数据空间？此操作无法撤销。', '删除数据空间',
+      { confirmText: '删除', cancelText: '取消', type: 'warning' })
+    if (!confirmed || !catalogTargetIsCurrent(view, row, id)) return
+    if (view.deleteActionState(row) !== 'enabled') {
+      $page.showMessage('删除权限已变化，请刷新后重试', 'warning')
+      return
+    }
+
+    const page = view.page
+    const onlyRowOnPage = view.rows.length === 1
+    const removed = await view.removeRow(id)
+    if (removed === false || (typeof removed === 'object' && !removed.success)) {
+      throw new Error('当前数据空间暂存删除失败')
+    }
+    catalogUnknownId = String(id)
+    catalogSaveUncertain = true
+    saveStarted = true
+    let result
+    try {
+      result = await view.dataSet.saveChanges({ views: [{ tableName: 'Base_DataSet', viewId: 'catalog', ids: [id] }] })
+      if (!result.success || result.data.deletedCount !== 1) throw new Error('删除回执未确认')
+    } catch {
+      catalogRequestError = '删除结果未知，请重新打开页面核对服务端状态后再操作'
+      $page.showMessage(catalogRequestError, 'error')
+      return
+    }
+    catalogSaveUncertain = false
+    catalogUnknownId = ''
+    try {
+      if (page > 1 && onlyRowOnPage) await view.setPage(page - 1)
+      else await view.refresh()
+      if (view.loadingError) throw new Error('refresh')
+      if (view.rows.some(item => view.getPkKey(item) === id)) {
+        catalogRequestError = '删除回执已确认，但刷新仍含原记录，回读不一致'
+        $page.showMessage(catalogRequestError, 'error')
+        return
+      }
+      await loadCreatorRows()
+      catalogRequestError = ''
+      $page.showMessage('数据空间已删除', 'success')
+    } catch (error) {
+      catalogRequestError = '数据空间已删除，刷新失败'
+      if (!catalogPageIsStale(error)) $page.showMessage(catalogRequestError, 'error')
+    }
+  } catch (error) {
+    catalogRequestError = saveStarted ? '删除结果未知，请重新打开页面核对服务端状态后再操作' : '数据空间删除失败'
+    if (!catalogPageIsStale(error)) $page.showMessage(catalogRequestError, 'error')
+  } finally {
+    catalogOperationBusy = false
+  }
+}
+
+function normalizeApiInfoText(value) {
+  return value == null ? '' : String(value).trim()
+}
+
+function quoteApiInfoValue(value) {
+  return `'${normalizeApiInfoText(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+    .replace(/\r/g, '\\r').replace(/\n/g, '\\n')}'`
+}
+
+function apiInfoIdentifier(value) {
+  return normalizeApiInfoText(value).replace(/[^\p{L}\p{N}_$]+/gu, '_')
+    .replace(/^_+/, '').replace(/^([0-9])/u, '_$1') || 'Model'
+}
+
+function formatCatalogApiInfo(dataSetId, models, fields) {
+  const fieldMap = new Map()
+  for (const field of fields) {
+    const modelId = normalizeApiInfoText(field.dataModelId)
+    if (!modelId) continue
+    const group = fieldMap.get(modelId) || []
+    group.push(field)
+    fieldMap.set(modelId, group)
+  }
+  const declarations = new Set()
+  const lines = [`const DataSetId = ${quoteApiInfoValue(dataSetId)};`]
+  models.forEach(model => {
+    const base = apiInfoIdentifier(model.Name)
+    let identifier = base
+    let suffix = 2
+    const declarationNames = candidate => [`DataModel_${candidate}`, `DataModel_${candidate}_Type`, `DataModel_${candidate}_PK`]
+    while (declarationNames(identifier).some(name => declarations.has(name))) identifier = `${base}_${suffix++}`
+    declarationNames(identifier).forEach(name => declarations.add(name))
+    const modelId = normalizeApiInfoText(model.rowid)
+    const primaryKeyField = (fieldMap.get(modelId) || []).find(field =>
+      (normalizeApiInfoText(field.type) || 'dataModel') === 'dataModel' && Number(field.IsPKey))
+    const primaryKey = normalizeApiInfoText(primaryKeyField?.Name) || 'rowid'
+    lines.push(
+      `const DataModel_${identifier} = ${quoteApiInfoValue(model.Name)};`,
+      `const DataModel_${identifier}_Type = ${quoteApiInfoValue(model.Type)};`,
+      `const DataModel_${identifier}_PK = ${quoteApiInfoValue(primaryKey)};`,
+    )
+  })
+  return lines.join('\n')
+}
+
+function assertApiInfoRowsReadable({ view, rows, fields, dataSetId, modelIds }) {
+  if (!Array.isArray(rows)) throw new Error('设计视图查询结果无效')
+  const rowIds = new Set()
+  for (const row of rows) {
+    for (const field of fields) {
+      if (view.fieldAccess(row, field).read !== 'visible') throw new Error('设计数据字段不可读')
+    }
+    const id = normalizeApiInfoText(row.rowid)
+    if (!id || rowIds.has(id)) throw new Error('设计数据正式行 ID 缺失或重复')
+    rowIds.add(id)
+    if (normalizeApiInfoText(row.dataSetId) !== dataSetId) throw new Error('设计数据归属与当前数据空间不一致')
+    if (modelIds && !modelIds.has(normalizeApiInfoText(row.dataModelId))) throw new Error('字段归属与正式模型不一致')
+  }
+}
+
+function catalogApiTargetIsCurrent(view, row, id) {
+  try {
+    return catalogTargetIsCurrent(view, row, id)
+      && view.fieldAccess(row, 'rowid').read === 'visible'
+      && normalizeApiInfoText(row.rowid) === id
+  } catch {
+    return false
+  }
+}
+
+function catalogApiDesignResultIsCurrent({ dataSet, models, modelRows, fields, fieldRows, id,
+  requiredModelFields, requiredFieldFields }) {
+  try {
+    if ($page.getDataSet('8D1AB14DD8277F3E7017CD38F77B09FD') !== dataSet
+      || $page.resolveView('#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel@apiInfoModels') !== models
+      || $page.resolveView('#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel_Field@apiInfoFields') !== fields
+      || models.rows !== modelRows || fields.rows !== fieldRows) return false
+    assertApiInfoRowsReadable({ view: models, rows: modelRows, fields: requiredModelFields, dataSetId: id })
+    const modelIds = new Set(modelRows.map(model => normalizeApiInfoText(model.rowid)))
+    assertApiInfoRowsReadable({ view: fields, rows: fieldRows, fields: requiredFieldFields, dataSetId: id, modelIds })
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function copyCatalogApiInfo(view, row) {
+  if (catalogOperationBusy || catalogSaveUncertain) {
+    if (catalogSaveUncertain) $page.showMessage('上次保存结果未知，请刷新确认后再复制 API', 'warning')
+    return
+  }
+  if (!row || view.currentRow !== row || view.fieldAccess(row, 'rowid').read !== 'visible') return
+  const id = normalizeApiInfoText(row.rowid)
+  if (!id || !catalogApiTargetIsCurrent(view, row, id)) return
+  catalogOperationBusy = true
+  try {
+    const designDataSet = $page.getDataSet('8D1AB14DD8277F3E7017CD38F77B09FD')
+    if (!designDataSet) throw new Error('页面未配置数据空间设计场景')
+    const models = $page.resolveView('#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel@apiInfoModels')
+    const fields = $page.resolveView('#8D1AB14DD8277F3E7017CD38F77B09FD@Base_DataModel_Field@apiInfoFields')
+    if (!models || !fields) throw new Error('页面未配置数据空间设计场景')
+    if (!catalogApiTargetIsCurrent(view, row, id)) return
+    const modelResult = await models.loadFromServer({ fields: ['rowid', 'Name', 'Type', 'dataSetId'],
+      filter: { field: 'dataSetId', operator: 'eq', value: id }, allPages: true, maxRows: 50000 })
+    if (!modelResult.success) throw new Error(modelResult.message || '模型查询失败')
+    const modelRows = models.rows
+    if (!catalogApiTargetIsCurrent(view, row, id)) return
+    const fieldResult = await fields.loadFromServer({ fields: ['rowid', 'Name', 'type', 'IsPKey', 'dataSetId', 'dataModelId'],
+      filter: { field: 'dataSetId', operator: 'eq', value: id }, sort: 'rowid:asc', allPages: true, maxRows: 50000 })
+    if (!fieldResult.success) throw new Error(fieldResult.message || '字段查询失败')
+    const fieldRows = fields.rows
+    if (!catalogApiTargetIsCurrent(view, row, id)) return
+    const requiredModelFields = ['rowid', 'Name', 'Type', 'dataSetId']
+    const requiredFieldFields = ['rowid', 'Name', 'type', 'IsPKey', 'dataSetId', 'dataModelId']
+    const designResult = { dataSet: designDataSet, models, modelRows, fields, fieldRows, id,
+      requiredModelFields, requiredFieldFields }
+    if (!catalogApiDesignResultIsCurrent(designResult)) throw new Error('设计数据查询结果已失效')
+    if (!catalogApiTargetIsCurrent(view, row, id)) return
+    const text = formatCatalogApiInfo(id, modelRows, fieldRows)
+    await $page.copyText(text)
+    if (!catalogApiDesignResultIsCurrent(designResult) || !catalogApiTargetIsCurrent(view, row, id)) return
+    $page.showMessage('API 信息已复制', 'success')
+  } catch (error) {
+    const staleOwner = error instanceof Error && (error.message.startsWith('SPARK_EXECUTION_SCOPE_STALE:')
+      || error.message.startsWith('SPARK_QUERY_CONTEXT_STALE:'))
+    if (!catalogPageIsStale(error) && !staleOwner && catalogApiTargetIsCurrent(view, row, id)) {
+      $page.showMessage(error instanceof Error && error.message === '页面未配置数据空间设计场景'
+        ? error.message : '复制 API 失败，请检查数据权限或剪贴板后重试', 'error')
+    }
+  } finally {
+    catalogOperationBusy = false
+  }
+}
+
+function RenderCatalogActions() {
+  const view = $page.resolveView('Base_DataSet@catalog')
+  const actions = []
+  if (view.addActionState() === 'enabled') actions.push(h('button', { type: 'button', class: 'catalog-button catalog-add',
+    disabled: catalogSaveUncertain || catalogOperationBusy, onClick: addCatalogEntry }, '新增数据空间'))
+  const row = view.currentRow
+  if (row && view.fieldAccess(row, 'rowid').read === 'visible' && normalizeApiInfoText(row.rowid)) {
+    actions.push(h('button', { type: 'button', class: 'catalog-button catalog-copy-api',
+      disabled: catalogSaveUncertain || catalogOperationBusy, onClick: () => copyCatalogApiInfo(view, row) }, '复制 API'))
+  }
+  if (row && view.editActionState(row) === 'enabled'
+    && ['Name', 'description'].some(field => view.fieldAccess(row, field).write === 'allowed')) {
+    actions.push(h('button', { type: 'button', class: 'catalog-button catalog-edit', disabled: catalogSaveUncertain || catalogOperationBusy,
+      onClick: () => editCatalogEntry(view, row) }, '编辑数据空间'))
+  }
+  if (row && view.deleteActionState(row) === 'enabled') {
+    actions.push(h('button', { type: 'button', class: 'catalog-button catalog-delete', disabled: catalogSaveUncertain || catalogOperationBusy,
+      onClick: () => deleteCatalogEntry(view, row) }, '删除数据空间'))
+  }
+  return [h('div', { class: 'catalog-actions' }, actions)]
+}
+
+function RenderCatalogPaging() {
+  const view = $page.resolveView('Base_DataSet@catalog')
+  const start = view.total === 0 ? 0 : (view.page - 1) * view.pageSize + 1
+  const end = Math.min(view.page * view.pageSize, view.total)
+  return [h('div', { class: 'catalog-pager' }, [
+    h('span', {}, `${start}-${end} / ${view.total}`),
+    h('button', { type: 'button', disabled: view.page <= 1,
+      onClick: () => changeCatalogPage(view.page - 1) }, '上一页'),
+    h('span', {}, `第 ${view.page} 页`),
+    h('button', { type: 'button', disabled: end >= view.total,
+      onClick: () => changeCatalogPage(view.page + 1) }, '下一页'),
+    h('select', { value: view.pageSize, onChange: changeCatalogPageSize }, [10, 20, 50].map((size) =>
+      h('option', { value: size }, `${size} 条/页`))),
+  ]), catalogRequestError ? h('p', { class: 'catalog-error', role: 'alert' }, catalogRequestError) : null]
+}
+
+function findCurrentRow(view, rowKey) {
+  return view.rows.find((row) => String(view.getPkKey(row)) === String(rowKey)) || null
+}
+
+function RenderCatalogApp(props) {
+  const data = $page.resolveView('Base_DataSet@catalog')
+  const row = findCurrentRow(data, props.rowKey)
+  if (!row) return []
+  const access = data.fieldAccess(row, 'sysid')
+  if (access.read === 'masked') return [h('span', {}, '••••')]
+  if (access.read !== 'visible' || row.sysid == null || row.sysid === '') return [h('span', {}, '')]
+  const id = String(row.sysid)
+  const apps = $page.resolveView('Base_AppSystemList@catalogApps')
+  const matches = apps.rows.filter((item) => String(item.rowid ?? '') === id
+    && apps.fieldAccess(item, 'rowid').read === 'visible')
+  if (matches.length !== 1) return [h('span', {}, id)]
+  const item = matches[0]
+  for (const field of ['AppDesc', 'AppName']) {
+    const fieldAccess = apps.fieldAccess(item, field)
+    if (fieldAccess.read === 'masked') return [h('span', {}, '••••')]
+    if (fieldAccess.read === 'visible' && item[field] != null && String(item[field]).trim()) {
+      return [h('span', {}, String(item[field]).trim())]
+    }
+  }
+  return [h('span', {}, id)]
+}
+
+function RenderCatalogCreator(props) {
+  const data = $page.resolveView('Base_DataSet@catalog')
+  const row = findCurrentRow(data, props.rowKey)
+  if (!row) return []
+  const access = data.fieldAccess(row, 'createuser')
+  if (access.read === 'masked') return [h('span', {}, '••••')]
+  if (access.read !== 'visible' || row.createuser == null || row.createuser === '') return [h('span', {}, '')]
+  const id = String(row.createuser)
+  const users = $page.resolveView('Base_UserInfo@catalogUsers')
+  const matches = users.rows.filter((item) => {
+    if (users.getPkKey(item) !== item.ID || users.fieldAccess(item, 'ROWID').read !== 'visible'
+      || users.fieldAccess(item, 'rowid').read !== 'visible') return false
+    const outputId = Object.hasOwn(item, 'rowid') ? String(item.rowid ?? '') : ''
+    const formalId = Object.hasOwn(item, 'ROWID') ? String(item.ROWID ?? '') : ''
+    if (outputId && formalId && outputId !== formalId) return false
+    return (outputId || formalId) === id
+  })
+  if (matches.length !== 1) return [h('span', {}, '未解析用户')]
+  const item = matches[0]
+  const nameAccess = users.fieldAccess(item, 'UserName')
+  if (nameAccess.read === 'masked') return [h('span', {}, '••••')]
+  if (nameAccess.read !== 'visible') return [h('span', {}, '')]
+  const label = String(item.UserName ?? '').trim() || '未解析用户'
+  return [h('span', {}, label)]
+}
+
+function RenderCatalogSearch() {
+  const apps = $page.resolveView('Base_AppSystemList@catalogApps')
+  const options = apps.rows.filter((row) => apps.fieldAccess(row, 'rowid').read === 'visible')
+    .map((row) => {
+      let label = ''
+      for (const field of ['AppDesc', 'AppName']) {
+        const access = apps.fieldAccess(row, field)
+        if (access.read === 'masked') { label = '••••'; break }
+        if (access.read === 'visible' && row[field] != null && String(row[field]).trim()) {
+          label = String(row[field]).trim()
+          break
+        }
+      }
+      return { value: String(row.rowid), label: label || String(row.rowid) }
+    })
+  return [
+    h('div', { class: 'catalog-search-controls' }, [
+      h('input', { class: 'catalog-search-name', value: catalogSearchName, placeholder: '输入名称或 ID',
+        onInput: (event) => { catalogSearchName = event.target.value } }),
+      h('select', { class: 'catalog-search-app', value: catalogSearchApp,
+        onChange: (event) => { catalogSearchApp = event.target.value } }, [
+        h('option', { value: '' }, '全部应用'),
+        ...options.map((option) => h('option', { value: option.value }, option.label)),
+      ]),
+      h('button', { type: 'button', class: 'catalog-button', onClick: applyCatalogFilter }, '查询'),
+      catalogRequestError ? h('span', { class: 'catalog-error', role: 'alert' }, catalogRequestError) : null,
+    ]),
+  ]
+}

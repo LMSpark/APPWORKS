@@ -1,0 +1,478 @@
+{
+  "checkedAt": "2026-10-08T05:06:33.904Z",
+  "stage": "complete",
+  "sources": [
+    {
+      "kind": "table",
+      "metaName": "View_TblList",
+      "list": {
+        "total": 1188,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "tbldesc",
+              "dbid",
+              "ColCount",
+              "DbName",
+              "tblname",
+              "rowid"
+            ],
+            "hasFormalKey": false,
+            "access": {
+              "rowid": "visible",
+              "tblname": "visible",
+              "tbldesc": "visible",
+              "dbid": "visible",
+              "DbName": "visible"
+            }
+          }
+        ]
+      },
+      "selection": {
+        "total": 1,
+        "rows": 1,
+        "sameIdentity": true
+      },
+      "fields": {
+        "total": 9,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "createuser",
+              "lingma_sys_is_delete",
+              "updatetime",
+              "createtime",
+              "tblid",
+              "wfid",
+              "rowid",
+              "enname",
+              "cnname",
+              "ReportID",
+              "IsPKey",
+              "flowstate",
+              "DataType",
+              "updateuser",
+              "description",
+              "tblname"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "tblid": "visible",
+              "enname": "visible",
+              "cnname": "visible",
+              "DataType": "visible",
+              "description": "visible",
+              "IsPKey": "visible"
+            }
+          },
+          {
+            "keys": [
+              "createuser",
+              "lingma_sys_is_delete",
+              "updatetime",
+              "createtime",
+              "tblid",
+              "wfid",
+              "rowid",
+              "enname",
+              "cnname",
+              "ReportID",
+              "IsPKey",
+              "flowstate",
+              "DataType",
+              "updateuser",
+              "description",
+              "tblname"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "tblid": "visible",
+              "enname": "visible",
+              "cnname": "visible",
+              "DataType": "visible",
+              "description": "visible",
+              "IsPKey": "visible"
+            }
+          },
+          {
+            "keys": [
+              "createuser",
+              "lingma_sys_is_delete",
+              "updatetime",
+              "createtime",
+              "tblid",
+              "wfid",
+              "rowid",
+              "enname",
+              "cnname",
+              "ReportID",
+              "IsPKey",
+              "flowstate",
+              "DataType",
+              "updateuser",
+              "description",
+              "tblname"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "tblid": "visible",
+              "enname": "visible",
+              "cnname": "visible",
+              "DataType": "visible",
+              "description": "visible",
+              "IsPKey": "visible"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "dict",
+      "metaName": "_Base_DictType",
+      "list": {
+        "total": 346,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "remark",
+              "rowid",
+              "functiondesc",
+              "val",
+              "txt",
+              "TypeName"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "TypeName": "visible",
+              "functiondesc": "visible"
+            }
+          }
+        ]
+      },
+      "selection": {
+        "total": 1,
+        "rows": 1,
+        "sameIdentity": true
+      }
+    },
+    {
+      "kind": "interface",
+      "metaName": "Base_DataServiceInterface",
+      "list": {
+        "total": 86,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "createtime",
+              "Name",
+              "ProviderID",
+              "flowstate",
+              "Desc",
+              "wfid",
+              "updateuser",
+              "ReportID",
+              "rowid",
+              "lingma_sys_is_delete",
+              "description",
+              "createuser",
+              "updatetime"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "Name": "visible",
+              "Desc": "visible",
+              "ProviderID": "visible"
+            }
+          }
+        ]
+      },
+      "selection": {
+        "total": 1,
+        "rows": 1,
+        "sameIdentity": true
+      },
+      "fields": {
+        "total": 0,
+        "countReported": true,
+        "rows": []
+      },
+      "params": {
+        "total": 6,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "parname",
+              "pid",
+              "parid",
+              "pardesc",
+              "testvalue"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "pid": "visible",
+              "parname": "visible",
+              "pardesc": "visible",
+              "parzdtype": "visible"
+            }
+          },
+          {
+            "keys": [
+              "parname",
+              "pid",
+              "parid",
+              "pardesc",
+              "testvalue"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "pid": "visible",
+              "parname": "visible",
+              "pardesc": "visible",
+              "parzdtype": "visible"
+            }
+          },
+          {
+            "keys": [
+              "parname",
+              "pid",
+              "parid",
+              "pardesc",
+              "testvalue"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "pid": "visible",
+              "parname": "visible",
+              "pardesc": "visible",
+              "parzdtype": "visible"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "json",
+      "metaName": "Base_JsonData",
+      "list": {
+        "total": 11,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "path",
+              "rowid",
+              "name"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "name": "visible",
+              "description": "visible"
+            }
+          }
+        ]
+      },
+      "selection": {
+        "total": 1,
+        "rows": 1,
+        "sameIdentity": true
+      }
+    },
+    {
+      "kind": "logicView",
+      "metaName": "Base_DataViewList",
+      "list": {
+        "total": 16,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "rowid",
+              "name"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "name": "visible",
+              "description": "visible"
+            }
+          }
+        ]
+      },
+      "selection": {
+        "total": 1,
+        "rows": 1,
+        "sameIdentity": true
+      },
+      "fields": {
+        "total": 0,
+        "countReported": true,
+        "rows": []
+      },
+      "params": {
+        "total": 1,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "parname",
+              "pid",
+              "parid",
+              "pardesc",
+              "testvalue"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "pid": "visible",
+              "parname": "visible",
+              "pardesc": "visible",
+              "parzdtype": "visible"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "databaseView",
+      "metaName": "View_ViewList",
+      "list": {
+        "total": 135,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "dbid",
+              "vewname",
+              "rowid",
+              "DbName",
+              "vewdesc"
+            ],
+            "hasFormalKey": false,
+            "access": {
+              "rowid": "visible",
+              "vewname": "visible",
+              "vewdesc": "visible",
+              "dbid": "visible",
+              "DbName": "visible"
+            }
+          }
+        ]
+      },
+      "selection": {
+        "total": 1,
+        "rows": 1,
+        "sameIdentity": true
+      },
+      "fields": {
+        "total": 37,
+        "countReported": true,
+        "rows": [
+          {
+            "keys": [
+              "createuser",
+              "lingma_sys_is_delete",
+              "updatetime",
+              "createtime",
+              "tblid",
+              "wfid",
+              "rowid",
+              "enname",
+              "cnname",
+              "ReportID",
+              "IsPKey",
+              "flowstate",
+              "DataType",
+              "updateuser",
+              "description",
+              "tblname"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "tblid": "visible",
+              "enname": "visible",
+              "cnname": "visible",
+              "DataType": "visible",
+              "description": "visible",
+              "IsPKey": "visible"
+            }
+          },
+          {
+            "keys": [
+              "createuser",
+              "lingma_sys_is_delete",
+              "updatetime",
+              "createtime",
+              "tblid",
+              "wfid",
+              "rowid",
+              "enname",
+              "cnname",
+              "ReportID",
+              "IsPKey",
+              "flowstate",
+              "DataType",
+              "updateuser",
+              "description",
+              "tblname"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "tblid": "visible",
+              "enname": "visible",
+              "cnname": "visible",
+              "DataType": "visible",
+              "description": "visible",
+              "IsPKey": "visible"
+            }
+          },
+          {
+            "keys": [
+              "createuser",
+              "lingma_sys_is_delete",
+              "updatetime",
+              "createtime",
+              "tblid",
+              "wfid",
+              "rowid",
+              "enname",
+              "cnname",
+              "ReportID",
+              "IsPKey",
+              "flowstate",
+              "DataType",
+              "updateuser",
+              "description",
+              "tblname"
+            ],
+            "hasFormalKey": true,
+            "access": {
+              "rowid": "visible",
+              "tblid": "visible",
+              "enname": "visible",
+              "cnname": "visible",
+              "DataType": "visible",
+              "description": "visible",
+              "IsPKey": "visible"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

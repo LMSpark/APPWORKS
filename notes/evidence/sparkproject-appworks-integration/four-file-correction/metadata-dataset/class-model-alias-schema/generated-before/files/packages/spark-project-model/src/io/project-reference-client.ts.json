@@ -1,0 +1,375 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:io/project-reference-client",
+    "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts",
+    "sourceFile": "packages/spark-project-model/src/io/project-reference-client.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "io/project-reference-client",
+    "jsdoc": "@module @spark-appworks/spark-project-model:io/project-reference-client\n职责：跨项目目录和页面摘要读取。\n边界：只返回引用投影，不持有当前项目编辑态。\nAI用途：读取其他项目页面引用候选。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ProjectSummary",
+      "ProjectPageReference",
+      "ListProjectReferencesOptions",
+      "ProjectReferenceGateway",
+      "ProjectReferenceClient"
+    ]
+  },
+  "$defs": {
+    "ProjectSummary": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectSummary",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectPageReference": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectPageReference",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectId"
+      ],
+      "additionalProperties": false
+    },
+    "ListProjectReferencesOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ListProjectReferencesOptions",
+      "properties": {
+        "excludeProjectId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProjectReferenceGateway": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectReferenceGateway",
+      "$defs": {
+        "method.listProjects.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listProjects.return": {
+          "type": "object",
+          "title": "Promise<unknown>"
+        },
+        "method.loadProjectBlueprint.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadProjectBlueprint.return": {
+          "type": "object",
+          "title": "Promise<Partial<ProjectBlueprintTreeData>>"
+        }
+      }
+    },
+    "ProjectReferenceClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectReferenceClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "gateway": {
+              "$ref": "#/$defs/ProjectReferenceGateway"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listProjects.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ListProjectReferencesOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listProjects.return": {
+          "type": "object",
+          "title": "Promise<ProjectSummary[]>"
+        },
+        "method.listProjectPages.params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.listProjectPages.return": {
+          "type": "object",
+          "title": "Promise<ProjectPageReference[]>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-06T20:49:03.383Z",
+  "models": {
+    "ProjectSummary": {
+      "name": "ProjectSummary",
+      "jsdoc": "引用候选项目的只读目录摘要。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    name: string;\n    icon: string;\n    description: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    name: string;\n    icon: string;\n    description: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectPageReference": {
+      "name": "ProjectPageReference",
+      "jsdoc": "附带目标项目身份的交付摘要，不进入当前编辑owner。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ProjectPageNodeSummary & {\n    projectId: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ProjectPageNodeSummary",
+            "targetName": "ProjectPageNodeSummary"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    projectId: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ListProjectReferencesOptions": {
+      "name": "ListProjectReferencesOptions",
+      "jsdoc": "明确排除当前项目的引用查询条件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    excludeProjectId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    excludeProjectId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "excludeProjectId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectReferenceGateway": {
+      "name": "ProjectReferenceGateway",
+      "jsdoc": "宿主提供的跨项目目录及正式蓝图读取能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    listProjects(): Promise<unknown>;\n    loadProjectBlueprint(projectId: string): Promise<Partial<ProjectBlueprintTreeData>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    listProjects(): Promise<unknown>;\n    loadProjectBlueprint(projectId: string): Promise<Partial<ProjectBlueprintTreeData>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "listProjects",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadProjectBlueprint",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Partial",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ProjectBlueprintTreeData",
+                        "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ProjectReferenceClient": {
+      "name": "ProjectReferenceClient",
+      "jsdoc": "跨项目只读引用查询门面，不转移当前项目状态。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定宿主目录及正式蓝图读取能力。",
+          "signatureText": "constructor(gateway: ProjectReferenceGateway)",
+          "parameters": [
+            {
+              "name": "gateway",
+              "type": {
+                "type": "reference",
+                "name": "ProjectReferenceGateway",
+                "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "listProjects",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "ListProjectReferencesOptions",
+                    "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ProjectSummary",
+                      "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listProjectPages",
+              "parameters": [
+                {
+                  "name": "projectId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "ProjectPageReference",
+                      "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

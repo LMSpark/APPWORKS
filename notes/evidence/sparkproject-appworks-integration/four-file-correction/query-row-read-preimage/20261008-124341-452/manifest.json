@@ -1,0 +1,17 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
+    "copy": "notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\query-row-read-preimage\\20261008-124341-452\\packages__spark-lowcode-api__src__platform__data-space__runtime__query__data-space-query-context.ts",
+    "sha256": "6A87BC561F3B680E8CF0151C21FB5BF110AB9070702ABBD40C95C5698C73F4A5"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
+    "copy": "notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\query-row-read-preimage\\20261008-124341-452\\packages__spark-lowcode-api__src__platform__data-space__runtime__data-space-runtime-api.test.ts",
+    "sha256": "C4A453E71A438FEF1322E22E45CFAD1EBD46FA4764F56A0C037F796607CEF159"
+  },
+  {
+    "path": "packages/spark-lowcode-api/README.md",
+    "copy": "notes\\evidence\\sparkproject-appworks-integration\\four-file-correction\\query-row-read-preimage\\20261008-124341-452\\packages__spark-lowcode-api__README.md",
+    "sha256": "B7813E95EAAFB7E8B3553027556EB7CCAB1F04C0DECB4DE9819B65587DFE3B9E"
+  }
+]

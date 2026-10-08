@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/ProjectPlanningDocumentImportDialog",
+    "sourcePath": "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue",
+    "sourceFile": "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/ProjectPlanningDocumentImportDialog",
+    "jsdoc": "@module app:views/app/dev-system/ProjectPlanningDocumentImportDialog\n职责：提供 DevSystem 的项目策划文档导入对话框，围绕 .docx 附件上传、附件引用绑定和 projectPlanning AI 运行状态展示。\n边界：只展示附件元数据与 AI trace；Word 正文不进入前端。\nAI用途：排查需求文档到 projectPlanning 的导入链路时，用本模块定位前端交互入口。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-06-20T04:47:21.384Z",
+  "models": {}
+}

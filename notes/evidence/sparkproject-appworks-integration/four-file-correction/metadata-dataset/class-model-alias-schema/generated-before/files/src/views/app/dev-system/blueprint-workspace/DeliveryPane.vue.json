@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/blueprint-workspace/DeliveryPane",
+    "sourcePath": "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue",
+    "sourceFile": "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/blueprint-workspace/DeliveryPane",
+    "jsdoc": "@module app:views/app/dev-system/blueprint-workspace/DeliveryPane\n职责：展示页面工具三文件编辑与真实运行实例预览。\n边界：三文件独立追加编号快照，场景pagedata不进入工具发布指针。\nAI用途：编辑rule/script/style并触发父工作台真实交付动作。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-06T21:12:48.630Z",
+  "models": {}
+}

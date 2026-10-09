@@ -1,0 +1,30 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-config.ts",
+    "sha256": "63ABD90708889630C407372787976AA4D429198FD4D133423F5579CBCF794735"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+    "sha256": "92BD140BDD23B8DCAD70D2C5295F40AB026165D431B0A2B1FB2652B9DE4E1189"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
+    "sha256": "4867BF52010CA31D5D182E202817B728D0974DD6EFD3E00C3732A64CA727F81E"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
+    "sha256": "996590B2E8D759AC99ADD2E8487D89BB0D8F27A0A7268D092CA1B632F22C2CAF"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts",
+    "sha256": "FD6AAC74798B2D12631E99A50C40BA999C54D8C597A9C5DCE9B76E2ED9FA5D88"
+  },
+  {
+    "path": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
+    "sha256": "4F2BF25E9453AD99A18E5A8B7B9EF97CAEBBD3B82DA407B00E680D12052CEAD7"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts",
+    "sha256": "DF471FF559945971453B3645D79337606CD04DAE041271F9B885D2BB9953D3F5"
+  }
+]

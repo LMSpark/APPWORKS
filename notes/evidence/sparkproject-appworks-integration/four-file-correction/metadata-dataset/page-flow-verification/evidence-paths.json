@@ -1,0 +1,46 @@
+[
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/d1c/create-dispatch-draft.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/d1c/create-dispatch-proposal.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-api-preflight.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-api-preflight.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-api-result.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-api-result.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-api-review.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-api-review.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-text-result.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-text-result.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-text-review.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-text-review.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/layout-read-before/packages__spark-component__API.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/layout-read-before/spark-component-api.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/render-hook-refresh-before/packages__spark-component__API.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/render-hook-refresh-before/spark-component-api.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/query-row-read-preimage/20261008-124341-452/packages__spark-lowcode-api__README.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/query-row-read-preimage/20261008-124341-452/spark-lowcode-api-readme.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/model-relation-expression-20261008-0756/packages-spark-data-API.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/model-relation-expression-20261008-0756/spark-data-api.md"
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/value-function-20261008-074452-636/notes-evidence-sparkproject-appworks-integration-four-file-correction-semantic-page-restoration-result.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/value-function-20261008-074452-636/semantic-page-restoration-result.md"
+  }
+]

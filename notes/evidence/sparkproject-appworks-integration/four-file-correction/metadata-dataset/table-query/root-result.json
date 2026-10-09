@@ -1,0 +1,5 @@
+{
+  "command": "pnpm exec vitest run --maxWorkers=1",
+  "exit": 0,
+  "finishedAt": "2026-10-09T09:13:06.8437830+08:00"
+}

@@ -8,7 +8,6 @@ import type { DataSpaceQueryIdentity, DataSpaceQueryOptions } from '../data-spac
 import type { DataSpaceQueryContext } from './data-space-query-context'
 import { DataSpaceQueryResource } from './data-space-query-resource'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
-import { DataSpaceRequestConfig } from '../protocol/data-space-request-config'
 
 /** 查询资源的 HTTP 与 scope 配置，所有资源共享同一请求身份读取器。 */
 type DataSpaceQueryCacheOptions = ConstructorParameters<typeof DataSpaceQueryResource>[0]
@@ -38,12 +37,11 @@ export class DataSpaceQueryCache {
     this.invalidate()
   }
 
-  public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {},
-    config: DataSpaceRequestConfig = DataSpaceRequestConfig.resolveQuery()): Promise<DataSpaceQueryContext> {
+  public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {}): Promise<DataSpaceQueryContext> {
     const scope = this.currentScope()
     const normalized = new DataSpaceQueryTable(identity).identity
     const { singleFlight: _singleFlight, ...executionOptions } = options
-    const key = this.cacheKey([scope, normalized, config.endpoint, config.timeout, { ...executionOptions,
+    const key = this.cacheKey([scope, normalized, { ...executionOptions,
       ...(executionOptions.filter === undefined ? {} : { filter: executionOptions.filter?.toJSON() ?? null }) }])
     const existing = this.#flights.get(key)
     if (existing) return existing
@@ -52,7 +50,7 @@ export class DataSpaceQueryCache {
       resource = new DataSpaceQueryResource(this.#options)
       this.#resources.set(normalized.scenarioId, resource)
     }
-    const flight = resource.query(normalized, executionOptions, config).finally(() => {
+    const flight = resource.query(normalized, executionOptions).finally(() => {
       if (this.#flights.get(key) === flight) this.#flights.delete(key)
     })
     this.#flights.set(key, flight)

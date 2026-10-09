@@ -26,8 +26,6 @@ import FilterExpressionGroup from '../../../../packages/spark-component/src/comp
 const designId = '8D1AB14DD8277F3E7017CD38F77B09FD'
 const catalogId = '90A82E287930A234FEC3E687C94A93EA'
 const pageRoot = resolve(process.cwd(), 'config/pages/data-platform/data-space-design')
-// 完整页面流程包含多次挂载和持久化回读，不使用单元测试的五秒总预算。
-const completePageFlowTimeout = 15_000
 const routeSnapshot = { path: `/t/tenant/app/__tool/${designId}`, fullPath: `/t/tenant/app/__tool/${designId}?scenarioId=${designId}&dataSpaceId=DS-1&returnTo=%2Ft%2Ftenant%2Fapp%2Fcatalog`,
   name: 'tool', params: { tenantId: 'tenant', projectId: 'app' }, query: { scenarioId: designId,
     additionalScenarioIds: [catalogId], dataSpaceId: 'DS-1', returnTo: '/t/tenant/app/catalog' }, hash: '' }
@@ -572,7 +570,7 @@ describe('data-space design four-file read page', () => {
       Spark.getRegistry().unregister('data-space-design-graph')
       restoreStubs()
     }
-  }, completePageFlowTimeout)
+  })
   it('ignores a late formal field result after switching models and blocks switching with unapplied edits', async () => {
     const shared = sharedViewDesignFixture()
     const second = model({id: 'MODEL-2', name: '模型注册乙', primaryKey: 'key',
@@ -1060,7 +1058,6 @@ describe('data-space design four-file read page', () => {
     expect(fixture.messages.at(-1)?.message).toContain('字段 filter 不可读')
   })
   it('creates a relation through configured selects and full Filter, then reopens it in a new runtime', async () => {
-    let unmountPage: (() => void) | undefined
     registerAllRenderers()
     Spark.register('data-space-filter-editor', DataSpaceFilterEditor)
     Spark.register('data-space-design-graph', DataSpaceDesignGraph)
@@ -1099,11 +1096,9 @@ describe('data-space design four-file read page', () => {
         const Renderer = resolveComponent('SparkPageRenderer')
         return () => h(Renderer,{routeSnapshot,pageRuntime:current.pageRuntime})
       }})
-      const wrapper = mount(PageWithServices,{attachTo:container,
+      return mount(PageWithServices,{attachTo:container,
         global:{plugins:[Spark.createPlugin(),ElementPlus,current.router],
           components:{SparkPageRenderer,ElTabs:ElementTabsStub,ElTabPane:ElementTabPaneStub}}})
-      unmountPage = () => wrapper.unmount()
-      return wrapper
     }
     try {
       let wrapper = mountPage(fixture)
@@ -1178,19 +1173,21 @@ describe('data-space design four-file read page', () => {
       const reopened = await createDesignFixture({modelRows:fixture.http.modelRows ?? initialModels,
         fieldRows:initialFields,relationRows:persisted ?? [],layout:fixture.layoutContent()})
       wrapper = mountPage(reopened)
-      await vi.waitFor(() => expect(wrapper.text()).toContain(`关系 ID：${relationId}`))
+      await flushPromises()
+      await flushPromises()
+      expect(wrapper.text()).toContain(`关系 ID：${relationId}`)
       expect(wrapper.text()).toContain('父：父注册名')
       expect(wrapper.text()).toContain('子：子注册名')
       expect(reopened.http.saveRequests).toHaveLength(0)
+      wrapper.unmount()
     } finally {
-      unmountPage?.()
       container.remove()
       vi.unstubAllGlobals()
       Spark.getRegistry().unregister('data-space-filter-editor')
       Spark.getRegistry().unregister('data-space-design-graph')
       restore()
     }
-  }, completePageFlowTimeout)
+  })
   for (const interruption of ['save','readback']) it(`keeps one dispatched relation across a renderer remount during ${interruption} and verifies without another add`, async () => {
     registerAllRenderers()
     Spark.register('data-space-filter-editor', DataSpaceFilterEditor)
@@ -3797,7 +3794,6 @@ describe('data-space design four-file read page', () => {
   })
 
   it('edits and deletes the selected relation through the rendered page and confirms raw filter, exact row, and layout', async () => {
-    let unmountPage: (() => void) | undefined
     registerAllRenderers()
     Spark.register('data-space-filter-editor', DataSpaceFilterEditor)
     Spark.register('data-space-design-graph', DataSpaceDesignGraph)
@@ -3862,7 +3858,6 @@ describe('data-space design four-file read page', () => {
       const wrapper = mount(PageWithServices, { attachTo: container,
         global: { plugins: [Spark.createPlugin(), ElementPlus, fixture.router],
           components: { SparkPageRenderer, ElTabs: ElementTabsStub, ElTabPane: ElementTabPaneStub } } })
-      unmountPage = () => wrapper.unmount()
       await flushPromises()
       await flushPromises()
       expect(wrapper.text()).toContain('父：父注册名')
@@ -3969,15 +3964,15 @@ describe('data-space design four-file read page', () => {
       expect(deleteCommands.map(value => record(value)['TableName']))
         .toEqual(['Base_DataModel', 'Base_DataModel_Relation'])
       expect(errors).toEqual([])
+      wrapper.unmount()
     } finally {
-      unmountPage?.()
       container.remove()
       vi.unstubAllGlobals()
       Spark.getRegistry().unregister('data-space-filter-editor')
       Spark.getRegistry().unregister('data-space-design-graph')
       restore()
     }
-  }, completePageFlowTimeout)
+  })
 
   it('saves first Join assignment and clearing through the selected relation DataViews', async () => {
     const filter = JSON.stringify({ Type: 'cond', Field: 'Name', Operator: 'equal', Value: null,

@@ -1,0 +1,43 @@
+diff --git a/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts b/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts
+index fbfb52144..527d4e315 100644
+--- a/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts
++++ b/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts
+@@ -118,9 +118,23 @@ export class DataSpaceRuntimeApi {
+       const {alias, ...projection} = field
+       return {...projection, name: requestField(alias ?? field.name)}
+     })
+-    if (fields && model.primaryKey) {
+-      const primaryKey = requestField(model.primaryKey)
+-      if (!fields.some(field => field.name === primaryKey)) fields.push({name: primaryKey})
++    const treeFields = new Set<string>()
++    const tree = view.treeConfig
++    if (tree) {
++      treeFields.add(tree.idField ?? 'id')
++      if (tree.parentIdField !== undefined || outputFields.some(field => field.canonicalName === 'parentId')) {
++        treeFields.add(tree.parentIdField ?? 'parentId')
++      }
++      const textField = tree.textField ?? 'name'
++      if ((tree.textField !== undefined || outputFields.some(field => field.canonicalName === textField))
++        && !view.dataTable?.columns.some(column => column.name === textField && Boolean(column.computeExpression))) {
++        treeFields.add(textField)
++      }
++    }
++    for (const dependency of [model.primaryKey, ...treeFields]) {
++      if (!fields || !dependency) continue
++      const name = requestField(dependency)
++      if (!fields.some(field => field.name === name)) fields.push({name})
+     }
+     const context = await this.query(command.identity, {...options, outputFieldMode: 'REQUEST',
+       ...(fields === undefined ? {} : {fields}),
+@@ -131,6 +145,11 @@ export class DataSpaceRuntimeApi {
+         ...(options.tree.hasChildrenField === undefined ? {} : {hasChildrenField: requestField(options.tree.hasChildrenField)})}}),
+     })
+     context.bindFormalModel(model)
++    for (const row of context.rows) for (const field of treeFields) {
++      if (!Object.hasOwn(row, field) || context.readFieldAccess(row, field) !== 'visible') {
++        throw new Error(`SPARK_TREE_FIELD_UNAVAILABLE: 树字段未返回或不可读: ${field}`)
++      }
++    }
+     return context
+   }
+ 

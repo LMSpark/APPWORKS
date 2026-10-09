@@ -1,0 +1,10 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+    "sha256": "92BD140BDD23B8DCAD70D2C5295F40AB026165D431B0A2B1FB2652B9DE4E1189"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-tree-query.test.ts",
+    "sha256": "1841FD66377454B907EA2458915560A9FE5F191D547790C47F573B6C55B2AF5B"
+  }
+]

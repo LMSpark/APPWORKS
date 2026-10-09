@@ -1,0 +1,34 @@
+[
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
+    "sha256": "333D53416CFC13C80A3E496106C2DB0FCA5C1A7B35145EFB7518CF24CDAFD6DE"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+    "sha256": "588423A122B04AB032D5B1DAD3092DF51372453B85AD0F0DD0B085168D2FCDFE"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
+    "sha256": "9F43B48973E2FA688BE1C20D6B37516C63D6C483A0AD50445E03AF0D3F11FF78"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
+    "sha256": "A7A9FD8D7DCA0DF85BEEAB21CE280EBD0107DF191A57F5069FEFD8B8C106ABC2"
+  },
+  {
+    "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts",
+    "sha256": "5E1346992D42452B1D5B696F12B25C6B0588A67945A04396E6ED571EF139A03D"
+  },
+  {
+    "path": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
+    "sha256": "6D5750A630C5AA2A07E9A2B619C1DBE3E1F0E6573D0AC65392FBA482C114A59B"
+  },
+  {
+    "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts",
+    "sha256": "D292357DA5B97B77E539E00B61D755BA249D75A9FDEA5504B0E8DE5058ECE679"
+  },
+  {
+    "path": "backend-api-contracts/appworks-consumer-ledger.json",
+    "sha256": "D4145F7602A70E94CD438E1B014BB47BFDA282C60119EF94CDF4D3DFE24563B6"
+  }
+]

@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-09",
+  "baseCommit": "b3dd6ef927a3a12364d3aa4908aa515857d4c400",
+  "status": "passed",
+  "root": {
+    "seconds": 418.18,
+    "suites": 212,
+    "exit": 0,
+    "tests": 2810
+  },
+  "related": {
+    "suites": 6,
+    "exit": 0,
+    "tests": 69
+  },
+  "apiOwner": {
+    "suites": 2,
+    "exit": 0,
+    "tests": 111
+  },
+  "newTests": 21,
+  "gates": {
+    "lowcodeContracts": 0,
+    "consumers": 153,
+    "scopedLint": 0,
+    "endpoints": 587,
+    "typecheck": 0,
+    "aiFiles": 1028,
+    "aiCodegen": 0,
+    "docs": 0,
+    "directories": 0,
+    "scopedDiffCheck": 0
+  },
+  "hashes": [
+    {
+      "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+      "sha256": "92BD140BDD23B8DCAD70D2C5295F40AB026165D431B0A2B1FB2652B9DE4E1189",
+      "unchanged": true
+    },
+    {
+      "path": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-tree-query.test.ts",
+      "sha256": "1841FD66377454B907EA2458915560A9FE5F191D547790C47F573B6C55B2AF5B",
+      "unchanged": true
+    }
+  ],
+  "onlineQueries": 0,
+  "onlineWrites": 0,
+  "publicApiAdded": false,
+  "javaChanged": false,
+  "uiChanged": false,
+  "goalComplete": false
+}

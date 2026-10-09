@@ -1,6 +1,6 @@
 # D1d 原生目录新增闭环：只读方案委派
 
-主控已读当前目录三文件、runtime.save/context/request、native pool/resolver、useTabPages、App 切应用/退出、ProjectNavigationGuard。继续用户既有低阶实施和主控长期利益裁决授权。当前只写本目录 create-dispatch-draft.md，不修改生产/测试/配置，不运行测试/build/browser/后端写。
+主控已读当前目录三文件、runtime.save/context/request、native pool/resolver、useTabPages、App 切应用/退出、ProjectNavigationGuard。继续用户既有低阶实施和主控长期利益裁决授权。当前只写本目录 create-dispatch-proposal.md，不修改生产/测试/配置，不运行测试/build/browser/后端写。
 
 参考：本目录 crud-feasibility.md、lifecycle-feasibility.md；上位 notes/plan-appworks-control-plane-integration.md。固定参考 Git 842dec4f11b333df904b9a4e26b6566b0802bab8，禁止读参考 dirty worktree。D1c creator 3文件已冻结，主控验收中。
 

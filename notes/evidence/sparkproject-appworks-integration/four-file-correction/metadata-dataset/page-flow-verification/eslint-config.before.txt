@@ -12,7 +12,6 @@ export default [
       'packages/**/dist/**',  // 排除所有dist目录
       'tools/**',
       'scripts/**',            // 独立脚本，不纳入 tsconfig project
-      'notes/evidence/**',     // 历史验证快照，不属于当前源码工程
       '**/*.example.ts',
       'dist/**',
       'node_modules/**',

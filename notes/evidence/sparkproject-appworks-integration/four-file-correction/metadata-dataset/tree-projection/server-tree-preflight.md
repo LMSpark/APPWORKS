@@ -1,0 +1,10 @@
+# 原生树配置与现有服务端树查询的语义边界
+
+2026-10-09只读复核，未改Java或发起网络请求。
+
+- DataView.loadTreeNested/loadTreeChildren/loadTreePath等方法当前委托TreeManager的api.nested/children/path；绑定正式查询owner后的loadFromServer则进入DataSpaceRuntimeApi与原DataSpaceQueryContext。通用树方法存在，不等于正式场景已接通这些端点及保存基线。
+- 当前`E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/service/impl/BasicFunServiceImpl.java`的GetSelfRefData位于2793行。type=all调用fetchAllChildren，不消费nodeId；起始集合来自table.condition，递归再次应用同一condition，返回集合不包含起始查询的data。因此不能把它直接当作“指定rootId的完整嵌套树”。
+- type=parent的fetchAllParents会查询父级及同级/子集，根父值为空时返回null；不能把原返回值直接当作原生TreePath的有序纯祖先链。type=child是带table.condition及pid=nodeId的直接子集查询。
+- TreeConfig的root分页、filterMode保留祖先、depthLimit等含义不能由上述枚举名推断。查询结果能显示成树，也不等于懒加载缓存、逐行原查询权限与后续编辑保存都可复用。
+
+后续树接入须按原生方法逐项映射实际响应、分页总数、节点范围和原查询上下文，必要时通过已有正式GetData过滤组织查询；保持不改Java约束，不用猜测映射接上线。当前先推进已明确的表级list/timeout断链；完整树能力仍保留在目标清单。

@@ -563,15 +563,15 @@
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
-      "sourceLine": 16,
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts",
+      "sourceLine": 97,
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/DataOperation/GetData",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
-      "sourceLine": 26,
+      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-config.ts",
+      "sourceLine": 10,
       "scope": "publishable-lowcode-api"
     },
     {

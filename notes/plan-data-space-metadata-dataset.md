@@ -16,7 +16,51 @@
 
 ## 当前语义修订：通用值驱动级联
 
+### 已验收：表级列表查询配置
+
+本轮结果：修改套件34项（新增17项）、API包19套件660项通过；最终根212套件2827项全部通过，388.08秒。基线/最终类型、七文件Lint、AI1028、架构/依赖/目录、ClassModel bundle及更新后的合同检查通过。冻结8路径包含6生产、1测试、1生成清单；后端端点清单内容不变。证据 `metadata-dataset/table-query/result.md`。接口边界验证不冒充线上自定义端点已存在；整个计划继续implementing。
+
+上一轮树字段投影已形成代码及回归证据，判定progress。沿完整DataSet配置与现有api/crudConfig持续实施授权，本轮接通原生api.list和crudConfig.timeout的正式查询消费。原生CrudService.list明确读取api.list；正式查询owner却固定GetData且未传timeout，文件又拒绝list，属于实际断链。仍使用SPARK查询封包、正式模型身份、原权限/分页/保存基线；端点配置不是任意协议转换，也不把retrieve、树端点等剩余项删出完整目标。
+
+精确范围：`packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-config.ts`迁为`protocol/data-space-request-config.ts`，将已有端点/策略验证复用于查询与保存，避免另造重复验证类；`data-space-runtime-api.ts`原owner捕获表级查询配置；`query/data-space-query-cache.ts`将实际端点/头/参数/超时纳入在途请求键；`query/data-space-query-resource.ts`将同一捕获配置传给全部分页；`protocol/data-space-request.ts`按配置投递，保留身份头、retry=0、cache=false和完整响应校验；`packages/spark-project-model/src/scenario/scenario-view-config.ts`允许原生list键；`tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts`验证真实文件保存、新Workspace重开、装配、查询及签名保存。生成清单只在正式检查判定过期时刷新。
+
+决策：list和保存端点均承接当前SPARK协议，暂仍POST、站内无模板路径。超时应用于每个实际分页请求；不把总扫描时长伪装成单请求timeout。api.list缺省使用原GetData，清除配置后重开恢复默认。配置在异步排队之前捕获，运行中改表配置不改变旧分页请求；下一次查询消费新配置。相同查询但端点、头、参数或超时不同不能合并在途结果；等价配置仍合并。新增配置不改变数据权限判断及业务/元数据身份，也不能覆盖运行身份请求头。
+
+验证：基线typecheck；先观察默认查询超时缺失与list文件被拒绝的RED，再完成上述链路并立即复验。补默认恢复、多命名视图共享表配置、全分页一致、在途修改、等价/不同配置隔离、请求失败后的stale/禁写、非法配置请求前拒绝。最终类型、精确Lint、相关查询/保存/场景持久套件和门禁；冻结源码后一次根回归。没有Java、UI、线上写入或新提交。
+
+### 已验收：树视图投影保留结构依赖
+
+本轮结果：只修改1个正式查询生产方法并新增21项行为用例，原生TreeConfig保持既有8项结构。相关6套件69项、包级原查询/保存2套件111项通过；最终根212套件2810项全部通过，418.18秒。最终类型、精确Lint、AI规则1028文件、合同587端点/153消费者检查通过。代码冻结哈希复核及日志见 `metadata-dataset/tree-projection/result.md`。没有线上树查询/文件上传、Java或界面变更；不将本地树取数修复记为全部服务端树能力完成，完整计划继续implementing。
+
+2026-10-09，上一轮页面/门禁恢复判定progress。沿原生DataSet完整性授权，主控核当前正式请求仅补模型主键；树视图只投影标题时未返回父键，TreeManager把子节点当根。treeMode属于本地组织，不凭它推测SelfRefData的根节点或查询方向。先恢复这条已存在的正式查询→本地树消费链，完整服务端树分页/懒加载等仍独立核合同；不改Java、UI或引入树端点旁路。
+
+精确实现范围：`packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts`，在原executeQuery内捕获当前树的结构及正式文本字段、按正式Name补齐REQUEST字段并去重，返回后按原上下文readFieldAccess核验，再交原DataView发布；新增 `tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-tree-query.test.ts`，经ScenarioViewFile、真实Assembler/DataView/TreeManager及正式HTTP协议边界验证。没有新公共API或包出口。生成的消费清单若因行号失配，仅用既有generate:lowcode-contracts刷新，不手改生成物。
+
+裁决：配置明确的idField/parentIdField/textField以正式输出名解析；默认id保持原生id，不猜模型主键。未显式指定父/文本字段且正式模型无parentId/name时，保留现有根级/ID显示回退；有这些正式默认字段则补齐。明确的本地计算文本仍由已有计算机制负责，不把计算字段发给后端；计算列不得用作远端结构字段。补齐字段不修改显示投影或文件，不以请求字段扩大授权。结构与正式文本字段未返回或当次权限不是visible时，拒绝发布新树；DataView已有Failed/stale机制保留原结果供查看、禁止写入。空结果合法，不借文件或旧查询权限补读。
+
+验证：类型基线和源码前像；先写树层级失败用例，观察原实现两根错误，再最小修正；补显式调用fields、正式别名、文本字段、单/多视图隔离、配置重新装配、隐藏/脱敏/缺列/查询失败后旧结果只读、无效引用请求前拒绝、空结果。原组件/分页/字段投影保持，普通无树视图回归。定向类型/Lint/API规则与现有查询保存/树组件套件；源码冻结后一次完整根回归。本轮HTTP边界夹具不冒充线上树查询验收。
+
+### 已验收：三个完整页面流程的等待与清理边界
+
+本轮最终：完整页面102项、根211套件2789项全部通过（458.84秒）。类型/Lint及全部verify子项分段核验通过，AI模型规范保留2条非阻断警告。两次总verify失败分别由旧证据命名和过期消费者清单引起，已修复并续跑剩余项；没有将总命令失败写成退出0。11份文档仅改名且正文哈希不变，生成器同步153个消费者、587个后端端点内容不变。代码变动仅测试生命周期/3项15000ms预算、Lint证据目录排除及生成清单；完整方案仍implementing，详见 `metadata-dataset/page-flow-verification/result.md`。
+
+2026-10-09，接续用户“继续”，主控直接处理前轮根回归失败，范围仅 `tests/runtime/page/design/data-space-design-four-file.test.ts` 中命名视图创建重开、关系创建重开、关系编辑删除三条用例。不改生产代码、UI、数据合同、组件替身或断言，不重跑已验线上值级联。
+
+已核：原5000ms失败并非查询挂起；逐次await计时显示首次命名视图流程在第三次挂载末尾约5.3秒，关系创建独立流程约6秒，超时后旧异步函数仍继续执行并清理全局stubs。15秒诊断上限下三条原用例完整通过，合计25.47秒。保留原表格替身的对照未改善，放弃该路径，不修改组件覆盖范围。两个关系用例的wrapper只在成功尾部卸载，异常finally未卸载，需修正。
+
+方案：仅上述三条完整交互流程声明15000ms上限，根配置和其余用例保持5000ms；关系创建重开以实际关系渲染断言等待，代替固定两次flush；两个关系用例在finally卸载最后挂载实例，成功路径不重复卸载。首次修改后立即运行原三用例（不带CLI超时覆盖），再运行该文件102用例、类型、精确Lint、AI规则；最终冻结后根回归一次。保留原红日志、计时和诊断日志。该测试上限是流程预算修正，不宣称修复产品性能或整体已完成。
+
+### 当前门禁修复：归档证据不作为当前源码参与 Lint
+
+已核提交前 `artifacts/git-delivery/verify.log` 的243个报错路径全部在 `notes/evidence/`，均为历史源码快照不属于 parserOptions.project 的解析错误。当前 typecheck 工程只包含正式源码、测试及合同目录。追加精确范围仅 `eslint.config.js` 的 global ignores：排除 `notes/evidence/**`；不放宽源码/测试规则，不忽略整个 notes，不修改或删除证据。修改前保存配置前像和原失败摘要；修改后运行完整 `pnpm run lint` 及类型/AI规则验证。此为恢复门禁的检查范围修正，不是产品能力交付，不重启已完成语义设计。
+
+文档门禁续修：完整 verify 已确认类型和 Lint 通过，随后被11个已有证据文件名阻断。只重命名这些 Markdown，11组精确旧/新路径见 `metadata-dataset/page-flow-verification/evidence-paths.json`；正文保持逐字节一致，以重命名前后SHA256核验。同步三处实际引用：`notes/plan-data-space-create-lifecycle.md`、`notes/evidence/sparkproject-appworks-integration/d1c/create-planning-brief.md`、`notes/evidence/sparkproject-appworks-integration/four-file-correction/query-row-read-preimage/20261008-124341-452/manifest.json`。不改文档治理规则或历史证据结论。根回归期间只执行路径/记录操作，结束后重新执行 verify；若后续发现独立问题再按结果限定范围，不盲改门禁。
+
+合同清单续修：文档及ClassModel门禁已过，verify:lowcode-contracts 报 appworks-consumer-ledger.json 过期。完整核读既有生成器后，仅运行 `pnpm run generate:lowcode-contracts` 同步 `backend-api-contracts/appworks-consumer-ledger.json` 和 `backend-api-contracts/lowcode-endpoint-ledger.json`；生成前保存两文件，生成后核差分。Java仅作为只读源码扫描输入，不改Java或请求合同；静态引用清单不证明运行请求成功。生成后从 verify:lowcode-contracts 继续剩余规则，已通过的类型/Lint/运行根测试不因清单行号变化重复执行。源码和测试哈希继续冻结。
+
 ### 当前实现已局部验证：旧布局节点位置导入原生 DataSet
+
+后续回归验收已完成：本轮定位并修正旧页面测试的等待、清理和流程预算后，根211/2789通过，四个布局源路径未改。以下2786通过/3失败是上一轮保留事实，不再是当前阻塞；节点位置的线上证据仍限只读本地候选，未扩成整图迁移。
 
 2026-10-09 验收状态：三个生产路径加一个既有测试已实现；最终会话38项通过、类型/精确Lint/AI1027通过。线上136读0写，真实7节点映射成功且本地草稿还原、两个pagedata及旧图未变。完整根测试2786通过/3失败（旧设计页两超时、一重开渲染）；同3项原条件复验及本轮修改前源码的隔离对照均超5000ms，未改测试阈值或生产UI。四源哈希保持。未宣称全量通过，当前先保留失败证据，不盲目重跑或扩大代码修改；后续须定位三个旧页面用例时序。证据 `metadata-dataset/legacy-table-positions/result.md`。整体仍 implementing，无活跃测试进程。
 
@@ -360,8 +404,8 @@ DataView 元模型字段范围已按 `packages/spark-data/src/types.ts:608` 核�
 | 稳定模型关系 resourceRelations | 数据库关系保留完整过滤表达式；装配后仍属于 DataSet | 已有适配与回归；不得在 pagedata 再保存关系真源副本 |
 | 前端关系 | pagedata 负责显式前端配置，模型关系独立 | query/field 均消费通用值绑定；字段实际值或选中主键数组→查询过滤/独立选项→显式子值策略，指针只构成值。跨视图、多输入、复合选中值字符串、权限和异步取消、保存重开已验。旧dependencyType/rowMode拒绝；已核两个远端空间均无旧级联。元数据模型选择到字段选项本轮已接仓内配置并真实只读验证，设计器UI整体仍未恢复 |
 | schemaVersion、saveChanges 等空间配置 | 前端序列化格式和提交策略由 pagedata 表达，依原生类型校验；运行期身份由宿主提供 | schemaVersion、version、saveChanges 已验文件保存/重开/原生消费；版本标记保留 3，缺省为原生 2，业务 version 与文件修订独立。SPARK 场景仅支持 perView，事务配置提前拒绝，不伪造事务保证；共享场景不绑定 pageId |
-| DataTable.api / crudConfig | 表级操作端点映射与运行策略，由 pagedata 保存前端定义，多 DataView 共享；执行层承接协议适配与正式权限/回执 | create/update/delete 的 SPARK 兼容端点及 timeout/固定重试校验策略已接通并冻结；其余操作、函数持久化、跨端点恢复仍是缺口。不能把部分配置可执行宣称为完整原生能力，详见 table-submit/result.md 与 research-data-space-native-contract.md |
-| layout | pagedata 保存原生 layout.tablePositions，按稳定 tableName 引用 | 原生位置配置已验持久重开、实例隔离、修改视图仍保留和清除无残留。旧 SysForm/<id>.json 的 graphVersion/nodes/edges 尚未迁移，需单列迁移和冲突核对，不能双写或直接视作等价 |
+| DataTable.api / crudConfig | 表级操作端点映射与运行策略，由 pagedata 保存前端定义，多 DataView 共享；执行层承接协议适配与正式权限/回执 | list查询及create/update/delete的SPARK兼容端点已接通，timeout同时用于各页查询和保存；捕获配置/在途隔离/重开恢复及原权限保存链已验。其余操作、函数持久化、跨端点恢复仍是缺口，不能将部分配置可执行宣称为完整原生能力。详见table-query/result.md、table-submit/result.md与research-data-space-native-contract.md |
+| layout | pagedata 保存原生 layout.tablePositions，按稳定 tableName 引用 | 原生位置配置已验持久重开、实例隔离及清除。旧图节点可经会话命令按正式模型ID导入tableName位置，已验冲突、作用域失效及真实7节点只读映射；旧边路径和扩展仍保留原图文件，不双写、不宣称整图迁移 |
 | 静态配置数据与运行数据 | 原生 static-data 的定义数据须有明确资源归属；数据库查询 rows 不写文件 | 当前 ScenarioViewConfig 只支持正式模型绑定；静态表是额外待核项。当前行、选择、编辑缓冲、权限凭据和聚合结果永不写入 pagedata |
 
 依据：`packages/spark-data/src/types.ts`、`packages/spark-project-model/src/scenario/scenario-view-config.ts`、`src/lowcode/data-space/lowcode-data-space-assembler.ts`、`src/lowcode/data-space/lowcode-data-space-layout.ts`。以上未实现项是完成清单，不代表本轮一次扩改所有类型和保存路径。

@@ -19,11 +19,11 @@
 | `scenarioId` | 空间身份；DB身份与文件引用必须一致 | 装配、查询、保存、页面绑定均使用；不等于元数据查询参数 formid |
 | `tables` | 模型集合；DB定义 + 文件绑定/配置 | 当前文件表都必须有正式 modelBinding；不能表达纯本地静态表 |
 | `resourceRelations` | 稳定模型关系；DB | 过滤表达式适配与原生消费者已接入；有无法解析时的诊断路径 |
-| `viewCascades` | 前端运行依赖；pagedata | field 已改为跨视图通用值绑定、原生/字符串子值处理；统一 CRUD 与保存重开已接通，旧 query 行依赖和组件消费仍待迁移 |
+| `viewCascades` | 前端运行依赖；pagedata | query/field 已统一消费字段原生值或选中主键数组；统一 CRUD、文件保存重开、普通选项组件及旧字符串兼容已验，设计器整体仍未恢复 |
 | `version` | 原生数据快照版本；pagedata | 能还原，原生快照功能使用；不能当作数据库提交或文件写入的服务端乐观锁 |
 | `pageId` | 原生可选页面归属 | 共享场景文件不接受；具体页面身份由 PageRuntime.call.pageId 持有，不将共享空间绑死到一个页面 |
 | `saveChanges` | 空间保存协调默认策略；pagedata | 正式场景仅 perView；transaction 显式拒绝，类型范围大于已实现协议 |
-| `layout` | 原生布局定义；pagedata | tablePositions 可还原；旧图文件 graphVersion/nodes/edges 不是同一合同，迁移未完成 |
+| `layout` | 原生布局定义；pagedata | tablePositions 可还原；现有会话命令可按正式模型 ID 将旧节点位置导入 tableName 坐标，冲突明确拒绝；边路径及扩展仍留在旧图，不宣称整图迁移 |
 
 ## TableMetadata（9 项）
 
@@ -35,8 +35,8 @@
 | `businessCategory` | 前端业务分类；pagedata | 校验、装配已接入；不据此推导关系、权限或后端主表标志 |
 | `tableName` | 前端稳定表名 | 来自 pagedata.tables 的键；原生实例持有，不再重复存另一个可冲突名称 |
 | `columns` | 正式输出列 + 允许的前端扩展 | DB输出字段装配后叠加文件校验/本地计算；不能重定义正式字段 |
-| `api` | 每种操作对应的端点；pagedata | 正式模型目前只接 create/update/delete 的 SPARK 兼容提交；其余完整矩阵见下节 |
-| `crudConfig` | 操作调用策略；pagedata | timeout、retryCount=0、validateData=true 已接；不含权限放行策略 |
+| `api` | 每种操作对应的端点；pagedata | 正式模型已接 list 查询及 create/update/delete 的 SPARK 兼容端点；其余完整矩阵见下节 |
+| `crudConfig` | 操作调用策略；pagedata | timeout 已同时用于正式列表的每页请求及保存；retryCount=0、validateData=true 保留；不含权限放行策略 |
 | `views` | 模型的命名视图集合；pagedata | 必须包含 default，允许多命名视图；同表视图共享表配置，各自拥有结果与编辑状态 |
 
 ## DataColumn（16 项）
@@ -71,7 +71,7 @@ DB 源表字段的 nullable/defaultValue 不自动等价于正式模型输出列
 | `sortExpression` | 查询排序 | 文件持久，loadFromServer 序列化后映射正式字段；不能据前端顺序猜后端字段 |
 | `autoCurrentFirst`, `autoSelectFirst` | 加载后的初始当前行/选中策略 | 文件持久，结果加载后由选择委托执行；布尔 false 需要保留 |
 | `page`, `pageSize` | 初始分页配置和本次分页状态 | 初始值来自文件；运行改变后查询刷新，不因此直接保存场景定义 |
-| `treeConfig` | 树的本地组织与服务端树行为配置 | 文件可持久、原生可还原；本地树与通用树端点有消费者，正式模型树查询未全部接通 |
+| `treeConfig` | 树的本地组织与服务端树行为配置 | 已有8项原生配置，文件可持久、原生可还原；正式投影查询现补齐树字段并核当次读取权限，本地树组织沿用原消费者；服务端树端点未全部接通 |
 | `valueField`, `labelField`, `selectionDelimiter` | 当前选择值和标签的表达方式 | 文件持久；选择委托与 field 级联共用编码，支持明确配置的复合选中字符串，不推断普通字符串 |
 | `autoLoad` | 是否启动时自动查询 | 文件可持久；renderer 在 __init__ 后调用 triggerAutoLoad，现遍历全部命名视图；父 requestData 等待及正式模型父行变化查询已验证，见 named-view-autoload/result.md |
 | `commitMode` | 视图变化的提交时机 | 文件可持久；普通 CRUD 有 immediate/staged，正式查询绑定始终走显式 saveChanges，不因 immediate 自动提交 |
@@ -84,7 +84,8 @@ DB 源表字段的 nullable/defaultValue 不自动等价于正式模型输出列
 原生 CrudApi 共17个顶层操作键：create、retrieve、update、delete、transaction、list、batch、import、export，以及 node、children、path、subtree、move、search、nested、nestedSearch。
 
 - create/update/delete：当前正式链仅接受符合 SPARK 请求/回执协议的端点。表配置影响投递位置，原查询权限、身份与回执校验仍保留。同批不同端点/超时拒绝，分批部分成功恢复未完成。
-- retrieve/list：通用 CrudService 有消费者，但正式 DataView 查询绑定走 GetData，不通过其 list 配置。文件当前拒绝，不应列为已支持。
+- list：文件保存/新Workspace重开后，经既有Assembler绑定DataTable，正式查询owner捕获其端点与timeout，原请求层执行；没有配置则保持GetData。配置参与在途查询键，全部分页沿用同一捕获值，异步等待保存时也不被后改配置污染。原正式封包、数据权限、签名保存及场景身份保留。HTTP边界验收见 table-query/result.md，未据此宣称任意端点协议或线上自定义端点已实现。
+- retrieve：通用 CrudService 有消费者，正式场景文件当前仍拒绝该配置；单条获取合并原查询基线尚未接通。
 - batch/import/export：通用 CRUD 委托存在，不等于正式场景的配置、权限、持久/回执链已接通。
 - transaction：原生非正式场景有执行结构，正式场景明确拒绝；不能用“一次请求”冒充跨模型原子事务。
 - 八个树端点：原生 TreeManager 使用表的 api，正式 pagedata 当前不接受这些键；须核正式模型管线适配，不能绕回独立无基线请求。
@@ -113,6 +114,8 @@ CrudOperationConfig 五项：timeout 已接；retryCount 当前仅允许0；vali
 
 TreeConfig 共8项：idField、parentIdField、textField、depthLimit、lazy、treeMode、serverPaginationMode、filterMode。当前都可在文件保存；DataView 本地树组织和 TreeManager 有各自消费者。
 
+2026-10-09 的局部修复复用上述配置，没有新增另一套树定义。原正式 REQUEST 查询只补模型主键；只投影标题时漏掉父字段，已有 TreeManager 因而将子节点当根。现在原 executeQuery 按 treeConfig 补齐正式节点、父节点和文本字段，以正式 Name 请求，并在发布前通过原查询上下文核验实际返回和可见权限。显示投影、pagedata 和保存 owner 不变。本地计算文本沿既有计算路径，不作为远端字段发送；未指定且模型不存在的可选默认父/文本字段保留原生回退。缺失、隐藏或脱敏依赖拒绝发布，旧结果进入既有 stale/禁写状态。相关 HTTP 边界行为证据见 `metadata-dataset/tree-projection/`，不等于线上树或服务端树端点验收。
+
 正式 captureDataSpaceViewQuery 只有本次显式传入 `tree:{keyField,parentField,nodeId,...}` 才形成 SelfRefData 查询。它允许 treeMode/viewConfig 进入，但不会据此把完整 treeConfig 转成服务器树参数。内存核验 nested 与 flat 的正式封包相同，证明这两个配置值没有在此入口改变请求；不意味着本地显示行为相同。
 
 loadTreeNested/loadTreeChildren 则通过 TreeManager 的另一条路径，不能在正式模型场景中仅凭方法存在就宣布其查询权限/保存基线兼容。root分页、保留祖先等配置也要逐消费者核对，当前不列为完整支持。
@@ -123,9 +126,9 @@ DataResourceRelation 的 relationId、sourceRelationId、parentTable、childTabl
 
 在 spark-data 生产代码的限定搜索中，cascadeUpdate/cascadeDelete 仅有声明与归一化保存，未见按这两个标志执行自动更新/删除的消费者。不能因此推断后端完全没有级联行为，也不能宣称前端已自动执行。完整过滤表达式匹配/聚合是另一项已存在的消费。
 
-query 分支的源视图、目标视图、filterBindings、dependencyType、autoLoad 仍表达旧行式查询依赖，后续须替换。field 分支已移除 rowMode：tableName/viewId/targetField 定位子值，parents 明确跨视图通用值及查询参数，optionsView 只引用原生视图，valueFormat 明确 native/selection-string，valuePolicy 处理新选项约束后的子值。指针只在绑定层用于取写值；两个分支当前共处 viewCascades 不代表最终统一执行迁移已完成。
+query 分支已经删除 dependencyType：filterBindings.sourceField 指定字段时读取实际字段值，省略时读取选中主键数组；标量生成等值过滤，数组生成集合过滤。field 分支已移除 rowMode：tableName/viewId/targetField 定位子值，parents 明确跨视图通用值及查询参数，optionsView 引用原生视图，valueFormat 明确 native/selection-string，valuePolicy 处理新选项约束后的子值。两者复用通用值绑定；指针只在绑定层参与构成值，值相等不因指针改变重查。旧行依赖配置明确拒绝，不猜测迁移。
 
-DataMember.Value 的字段值/选中主键数组入口已被 field 运行链消费，已有 DataView.value 字符串序列化兼容保留。原生 DataSet/DataSetCrudTool 已统一维护两种当前定义，字段配置先校验后替换，支持撤销重做，并经所属文件保存重开；见 value-cascade-crud。旧 query 的行依赖执行尚未切换，不把 field 和 CRUD 闭环宣称为完整级联迁移。
+DataMember.Value 的字段值/选中主键数组入口已被 query 和 field 消费，已有 DataView.value 字符串序列化兼容保留。原生 DataSet/DataSetCrudTool 统一维护两种定义，先校验后替换，支持撤销重做，并经所属文件保存重开。普通选项控件消费同一绑定的独立选项结果，显式 selection-string 按原 valueField/selectionDelimiter 解码和回写，不拆分普通字符串。对应证据为 query-value-cascade、value-cascade-crud、field-cascade-components 和 class-model-result-data；真实查询和文件重开证据见 persisted-value-cascade/live-field-value。后者包含临时候选与恢复，不能宣称线上整页或正式业务提交已完成。
 
 ## 对下一步的约束
 

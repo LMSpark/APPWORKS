@@ -10,7 +10,6 @@ import { collectDataSpaceQueryPages } from '../protocol/data-space-pagination'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
 import { DataSpaceRequest } from '../protocol/data-space-request'
 import { DataSpaceQueryContext } from './data-space-query-context'
-import { DataSpaceRequestConfig } from '../protocol/data-space-request-config'
 
 /** 查询请求的 HTTP 与 scope 来源，执行域包含资源失效代次。 */
 type DataSpaceQueryResourceOptions = Readonly<{
@@ -42,8 +41,7 @@ export class DataSpaceQueryResource {
     this.#request.dispose()
   }
 
-  public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {},
-    config: DataSpaceRequestConfig = DataSpaceRequestConfig.resolveQuery()): Promise<DataSpaceQueryContext> {
+  public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {}): Promise<DataSpaceQueryContext> {
     const scope = this.contextScope()
     const assertCurrent = () => {
       if (this.#disposed || this.contextScope() !== scope) {
@@ -64,7 +62,7 @@ export class DataSpaceQueryResource {
     const firstPageIndex = allPages ? 1 : captured.page?.index ?? 1
     const queryPage = async (index: number) => {
       assertCurrent()
-      const result = await this.#request.query({ table, config, options: {
+      const result = await this.#request.query({ table, options: {
         ...captured, ...(pageSize === undefined ? {} : { page: { index, size: pageSize } }),
       } }).finally(assertCurrent)
       assertCurrent()

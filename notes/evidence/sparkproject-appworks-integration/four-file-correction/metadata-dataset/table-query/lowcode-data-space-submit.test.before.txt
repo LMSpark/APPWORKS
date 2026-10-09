@@ -1,7 +1,7 @@
-import {describe, expect, it, vi} from 'vitest'
+import {describe, expect, it} from 'vitest'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {ProjectWorkspace} from '@spark-appworks/spark-project-model'
-import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
+import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
@@ -16,13 +16,10 @@ class SubmitHttp extends HttpClientBase {
   query: unknown = {primaryKeyField: 'id', allowAdd: false, data: {Items: [{id: 'A', title: 'Before',
     lingma_sys_key: 'SIGNED', lingma_sys_params: {r: ['id', 'title'], e: ['title'], d: true}}], Count: 1}}
   receipt: unknown = {maplistedit: [{PhysicalOrders: [{id: 'A', title: 'Accepted'}]}]}
-  queryResponse?: (config: RequestConfig) => Promise<unknown>
-  saveResponse?: () => Promise<unknown>
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
     return {status: 200, statusText: 'OK', headers: {}, data: {Code: 200,
-      Result: Array.isArray(config.data) ? this.saveResponse ? await this.saveResponse() : this.receipt
-        : this.queryResponse ? await this.queryResponse(config) : this.query}}
+      Result: config.url === '/api/DataOperation/GetData' ? this.query : this.receipt}}
   }
 }
 
@@ -60,180 +57,6 @@ function fixture() {
 }
 
 describe('persisted DataTable submission configuration', () => {
-  it('applies the shared table timeout to the default formal query', async () => {
-    const f = await fixture().save({crudConfig: {timeout: 1234}})
-    try {
-      await f.view.loadFromServer()
-      expect(f.http.requests[0]).toMatchObject({url: '/api/DataOperation/GetData', timeout: 1234})
-      expect(f.view.rows[0]?.['title']).toBe('Before')
-    } finally {f.dataSet.destroy()}
-  })
-
-  it('saves and reopens the list endpoint then retains formal query permissions and signed submission', async () => {
-    const f = await fixture().save({api: {list: {url: '/api/orders/list', method: 'POST',
-      headers: {'X-Query-Profile': 'editor'}, params: {source: 'design'}}}, crudConfig: {timeout: 4321}})
-    try {
-      await f.view.loadFromServer()
-      expect(f.http.requests[0]).toMatchObject({url: '/api/orders/list', method: 'POST', timeout: 4321,
-        params: {source: 'design'}, headers: {'X-AppId': 'APP', 'x-FormKey': 'SPACE', 'x-query-profile': 'editor'},
-        retry: 0, cache: false, data: {OutputFieldMode: 'REQUEST', Table: [{Name: 'Orders'}]}})
-      expect(f.view.fieldAccess(f.view.rows[0]!, 'title').write).toBe('allowed')
-      await f.view.editRowById('A', {title: 'Changed'})
-      await expect(f.view.saveChanges()).resolves.toMatchObject({success: true, data: {savedCount: 1}})
-      expect(f.http.requests.at(-1)).toMatchObject({url: '/api/DataOperation/BatchTableOperateRequestByCRUD',
-        data: [{TableName: 'Orders', CrudModel: {Changed: [{id: 'A', title: 'Changed', lingma_sys_key: 'SIGNED'}]}}]})
-      expect(f.view.rows[0]?.['title']).toBe('Accepted')
-    } finally {f.dataSet.destroy()}
-  })
-  it('captures one list configuration for every page and applies later changes only to a new query', async () => {
-    const f = await fixture().save({api: {list: {url: '/api/first', params: {revision: 1}}}, crudConfig: {timeout: 1000}})
-    try {
-      let page = 0
-      f.http.queryResponse = async request => {
-        page++
-        const body = request.data
-        expect(isRecord(body) && body['PageParam']).toBeTruthy()
-        if (page === 1) {
-          f.table.setApi({list: {url: '/api/next', params: {revision: 2}}})
-          f.table.setCrudConfig({timeout: 2000})
-        }
-        return {primaryKeyField: 'id', allowAdd: false, data: {Items: [{id: String(page), title: `Page ${page}`,
-          lingma_sys_key: `SIGNED-${page}`, lingma_sys_params: {e: ['title']}}], Count: 2}}
-      }
-      await f.view.loadFromServer({allPages: true, pageSize: 1})
-      expect(f.view.rows.map(row => row['id'])).toEqual(['1', '2'])
-      expect(f.http.requests).toHaveLength(2)
-      for (const request of f.http.requests) {
-        expect(request).toMatchObject({url: '/api/first', timeout: 1000, params: {revision: 1}})
-      }
-      expect(f.dataSet.getView('Orders', 'default')?.rows).toEqual([])
-      delete f.http.queryResponse
-      await f.view.loadFromServer()
-      expect(f.http.requests.at(-1)).toMatchObject({url: '/api/next', timeout: 2000, params: {revision: 2}})
-      expect(f.file.getText()).toContain('/api/first')
-      expect(f.file.isDirty).toBe(false)
-    } finally {f.dataSet.destroy()}
-  })
-
-  it.each(['equivalent', 'url', 'headers', 'params', 'timeout'] as const)('isolates in-flight queries by effective %s configuration', async difference => {
-    const storage = fixture()
-    const first = await storage.save({api: {list: {url: '/api/list', headers: {'X-Profile': 'one'},
-      params: {a: 1, b: 2}}}, crudConfig: {timeout: 1000}})
-    const second = await storage.reopen(first)
-    const pending: Array<(value: unknown) => void> = []
-    const loads: Promise<unknown>[] = []
-    try {
-      second.table.setApi({list: {url: difference === 'url' ? '/api/other' : '/api/list', method: 'POST',
-        headers: {'x-profile': difference === 'headers' ? 'two' : 'one'},
-        params: {b: 2, a: difference === 'params' ? 2 : 1}}})
-      second.table.setCrudConfig({timeout: difference === 'timeout' ? 2000 : 1000})
-      first.http.queryResponse = () => new Promise(resolve => {pending.push(resolve)})
-      loads.push(first.view.loadFromServer(), second.view.loadFromServer())
-      const count = difference === 'equivalent' ? 1 : 2
-      await vi.waitFor(() => expect(pending).toHaveLength(count))
-      pending.forEach((resolve, index) => resolve({primaryKeyField: 'id', allowAdd: false, data: {
-        Items: [{id: 'A', title: `Result ${index}`, lingma_sys_key: `SIGNED-${index}`, lingma_sys_params: {e: ['title']}}], Count: 1}}))
-      await Promise.all(loads)
-      expect(first.http.requests).toHaveLength(count)
-      expect(first.view.rows[0]?.['title']).toBe('Result 0')
-      expect(second.view.rows[0]?.['title']).toBe(`Result ${count - 1}`)
-      expect(first.view.rows[0]).not.toBe(second.view.rows[0])
-      await first.view.editRowById('A', {title: 'Changed'})
-      await first.view.saveChanges()
-      expect(first.http.requests.at(-1)?.data).toMatchObject([{CrudModel: {Changed: [
-        {id: 'A', title: 'Changed', lingma_sys_key: 'SIGNED-0'},
-      ]}}])
-    } finally {
-      pending.forEach(resolve => resolve(first.http.query))
-      await Promise.allSettled(loads)
-      first.dataSet.destroy(); second.dataSet.destroy()
-    }
-  })
-
-  it('keeps old results non-writable after a configured query failure and recovers through a fresh query', async () => {
-    const f = await fixture().save({api: {list: {url: '/api/list'}}})
-    try {
-      await f.view.loadFromServer()
-      const original = f.view.rows
-      f.http.queryResponse = async () => {throw new Error('query failed')}
-      await expect(f.view.loadFromServer()).rejects.toThrow('query failed')
-      expect(f.http.requests).toHaveLength(2)
-      expect(f.view.rows).toBe(original)
-      expect(f.view.fieldAccess(original[0]!, 'title').write).toBe('denied')
-      await expect(f.view.editRowById('A', {title: 'Forbidden'})).rejects.toThrow('DATA_VIEW_RESULT_STALE')
-      delete f.http.queryResponse
-      await f.view.loadFromServer()
-      expect(f.view.fieldAccess(f.view.rows[0]!, 'title').write).toBe('allowed')
-    } finally {f.dataSet.destroy()}
-  })
-
-  it('captures the query route before waiting for an in-flight save', async () => {
-    const f = await fixture().save({api: {list: {url: '/api/before'}}})
-    let release: ((value: unknown) => void) | undefined
-    const operations: Promise<unknown>[] = []
-    try {
-      await f.view.loadFromServer()
-      await f.view.editRowById('A', {title: 'Changed'})
-      f.http.saveResponse = () => new Promise(resolve => {release = resolve})
-      operations.push(f.view.saveChanges())
-      await vi.waitFor(() => expect(release).toBeDefined())
-      const other = f.dataSet.getView('Orders', 'default')!
-      operations.push(other.loadFromServer())
-      f.table.setApi({list: {url: '/api/after'}})
-      release!(f.http.receipt)
-      await Promise.all(operations)
-      expect(f.http.requests.map(request => request.url)).toEqual([
-        '/api/before', '/api/DataOperation/BatchTableOperateRequestByCRUD', '/api/before',
-      ])
-      await other.loadFromServer()
-      expect(f.http.requests.at(-1)?.url).toBe('/api/after')
-    } finally {
-      release?.(f.http.receipt)
-      await Promise.allSettled(operations)
-      f.dataSet.destroy()
-    }
-  })
-
-  it('retains returned field restrictions at a configured list endpoint', async () => {
-    const f = await fixture().save({api: {list: {url: '/api/list'}}})
-    try {
-      f.http.query = {primaryKeyField: 'id', allowAdd: false, data: {Items: [{id: 'A', title: 'Hidden',
-        lingma_sys_key: 'SIGNED', lingma_sys_params: {h: ['title'], e: []}}], Count: 1}}
-      await f.view.loadFromServer()
-      expect(f.view.fieldAccess(f.view.rows[0]!, 'title')).toMatchObject({read: 'invisible', write: 'denied'})
-      expect(f.view.rows[0]).not.toHaveProperty('lingma_sys_key')
-    } finally {f.dataSet.destroy()}
-  })
-
-  it('restores the default list route after removing configuration and reopening its file', async () => {
-    const storage = fixture()
-    const before = await storage.save({api: {list: {url: '/api/list'}}, crudConfig: {timeout: 1234}})
-    try {
-      before.file.setText(storage.text())
-      await before.owner.saveScenarioViews({scenarioId: 'SPACE'})
-      const after = await storage.reopen()
-      try {
-        await after.view.loadFromServer()
-        expect(after.http.requests[0]?.url).toBe('/api/DataOperation/GetData')
-        expect(after.http.requests[0]?.timeout).toBeUndefined()
-        expect(before.table.api?.list?.url).toBe('/api/list')
-      } finally {after.dataSet.destroy()}
-    } finally {before.dataSet.destroy()}
-  })
-
-  it('rejects a runtime list header that collides with a current request header before I/O', async () => {
-    const http = new SubmitHttp()
-    const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {'X-Profile': 'runtime'}})})
-    const storage = fixture()
-    const created = await storage.save({})
-    const f = await storage.reopen({http, runtime})
-    try {
-      f.table.setApi({list: {url: '/api/list', headers: {'x-profile': 'override'}}})
-      await expect(f.view.loadFromServer()).rejects.toThrow('不能覆盖运行请求头')
-      expect(http.requests).toHaveLength(0)
-    } finally {created.dataSet.destroy(); f.dataSet.destroy()}
-  })
-
   it('saves and reopens table configuration then uses it for an actual signed model update', async () => {
     const storage = fixture()
     const runtime = await storage.save({api: {update: {url: '/api/orders/save', method: 'POST',
@@ -376,10 +199,6 @@ describe('persisted DataTable submission configuration', () => {
     {api: {update: {url: '/api/save', method: 'DELETE'}}},
     {api: {update: {url: '/api/save', headers: {'x-AppId': 'OTHER'}}}},
     {api: {update: {url: '/api/save', headers: {Authorization: 'credential'}}}},
-    {api: {list: {url: 'https://external.invalid/list'}}},
-    {api: {list: {url: '/api/list', method: 'GET'}}},
-    {api: {list: {url: '/api/{scenario}/list'}}},
-    {api: {list: {url: '/api/list', headers: {'x-FormKey': 'OTHER'}}}},
     {api: {transaction: {url: '/api/save'}}},
     {crudConfig: {retryCount: 1}}, {crudConfig: {validateData: false}}, {crudConfig: {timeout: 0}},
     {crudConfig: {transformRequest: 'function-code'}},

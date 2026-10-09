@@ -14,7 +14,7 @@ import { DataSpaceQueryTable } from './protocol/data-space-query-table.js'
 import { captureDataSpaceViewQuery } from './query/data-space-query-options.js'
 import { DataSpaceDesignApi } from '../design/data-space-design-api.js'
 import type { DataSpaceQueryContext } from './query/data-space-query-context.js'
-import { DataSpaceRequestConfig } from './protocol/data-space-request-config.js'
+import { DataSpaceSaveConfig } from './save/data-space-save-config.js'
 
 /** 运行 owner 的 HTTP 通道和请求身份读取器；scope 变更使旧基线失效。 */
 type DataSpaceRuntimeApiOptions = Readonly<{
@@ -51,19 +51,14 @@ export class DataSpaceRuntimeApi {
   }
 
   /** 查询后端注册模型；原结果上下文只供 DataView 的执行边界持有。 */
-  public query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {}): Promise<DataSpaceQueryContext> {
-    return this.queryWithConfig(identity, options, DataSpaceRequestConfig.resolveQuery())
-  }
-
-  private async queryWithConfig(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions,
-    config: DataSpaceRequestConfig): Promise<DataSpaceQueryContext> {
+  public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {}): Promise<DataSpaceQueryContext> {
     const scope = this.currentScope()
     const normalized = new DataSpaceQueryTable(identity).identity
     const key = this.resourceKey(scope, normalized)
     const mutation = this.#mutationFlights.get(key)
     if (mutation !== undefined) await mutation
     this.assertScope(scope)
-    const flight = this.queryCache.query(normalized, options, config)
+    const flight = this.queryCache.query(normalized, options)
     let flights = this.#queryFlights.get(key)
     if (flights === undefined) {
       flights = new Set()
@@ -88,7 +83,7 @@ export class DataSpaceRuntimeApi {
       throw new Error('SPARK_VIEW_MODEL_IDENTITY: 视图与正式模型身份不一致')
     }
     const formal = new Set(DataSpaceDesignApi.resolveOutputFields(model).map(field => field.canonicalName))
-    DataSpaceRequestConfig.validate(table)
+    DataSpaceSaveConfig.validate(table)
     for (const column of table.columns) {
       if (column.computeExpression && formal.has(column.name)) {
         throw new Error(`SPARK_MODEL_COMPUTED_COLLISION: 本地计算列与正式输出字段重名: ${column.name}`)
@@ -100,9 +95,8 @@ export class DataSpaceRuntimeApi {
 
   public async executeQuery(view: DataView, params: QueryParams): Promise<DataSpaceQueryContext> {
     const command = captureDataSpaceViewQuery(view, params)
-    const config = DataSpaceRequestConfig.resolveQuery(view.dataTable ?? undefined)
     const model = this.#modelViews.get(view)
-    if (model === undefined) return this.queryWithConfig(command.identity, command.options, config)
+    if (model === undefined) return this.query(command.identity, command.options)
     const outputFields = DataSpaceDesignApi.resolveOutputFields(model)
     const requestField = (output: string): string => {
       const field = outputFields.find(candidate => candidate.canonicalName === output)
@@ -124,38 +118,19 @@ export class DataSpaceRuntimeApi {
       const {alias, ...projection} = field
       return {...projection, name: requestField(alias ?? field.name)}
     })
-    const treeFields = new Set<string>()
-    const tree = view.treeConfig
-    if (tree) {
-      treeFields.add(tree.idField ?? 'id')
-      if (tree.parentIdField !== undefined || outputFields.some(field => field.canonicalName === 'parentId')) {
-        treeFields.add(tree.parentIdField ?? 'parentId')
-      }
-      const textField = tree.textField ?? 'name'
-      if ((tree.textField !== undefined || outputFields.some(field => field.canonicalName === textField))
-        && !view.dataTable?.columns.some(column => column.name === textField && Boolean(column.computeExpression))) {
-        treeFields.add(textField)
-      }
+    if (fields && model.primaryKey) {
+      const primaryKey = requestField(model.primaryKey)
+      if (!fields.some(field => field.name === primaryKey)) fields.push({name: primaryKey})
     }
-    for (const dependency of [model.primaryKey, ...treeFields]) {
-      if (!fields || !dependency) continue
-      const name = requestField(dependency)
-      if (!fields.some(field => field.name === name)) fields.push({name})
-    }
-    const context = await this.queryWithConfig(command.identity, {...options, outputFieldMode: 'REQUEST',
+    const context = await this.query(command.identity, {...options, outputFieldMode: 'REQUEST',
       ...(fields === undefined ? {} : {fields}),
       ...(options.sort === undefined ? {} : {sort: options.sort.map(sort => ({...sort, field: requestField(sort.field)}))}),
       ...(options.filter ? {filter: toFilter(filterTree(options.filter.toJSON()))} : {}),
       ...(options.tree === undefined ? {} : {tree: {...options.tree, keyField: requestField(options.tree.keyField),
         parentField: requestField(options.tree.parentField),
         ...(options.tree.hasChildrenField === undefined ? {} : {hasChildrenField: requestField(options.tree.hasChildrenField)})}}),
-    }, config)
+    })
     context.bindFormalModel(model)
-    for (const row of context.rows) for (const field of treeFields) {
-      if (!Object.hasOwn(row, field) || context.readFieldAccess(row, field) !== 'visible') {
-        throw new Error(`SPARK_TREE_FIELD_UNAVAILABLE: 树字段未返回或不可读: ${field}`)
-      }
-    }
     return context
   }
 
@@ -167,7 +142,7 @@ export class DataSpaceRuntimeApi {
       identity: new DataSpaceQueryTable(change.identity).identity, changes: structuredClone(change.changes) }))
     const keys = [...new Set(changes.map(change => this.resourceKey(scope, change.identity)))].sort()
     changes.forEach(change => this.assertContextOwner(scope, change))
-    const config = DataSpaceRequestConfig.resolveSave(changes)
+    const config = DataSpaceSaveConfig.resolve(changes)
     const previous = keys.map(key => this.#mutationFlights.get(key) ?? Promise.resolve())
     const run = Promise.all(previous.map(flight => flight.catch(() => undefined))).then(async () => {
       this.assertScope(scope)

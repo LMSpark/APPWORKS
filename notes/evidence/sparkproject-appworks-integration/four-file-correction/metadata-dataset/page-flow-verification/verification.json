@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-09",
+  "finalDocFilesChecked": 336,
+  "evidenceReferencesValid": true,
+  "consumerLedgerSha256": "BBBCF602891AE1869ADA83CA65F9EB84E7BC8C398B31545B79C34819615A529C",
+  "baseCommit": "b3dd6ef927a3a12364d3aa4908aa515857d4c400",
+  "root": {
+    "seconds": 458.84,
+    "suites": 211,
+    "tests": 2789,
+    "exit": 0,
+    "failed": 0
+  },
+  "page": {
+    "seconds": 121.13,
+    "exit": 0,
+    "tests": 102,
+    "failed": 0
+  },
+  "focused": {
+    "skipped": 99,
+    "tests": 3,
+    "exit": 0
+  },
+  "gates": {
+    "fullCommandExit": 1,
+    "remainingExit": 0,
+    "aiModelWarnings": 2,
+    "lastFullCommandStoppedAt": "verify:lowcode-contracts",
+    "allSubcommandsPassed": true
+  },
+  "hashes": [
+    {
+      "path": "eslint.config.js",
+      "sha256": "3AEB32C904262945CFB0253C65F4C5CB21F9001A64D337C3BFECF68F62298AB2",
+      "unchanged": true
+    },
+    {
+      "path": "tests/runtime/page/design/data-space-design-four-file.test.ts",
+      "sha256": "33F4F95E0DE38BAF87EFFEEDE01E3C7BB7EE70E24F531681FFED404460307342",
+      "unchanged": true
+    }
+  ],
+  "renames": [
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/d1c/create-dispatch-proposal.md",
+      "sha256": "E308E460902F1B60A8321D747B9C9D4551BBE1A83B21A2FBEE89C4E1981BC927",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-api-preflight.md",
+      "sha256": "7888309755B41533C9B7F64556519C0E3AFACCCAFD3B547B08602EEFCC9A02FB",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-api-result.md",
+      "sha256": "E0D605214E3E12B26298B106BB7F265CAF7D0EC5F1D47D7E334638E7CA168CB9",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-api-review.md",
+      "sha256": "0349557F0A1B8BF377163D5141634EED657E54296E6AF59937F35E04178A1733",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-text-result.md",
+      "sha256": "4A725324D69EA7F5ACED618A87C8657B6588B8625916CF5A82B77707FF89C60A",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-text-review.md",
+      "sha256": "30B861446CB9652F9BBF605109C9F6428C1D88BCB5E913F198CE14D1E9121175",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/layout-read-before/spark-component-api.md",
+      "sha256": "6BF4A7D2E580FBDE2EE359AEED70D5CA4206370A877F6762B688685AF42E4C76",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/render-hook-refresh-before/spark-component-api.md",
+      "sha256": "E948850E98AD10B43DF9B8F67855C7E420981FA259EB00B5EB64B4DCD2D60FED",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/query-row-read-preimage/20261008-124341-452/spark-lowcode-api-readme.md",
+      "sha256": "B7813E95EAAFB7E8B3553027556EB7CCAB1F04C0DECB4DE9819B65587DFE3B9E",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/model-relation-expression-20261008-0756/spark-data-api.md",
+      "sha256": "937CBB55CCB66E2CD4BF85A637F10074E89F6CDB10EAF3EE060E392318BDC615",
+      "unchanged": true
+    },
+    {
+      "path": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/value-function-20261008-074452-636/semantic-page-restoration-result.md",
+      "sha256": "B4F1E57167DF5349E4BDB3A6203BF05588F4A219EDF4E564158F09B8C7B04DB2",
+      "unchanged": true
+    }
+  ],
+  "endpointLedgerUnchanged": true,
+  "onlineWrites": 0,
+  "agents": 0,
+  "committed": false
+}

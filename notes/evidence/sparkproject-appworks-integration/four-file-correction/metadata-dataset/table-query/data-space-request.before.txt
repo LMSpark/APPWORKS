@@ -11,7 +11,7 @@ import { DataSpaceQueryTable } from './data-space-query-table'
 import type { DataSpaceQueryContext } from '../query/data-space-query-context'
 import { requireDataSpaceMutationInput, failDataSpaceMutationWithoutEffect } from '../save/data-space-save-guard'
 import { readDataSpaceSaveReceipt } from '../save/data-space-save-result'
-import { DataSpaceRequestConfig } from './data-space-request-config'
+import { DataSpaceSaveConfig } from '../save/data-space-save-config'
 
 /** 实际 HTTP 通道及请求 scope 读取器，供请求前后核对执行域。 */
 type DataSpaceRequestOptions = Readonly<{
@@ -22,7 +22,6 @@ type DataSpaceRequestOptions = Readonly<{
 type DataSpaceRequestQueryCommand = Readonly<{
   table: DataSpaceQueryTable
   options: DataSpaceQueryOptions
-  config?: DataSpaceRequestConfig
   signal?: AbortSignal
 }>
 type DataSpaceRequestCapture = Readonly<{ token: string; generation: number; signal?: AbortSignal }>
@@ -35,7 +34,7 @@ type DataSpaceRequestSaveChange = Readonly<{
 /** 同场景且模型不重复的批量保存目标；无实际变更不能提交。 */
 type DataSpaceRequestSaveCommand = Readonly<{
   changes: readonly DataSpaceRequestSaveChange[]
-  config?: DataSpaceRequestConfig
+  config?: DataSpaceSaveConfig
   signal?: AbortSignal
 }>
 /** 逐模型实际动作回执及新基线，不以 HTTP 成功代替保存确认。 */
@@ -90,14 +89,12 @@ export class DataSpaceRequest {
       ...(command.signal === undefined ? {} : { signal: command.signal }) }
     this.assertCurrent(captured)
     const scenarioId = command.table.identity.scenarioId
-    const config = command.config ?? DataSpaceRequestConfig.resolveQuery()
-    const headers = config.mergeHeaders(this.scenarioHeaders(scope, scenarioId))
+    const headers = this.scenarioHeaders(scope, scenarioId)
     const data = command.table.buildRequest(command.options)
     this.assertCurrent(captured)
     try {
       const response = await this.#http.request<unknown>({
-        ...config.endpoint, method: 'POST', data, headers,
-        ...(config.timeout === undefined ? {} : {timeout: config.timeout}),
+        url: '/api/DataOperation/GetData', method: 'POST', data, headers,
         retry: 0, cache: false, meta: { rawEnvelope: true },
         ...(command.signal === undefined ? {} : { signal: command.signal }),
       })
@@ -137,7 +134,7 @@ export class DataSpaceRequest {
     const groups = prepared.map(target => target.context.buildSaveRequest(target.changes))
     for (const group of groups) requireDataSpaceMutationInput('保存', group.length)
     const data = groups.flat()
-    const config = command.config ?? DataSpaceRequestConfig.resolveSave([])
+    const config = command.config ?? DataSpaceSaveConfig.resolve([])
     const headers = config.mergeHeaders(this.scenarioHeaders(scope, scenarioId))
     this.assertCurrent(captured)
     try {

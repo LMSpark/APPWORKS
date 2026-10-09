@@ -1,0 +1,68 @@
+[
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/d1c/create-dispatch-draft.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/d1c/create-dispatch-proposal.md",
+    "sha256": "E308E460902F1B60A8321D747B9C9D4551BBE1A83B21A2FBEE89C4E1981BC927",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-api-preflight.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-api-preflight.md",
+    "sha256": "7888309755B41533C9B7F64556519C0E3AFACCCAFD3B547B08602EEFCC9A02FB",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-api-result.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-api-result.md",
+    "sha256": "E0D605214E3E12B26298B106BB7F265CAF7D0EC5F1D47D7E334638E7CA168CB9",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-api-review.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-api-review.md",
+    "sha256": "0349557F0A1B8BF377163D5141634EED657E54296E6AF59937F35E04178A1733",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-text-result.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-text-result.md",
+    "sha256": "4A725324D69EA7F5ACED618A87C8657B6588B8625916CF5A82B77707FF89C60A",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-copy-text-review.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/pilot-clipboard-text-review.md",
+    "sha256": "30B861446CB9652F9BBF605109C9F6428C1D88BCB5E913F198CE14D1E9121175",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/layout-read-before/packages__spark-component__API.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/layout-read-before/spark-component-api.md",
+    "sha256": "6BF4A7D2E580FBDE2EE359AEED70D5CA4206370A877F6762B688685AF42E4C76",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/render-hook-refresh-before/packages__spark-component__API.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/render-hook-refresh-before/spark-component-api.md",
+    "sha256": "E948850E98AD10B43DF9B8F67855C7E420981FA259EB00B5EB64B4DCD2D60FED",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/query-row-read-preimage/20261008-124341-452/packages__spark-lowcode-api__README.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/query-row-read-preimage/20261008-124341-452/spark-lowcode-api-readme.md",
+    "sha256": "B7813E95EAAFB7E8B3553027556EB7CCAB1F04C0DECB4DE9819B65587DFE3B9E",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/model-relation-expression-20261008-0756/packages-spark-data-API.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/model-relation-expression-20261008-0756/spark-data-api.md",
+    "sha256": "937CBB55CCB66E2CD4BF85A637F10074E89F6CDB10EAF3EE060E392318BDC615",
+    "unchanged": true
+  },
+  {
+    "from": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/value-function-20261008-074452-636/notes-evidence-sparkproject-appworks-integration-four-file-correction-semantic-page-restoration-result.md",
+    "to": "notes/evidence/sparkproject-appworks-integration/four-file-correction/semantic-page-baseline/value-function-20261008-074452-636/semantic-page-restoration-result.md",
+    "sha256": "B4F1E57167DF5349E4BDB3A6203BF05588F4A219EDF4E564158F09B8C7B04DB2",
+    "unchanged": true
+  }
+]

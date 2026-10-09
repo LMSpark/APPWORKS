@@ -65,4 +65,4 @@
 
 ## 研读锚点
 
-`notes/evidence/sparkproject-appworks-integration/d1c/create-dispatch-draft.md`、`crud-feasibility.md`、`lifecycle-feasibility.md` 为证据索引；以上已定策略替代其中仍含选择分支的建议。当前源码、模型、JSDoc 为产品事实源。
+`notes/evidence/sparkproject-appworks-integration/d1c/create-dispatch-proposal.md`、`crud-feasibility.md`、`lifecycle-feasibility.md` 为证据索引；以上已定策略替代其中仍含选择分支的建议。当前源码、模型、JSDoc 为产品事实源。

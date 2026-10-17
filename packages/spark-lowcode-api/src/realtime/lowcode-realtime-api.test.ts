@@ -105,7 +105,7 @@ describe('LowcodeRealtimeApi notifications', () => {
   it('fetches offline messages for the session user only', async () => {
     const http = new MessageFixtureHttpClient([
       { entShortName: 'ENT', userId: 'U1', messageList: [
-        { messageLogId: 'L1', rowId: 'M1', title: '你好', content: '在吗', messageType: 'USER_MESSAGE', createTime: '2026-10-17T09:00:00' },
+        { messageLogId: 'L1', rowid: 'M1', title: '你好', content: '在吗', messageType: 'USER_MESSAGE', createTime: '2026-10-17T09:00:00' },
         { messageLogId: 'L2', rowId: 'M2', title: '下载', content: '{}', messageType: 'SYSTEM_DOWNLOAD' },
       ] },
     ])

@@ -76,7 +76,7 @@ export const LOWCODE_NOTIFICATION_MESSAGE_TYPES = ['SYSTEM_NOTIFICATION', 'TIP',
 export type LowcodeNotificationMessageType = (typeof LOWCODE_NOTIFICATION_MESSAGE_TYPES)[number]
 
 /**
- * 后端 JsonSseMessage 的通知投影。messageId 是消息 rowId，仅持久化类型在发送前补齐；
+ * 后端 JsonSseMessage 的通知投影。messageId 是消息 rowId（实时帧键名 rowId，离线联表结果键名 rowid），仅持久化类型在发送前补齐；
  * messageLogId 只出现在离线查询结果中，confirmMessages 只接受它。
  */
 export type LowcodeNotificationMessage = Readonly<{
@@ -413,7 +413,7 @@ function readNotificationRecord(message: Record<string, unknown> | null): Lowcod
   if (messageType === undefined) return null
   const content = typeof message['content'] === 'string' ? message['content'] : ''
   const createdAt = readTimestamp(message['createTime'])
-  const messageId = readText(message['rowId'])
+  const messageId = readText(message['rowId']) ?? readText(message['rowid'])
   const messageLogId = readText(message['messageLogId'])
   return {
     messageType,

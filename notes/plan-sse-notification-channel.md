@@ -29,6 +29,15 @@
 - 验证：根 typecheck 通过；改动文件 eslint 通过；vitest 应用侧 12/12、spark-lowcode-api realtime 10/10。
 - 未做：线上抓包核对帧字段与 offlineMessages 键名；SendMessage 线上自测（未获同意）；真实浏览器中桌面弹窗人工验证。
 
+## 线上冒烟（2026-10-17 17:24，本地 dev 5273 → 实际后端，账号 领码科技/wangtao，ent=NewApp，userId=U00031）
+- 实时推送通过：SendMessage 发 SYSTEM_NOTIFICATION 与 USER_MESSAGE 各一条给本人，均返回 Code 200，页面 onNotificationEvent 收到且字段正确。
+- 实测帧：无 SSE 事件名（event=message），另有 event=heartbeat 心跳；SYSTEM_NOTIFICATION 无 rowId、无 createTime；USER_MESSAGE 带 rowId（驼峰），同样无 createTime。前端缺 createTime 时用接收时间。
+- offlineMessages 线上返回 Code 500：后端 SQL `Unknown column 't1.ent_short_name'`。属后端缺陷，前端按"加载失败"显示并可重试，不当作无消息。联表 SQL 显示消息 ID 别名为小写 `rowid`，解析已兼容。
+- confirmMessages 线上返回 Code 500：后端 SQL `Unknown column 'send_method'`（以不存在的 ID 调用，未改数据）。已读回写在线上必然失败，前端恢复未读并提示。
+- 线上留下两条测试消息（标题"SPARK 通知测试"），其中 USER_MESSAGE 已写入消息表。
+- 未验：桌面弹窗（当前应用导航未配置通知铃铛，内置浏览器未测系统通知）；离线拉取与已读确认的成功路径（后端缺陷阻断）。
+- 登录页发现：表单默认 enterpriseName='领码科技' 是显示名，而选项 value 是 shortName（NewApp）；未从下拉框重新选择时提交显示名，后端返回"企业信息不存在"。与本任务无关，未修改。
+
 ## 风险项
 - 线上服务与本地 Java 源码可能不一致：以抓包结果为准。
 - 实时消息无 messageLogId，无法单独确认：只确认离线条目，实时条目仅本地已读。

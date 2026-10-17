@@ -133,11 +133,11 @@ describe('useNotifications', () => {
 
   it('marks offline load failure distinctly and can retry', async () => {
     installNotification('denied')
-    realtime.fetchOfflineMessages.mockRejectedValueOnce(new Error('500'))
+    realtime.fetchOfflineMessages.mockRejectedValueOnce(new Error("[500] query异常:org.springframework.jdbc.BadSqlGrammarException: bad SQL grammar [SELECT ...]；根因：Unknown column"))
     const { api, scope } = await load()
 
     expect(api.offlineStatus.value).toBe('failed')
-    expect(api.syncError.value).toContain('离线消息加载失败')
+    expect(api.syncError.value).toBe('离线消息加载失败：[500] query异常')
     realtime.fetchOfflineMessages.mockResolvedValueOnce([message({ messageLogId: 'L9' })])
     await api.retryOfflineMessages()
     expect(api.offlineStatus.value).toBe('loaded')

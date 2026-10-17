@@ -152,8 +152,11 @@ async function markItemsRead(items: readonly NotificationItem[]): Promise<void> 
   }
 }
 
+/** 后端异常文案可能夹带整段 SQL，面板只显示首段原因。 */
 function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
+  const message = error instanceof Error ? error.message : String(error)
+  const head = message.split(/[:：\n]/)[0]?.trim() ?? ''
+  return head.length > 0 ? head : message.slice(0, 80)
 }
 
 // SSE lifecycle -------------------------------------------------------------

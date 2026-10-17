@@ -70,6 +70,24 @@ export type LowcodeSystemDownload = Readonly<{
   appType: string
 }>
 
+/** 进入通知面板的后端消息类型；SYSTEM_DOWNLOAD、SYSTEM_KICKOUT、AI 由各自消费方处理。 */
+export const LOWCODE_NOTIFICATION_MESSAGE_TYPES = ['SYSTEM_NOTIFICATION', 'TIP', 'SYSTEM_ERROR', 'USER_MESSAGE'] as const
+
+export type LowcodeNotificationMessageType = (typeof LOWCODE_NOTIFICATION_MESSAGE_TYPES)[number]
+
+/**
+ * 后端 JsonSseMessage 的通知投影。messageId 是消息 rowId，仅持久化类型在发送前补齐；
+ * messageLogId 只出现在离线查询结果中，confirmMessages 只接受它。
+ */
+export type LowcodeNotificationMessage = Readonly<{
+  messageType: LowcodeNotificationMessageType
+  title: string
+  content: string
+  createdAt?: number
+  messageId?: string
+  messageLogId?: string
+}>
+
 /** SSE 订阅句柄；close 触发 AbortController，closed 在流结束或中断后 resolve。 */
 export type LowcodeRealtimeSubscription = Readonly<{
   closed: Promise<void>
@@ -254,6 +272,50 @@ export class LowcodeRealtimeApi {
     }
   }
 
+  /** 解码通知类 SSE 帧；后端不设 SSE 事件名，按 data.messageType 识别，非通知类型返回 null。 */
+  public decodeNotification(event: LowcodeRealtimeEvent): LowcodeNotificationMessage | null {
+    return readNotificationRecord(readRecord(event.data))
+  }
+
+  /** 拉取当前会话用户未确认的离线消息；POST /api/message/offlineMessages。只含后端持久化的消息类型。 */
+  public async fetchOfflineMessages(): Promise<readonly LowcodeNotificationMessage[]> {
+    const identity = this.requireIdentity()
+    const result = await this.client.requestResult({
+      path: '/api/message/offlineMessages',
+      method: 'POST',
+      data: [identity],
+    })
+    if (!Array.isArray(result)) throw new LowcodeApiError(0, 'offlineMessages 响应不是数组')
+    const own = result.map(readRecord).find(item => item !== null && item['userId'] === identity.userId)
+    const list = own?.['messageList']
+    if (list === undefined || list === null) return []
+    if (!Array.isArray(list)) throw new LowcodeApiError(0, 'offlineMessages.messageList 不是数组')
+    return list.flatMap((item) => {
+      const message = readNotificationRecord(readRecord(item))
+      return message === null ? [] : [message]
+    })
+  }
+
+  /** 确认离线消息已读；POST /api/message/confirmMessages，参数是发送日志 ID 而非消息 rowId，返回后端确认数量文案。 */
+  public async confirmMessages(messageLogIds: readonly string[]): Promise<string> {
+    const ids = messageLogIds.map(id => id.trim()).filter(id => id.length > 0)
+    if (ids.length === 0) throw new LowcodeApiError(0, 'confirmMessages 需要至少一个 messageLogId')
+    const identity = this.requireIdentity()
+    const result = await this.client.requestResult({
+      path: '/api/message/confirmMessages',
+      method: 'POST',
+      params: { entShortName: identity.entShortName },
+      data: ids,
+    })
+    return typeof result === 'string' ? result : JSON.stringify(result)
+  }
+
+  private requireIdentity(): Readonly<{ entShortName: string; userId: string }> {
+    const session = this.session.get()
+    if (session === null) throw new LowcodeApiError(401, '没有 lowcode 会话，无法读取消息')
+    return { entShortName: session.identity.enterpriseShortName, userId: session.identity.userId }
+  }
+
   /** 建立 SSE 长连接；GET /api/sse/connect，无 fetch 或无会话时 fail-fast。 */
   public connect(options: LowcodeRealtimeConnectOptions): LowcodeRealtimeSubscription {
     const fetcher = this.fetcher
@@ -343,6 +405,31 @@ function readSparkEnvelope(value: unknown): LowcodeSparkEnvelope {
       },
     }),
   }
+}
+
+function readNotificationRecord(message: Record<string, unknown> | null): LowcodeNotificationMessage | null {
+  if (message === null) return null
+  const messageType = LOWCODE_NOTIFICATION_MESSAGE_TYPES.find(type => type === readText(message['messageType']))
+  if (messageType === undefined) return null
+  const content = typeof message['content'] === 'string' ? message['content'] : ''
+  const createdAt = readTimestamp(message['createTime'])
+  const messageId = readText(message['rowId'])
+  const messageLogId = readText(message['messageLogId'])
+  return {
+    messageType,
+    title: readText(message['title']) ?? '通知',
+    content,
+    ...(createdAt === undefined ? {} : { createdAt }),
+    ...(messageId === undefined ? {} : { messageId }),
+    ...(messageLogId === undefined ? {} : { messageLogId }),
+  }
+}
+
+function readTimestamp(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value !== 'string') return undefined
+  const parsed = Date.parse(value)
+  return Number.isNaN(parsed) ? undefined : parsed
 }
 
 function readRecord(value: unknown): Record<string, unknown> | null {

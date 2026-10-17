@@ -7,13 +7,24 @@ const realtime = vi.hoisted(() => ({
   close: vi.fn(),
 }))
 
-vi.mock('@/lowcode/lowcode-runtime', () => ({
-  lowcodeApi: {
-    realtime: {
-      connect: realtime.connect,
+vi.mock('@/lowcode/lowcode-runtime', async () => {
+  const { LowcodeApi } = await vi.importActual<typeof import('@spark-appworks/spark-lowcode-api')>('@spark-appworks/spark-lowcode-api')
+  const { HttpClientBase } = await vi.importActual<typeof import('@spark-appworks/spark-utils')>('@spark-appworks/spark-utils')
+  class UnusedHttpClient extends HttpClientBase {
+    protected override executeRequest(): never {
+      throw new Error('notification decoding must not issue HTTP requests')
+    }
+  }
+  const api = new LowcodeApi({ http: new UnusedHttpClient() })
+  return {
+    lowcodeApi: {
+      realtime: {
+        connect: realtime.connect,
+        decodeNotification: (event: LowcodeRealtimeEvent) => api.realtime.decodeNotification(event),
+      },
     },
-  },
-}))
+  }
+})
 
 describe('lowcode SSE bridge', () => {
   let stopSubscription: (() => void) | undefined
@@ -74,29 +85,34 @@ describe('lowcode SSE bridge', () => {
     }))
   })
 
-  it('delivers current plain business messages without treating them as envelopes', async () => {
+  it('routes backend notification messages by messageType, not by title', async () => {
     const sse = await import('@/services/sse-events')
-    const callback = vi.fn()
-    stopSubscription = sse.onNotificationEvent(callback)
+    const notify = vi.fn()
+    const byTitle = vi.fn()
+    stopSubscription = sse.onNotificationEvent(notify)
+    const stopTitle = sse.onServerEvent('文档生成失败', byTitle)
 
     realtime.onEvent?.({
       event: 'message',
       data: {
-        messageType: 'BUSINESS',
-        title: 'notification',
-        content: JSON.stringify({
-          title: '任务完成',
-          message: '数据同步完成',
-          timestamp: 1,
-        }),
+        rowId: 'M1',
+        title: '文档生成失败',
+        content: '文档生成失败: 超时',
+        messageType: 'SYSTEM_ERROR',
+        createTime: '2026-10-17T10:00:00',
       },
     })
+    realtime.onEvent?.({ event: 'message', data: { title: 'llm', content: '{}', messageType: 'AI' } })
 
-    expect(callback).toHaveBeenCalledWith({
-      title: '任务完成',
-      message: '数据同步完成',
-      timestamp: 1,
-    })
+    expect(notify).toHaveBeenCalledOnce()
+    expect(notify).toHaveBeenCalledWith(expect.objectContaining({
+      messageType: 'SYSTEM_ERROR',
+      title: '文档生成失败',
+      content: '文档生成失败: 超时',
+      messageId: 'M1',
+    }))
+    expect(byTitle).not.toHaveBeenCalled()
+    stopTitle()
   })
 
   it('rejects non-v4 SparkEnvelope messages instead of unwrapping them', async () => {

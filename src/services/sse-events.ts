@@ -8,17 +8,21 @@
  * APP 公共 SSE 事件总线。
  *
  * 本文件只维护 lowcode `/api/sse/connect` 的单例连接、普通业务事件与 v4 SparkEnvelope 分流，以及按事件名分发。
+ * 后端推送帧不带 SSE 事件名；通知类消息按 messageType 先行分流，其余按 envelope 名或 title 路由。
  * 页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。
  */
 
 import { Logger, isRecord, type ApiEnvelopeContext, type ApiEnvelopeEvent } from '@spark-appworks/spark-utils'
-import { readNonEmptyStringProperty } from '@spark-appworks/spark-utils/internal'
 import type {
   AiAgentAppSseEvent,
   AiAgentAppSseEventName,
   AiAgentAppSseEventSource,
 } from '@spark-appworks/spark-ai/agent'
-import type { LowcodeRealtimeEvent, LowcodeRealtimeSubscription } from '@spark-appworks/spark-lowcode-api'
+import type {
+  LowcodeNotificationMessage,
+  LowcodeRealtimeEvent,
+  LowcodeRealtimeSubscription,
+} from '@spark-appworks/spark-lowcode-api'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 
 const logger = Logger('SSE')
@@ -29,7 +33,6 @@ const ServerEventType = Object.freeze({
   PAGE_CONFIG: 'page-config',
   DATA_BATCH_JOB: 'data-batch-job',
   DATA_CHANGE: 'data-change',
-  NOTIFICATION: 'notification',
 })
 
 // Payload contracts ---------------------------------------------------------
@@ -82,26 +85,6 @@ timestamp: number
 jobId?: string
 }
 
-/** Server Notification Event 的事件载荷。 */
-export type ServerNotificationEvent = {
-    /** 显示标题。 */
-title: string
-    /** 用户可读消息。 */
-message: string
-    /** 事件时间戳。 */
-timestamp: number
-    /** notification Id 标识。 */
-notificationId?: string
-    /** level 字段。 */
-level?: string
-    /** category 字段。 */
-category?: string
-    /** 来源对象。 */
-source?: string
-    /** action Url 地址。 */
-actionUrl?: string
-}
-
 type EventNormalizer<T> = (data: unknown) => T | null
 
 // Shared connection state ---------------------------------------------------
@@ -109,6 +92,7 @@ type EventNormalizer<T> = (data: unknown) => T | null
 const eventSubscribers = new Map<string, Set<(data: unknown) => void>>()
 const envelopeEventSubscribers = new Map<string, Set<(event: AiAgentAppSseEvent) => void>>()
 const allEnvelopeEventSubscribers = new Set<(event: AiAgentAppSseEvent) => void>()
+const notificationSubscribers = new Set<(message: LowcodeNotificationMessage) => void>()
 
 let sharedSubscription: LowcodeRealtimeSubscription | null = null
 let sharedReadyPromise: Promise<void> | null = null
@@ -242,15 +226,16 @@ export function onDataChange(
   })
 }
 
+/** 订阅后端通知类消息；按 JsonSseMessage.messageType 识别，与 title 无关。 */
 export function onNotificationEvent(
-  callback: (event: ServerNotificationEvent) => void,
+  callback: (message: LowcodeNotificationMessage) => void,
 ): () => void {
-  return onTypedServerEvent({
-    eventType: ServerEventType.NOTIFICATION,
-    normalize: normalizeNotificationEvent,
-    label: '通知',
-    callback,
-  })
+  notificationSubscribers.add(callback)
+  ensureConnection()
+  return () => {
+    notificationSubscribers.delete(callback)
+    if (totalSubscribers() === 0) teardownConnection()
+  }
 }
 
 // Connection lifecycle ------------------------------------------------------
@@ -286,6 +271,11 @@ function dispatchLowcodeRealtimeEvent(event: LowcodeRealtimeEvent): void {
     return
   }
   try {
+    const notification = lowcodeApi.realtime.decodeNotification(event)
+    if (notification !== null) {
+      for (const callback of notificationSubscribers) callback(notification)
+      return
+    }
     const message = isRecord(event.data) ? event.data : null
     const content = message !== null && typeof message['content'] === 'string'
       ? parseEventContent(message['content'])
@@ -347,7 +337,7 @@ function teardownConnection(): void {
 }
 
 function totalSubscribers(): number {
-  let count = allEnvelopeEventSubscribers.size
+  let count = allEnvelopeEventSubscribers.size + notificationSubscribers.size
   for (const subscribers of eventSubscribers.values()) {
     count += subscribers.size
   }
@@ -552,31 +542,6 @@ function normalizeDataChangeEvent(data: unknown): DataChangeEvent | null {
   return event
 }
 
-function normalizeNotificationEvent(data: unknown): ServerNotificationEvent | null {
-  if (!isRecord(data)) return null
-
-  const message = readRequiredString(data, 'message')
-  if (message === null) return null
-
-  const event: ServerNotificationEvent = {
-    title: readNonEmptyStringProperty(data, 'title') ?? '通知',
-    message,
-    timestamp: normalizeTimestamp(data['timestamp']),
-  }
-  const notificationId = readNonEmptyStringProperty(data, 'notificationId') ?? readNonEmptyStringProperty(data, 'id')
-  const level = readNonEmptyStringProperty(data, 'level')
-  const category = readNonEmptyStringProperty(data, 'category')
-  const source = readNonEmptyStringProperty(data, 'source')
-  const actionUrl = readNonEmptyStringProperty(data, 'actionUrl') ?? readNonEmptyStringProperty(data, 'url')
-
-  if (notificationId !== undefined) event.notificationId = notificationId
-  if (level !== undefined) event.level = level
-  if (category !== undefined) event.category = category
-  if (source !== undefined) event.source = source
-  if (actionUrl !== undefined) event.actionUrl = actionUrl
-  return event
-}
-
 // Scalar readers ------------------------------------------------------------
 
 
@@ -596,10 +561,6 @@ function normalizeNumber(value: unknown, fallback = 0): number {
     if (Number.isFinite(parsed)) return parsed
   }
   return fallback
-}
-
-function readRequiredString(data: Record<string, unknown>, key: string): string | null {
-  return readNonEmptyStringProperty(data, key) ?? null
 }
 
 function errorMessage(error: unknown): string {

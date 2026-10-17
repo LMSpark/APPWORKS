@@ -142,6 +142,7 @@ export type {
   LowcodeRealtimeSubscription,
   LowcodeSystemDownload,
   LowcodeSparkEnvelope,
+  LowcodeNotificationMessage,
 } from './realtime/lowcode-realtime-api.js'
 export type {
   LowcodeSessionStorage,

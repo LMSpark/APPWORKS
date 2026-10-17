@@ -47,6 +47,117 @@ class AgentFixtureHttpClient extends HttpClientBase {
   }
 }
 
+class MessageFixtureHttpClient extends HttpClientBase {
+  public requests: RequestConfig[] = []
+
+  public constructor(private readonly result: unknown, private readonly code = 200) {
+    super()
+  }
+
+  protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+    this.requests.push(config)
+    return { data: { Code: this.code, Message: 'fail', Result: this.result }, status: 200, statusText: 'OK', headers: {} }
+  }
+}
+
+function saveSession(api: LowcodeApi): void {
+  api.session.save({
+    accessToken: 'access',
+    refreshToken: 'refresh',
+    accessExpiresAt: 1,
+    refreshExpiresAt: 2,
+    identity: {
+      userId: 'U1', account: 'admin', displayName: 'Admin', enterpriseId: 'E1',
+      enterpriseShortName: 'ENT', role: 'USER', raw: {},
+    },
+    enterprise: { id: 'E1', name: 'Enterprise', code: '企业', shortName: 'ENT', shortCode: '企', raw: {} },
+  })
+}
+
+describe('LowcodeRealtimeApi notifications', () => {
+  it('decodes backend JsonSseMessage by messageType regardless of title', () => {
+    const api = new LowcodeApi({ http: new RealtimeFixtureHttpClient() })
+    const frame = (messageType: string) => ({
+      event: 'message',
+      data: {
+        rowId: 'M1', entShortName: 'ENT', receiverType: 'USER', receiverId: 'U1',
+        title: '文档生成开始', content: '正在生成，请稍后...', messageType,
+        sendMethods: 'SSE', createTime: '2026-10-17T10:00:00',
+      },
+    })
+
+    expect(api.realtime.decodeNotification(frame('TIP'))).toEqual({
+      messageType: 'TIP',
+      title: '文档生成开始',
+      content: '正在生成，请稍后...',
+      createdAt: Date.parse('2026-10-17T10:00:00'),
+      messageId: 'M1',
+    })
+    for (const type of ['SYSTEM_NOTIFICATION', 'SYSTEM_ERROR', 'USER_MESSAGE']) {
+      expect(api.realtime.decodeNotification(frame(type))?.messageType).toBe(type)
+    }
+    for (const type of ['AI', 'SYSTEM_DOWNLOAD', 'SYSTEM_KICKOUT', 'ACKNOWLEDGMENT']) {
+      expect(api.realtime.decodeNotification(frame(type))).toBeNull()
+    }
+    expect(api.realtime.decodeNotification({ event: 'connected', data: { connectionUid: 'C1' } })).toBeNull()
+  })
+
+  it('fetches offline messages for the session user only', async () => {
+    const http = new MessageFixtureHttpClient([
+      { entShortName: 'ENT', userId: 'U1', messageList: [
+        { messageLogId: 'L1', rowId: 'M1', title: '你好', content: '在吗', messageType: 'USER_MESSAGE', createTime: '2026-10-17T09:00:00' },
+        { messageLogId: 'L2', rowId: 'M2', title: '下载', content: '{}', messageType: 'SYSTEM_DOWNLOAD' },
+      ] },
+    ])
+    const api = new LowcodeApi({ http })
+    saveSession(api)
+
+    await expect(api.realtime.fetchOfflineMessages()).resolves.toEqual([
+      { messageType: 'USER_MESSAGE', title: '你好', content: '在吗', createdAt: Date.parse('2026-10-17T09:00:00'), messageId: 'M1', messageLogId: 'L1' },
+    ])
+    expect(http.requests[0]).toMatchObject({
+      url: '/api/message/offlineMessages',
+      method: 'POST',
+      data: [{ entShortName: 'ENT', userId: 'U1' }],
+    })
+  })
+
+  it('returns no offline messages when the backend omits the list', async () => {
+    const api = new LowcodeApi({ http: new MessageFixtureHttpClient([{ entShortName: 'ENT', userId: 'U1', messageList: null }]) })
+    saveSession(api)
+    await expect(api.realtime.fetchOfflineMessages()).resolves.toEqual([])
+  })
+
+  it('fails fast on malformed offline responses and missing sessions', async () => {
+    const malformed = new LowcodeApi({ http: new MessageFixtureHttpClient({ not: 'array' }) })
+    saveSession(malformed)
+    await expect(malformed.realtime.fetchOfflineMessages()).rejects.toThrow('不是数组')
+    const anonymous = new LowcodeApi({ http: new MessageFixtureHttpClient([]) })
+    await expect(anonymous.realtime.fetchOfflineMessages()).rejects.toThrow('没有 lowcode 会话')
+  })
+
+  it('confirms by message log ids with the session enterprise', async () => {
+    const http = new MessageFixtureHttpClient('确认成功，确认消息数量: 2')
+    const api = new LowcodeApi({ http })
+    saveSession(api)
+
+    await expect(api.realtime.confirmMessages([' L1 ', 'L2', ''])).resolves.toBe('确认成功，确认消息数量: 2')
+    expect(http.requests[0]).toMatchObject({
+      url: '/api/message/confirmMessages',
+      method: 'POST',
+      params: { entShortName: 'ENT' },
+      data: ['L1', 'L2'],
+    })
+    await expect(api.realtime.confirmMessages([' '])).rejects.toThrow('至少一个')
+  })
+
+  it('surfaces backend business errors from confirmMessages', async () => {
+    const api = new LowcodeApi({ http: new MessageFixtureHttpClient(null, 500) })
+    saveSession(api)
+    await expect(api.realtime.confirmMessages(['L1'])).rejects.toThrow('fail')
+  })
+})
+
 describe('LowcodeRealtimeApi', () => {
   it('opens authenticated SSE and parses named JSON events', async () => {
     const chunks = new TextEncoder().encode('event: connected\ndata: {"connectionUid":"C1"}\n\ndata: {"messageType":"AI"}\n\n')

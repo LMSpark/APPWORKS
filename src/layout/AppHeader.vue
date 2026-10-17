@@ -70,12 +70,21 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
           <div class="notification-panel__header">
             <span class="notification-panel__title">通知</span>
             <div class="notification-panel__actions">
+              <button v-if="desktopPermission === 'default'" class="notification-panel__action" @click="enableDesktopNotifications">开启桌面提醒</button>
+              <span v-else-if="desktopPermission === 'denied'" class="notification-panel__action" title="请在浏览器网站设置中允许通知">桌面提醒已被浏览器禁止</span>
               <button v-if="unreadCount > 0" class="notification-panel__action" @click="markAllRead">全部已读</button>
               <button v-if="notifications.length > 0" class="notification-panel__action" @click="clearAll">清空</button>
             </div>
           </div>
+          <div v-if="syncError" class="notification-panel__error">
+            <span>{{ syncError }}</span>
+            <button v-if="offlineStatus === 'failed'" class="notification-panel__action" @click="retryOfflineMessages">重试</button>
+          </div>
           <div class="notification-panel__body">
-            <div v-if="notifications.length === 0" class="notification-panel__empty">
+            <div v-if="notifications.length === 0 && offlineStatus === 'loading'" class="notification-panel__empty">
+              <p>正在加载离线消息…</p>
+            </div>
+            <div v-else-if="notifications.length === 0" class="notification-panel__empty">
               <el-icon :size="40" style="color: var(--el-text-color-placeholder)"><Bell /></el-icon>
               <p>暂无通知</p>
             </div>
@@ -203,7 +212,19 @@ function toolbarCommand(item: RuntimeNavigationItem): string {
   return String(item.path ?? item.redirect ?? item.id).replace(/^\/+/, '')
 }
 /* 通知（SSE 实时驱动） */
-const { notifications, unreadCount, markRead, markAllRead, clearAll, removeItem } = useNotifications()
+const {
+  notifications,
+  unreadCount,
+  markRead,
+  markAllRead,
+  clearAll,
+  removeItem,
+  desktopPermission,
+  enableDesktopNotifications,
+  offlineStatus,
+  syncError,
+  retryOfflineMessages,
+} = useNotifications()
 
 function formatTime(ts: number): string {
   const d = new Date(ts)
@@ -385,6 +406,16 @@ function handleUserCommand(command: string | number | object) {
 .notification-panel__body {
   max-height: 360px;
   overflow-y: auto;
+}
+
+.notification-panel__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 16px;
+  color: var(--el-color-danger);
+  font-size: 12px;
 }
 
 .notification-panel__empty {

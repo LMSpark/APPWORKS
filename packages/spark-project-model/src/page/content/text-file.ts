@@ -30,6 +30,8 @@ constructor(
 
   get text(): string { return this._text }
   get isDirty(): boolean { return this._text !== this.savedText }
+  /** 已确认保存基线；用于原工作文件提交的未知结果核验，不包含当前编辑。 */
+  getSavedText(): string { return this.savedText }
   get canUndo(): boolean { return this.history.canUndo }
   get canRedo(): boolean { return this.history.canRedo }
 

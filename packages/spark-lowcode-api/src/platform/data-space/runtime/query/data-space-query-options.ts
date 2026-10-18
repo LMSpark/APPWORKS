@@ -4,17 +4,18 @@
  * 边界：拒绝未知字段或重复输出，不用视图显示名推断场景模型。
  * AI用途：把视图执行参数转为明确模型查询命令。
  */
-import { DataViewFilter, type DataView, type DataViewFieldProjection, type DataViewFilterTree, type DataViewQueryContext,
-  type DataViewFilterJsonValue, type QueryParams } from '@spark-appworks/spark-data'
-import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceQueryTree } from '../data-space-runtime-contract'
-import { encodeDataSpaceFilter } from '../protocol/data-space-filter'
+import { DataViewFilter, DataViewQuery, type DataView, type DataViewFieldProjection, type QueryParams } from '@spark-appworks/spark-data'
+import type { DataSpaceQueryIdentity, DataSpaceQueryOptions } from '../data-space-runtime-contract'
+import { DataViewFilterCodec } from '@spark-appworks/spark-data'
 import { parseDataSpaceValueFunction } from '../protocol/data-space-value-function'
 import { requireDataSpaceQueryPage } from '../protocol/data-space-pagination'
 import type { DataSpaceWireQueryOptions } from '../protocol/data-space-wire-contract'
 import { encodeDataSpaceQueryTree } from './data-space-query-tree'
 
 /** 从视图绑定和参数捕获的场景模型身份与查询选项快照。 */
-type DataSpaceViewQueryCommand = Readonly<{ identity: DataSpaceQueryIdentity; options: DataSpaceQueryOptions }>
+type DataSpaceViewQueryCommand = Readonly<{ identity: DataSpaceQueryIdentity; options: DataSpaceQueryOptions;
+  /** 已校验的前端来源入参模式，不属于GetData协议。 */
+  sourceInputMode?: QueryParams['sourceInputMode'] }>
 type DataSpaceViewQueryField = Exclude<NonNullable<DataSpaceQueryOptions['fields']>[number], string>
 type DataSpaceViewQuerySort = NonNullable<DataSpaceQueryOptions['sort']>[number]
 
@@ -39,7 +40,7 @@ function viewQueryFields(view: DataView, params: QueryParams): DataSpaceViewQuer
       ...(field.expression.trim() ? { expression: field.expression } : {}),
       valueFun: projectionValueFunction(field),
     }))
-    : view.columns.filter(column => !column.isComputed && !column.computeExpression)
+    : view.queryColumns
       .map(column => ({ name: column.name, isOutput: true }))
   if (!available.length) throw new TypeError('SPARK DataView 缺少有效模型输出字段')
   const names = available.map(field => field.alias ?? field.name)
@@ -69,69 +70,17 @@ function viewQuerySort(value: string | undefined, fields: readonly DataSpaceView
   })
 }
 
-function viewQueryTree(value: unknown): DataSpaceQueryTree | undefined {
-  if (value === undefined) return undefined
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new TypeError('SPARK DataView tree 必须是对象')
-  if (Object.keys(value).some(key => !['keyField', 'parentField', 'nodeId', 'hasChildrenField', 'mode'].includes(key))) {
-    throw new TypeError('SPARK DataView tree 包含未知参数')
-  }
-  const mode = 'mode' in value ? value.mode : undefined
-  if (mode !== undefined && mode !== 'child' && mode !== 'parent') throw new TypeError('SPARK DataView tree.mode 无效')
-  return {
-    keyField: requireViewText('keyField' in value ? value.keyField : undefined, 'tree.keyField'),
-    parentField: requireViewText('parentField' in value ? value.parentField : undefined, 'tree.parentField'),
-    nodeId: requireViewText('nodeId' in value ? value.nodeId : undefined, 'tree.nodeId'),
-    ...('hasChildrenField' in value ? { hasChildrenField: requireViewText(value.hasChildrenField, 'tree.hasChildrenField') } : {}),
-    ...(mode === undefined ? {} : { mode }),
-  }
-}
-
-function isJsonInput(value: unknown, seen = new Set<object>()): value is DataViewFilterJsonValue {
-  if (value === null || typeof value === 'string' || typeof value === 'boolean') return true
-  if (typeof value === 'number') return Number.isFinite(value)
-  if (typeof value !== 'object' || seen.has(value)) return false
-  seen.add(value)
-  try {
-    if (Array.isArray(value)) return Array.from({length: value.length}, (_, index) => index)
-      .every(index => Object.hasOwn(value, index) && isJsonInput(value[index], seen))
-    const prototype: unknown = Object.getPrototypeOf(value)
-    if (prototype !== Object.prototype && prototype !== null) return false
-    return Object.values(value).every(item => isJsonInput(item, seen))
-  } finally { seen.delete(value) }
-}
-
-function bindInputFilterTree(tree: DataViewFilterTree, context: DataViewQueryContext): DataViewFilterTree {
-  if ('logic' in tree) return {...tree, filters: tree.filters.map(item => bindInputFilterTree(item, context))}
-  const value = tree.value
-  if (value === null || typeof value !== 'object' || Array.isArray(value)
-    || !('Type' in value) || value['Type'] !== 'GetInputParam') return tree
-  const name = 'ParamName' in value ? value['ParamName'] : undefined
-  if (typeof name !== 'string' || !name.trim() || !Object.hasOwn(context, name)
-    || !isJsonInput(context[name])) throw new TypeError(`SPARK DataView GetInputParam 参数缺失或不是有效 JSON: ${String(name)}`)
-  return {...tree, value: {Type: 'GetConstValue', Value: structuredClone(context[name])}}
-}
-
-function bindInputFilter(filter: DataViewFilter, context: DataViewQueryContext): DataViewFilter {
-  const bound = DataViewFilter.parse(bindInputFilterTree(filter.toJSON(), context))
-  if (!bound.ok) throw new TypeError(bound.issues.map(issue => `${issue.path}: ${issue.message}`).join('\n'))
-  return bound.value
-}
-
 /** DataView 是 GetData 的查询输入；本地组织配置不推导服务器节点或业务身份。 */
 export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): DataSpaceViewQueryCommand {
   const allowed = ['page', 'pageSize', 'sort', 'filter', 'fields', 'viewId', 'viewConfig', 'projection', 'context',
-    'treeMode', 'tree', 'outputType', 'allPages', 'maxRows', 'singleFlight']
+    'treeMode', 'tree', 'outputType', 'allPages', 'maxRows', 'singleFlight', 'sourceInputMode']
   for (const key of Object.keys(params)) {
     if (params[key] !== undefined && !allowed.includes(key)) throw new TypeError(`SPARK DataView 不支持查询参数: ${key}`)
   }
-  for (const key of ['allPages', 'singleFlight']) {
-    if (params[key] !== undefined && typeof params[key] !== 'boolean') throw new TypeError(`SPARK DataView ${key} 必须是布尔值`)
+  if (params['singleFlight'] !== undefined && typeof params['singleFlight'] !== 'boolean') {
+    throw new TypeError('SPARK DataView singleFlight 必须是布尔值')
   }
-  const maxRows = params['maxRows']
-  if (maxRows !== undefined && (typeof maxRows !== 'number' || !Number.isSafeInteger(maxRows) || maxRows <= 0)) {
-    throw new TypeError('SPARK DataView maxRows 必须是正整数')
-  }
-  const outputType = params['outputType'] === undefined ? undefined : requireViewText(params['outputType'], 'outputType')
+  const {sourceInputMode, ...queryConfig} = DataViewQuery.capture(params)
   const binding = view.dataTable?.modelBinding
   requireViewText(binding?.modelId, '模型 ID')
   const identity = { scenarioId: requireViewText(view.dataSet?.scenarioId, 'scenarioId'),
@@ -143,19 +92,15 @@ export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): 
   if (filter !== undefined && !filter.ok) throw new TypeError(filter.issues.map(issue => `${issue.path}: ${issue.message}`).join('\n'))
   const page = { index: params.page ?? view.page, size: params.pageSize ?? view.pageSize }
   requireDataSpaceQueryPage(page)
-  const tree = viewQueryTree(params['tree'])
   const options: DataSpaceQueryOptions = {
-    page, fields, sort: viewQuerySort(params.sort, fields),
-    ...(filter?.ok ? { filter: bindInputFilter(filter.value, context) } : {}),
+    ...queryConfig, page, fields, sort: viewQuerySort(params.sort, fields),
+    ...(filter?.ok ? { filter: filter.value.bindInputParams(context) } : {}),
     inputParams: Object.entries(context).map(([name, value]) => ({
       name: requireViewText(name, '输入参数名'), value,
     })),
-    ...(tree === undefined ? {} : { tree }),
-    ...(outputType === undefined ? {} : { outputType }),
-    allPages: params['allPages'] === true, singleFlight: params['singleFlight'] !== false,
-    ...(typeof maxRows === 'number' ? { maxRows } : {}),
+    singleFlight: params['singleFlight'] !== false,
   }
-  return { identity, options }
+  return { identity, options, ...(sourceInputMode === undefined ? {} : {sourceInputMode}) }
 }
 
 /** 原 SPARK 查询输入映射；权限、请求身份与缓存策略不进入 wire 表。 */
@@ -164,11 +109,12 @@ export function encodeDataSpaceQueryOptions(options: DataSpaceQueryOptions): Dat
   if (outputFieldMode !== undefined && outputFieldMode !== 'MODEL' && outputFieldMode !== 'REQUEST') {
     throw new TypeError('SPARK 查询 outputFieldMode 必须是 MODEL 或 REQUEST')
   }
+  const sort = options.sort
   return {
     ...(outputFieldMode === undefined ? {} : {outputFieldMode}),
-    ...(options.filter ? { filter: encodeDataSpaceFilter(options.filter) } : {}),
-    ...(options.sort?.length ? { sortFields: options.sort.map((item, order) => ({
-      Field: item.field, OrderType: item.direction === 'asc' ? 'ascending' as const : 'descending' as const, Order: order,
+    ...(options.filter ? { filter: DataViewFilterCodec.encode(options.filter) } : {}),
+    ...(sort?.length ? { sortFields: sort.map((item, order) => ({
+      Field: item.field, OrderType: item.direction === 'asc' ? 'ascending' as const : 'descending' as const, Order: sort.length - order,
     })) } : {}),
     ...(options.page ? requireDataSpaceQueryPage(options.page) : {}),
     ...(options.allPages ? { allPages: true } : {}),

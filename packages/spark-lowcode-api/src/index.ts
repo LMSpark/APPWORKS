@@ -32,26 +32,12 @@ export type {
 export { DataSpaceApi } from './platform/data-space/data-space-api.js'
 export { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from './platform/data-space/design/data-space-design-api.js'
 export type {
-  DataSpaceDesignSnapshot,
-  DataSpaceDesignReadInput,
-  DataSpaceInputParameter,
-} from './platform/data-space/design/data-space-design-api.js'
-export type {
-  DataSpaceDesignMutationCommand,
-  DataSpaceDesignMutationInput,
-} from './platform/data-space/design/data-space-design-mutation.js'
-export { DataSpaceFrontendModel } from './platform/data-space/data-space.js'
-export type {
-  DataSpaceFieldReference,
-  DataSpaceFrontendModelQuery,
-  DataSpaceFrontendModelSnapshot,
   LowcodeModelRelationRecord,
-  DataSpaceResourceField,
-  DataSpaceResourceReference,
   DataSpaceResourceType,
   DataSpaceDatabaseResourceType,
 } from './platform/data-space/data-space.js'
 export { DataSpaceRuntimeApi } from './platform/data-space/runtime/data-space-runtime-api.js'
+export { DataSpaceQueryAggregation } from './platform/data-space/runtime/query/data-space-query-aggregation.js'
 export { LowcodePlatformApi } from './platform/lowcode-platform-api.js'
 export { PermissionApi } from './platform/permission/permission-api.js'
 export { PermissionDesignApi } from './platform/permission/design/permission-design-api.js'
@@ -60,7 +46,6 @@ export type {
   PermissionDesignSnapshot,
   PermissionFeatureTag,
   PermissionGrantOrganizationScope,
-  PermissionGrantSubjectKind,
   PermissionObjectGrant,
 } from './platform/permission/design/permission-design-api.js'
 export type {
@@ -118,6 +103,12 @@ export type {
   LowcodeVerificationScene,
 } from './platform/lowcode-platform-api.js'
 export type { SendCodeType, SendCodeScene } from './contracts/lowcode-send-code.js'
+export { DictionarySchema } from './platform/resources/dictionary/dictionary-schema.js'
+export { DictionaryWorkspace } from './platform/resources/dictionary/dictionary-workspace.js'
+export { ApiProviderDesign } from './platform/resources/external-api/api-provider-design.js'
+export { ApiPublicParameterDesign } from './platform/resources/external-api/api-public-parameter-design.js'
+export { ApiRequestHeaderDesign } from './platform/resources/external-api/api-request-header-design.js'
+export { ApiInterfaceDesign } from './platform/resources/external-api/api-interface-design.js'
 export type { OrderType, WireFilterOperator, GroupFunType } from './contracts/lowcode-wire-query.js'
 export type { LowcodeApplication } from './platform/lowcode-application.js'
 export type {

@@ -32,6 +32,7 @@ classDiagram
   ProjectBlueprintDesign o-- PageTool
   ProjectWorkspace *-- ProjectBlueprint
   ProjectWorkspace o-- ScenarioViewFile
+  ProjectWorkspace o-- DataSet : 正式定义元数据
   PageRuntime --> PageTool
   PageRuntime o-- DataSet
   PageTool *-- PageRuleFile
@@ -42,13 +43,13 @@ classDiagram
 
 `PageRuntime` 表达一次调用，持有唯一 instanceId、scenarioIds 和可选 mainScenarioId。即便共用同一工具，每次调用仍装配独立的 DataSet；运行实例不能共享业务数据集。装载失败清理已装配的兄弟场景，销毁拒绝迟到结果并释放本实例的数据。
 
-视图引用为 `#scenarioId@table@view`。局部 `table@view` 只有明确主场景时可物化；不会把首个场景当主场景。物化会校验本次调用确实声明并装载了引用视图。
+新页面视图引用为 `scenarioId@modelName@viewId`。模型名称匹配正式 modelBinding.modelName；原生本地模型使用自身 tableName；同场景重名拒绝。局部 `modelName@viewId` 只有明确主场景时可物化；不会把首个场景当主场景。物化会校验本次调用确实声明并装载了引用视图。
 
 ## 场景配置
 
-`ScenarioViewConfig` 校验一个场景的 tables、正式 modelBinding、views 和 viewCascades。物理模型字段由正式模型提供，配置仅引用它们；运行装配核对字段存在性和权限。
+`ScenarioViewConfig` 校验单场景 tables、modelBinding、views 和显式 viewCascades。正式模型提供输出字段，场景配置可补允许的前端校验和计算列；装配核对字段身份及引用，数据权限由当次正式查询返回并在运行时消费。正式字段不等同于物理数据库字段。DataSet → DataTable → columns / 多个 DataView 及数据库与文件的持久边界统一见[数据空间主合同](../../../docs/architecture/DATAFLOW_ARCHITECTURE.md)。
 
-`ScenarioViewFile` 持有原文、savedText 基线、校验后的 value 和撤销历史。`ProjectWorkspace.loadScenarioViews({scenarioId})` / `getScenarioViews(scenarioId)` 获取该场景的编辑 owner；`saveScenarioViews({scenarioId})` 执行写前原文比较和写后字节回读。身份改变、远端冲突、重复保存和回读不一致明确失败。后端没有 CAS，客户端比较不能承诺原子保护；失败不表示已写内容已撤销。
+`ScenarioViewFile` 持有原文、savedText 基线、校验后的 value 和撤销历史。`ProjectWorkspace.loadScenarioViews({scenarioId})` / `getScenarioViews(scenarioId)` 获取该场景的文件owner，`saveScenarioViews({scenarioId})` 执行写前原文比较和写后字节回读；这些能力由数据层资源适配内部复用。业务编辑与取消由正式元数据DataView承载，提交经DataSet，不从文件owner另开通道。身份改变、远端冲突、重复保存和回读不一致明确失败。后端没有 CAS，客户端比较不能承诺原子保护；失败不表示已写内容已撤销。
 
 场景文件位于 `SysForm/<scenarioId>/pagedata.json`，与 `<appId>/<pageId>` 下的工具文件分离。
 
@@ -71,9 +72,11 @@ UI 通过 `subscribe` 和 `read*Projection()` 消费 ProjectBlueprint，工作�
 | page.file.changed | 工具三文件编辑、保存或撤销变化 |
 | runtime.changed | 工具装载状态变化 |
 
-`blueprintDirty` 表示实际蓝图编辑，存在 draft 本身不代表 dirty。工具 dirtyFiles 只覆盖三文件；场景编辑由 ScenarioViewFile.isDirty 表达，运行业务编辑由 PageRuntime.isDirty 表达。
+`blueprintDirty` 表示实际蓝图编辑，存在 draft 本身不代表 dirty。工具 dirtyFiles 只覆盖三文件；场景编辑由工作区正式元数据DataView的编辑及待提交状态表达，dirtyScenarioIds也保留内部未决文件状态。saveDirtyScenarioDefinitions/saveAll从已加载DataSet提交修改，不加载未读定义；旧独立文件草稿缺少原生DataSet时明确拒绝。运行业务编辑由 PageRuntime.isDirty 表达。
 
-页面设计 AI 使用 ProjectWorkspace 根，三文件通过 `this.project.openPageDesign(pageId)` 编辑；只有输入明确 scenarioId 时才加载场景配置。每次运行使用 requestId、独立 Host 和独立编辑器；gate、交付回执及释放都遵循该身份。工具文件和场景配置分别返回实际保存结果，不以一次失败宣称全部回滚。
+页面设计 AI 使用 ProjectWorkspace 根，三文件通过 `this.project.openPageDesign(pageId)` 编辑；只有输入明确 scenarioId=T 时才loadScenarioDefinitions取得正式C，按需查询定义DataView并编辑/取消，交付仅提交指定T的定义变更。原文件owner方法不向AI开放。同一工作区和请求代次复用定义DataSet，scope改变或dispose销毁其定义实例，迟到加载拒绝注册。工具文件和场景配置分别返回实际保存结果，不以一次失败宣称全部回滚。
+
+DevSystem完整配置文本由ScenarioDefinitionDocument从五类正式定义DataView投影，文本应用与撤销写回这些视图，预览从同一投影装配独立运行DataSet。完整文档工作区须加载完整定义，普通保存只提交修改。文档的根配置基线与撤销历史不能保存为另一份有效草稿；外部编辑使旧撤销不可用，重新查询或身份改变使文档失效。DataView的listSourceVersions/previewSourceVersion/createSourceVersion按可选来源历史合同执行，快照要求同源视图干净且期间不变；恢复把核对后的历史定义写入DataView再提交。来源适配内部仍复用既有文件存储，不改变工具发布指针。
 
 `SparkPageRenderer` 接收 PageRuntime 与调用 routeSnapshot；脚本 Render 组件、CSS 和状态仅属本实例，关闭 A 不会释放 B。路由/查询决定调用身份，工具 pageId 不充当运行实例 ID。
 

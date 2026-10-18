@@ -97,7 +97,7 @@ describe('PageRuntime lifecycle',()=>{
     const shared=tool();shared.setFileText('rule.json',JSON.stringify([{id:'grid',type:'table',props:{dataViewKey:'Orders@default'}}]))
     const ds=DataSet.fromJson({dataSetName:'scene',scenarioId:'scene',tables:{Orders:{tableName:'Orders',columns:[{name:'id',type:'number',isPrimaryKey:true},{name:'name',type:'string'}],views:{default:{rows:[{id:1,name:'Original'}]}}}}})
     const runtime=new PageRuntime({tool:shared,scenarioIds:['scene'],mainScenarioId:'scene',loadScenario:async()=>ds});await runtime.load()
-    expect(JSON.stringify(runtime.materialize().rule)).toContain('#scene@Orders@default');expect(shared.getFileText('rule.json')).not.toContain('#scene')
+    expect(JSON.stringify(runtime.materialize().rule)).toContain('scene@Orders@default');expect(shared.getFileText('rule.json')).not.toContain('scene@Orders')
     ds.getView('Orders','default')!.updateEditingValue(1,'name','Draft');expect(runtime.isDirty).toBe(true)
     runtime.markConfigPending();await expect(runtime.reload()).rejects.toThrow('PAGE_RUNTIME_DIRTY');expect(runtime.configPending).toBe(true);expect(ds.destroyed).toBe(false)
     runtime.dispose()

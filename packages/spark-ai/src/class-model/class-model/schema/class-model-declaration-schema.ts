@@ -86,7 +86,7 @@ export class ClassModelDeclarationSchema {
       if (schemas.length === 1 && schemas[0] !== undefined) return schemas[0]
       if (schemas.includes(true)) return true
       const values = schemas.map(extractConstOrSingleEnumValue)
-      if (values.every(value => value !== undefined)) return {enum: values}
+      if (values.every(value => value !== undefined)) return {enum: [...new Set(values)]}
       return {anyOf: schemas}
     }
     if (type.getCallSignatures().length > 0 || type.getConstructSignatures().length > 0) {

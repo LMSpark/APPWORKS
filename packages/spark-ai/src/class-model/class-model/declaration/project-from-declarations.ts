@@ -154,6 +154,12 @@ type PropertyMemberCommand = Readonly<{
   member: ts.PropertyDeclaration
 }>
 
+type AccessorMemberCommand = Readonly<{
+  site: ProjectionSite
+  memberName: string
+  members: readonly ts.ClassElement[]
+}>
+
 type PropertySignatureCommand = Readonly<{
   site: ProjectionSite
   memberName: string
@@ -405,6 +411,13 @@ function projectClassDeclaration(command: ClassDeclarationProjectionCommand): st
       continue
     }
     if (isPrivateMember(member)) continue
+    if (ts.isGetAccessorDeclaration(member) || ts.isSetAccessorDeclaration(member)) {
+      const memberName = readMemberName(member.name)
+      if (memberName !== undefined && !attributes.some(attribute => attribute.name === memberName)) {
+        attributes.push(projectAccessorMember({site: siteWithName, memberName, members: node.members}))
+      }
+      continue
+    }
     if (ts.isPropertyDeclaration(member)) {
       const memberName = readMemberName(member.name)
       if (memberName === undefined) continue
@@ -859,6 +872,29 @@ function transparentTypeReferenceArgument(typeNode: ts.TypeNode, sourceFile: ts.
 
 function isFunctionPropertySignature(member: ts.PropertySignature): member is ts.PropertySignature & Readonly<{ type: ts.FunctionTypeNode }> {
   return member.type !== undefined && ts.isFunctionTypeNode(member.type)
+}
+
+function projectAccessorMember(command: AccessorMemberCommand): AttributeMeta {
+  const {site, memberName, members} = command
+  const getter = members.find((member): member is ts.GetAccessorDeclaration =>
+    ts.isGetAccessorDeclaration(member) && !isPrivateMember(member) && readMemberName(member.name) === memberName)
+  const setter = members.find((member): member is ts.SetAccessorDeclaration =>
+    ts.isSetAccessorDeclaration(member) && !isPrivateMember(member) && readMemberName(member.name) === memberName)
+  const member = getter ?? setter
+  if (!member) throw new Error(`Missing accessor ${memberName}`)
+  const {context, sourceFile, className} = site
+  return {
+    name: memberName,
+    schema: typeNodeToJsonSchema(getter?.type ?? setter?.parameters[0]?.type, sourceFile),
+    readable: getter !== undefined,
+    writable: setter !== undefined,
+    jsdoc: readJsDoc(member, sourceFile) || (setter ? readJsDoc(setter, sourceFile) : ''),
+    provenance: createProvenance({
+      file: sourceFileFromEmitPath(normalizeRepoPath(sourceFile.fileName, context.repoRoot)),
+      line: sourceFile.getLineAndCharacterOfPosition(member.getStart(sourceFile)).line + 1,
+      className, memberName, declarationKind: 'class',
+    }),
+  }
 }
 
 function projectPropertyMember(command: PropertyMemberCommand): AttributeMeta {

@@ -5,25 +5,39 @@
  * AI用途：装配明确场景、物化绑定及刷新干净实例。
  */
 import { deepClone, isRecord } from '@spark-appworks/spark-utils'
-import type { DataSet, DataView } from '@spark-appworks/spark-data'
+import { buildDataViewKey, parseDataViewKey, resolveDataViewKey, type DataSet, type DataView, type DataViewQueryContext } from '@spark-appworks/spark-data'
 import type { PageTool, PageToolDefinition } from './page-tool'
 import { PageContentRuntime } from './content/runtime-content'
 
+/** 按本次声明空间 ID 分组的业务查询输入；空间参数名称保留原样。 */
+type PageScenarioInputs = Readonly<Record<string, DataViewQueryContext>>
 /** 一次页面调用的工具、明确场景列表及真实装配回调；局部绑定仅使用显式主场景。 */
 export type PageRuntimeOptions = {
-  tool: PageTool
+  /** 三文件工具；与系统页pageId二选一。 */
+  tool?: PageTool
+  /** 已注册Vue系统页的稳定身份；无三文件工具，仍复用同一数据运行链。 */
+  pageId?: string
   scenarioIds: readonly string[]
   mainScenarioId?: string
+  /** 按已声明空间 ID 提供 JSON 业务输入，覆盖该空间各视图的同名 queryContext。 */
+  scenarioInputs?: PageScenarioInputs
   instanceId?: string
   loadScenario: (scenarioId: string) => Promise<DataSet>
   loadTool?: () => Promise<PageTool>
 }
 /** 不可变调用身份快照，重载保持 instanceId，场景身份不能取默认首空间。 */
-export type PageRuntimeCall = Readonly<{ instanceId: string; pageId: string; scenarioIds: readonly string[]; mainScenarioId?: string }>
+export type PageRuntimeCall = Readonly<{ instanceId: string; pageId: string; scenarioIds: readonly string[]; mainScenarioId?: string;
+  /** 深冻结的调用输入快照；不包含数据权限，reload 保持原值。 */
+  scenarioInputs?: PageScenarioInputs }>
 type ExternalDirtySource = Readonly<{ isDirty: boolean; subscribe(listener: () => void): () => void }>
 /** 一次页面调用拥有自身数据空间、代次和销毁边界；工具定义不持业务数据。 */
 export class PageRuntime {
-  readonly tool: PageTool
+  readonly #tool: PageTool | undefined
+  /** 三文件工具定义；原生系统页不伪造工具，读取时明确拒绝。 */
+  get tool(): PageTool {
+    if (!this.#tool) throw new Error('原生系统页没有三文件工具')
+    return this.#tool
+  }
   readonly call: PageRuntimeCall
   readonly #loadScenario: PageRuntimeOptions['loadScenario']
   readonly #loadTool: PageRuntimeOptions['loadTool']
@@ -38,20 +52,65 @@ export class PageRuntime {
   #loading: Promise<void> | undefined
   /** 创建独立调用 owner，验证场景身份；DataSet 在 load 后归此实例销毁。 */
   constructor(options:PageRuntimeOptions) {
+    if ((options.tool !== undefined) === (options.pageId !== undefined)) throw new Error('页面工具与系统页pageId必须二选一')
+    const pageId = options.tool?.pageId ?? options.pageId?.trim()
+    if (!pageId || options.pageId !== undefined && pageId !== options.pageId) throw new Error('系统页缺少有效pageId')
+    if (!options.tool && options.loadTool) throw new Error('系统页不能加载三文件工具')
     const ids=options.scenarioIds.map(id=>id.trim())
     if(ids.some(id=>!id || id.includes('@') || id.startsWith('#')) || new Set(ids).size!==ids.length)throw new Error('页面调用场景身份非法或重复')
     if(options.mainScenarioId && !ids.includes(options.mainScenarioId))throw new Error('主场景不属于本次调用')
-    this.tool=options.tool;this.#loadScenario=options.loadScenario;this.#loadTool=options.loadTool
-    this.call=Object.freeze({instanceId:options.instanceId ?? crypto.randomUUID(),pageId:options.tool.pageId,scenarioIds:Object.freeze(ids),...(options.mainScenarioId ? {mainScenarioId:options.mainScenarioId} : {})})
+    const scenarioInputs=options.scenarioInputs===undefined ? undefined : PageRuntime.#snapshotInputs(options.scenarioInputs)
+    if(scenarioInputs && Object.keys(scenarioInputs).some(id=>!ids.includes(id)))throw new Error('scenarioInputs 引用了未声明的场景')
+    this.#tool=options.tool;this.#loadScenario=options.loadScenario;this.#loadTool=options.loadTool
+    this.call=Object.freeze({instanceId:options.instanceId ?? crypto.randomUUID(),pageId,scenarioIds:Object.freeze(ids),...(options.mainScenarioId ? {mainScenarioId:options.mainScenarioId} : {}),...(scenarioInputs===undefined ? {} : {scenarioInputs})})
+  }
+  /** 解析 URL 的单个 scenarioInputs JSON；场景归属由构造本次调用时校验。 */
+  static parseScenarioInputs(text:string):PageScenarioInputs {
+    let value:unknown
+    try { value=JSON.parse(text) } catch { throw new TypeError('scenarioInputs 必须是有效 JSON 对象') }
+    return PageRuntime.#snapshotInputs(value)
+  }
+  static #snapshotInputs(value:unknown):PageScenarioInputs {
+    const copy=PageRuntime.#copyInput(value,new Set())
+    if(!isRecord(copy))throw new TypeError('scenarioInputs 必须按场景 ID 提供参数对象')
+    return Object.freeze(Object.fromEntries(Object.entries(copy).map(([id,context])=>{
+      if(!isRecord(context) || Object.keys(context).some(name=>!name.trim()))throw new TypeError(`scenarioInputs.${id} 必须是具名参数对象`)
+      return [id,context]
+    })))
+  }
+  static #copyInput(value:unknown,ancestors:Set<object>):unknown {
+    if(value===null || typeof value==='string' || typeof value==='boolean')return value
+    if(typeof value==='number' && Number.isFinite(value))return value
+    if(typeof value!=='object' || ancestors.has(value))throw new TypeError('scenarioInputs 只支持无循环的 JSON 值')
+    const array=Array.isArray(value)
+    const prototype:unknown=Object.getPrototypeOf(value)
+    if(!array && prototype!==Object.prototype && prototype!==null)throw new TypeError('scenarioInputs 只支持普通 JSON 对象')
+    const descriptors=Object.getOwnPropertyDescriptors(value)
+    const keys=Reflect.ownKeys(value)
+    if(keys.some(key=>typeof key!=='string' || (!array || key!=='length')
+      && (!descriptors[key]?.enumerable || !Object.hasOwn(descriptors[key] ?? {},'value'))))throw new TypeError('scenarioInputs 不支持访问器或非 JSON 属性')
+    ancestors.add(value)
+    try {
+      if(array){
+        if(keys.length!==value.length+1)throw new TypeError('scenarioInputs 数组必须连续且无额外属性')
+        return Object.freeze(Array.from({length:value.length},(_,index)=>{
+          if(!Object.hasOwn(value,index))throw new TypeError('scenarioInputs 数组不能有空洞')
+          return PageRuntime.#copyInput(value[index],ancestors)
+        }))
+      }
+      return Object.freeze(Object.fromEntries(Object.entries(descriptors).map(([name,descriptor])=>[name,PageRuntime.#copyInput(descriptor.value,ancestors)])))
+    } finally { ancestors.delete(value) }
   }
   get instanceId():string { return this.call.instanceId }
   get pageId():string { return this.call.pageId }
   get generation():number { return this.#generation }
   get configPending():boolean { return this.#configPending }
   markConfigPending():void { this.#assertAlive();this.#configPending=true }
-  /** 干净实例才允许刷新，失效旧代次并销毁旧数据集，保持调用身份。 */
+  /** 三文件工具的干净实例允许刷新；系统页由宿主重开完整会话，不能仅重建数据集。 */
   async reload():Promise<void> {
-    this.#assertAlive();if(this.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 运行实例有未保存编辑，不能刷新配置')
+    this.#assertAlive()
+    if(!this.#tool)throw new Error('原生系统页须由宿主重新打开完整会话')
+    if(this.isDirty)throw new Error('PAGE_RUNTIME_DIRTY: 运行实例有未保存编辑，不能刷新配置')
     this.#clearExternalDirtySources()
     this.#generation++;this.#loaded=false;this.#loading=undefined
     for(const content of this.#content.values())content.dispose()
@@ -84,26 +143,36 @@ export class PageRuntime {
   }
   async #load(generation:number):Promise<void> {
     if(this.#loadTool){const tool=await this.#loadTool();this.#assertGeneration(generation);if(tool!==this.tool)throw new Error('页面工具装载身份改变')}
-    this.tool.toDefinition()
+    this.#tool?.toDefinition()
     const results=await Promise.allSettled(this.call.scenarioIds.map(id=>this.#loadScenario(id)))
     const dataSets=results.flatMap(result=>result.status==='fulfilled' ? [result.value] : [])
     try {
       this.#assertGeneration(generation)
       const failure=results.find(result=>result.status==='rejected');if(failure?.status==='rejected')throw failure.reason
       if(new Set(dataSets).size!==dataSets.length)throw new Error('页面场景共享了同一个运行数据集')
-      for(let i=0;i<dataSets.length;i++){const ds=dataSets[i];const id=this.call.scenarioIds[i];if(!ds || !id || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份');this.#dataSets.set(id,ds)}
+      for(let i=0;i<dataSets.length;i++){
+        const ds=dataSets[i];const id=this.call.scenarioIds[i]
+        if(!ds || !id || ds.scenarioId!==id || ds.destroyed)throw new Error('场景装配返回错误的数据空间身份')
+        const inputs=this.call.scenarioInputs
+        if(inputs && Object.hasOwn(inputs,id))for(const table of Object.values(ds.tables))for(const view of Object.values(table.views)){
+          view.queryContext=deepClone({...view.queryContext,...inputs[id]})
+        }
+        this.#dataSets.set(id,ds)
+      }
       this.#loaded=true;this.#configPending=false
     } catch(error) {for(const ds of dataSets)ds.destroy();if(this.#generation===generation)this.#dataSets.clear();throw error}
   }
   getDataSet(scenarioId:string):DataSet|undefined { this.#assertAlive();return this.#dataSets.get(scenarioId) }
-  /** 解析完整场景绑定或显式主场景局部绑定；未声明身份立即拒绝。 */
+  /** 按场景、模型名称、视图 ID 解析绑定；局部绑定须声明主场景，模型名称必须唯一。 */
   resolveView(binding:string):DataView|undefined {
     this.#assertAlive()
-    const parts=binding.startsWith('#') ? binding.slice(1).split('@') : binding.split('@')
-    const scenarioId=binding.startsWith('#') ? parts.shift() : this.call.mainScenarioId
-    if(!scenarioId || parts.length!==2 || parts.some(part=>!part))throw new Error('视图绑定必须是 #scenarioId@table@view；本地绑定必须声明主场景')
+    const descriptor=parseDataViewKey(binding)
+    const scenarioId=descriptor?.scope ?? this.call.mainScenarioId
+    if(!descriptor || !scenarioId)throw new Error('视图绑定必须是 scenarioId@modelName@viewId；本地绑定必须声明主场景')
     if(!this.call.scenarioIds.includes(scenarioId))throw new Error(`视图场景未声明: ${scenarioId}`)
-    return this.#dataSets.get(scenarioId)?.getView(parts[0] ?? '',parts[1] ?? '')
+    const dataSet=this.#dataSets.get(scenarioId)
+    if(!dataSet)return undefined
+    return resolveDataViewKey(buildDataViewKey(descriptor.tableName,descriptor.viewId,scenarioId),dataSet)
   }
   /** 复制工具规则并展开局部绑定，引用不存在的视图时失败，不修改原工具。 */
   materialize():PageToolDefinition {
@@ -114,10 +183,11 @@ export class PageRuntime {
       if(!isRecord(value))return
       const binding=value['dataViewKey']
       if(typeof binding==='string' && binding){
-        if(!binding.startsWith('#')){
+        const descriptor=parseDataViewKey(binding)
+        if(!descriptor)throw new Error('视图绑定必须是 scenarioId@modelName@viewId 或 modelName@viewId')
+        if(descriptor.scope===undefined){
           if(!this.call.mainScenarioId)throw new Error('局部视图绑定必须声明主场景')
-          if(binding.split('@').length!==2)throw new Error('局部视图绑定必须是 table@view')
-          value['dataViewKey']=`#${this.call.mainScenarioId}@${binding}`
+          value['dataViewKey']=buildDataViewKey(descriptor.tableName,descriptor.viewId,this.call.mainScenarioId)
         }
         if (!this.resolveView(String(value['dataViewKey']))) throw new Error(`页面绑定的视图不存在: ${String(value['dataViewKey'])}`)
       }

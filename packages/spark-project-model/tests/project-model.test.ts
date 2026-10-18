@@ -88,6 +88,42 @@ describe('ProjectBlueprint', () => {
     expect(page.script.text).toBe('A')
   })
 
+  it.each(['confirmed', 'not-applied', 'conflict'] as const)('verifies a lost tool receipt as %s before any later write', async outcome => {
+    let remote = 'old', calls = 0
+    const workspace = new ProjectWorkspace({projectId: 'crm', blueprint: {loadRoot: async () => createRoot([])},
+      pageFiles: {readPageFile: async () => remote, saveFileContent: async (_id, _name, text) => {
+        calls++; remote = outcome === 'confirmed' || calls > 1 ? text : outcome === 'conflict' ? 'external' : 'old'
+        if (calls === 1) throw new Error('lost receipt')
+      }}})
+    workspace.project.setActivePage('orders')
+    const page = workspace.project.getActivePage()!
+    page.hydrateFileText('script.js', 'old'); page.setFileText('script.js', 'submitted')
+    await expect(workspace.savePageFile('script.js')).rejects.toThrow('lost receipt')
+    page.setFileText('script.js', 'later')
+    if (outcome === 'confirmed') {
+      await workspace.saveDirtyPageFiles()
+      expect(calls).toBe(1); expect(page.script.text).toBe('later'); expect(page.script.isDirty).toBe(true)
+      await workspace.saveDirtyPageFiles(); expect(calls).toBe(2); expect(remote).toBe('later')
+    } else {
+      await expect(workspace.saveDirtyPageFiles()).rejects.toThrow(outcome === 'not-applied' ? 'NOT_APPLIED' : 'CONFLICT')
+      expect(calls).toBe(1); expect(page.script.text).toBe('later')
+      if (outcome === 'not-applied') {await workspace.saveDirtyPageFiles(); expect(remote).toBe('later'); expect(calls).toBe(2)}
+      else {
+        page.undoFile('script.js'); page.undoFile('script.js')
+        expect(page.script.isDirty).toBe(false)
+        expect(workspace.unconfirmedPageFiles).toEqual([{pageId:'orders',fileName:'script.js'}])
+        await expect(workspace.restoreRemotePageVersion(1,'script.js')).rejects.toThrow('UNCONFIRMED')
+        await expect(workspace.createRemotePageVersion('script.js')).rejects.toThrow('UNCONFIRMED')
+        await expect(workspace.loadPageFile('script.js')).rejects.toThrow('UNCONFIRMED')
+        await workspace.loadPageFile('script.js',{forceReload:true})
+        expect(workspace.unconfirmedPageFiles).toEqual([])
+        expect(page.script.text).toBe('external'); expect(page.script.isDirty).toBe(false)
+        expect(calls).toBe(1)
+      }
+    }
+    workspace.dispose()
+  })
+
   it('rejects a working-file read invalidated by a completed save without restoring stale content', async () => {
     let finishRead: (text: string) => void = () => { throw new Error('read has not started') }
     let reads = 0

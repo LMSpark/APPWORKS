@@ -24,11 +24,11 @@ describe('SPARK same-scenario save request', () => {
     const http = new DataSpaceSaveFixtureHttp({ retry: 3 })
     let token = 'scope'
     const request = new DataSpaceRequest({ http, readScope: () => ({ token, headers: { 'X-AppId': 'APP-ID' } }) })
-    const change = (metaName = 'Orders', scenarioId = 'SCENE') => {
+    const change = (metaName = 'Orders', scenarioId = 'SCENE', id: string | number = 1) => {
       const table = new DataSpaceQueryTable({ scenarioId, metaName })
       const context = new DataSpaceQueryContext({ identity: table.identity, scope: token, readScope: () => token,
-        snapshot: table.applyResult({ Result: { primaryKeyField: 'id', data: [{ id: 1, lingma_sys_key: 'signed' }] } }) })
-      return { identity: table.identity, context, changes: { changed: [{ id: 1, value: 'X', _pk: 'local' }] } }
+        snapshot: table.applyResult({ Result: { primaryKeyField: 'id', data: [{ id, lingma_sys_key: `signed-${id}` }] } }) })
+      return { identity: table.identity, context, changes: { changed: [{ id, value: 'X', _pk: 'local' }] } }
     }
     return { http, request, change, changeScope: () => { token = 'other' } }
   }
@@ -47,7 +47,30 @@ describe('SPARK same-scenario save request', () => {
     expect(http.calls[0]).toMatchObject({ url: '/api/DataOperation/BatchTableOperateRequestByCRUD', method: 'POST',
       retry: 0, cache: false, meta: { rawEnvelope: true }, headers: { 'X-AppId': 'APP-ID', 'x-FormKey': 'SCENE' },
       data: ['Orders', 'Lines'].map(TableName => ({ TableName,
-        CrudModel: { Added: [], Changed: [{ id: 1, value: 'X', lingma_sys_key: 'signed' }], Deleted: [] } })) })
+        CrudModel: { Added: [], Changed: [{ id: 1, value: 'X', lingma_sys_key: 'signed-1' }], Deleted: [] } })) })
+  })
+
+  it('saves disjoint rows of one model with separate original query signatures and receipts', async () => {
+    const {http, request, change} = fixture()
+    const first = change(), second = change('Orders', 'SCENE', 2)
+    http.response = {Code: 200, Result: {maplistedit: [
+      {'db@orders': [{id: 1, value: 'First'}]}, {'db@orders': [{id: 2, value: 'Second'}]},
+    ]}}
+    const receipts = await request.save({changes: [first, second]})
+    expect(http.calls).toHaveLength(1)
+    expect(http.calls[0]?.data).toEqual([1, 2].map(id => ({TableName: 'Orders', CrudModel: {
+      Added: [], Changed: [{id, value: 'X', lingma_sys_key: `signed-${id}`}], Deleted: [],
+    }})))
+    expect(receipts.map(receipt => receipt.context.rows)).toEqual([[{id: 1, value: 'First'}], [{id: 2, value: 'Second'}]])
+    expect(first.context.rows).toEqual([{id: 1}]); expect(second.context.rows).toEqual([{id: 2}])
+  })
+
+  it.each(['changed', 'deleted', 'added'] as const)('rejects overlapping primary keys across %s and update actions', async action => {
+    const {http, request, change} = fixture()
+    const second = change('Orders', 'SCENE', '1')
+    await expect(request.save({changes: [change(), {...second, changes: {[action]: [{id: '1', value: 'Other'}]}}]}))
+      .rejects.toThrow('重复')
+    expect(http.calls).toHaveLength(0)
   })
 
   it('rejects an update without actual differences before transport', async () => {
@@ -121,7 +144,7 @@ describe('SPARK same-scenario save request', () => {
     http.response = { Code: 200, Extras: [{ target: '更新失败字段', message: [{ value: '不可写' }] }] }
     await expect(request.save({ changes: [first] })).rejects.toThrow('不可写')
     expect(first.context.rows).toEqual([{ id: 1 }])
-    expect(first.context.buildSaveRequest(first.changes)[0]?.CrudModel.Changed[0]?.['lingma_sys_key']).toBe('signed')
+    expect(first.context.buildSaveRequest(first.changes)[0]?.CrudModel.Changed[0]?.['lingma_sys_key']).toBe('signed-1')
     expect(http.calls).toHaveLength(1)
   })
 
@@ -145,7 +168,7 @@ describe('SPARK same-scenario save request', () => {
     http.response = { Code: 200, Result: { maplistedit: [{ physical: [{ id: 1, value: 'Next' }] }] } }
     await request.save({ changes: [{ ...original, context: accepted.context, changes: { changed: [{ id: 1, value: 'Next' }] } }] })
     expect(http.calls[1]?.data).toEqual([{ TableName: 'Orders',
-      CrudModel: { Added: [], Changed: [{ id: 1, value: 'Next', lingma_sys_key: 'signed' }], Deleted: [] } }])
+      CrudModel: { Added: [], Changed: [{ id: 1, value: 'Next', lingma_sys_key: 'signed-1' }], Deleted: [] } }])
   })
 
   it('does not retry a failed mutation even when HTTP defaults allow retries', async () => {
@@ -303,7 +326,7 @@ describe('SPARK save private query baseline', () => {
   })
 
   it('compares nested values against the retained original query rather than mutable rows', () => {
-    const { context } = fixture([{ id: 0, detail: { amount: 1 }, lingma_sys_key: 'signed' }])
+    const { context } = fixture([{ id: 0, detail: { amount: 1 }, lingma_sys_key: 'signed-1' }])
     expect(context.prepareSaveChanges({ changed: [{ id: 0, detail: { amount: 1 }, ignored: undefined }] }).changed).toEqual([])
     expect(context.prepareSaveChanges({ changed: [{ id: 0, detail: { amount: 2 } }] }).changed)
       .toEqual([{ id: 0, detail: { amount: 2 } }])

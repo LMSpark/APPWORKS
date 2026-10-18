@@ -15,6 +15,11 @@
 
 export { ProjectBlueprint } from './project/project-blueprint'
 export { ProjectWorkspace } from './project/project-workspace'
+export { ProjectToolResource } from './page-tool/project-tool-resource'
+export { ScenarioDefinitionResource } from './scenario/scenario-definition-resource'
+export { DataSpaceReferenceLayoutResource } from './scenario/data-space-reference-layout-resource'
+export { ScenarioDefinitionRecords } from './scenario/scenario-definition-records'
+export { ScenarioDefinitionDocument } from './scenario/scenario-definition-document'
 export type {
   ProjectBlueprintInitOptions,
   ProjectBlueprintEvent,

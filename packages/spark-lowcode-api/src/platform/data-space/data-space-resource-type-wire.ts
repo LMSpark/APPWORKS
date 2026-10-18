@@ -35,6 +35,7 @@ const RESOURCE_LABELS: ResourceLabelMap = {
   接口: { domain: 'interface', native: 'third-party-api' },
   JSON: { domain: 'json', native: 'json' },
   文件: { domain: 'file', native: 'file' },
+  数组: { native: 'static-data' },
   表: { native: 'database-table' },
   table: { native: 'database-table' },
 }

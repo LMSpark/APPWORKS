@@ -120,11 +120,8 @@ export class DataSpaceRequest {
     const first = targets[0]
     if (first === undefined) throw new Error('SPARK API 保存至少需要一组变更')
     const scenarioId = first.identity.scenarioId
-    const models = new Set<string>()
     for (const target of targets) {
       if (target.identity.scenarioId !== scenarioId) throw new Error('SPARK API 不允许跨数据空间批量保存')
-      if (models.has(target.identity.metaName)) throw new Error('SPARK API 同一批保存不允许重复模型')
-      models.add(target.identity.metaName)
       target.context.assertIdentity(target.identity)
       requireDataSpaceMutationInput('保存', (target.changes.added?.length ?? 0) + (target.changes.changed?.length ?? 0)
         + (target.changes.deleted?.length ?? 0), target.identity.metaName)
@@ -134,6 +131,19 @@ export class DataSpaceRequest {
     const ineffective = prepared.find(target => (target.changes.added?.length ?? 0)
       + (target.changes.changed?.length ?? 0) + (target.changes.deleted?.length ?? 0) === 0)
     if (ineffective !== undefined) failDataSpaceMutationWithoutEffect('保存', ineffective.identity.metaName)
+    // 同模型的不同视图保留各自原查询基线和回执；按正式主键拒绝跨组重复操作。
+    const records = new Map<string, Set<string>>()
+    for (const target of prepared) {
+      const previous = records.get(target.identity.metaName) ?? new Set<string>()
+      for (const row of [...target.changes.added ?? [], ...target.changes.changed ?? [], ...target.changes.deleted ?? []]) {
+        const value = target.context.rowKey(row)
+        const key = value === undefined || value === null ? '' : String(value).trim()
+        if (key === '') continue // 无主键的新增由原上下文及后端分配正式身份。
+        if (previous.has(key)) throw new Error(`SPARK API 同一批保存记录重复: ${target.identity.metaName}`)
+        previous.add(key)
+      }
+      records.set(target.identity.metaName, previous)
+    }
     const groups = prepared.map(target => target.context.buildSaveRequest(target.changes))
     for (const group of groups) requireDataSpaceMutationInput('保存', group.length)
     const data = groups.flat()

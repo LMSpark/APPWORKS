@@ -1,7 +1,7 @@
 /**
  * @module @spark-appworks/spark-project-model:project/project-workspace
  * 职责：提供项目模型和页面配置域中的 project workspace 能力，支撑 navigation、page content、project session 或远程 IO。
- * 边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。
+ * 边界：不渲染 Vue 组件；定义数据空间由宿主正式装配，业务运行数据不在工作区维护。
  * AI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。
  */
 /**
@@ -24,9 +24,11 @@ import {
   pageFilePath,
   type PageToolFileName,
 } from '../page/page-file'
-import type { PageTool } from '../page/page-tool'
+import { PageTool } from '../page/page-tool'
 import { ProjectBlueprint } from './project-blueprint'
 import { ScenarioViewFile } from '../scenario/scenario-view-file'
+import { ScenarioViewConfig } from '../scenario/scenario-view-config'
+import type {DataSet} from '@spark-appworks/spark-data'
 import {
   ProjectReferenceClient,
   type ProjectReferenceGateway,
@@ -118,8 +120,7 @@ type ScenarioViewGateway = Readonly<{
   writeText?: (scenarioId: string, text: string) => Promise<void>
   listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>
   readVersion?: (scenarioId: string, version: number) => Promise<string>
-  createVersion?: (scenarioId: string, text: string) => Promise<PageToolFileVersionSummary>
-  restoreVersion?: (scenarioId: string, version: number) => Promise<void>
+  createVersion?: (scenarioId: string, text: string, assertCurrent?: () => void) => Promise<PageToolFileVersionSummary>
 }>
 /** 读取明确场景文件，强制重载不得覆盖dirty。 */
 type ScenarioViewLoadCommand = Readonly<{ scenarioId: string; forceReload?: boolean }>
@@ -127,12 +128,14 @@ type ScenarioViewLoadCommand = Readonly<{ scenarioId: string; forceReload?: bool
 type ScenarioViewCreateCommand = Readonly<{ scenarioId: string; text: string; assertCurrent?: () => void }>
 /** 保存已持有场景owner，写前比较基线并写后真实读回。 */
 type ScenarioViewSaveCommand = Readonly<{ scenarioId: string; assertCurrent?: () => void }>
-type ScenarioViewAdoptCommand = Readonly<{ scenarioId: string; expectedRevision: number; previewText: string | null }>
+/** 接纳已展示的远端原文；异步读取前后核对调用方，失效时保留本地文件。 */
+type ScenarioViewAdoptCommand = Readonly<{ scenarioId: string; expectedRevision: number; previewText: string | null; assertCurrent?: () => void
+  /** 远端原文、格式、作用域与修订均确认后，紧邻替换同步执行；用于取消明确批准的原生视图修改。失败时不接纳远端。 */
+  beforeApply?: () => void
+}>
 
 /** 场景编号快照操作，版本为非负安全整数，不是工具发布VersionId。 */
 type ScenarioViewVersionCommand = Readonly<{ scenarioId: string; version: number }>
-/** 用户预览并明确选择的恢复动作，执行前必须再次确认快照原文。 */
-type ScenarioViewRestoreCommand = ScenarioViewVersionCommand & Readonly<{ previewText: string }>
 /** 版本操作捕获的场景owner、请求scope和工作文本基线。 */
 type ScenarioViewVersionContext = Readonly<{ scenarioId: string; scope: string; file: ScenarioViewFile; text: string; key: string }>
 
@@ -148,6 +151,8 @@ blueprint: ProjectBlueprintGateway
 projectReferences?: ProjectReferenceGateway
   /** 场景文件 IO 与不透明请求代次；缺少能力时明确拒绝，不回退页面文件。 */
   scenarioViews?: ScenarioViewGateway
+  /** 按目标空间装配正式元数据DataSet；模型与资源身份由宿主核验，工作区不创建替代表。 */
+  scenarioDefinitions?: (workspace: ProjectWorkspace, scenarioId: string, assertCurrent: () => void) => Promise<DataSet>
 }
 
 function isProjectPageLoadOptions(value: unknown): value is ProjectPageLoadOptions {
@@ -165,10 +170,21 @@ readonly project: ProjectBlueprint
   private readonly fileApi: PageFileApi
   private readonly getContentLoader: () => PageContentLoader
   private readonly scenarioGateway: ScenarioViewGateway | undefined
+  private readonly definitionLoader: ProjectWorkspaceOptions['scenarioDefinitions']
+  private readonly definitionDataSets = new Map<string, DataSet>()
+  private readonly definitionLoads = new Map<string, Promise<DataSet>>()
+  private disposed = false
   private scenarioScope: string | undefined
   private readonly scenarioFiles = new Map<string, ScenarioViewFile>()
   private readonly scenarioLoads = new Map<string, Promise<ScenarioViewFile>>()
   private readonly scenarioSaves = new Set<string>()
+  private readonly pageFileSaves = new Set<string>()
+  private readonly unconfirmedToolSaves = new Map<string, {page: PageTool; name: PageToolFileName; text: string; baseline: string}>()
+
+  /** 原工作文件提交尚未回读确认的目标；撤销本地文本不会把未知写入变成已取消。 */
+  get unconfirmedPageFiles(): ReadonlyArray<{pageId: string; fileName: PageToolFileName}> {
+    return [...this.unconfirmedToolSaves.values()].map(item => ({pageId: item.page.pageId, fileName: item.name}))
+  }
   /** 固定项目身份与真实IO能力，持有场景scope缓存并编排可验证保存。 */
 
 constructor(options: ProjectWorkspaceOptions) {
@@ -186,6 +202,59 @@ constructor(options: ProjectWorkspaceOptions) {
     this.fileApi = fileApi
     this.getContentLoader = () => pageContentLoader
     this.scenarioGateway = options.scenarioViews
+    this.definitionLoader = options.scenarioDefinitions
+  }
+
+  /** 取得本工作区为目标空间持有的正式定义DataSet；编辑真源是其中的DataView。 */
+  public getScenarioDefinitions(scenarioId: string): DataSet | null {
+    this.currentScenarioScope()
+    const dataSet = this.definitionDataSets.get(this.requireScenarioId(scenarioId))
+    return dataSet && !dataSet.destroyed ? dataSet : null
+  }
+
+  /**
+   * 按显式目标空间加载正式元数据DataSet，同工作区与请求代次复用同一实例。
+   * @param command scenarioId为被设计空间T；返回DataSet的身份是正式元数据空间C，二者不能互换。
+   * @returns 定义视图按消费需要loadFromServer，使用DataView编辑/取消及DataSet.saveChanges提交。
+   */
+  public async loadScenarioDefinitions(command: Readonly<{scenarioId: string}>): Promise<DataSet> {
+    const id = this.requireScenarioId(command.scenarioId), scope = this.currentScenarioScope()
+    const cached = this.getScenarioDefinitions(id)
+    if (cached) {await Promise.resolve(); this.assertScenarioScope(scope); return cached}
+    const pending = this.definitionLoads.get(id)
+    if (pending) {const dataSet = await pending; this.assertScenarioScope(scope); return dataSet}
+    const loader = this.definitionLoader
+    if (!loader) throw new Error('SCENARIO_DEFINITION_UNAVAILABLE: 宿主未提供正式元数据空间装配能力')
+    const loading = Promise.resolve().then(() => loader(this, id, () => this.assertScenarioScope(scope))).then(dataSet => {
+      try {
+        this.assertScenarioScope(scope)
+        if (dataSet.destroyed || !dataSet.scenarioId) throw new Error('SCENARIO_DEFINITION_IDENTITY: 元数据空间身份无效')
+        this.definitionDataSets.set(id, dataSet)
+        return dataSet
+      } catch (error) {dataSet.destroy(); throw error}
+    }).finally(() => {if (this.definitionLoads.get(id) === loading) this.definitionLoads.delete(id)})
+    this.definitionLoads.set(id, loading)
+    return loading
+  }
+
+  /** 保存工作区已经修改的正式元数据视图；不加载未读视图，不经文件owner另行提交。 */
+  public async saveDirtyScenarioDefinitions(): Promise<void> {
+    for (const scenarioId of this.dirtyScenarioIds) {
+      const dataSet = this.getScenarioDefinitions(scenarioId)
+      if (!dataSet || !Object.values(dataSet.tables).some(table => table.viewList.some(view => view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))) {
+        throw new Error('SCENARIO_DEFINITION_UNAVAILABLE: 场景修改尚未接入正式定义DataSet，保留原草稿')
+      }
+      const result = await dataSet.saveChanges()
+      if (!result.success) throw result.error ?? new Error(result.message ?? '场景定义保存失败')
+    }
+  }
+
+  /** 宿主释放工作区时销毁所属定义DataSet；在途结果不得重新注册，存储回执仍由原操作核验。 */
+  public dispose(): void {
+    this.disposed = true
+    for (const dataSet of this.definitionDataSets.values()) dataSet.destroy()
+    this.definitionDataSets.clear(); this.definitionLoads.clear()
+    this.scenarioFiles.clear(); this.scenarioLoads.clear()
   }
 
   public getScenarioViews(scenarioId: string): ScenarioViewFile | null {
@@ -245,7 +314,12 @@ constructor(options: ProjectWorkspaceOptions) {
   }
 
   /** 写前比较与回读只能检测冲突；后端没有 CAS，不能承诺原子并发保护。 */
-  public get dirtyScenarioIds(): string[] { return [...this.scenarioFiles.values()].filter(file=>file.isDirty).map(file=>file.scenarioId) }
+  public get dirtyScenarioIds(): string[] {
+    if (this.scenarioGateway) this.currentScenarioScope()
+    return [...new Set([...this.scenarioFiles.values()].filter(file => file.isDirty).map(file => file.scenarioId)
+      .concat([...this.definitionDataSets].filter(([, dataSet]) => !dataSet.destroyed && Object.values(dataSet.tables)
+        .some(table => table.viewList.some(view => view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))).map(([id]) => id)))]
+  }
 
   public async saveScenarioViews(command: ScenarioViewSaveCommand): Promise<void> {
     const scenarioId = this.requireScenarioId(command.scenarioId)
@@ -258,24 +332,24 @@ constructor(options: ProjectWorkspaceOptions) {
     const key = JSON.stringify([scope, scenarioId])
     if (this.scenarioSaves.has(key)) throw new Error('SCENARIO_VIEW_SAVE_PENDING: 该场景正在保存')
     if (file.saveStatus !== 'idle') throw new Error('SCENARIO_VIEW_SAVE_PENDING: 须先核验上次保存')
+    if (!file.isDirty) return
     this.scenarioSaves.add(key)
-    const submitted = file.getText()
-    let dispatched = false
     try {
-      const preimage = await gateway.readText(scenarioId)
-      this.assertScenarioScope(scope)
-      if (preimage !== (file.isPersisted ? file.savedText : null)) throw new Error('SCENARIO_VIEW_CONFLICT: 远端场景配置已改变')
-      command.assertCurrent?.()
-      file.beginSave(submitted, preimage)
-      dispatched = true
-      await write(scenarioId, submitted)
-      this.assertScenarioScope(scope)
-      const readback = await gateway.readText(scenarioId)
-      this.assertScenarioScope(scope)
-      if (readback !== submitted) throw new Error('SCENARIO_VIEW_SAVE_UNCONFIRMED: 写后原文回读不一致')
+      await file.saveChanges(async submitted => {
+        const preimage = await gateway.readText(scenarioId)
+        this.assertScenarioScope(scope)
+        if (preimage !== (file.isPersisted ? file.savedText : null)) throw new Error('SCENARIO_VIEW_CONFLICT: 远端场景配置已改变')
+        command.assertCurrent?.()
+        file.beginSave(submitted, preimage)
+        await write(scenarioId, submitted)
+        this.assertScenarioScope(scope)
+        const readback = await gateway.readText(scenarioId)
+        this.assertScenarioScope(scope)
+        if (readback !== submitted) throw new Error('SCENARIO_VIEW_SAVE_UNCONFIRMED: 写后原文回读不一致')
+      })
       file.confirmSubmitted()
     } catch (error) {
-      if (dispatched) file.markSaveUnknownIfPending()
+      file.markSaveUnknownIfPending()
       throw error
     } finally {
       this.scenarioSaves.delete(key)
@@ -313,10 +387,14 @@ constructor(options: ProjectWorkspaceOptions) {
     if (!file) throw new Error('SCENARIO_VIEW_FILE_MISSING: 场景文件尚未加载')
     if (file.saveStatus === 'pending' || this.scenarioSaves.has(JSON.stringify([scope, scenarioId]))) throw new Error('SCENARIO_VIEW_SAVE_PENDING: 场景正在写入')
     if (file.revision !== command.expectedRevision) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 本地配置已改变')
+    command.assertCurrent?.()
     const remote = await this.requireScenarioGateway().readText(scenarioId)
     this.assertScenarioScope(scope)
     if (this.scenarioFiles.get(scenarioId) !== file || file.revision !== command.expectedRevision) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 接受远端期间配置已改变')
     if (remote !== command.previewText) throw new Error('SCENARIO_VIEW_PREVIEW_CHANGED: 远端配置与已预览原文不一致')
+    if (remote !== null) new ScenarioViewConfig(scenarioId, remote)
+    command.assertCurrent?.()
+    command.beforeApply?.()
     if (remote === null) { file.invalidate(); this.scenarioFiles.delete(scenarioId); return }
     file.loadText(remote)
   }
@@ -347,7 +425,8 @@ constructor(options: ProjectWorkspaceOptions) {
   /** 仅为真实已保存且干净的工作文件建立快照，并核对快照原文。 */
   public async createScenarioVersion(command: ScenarioViewSaveCommand): Promise<void> {
     const context = this.scenarioVersionContext(command.scenarioId)
-    this.assertScenarioVersionContext(context, true)
+    const assertCurrent = () => {this.assertScenarioVersionContext(context, true); command.assertCurrent?.()}
+    assertCurrent()
     const gateway = this.requireScenarioGateway()
     const create = gateway.createVersion
     const read = gateway.readVersion
@@ -356,43 +435,15 @@ constructor(options: ProjectWorkspaceOptions) {
     this.scenarioSaves.add(context.key)
     try {
       const baseline = await gateway.readText(context.scenarioId)
-      this.assertScenarioVersionContext(context, true)
+      assertCurrent()
       if (baseline !== context.text) throw new Error('SCENARIO_VIEW_CONFLICT: 工作文件已改变')
-      const summary = await create(context.scenarioId, context.text)
-      this.assertScenarioVersionContext(context, true)
+      const summary = await create(context.scenarioId, context.text, assertCurrent)
+      assertCurrent()
       this.assertScenarioVersion(summary.version)
       if (summary.fileName !== `${summary.version}__pagedata.json`) throw new Error('SCENARIO_VIEW_VERSION_UNCONFIRMED: 快照身份错误')
       const snapshot = await read(context.scenarioId, summary.version)
-      this.assertScenarioVersionContext(context, true)
+      assertCurrent()
       if (snapshot !== context.text) throw new Error('SCENARIO_VIEW_VERSION_UNCONFIRMED: 快照回读原文不一致')
-    } finally { this.scenarioSaves.delete(context.key) }
-  }
-
-  /** 按已预览快照显式恢复；dirty或等待期间的新编辑均不得被远端回执覆盖。 */
-  public async restoreScenarioVersion(command: ScenarioViewRestoreCommand): Promise<void> {
-    this.assertScenarioVersion(command.version)
-    const context = this.scenarioVersionContext(command.scenarioId)
-    this.assertScenarioVersionContext(context, true)
-    const gateway = this.requireScenarioGateway()
-    const read = gateway.readVersion
-    const restore = gateway.restoreVersion
-    if (read === undefined || restore === undefined) throw new Error('当前平台未提供场景版本恢复及预览能力')
-    if (this.scenarioSaves.has(context.key)) throw new Error('SCENARIO_VIEW_SAVE_PENDING: 场景正在写入')
-    this.scenarioSaves.add(context.key)
-    try {
-      const snapshot = await read(context.scenarioId, command.version)
-      this.assertScenarioVersionContext(context, true)
-      new ScenarioViewFile(context.scenarioId, snapshot)
-      if (snapshot !== command.previewText) throw new Error('SCENARIO_VIEW_PREVIEW_CHANGED: 快照与已预览原文不一致')
-      const baseline = await gateway.readText(context.scenarioId)
-      this.assertScenarioVersionContext(context, true)
-      if (baseline !== context.text) throw new Error('SCENARIO_VIEW_CONFLICT: 工作文件已改变')
-      await restore(context.scenarioId, command.version)
-      this.assertScenarioVersionContext(context, true)
-      const readback = await gateway.readText(context.scenarioId)
-      this.assertScenarioVersionContext(context, true)
-      if (readback !== snapshot) throw new Error('SCENARIO_VIEW_RESTORE_UNCONFIRMED: 恢复工作文件回读不一致')
-      context.file.loadText(readback)
     } finally { this.scenarioSaves.delete(context.key) }
   }
 
@@ -427,9 +478,13 @@ constructor(options: ProjectWorkspaceOptions) {
   }
 
   private currentScenarioScope(): string {
+    if (this.disposed) throw new Error('PROJECT_WORKSPACE_DISPOSED: 工作区已释放')
     const scope = this.requireScenarioGateway().readScope()
     if (!scope.trim()) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 场景文件缺少有效请求代次')
     if (this.scenarioScope !== scope) {
+      for (const dataSet of this.definitionDataSets.values()) dataSet.destroy()
+      this.definitionDataSets.clear()
+      this.definitionLoads.clear()
       this.scenarioFiles.clear()
       this.scenarioLoads.clear()
       this.scenarioScope = scope
@@ -443,6 +498,58 @@ constructor(options: ProjectWorkspaceOptions) {
 
   public getActivePageTool(): PageTool | null { return this.project.getActivePage() }
   public async loadPageTool(pageId: string, options?: ProjectPageLoadOptions): Promise<PageTool> { const tool=this.project.openPageDesign(pageId); await this.loadPage(tool,options); return tool }
+
+  /** 只读远端正式蓝图，不覆盖本地策划草稿或活动页。 */
+  public async previewBlueprintRemote(): Promise<ProjectBlueprintTreeData> { return this.loadBlueprintRoot() }
+
+  /** 读取工具原文；省略versionId为工作文件，显式发布指针沿原reader读取快照，不覆盖PageTool或工作缓存。 */
+  public async previewPageFileRemote(pageId: string, fileName: PageToolFileName, versionId?: string): Promise<string> {
+    if (versionId !== undefined) {
+      if (!versionId.trim()) throw new Error('发布版本指针不能为空')
+      const reader = this.getContentLoader().getPageFileReader()
+      if (!reader) throw new Error('未提供工具文件读取能力')
+      return reader({projectId: this.project.projectId, pageId: assertNonEmptyPageId(pageId), fileName, versionId})
+    }
+    const result = await this.getContentLoader().loadPageFileContent(assertNonEmptyPageId(pageId), fileName, {forceReload: true})
+    if (!result.success || result.data === undefined) throw new Error(result.error ?? `${fileName} 读取失败`)
+    return result.data
+  }
+
+  /** 按明确原文更新单个工具文件并精确回读；已是目标原文时只确认，不重放写入。无后端CAS，不能保证原子并发。 */
+  public async savePageFileChange(command: Readonly<{
+    /** 正式工具身份。 */ pageId: string
+    /** 三文件中的目标文件。 */ fileName: PageToolFileName
+    /** 调用方已预览的远端原文。 */ expectedText: string
+    /** 本次提交的完整新原文。 */ text: string
+    /** 每次异步边界核验调用身份及操作仍有效。 */ assertCurrent?: () => void
+  }>): Promise<void> {
+    const {fileName, expectedText, text} = command, pageId = assertNonEmptyPageId(command.pageId)
+    const key = JSON.stringify([pageId, fileName]), page = this.project.findPageTool(pageId)
+    if (this.unconfirmedToolSaves.has(key)) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 请先核验原工具编辑提交')
+    const local = page?.getFileText(fileName)
+    const next = new PageTool({pageId}); next.hydrateFileText(fileName, text)
+    const check = () => {
+      command.assertCurrent?.()
+      if (this.project.findPageTool(pageId) !== page || page && (page.getDirtyFileNames().includes(fileName)
+        || page.getFileText(fileName) !== local)) {
+        throw new Error('PAGE_TOOL_CONFLICT: 工具文件有本地编辑或已变化，不能覆盖')
+      }
+    }
+    check()
+    if (this.pageFileSaves.has(key)) throw new Error('PAGE_TOOL_SAVE_PENDING: 工具文件正在保存')
+    this.pageFileSaves.add(key)
+    try {
+      const remote = await this.previewPageFileRemote(pageId, fileName); check()
+      if (remote !== text) {
+        if (remote !== expectedText) throw new Error('PAGE_TOOL_CONFLICT: 工具文件远端原文已变化')
+        await this.fileApi.saveFileContent(pageId, fileName, text); check()
+        const confirmed = await this.previewPageFileRemote(pageId, fileName); check()
+        if (confirmed !== text) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 工具文件回读未确认，请核验')
+      }
+      page?.hydrateFileText(fileName, text)
+      this.notifyPageFileChanged(pageId, fileName)
+    } finally {this.pageFileSaves.delete(key)}
+  }
 
 
     /** 加载项目蓝图。 */
@@ -548,16 +655,18 @@ async loadPageFile(name: PageToolFileName, options?: ProjectPageLoadOptions): Pr
     /** 保存 Page File。 */
 async savePageFile(name: PageToolFileName): Promise<void> {
     const page = this.requireActivePage('无活动页面，无法保存页面文件')
-    await this.savePageFileFromModel(page, name)
-    this.project.markPageFileChanged(page.pageId, name)
+    try {await this.savePageFileFromModel(page, name)}
+    finally {this.project.markPageFileChanged(page.pageId, name)}
   }
 
     /** 保存 Dirty Page Files。 */
 async saveDirtyPageFiles(): Promise<void> {
-    for(const page of this.project.design.pages) {
-      const names=page.getDirtyFileNames()
-      await Promise.all(names.map(name=>this.savePageFileFromModel(page,name)))
-      for(const name of names)this.project.markPageFileChanged(page.pageId,name)
+    const recovering = this.unconfirmedToolSaves.size > 0
+    const targets = recovering ? [...this.unconfirmedToolSaves.values()] : [...this.project.design.pages].flatMap(page =>
+      page.getDirtyFileNames().map(name => ({page, name, text: page.getFileText(name)})))
+    for (const {page, name, text} of targets) {
+      try {await this.savePageFileFromModel(page, name, text)}
+      finally {this.project.markPageFileChanged(page.pageId,name)}
     }
   }
 
@@ -565,7 +674,7 @@ async saveDirtyPageFiles(): Promise<void> {
 async saveAll(): Promise<void> {
     await this.saveDirtyPageFiles()
     await this.saveBlueprintFromSession()
-    for(const scenarioId of this.dirtyScenarioIds)await this.saveScenarioViews({scenarioId})
+    await this.saveDirtyScenarioDefinitions()
   }
 
 async addBlueprintNode(params: { parentId?: string | null; node: ProjectBlueprintTreeNodeData; index?: number }): Promise<ProjectBlueprintTreeNodeData> {
@@ -697,6 +806,7 @@ async listRemotePageVersions(filename: PageToolFileName): Promise<PageToolFileVe
 
 async restoreRemotePageVersion(version: number, filename: PageToolFileName): Promise<void> {
     const page = this.requireActivePage('无活动页面，无法恢复版本')
+    if (this.unconfirmedToolSaves.has(JSON.stringify([page.pageId, filename]))) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 请先核验原工具提交，再恢复版本')
     if (page.getDirtyFileNames().includes(filename)) {
       throw new Error('文件有未保存修改，请先保存或放弃修改再恢复版本')
     }
@@ -717,6 +827,7 @@ async restoreRemotePageVersion(version: number, filename: PageToolFileName): Pro
 async createRemotePageVersion(filename: PageToolFileName): Promise<void> {
     const page = this.project.getActivePage()
     if (!page) return
+    if (this.unconfirmedToolSaves.has(JSON.stringify([page.pageId, filename]))) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 请先核验原工具提交，再创建快照')
     if (page.getDirtyFileNames().includes(filename)) throw new Error('文件有未保存修改，不能创建远端版本')
     await this.fileApi.createVersion(page.pageId, filename)
     if (this.project.getActivePage() !== page) throw new Error('PAGE_TOOL_IDENTITY_CHANGED: 创建版本期间活动工具已改变')
@@ -839,6 +950,9 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     name: PageToolFileName,
     options?: ProjectPageLoadOptions,
   ): Promise<void> {
+    const pendingKey = JSON.stringify([page.pageId, name])
+    if (this.pageFileSaves.has(pendingKey)) throw new Error('PAGE_TOOL_SAVE_PENDING: 工具文件正在保存，不能重载')
+    if (this.unconfirmedToolSaves.has(pendingKey) && !options?.forceReload) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 请先核验原提交，或明确重新加载远端结果')
     if (page.getDirtyFileNames().includes(name)) throw new Error(`PAGE_TOOL_DIRTY: ${name} 有未保存编辑，不能重载`)
     const baseline = page.getFileText(name)
     const result = await this.getContentLoader().loadPageFileContent(page.pageId, name, {
@@ -849,6 +963,7 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     }
     if (page.getFileText(name) !== baseline || page.getDirtyFileNames().includes(name)) throw new Error(`PAGE_TOOL_EDIT_DURING_LOAD: ${name} 在装载期间发生编辑`)
     page.hydrateFileText(name, result.data ?? '')
+    this.unconfirmedToolSaves.delete(pendingKey)
   }
 
   private async createPageFilesForModel(
@@ -869,11 +984,35 @@ async listReferenceProjectPages(projectId: string): Promise<ProjectPageReference
     this.clearPageCache(page.pageId)
   }
 
-  private async savePageFileFromModel(page: PageTool, name: PageToolFileName): Promise<void> {
-    const submittedText = page.getFileText(name)
-    await this.fileApi.saveFileContent(page.pageId, name, submittedText)
+  private async savePageFileFromModel(page: PageTool, name: PageToolFileName, submittedText = page.getFileText(name)): Promise<void> {
+    const key = JSON.stringify([page.pageId, name])
+    if (this.pageFileSaves.has(key)) throw new Error('PAGE_TOOL_SAVE_PENDING: 工具文件正在保存')
+    const check = () => {
+      if (this.disposed || this.project.findPageTool(page.pageId) !== page) throw new Error('PAGE_TOOL_SAVE_STALE: 原工具工作区已失效')
+    }
+    check()
+    this.pageFileSaves.add(key)
+    try {
+    const pending = this.unconfirmedToolSaves.get(key)
+    if (pending) {
+      const remote = await this.previewPageFileRemote(page.pageId, name); check()
+      const normalized = new PageTool({pageId: page.pageId}); normalized.hydrateFileText(name, remote)
+      if (normalized.getFileText(name) === pending.text) {
+        page.markFileSaved(name, pending.text); this.unconfirmedToolSaves.delete(key); this.clearPageCache(page.pageId, name)
+        return
+      }
+      if (normalized.getFileText(name) === pending.baseline) {
+        this.unconfirmedToolSaves.delete(key)
+        throw new Error(`PAGE_TOOL_SAVE_NOT_APPLIED: ${page.pageId}/${name} 原提交未应用；保留草稿，请显式重试保存`)
+      }
+      throw new Error(`PAGE_TOOL_CONFLICT: ${page.pageId}/${name} 远端与原提交及原基线均不一致；保留草稿，请核对后明确重新加载`)
+    }
+    const baseline = page.getSavedFileText(name)
+    try {await this.fileApi.saveFileContent(page.pageId, name, submittedText); check()}
+    catch (cause) {this.unconfirmedToolSaves.set(key, {page, name, text: submittedText, baseline}); throw cause}
     page.markFileSaved(name, submittedText)
     this.clearPageCache(page.pageId, name)
+    } finally {this.pageFileSaves.delete(key)}
   }
 
   private clearPageCache(pageId: string, filename?: PageToolFileName): void {

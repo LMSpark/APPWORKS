@@ -217,6 +217,9 @@ export class SystemPageIdentityResolver {
     if (this.#pool.close(instanceId)) this.#revision.value++
   }
 
+  /** 主动切换应用前检查所有系统页的原owner状态；不影响强制失效。 */
+  assertClean(): void { this.#pool.assertClean() }
+
   resetInstances(): void {
     this.#locked = true
     this.#pool.reset()

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { DataRow } from '@spark-appworks/spark-data'
 import { DataSpaceRowPermission } from '../protocol/data-space-permission'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
 import { DataSpaceQueryContext } from '../query/data-space-query-context'
@@ -118,6 +119,18 @@ describe('SPARK query context permission baseline', () => {
 })
 
 describe('SPARK sparse row permission parity', () => {
+  it('accepts the backend default-edit row without r and self-reference rows with c', () => {
+    const editableRow = { id: 'editable', lingma_sys_params: { e: ['name'], h: [], m: [], d: true } } satisfies DataRow
+    const parentRow = { id: 'parent', lingma_sys_params: { e: [], h: [], m: [], d: false, c: true } } satisfies DataRow
+    const context = queryContext([editableRow, parentRow])
+    expect(context.fieldAccess('editable', 'name')).toMatchObject({ write: 'allowed', required: false })
+    expect(context.deleteActionState('editable')).toBe('enabled')
+    expect(context.createChildActionState('editable')).toBe('hidden')
+    expect(context.editActionState('parent')).toBe('hidden')
+    expect(context.createChildActionState('parent')).toBe('enabled')
+    expect(context.addActionState()).toBe('hidden')
+  })
+
   it.each([true, false, undefined, null, 'true', 1])('only accepts explicit child permission %s', c => {
     const permission = new DataSpaceRowPermission({ row: { lingma_sys_params: { c, e: ['name'], d: true } } })
     expect(permission.allowAddChild()).toBe(c === true)

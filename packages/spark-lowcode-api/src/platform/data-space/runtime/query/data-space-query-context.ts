@@ -71,6 +71,7 @@ export class DataSpaceQueryContext {
   readonly #permissions = new Map<string, DataSpaceRowPermission | null>()
   readonly #rowPermissions = new WeakMap<DataSpaceRow, DataSpaceRowPermission>()
   #invalid = false
+  #aggregateResult = false
   #model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> | undefined
 
   /** 保留原快照并登记唯一行权限；公开冻结行移除系统凭据，重复身份不授予权限。 */
@@ -97,17 +98,19 @@ export class DataSpaceQueryContext {
     this.assertCurrent()
   }
 
-  public bindFormalModel(model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>): void {
+  public bindFormalModel(model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, options: Readonly<{aggregateResult?: boolean}> = {}): void {
     this.assertIdentity({scenarioId: this.#identity.scenarioId, metaName: model.metaName})
     const key = model.primaryKey === '' ? undefined : DataSpaceDesignApi.resolveOutputFields(model)
       .find(field => field.canonicalName === model.primaryKey && field.primaryKey)
     if (model.primaryKey !== '' && (!key || ![key.name, key.canonicalName].includes(this.#snapshot.primaryKey))) {
       throw new Error('SPARK_MODEL_PRIMARY_KEY: 原查询主键与正式模型不一致')
     }
-    if (this.#model && JSON.stringify(this.#model) !== JSON.stringify(model)) {
+    if (this.#model && (JSON.stringify(this.#model) !== JSON.stringify(model)
+      || this.#aggregateResult !== (options.aggregateResult === true))) {
       throw new Error('SPARK_MODEL_CONTEXT_CONFLICT: 同一原查询上下文不能替换正式模型')
     }
     this.#model = model
+    this.#aggregateResult = options.aggregateResult === true
     this.#permissions.clear()
     for (const row of this.#snapshot.rows) {
       const rowKey = canonicalKey(this.rowKeyValue(row))
@@ -116,12 +119,15 @@ export class DataSpaceQueryContext {
     }
   }
 
-  private get keyField(): string { return this.#model?.primaryKey ?? this.#snapshot.primaryKey }
+  private get keyField(): string { return this.#aggregateResult ? '' : this.#model?.primaryKey ?? this.#snapshot.primaryKey }
+
+  /** 本次结果行的稳定身份；汇总结果为空，不改变来源模型的正式主键，不将汇总行作为CRUD原行基线。 */
+  public get resultPrimaryKey(): string { return this.keyField }
 
   public get rows(): readonly DataSpaceRow[] { this.assertCurrent(); return this.#rows }
   public get total(): number { this.assertCurrent(); return this.#snapshot.total }
   public get countReported(): boolean { this.assertCurrent(); return this.#snapshot.countReported }
-  public get allowAdd(): boolean { this.assertCurrent(); return this.#model?.primaryKey === '' ? false : this.#snapshot.allowAdd }
+  public get allowAdd(): boolean { this.assertCurrent(); return this.keyField === '' ? false : this.#snapshot.allowAdd }
 
   public prepareNewRow(input: DataSpaceRow): Record<string, unknown> {
     this.assertCurrent()
@@ -176,7 +182,18 @@ export class DataSpaceQueryContext {
   public fieldAccess(rowKey: unknown, fieldName: string): DataSpaceFieldAccess {
     this.assertCurrent()
     const permission = this.#permissions.get(canonicalKey(rowKey))
-    return permission ? permission.fieldAccess(fieldName) : denied
+    const access = permission ? permission.fieldAccess(fieldName) : denied
+    return this.isFieldReadOnly(fieldName) ? {...access, write: 'denied', writeMode: 'readonly',
+      component: access.read === 'invisible' ? 'hidden' : 'readonly'} : access
+  }
+
+  /**
+   * 正式模型的值函数输出不可作为写入字段；使用输出别名匹配，新增与既有行共享此结构约束。
+   * 这不是数据授权：false不授予写权限，读取与必填仍消费原查询结果；Expression脱敏规则不构成只读依据。
+   */
+  public isFieldReadOnly(fieldName: string): boolean {
+    this.assertCurrent()
+    return this.#model?.fields.some(field => field.output && field.canonicalName === fieldName && field.computed) ?? false
   }
 
   /** Read only the captured read state for the exact public row returned by this query context. */
@@ -340,9 +357,9 @@ export class DataSpaceQueryContext {
   }
 
   private assertModelSaveAllowed(changes: DataSpaceSaveChanges): void {
-    if (this.#model?.primaryKey === '' && ((changes.added?.length ?? 0) > 0
+    if (this.keyField === '' && ((changes.added?.length ?? 0) > 0
       || (changes.changed?.length ?? 0) > 0 || (changes.deleted?.length ?? 0) > 0)) {
-      throw new Error('SPARK_MODEL_KEYLESS_READONLY: 无正式主键模型不可保存行变更')
+      throw new Error('SPARK_MODEL_KEYLESS_READONLY: 无可写记录身份的查询结果不可保存行变更')
     }
   }
 
@@ -415,7 +432,7 @@ export class DataSpaceQueryContext {
 
   private rowAction(keyValue: unknown, available: boolean, action: 'edit' | 'delete' | 'child'): DataSpaceActionState {
     this.assertCurrent()
-    if (this.#model?.primaryKey === '') return 'hidden'
+    if (this.keyField === '') return 'hidden'
     const key = canonicalKey(keyValue)
     if (!key) return 'disabled'
     const permission = this.#permissions.get(key)

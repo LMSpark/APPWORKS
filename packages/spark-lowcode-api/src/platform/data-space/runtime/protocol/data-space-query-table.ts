@@ -113,7 +113,7 @@ function projectSortFields(options: DataSpaceWireQueryOptions): QueryFieldProjec
     if (!name) return
     let target = projected.find(field => typeof field['Name'] === 'string' && field['Name'].toLowerCase() === name.toLowerCase())
     if (target === undefined) {
-      target = { Name: name, AsName: name, IsOutput: false }
+      target = { Name: name, IsOutput: false }
       projected.push(target)
     }
     target['OrderType'] = sort.OrderType
@@ -161,6 +161,7 @@ export class DataSpaceQueryTable {
       systemKey: typeof metadata['lingma_sys_key'] === 'string' ? metadata['lingma_sys_key'] : '' })
   }
 
+  /** 查询当前正式模型；Join叶节点显式发送ChildTables空集合，不从模型关系推导SQL子表。 */
   public buildRequest(input: DataSpaceQueryOptions): DataSpaceWireQueryRequest {
     const options = encodeDataSpaceQueryOptions(input)
     const fields = projectSortFields(options)
@@ -171,13 +172,14 @@ export class DataSpaceQueryTable {
       inputParams: options.inputParams ?? [],
       DISTINCT: false,
       IsBusinessMain: 1,
+      ...(options.outputType === 'Join' ? { ChildTables: [] } : {}),
       ...(fields === undefined ? {} : { Fields: fields }),
     }
     const tree = options.tree
     return {
       Table: [table],
       ...(options.outputFieldMode === undefined ? {} : {OutputFieldMode: options.outputFieldMode}),
-      ...(options.pageIndex === undefined || options.pageSize === undefined ? {}
+      ...(options.outputType === 'SelfRefData' || options.pageIndex === undefined || options.pageSize === undefined ? {}
         : { PageParam: { index: options.pageIndex, size: options.pageSize } }),
       ...(tree === undefined ? {} : { keyField: tree.keyField, parentField: tree.parentField,
         nodeid: tree.nodeid, hasChildField: tree.hasChildField, type: tree.type }),

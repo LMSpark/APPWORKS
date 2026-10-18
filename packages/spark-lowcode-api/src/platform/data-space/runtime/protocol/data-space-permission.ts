@@ -4,6 +4,8 @@
  * 边界：读 h/m 与写 E/R 独立，新增子项只接受明确 c=true。
  * AI用途：正确消费字段、行操作和缺失权限策略。
  */
+import type { DataPermissionSets } from '@spark-appworks/spark-data'
+
 /** 原行缺少权限快照时的显式策略；不推断新增子项授权。 */
 export type DataSpaceMissingAuthPolicy = 'allow' | 'deny' | 'deny-when-system-key' | 'visible-readonly'
 /** 字段读、写双通道投影；required 只在 E 可写且 R 必填时成立。 */
@@ -19,8 +21,7 @@ type DataSpaceRowPermissionOptions = Readonly<{
   row?: Readonly<Record<string, unknown>> | null
   missingAuthPolicy?: DataSpaceMissingAuthPolicy
 }>
-type DataSpaceAuthSet = Readonly<{ r: readonly string[]; e: readonly string[];
-  h: readonly string[]; m: readonly string[]; d: boolean; c: boolean }>
+type DataSpaceAuthSet = Required<DataPermissionSets>
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object'

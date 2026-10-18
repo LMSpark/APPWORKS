@@ -34,6 +34,8 @@ export class PageTool {
   /** 仅将实际提交文本作为保存基线，保留保存等待期间的新编辑。 */
   markFileSaved(name: PageToolFileName, submittedText: string): void { this.#file(name).markSaved(submittedText) }
   getFileText(name: PageToolFileName): string { return this.#file(name).getText() }
+  /** 指定工具文件的已确认基线，不读取远端或改变当前编辑。 */
+  getSavedFileText(name: PageToolFileName): string { return this.#file(name).getSavedText() }
   setFileText(name: PageToolFileName, text: string): void { this.#file(name).setText(text) }
   getDirtyFileNames(): PageToolFileName[] { return PAGE_TOOL_FILE_NAMES.filter(name => this.#file(name).isDirty) }
   isDirty(): boolean { return this.getDirtyFileNames().length > 0 }

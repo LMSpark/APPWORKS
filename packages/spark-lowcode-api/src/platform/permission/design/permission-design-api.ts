@@ -42,25 +42,22 @@ export type PermissionDataObjectPolicy = Readonly<{
   saveFilter: string
 }>
 
-/** 授权主体类型；granttype 0/1/2 映射 role/position/user，其余为 unresolved。 */
-export type PermissionGrantSubjectKind = 'role' | 'position' | 'user' | 'unresolved'
-
 /** 组织范围；fixed-organization 或 business-field-organization 二选一，否则 unscoped。 */
 export type PermissionGrantOrganizationScope =
   | Readonly<{ kind: 'unscoped' }>
   | Readonly<{ kind: 'fixed-organization'; organizationId: string }>
   | Readonly<{ kind: 'business-field-organization'; field: string }>
 
-/** 页面对象授权；对应 FunctionNodeAuth。 */
+/** 服务端对象授权配置；对应 FunctionNodeAuth，不派生前端角色或运行权限。 */
 export type PermissionObjectGrant = Readonly<{
   grantId: string
   pageId: string
   featureTagIds: readonly string[]
-  subjectKind: PermissionGrantSubjectKind
   subjectIds: readonly string[]
   organizationScope: PermissionGrantOrganizationScope
   businessId: string
   enabled: boolean
+  /** 服务端 granttype 的数值；无效输入为 null，未识别码保留并记入 diagnostics。 */
   rawGrantType: number | null
 }>
 
@@ -82,12 +79,10 @@ function finiteNumber(value: unknown): number {
   return Number.isFinite(number) ? number : 0
 }
 
-function subjectKind(value: unknown): PermissionGrantSubjectKind {
-  const grantType = Number(value)
-  if (grantType === 0) return 'role'
-  if (grantType === 1) return 'position'
-  if (grantType === 2) return 'user'
-  return 'unresolved'
+function parseGrantType(value: unknown): number | null {
+  if (typeof value !== 'number' && (typeof value !== 'string' || !value.trim())) return null
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
 }
 
 function organizationScope(row: Record<string, unknown>): PermissionGrantOrganizationScope {
@@ -127,19 +122,15 @@ function dataObjectPolicy(row: Record<string, unknown>): PermissionDataObjectPol
 }
 
 function objectGrant(row: Record<string, unknown>): PermissionObjectGrant {
-  const rawGrantType = row['granttype'] === undefined || row['granttype'] === null
-    ? null
-    : finiteNumber(row['granttype'])
   return {
     grantId: requiredPermissionText(row['rowid'], '权限授权 rowid'),
     pageId: requiredPermissionText(row['pageID'], '权限授权 pageID'),
     featureTagIds: permissionList(row['functionoption']),
-    subjectKind: subjectKind(rawGrantType),
     subjectIds: permissionList(row['QID']),
     organizationScope: organizationScope(row),
     businessId: permissionText(row['businessId']),
     enabled: row['status'] === undefined || finiteNumber(row['status']) === 1,
-    rawGrantType,
+    rawGrantType: parseGrantType(row['granttype']),
   }
 }
 
@@ -163,7 +154,7 @@ export class PermissionDesignApi {
     )
     const grants = grantRows.map(objectGrant)
     const diagnostics = grants
-      .filter((grant) => grant.subjectKind === 'unresolved')
+      .filter((grant) => grant.rawGrantType !== 0 && grant.rawGrantType !== 1 && grant.rawGrantType !== 2)
       .map((grant) => `授权 ${grant.grantId} 的 granttype 无法解析`)
     return {
       formKey: normalizedFormKey,

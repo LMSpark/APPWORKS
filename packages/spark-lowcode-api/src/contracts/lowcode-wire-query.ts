@@ -2,7 +2,7 @@
  * lowcode-jdk17 数据查询 wire 字面量（排序方向 / 过滤操作符 / 分组聚合）。
  * 与 `backend-api-contracts/common.ts` 同形（`tools/verify-wire-query-parity.mjs`）。
  * 前端 DataView 使用 spark-data 的 `SortDirection` / `DataViewFilterOperator` / `AggregateType`，
- * 过滤由 API 独占 wire 转换；`AggregateType` 含客户端专用 `join`，不可硬合并。
+ * 过滤复用spark-data的DataViewFilterCodec；此处字面量核对后端协议。`AggregateType`含客户端专用`join`，不可硬合并。
  */
 
 /** wire 排序方向（Jackson OrderType）。 */

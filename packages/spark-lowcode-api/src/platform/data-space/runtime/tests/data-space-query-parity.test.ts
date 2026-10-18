@@ -7,7 +7,7 @@ import { DataSpaceQueryResource } from '../query/data-space-query-resource'
 import { DataSpaceQueryCache } from '../query/data-space-query-cache'
 import { DataSpaceRequest } from '../protocol/data-space-request'
 import { collectDataSpaceQueryPages } from '../protocol/data-space-pagination'
-import { HttpClientBase } from '@spark-appworks/spark-utils'
+import { HttpClientBase, isRecord } from '@spark-appworks/spark-utils'
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 
 class DataSpaceRequestFixtureHttp extends HttpClientBase {
@@ -292,7 +292,7 @@ describe('SPARK query option parity', () => {
       { name: 'internal', isOutput: false }], outputType: 'Table', singleFlight: true,
     })).toEqual({
       filter: { Type: 'cond', Field: 'status', Operator: 'equal', Value: null, ValueFun: { Type: 'GetConstValue', Value: false } },
-      sortFields: [{ Field: 'amount', OrderType: 'descending', Order: 0 }, { Field: 'name', OrderType: 'ascending', Order: 1 }],
+      sortFields: [{ Field: 'amount', OrderType: 'descending', Order: 2 }, { Field: 'name', OrderType: 'ascending', Order: 1 }],
       pageIndex: 2, pageSize: 1000, allPages: true, maxRows: 5000,
       inputParams: [{ Name: 'active', Value: false }, { Name: 'limit', Value: 0 }],
       fields: [{ Name: 'name', IsOutput: true }, { Name: 'amount', AsName: 'total', Group: 1,
@@ -330,8 +330,8 @@ describe('SPARK query option parity', () => {
     expect(() => encodeDataSpaceQueryOptions({ tree })).toThrow(key)
   })
 
-  it('rejects conflicting or incomplete tree output', () => {
-    expect(() => encodeDataSpaceQueryOptions({ outputType: 'SelfRefData' })).toThrow()
+  it('preserves collection output without node parameters and rejects conflicting explicit tree output', () => {
+    expect(encodeDataSpaceQueryOptions({ outputType: 'SelfRefData' })).toEqual({outputType: 'SelfRefData'})
     expect(() => encodeDataSpaceQueryOptions({ outputType: 'Table', tree: { keyField: 'id', parentField: 'pid', nodeId: '0' } })).toThrow()
   })
 
@@ -459,6 +459,28 @@ describe('SPARK GetData execution boundary', () => {
 })
 
 describe('SPARK scenario model request parity', () => {
+  it.each(['Join', 'Table', 'SelfRefData', 'HierarchyData', 'Navigation'] as const)
+    ('sends an explicit empty child set for a leaf Join without changing %s query semantics', async outputType => {
+      const http = new DataSpaceRequestFixtureHttp()
+      http.response = {Code: 200, Result: {primaryKeyField: 'OrderId', allowAdd: false,
+        data: {Items: [{OrderId: 'A', amount: 20, lingma_sys_params: {e: ['amount']}}], Count: 1}}}
+      const resource = new DataSpaceQueryResource({http, readScope: () => ({token: 'S1', headers: {}})})
+      const context = await resource.query({scenarioId: 'SCENE', metaName: 'Orders'}, {outputType,
+        fields: ['OrderId', 'amount'], page: {index: 2, size: 5}, sort: [{field: 'amount', direction: 'desc'}],
+        filter: DataViewFilter.condition({field: 'amount', operator: 'gte', value: 0})})
+      const body = http.calls[0]?.data as {Table: Record<string, unknown>[]; PageParam?: unknown}
+      expect(body.Table[0]).toMatchObject({Name: 'Orders', OutputType: outputType,
+        Filter: {Type: 'cond', Field: 'amount', Operator: 'greaterthanorequal'},
+        Fields: [{Name: 'OrderId', IsOutput: true}, {Name: 'amount', IsOutput: true, OrderType: 'descending', Order: 1}]})
+      if (outputType === 'Join') expect(body.Table[0]?.['ChildTables']).toEqual([])
+      else expect(body.Table[0]).not.toHaveProperty('ChildTables')
+      expect(body.PageParam).toEqual(outputType === 'SelfRefData' ? undefined : {index: 2, size: 5})
+      expect(context.rows[0]).toMatchObject({OrderId: 'A', amount: 20})
+      expect(context.rowKey(context.rows[0]!)).toBe('A')
+      expect(context.editActionState('A')).toBe('enabled')
+      resource.dispose()
+    })
+
   it('addresses rows by the singular primary key echoed by GetData, including response aliases', () => {
     const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Orders' })
     const snapshot = table.applyResult({ Code: 200, Result: { primaryKeyField: 'OrderKey',
@@ -523,15 +545,56 @@ describe('SPARK scenario model request parity', () => {
     expect(Object.isFrozen(table.identity)).toBe(true)
   })
 
-  it('projects sorting onto output fields and adds a non-output sort field', () => {
+  it('adds sorting dependencies without overriding their model output names', () => {
     const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Orders' })
     expect(table.buildRequest({ fields: ['Amount'], sort: [{ field: 'amount', direction: 'desc' },
       { field: 'updatedAt', direction: 'asc' }], page: { index: 2, size: 50 } })).toEqual({
       Table: [{ Name: 'Orders', OutputType: 'Table', Filter: null, inputParams: [], DISTINCT: false, IsBusinessMain: 1,
         Fields: [{ Name: 'Amount', IsOutput: true, Order: 2, OrderType: 'descending' },
-          { Name: 'updatedAt', AsName: 'updatedAt', IsOutput: false, Order: 1, OrderType: 'ascending' }] }],
+          { Name: 'updatedAt', IsOutput: false, Order: 1, OrderType: 'ascending' }] }],
       PageParam: { index: 2, size: 50 },
     })
+  })
+
+  it.each([
+    ['Table', 'MODEL'], ['Table', 'REQUEST'], ['Join', 'MODEL'], ['Join', 'REQUEST'],
+  ] as const)('preserves backend output names for %s/%s when sorting, filtering and paging', async (outputType, outputFieldMode) => {
+    class ModelOutputHttp extends HttpClientBase {
+      readonly requests: RequestConfig[] = []
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        this.requests.push(config)
+        const body = config.data as {Table: {Fields: {Name: string; AsName?: string}[]}[]; PageParam: {index: number}}
+        const source = body.Table[0]?.Fields.find(field => field.Name === 'title')
+        // GetData applies explicit request aliases after producing the model's caption output.
+        const responseName = source?.AsName || 'caption'
+        return {data: {Code: 200, Result: {primaryKeyField: 'orderId', allowAdd: false,
+          data: {Items: [{orderId: `A${body.PageParam.index}`, [responseName]: 'Title'}], Count: 3}}},
+        status: 200, statusText: 'OK', headers: {}}
+      }
+    }
+    const http = new ModelOutputHttp()
+    const resource = new DataSpaceQueryResource({http, readScope: () => ({token: 'S1', headers: {}})})
+    try {
+      for (const page of [1, 2]) {
+        const context = await resource.query({scenarioId: 'SCENE', metaName: 'Orders'}, {
+          outputType, outputFieldMode, fields: ['rowid'], sort: [{field: 'title', direction: 'asc'}],
+          page: {index: page, size: 1},
+          ...(page === 2 ? {filter: DataViewFilter.condition({field: 'title', operator: 'eq', value: 'Title'})} : {}),
+        })
+        expect(context.rows).toEqual([{orderId: `A${page}`, caption: 'Title'}])
+        expect(context.rowKey(context.rows[0]!)).toBe(`A${page}`)
+      }
+      expect(http.requests).toHaveLength(2)
+      for (const [index, request] of http.requests.entries()) {
+        const body = request.data as {Table: Record<string, unknown>[]; OutputFieldMode: string; PageParam: unknown}
+        expect(body.OutputFieldMode).toBe(outputFieldMode)
+        expect(body.PageParam).toEqual({index: index + 1, size: 1})
+        expect(body.Table[0]?.['Fields']).toEqual([{Name: 'rowid', IsOutput: true},
+          {Name: 'title', IsOutput: false, OrderType: 'ascending', Order: 1}])
+        expect(body.Table[0]?.['Filter']).toEqual(index === 0 ? null :
+          expect.objectContaining({Field: 'title', Operator: 'equal'}))
+      }
+    } finally { resource.dispose() }
   })
 
   it('keeps all output columns when sorting is supplied without projection', () => {
@@ -539,11 +602,31 @@ describe('SPARK scenario model request parity', () => {
     expect(table.buildRequest({ sort: [{ field: 'amount', direction: 'desc' }] }).Table[0]).not.toHaveProperty('Fields')
   })
 
-  it('puts tree controls and paging on the outer GetData request', () => {
+  it.each([1, 2, 3, 4])('preserves %i sort priorities in the backend descending-Order contract across query changes', count => {
+    const table = new DataSpaceQueryTable({scenarioId: 'SCENE', metaName: 'Orders'})
+    const names = ['amount', 'name', 'createdAt', 'rowid'].slice(0, count)
+    const sort = names.map((field, index) => ({field, direction: index % 2 === 0 ? 'desc' as const : 'asc' as const}))
+    const original = structuredClone(sort)
+    for (const page of [1, 2]) {
+      const request = table.buildRequest({fields: [...names].reverse(), sort, page: {index: page, size: 20},
+        ...(page === 2 ? {filter: DataViewFilter.condition({field: 'amount', operator: 'gt', value: 0})} : {})})
+      const fields = request.Table[0]?.['Fields']
+      if (!Array.isArray(fields) || !fields.every(isRecord)) throw new Error('missing request fields')
+      const ordered = fields.filter(field => Number(field['Order']) > 0 && field['OrderType'])
+        .sort((left, right) => Number(right['Order']) - Number(left['Order']))
+      expect(ordered.map(field => [field['Name'], field['OrderType']])).toEqual(
+        sort.map(item => [item.field, item.direction === 'asc' ? 'ascending' : 'descending']))
+      expect(new Set(ordered.map(field => field['Order'])).size).toBe(count)
+      expect(request.PageParam).toEqual({index: page, size: 20})
+    }
+    expect(sort).toEqual(original)
+  })
+
+  it('puts tree controls on the outer request without paging', () => {
     const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Departments' })
     expect(table.buildRequest({ tree: { keyField: 'id', parentField: 'pid', nodeId: '0' }, page: { index: 1, size: 50 } }))
       .toEqual({ Table: [{ Name: 'Departments', OutputType: 'SelfRefData', Filter: null,
-        inputParams: [], DISTINCT: false, IsBusinessMain: 1 }], PageParam: { index: 1, size: 50 },
+        inputParams: [], DISTINCT: false, IsBusinessMain: 1 }],
       keyField: 'id', parentField: 'pid', nodeid: '0', hasChildField: 'hasChild', type: 'child' })
   })
 

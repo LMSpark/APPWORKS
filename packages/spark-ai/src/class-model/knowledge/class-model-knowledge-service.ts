@@ -216,7 +216,7 @@ public attributeGuide(input: ClassModelAttributeGuideInput): string {
         renderComponentProfile(model),
         model.jsdoc.trim(),
         `${modelDeclarationHeader(model)} {`,
-        indent(`${attribute.writable ? '' : 'readonly '}${attribute.name}: ${jsonSchemaToTypeText(attribute.schema ?? true)}`),
+        indent(renderSurfaceAttribute(attribute)),
         '}',
       ].filter(line => line.length > 0).join('\n')
     }
@@ -369,7 +369,7 @@ function renderSurfaceClassModel(model: DtsTypeDeclarationModel): string {
     ...(constructorMeta === undefined
       ? []
       : [indent(renderSurfaceConstructor(constructorMeta))]),
-    ...knowledgeAttributes(model).map(attribute => indent(`${attribute.writable ? '' : 'readonly '}${attribute.name}: ${jsonSchemaToTypeText(attribute.schema ?? true)}`)),
+    ...knowledgeAttributes(model).map(attribute => indent(renderSurfaceAttribute(attribute))),
     ...knowledgeMethods(model).map(method => indent(renderSurfaceMethod(method))),
     '}',
   ]
@@ -499,6 +499,13 @@ function renderSurfaceConstructor(constructorMeta: ConstructorMeta): string {
   return [
     constructorMeta.jsdoc.trim(),
     renderConstructorSignature(constructorMeta),
+  ].filter(part => part.length > 0).join('\n')
+}
+
+function renderSurfaceAttribute(attribute: AttributeMeta): string {
+  return [
+    attribute.jsdoc.trim(),
+    `${attribute.writable ? '' : 'readonly '}${attribute.name}: ${jsonSchemaToTypeText(attribute.schema ?? true)}`,
   ].filter(part => part.length > 0).join('\n')
 }
 

@@ -16,6 +16,8 @@ export type LowcodeSessionStorage = Readonly<{
 
 /** 会话 store 配置；未提供 storage 时仅内存持有，刷新页面后丢失。 */
 export type LowcodeSessionStoreOptions = Readonly<{
+  /** 执行身份变化时清理其运行资源；刷新同身份令牌不触发。 */
+  onScopeChange?: () => void
   storage?: LowcodeSessionStorage
   sessionKey?: string
 }>
@@ -86,10 +88,12 @@ export class LowcodeSessionStore {
   private readonly sessionKey: string
   private memorySession: LowcodeSession | null = null
   private executionRevision = 0
+  private readonly onScopeChange: (() => void) | undefined
 
   public get revision(): number { return this.executionRevision }
 
   public constructor(options: LowcodeSessionStoreOptions = {}) {
+    this.onScopeChange = options.onScopeChange
     this.storage = options.storage
     this.sessionKey = options.sessionKey ?? DEFAULT_SESSION_KEY
   }
@@ -114,6 +118,7 @@ export class LowcodeSessionStore {
     const previous = this.memorySession
     if (previous?.identity !== session.identity || previous.enterprise !== session.enterprise) {
       this.executionRevision += 1
+      this.onScopeChange?.()
     }
     this.memorySession = session
     this.storage?.setItem(this.sessionKey, JSON.stringify(session))
@@ -122,6 +127,7 @@ export class LowcodeSessionStore {
   /** 清空内存与 storage 中的会话。 */
   public clear(): void {
     this.executionRevision += 1
+    this.onScopeChange?.()
     this.memorySession = null
     this.storage?.removeItem(this.sessionKey)
   }

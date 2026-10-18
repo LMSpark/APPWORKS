@@ -80,6 +80,9 @@ function assertClean(candidates: readonly TabPage[]): void {
   for (const tab of candidates) {
     const runtime = tab.runtimeName ? owner?.getPageRuntimeById(tab.id) : undefined
     if (runtime?.isDirty) throw new Error('页面有未保存修改，必须先保存或明确放弃')
+    if (tab.systemPage && owner?.getSystemPageInstanceById(tab.id)?.isDirty) {
+      throw new Error('系统页面有未保存修改或待核验提交，必须先保存或明确处理')
+    }
   }
 }
 function release(candidates: readonly TabPage[]): void {

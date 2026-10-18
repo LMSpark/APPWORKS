@@ -27,7 +27,7 @@
 - 权限展示三态：`PermissionMode` 仅 `@spark-appworks/spark-utils`。
 - 运行导航表面：`RuntimeNavigationItemKind` / `NavigationPlacement` / `NavigationRootPlacement` / `NavigationLinkTarget` / `NavigationContextConfig` 仅 `@spark-appworks/spark-utils`（蓝图交付投影与壳导航共用，禁止包内同形别名；根布局是完整 placement 的子集，不可混用）。
 - 验证码：`SendCodeType` / `SendCodeScene` 台账与 `spark-lowcode-api` 同形（`verify:send-code-parity`）；门面子集 `LowcodeVerificationScene = Extract<…>`；禁止 `LowcodeVerificationChannel`。
-- 查询 wire 字面量：`OrderType` / `WireFilterOperator` / `GroupFunType` 台账与 `spark-lowcode-api` 同形（`verify:wire-query-parity`）；前端 `DataViewFilterOperator`/`SortDirection`/`AggregateType` 仅 spark-data（`AggregateType` 额外含 `join`）；过滤公开树与 wire 转换仅 SPARK API 的 `runtime/protocol/data-space-filter.ts`，宿主不再提供过滤 mapper。
+- 查询 wire 字面量：`OrderType` / `WireFilterOperator` / `GroupFunType` 台账与 `spark-lowcode-api` 同形（`verify:wire-query-parity`）；前端 `DataViewFilterOperator`/`SortDirection`/`AggregateType` 仅 spark-data（`AggregateType` 额外含 `join`）；过滤公开树、存储文本与 wire 转换统一由 spark-data 的 `DataViewFilterCodec` 承接，SPARK API 复用该入口，宿主不另建过滤 mapper。
 - 实现闸门：`ProjectBlueprintImplGate` 仅 `spark-project-model`；禁止宿主 `PageDesignImplGate` 与薄包再导出。
 - DataSpace 资源类型：CN wire 映射仅 `data-space-resource-type-wire.ts`；目录为 `Extract<table|view>`；→ TableResourceType 仅宿主 frontend-model-adapter。
 - 权限 → UI：唯一 mapper `src/lowcode/permission/lowcode-permission-to-data-permission.ts`。

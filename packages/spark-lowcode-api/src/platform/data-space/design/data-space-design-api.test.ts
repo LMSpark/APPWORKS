@@ -1,16 +1,33 @@
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
-import { DataViewFilter } from '@spark-appworks/spark-data'
-import { describe, expect, it } from 'vitest'
+import { DataViewFilter, DataViewFilterCodec } from '@spark-appworks/spark-data'
+import { DataViewFilterLocal } from '../../../../../spark-data/src/query/filter/data-view-filter-local.js'
+import { describe, expect, it, vi } from 'vitest'
 
 import { LowcodeApi } from '../../../lowcode-api.js'
-import { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from './data-space-design-api.js'
+import { DataSpaceDesignApi } from './data-space-design-api.js'
 import { encodeDataSpaceResourceType, parseDataSpaceResourceType } from '../data-space-resource-type-wire.js'
+
+it('decodes metadata query relations with the same formal contract, without mutating wire rows', () => {
+  const row = {rowid: 'R', dataSetId: 'S', parentModId: 'P', childModId: 'C', parentTable: 'Parents', childTable: 'Children',
+    filter: JSON.stringify({Type: 'and', Filters: [
+      {Type: 'cond', Field: 'active', Operator: 'equal', ValueFun: {Type: 'GetConstValue', Value: false}},
+    ]}), depType: 'selectedRows', cascadeDel: '1'}
+  const original = structuredClone(row), decoded = DataSpaceDesignApi.decodeRelations([row])
+  expect(decoded[0]).toMatchObject({sourceRelationId: 'R', dataSpaceId: 'S', parentModelId: 'P', childModelId: 'C',
+    parentResourceName: 'Parents', childResourceName: 'Children', dependencyType: 'selectedRows', cascadeDelete: true})
+  expect(decoded[0]!.filterExpression.toJSON()).toEqual({logic: 'and', filters: [{field: 'active', operator: 'eq', value: false}]})
+  expect(row).toEqual(original); expect(Object.isFrozen(decoded)).toBe(true)
+  expect(DataSpaceDesignApi.decodeRelations([])).toEqual([])
+  expect(() => DataSpaceDesignApi.decodeRelations([{...row, parentModId: ''}])).toThrow('parentModId')
+  expect(() => DataSpaceDesignApi.decodeRelations([{...row, filter: 'invalid'}])).toThrow()
+})
 
 it('resolves native table resource semantics from the formal source without I/O', () => {
   const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: 'physical_orders',
     sourceId: 'DB-1', sourceType: '数据库表', primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}
   expect(DataSpaceDesignApi.resolveTableResource(model)).toEqual({resourceType: 'database-table', resourceId: 'physical_orders'})
+  expect(DataSpaceDesignApi.resolveTableResource({sourceType: model.sourceType, sourceName: model.sourceName})).toEqual({resourceType: 'database-table', resourceId: 'physical_orders'})
   expect(model.metaName).toBe('QueryOrders')
   expect(model.sourceId).toBe('DB-1')
 })
@@ -42,122 +59,6 @@ it('rejects missing source names and retains legacy wire parse and encode behavi
   expect(() => parseDataSpaceResourceType('__proto__')).toThrow('未知数据资源类型')
   expect(() => Reflect.apply(encodeDataSpaceResourceType, undefined, ['__proto__'])).toThrow('未知数据资源类型')
 })
-
-class DataSpaceDesignFixtureHttpClient extends HttpClientBase {
-  public readonly requests: RequestConfig[] = []
-  public modelType = '数据库表'
-  public modelResourceName = 'PayrollSalary'
-
-  protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
-    this.requests.push(config)
-    const table = ((config.data as { Table: Array<{ Name: string }> }).Table[0]?.Name) ?? ''
-    const catalogRows: Readonly<Record<string, readonly Record<string, unknown>[]>> = {
-      Base_serverInfo: [{ rowid: 'SERVER-1', Type: 'MYSQL', ServerName: '主库' }],
-      _base_dbInfo: [{ Id: 'DATABASE-1', serverId: 'SERVER-1', Name: 'payroll', Type: 'MYSQL' }],
-      _Base_TblList: [{ rowid: 'RESOURCE-1', dbid: 'DATABASE-1', tblname: 'PayrollSalary', tbldesc: '薪资资源' }],
-      _Base_ViewList: [],
-      Base_TblField: [{
-        rowid: 'RESOURCE-FIELD-1',
-        tblid: 'RESOURCE-1',
-        tblname: 'PayrollSalary',
-        enname: 'rowid',
-        cnname: '主键',
-        DataTypeName: '字符串型',
-        IsNill: 0,
-        IsPKey: 1,
-      }, {
-        rowid: 'RESOURCE-FIELD-2',
-        tblid: 'RESOURCE-1',
-        tblname: 'PayrollSalary',
-        enname: 'salary',
-        cnname: '薪资',
-        DataTypeName: '定点小数',
-        IsNill: 1,
-      }],
-    }
-    if (config.url === '/api/DataOperation/GetBaseData') {
-      return {
-        data: { Code: 200, Result: { Items: catalogRows[table] ?? [] } },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-      }
-    }
-    const rows: Readonly<Record<string, readonly Record<string, unknown>[]>> = {
-      Base_DataSet: [{
-        rowid: 'SPACE-1',
-        Name: '薪资核算场景',
-        description: '薪资页面与报表共享',
-        inputParams: JSON.stringify([{ rowid: 'PARAM-1', Name: '期间', IsBusiness: 1 }]),
-      }],
-      Base_DataModel: [{
-        rowid: 'MODEL-1',
-        dataSetId: 'SPACE-1',
-        Name: '薪资前端模型',
-        Type: this.modelType,
-        MetaName: this.modelResourceName,
-        DbId: 'DATABASE-1',
-        DbName: 'payroll',
-        IsBusinessMain: 1,
-        OutputType: 'Table',
-      }, {
-        rowid: 'MODEL-2',
-        dataSetId: 'SPACE-1',
-        Name: '薪资只读视图',
-        Type: this.modelType,
-        MetaName: this.modelResourceName,
-        DbId: 'DATABASE-1',
-        DbName: 'payroll',
-      }],
-      Base_DataModel_Field: [{
-        rowid: 'FIELD-1',
-        dataSetId: 'SPACE-1',
-        dataModelId: 'MODEL-1',
-        type: 'dataModel',
-        Name: 'rowid',
-        IsPKey: 1,
-      }, {
-        rowid: 'FIELD-2',
-        dataSetId: 'SPACE-1',
-        dataModelId: 'MODEL-1',
-        type: 'dataModel',
-        Name: 'salary',
-        AsName: 'salaryAmount',
-        IsOutput: 1,
-        Order: 2,
-        OrderType: 'descending',
-      }, {
-        rowid: 'FIELD-3',
-        dataSetId: 'SPACE-1',
-        dataModelId: 'MODEL-2',
-        type: 'dataModel',
-        Name: 'rowid',
-        IsPKey: 1,
-      }],
-      Base_DataModel_Relation: [{
-        rowid: 'RELATION-1',
-        dataSetId: 'SPACE-1',
-        childModId: 'MODEL-2',
-        parentModId: 'MODEL-1',
-        childTable: 'PayrollSalary',
-        parentTable: 'PayrollSalary',
-        depType: 'refresh',
-        filter: JSON.stringify({
-          Type: 'cond',
-          Field: 'PayrollSalary.rowid',
-          Operator: 'equal',
-          ValueFun: { Type: 'GetTableField', Field: 'PayrollSalary.rowid' },
-        }),
-      }],
-    }
-    return {
-      data: { Code: 200, Result: { data: { Items: rows[table] ?? [] } } },
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-    }
-  }
-}
 
 describe('DataSpaceDesignApi', () => {
   it('round trips structured wire filters and rejects damaged stored definitions', () => {
@@ -199,131 +100,6 @@ describe('DataSpaceDesignApi', () => {
     expect(() => DataSpaceDesignApi.parseValueFunction('"plain text"')).toThrow()
   })
 
-  it('reads the data-space and its frontend-model closure through the design context', async () => {
-    const http = new DataSpaceDesignFixtureHttpClient()
-    const api = new LowcodeApi({ http })
-
-    const snapshot = await api.dataSpace.design.read({
-      dataSpaceId: 'SPACE-1',
-      catalogFormKeys: 'FORM-DBMS',
-    })
-
-    expect(http.requests).toHaveLength(9)
-    expect(http.requests.filter((request) => request.url === '/api/DataOperation/GetData')
-      .every((request) => request.headers?.['x-FormKey'] === DATA_SPACE_DESIGN_FORM_KEY)).toBe(true)
-    expect(http.requests.filter((request) => request.url === '/api/DataOperation/GetBaseData')
-      .every((request) => request.headers?.['x-FormKey'] === 'FORM-DBMS')).toBe(true)
-    expect(snapshot).toMatchObject({
-      dataSpaceId: 'SPACE-1',
-      name: '薪资核算场景',
-      inputParameters: [{ parameterId: 'PARAM-1', name: '期间', business: true }],
-      resources: [{ resourceId: 'RESOURCE-1', resourceName: 'PayrollSalary' }],
-      relations: [{
-        sourceRelationId: 'RELATION-1',
-        dataSpaceId: 'SPACE-1',
-        parentModelId: 'MODEL-1',
-        childModelId: 'MODEL-2',
-        parentResourceName: 'PayrollSalary',
-        childResourceName: 'PayrollSalary',
-        dependencyType: 'refresh',
-      }],
-    })
-    expect(snapshot.models).toHaveLength(2)
-    expect(snapshot.models[0]?.snapshot()).toMatchObject({
-      dataSpaceId: 'SPACE-1',
-      modelId: 'MODEL-1',
-      resource: {
-        resourceId: 'RESOURCE-1',
-        databaseId: 'DATABASE-1',
-        resourceName: 'PayrollSalary',
-        resourceType: 'table',
-        primaryKeyField: 'rowid',
-        fields: [
-          { resourceFieldId: 'RESOURCE-FIELD-1', name: 'rowid' },
-          { resourceFieldId: 'RESOURCE-FIELD-2', name: 'salary' },
-        ],
-      },
-      fields: [
-        { fieldId: 'FIELD-1', resourceFieldId: 'RESOURCE-FIELD-1', resourceField: 'rowid' },
-        {
-          fieldId: 'FIELD-2',
-          resourceFieldId: 'RESOURCE-FIELD-2',
-          resourceField: 'salary',
-          alias: 'salaryAmount',
-          output: true,
-          order: 2,
-          orderType: 'descending',
-        },
-      ],
-      query: { businessMain: true, outputType: 'Table' },
-    })
-  })
-
-  it('fails fast for an unknown physical resource type', async () => {
-    const http = new DataSpaceDesignFixtureHttpClient()
-    http.modelType = '未知'
-    const api = new LowcodeApi({ http })
-
-    await expect(api.dataSpace.design.read({
-      dataSpaceId: 'SPACE-1',
-      catalogFormKeys: 'FORM-DBMS',
-    })).rejects.toThrow('未知数据资源类型')
-  })
-
-  it('fails fast when the backend resource identity cannot be read back', async () => {
-    const http = new DataSpaceDesignFixtureHttpClient()
-    http.modelResourceName = 'MissingSalary'
-    const api = new LowcodeApi({ http })
-
-    await expect(api.dataSpace.design.read({
-      dataSpaceId: 'SPACE-1',
-      catalogFormKeys: 'FORM-DBMS',
-    })).rejects.toThrow('数据资源未解析')
-  })
-
-  it('prepares a governed data-space design command without executing a write', async () => {
-    const http = new DataSpaceDesignFixtureHttpClient()
-    const api = new LowcodeApi({ http })
-    const preimage = await api.dataSpace.design.read({
-      dataSpaceId: 'SPACE-1',
-      catalogFormKeys: 'FORM-DBMS',
-    })
-
-    const command = api.dataSpace.design.prepareMutation({
-      capability: 'update-field-reference',
-      dataSpaceId: 'SPACE-1',
-      modelId: 'MODEL-1',
-      idempotencyKey: 'DESIGN-1',
-      preimage,
-      change: {
-        fieldId: 'FIELD-2',
-        resourceFieldId: 'RESOURCE-FIELD-2',
-        resourceField: 'salary',
-        alias: 'grossSalary',
-        fieldType: '',
-        output: true,
-        order: 2,
-        orderType: 'descending',
-        group: 0,
-        distinct: false,
-        primaryKey: false,
-        value: '',
-        valueFunction: '',
-        expression: '',
-      },
-    })
-
-    expect(command).toMatchObject({
-      kind: 'data-space-design-mutation',
-      dataSpaceId: 'SPACE-1',
-      modelId: 'MODEL-1',
-      risk: 'medium',
-      journal: { required: true },
-      readback: { required: true, dataSpaceId: 'SPACE-1' },
-      compensation: { kind: 'restore-data-space-design-snapshot' },
-    })
-    expect(http.requests).toHaveLength(9)
-  })
 })
 
 type FormalDesignRow = Readonly<Record<string, unknown>>
@@ -331,11 +107,16 @@ type FormalDesignRow = Readonly<Record<string, unknown>>
 class DataSpaceFormalFixtureHttpClient extends HttpClientBase {
   readonly requests: RequestConfig[] = []
   readonly results: unknown[] = []
+  readonly tableResults = new Map<string, unknown[]>()
+  resolveResult: ((config: RequestConfig) => unknown) | undefined
+  beforeResponse: ((tableName: string) => Promise<void>) | undefined
   onResponse: (() => void) | undefined
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
-    const result = this.results.shift()
+    const tableName = (config.data as {Table: Array<{Name: string}>}).Table[0]?.Name ?? ''
+    const result = this.resolveResult ? this.resolveResult(config) : (this.tableResults.get(tableName) ?? this.results).shift()
     if (result === undefined) throw new Error('Unexpected formal metadata query')
+    await this.beforeResponse?.(tableName)
     this.onResponse?.()
     return { data: { Code: 200, Result: result }, status: 200, statusText: 'OK', headers: {} }
   }
@@ -538,6 +319,40 @@ describe('DataSpaceDesignApi relation dependency options', () => {
 })
 
 describe('DataSpaceDesignApi selected formal model reader', () => {
+  it.each(['complete', 'stale-scope', 'invalid-source'])(
+    'reads independent source metadata while model fields are pending and handles %s', async outcome => {
+      const http = new DataSpaceFormalFixtureHttpClient()
+      const api = formalApi(http)
+      let release = () => {}
+      const gate = new Promise<void>(resolve => {release = resolve})
+      const completed: string[] = []
+      http.tableResults.set('Base_DataModel', [formalResult([formalModel()])])
+      http.tableResults.set('Base_DataModel_Field', [formalResult(formalFields())])
+      http.tableResults.set('View_TblList', [sourceResults()[0]])
+      http.tableResults.set('Base_TblField', [outcome === 'invalid-source' ? formalResult([]) : sourceResults()[1]])
+      http.beforeResponse = async name => {
+        if (name === 'Base_DataModel_Field') await gate
+        completed.push(name)
+      }
+      let settled = false
+      const pending = api.dataSpace.design.readModel(formalInput).then(
+        model => {settled = true; return {model, error: null}},
+        (error: unknown) => {settled = true; return {model: null, error}})
+      try {
+        await vi.waitFor(() => expect(completed).toContain('Base_TblField'))
+        expect(settled).toBe(false)
+        if (outcome === 'stale-scope') api.application.clear()
+      } finally {release(); await pending}
+      const result = await pending
+      if (outcome === 'complete') expect(result.model).toMatchObject({primaryKey: 'orderId', fields: formalFields().map(field => ({id: field['rowid']}))})
+      else {
+        expect(result.model).toBeNull()
+        expect(result.error).toBeInstanceOf(Error)
+        expect(String(result.error)).toMatch(outcome === 'stale-scope' ? /SPARK_EXECUTION_SCOPE/ : /正式来源/)
+      }
+      expect(http.requests).toHaveLength(4)
+    })
+
   it('resolves equivalent output records once without mutating the formal model and rejects semantic conflicts', async () => {
     const http = new DataSpaceFormalFixtureHttpClient()
     const duplicate = { ...(formalFields()[1] ?? {}), rowid: 'FIELD-2-DUPLICATE',
@@ -590,6 +405,18 @@ describe('DataSpaceDesignApi selected formal model reader', () => {
     expect(() => DataSpaceDesignApi.resolveOutputFields(model)).toThrow('正式模型输出字段重复')
   })
 
+  it.each([{property: 'Expression', ruleId: 'RULE-ID'}, {property: 'expression', ruleId: 'RULE-ID'},
+    {property: 'Expression', ruleId: 'rowid+1'}])('preserves $property rule IDs without turning source fields or keys into computed outputs: $ruleId', async ({property, ruleId}) => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    const fields = formalFields().map(field => ({...field, ValueFun: '', [property]: ruleId}))
+    http.results.push(formalResult([formalModel()]), formalResult(fields), ...sourceResults())
+    const model = await formalApi(http).dataSpace.design.readModel(formalInput)
+    expect(model.primaryKey).toBe('orderId')
+    expect(model.fields.every(field => !field.computed)).toBe(true)
+    expect(model.fields.map(field => field.raw[property])).toEqual([ruleId, ruleId])
+    expect(fields.every(field => field[property] === ruleId)).toBe(true)
+  })
+
   it('reads only the selected model and its source, verifies output key aliases and preserves structured definitions', async () => {
     const http = new DataSpaceFormalFixtureHttpClient()
     http.results.push(formalResult([formalModel()]), formalResult(formalFields()), ...sourceResults())
@@ -619,6 +446,60 @@ describe('DataSpaceDesignApi selected formal model reader', () => {
     expect(http.requests).toHaveLength(2)
   })
 
+  it.each(['single', 'batch'])('reads a field-declared dictionary primary key through the %s formal owner', async mode => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.results.push(formalResult([{...formalModel(), Type: '字典', PrimaryKeyFields: ''}]),
+      formalResult(formalFields().map(field => field['Name'] === 'rowid' ? {...field, IsPKey: 1} : field)))
+    const api = formalApi(http).dataSpace.design
+    const model = mode === 'single' ? await api.readModel(formalInput)
+      : (await api.readModelBatch({...formalSpaceInput, metaNames: ['Orders']}))[0]
+    expect(model?.primaryKey).toBe('orderId')
+    expect(model?.fields.find(field => field.name === 'rowid')).toMatchObject({primaryKey: true, output: true, canonicalName: 'orderId'})
+    expect(http.requests).toHaveLength(2)
+  })
+
+  it.each(['字典', 'JSON', '文件', '数据库视图', '接口', '视图'])('uses the declared field identity instead of inventing rowid for %s', async sourceType => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.results.push(formalResult([{...formalModel(), Type: sourceType, PrimaryKeyFields: null}]),
+      formalResult(formalFields().map(field => field['Name'] === 'rowid'
+        ? {...field, Name: 'sourceCode', AsName: 'publicCode', IsPKey: '1'} : field)))
+    if (sourceType === '接口' || sourceType === '视图') http.results.push(formalResult([]))
+    const model = await formalApi(http).dataSpace.design.readModel(formalInput)
+    expect(model.primaryKey).toBe('publicCode')
+    expect(model.fields.find(field => field.name === 'sourceCode')?.primaryKey).toBe(true)
+    for (const request of http.requests) expect(request.data).toMatchObject({
+      Table: [{Name: expect.stringMatching(/^Base_DataModel(?:_Field)?$/)}],
+    })
+  })
+
+  it.each(['single', 'batch'].flatMap(mode => ['not-output', 'computed', 'multiple', 'duplicate', 'alias-collision', 'tenant', 'explicit-mismatch']
+    .map(kind => ({mode, kind}))))('rejects $kind field-key evidence through $mode reading', async ({mode, kind}) => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    const fields: FormalDesignRow[] = formalFields().map(field => field['Name'] === 'rowid' ? {...field, IsPKey: 1} : {...field})
+    const key = fields[0], other = fields[1]
+    if (!key || !other) throw new Error('missing field fixture')
+    if (kind === 'not-output') fields[0] = {...key, IsOutput: 0}
+    if (kind === 'computed') fields[0] = {...key, ValueFun: {Type: 'GetConstValue', Value: 1}}
+    if (kind === 'multiple') fields[1] = {...other, IsPKey: 1}
+    if (kind === 'duplicate') fields.push({...key, rowid: 'DUPLICATE-KEY'})
+    if (kind === 'alias-collision') fields[1] = {...other, AsName: key['AsName']}
+    if (kind === 'tenant') fields[0] = {...key, Name: 'lingma_sys_ent'}
+    http.results.push(formalResult([{...formalModel(), Type: '字典', PrimaryKeyFields: kind === 'explicit-mismatch' ? 'missingKey' : ''}]),
+      formalResult(fields))
+    const api = formalApi(http).dataSpace.design
+    await expect(mode === 'single' ? api.readModel(formalInput)
+      : api.readModelBatch({...formalSpaceInput, metaNames: ['Orders']})).rejects.toThrow('唯一有效输出字段')
+  })
+
+  it.each(['model', 'field'])('rejects unreadable %s primary-key evidence through the single formal owner', async kind => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.results.push(formalResult([{...formalModel(), Type: '字典',
+      ...(kind === 'model' ? {lingma_sys_params: {h: ['PrimaryKeyFields']}} : {})}]),
+    formalResult(formalFields().map(field => field['Name'] === 'rowid'
+      ? {...field, IsPKey: 1, ...(kind === 'field' ? {lingma_sys_params: {m: ['IsPKey']}} : {})} : field)))
+    await expect(formalApi(http).dataSpace.design.readModel(formalInput)).rejects.toThrow(/不可读|脱敏/)
+  })
+
   it('reads a non-table model with no declared or field primary key as keyless', async () => {
     const http = new DataSpaceFormalFixtureHttpClient()
     http.results.push(formalResult([{ ...formalModel(), Type: '字典', PrimaryKeyFields: '' }]),
@@ -638,7 +519,7 @@ describe('DataSpaceDesignApi selected formal model reader', () => {
     })
 
   it.each([{ dataModelId: 'FOREIGN' }, { dataSetId: 'FOREIGN' }, { type: 'resource' },
-    { IsOutput: 0 }, { Expression: 'rowid+1' }, { ValueFun: { Type: 'GetConstValue', Value: 'fake' } }])(
+    { IsOutput: 0 }, { ValueFun: { Type: 'GetConstValue', Value: 'fake' } }])(
     'rejects invalid field ownership or primary-key output %j', async change => {
       const http = new DataSpaceFormalFixtureHttpClient()
       const fields = formalFields()
@@ -663,11 +544,16 @@ describe('DataSpaceDesignApi selected formal model reader', () => {
     const http = new DataSpaceFormalFixtureHttpClient()
     const fields = [...formalFields(), ...Array.from({ length: 499 }, (_, index) => ({ rowid: `F-${index}`,
       dataSetId: 'SPACE-1', dataModelId: 'MODEL-1', type: 'dataModel', Name: `extra${index}`, IsOutput: 1 }))]
-    http.results.push(formalResult([formalModel()]), formalResult(fields.slice(0, 500), 501),
-      formalResult(fields.slice(500), 501), ...sourceResults())
+    http.tableResults.set('Base_DataModel', [formalResult([formalModel()])])
+    http.tableResults.set('Base_DataModel_Field', [formalResult(fields.slice(0, 500), 501), formalResult(fields.slice(500), 501)])
+    http.tableResults.set('View_TblList', [sourceResults()[0]])
+    http.tableResults.set('Base_TblField', [sourceResults()[1]])
     const model = await formalApi(http).dataSpace.design.readModel(formalInput)
     expect(model.fields).toHaveLength(501)
-    expect(http.requests[2]?.data).toMatchObject({ PageParam: { index: 2, size: 500 } })
+    expect(http.requests.map(request => request.data)).toEqual(expect.arrayContaining([
+      expect.objectContaining({Table: [expect.objectContaining({Name: 'Base_DataModel_Field'})], PageParam: {index: 2, size: 500}}),
+    ]))
+    expect(http.requests).toHaveLength(5)
   })
 
   it('rejects a late metadata response after request identity changes', async () => {
@@ -714,9 +600,9 @@ describe('DataSpaceDesignApi selected formal model reader', () => {
     for (const result of [formalResult([formalFields()[0] ?? {}, formalFields()[0] ?? {}]),
       formalResult(formalFields(), 501)]) {
       const http = new DataSpaceFormalFixtureHttpClient()
-      http.results.push(formalResult([formalModel()]), result)
-      await expect(formalApi(http).dataSpace.design.readModel(formalInput)).rejects.toThrow()
-      expect(http.requests).toHaveLength(2)
+      http.results.push(formalResult([formalModel()]), result, ...sourceResults())
+      await expect(formalApi(http).dataSpace.design.readModel(formalInput)).rejects.toThrow(/正式记录 ID|SPARK 批量查询/)
+      expect(http.requests).toHaveLength(4)
     }
   })
 
@@ -725,6 +611,275 @@ describe('DataSpaceDesignApi selected formal model reader', () => {
     await expect(formalApi(http).dataSpace.design.readModel({ ...formalInput,
       assertCurrent: () => { throw new Error('PAGE_INSTANCE_STALE') } })).rejects.toThrow('PAGE_INSTANCE_STALE')
     expect(http.requests).toHaveLength(0)
+  })
+})
+
+describe('DataSpaceDesignApi formal model batch', () => {
+  const batchInput = {...formalSpaceInput, metaNames: ['Orders', 'OtherOrders']}
+  const otherModel = () => ({...formalModel(), rowid: 'MODEL-2', Name: 'OtherOrders', Type: 'JSON', PrimaryKeyFields: 'orderId'})
+  const otherFields = () => formalFields().map(field => ({...field, rowid: `${String(field['rowid'])}-2`,
+    dataModelId: 'MODEL-2', IsPKey: field['Name'] === 'rowid' ? 1 : 0}))
+  function batchHttp(fields = [...formalFields(), ...otherFields()]) {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.tableResults.set('Base_DataModel', [formalResult([otherModel(), formalModel()])])
+    http.tableResults.set('Base_DataModel_Field', [formalResult(fields)])
+    http.tableResults.set('View_TblList', [sourceResults()[0]])
+    http.tableResults.set('Base_TblField', [sourceResults()[1]])
+    return http
+  }
+
+  it('reads selected model and field sets once while preserving source keys and formal contracts', async () => {
+    const http = batchHttp()
+    const models = await formalApi(http).dataSpace.design.readModelBatch({...batchInput, metaNames: ['OtherOrders', 'Orders', 'Orders']})
+    expect(models).toMatchObject([{id: 'MODEL-1', metaName: 'Orders', primaryKey: 'orderId'}, {id: 'MODEL-2', metaName: 'OtherOrders', primaryKey: 'orderId'}])
+    expect(models.map(model => model.fields.length)).toEqual([2, 2]); expect(Object.isFrozen(models)).toBe(true)
+    expect(http.requests).toHaveLength(4)
+    expect(http.requests[0]?.data).toMatchObject({Table: [{Name: 'Base_DataModel', Filter: {Type: 'and', Filters: [
+      {Field: 'dataSetId', ValueFun: {Value: 'SPACE-1'}}, {Field: 'Name', Operator: 'in', ValueFun: {Value: ['Orders', 'OtherOrders']}},
+    ]}}]})
+    expect(http.requests[1]?.data).toMatchObject({Table: [{Name: 'Base_DataModel_Field', Filter: {Filters: [
+      {Field: 'dataSetId', ValueFun: {Value: 'SPACE-1'}}, {Field: 'dataModelId', ValueFun: {Value: ['MODEL-1', 'MODEL-2']}}, {Field: 'type', ValueFun: {Value: 'dataModel'}},
+    ]}}]})
+    expect(http.requests.every(request => request.headers?.['x-FormKey'] === 'DESIGN-1' && request.headers?.['X-AppId'] === 'APP-1')).toBe(true)
+  })
+
+  it.each([
+    [], [formalModel()], [formalModel(), {...otherModel(), dataSetId: 'OTHER'}],
+    [formalModel(), {...otherModel(), Name: 'Unexpected'}], [formalModel(), {...otherModel(), Name: 'Orders'}],
+    [formalModel(), {...otherModel(), rowid: 'MODEL-1'}],
+  ])('rejects incomplete or ambiguous model sets before field/source reads: %j', async (...rows) => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.results.push(formalResult(rows))
+    await expect(formalApi(http).dataSpace.design.readModelBatch(batchInput)).rejects.toThrow()
+    expect(http.requests).toHaveLength(1)
+  })
+
+  it.each([{dataSetId: 'OTHER'}, {dataModelId: 'UNKNOWN'}, {type: 'inputParams'}])('rejects fields outside the selected definition: %j', async change => {
+    const http = batchHttp([{...formalFields()[0], ...change}, ...otherFields()])
+    await expect(formalApi(http).dataSpace.design.readModelBatch(batchInput)).rejects.toThrow('归属')
+  })
+
+  it.each(['success', 'source-failure', 'scope', 'invalid-source'])('drains all reads while fields are pending: %s', async outcome => {
+    const http = batchHttp(), api = formalApi(http)
+    let release!: () => void, settled = false
+    const gate = new Promise<void>(resolve => {release = resolve})
+    http.beforeResponse = async table => {if (table === 'Base_DataModel_Field') await gate}
+    if (outcome === 'source-failure') http.tableResults.set('Base_TblField', [formalResult([])])
+    if (outcome === 'invalid-source') http.tableResults.set('Base_DataModel', [formalResult([otherModel(), {...formalModel(), DbId: ''}])])
+    const pending = api.dataSpace.design.readModelBatch(batchInput).then(
+      models => {settled = true; return {models, error: null}}, error => {settled = true; return {models: null, error}})
+    try {
+      await vi.waitFor(() => expect(http.requests).toHaveLength(outcome === 'invalid-source' ? 2 : 4)); expect(settled).toBe(false)
+      if (outcome === 'scope') api.application.clear()
+    } finally {release()}
+    const result = await pending
+    if (outcome === 'success') expect(result.models).toHaveLength(2)
+    else expect(String(result.error)).toMatch(outcome === 'scope' ? /SPARK_EXECUTION_SCOPE/ : /正式来源|来源数据库/)
+  })
+
+  it.each(['model-hidden', 'field-masked'])('rejects unreadable definitions: %s', async kind => {
+    const http = batchHttp()
+    if (kind === 'model-hidden') http.tableResults.set('Base_DataModel', [formalResult([otherModel(),
+      {...formalModel(), lingma_sys_params: {h: ['Name']}}])])
+    else http.tableResults.set('Base_DataModel_Field', [formalResult([...otherFields(), ...formalFields().map(field =>
+      ({...field, lingma_sys_params: {m: ['Name']}}))])])
+    await expect(formalApi(http).dataSpace.design.readModelBatch(batchInput)).rejects.toThrow('不可读取或脱敏')
+  })
+
+  it('rejects incomplete field pages and accepts an explicit empty set without requests', async () => {
+    const http = batchHttp()
+    http.tableResults.set('Base_DataModel_Field', [formalResult(formalFields(), 501)])
+    await expect(formalApi(http).dataSpace.design.readModelBatch(batchInput)).rejects.toThrow()
+    const empty = new DataSpaceFormalFixtureHttpClient(), api = formalApi(empty)
+    expect(await api.dataSpace.design.readModelBatch({...batchInput, metaNames: []})).toEqual([])
+    await expect(api.dataSpace.design.readModelBatch({...batchInput, assertCurrent: () => {throw new Error('STALE_CALLER')}})).rejects.toThrow('STALE_CALLER')
+    expect(empty.requests).toHaveLength(0)
+  })
+
+  it('preserves interface source input mappings separately from output fields in a batch', async () => {
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.tableResults.set('Base_DataModel', [formalResult([{...otherModel(), Type: '接口'}])])
+    http.tableResults.set('Base_DataModel_Field', [formalResult(otherFields()), formalResult([
+      {rowid: 'INPUT', dataSetId: 'SPACE-1', dataModelId: 'MODEL-2', type: 'inputParams', Name: 'customer',
+        ValueFun: JSON.stringify({Type: 'GetInputParam', ParamName: 'customerId'})},
+    ])])
+    const models = await formalApi(http).dataSpace.design.readModelBatch({...batchInput, metaNames: ['OtherOrders']})
+    expect(models[0]?.fields).toHaveLength(2)
+    expect(models[0]?.sourceInputBindings).toEqual([{id: 'INPUT', name: 'customer', valueFunction: {Type: 'GetInputParam', ParamName: 'customerId'}}])
+    expect(http.requests).toHaveLength(3)
+  })
+
+  it('shares equivalent in-flight sets but reads fresh definitions after completion', async () => {
+    const http = batchHttp(), api = formalApi(http)
+    const results = await Promise.all([api.dataSpace.design.readModelBatch(batchInput),
+      api.dataSpace.design.readModelBatch({...batchInput, metaNames: [...batchInput.metaNames].reverse()})])
+    expect(results[0]).toEqual(results[1]); expect(http.requests).toHaveLength(4)
+    const fresh = batchHttp()
+    for (const [table, values] of fresh.tableResults) http.tableResults.set(table, values)
+    await api.dataSpace.design.readModelBatch(batchInput)
+    expect(http.requests).toHaveLength(8)
+  })
+
+  it('collects all field pages before splitting them by verified model identity', async () => {
+    const http = batchHttp()
+    const fields = [...formalFields(), ...otherFields(), ...Array.from({length: 499}, (_, index) => ({
+      ...formalFields()[1], rowid: `EXTRA-${index}`, Name: `extra${index}`,
+    }))]
+    http.tableResults.set('Base_DataModel_Field', [formalResult(fields.slice(0, 500), fields.length), formalResult(fields.slice(500), fields.length)])
+    const models = await formalApi(http).dataSpace.design.readModelBatch(batchInput)
+    expect(models.map(model => model.fields.length)).toEqual([501, 2])
+    expect(http.requests).toHaveLength(5)
+  })
+})
+
+describe('DataSpaceDesignApi batched source keys', () => {
+  function fixture(count = 2) {
+    const models = Array.from({length: count}, (_, index) => ({...formalModel(), rowid: `M-${index}`,
+      Name: `Model${index}`, DbId: `DB-${index}`, MetaName: `Table${index}`, PrimaryKeyFields: `key${index}`}))
+    const definitions = models.map((model, index) => ({rowid: `D-${index}`, dataSetId: 'SPACE-1', dataModelId: model.rowid,
+      type: 'dataModel', Name: `key${index}`, AsName: `id${index}`, IsOutput: 1, IsPKey: 0}))
+    const sources = models.map((model, index) => ({rowid: `S-${index}`, dbid: model.DbId, tblname: model.MetaName}))
+    const fields: Array<Record<string, unknown>> = sources.flatMap((source, index) => [
+      {rowid: `K-${index}`, tblid: source.rowid, enname: `key${index}`, IsPKey: 1},
+      {rowid: `T-${index}`, tblid: source.rowid, enname: 'lingma_sys_ent', IsPKey: 1},
+    ])
+    const tables: Record<string, readonly FormalDesignRow[]> = {Base_DataModel: models, Base_DataModel_Field: definitions,
+      View_TblList: sources, Base_TblField: fields}
+    const http = new DataSpaceFormalFixtureHttpClient()
+    http.resolveResult = config => {
+      const request = config.data as {Table: Array<{Name: string; Filter: unknown}>; PageParam: {index: number; size: number}}
+      const table = request.Table[0]
+      const records = table ? tables[table.Name] : undefined
+      if (!table || !records) throw new Error('Unexpected source-key fixture query')
+      const filter = new DataViewFilterLocal(DataViewFilterCodec.decode(table.Filter))
+      const rows = records.filter(row => filter.matches(row))
+        .sort((left, right) => String(left['rowid']).localeCompare(String(right['rowid'])))
+      const offset = (request.PageParam.index - 1) * request.PageParam.size
+      return formalResult(rows.slice(offset, offset + request.PageParam.size), rows.length)
+    }
+    return {http, models, definitions, sources, fields, tables,
+      input: {...formalSpaceInput, metaNames: models.map(model => model.Name)}}
+  }
+
+  it('reads eleven distinct source keys in two scoped queries, preserving every model column identity', async () => {
+    const {http, input} = fixture(11)
+    const models = await formalApi(http).dataSpace.design.readModelBatch(input)
+    expect(models).toHaveLength(11)
+    for (const model of models) {
+      const suffix = model.id.slice(2)
+      expect(model).toMatchObject({primaryKey: `id${suffix}`, fields: [{id: `D-${suffix}`, modelId: model.id,
+        name: `key${suffix}`, canonicalName: `id${suffix}`, primaryKey: true}]})
+    }
+    expect(http.requests).toHaveLength(4)
+    expect(http.requests.every(request => request.headers?.['x-FormKey'] === 'DESIGN-1'
+      && request.headers?.['X-AppId'] === 'APP-1')).toBe(true)
+  })
+
+  it('keeps database and table names paired without including cross-product sources', async () => {
+    const {http, input, sources} = fixture()
+    sources.push({rowid: 'DECOY-A', dbid: 'DB-0', tblname: 'Table1'},
+      {rowid: 'DECOY-B', dbid: 'DB-1', tblname: 'Table0'})
+    const models = await formalApi(http).dataSpace.design.readModelBatch(input)
+    expect(models.map(model => model.primaryKey)).toEqual(['id0', 'id1'])
+    expect(http.requests).toHaveLength(4)
+  })
+
+  it('reuses one physical source for distinct models without merging their field identities', async () => {
+    const {http, input, models, definitions, sources, fields} = fixture()
+    const second = models[1], secondField = definitions[1]
+    if (!second || !secondField) throw new Error('Missing shared source fixture')
+    second.DbId = 'DB-0'; second.MetaName = 'Table0'; second.PrimaryKeyFields = 'key0'; secondField.Name = 'key0'
+    sources.splice(1); fields.splice(2)
+    const result = await formalApi(http).dataSpace.design.readModelBatch(input)
+    expect(result.map(model => ({id: model.id, key: model.primaryKey, field: model.fields[0]?.id})))
+      .toEqual([{id: 'M-0', key: 'id0', field: 'D-0'}, {id: 'M-1', key: 'id1', field: 'D-1'}])
+    expect(http.requests).toHaveLength(4)
+  })
+
+  it('keeps identical table names in different databases attached to their own source key', async () => {
+    const {http, input, models, sources} = fixture()
+    const second = models[1], secondSource = sources[1]
+    if (!second || !secondSource) throw new Error('Missing database fixture')
+    second.MetaName = 'Table0'; secondSource.tblname = 'Table0'
+    const result = await formalApi(http).dataSpace.design.readModelBatch(input)
+    expect(result.map(model => ({database: model.sourceId, key: model.primaryKey})))
+      .toEqual([{database: 'DB-0', key: 'id0'}, {database: 'DB-1', key: 'id1'}])
+    expect(http.requests).toHaveLength(4)
+  })
+
+  it('collects a source catalog spanning two pages without querying the entire directory', async () => {
+    const {http, input, sources} = fixture(501)
+    sources.push({rowid: 'UNRELATED', dbid: 'OUTSIDE', tblname: 'NotSelected'})
+    const models = await formalApi(http).dataSpace.design.readModelBatch(input)
+    expect(models).toHaveLength(501)
+    const requests = http.requests.filter(request => (request.data as {Table: Array<{Name: string}>}).Table[0]?.Name === 'View_TblList')
+    expect(requests).toHaveLength(2)
+    expect(requests.map(request => (request.data as {PageParam: {index: number}}).PageParam.index)).toEqual([1, 2])
+    expect(http.requests).toHaveLength(9)
+  })
+
+  it('collects all source field pages and reads fresh source keys on the next call', async () => {
+    const {http, input, fields} = fixture()
+    fields.push(...Array.from({length: 499}, (_, index) => ({rowid: `EXTRA-${index}`, tblid: 'S-0', enname: `value${index}`, IsPKey: 0})))
+    const api = formalApi(http), models = await api.dataSpace.design.readModelBatch(input)
+    expect(models.map(model => model.primaryKey)).toEqual(['id0', 'id1'])
+    const fieldRequests = http.requests.filter(request => (request.data as {Table: Array<{Name: string}>}).Table[0]?.Name === 'Base_TblField')
+    expect(fieldRequests).toHaveLength(2)
+    expect(fieldRequests.map(request => (request.data as {PageParam: {index: number}}).PageParam.index)).toEqual([1, 2])
+    const key = fields.find(field => field['rowid'] === 'K-1')
+    if (!key) throw new Error('Missing key fixture')
+    key['IsPKey'] = 0
+    await expect(api.dataSpace.design.readModelBatch(input)).rejects.toThrow('正式来源')
+  })
+
+  it.each(['missing-source', 'duplicate-source', 'missing-key', 'multiple-keys', 'foreign-field'])(
+    'rejects the whole batch when one source is invalid: %s', async kind => {
+      const {http, input, sources, fields, tables} = fixture()
+      if (kind === 'missing-source') sources.splice(1)
+      if (kind === 'duplicate-source') sources.push({rowid: 'DUP', dbid: 'DB-1', tblname: 'Table1'})
+      if (kind === 'missing-key') tables['Base_TblField'] = fields.filter(row => row['rowid'] !== 'K-1')
+      if (kind === 'multiple-keys') fields.push({rowid: 'OTHER-KEY', tblid: 'S-1', enname: 'another', IsPKey: 1})
+      if (kind === 'foreign-field') {
+        const original = http.resolveResult
+        http.resolveResult = config => (config.data as {Table: Array<{Name: string}>}).Table[0]?.Name === 'Base_TblField'
+          ? formalResult([...fields, {rowid: 'FOREIGN', tblid: 'OTHER', enname: 'key', IsPKey: 1}]) : original?.(config)
+      }
+      await expect(formalApi(http).dataSpace.design.readModelBatch(input)).rejects.toThrow(/来源/)
+    })
+
+  it.each(['foreign-source', 'duplicate-source-id', 'duplicate-field-id', 'incomplete-source', 'incomplete-fields'])(
+    'rejects malformed combined responses: %s', async kind => {
+      const {http, input, sources, fields} = fixture()
+      const original = http.resolveResult
+      http.resolveResult = config => {
+        const table = (config.data as {Table: Array<{Name: string}>}).Table[0]?.Name
+        if (table === 'View_TblList') {
+          if (kind === 'foreign-source') return formalResult([...sources, {rowid: 'FOREIGN', dbid: 'OTHER', tblname: 'Table0'}])
+          if (kind === 'duplicate-source-id') return formalResult(sources.map(source => ({...source, rowid: 'DUP'})))
+          if (kind === 'incomplete-source') return formalResult(sources, 501)
+        }
+        if (table === 'Base_TblField') {
+          if (kind === 'duplicate-field-id') return formalResult(fields.map(field => ({...field, rowid: 'DUP'})))
+          if (kind === 'incomplete-fields') return formalResult(fields, 501)
+        }
+        return original?.(config)
+      }
+      await expect(formalApi(http).dataSpace.design.readModelBatch(input)).rejects.toThrow()
+    })
+
+  it('rejects a changed request scope while a combined source-field query is pending', async () => {
+    const {http, input} = fixture(), api = formalApi(http)
+    let release = () => {}
+    const gate = new Promise<void>(resolve => {release = resolve})
+    http.beforeResponse = async table => {if (table === 'Base_TblField') await gate}
+    const pending = api.dataSpace.design.readModelBatch(input).then(models => ({models, error: null}),
+      (error: unknown) => ({models: null, error}))
+    try {
+      await vi.waitFor(() => expect(http.requests.some(request =>
+        (request.data as {Table: Array<{Name: string}>}).Table[0]?.Name === 'Base_TblField')).toBe(true))
+      api.application.clear()
+    } finally {release()}
+    expect((await pending).error).toEqual(expect.objectContaining({message: expect.stringMatching(/SPARK_EXECUTION_SCOPE/)}))
   })
 })
 

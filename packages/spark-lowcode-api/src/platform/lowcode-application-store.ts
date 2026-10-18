@@ -16,6 +16,8 @@ export type LowcodeApplicationContext = Readonly<{
 
 /** 应用 store 配置；storage 缺省为 localStorage（非浏览器环境则无持久化）。 */
 export type LowcodeApplicationStoreOptions = Readonly<{
+  /** 应用身份变化时清理该身份的运行资源。 */
+  onScopeChange?: () => void
   storage?: LowcodeSessionStorage
   applicationKey?: string
 }>
@@ -65,10 +67,12 @@ export class LowcodeApplicationStore {
   private readonly storage: LowcodeSessionStorage | undefined
   private readonly applicationKey: string
   private executionRevision = 0
+  private readonly onScopeChange: (() => void) | undefined
 
   public get revision(): number { return this.executionRevision }
 
   public constructor(options: LowcodeApplicationStoreOptions = {}) {
+    this.onScopeChange = options.onScopeChange
     this.storage = options.storage ?? browserStorage()
     this.applicationKey = options.applicationKey ?? DEFAULT_APPLICATION_KEY
   }
@@ -93,6 +97,7 @@ export class LowcodeApplicationStore {
       || previous.application.enterpriseId !== normalized.application.enterpriseId
       || previous.application.enterpriseShortName !== normalized.application.enterpriseShortName) {
       this.executionRevision += 1
+      this.onScopeChange?.()
     }
     this.storage?.setItem(this.applicationKey, JSON.stringify(normalized))
   }
@@ -100,6 +105,7 @@ export class LowcodeApplicationStore {
   /** 清除已选应用上下文。 */
   public clear(): void {
     this.executionRevision += 1
+    this.onScopeChange?.()
     this.storage?.removeItem(this.applicationKey)
   }
 }

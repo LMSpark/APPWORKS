@@ -45,7 +45,7 @@ const routerLogger = createLogger('DynamicRouter')
 export { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from './cross-project-ref-route'
 export type { RuntimeScenarioLoadCommand } from './page-runtime-pool'
 
-type SystemPageInstanceView = Pick<SystemPageInstance, 'instanceId' | 'componentName' | 'view'>
+type SystemPageInstanceView = Pick<SystemPageInstance, 'instanceId' | 'componentName' | 'view' | 'isDirty'>
 
 function shouldLogDynamicRouteDetails(): boolean {
   if (typeof globalThis === 'undefined') return false
@@ -259,6 +259,7 @@ constructor(options: DynamicRouterOptions) {
 
   assertPageRuntimesClean(): void {
     this.runtimePool.assertPageRuntimesClean()
+    this.systemPages.assertClean()
   }
 
   disposePageRuntimes(): void {

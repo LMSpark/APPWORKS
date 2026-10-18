@@ -41,10 +41,12 @@ export class LowcodeApi {
 
   public constructor(options: LowcodeApiOptions) {
     this.session = new LowcodeSessionStore({
+      onScopeChange: () => this.dataSpace.runtime.invalidateQueryCache(),
       ...(options.sessionStorage === undefined ? {} : { storage: options.sessionStorage }),
       ...(options.sessionKey === undefined ? {} : { sessionKey: options.sessionKey }),
     })
     this.application = new LowcodeApplicationStore({
+      onScopeChange: () => this.dataSpace.runtime.invalidateQueryCache(),
       ...(options.sessionStorage === undefined ? {} : { storage: options.sessionStorage }),
       ...(options.applicationKey === undefined ? {} : { applicationKey: options.applicationKey }),
     })

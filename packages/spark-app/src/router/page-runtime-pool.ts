@@ -65,10 +65,14 @@ export class PageRuntimePool {
     const key = JSON.stringify([projectId, route.meta['nodeId'], tool.pageId, query, route.hash])
     const existing = this.pageInstances.get(key)
     if (existing && !existing.runtime.destroyed) return existing.runtime
+    const inputText = route.query['scenarioInputs']
+    if (inputText !== undefined && (typeof inputText !== 'string' || !inputText.trim())) throw new Error('scenarioInputs 必须是单个非空 JSON 参数')
+    const scenarioInputs = inputText === undefined ? undefined : PageRuntime.parseScenarioInputs(inputText)
     const page = new PageTool({ pageId: tool.pageId })
     const reader = this.options.readPageFile
     const runtime = markRaw(new PageRuntime({
       tool: page, scenarioIds: call.ids, ...(call.main === undefined ? {} : { mainScenarioId: call.main }),
+      ...(scenarioInputs === undefined ? {} : { scenarioInputs }),
       loadTool: async () => {
         if (!reader) throw new Error('未注入工具文件读取器')
         const generation = runtime.generation

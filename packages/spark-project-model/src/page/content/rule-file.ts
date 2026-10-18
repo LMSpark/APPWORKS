@@ -26,6 +26,8 @@ constructor(
   get root(): SparkNode { return this.tree.root }
   get children(): SparkNode[] { return getSparkNodeChildren(this.root.children) }
   get isDirty(): boolean { return this.getText() !== this.savedText }
+  /** 已确认保存基线；用于原工作文件提交的未知结果核验，不包含当前编辑。 */
+  getSavedText(): string { return this.savedText }
   get canUndo(): boolean { return this.tree.canUndo }
   get canRedo(): boolean { return this.tree.canRedo }
 

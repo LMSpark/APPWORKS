@@ -4,8 +4,8 @@
  * 边界：只供协议转换使用，不替代公开过滤树和场景模型身份。
  * AI用途：核对 Table、ValueFun 与分页树参数的实际请求形状。
  */
-import type { DataViewFilterJsonValue } from '@spark-appworks/spark-data'
-import type { OrderType, WireFilterOperator } from '../../../../contracts/lowcode-wire-query'
+import type { DataViewFilterJsonValue, DataViewFilterWire } from '@spark-appworks/spark-data'
+import type { OrderType } from '../../../../contracts/lowcode-wire-query'
 import type { DataSpaceQueryOptions } from '../data-space-runtime-contract'
 
 /** 协议值函数封包；Type 决定函数，JSON 扩展值原样传递。 */
@@ -50,16 +50,7 @@ export type DataSpaceWireQueryOptions = Readonly<{
 }>
 
 /** 协议条件使用 ValueFun 且 Value 固定为 null；组以 Filters 递归组合。 */
-export type DataSpaceWireFilter = Readonly<{
-  Type: 'cond'
-  Field: string
-  Operator: WireFilterOperator
-  Value: null
-  ValueFun: DataSpaceValueFunction
-}> | Readonly<{
-  Type: 'and' | 'or'
-  Filters: readonly DataSpaceWireFilter[]
-}>
+export type DataSpaceWireFilter = DataViewFilterWire
 
 /** 查询表内部描述对象，由模型身份与已转换选项构造。 */
 type DataSpaceWireQueryDescriptor = Readonly<Record<string, unknown>>

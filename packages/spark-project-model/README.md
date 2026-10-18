@@ -38,7 +38,7 @@ src/
 
 `ScenarioViewConfig` 按现有完整 `DataViewFieldProjection` 合同校验场景投影：字段标识、来源、字段引用、字符串值、布尔值、非负整数排序/分组和排序方向均须有效；未知字段类型保留原字符串，不猜测。配置中的 false、0 和空字符串原样保留。无效配置在更换内容或编辑历史前拒绝；正式模型字段是否存在仍由运行装配核对。
 
-`ProjectWorkspace` 的 `loadScenarioViews({ scenarioId })` / `getScenarioViews(scenarioId)` 持有单场景共享的 `ScenarioViewFile`，独立于页面文件和运行 DataSet。场景 gateway 提供文本读写与请求层生成的不透明代次，缺少能力明确失败；缓存和并发装载按明确场景共享，身份变化拒绝旧响应，未保存编辑阻止重载。
+`ProjectWorkspace` 的 `loadScenarioViews({ scenarioId })` / `getScenarioViews(scenarioId)` 持有单场景共享的 `ScenarioViewFile`，独立于页面文件和运行 DataSet。这些是数据层内部的文件管理能力；数据空间设计经`ScenarioDefinitionResource`接入正式元数据DataView/DataSet，业务不直接调用文件owner进行编辑、取消或保存。现行AI场景文件直改/交付仍是待迁移差距，不能用作新业务范例。场景 gateway 提供文本读写与请求层生成的不透明代次，缺少能力明确失败；缓存和并发装载按明确场景共享，身份变化拒绝旧响应，未保存编辑阻止重载。
 
 `saveScenarioViews({ scenarioId })` 比较远端原文与文件唯一的 `savedText` 基线，提交捕获的文本并回读一致后才标记保存。等待期间的新编辑保留；并发保存、远端冲突或回读不一致明确失败。该检查没有后端 CAS，不承诺原子保护，也不把失败当作后端写入已撤销。宿主网关已接到 `designfile / <appId>/SysForm/<scenarioId>/pagedata.json`；应用必须与当前请求匹配，租户目录和授权沿用现有后端规则。场景配置按明确 scenarioId 消费；页面工具不持有 DataSet 或场景编辑历史。
 
@@ -46,4 +46,4 @@ src/
 
 正式蓝图数据为 nodeId/parentNodeId/projectId/kind/capability/navigation?/dataSpace?/prototype?/source，children 只是树投影。源 VersionId 的 rule/script/style 表示发布引用，裸文件表示工作内容。
 
-`PageRuntime` 持有一次调用的 instanceId、scenarioIds 和可选 mainScenarioId；多个调用可使用同一 PageTool，但不能共享运行 DataSet。视图绑定使用 #scenarioId@table@view，局部 table@view 必须有明确主场景。装载期间销毁会清理迟到数据，脚本上下文与回执受代次和销毁边界约束。
+`PageRuntime` 持有一次调用的 instanceId、scenarioIds 和可选 mainScenarioId；多个调用可使用同一 PageTool，但不能共享运行 DataSet。新视图绑定使用`scenarioId@modelName@viewId`，模型名称按正式modelBinding.modelName解析，不以内部表键替代；局部`modelName@viewId`必须有明确主场景。装载期间销毁会清理迟到数据，脚本上下文与回执受代次和销毁边界约束。

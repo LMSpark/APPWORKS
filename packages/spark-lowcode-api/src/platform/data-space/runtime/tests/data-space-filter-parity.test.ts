@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DataViewFilter } from '@spark-appworks/spark-data'
-import { decodeDataSpaceFilter, encodeDataSpaceFilter } from '../protocol/data-space-filter'
+import { DataViewFilterCodec } from '@spark-appworks/spark-data'
 
 const operatorPairs = [
   ['eq', 'equal'], ['ne', 'notequal'], ['gt', 'greaterthan'],
@@ -31,38 +31,38 @@ describe('SPARK filter request parity', () => {
   it.each(operatorPairs)('%s maps to %s', (operator, wireOperator) => {
     const filter = DataViewFilter.condition({ field: 'Name', operator, value: 'sample' })
     const unary = ['is-null', 'is-not-null', 'is-empty', 'is-not-empty'].includes(operator)
-    expect(encodeDataSpaceFilter(filter)).toEqual({
+    expect(DataViewFilterCodec.encode(filter)).toEqual({
       Type: 'cond', Field: 'Name', Operator: wireOperator, Value: null,
       ValueFun: { Type: 'GetConstValue', Value: unary ? null : 'sample' },
     })
   })
 
   it.each(['', '  ', null, [], 0, false].map(value => ({ value })))('preserves explicit constant $value', ({ value }) => {
-    expect(encodeDataSpaceFilter(DataViewFilter.condition({ field: 'Name', operator: 'eq', value })))
+    expect(DataViewFilterCodec.encode(DataViewFilter.condition({ field: 'Name', operator: 'eq', value })))
       .toHaveProperty('ValueFun', { Type: 'GetConstValue', Value: value })
   })
 
   it('preserves extension functions and all nested parameters', () => {
     const value = { Type: 'CustomFunction', Config: { Fields: ['A', 'B'], Enabled: false } }
-    expect(encodeDataSpaceFilter(DataViewFilter.condition({ field: 'Name', operator: 'eq', value })))
+    expect(DataViewFilterCodec.encode(DataViewFilter.condition({ field: 'Name', operator: 'eq', value })))
       .toHaveProperty('ValueFun', value)
   })
 
   it('preserves empty groups and nested logic', () => {
     const filter = DataViewFilter.group({ logic: 'and', filters: [{ logic: 'or', filters: [] }] })
-    expect(encodeDataSpaceFilter(filter)).toEqual({ Type: 'and', Filters: [{ Type: 'or', Filters: [] }] })
+    expect(DataViewFilterCodec.encode(filter)).toEqual({ Type: 'and', Filters: [{ Type: 'or', Filters: [] }] })
   })
 })
 
 describe('SPARK filter definition decoding', () => {
   it.each(functionCases)('preserves the complete default function $Type through both boundaries', value => {
     const wire = { Type: 'cond', Field: 'result', Operator: 'equal', Value: null, ValueFun: value }
-    expect(decodeDataSpaceFilter(wire).toJSON()).toEqual({ field: 'result', operator: 'eq', value })
-    expect(encodeDataSpaceFilter(decodeDataSpaceFilter(JSON.stringify(wire)))).toEqual(wire)
+    expect(DataViewFilterCodec.decode(wire).toJSON()).toEqual({ field: 'result', operator: 'eq', value })
+    expect(DataViewFilterCodec.encode(DataViewFilterCodec.decode(JSON.stringify(wire)))).toEqual(wire)
   })
   it.each(operatorPairs)('decodes wire %s / %s', (operator, wireOperator) => {
     const unary = ['is-null', 'is-not-null', 'is-empty', 'is-not-empty'].includes(operator)
-    const filter = decodeDataSpaceFilter({ Type: 'cond', Field: 'Name', Operator: wireOperator,
+    const filter = DataViewFilterCodec.decode({ Type: 'cond', Field: 'Name', Operator: wireOperator,
       Value: null, ValueFun: { Type: 'GetConstValue', Value: 'sample' } })
     expect(filter.toJSON()).toEqual(unary ? { field: 'Name', operator } : { field: 'Name', operator, value: 'sample' })
   })
@@ -70,21 +70,21 @@ describe('SPARK filter definition decoding', () => {
   it.each(['', '  ', null, [], 0, false].map(value => ({ value })))('decodes explicit constant $value', ({ value }) => {
     const wire = { Type: 'cond', Field: 'Name', Operator: 'equal', Value: null,
       ValueFun: { Type: 'GetConstValue', Value: value } }
-    expect(decodeDataSpaceFilter(JSON.stringify(wire)).toJSON()).toEqual({ field: 'Name', operator: 'eq', value })
-    expect(encodeDataSpaceFilter(decodeDataSpaceFilter(wire))).toEqual(wire)
+    expect(DataViewFilterCodec.decode(JSON.stringify(wire)).toJSON()).toEqual({ field: 'Name', operator: 'eq', value })
+    expect(DataViewFilterCodec.encode(DataViewFilterCodec.decode(wire))).toEqual(wire)
   })
 
   it('preserves dynamic parameters and isolates decoded state from the definition', () => {
     const wire = { Type: 'or', Filters: [{ Type: 'cond', Field: 'Name', Operator: 'equal', Value: null,
       ValueFun: { Type: 'CustomFunction', Params: { Names: ['A'], Enabled: false } } }] }
-    const filter = decodeDataSpaceFilter(wire)
+    const filter = DataViewFilterCodec.decode(wire)
     wire.Filters[0]!.ValueFun.Params.Names.push('B')
-    expect(encodeDataSpaceFilter(filter)).toEqual({ Type: 'or', Filters: [{ Type: 'cond', Field: 'Name',
+    expect(DataViewFilterCodec.encode(filter)).toEqual({ Type: 'or', Filters: [{ Type: 'cond', Field: 'Name',
       Operator: 'equal', Value: null, ValueFun: { Type: 'CustomFunction', Params: { Names: ['A'], Enabled: false } } }] })
   })
 
   it('preserves empty groups', () => {
-    expect(decodeDataSpaceFilter({ Type: 'and', Filters: [{ Type: 'or', Filters: [] }] }).toJSON())
+    expect(DataViewFilterCodec.decode({ Type: 'and', Filters: [{ Type: 'or', Filters: [] }] }).toJSON())
       .toEqual({ logic: 'and', filters: [{ logic: 'or', filters: [] }] })
   })
 
@@ -93,7 +93,7 @@ describe('SPARK filter definition decoding', () => {
     { Type: 'GetConstValue', Value: 0, Format: 'decimal' },
   ])('preserves constant wrappers whose payload cannot be unwrapped losslessly: $Type', value => {
     const wire = { Type: 'cond', Field: 'Name', Operator: 'equal', Value: null, ValueFun: value }
-    expect(encodeDataSpaceFilter(decodeDataSpaceFilter(wire))).toEqual(wire)
+    expect(DataViewFilterCodec.encode(DataViewFilterCodec.decode(wire))).toEqual(wire)
   })
 
   it.each([
@@ -105,12 +105,13 @@ describe('SPARK filter definition decoding', () => {
     { Type: 'cond', Field: 'Name', Operator: 'equal', ValueFun: { Type: 'GetConstValue' } },
     { Type: 'cond', Field: 'Name', Operator: 'equal', ValueFun: { Type: '' } },
   ])('rejects damaged definitions instead of clearing or dropping a condition: %j', input => {
-    expect(() => decodeDataSpaceFilter(input)).toThrow()
+    expect(() => DataViewFilterCodec.decode(input)).toThrow()
   })
 
   it('rejects circular groups with a located error', () => {
     const wire: { Type: 'and'; Filters: unknown[] } = { Type: 'and', Filters: [] }
     wire.Filters.push(wire)
-    expect(() => decodeDataSpaceFilter(wire)).toThrow('$.Filters[0]')
+    expect(() => DataViewFilterCodec.decode(wire)).toThrow('$.Filters[0]')
   })
 })
+

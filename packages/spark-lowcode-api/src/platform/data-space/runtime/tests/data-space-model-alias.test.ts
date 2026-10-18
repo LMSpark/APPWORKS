@@ -4,7 +4,7 @@ import { HttpClientBase, isRecord, type HttpResponse, type RequestConfig } from 
 import { DataSpaceRuntimeApi } from '../data-space-runtime-api'
 import { DataSpaceQueryContext } from '../query/data-space-query-context'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
-import type { DataSpaceDesignApi } from '../../design/data-space-design-api'
+import { DataSpaceDesignApi } from '../../design/data-space-design-api'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 const model: FormalModel = {id:'MODEL', metaName:'Orders', name:'Orders', sourceName:'PhysicalOrders', sourceId:'RESOURCE',
@@ -21,7 +21,381 @@ function fixture(formalModel: FormalModel = model) {
   return context
 }
 describe('formal model alias query ownership', () => {
-  it.each(['view', 'call'] as const)('narrows %s output while retaining formal identity for permissions and signed saves', async source => {
+  it.each(['table', '数组'].flatMap(sourceType => ['scope', 'destroy'].map(change => ({sourceType, change}))))(
+    'offers only the bound formal query columns for $sourceType and rejects $change changes', ({sourceType, change}) => {
+    const formal = {...model, sourceType, fields: [...model.fields,
+      {...model.fields[1]!, id: 'PRIVATE', name: 'private_name', canonicalName: 'privateValue', output: false}]}
+    class NoQuery extends HttpClientBase {protected override async executeRequest(): Promise<never> {throw new Error('unexpected query')}}
+    let scope = 'original'
+    const ds = DataSet.fromJson({scenarioId: 'SCENE', tables: {Orders: {resourceType: sourceType === '数组' ? 'static-data' : 'database-table',
+      modelBinding: {modelId: 'MODEL', modelName: 'Orders'}, columns: [
+        {name: 'orderId', type: 'string', isPrimaryKey: true}, {name: 'caption', type: 'string'}, {name: 'privateValue', type: 'string'},
+        {name: 'display', type: 'string', computeExpression: 'caption + "!"'},
+      ], views: {default: {}}}}})
+    try {
+      const view = ds.getView('Orders')!
+      view.primaryKey = 'orderId'
+      new DataSpaceRuntimeApi({http: new NoQuery(), readScope: () => ({token: scope, headers: {}})})
+        .bindModelView(view, formal, sourceType === '数组' ? [{orderId: 'A', caption: 'value'}] : undefined)
+      view.fieldProjection = view.fieldProjection.filter(field => field.viewField === 'orderId')
+      const derived = view.createQueryView('derived')
+      for (const current of [view, derived]) expect(current.queryColumns.map(column => column.name)).toEqual(['orderId', 'caption'])
+      expect(view.dataTable!.columns.map(column => column.name)).toContain('privateValue')
+      expect(view.columns.map(column => column.name)).not.toContain('caption')
+      if (change === 'scope') scope = 'changed'
+      else ds.destroy()
+      for (const current of [view, derived]) expect(() => current.queryColumns).toThrow(/SCOPE|失效|destroy|销毁/i)
+    } finally {ds.destroy()}
+  })
+
+  it.each(['configured', 'cleared'])('binds a dynamic full-schema view with %s projection without adding non-output fields to the query or save contract', async projection => {
+    const hidden = {...model.fields[1]!, id: 'PRIVATE', name: 'private_name', canonicalName: 'privateValue', output: false}
+    const formal = {...model, fields: [...model.fields, hidden]}
+    class QueryHttp extends HttpClientBase {
+      readonly requests: RequestConfig[] = []
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        this.requests.push(config)
+        return {status: 200, statusText: 'OK', headers: {}, data: {Code: 200, Result: {
+          primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'ADD', data: {Count: 1, Items: [
+            {orderId: 'A', caption: 'before', lingma_sys_key: 'ROW', lingma_sys_params: {e: ['caption', 'privateValue']}},
+          ]},
+        }}}
+      }
+    }
+    const ds = DataSet.fromJson({scenarioId: 'SCENE', tables: {Orders: {
+      modelBinding: {modelId: 'MODEL', modelName: 'Orders'}, columns: [
+        {name: 'orderId', type: 'string', isPrimaryKey: true}, {name: 'caption', type: 'string'}, {name: 'privateValue', type: 'string'},
+      ], views: {default: {}},
+    }}})
+    const http = new QueryHttp(), runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})})
+    try {
+      const view = ds.getTable('Orders')!.getOrCreateView('dynamic')
+      view.commitMode = 'staged'
+      runtime.bindModelView(view, formal)
+      expect(view.columns.map(column => column.name)).not.toContain('privateValue')
+      if (projection === 'cleared') view.fieldProjection = []
+      await view.loadFromServer()
+      expect(view.rows).toMatchObject([{orderId: 'A', caption: 'before'}])
+      expect(JSON.stringify(http.requests[0]!.data)).not.toContain('private_name')
+      if (projection === 'cleared') {
+        expect(view.columns.map(column => column.name)).toContain('privateValue')
+        expect(() => fixture(formal).buildSaveRequest({changed: [{orderId: 'A', privateValue: 'bad'}]})).toThrow('SPARK_MODEL_SAVE_FIELD')
+        await expect(view.loadFromServer({fields: ['privateValue']})).rejects.toThrow('未知输出字段')
+        expect(http.requests).toHaveLength(1)
+        return
+      }
+      expect(view.getColumn('privateValue')).toBeUndefined()
+      view.updateEditingValue('A', 'privateValue', 'bad')
+      await expect(view.saveChanges()).resolves.toMatchObject({success: true, data: {savedCount: 0}})
+      view.discardPendingChanges()
+      view.updateEditingValue('A', 'caption', 'after')
+      expect(view.getEditingRow('A')?.['caption']).toBe('after')
+      view.discardPendingChanges()
+      expect(view.rows[0]?.['caption']).toBe('before')
+      expect(() => fixture(formal).buildSaveRequest({changed: [{orderId: 'A', privateValue: 'bad'}]})).toThrow('SPARK_MODEL_SAVE_FIELD')
+      await expect(view.loadFromServer({fields: ['privateValue']})).rejects.toThrow('未知输出字段')
+      expect(http.requests).toHaveLength(1)
+    } finally {ds.destroy()}
+  })
+  it('rejects a native computation named after a non-output formal field before binding', () => {
+    const formal = {...model, fields: model.fields.map(field => field.name === 'title' ? {...field, output: false} : field)}
+    const ds = DataSet.fromJson({scenarioId: 'SCENE', tables: {Orders: {modelBinding: {modelId: 'MODEL', modelName: 'Orders'},
+      columns: [{name: 'orderId', type: 'string'}, {name: 'caption', type: 'string', computeExpression: '1'}], views: {default: {}},
+    }}})
+    class EmptyHttp extends HttpClientBase {protected override async executeRequest(): Promise<never> {throw new Error('unexpected request')}}
+    try {
+      expect(() => new DataSpaceRuntimeApi({http: new EmptyHttp(), readScope: () => ({token: 'scope', headers: {}})})
+        .bindModelView(ds.getView('Orders')!, formal)).toThrow('SPARK_MODEL_COMPUTED_COLLISION')
+    } finally {ds.destroy()}
+  })
+  it.each([
+    ['Table', true], ['Join', true], ['Table', false], ['Join', false],
+  ] as const)('queries %s aggregates (grouped=%s) without adding a source key and keeps results readonly', async (outputType, grouped) => {
+    const formal = DataSpaceDesignApi.projectModel({rowid: 'MODEL', Name: 'Orders', Type: '数据库表',
+      MetaName: 'PhysicalOrders', PrimaryKeyFields: 'rowid'}, [
+      {rowid: 'KEY', dataModelId: 'MODEL', Name: 'rowid', AsName: 'orderId', FieldType: 'string', IsOutput: 1},
+      {rowid: 'DEPT', dataModelId: 'MODEL', Name: 'dept', AsName: 'department', FieldType: 'string', IsOutput: 1, Group: grouped ? 1 : 0},
+      {rowid: 'TOTAL', dataModelId: 'MODEL', Name: 'amount', AsName: 'total', FieldType: 'number', IsOutput: 1, Group: 0,
+        ValueFun: JSON.stringify({Type: 'GetGroupData', Field: 'amount', ValType: 'SUM'})},
+    ], 'rowid')
+    class AggregateHttp extends HttpClientBase {
+      readonly requests: RequestConfig[] = []
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        this.requests.push(config)
+        const body = config.data as {Table: {Fields: {Name: string}[]; OutputType: string; ChildTables?: unknown}[]}
+        if (body.Table[0]!.Fields.some(field => field.Name === 'rowid')) throw new Error('Raw primary key must not enter the aggregate projection')
+        if (body.Table[0]!.OutputType === 'Join' && !Array.isArray(body.Table[0]!.ChildTables)) {
+          return {data: {Code: 500, Message: '[500] Cannot invoke "java.util.List.stream()" because "childTables" is null', Type: 'error'},
+            status: 200, statusText: 'OK', headers: {}}
+        }
+        return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE',
+          data: {Items: [{...(grouped ? {department: 'Sales'} : {}), total: 30, lingma_sys_key: 'NOT-A-MUTATION-BASELINE',
+            lingma_sys_params: {e: ['department', 'total'], m: ['department'], d: true}}], Count: grouped ? 2 : 1}}},
+          status: 200, statusText: 'OK', headers: {}}
+      }
+    }
+    const http = new AggregateHttp(), runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})})
+    const ds = DataSet.fromJson({scenarioId: 'SCENE', tables: {Orders: {tableName: 'Orders', resourceType: 'database-table',
+      modelBinding: {modelId: 'MODEL', modelName: 'Orders'}, columns: [
+        {name: 'orderId', type: 'string', isPrimaryKey: true}, {name: 'department', type: 'string'}, {name: 'total', type: 'number'},
+      ], views: {default: {}, report: {queryConfig: {outputType, fields: grouped ? ['department', 'total'] : ['total']}}}}}})
+    const view = ds.getView('Orders', 'report')!
+    runtime.bindModelView(view, formal)
+    const definition = JSON.stringify(ds.toJson())
+    try {
+      await view.loadFromServer({page: 1, pageSize: 1})
+      expect(view.primaryKey).toBe('')
+      expect(view.getPkKey(view.rows[0]!)).toBeUndefined()
+      expect(view.rows[0]!['_pk']).toBeUndefined()
+      expect(view.fieldAccess(view.rows[0]!, 'total')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(view.fieldAccess(view.rows[0]!, 'department')).toMatchObject({read: 'masked', write: 'denied'})
+      expect(view.addActionState()).toBe('hidden')
+      expect(view.deleteActionState(view.rows[0]!)).toBe('hidden')
+      await expect(view.addRow({total: 90})).rejects.toThrow()
+      await expect(view.editRowById('fake', {total: 90})).rejects.toThrow()
+      await expect(view.saveChanges()).rejects.toThrow()
+      await view.loadFromServer({page: grouped ? 2 : 1, pageSize: 1, ...(grouped ? {sort: 'department:asc'} : {}),
+        filter: {field: 'department', operator: 'eq', value: 'Sales'}})
+      expect(http.requests).toHaveLength(2)
+      expect(http.requests[1]?.data).toMatchObject({PageParam: {index: grouped ? 2 : 1, size: 1},
+        Table: [{OutputType: outputType, Filter: {Field: 'dept'}, Fields: expect.arrayContaining([expect.objectContaining({Name: 'amount'})])}]})
+      expect(formal.primaryKey).toBe('orderId')
+      expect(ds.getView('Orders')!.primaryKey).toBe('orderId')
+      expect(JSON.stringify(ds.toJson())).toBe(definition)
+      const context = await runtime.executeQuery(view, {fields: grouped ? ['department', 'total'] : ['total'], outputType})
+      expect(() => context.prepareSaveChanges({deleted: context.rows})).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+    } finally {ds.destroy()}
+  })
+
+  it.each(['columns', 'projection', 'params'] as const)('preserves formal grouping through %s, paging and reopening without redefining model value functions', async selection => {
+    const formal = DataSpaceDesignApi.projectModel({rowid: 'MODEL', Name: 'Orders', Type: '数据库视图',
+      MetaName: 'OrderSummary'}, [
+      {rowid: 'DEPT', dataModelId: 'MODEL', Name: 'dept', AsName: 'department', FieldType: 'string', IsOutput: 1, Group: 3},
+      {rowid: 'REGION', dataModelId: 'MODEL', Name: 'region', AsName: 'area', FieldType: 'string', IsOutput: 1, group: '9'},
+      {rowid: 'YEAR', dataModelId: 'MODEL', Name: 'year', FieldType: 'number', IsOutput: 0, Group: 1},
+      {rowid: 'TOTAL', dataModelId: 'MODEL', Name: 'amount', AsName: 'total', FieldType: 'number', IsOutput: 1,
+        ValueFun: JSON.stringify({Type: 'GetGroupData', GroupTableName: 'OrderSummary', GroupField: 'dept', Field: 'amount', ValType: 'SUM'})},
+    ], '')
+    class GroupHttp extends HttpClientBase {
+      readonly requests: RequestConfig[] = []
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        this.requests.push(config)
+        return {data: {Code: 200, Result: {primaryKeyField: '', allowAdd: true, data: {Items: [
+          {department: 'Sales', area: 'North', total: 30, lingma_sys_key: 'GROUP-IS-NOT-A-ROW',
+            lingma_sys_params: {e: ['department', 'total'], m: ['area']}},
+        ], Count: 1}}}, status: 200, statusText: 'OK', headers: {}}
+      }
+    }
+    const http = new GroupHttp(), runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})})
+    const dataSet = DataSet.fromJson({scenarioId: 'SCENE', tables: {Orders: {tableName: 'Orders',
+      modelBinding: {modelId: 'MODEL', modelName: 'Orders'},
+      columns: [{name: 'department', type: 'string'}, {name: 'area', type: 'string'}, {name: 'total', type: 'number'}],
+      views: {default: {}, report: selection === 'projection' ? {fieldProjection: [
+        {fieldId: 'DEPT', source: 'resource', resourceFieldId: 'DEPT', resourceField: 'department', viewField: 'department',
+          type: 'string', label: 'Department', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false,
+          primaryKey: false, value: '', valueFunction: '', expression: ''},
+        {fieldId: 'TOTAL', source: 'resource', resourceFieldId: 'TOTAL', resourceField: 'total', viewField: 'total',
+          type: 'number', label: 'Total', output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false,
+          primaryKey: false, value: '', valueFunction: '', expression: ''},
+      ]} : {}},
+    }}})
+    const view = dataSet.getView('Orders', 'report')!
+    view.primaryKey = ''
+    runtime.bindModelView(view, formal)
+    const originalModel = JSON.stringify(formal)
+    const params = selection === 'params' ? {fields: ['department', 'total']} : {}
+    let reopened: DataSet | undefined
+    try {
+      await view.loadFromServer(params)
+      await view.loadFromServer({...params, page: 2, pageSize: 1, sort: 'department:desc',
+        filter: {field: 'department', operator: 'eq', value: 'Sales'}})
+      reopened = DataSet.fromJson(dataSet.toJson())
+      const reopenedView = reopened.getView('Orders', 'report')!
+      reopenedView.primaryKey = ''
+      runtime.bindModelView(reopenedView, formal)
+      await reopenedView.loadFromServer(params)
+      expect(http.requests).toHaveLength(3)
+      for (const request of http.requests) {
+        const body = request.data as {Table: {Fields: {Name: string; Group?: number; ValueFun?: unknown}[]}[]; OutputFieldMode: string}
+        const fields = body.Table[0]!.Fields
+        // mergeFields replaces all model groups once any explicit Group is sent, so omitted
+        // grouping dimensions (including non-output fields) must remain query dependencies.
+        expect(fields.filter(field => (field.Group ?? 0) > 0).map(field => [field.Name, field.Group]).sort()).toEqual([
+          ['dept', 3], ['region', 9], ['year', 1],
+        ])
+        expect(fields.find(field => field.Name === 'amount')).toBeDefined()
+        expect(fields.every(field => !Object.hasOwn(field, 'ValueFun'))).toBe(true)
+        expect(new Set(fields.map(field => field.Name)).size).toBe(fields.length)
+        expect(body.OutputFieldMode).toBe('REQUEST')
+      }
+      expect(http.requests[1]?.data).toMatchObject({PageParam: {index: 2, size: 1}, Table: [{
+        Filter: {Field: 'dept'}, Fields: expect.arrayContaining([{Name: 'dept', IsOutput: true, Group: 3, Order: 1, OrderType: 'descending'}]),
+      }]})
+      const row = reopenedView.rows[0]!
+      expect(row).toMatchObject({department: 'Sales', total: 30})
+      expect(reopenedView.fieldAccess(row, 'department')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(reopenedView.fieldAccess(row, 'area')).toMatchObject({read: 'masked', write: 'denied'})
+      const context = await runtime.executeQuery(reopenedView, params)
+      expect(context.allowAdd).toBe(false)
+      expect(context.rowKey(context.rows[0]!)).toBeUndefined()
+      expect(() => context.prepareSaveChanges({added: [{department: 'Other'}]})).toThrow()
+      expect(() => context.prepareSaveChanges({changed: [{department: 'Other'}]})).toThrow()
+      expect(() => context.prepareSaveChanges({deleted: [context.rows[0]!]})).toThrow()
+      expect(JSON.stringify(formal)).toBe(originalModel)
+    } finally { reopened?.destroy(); dataSet.destroy() }
+  })
+
+  it.each([true, false, 1.5, 'invalid', Infinity])('rejects invalid formal grouping %s before sending a query', async group => {
+    class NoQueryHttp extends HttpClientBase {
+      calls = 0
+      protected override async executeRequest(): Promise<HttpResponse<unknown>> {this.calls++; throw new Error('Unexpected request')}
+    }
+    const http = new NoQueryHttp(), ds = DataSet.fromJson({scenarioId: 'SCENE', tables: {Orders: {
+      tableName: 'Orders', modelBinding: {modelId: 'MODEL', modelName: 'Orders'},
+      columns: [{name: 'orderId', type: 'string'}, {name: 'caption', type: 'string'}], views: {default: {}},
+    }}})
+    try {
+      const view = ds.getView('Orders', 'default')!
+      const formal = {...model, fields: model.fields.map(field => ({...field, raw: {Group: group}}))}
+      new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})}).bindModelView(view, formal)
+      await expect(view.loadFromServer()).rejects.toThrow('SPARK_MODEL_GROUP')
+      expect(http.calls).toBe(0)
+    } finally {ds.destroy()}
+  })
+
+  it.each([
+    {override: {group: -1}, error: 'SPARK_QUERY_GROUP'},
+    {override: {valueFunction: '{"Type":"GetConstValue","Value":1}'}, error: 'SPARK_QUERY_AGGREGATE'},
+    {override: {expression: 'RULE'}, error: 'SPARK_MODEL_PROJECTION'},
+  ])('rejects invalid grouping and arbitrary formal output expressions: %j', async ({override, error}) => {
+      class NoQueryHttp extends HttpClientBase {
+        calls = 0
+        protected override async executeRequest(): Promise<HttpResponse<unknown>> {this.calls++; throw new Error('Unexpected request')}
+      }
+      const http = new NoQueryHttp(), ds = DataSet.fromJson({scenarioId: 'SCENE', tables: {Orders: {
+        tableName: 'Orders', modelBinding: {modelId: 'MODEL', modelName: 'Orders'},
+        columns: [{name: 'orderId', type: 'string'}, {name: 'caption', type: 'string'}], views: {default: {}},
+      }}})
+      try {
+        const view = ds.getView('Orders', 'default')!
+        new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})}).bindModelView(view, model)
+        await expect(view.loadFromServer({projection: [{fieldId: 'TITLE', source: 'resource', resourceFieldId: 'TITLE',
+          resourceField: 'caption', viewField: 'caption', type: 'string', label: 'Caption', output: true,
+          sortOrder: 0, sortDirection: null, group: 0, distinct: false, primaryKey: false,
+          value: '', valueFunction: '', expression: '', ...override}]})).rejects.toThrow(error)
+        expect(http.calls).toBe(0)
+      } finally {ds.destroy()}
+    })
+
+  it.each(['visible', 'masked', 'hidden', 'readonly'] as const)('saves fields with a desensitization rule according to the actual %s query permission', async mode => {
+    const fields = [
+      {rowid: 'KEY', dataModelId: 'MODEL', Name: 'rowid', AsName: 'orderId', FieldType: 'string', IsOutput: 1},
+      {rowid: 'TITLE', dataModelId: 'MODEL', Name: 'title', AsName: 'caption', FieldType: 'string', IsOutput: 1,
+        Expression: 'MASK-RULE-ID', ValueFun: ''},
+    ]
+    const formal = DataSpaceDesignApi.projectModel({rowid: 'MODEL', Name: 'Orders', Type: '数据库表',
+      MetaName: 'PhysicalOrders', PrimaryKeyFields: 'rowid'}, fields, 'rowid')
+    class RuleFieldHttp extends HttpClientBase {
+      readonly requests: RequestConfig[] = []
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        this.requests.push(config)
+        if (mode === 'readonly' && config.url !== '/api/DataOperation/GetData') {
+          return {data: {Code: 200, Extras: [{target: '更新失败字段', message: [{title: '不可写'}]}]},
+            status: 200, statusText: 'OK', headers: {}}
+        }
+        const result = config.url === '/api/DataOperation/GetData'
+          ? {primaryKeyField: 'rowid', allowAdd: false, data: {Items: [{orderId: 'A',
+            caption: mode === 'masked' ? '***' : mode === 'hidden' ? null : 'Before',
+            lingma_sys_key: 'ORIGINAL-SIGNED', lingma_sys_params: {e: mode === 'readonly' ? [] : ['caption'],
+              m: mode === 'masked' ? ['caption'] : [], h: mode === 'hidden' ? ['caption'] : []}}], Count: 1}}
+          : {maplistedit: [{PhysicalOrders: [{rowid: 'A', title: 'Accepted'}]}]}
+        return {data: {Code: 200, Result: result}, status: 200, statusText: 'OK', headers: {}}
+      }
+    }
+    const http = new RuleFieldHttp(), dataSet = DataSet.fromJson({scenarioId: 'SCENE', tables: {Orders: {
+      tableName: 'Orders', modelBinding: {modelId: 'MODEL', modelName: 'Orders'},
+      columns: [{name: 'orderId', type: 'string', isPrimaryKey: true}, {name: 'caption', type: 'string'}], views: {default: {}},
+    }}})
+    const view = dataSet.getView('Orders')!
+    view.primaryKey = formal.primaryKey
+    new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})}).bindModelView(view, formal)
+    try {
+      expect((await view.loadFromServer()).success).toBe(true)
+      expect(view.fieldAccess(view.rows[0]!, 'caption')).toMatchObject({
+        read: mode === 'hidden' ? 'invisible' : mode === 'masked' ? 'masked' : 'visible',
+        write: mode === 'readonly' ? 'denied' : 'allowed',
+      })
+      const original = {...view.rows[0]}
+      view.updateEditingValue('A', 'caption', 'Cancelled')
+      view.discardEditingRows()
+      expect(view.rows[0]).toEqual(original)
+      expect(view.hasEditingChanges()).toBe(false)
+      expect(http.requests).toHaveLength(1)
+      expect(await view.editRowById('A', {caption: 'Changed'})).toBe(true)
+      if (mode === 'readonly') {
+        await expect(view.saveChanges()).rejects.toThrow('不可写')
+        expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+        expect(view.fieldAccess(view.rows[0]!, 'caption').write).toBe('denied')
+        expect(http.requests).toHaveLength(2)
+      } else {
+        await expect(view.saveChanges()).resolves.toMatchObject({success: true, data: {savedCount: 1}})
+        expect(http.requests.at(-1)?.data).toEqual([{TableName: 'Orders', CrudModel: {Added: [], Deleted: [],
+          Changed: [{rowid: 'A', title: 'Changed', lingma_sys_key: 'ORIGINAL-SIGNED'}]}}])
+        expect(view.rows[0]).toMatchObject({orderId: 'A', caption: 'Accepted'})
+        expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+      }
+      expect(formal.fields[1]?.raw['Expression']).toBe('MASK-RULE-ID')
+      expect(fields[1]?.['Expression']).toBe('MASK-RULE-ID')
+    } finally {dataSet.destroy()}
+  })
+
+  it.each([{Type: 'GetConstValue', Value: 0}, '{"Type":"GetConstValue","Value":false}',
+    {Type: 'GetGroupData', Field: 'title', ValType: 'COUNT'}])('keeps actual ValueFun outputs protected when a rule ID is present: %j', ValueFun => {
+    const formal = DataSpaceDesignApi.projectModel({rowid: 'MODEL', Name: 'Orders', Type: '数据库表',
+      MetaName: 'PhysicalOrders', PrimaryKeyFields: 'rowid'}, [
+      {rowid: 'KEY', dataModelId: 'MODEL', Name: 'rowid', AsName: 'orderId', FieldType: 'string', IsOutput: 1},
+      {rowid: 'TITLE', dataModelId: 'MODEL', Name: 'title', AsName: 'caption', FieldType: 'string', IsOutput: 1,
+        Expression: 'MASK-RULE-ID', ValueFun},
+    ], 'rowid')
+    expect(formal.fields[1]?.computed).toBe(true)
+    const context = fixture(formal)
+    expect(context.fieldAccess('A', 'caption')).toEqual({read: 'visible', write: 'denied',
+      component: 'readonly', required: true, writeMode: 'readonly'})
+    expect(() => context.buildSaveRequest({changed: [{orderId: 'A', caption: 'Changed'}]})).toThrow('SPARK_MODEL_SAVE_FIELD')
+    expect(context.rows[0]?.['caption']).toBe('before')
+  })
+
+  it.each(['visible', 'masked', 'hidden'] as const)('presents derived aliases as readonly in existing and new rows while retaining %s reads', async mode => {
+    const formal: FormalModel = {...model, fields: model.fields.map(field => ({...field, computed: field.canonicalName === 'caption'}))}
+    const identity = {scenarioId: 'SCENE', metaName: 'Orders'}
+    const context = new DataSpaceQueryContext({identity, scope: 'scope', readScope: () => 'scope',
+      snapshot: new DataSpaceQueryTable(identity).applyResult({Result: {primaryKeyField: 'rowid', allowAdd: true,
+        lingma_sys_key: 'ADD', data: [{orderId: 'A', caption: mode === 'masked' ? '***' : 'Server output',
+          lingma_sys_key: 'ROW', lingma_sys_params: {e: ['caption'], r: ['caption'],
+            m: mode === 'masked' ? ['caption'] : [], h: mode === 'hidden' ? ['caption'] : []}}]}})})
+    context.bindFormalModel(formal)
+    const ds = DataSet.fromJson({scenarioId: 'SCENE', tables: {Orders: {tableName: 'Orders',
+      modelBinding: {modelId: 'MODEL', modelName: 'Orders'}, columns: [
+        {name: 'orderId', type: 'string', isPrimaryKey: true}, {name: 'caption', type: 'string'},
+      ], views: {default: {commitMode: 'staged'}}}}})
+    try {
+      const view = ds.getView('Orders')!
+      view.bindQueryExecutor({executeQuery: async () => context})
+      await view.loadFromServer()
+      const row = view.rows[0]!
+      expect(view.fieldAccess(row, 'caption')).toEqual({read: mode === 'hidden' ? 'invisible' : mode,
+        write: 'denied', component: mode === 'hidden' ? 'hidden' : 'readonly', required: true, writeMode: 'readonly'})
+      expect(view.columns.find(column => column.name === 'caption')?.isComputed).not.toBe(true)
+      expect(context.readFieldAccess(context.rows[0]!, 'caption')).toBe(mode === 'hidden' ? 'invisible' : mode)
+      await view.addRow({orderId: 'B'})
+      expect(view.fieldAccess(view.rows.find(row => row['orderId'] === 'B')!, 'caption')).toMatchObject({read: 'visible', write: 'denied', component: 'readonly'})
+      expect(() => context.buildSaveRequest({added: [{orderId: 'B', caption: 'Override'}]})).toThrow('SPARK_MODEL_SAVE_FIELD')
+      context.invalidate()
+      expect(() => view.fieldAccess(row, 'caption')).toThrow('SPARK_QUERY_CONTEXT_STALE')
+    } finally {ds.destroy()}
+  })
+
+  it.each(['view', 'call', 'queryConfig', 'queryView'] as const)('narrows %s output while retaining formal identity for permissions and signed saves', async source => {
     const formal: FormalModel = {...model, fields: [...model.fields,
       {id: 'EXTRA', modelId: 'MODEL', name: 'extra', canonicalName: 'extra', type: 'string',
         primaryKey: false, description: '', output: true, computed: false, order: 2, orderType: '', raw: {}}]}
@@ -54,13 +428,14 @@ describe('formal model alias query ownership', () => {
     const dataSet = DataSet.fromJson({scenarioId: 'SCENE', dataSetName: 'SCENE', tables: {Orders: {
       tableName: 'Orders', modelBinding: {modelId: 'MODEL', modelName: 'Orders'},
       columns: [{name: 'orderId', type: 'string', isPrimaryKey: true}, {name: 'caption', type: 'string'}, {name: 'extra', type: 'string'}],
-      views: {default: {}, detail: source === 'view' ? {fieldProjection: projection} : {}},
+        views: {default: {}, detail: source === 'view' ? {fieldProjection: projection} : source === 'queryConfig' || source === 'queryView' ? {queryConfig: {fields: ['caption']}} : {}},
     }}})
     const http = new ProjectionHttp()
     const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})})
-    const view = dataSet.getView('Orders', 'detail')!
+    let view = dataSet.getView('Orders', 'detail')!
     const other = dataSet.getView('Orders', 'default')!
     for (const target of [view, other]) { target.primaryKey = formal.primaryKey; runtime.bindModelView(target, formal) }
+    if (source === 'queryView') view = view.createQueryView('picker')
     const originalProjection = structuredClone(view.fieldProjection)
     try {
       await other.loadFromServer()
@@ -106,8 +481,10 @@ describe('formal model alias query ownership', () => {
     try {
       await view.loadFromServer()
       expect(http.requests[0]?.data).toMatchObject({OutputFieldMode: 'REQUEST', Table: [{Fields: [{Name: 'title', IsOutput: true}]}]})
-      expect(view.fieldAccess(view.rows[0], 'caption')).toMatchObject({read: 'visible', write: 'denied'})
-      expect(view.rows[0]?.['orderId']).toBeUndefined()
+      const row = view.rows[0]
+      if (!row) throw new Error('missing keyless query row')
+      expect(view.fieldAccess(row, 'caption')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(row['orderId']).toBeUndefined()
     } finally { dataSet.destroy() }
   })
 
@@ -285,7 +662,7 @@ describe('formal model alias query ownership', () => {
       expect.objectContaining({Name: 'title'}),
       expect.objectContaining({Name: 'items'}),
     ])
-    expect(table.Fields.every(field => typeof field === 'object' && field !== null && !('AsName' in field))).toBe(true)
+    expect(table.Fields.every((field: unknown) => typeof field === 'object' && field !== null && !('AsName' in field))).toBe(true)
     expect(view.rows).toMatchObject([{orderId: 'A', caption: 'Title', items: 'Reserved'}])
     dataSet.destroy()
   })

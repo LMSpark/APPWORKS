@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { DOMWrapper, flushPromises, mount } from '@vue/test-utils'
+import ElementPlus from 'element-plus'
 import { defineComponent, h, ref } from 'vue'
 import {
   RendererDialog,
@@ -86,6 +87,7 @@ const SparkActionStub = defineComponent({
 const ElDialogStub = defineComponent({
   props: {
     modelValue: Boolean,
+    beforeClose: Function,
   },
   setup(props, { slots }) {
     return () => h('div', { class: 'el-dialog-stub', 'data-visible': String(props.modelValue) }, [
@@ -135,6 +137,62 @@ const ElStepStub = defineComponent({
 })
 
 describe('RendererDialog, RendererDrawer and RendererSteps integration', () => {
+  it('supports reference fullscreen toggling, viewport changes, close reset and listener disposal', async () => {
+    const width = window.innerWidth
+    Object.defineProperty(window, 'innerWidth', {configurable: true, value: 1100})
+    const added = vi.spyOn(window, 'addEventListener'), removed = vi.spyOn(window, 'removeEventListener')
+    const wrapper = mount(RendererDialog, {props: {modelValue: true, title: '配置', appendToBody: true,
+      fullscreenable: true, autoFullscreenBelow: 900, resetFullscreenOnClose: true},
+      global: {plugins: [ElementPlus]}, slots: {default: () => h('span', '原草稿')}})
+    try {
+      await flushPromises()
+      const body = new DOMWrapper(document.body)
+      await body.get('[aria-label="全屏"]').trigger('click'); await flushPromises()
+      expect(body.get('.el-dialog').classes()).toContain('is-fullscreen')
+      expect(wrapper.emitted('update:fullscreen')?.at(-1)).toEqual([true])
+      expect(body.text()).toContain('原草稿')
+      await wrapper.setProps({modelValue: false}); await wrapper.setProps({modelValue: true}); await flushPromises()
+      expect(body.get('.el-dialog').classes()).not.toContain('is-fullscreen')
+      Object.defineProperty(window, 'innerWidth', {configurable: true, value: 900})
+      window.dispatchEvent(new Event('resize')); await flushPromises()
+      expect(body.get('.el-dialog').classes()).toContain('is-fullscreen')
+      expect(body.find('[aria-label="退出全屏"]').exists()).toBe(false)
+      Object.defineProperty(window, 'innerWidth', {configurable: true, value: 1100})
+      window.dispatchEvent(new Event('resize')); await flushPromises()
+      expect(body.get('.el-dialog').classes()).not.toContain('is-fullscreen')
+      const resize = added.mock.calls.find(call => call[0] === 'resize')?.[1]
+      expect(resize).toBeTypeOf('function')
+      wrapper.unmount()
+      expect(removed).toHaveBeenCalledWith('resize', resize)
+    } finally {
+      wrapper.unmount(); added.mockRestore(); removed.mockRestore()
+      Object.defineProperty(window, 'innerWidth', {configurable: true, value: width})
+    }
+  })
+  it('guards native and slot closes, reacts to unlocking, and permits explicit parent disposal', async () => {
+    let slotClose: (() => void) | undefined
+    const wrapper = mount(RendererDialog, {
+      props: {modelValue: true, closeDisabled: true},
+      slots: {default: ({close}: {close: () => void}) => {slotClose = close; return h('span', '草稿')}},
+      global: {stubs: {'el-dialog': ElDialogStub}},
+    })
+    try {
+      const dialog = wrapper.findComponent(ElDialogStub)
+      const done = vi.fn()
+      dialog.props('beforeClose')?.(done)
+      slotClose?.(); await flushPromises()
+      expect(done).not.toHaveBeenCalled()
+      expect(dialog.props('modelValue')).toBe(true)
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+      await wrapper.setProps({closeDisabled: false})
+      dialog.props('beforeClose')?.(done)
+      expect(done).toHaveBeenCalledOnce()
+      slotClose?.(); await flushPromises()
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([false])
+      await wrapper.setProps({modelValue: false, closeDisabled: true})
+      expect(dialog.props('modelValue')).toBe(false)
+    } finally {wrapper.unmount()}
+  })
   it('should keep drawer visibility in sync when API opens without external prop writeback', () => {
     const visibleValue = ref(false)
     const commitVisibleValue = vi.fn((value: boolean) => {

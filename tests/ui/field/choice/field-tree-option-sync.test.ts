@@ -62,6 +62,7 @@ function createFlatTreeOptionDataSet() {
     tables: {
       Categories: {
         tableName: 'Categories',
+        resourceType: 'static-data',
         columns: [
           { name: 'id', type: 'string' as const },
           { name: 'parentId', type: 'string' as const },

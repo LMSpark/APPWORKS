@@ -55,7 +55,7 @@ class TreeHttp extends HttpClientBase {
         lingma_sys_params: {e: ['caption'], ...restriction}}
     })
     return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: false,
-      data: {Items: rows, Count: rows.length}}}, status: 200, statusText: 'OK', headers: {}}
+      data: body['Table'][0]['OutputType'] === 'SelfRefData' ? rows : {Items: rows, Count: rows.length}}}, status: 200, statusText: 'OK', headers: {}}
   }
 }
 
@@ -82,6 +82,108 @@ function treeRows(view: ReturnType<typeof fixture>['view']) {
 }
 
 describe('formal tree view query projection', () => {
+  it('consumes JSON source node records as a complete typed collection through the same formal DataView', async () => {
+    const nodes = [
+      {id: 'settings', pid: null, name: 'settings', type: 'object', haschild: true, value: null},
+      {id: 'settings.enabled', pid: 'settings', name: 'enabled', type: 'boolean', haschild: false, value: false},
+      {id: 'settings.count', pid: 'settings', name: 'count', type: 'number', haschild: false, value: 0},
+      {id: 'settings.empty', pid: 'settings', name: 'empty', type: 'null', haschild: false, value: null},
+    ]
+    const formal: FormalModel = {...model, sourceType: 'JSON', primaryKey: 'id', fields:
+      ['id', 'pid', 'name', 'type', 'haschild', 'value'].map((name, order) => ({
+        id: name, name, canonicalName: name, modelId: 'MODEL', type: 'string', primaryKey: name === 'id',
+        description: '', output: true, computed: false, order, orderType: '', raw: {},
+      }))}
+    const requests: RequestConfig[] = []
+    const http = new class extends HttpClientBase {
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        requests.push(config)
+        if (config.url !== '/api/DataOperation/GetData') throw new Error('unexpected endpoint')
+        return {data: {Code: 200, Result: {primaryKeyField: 'id', allowAdd: false, data: {
+          Items: nodes.map(node => ({...node, lingma_sys_key: `SIGNED-${node.id}`, lingma_sys_params: {e: []}})), Count: nodes.length,
+        }}}, status: 200, statusText: 'OK', headers: {}}
+      }
+    }()
+    const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})})
+    const assembler = new LowcodeDataSpaceAssembler(runtime, http)
+    const file = new ScenarioViewFile('SCENE', JSON.stringify({scenarioId: 'SCENE', tables: {nodes: {
+      modelBinding: {modelId: 'MODEL', modelName: 'Nodes'}, views: {default: {}, tree: {
+        queryConfig: {outputType: 'SelfRefData'}, treeConfig: {idField: 'id', parentIdField: 'pid', textField: 'name'},
+      }},
+    }}}))
+    const assemble = () => assembler.assemble({config: new ScenarioViewFile('SCENE', file.getText()).value,
+      space: {dataSpaceId: 'SCENE', name: 'JSON nodes'}, models: [formal], relations: []}).dataSet
+    for (let reopened = 0; reopened < 2; reopened++) {
+      const dataSet = assemble(), view = dataSet.getView('nodes', 'tree')!
+      try {
+        expect(view.dataTable!.resourceType).toBe('json')
+        await view.loadFromServer()
+        expect(treeRows(view)).toMatchObject([{id: 'settings', children: [
+          {id: 'settings.enabled'}, {id: 'settings.count'}, {id: 'settings.empty'},
+        ]}])
+        expect(view.rows.map(row => row['value'])).toEqual([null, false, 0, null])
+        view.setSelectedRows([view.rows[1]!])
+        expect(view.getSelectedValues()).toEqual(['settings.enabled'])
+        expect(view.fieldAccess(view.rows[1]!, 'value').write).toBe('denied')
+        await view.loadFromServer({sort: 'name:asc', filter: {field: 'pid', operator: 'eq', value: 'settings'}})
+        expect(view.queryConfig).toEqual({outputType: 'SelfRefData'})
+        for (const request of requests) {
+          expect(request.data).toMatchObject({Table: [{Name: 'Nodes', OutputType: 'SelfRefData'}]})
+          expect(request.data).not.toHaveProperty('PageParam')
+          expect(request.data).not.toHaveProperty('nodeid')
+        }
+      } finally {dataSet.destroy()}
+    }
+  })
+
+  it.each(['child', 'parent'] as const)('includes %s query dependencies without requiring a tree renderer', async mode => {
+    const f = fixture()
+    delete f.view.treeConfig
+    f.view.queryConfig = {tree: {keyField: 'nodeKey', parentField: 'parentKey', nodeId: 'parent', mode}}
+    try {
+      await f.view.loadFromServer()
+      expect(f.http.requests[0]?.data).toMatchObject({OutputFieldMode: 'REQUEST',
+        keyField: 'rowid', parentField: 'parent_ref', nodeid: 'parent', type: mode,
+        Table: [{Name: 'Nodes', OutputType: 'SelfRefData', Fields: [
+          expect.objectContaining({Name: 'title'}), expect.objectContaining({Name: 'rowid'}),
+          expect.objectContaining({Name: 'parent_ref'}),
+        ]}],
+      })
+      expect(f.http.requests[0]?.data).not.toHaveProperty('PageParam')
+      expect(f.view.rows[1]).toMatchObject({nodeKey: 'child', parentKey: 'parent', caption: 'Child'})
+      expect(f.view.columns.filter(column => !column.isComputed).map(column => column.name)).toEqual(['caption'])
+      await f.view.loadFromServer({sort: 'caption:desc', filter: {field: 'caption', operator: 'contains', value: 'Child'}})
+      expect(f.http.requests[1]?.data).toMatchObject({parentField: 'parent_ref', type: mode,
+        Table: [{Fields: expect.arrayContaining([expect.objectContaining({Name: 'parent_ref'})]),
+          Filter: {Field: 'title', Operator: 'contains'}}]})
+      expect(f.view.queryConfig.tree?.mode).toBe(mode)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('uses explicit query dependencies instead of the previously configured direction fields', async () => {
+    const f = fixture()
+    delete f.view.treeConfig
+    f.view.queryConfig = {tree: {keyField: 'nodeKey', parentField: 'extra', nodeId: 'old'}}
+    try {
+      await f.view.loadFromServer({tree: {keyField: 'nodeKey', parentField: 'parentKey', nodeId: 'parent'}})
+      expect(f.http.requests[0]?.data).toMatchObject({parentField: 'parent_ref', nodeid: 'parent', Table: [{Fields: [
+        expect.objectContaining({Name: 'title'}), expect.objectContaining({Name: 'rowid'}), expect.objectContaining({Name: 'parent_ref'}),
+      ]}]})
+    } finally {f.dataSet.destroy()}
+  })
+
+  it.each(['missing', 'hidden', 'masked'] as const)('rejects %s query parent fields without a tree renderer', async kind => {
+    const f = fixture()
+    delete f.view.treeConfig
+    f.view.queryConfig = {tree: {keyField: 'nodeKey', parentField: 'parentKey', nodeId: 'parent', mode: 'parent'}}
+    f.http.problem = {field: 'parentKey', kind}
+    try {
+      await expect(f.view.loadFromServer()).rejects.toThrow('SPARK_TREE_FIELD_UNAVAILABLE')
+      expect(f.view.requestState).toBe(RequestState.Failed)
+      expect(f.view.rows).toEqual([])
+    } finally {f.dataSet.destroy()}
+  })
+
   it.each(['configured', 'call'] as const)('keeps parent-child structure with %s title-only output and saves through its signed context', async source => {
     const f = fixture()
     try {

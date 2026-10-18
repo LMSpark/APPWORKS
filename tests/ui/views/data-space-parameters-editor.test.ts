@@ -1,130 +1,143 @@
-import { mount } from '@vue/test-utils'
-import { defineComponent, h, ref, nextTick } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
-import DataSpaceParametersEditor from '../../../src/views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.vue'
-import type { DataSpaceParameterItem } from '../../../src/views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.props'
+import {config, mount, flushPromises, type VueWrapper} from '@vue/test-utils'
+import {defineComponent, h, ref} from 'vue'
+import {afterEach, describe, expect, it, vi} from 'vitest'
+import {FieldJson, PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {SparkData} from '@spark-appworks/spark-data'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
+import ElementPlus, {ElTable, ElTableColumn} from 'element-plus'
+import DataSpaceParametersEditor from '../../../src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.vue'
 
-describe('DataSpaceParametersEditor', () => {
-  it('edits aliased parameter names without changing identity or dropping unknown properties', async () => {
-    const input = [{ name: '原参数名', Description: '旧描述', RowID: 'PARAM-1', extra: { retained: true } }]
-    const wrapper = mount(DataSpaceParametersEditor, { props: { modelValue: input } })
+const cleanup: Array<() => void> = []
+const originalStubs = config.global.stubs
+afterEach(() => {cleanup.splice(0).reverse().forEach(dispose => dispose()); vi.unstubAllGlobals(); config.global.stubs = originalStubs})
+async function fixture(input: Array<Record<string, unknown>>, noCrypto = false) {
+  registerAllRenderers()
+  const stubs = {...config.global.stubs}
+  for (const name of ['el-button','el-table','el-table-column','SparkComponentRenderer','spark-component-renderer']) delete stubs[name]
+  config.global.stubs = stubs
+  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+  const ds = SparkData.createDataSet({dataSetName:'parameters',scenarioId:'META',tables:{
+    Space:{tableName:'Space',resourceType:'static-data',columns:[
+      {name:'id',type:'string',isPrimaryKey:true},{name:'inputParams',type:'string'},
+    ],views:{default:{commitMode:'staged',rows:[{id:'TARGET',inputParams:JSON.stringify(input)},{id:'OTHER',inputParams:'[]'}]}}},
+  }})
+  const runtime = new PageRuntime({pageId:'parameters',scenarioIds:['META'],loadScenario:async()=>ds})
+  await runtime.load();cleanup.push(()=>runtime.dispose())
+  const view=ds.getView('Space')!;view.setCurrentRowById('TARGET')
+  if(noCrypto)vi.stubGlobal('crypto',undefined)
+  const disabled=ref(false),pending=ref(false)
+  const Host=defineComponent({setup(){useSparkComponent({type:'r-form'}).sparkProvide(PAGE_RUNTIME,runtime)
+    return()=>h(DataSpaceParametersEditor,{dataViewKey:'META@Space@default',disabled:disabled.value,onEditingChange:(value:boolean)=>{pending.value=value}})
+  }})
+  const wrapper=mount(Host,{attachTo:document.body,global:{plugins:[ElementPlus,Spark.createPlugin()]}})
+  cleanup.push(()=>wrapper.unmount());await flushPromises()
+  return{wrapper,ds,view,runtime,disabled,pending,items:()=>JSON.parse(String(view.getEditingRow('TARGET')?.['inputParams'])) as Array<Record<string,unknown>>}
+}
+const rows=(wrapper:VueWrapper)=>wrapper.findAll('.el-table__body tbody tr')
+function input(wrapper:VueWrapper,field='Name'){return wrapper.get(field==='Name'?'.el-table__body td:nth-child(1) input':'.el-table__body td:nth-child(2) input')}
 
-    expect(wrapper.get('input[aria-label="名称 1"]').element).toHaveProperty('value', '原参数名')
-    await wrapper.get('input[aria-label="名称 1"]').setValue(' 新参数名 ')
-
-    expect(wrapper.emitted('change')?.[0]?.[0]).toEqual([
-      { name: '原参数名', Description: '旧描述', RowID: 'PARAM-1', extra: { retained: true }, Name: ' 新参数名 ' },
+describe('input parameters through the standard JSON field',()=>{
+  it('restores the reference toolbar and direct inputs without a per-row confirmation step',async()=>{
+    const f=await fixture([{rowid:'P',Name:'客户号'}])
+    expect(f.wrapper.find('[data-json-edit]').exists()).toBe(false)
+    expect(f.wrapper.find('[data-json-save-row]').exists()).toBe(false)
+    expect(f.wrapper.find('[data-json-cancel-row]').exists()).toBe(false)
+    expect(input(f.wrapper).element).toHaveProperty('value','客户号')
+    await input(f.wrapper).setValue('订单号');await flushPromises()
+    expect(f.items()).toEqual([{rowid:'P',Name:'订单号'}])
+    expect(f.view.rows[0]?.['inputParams']).toContain('客户号')
+  })
+  it('binds the original field with no parameter-copy table and writes directly to the original editing overlay',async()=>{
+    const f=await fixture([{rowid:'P',Name:'客户号'}])
+    expect(f.wrapper.getComponent(FieldJson).props()).toMatchObject({dataViewKey:'META@Space@default',dataMember:'currentRow',field:'inputParams',mode:'rows'})
+    expect(Object.keys(f.ds.tables)).toEqual(['Space'])
+    expect(f.wrapper.findAll('th').map(th=>th.text())).toEqual(['名称','描述','主业务参数'])
+    const table=f.wrapper.getComponent(ElTable)
+    expect(table.props()).toMatchObject({maxHeight:460,height:undefined})
+    const columns=f.wrapper.findAllComponents(ElTableColumn)
+    expect(columns.map(column=>column.props())).toEqual([
+      expect.objectContaining({minWidth:220}),expect.objectContaining({minWidth:260}),expect.objectContaining({minWidth:'',width:120,align:'center'}),
     ])
+    await input(f.wrapper).setValue('订单号');await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(true)
+    expect(f.items()).toEqual([{rowid:'P',Name:'订单号'}])
+    expect(f.view.rows[0]?.['inputParams']).toContain('客户号');expect(f.pending.value).toBe(false)
   })
-
-  it('keeps a historical item without an ID readable when secure ID generation is unavailable', () => {
-    vi.stubGlobal('crypto', undefined)
-    try {
-      const wrapper = mount(DataSpaceParametersEditor, { props: { modelValue: [{ Name: '历史参数名' }] } })
-      expect(wrapper.get('input[aria-label="名称 1"]').element).toHaveProperty('value', '历史参数名')
-      expect(wrapper.get('input[aria-label="名称 1"]').attributes('disabled')).toBeDefined()
-      expect(wrapper.get('[role="alert"]').text()).toContain('无 ID 参数保持只读')
-      wrapper.unmount()
-    } finally {
-      vi.unstubAllGlobals()
-    }
+  it('reads legacy names and preserves ID aliases and unknown members when editing',async()=>{
+    const f=await fixture([{name:'旧名',description:'旧描述',RowID:'PARAM-1',extra:{retained:true}}])
+    expect(input(f.wrapper).element).toHaveProperty('value','旧名')
+    expect(input(f.wrapper,'Description').element).toHaveProperty('value','旧描述')
+    await input(f.wrapper).setValue(' 新名 ');await flushPromises()
+    expect(f.items()).toEqual([{name:'旧名',description:'旧描述',RowID:'PARAM-1',extra:{retained:true},Name:' 新名 '}])
   })
-
-  it('assigns one stable rowid on first edit of a legacy item and leaves other rows unchanged', async () => {
-    const input = [{ name: '旧名', extra: '保留' }, { Id: 'EXISTING-2', Name: '已有身份' }]
-    const wrapper = mount(DataSpaceParametersEditor, { props: { modelValue: input } })
-
-    await wrapper.get('input[aria-label="名称 1"]').setValue(' 新名 ')
-    const firstPayload = wrapper.emitted('change')?.[0]?.[0]
-    expect(firstPayload).toMatchObject([
-      { name: '旧名', extra: '保留', Name: ' 新名 ', rowid: expect.stringMatching(/^[A-F0-9]{32}$/) },
-      { Id: 'EXISTING-2', Name: '已有身份' },
-    ])
-    const generatedId = firstRowId(firstPayload)
-
-    await wrapper.get('input[aria-label="名称 1"]').setValue('再次修改')
-
-    expect(firstRowId(wrapper.emitted('change')?.[1]?.[0])).toBe(generatedId)
-    expect(wrapper.emitted('change')?.[1]?.[0]).toMatchObject([
-      { name: '旧名', extra: '保留', Name: '再次修改', rowid: generatedId },
-      { Id: 'EXISTING-2', Name: '已有身份' },
-    ])
+  it('gives only the changed legacy item one stable identity and preserves it on later edits',async()=>{
+    const other={Name:'未编辑',extra:0};const f=await fixture([{name:'旧名',extra:'保留'},other])
+    await input(f.wrapper).setValue('新名');await flushPromises()
+    const id=f.items()[0]?.['rowid'];expect(id).toMatch(/^[A-F0-9]{32}$/);expect(f.items()[1]).toEqual(other)
+    await input(f.wrapper).setValue('再次修改');await flushPromises()
+    expect(f.items()[0]?.['rowid']).toBe(id)
   })
-
-  it('does not generate IDs or changes when the editor opens without interaction', () => {
-    const wrapper = mount(DataSpaceParametersEditor, { props: { modelValue: [{ Name: '旧参数' }] } })
-
-    expect(wrapper.get('input[aria-label="名称 1"]').element).toHaveProperty('value', '旧参数')
-    expect(wrapper.emitted('change')).toBeUndefined()
+  it('leaves original bytes and legacy IDs untouched on opening and unchanged input',async()=>{
+    const f=await fixture([{Name:'旧参数'}]);const original=' [ { "Name": "旧参数" } ] '
+    f.view.replaceRows([{id:'TARGET',inputParams:original}]);await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+    await input(f.wrapper).setValue('旧参数');await flushPromises()
+    expect(f.view.getEditingRow('TARGET')?.['inputParams']).toBe(original);expect(f.view.hasEditingChanges()).toBe(false)
   })
-
-  it('toggles the business parameter from the native checkbox control', async () => {
-    const Host = defineComponent({
-      setup() {
-        const items = ref<DataSpaceParameterItem[]>([{ rowid: 'PARAM-1', Name: '客户号', IsBusParam: false }])
-        return () => h(DataSpaceParametersEditor, { modelValue: items.value,
-          onChange: (nextItems: DataSpaceParameterItem[]) => { items.value = nextItems } })
-      },
-    })
-    const wrapper = mount(Host)
-    await wrapper.get('input[type="checkbox"]').setValue(true)
-    await nextTick()
-
-    expect(wrapper.get('input[type="checkbox"]').element).toHaveProperty('checked', true)
-    expect(wrapper.findComponent(DataSpaceParametersEditor).emitted('change')?.[0]?.[0])
-      .toMatchObject([{ IsBusParam: true }])
-    wrapper.unmount()
+  it('changes only the boolean member and retains unknown types',async()=>{
+    const f=await fixture([{rowid:'P',Name:'客户',IsBusParam:0,unknown:[false,null,0]}])
+    await f.wrapper.get('.el-table__body input[type="checkbox"]').setValue(true);await flushPromises()
+    expect(f.items()).toEqual([{rowid:'P',Name:'客户',IsBusParam:true,unknown:[false,null,0]}])
   })
-
-  it('keeps the same focused input after the first edit assigns a legacy row ID', async () => {
-    const Host = defineComponent({
-      setup() {
-        const items = ref<DataSpaceParameterItem[]>([{ Name: '' }])
-        return () => h(DataSpaceParametersEditor, { modelValue: items.value,
-          onChange: (nextItems: DataSpaceParameterItem[]) => { items.value = nextItems } })
-      },
-    })
-    const wrapper = mount(Host, { attachTo: document.body })
-    const input = document.body.querySelector<HTMLInputElement>('input[aria-label="名称 1"]')
-    if (!input) throw new Error('parameter input is missing')
-    input.focus()
-    input.value = 'x'
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
-
-    expect(document.activeElement).toBe(input)
-    expect(wrapper.get('input[aria-label="名称 1"]').element).toBe(input)
-    wrapper.unmount()
+  it('adds a parameter with a secure ID and domain defaults, then deletes the selected item',async()=>{
+    const f=await fixture([])
+    await f.wrapper.get('[data-json-add]').trigger('click');await flushPromises()
+    await input(f.wrapper).setValue('new');await flushPromises()
+    expect(f.items()).toEqual([{rowid:expect.stringMatching(/^[A-F0-9]{32}$/),Name:'new',Description:'',IsBusParam:false}])
+    await rows(f.wrapper)[0]!.trigger('click');await f.wrapper.get('[data-json-delete]').trigger('click');await flushPromises()
+    expect(f.items()).toEqual([])
   })
-
-  it('keeps list keys unique when deleting a preceding row after a legacy edit', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const Host = defineComponent({
-      setup() {
-        const items = ref<DataSpaceParameterItem[]>([
-          { rowid: 'EXISTING-X', Name: '先删除' }, { Name: '旧参数A' }, { Name: '旧参数B' },
-        ])
-        return () => h(DataSpaceParametersEditor, { modelValue: items.value,
-          onChange: (nextItems: DataSpaceParameterItem[]) => { items.value = nextItems } })
-      },
-    })
-    const wrapper = mount(Host, { attachTo: document.body })
-    await wrapper.get('input[aria-label="名称 2"]').setValue('编辑后的A')
-    await wrapper.get('button[aria-label="删除参数 1"]').trigger('click')
-
-    expect(warn.mock.calls.flat().join(' ')).not.toContain('Duplicate keys')
-    const names = Array.from(document.body.querySelectorAll<HTMLInputElement>('input[aria-label^="名称 "]'), input => input.value)
-    expect(names).toEqual(['编辑后的A', '旧参数B'])
-    wrapper.unmount()
-    warn.mockRestore()
+  it('restores the original array when the bound field is cancelled',async()=>{
+    const f=await fixture([{Name:'old'}])
+    await input(f.wrapper).setValue('discard');await flushPromises()
+    await f.wrapper.get('[data-json-add]').trigger('click');await flushPromises()
+    expect(f.items()).toHaveLength(2)
+    f.view.discardEditingRows(['TARGET']);await flushPromises()
+    expect(f.items()).toEqual([{Name:'old'}]);expect(f.pending.value).toBe(false)
+    expect(rows(f.wrapper)).toHaveLength(1)
+  })
+  it('keeps no-ID records readable and prevents unsafe creation when secure IDs are unavailable',async()=>{
+    const f=await fixture([{Name:'legacy'},{Id:'P',Name:'existing'}],true)
+    expect(input(f.wrapper).element).toHaveProperty('value','legacy');expect(f.wrapper.get('[data-json-add]').attributes('disabled')).toBeDefined()
+    expect(input(f.wrapper).attributes('disabled')).toBeDefined()
+    await rows(f.wrapper)[1]!.get('td:first-child input').setValue('allowed');await flushPromises()
+    expect(f.items()).toEqual([{Name:'legacy'},{Id:'P',Name:'allowed'}])
+  })
+  it('prevents edits after readonly or target changes and releases only its local editor',async()=>{
+    const f=await fixture([{rowid:'P',Name:'original'}])
+    f.disabled.value=true;await flushPromises();expect(input(f.wrapper).attributes('disabled')).toBeDefined()
+    await input(f.wrapper).setValue('forbidden');await flushPromises();expect(f.view.hasEditingChanges()).toBe(false)
+    f.disabled.value=false;await flushPromises();await input(f.wrapper).setValue('accepted');await flushPromises()
+    f.view.setCurrentRowById('OTHER');await flushPromises()
+    expect(f.items()).toEqual([{rowid:'P',Name:'accepted'}]);expect(rows(f.wrapper)).toHaveLength(0)
+    expect(f.view.getEditingRow('OTHER')?.['inputParams']).toBe('[]')
+    f.wrapper.unmount();expect(f.view.destroyed).toBe(false);expect(Object.keys(f.ds.tables)).toEqual(['Space'])
+  })
+  it('keeps the focused input and selected row while a legacy identity is assigned and later input arrives',async()=>{
+    const f=await fixture([{Name:'old'}])
+    await rows(f.wrapper)[0]!.trigger('click');await flushPromises()
+    const element=input(f.wrapper).element as HTMLInputElement;element.focus()
+    await input(f.wrapper).setValue('new');await flushPromises()
+    const id=f.items()[0]?.['rowid']
+    await input(f.wrapper).setValue('newer');await flushPromises()
+    expect(input(f.wrapper).element).toBe(element);expect(document.activeElement).toBe(element)
+    expect(f.items()[0]?.['rowid']).toBe(id)
+    expect(f.wrapper.get('[data-json-delete]').attributes('disabled')).toBeUndefined()
+  })
+  it('clears selection when the original field is externally reordered',async()=>{
+    const f=await fixture([{rowid:'A',Name:'first'},{rowid:'B',Name:'second'}])
+    await rows(f.wrapper)[0]!.trigger('click');await flushPromises();expect(f.wrapper.get('[data-json-delete]').attributes('disabled')).toBeUndefined()
+    f.view.updateEditingValue('TARGET','inputParams',JSON.stringify(f.items().reverse()));await flushPromises()
+    expect(f.wrapper.get('[data-json-delete]').attributes('disabled')).toBeDefined()
   })
 })
-
-function firstRowId(value: unknown): string {
-  if (!Array.isArray(value)) throw new Error('parameter editor did not emit an array')
-  const first = value[0]
-  if (!first || typeof first !== 'object' || !('rowid' in first) || typeof first.rowid !== 'string') {
-    throw new Error('parameter editor did not emit a stable rowid')
-  }
-  return first.rowid
-}

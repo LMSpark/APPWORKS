@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h, nextTick, reactive } from 'vue'
-import { FieldText, FieldCheckbox, FieldSlider, FieldRate, FieldColor, FieldMention } from '@spark-appworks/spark-component'
+import { FieldText, FieldCheckbox, FieldSlider, FieldRate, FieldColor, FieldMention, FieldNumber } from '@spark-appworks/spark-component'
 import { DATA_ROW, DATA_SOURCE, SPARK_REGISTRY_KEY, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 import { SUBTREE_FIELD_POLICY } from '../../../../packages/spark-component/src/permission'
 import { SparkData, type DataView } from '@spark-appworks/spark-data'
 import { mountFieldInContext } from '../../../support/helpers/mount-field-in-context'
 import { mount } from '@vue/test-utils'
+import ElementPlus, { ElForm, ElInputNumber } from 'element-plus'
 import { DataSpaceQueryTable } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import { DataSpaceQueryContext } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import { DataSpaceDesignApi } from '../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api'
 
 const ElFormItemStub = defineComponent({
   props: ['label', 'prop', 'rules'],
@@ -89,7 +91,8 @@ const ElMentionStub = defineComponent({
   },
 })
 
-async function createCurrentRowDataView(row: Record<string, unknown>, failOnRefresh = false): Promise<DataView> {
+async function createCurrentRowDataView(row: Record<string, unknown>, failOnRefresh = false,
+  formalModel?: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>): Promise<DataView> {
   const dataSet = SparkData.createDataSet({
     dataSetName: 'FieldBasicValueControlsDS',
     scenarioId: 'SCENE',
@@ -118,9 +121,10 @@ async function createCurrentRowDataView(row: Record<string, unknown>, failOnRefr
   if (!view) throw new Error('测试 DataView 创建失败: Fields@default')
   const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Fields' })
   const result = new DataSpaceQueryContext({ identity: table.identity, scope: 'field', readScope: () => 'field',
-    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', data: { Items: [{
+    snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd: formalModel !== undefined, data: { Items: [{
       id: 'current', lingma_sys_params: { e: ['name', 'assignee'], d: false }, ...row,
     }], Count: 1 } } }) })
+  if (formalModel) result.bindFormalModel(formalModel)
   let loads = 0
   view.bindQueryExecutor({ executeQuery: async () => {
     if (loads++ > 0 && failOnRefresh) throw new Error('query failed')
@@ -172,6 +176,61 @@ function mountBasicField(
 }
 
 describe('基础值字段组件', () => {
+  it.each([false, true])('FieldNumber consumes step and control placement through standard value binding (range=%s)', async range => {
+    const model = reactive({amount: range ? [2, 8] : 2})
+    const wrapper = mountFieldInContext({component: FieldNumber, type: 'r-number', model, fieldName: 'amount',
+      componentProps: {step: 3, controlsPosition: 'right', min: 0, max: 10, ...(range ? {filterMode: 'range'} : {})},
+      global: {plugins: [ElementPlus], components: {'el-input-number': ElInputNumber}, stubs: {'el-form-item': ElFormItemStub}}})
+    try {
+      const inputs = wrapper.findAllComponents(ElInputNumber)
+      expect(inputs).toHaveLength(range ? 2 : 1)
+      for (const input of inputs) {
+        expect(input.props('step')).toBe(3); expect(input.props('controlsPosition')).toBe('right')
+      }
+      await inputs[0]!.get('.el-input-number__increase').trigger('mousedown', {button: 0}); document.dispatchEvent(new MouseEvent('mouseup')); await nextTick()
+      expect(model.amount).toEqual(range ? [5, 8] : 5)
+      if (range) {
+        await inputs[1]!.get('.el-input-number__decrease').trigger('mousedown', {button: 0}); document.dispatchEvent(new MouseEvent('mouseup')); await nextTick()
+        expect(model.amount).toEqual([5, 5])
+      }
+    } finally {wrapper.unmount()}
+  })
+  it.each(['existing', 'new'] as const)('FieldText consumes formal derived output constraints for %s rows without disabling ordinary inputs', async kind => {
+    const formal = DataSpaceDesignApi.projectModel({rowid: 'MODEL', Name: 'Fields', Type: '数据库表',
+      MetaName: 'PhysicalFields', PrimaryKeyFields: 'id'}, [
+      {rowid: 'ID', dataModelId: 'MODEL', Name: 'id', FieldType: 'string', IsOutput: 1},
+      {rowid: 'NAME', dataModelId: 'MODEL', Name: 'rawName', AsName: 'name', FieldType: 'string', IsOutput: 1,
+        ValueFun: {Type: 'GetConstValue', Value: 0}},
+      {rowid: 'ASSIGNEE', dataModelId: 'MODEL', Name: 'assignee', FieldType: 'string', IsOutput: 1},
+    ], 'id')
+    const view = await createCurrentRowDataView({name: 'Server output', assignee: ''}, false, formal)
+    if (kind === 'new') {
+      await view.addRow({id: 'new'})
+      view.setCurrentRow(view.rows.find(row => row['id'] === 'new')!)
+    }
+    const {registry, rootContext} = Spark.createSystem()
+    const Provider = defineComponent({setup() {
+      const {sparkProvide} = useSparkComponent({type: 'r-form'}, {parentContext: rootContext})
+      sparkProvide(DATA_SOURCE, view)
+      return () => h('div', [h(FieldText, {field: 'name'}), h(FieldText, {field: 'assignee'})])
+    }})
+    const wrapper = mount(Provider, {global: {provide: {[SPARK_REGISTRY_KEY]: registry},
+      stubs: {'el-form-item': ElFormItemStub, 'el-input': ElInputStub}}})
+    try {
+      const [derived, ordinary] = wrapper.findAllComponents(ElInputStub)
+      expect(derived!.props('disabled')).toBe(true)
+      expect(ordinary!.props('disabled')).toBe(false)
+      derived!.vm.$emit('update:modelValue', 'Cannot overwrite')
+      ordinary!.vm.$emit('update:modelValue', 'Alice')
+      await nextTick()
+      expect(readCurrentFieldValue(view, 'name')).toBe(kind === 'new' ? undefined : 'Server output')
+      expect(readCurrentFieldValue(view, 'assignee')).toBe('Alice')
+      view.discardEditingRows()
+      await nextTick()
+      expect(readCurrentFieldValue(view, 'assignee')).toBe(kind === 'new' ? undefined : '')
+    } finally {wrapper.unmount(); view.dataSet?.destroy()}
+  })
+
   it('FieldText 应继续将输入值写回 contextData', async () => {
     const model = reactive<Record<string, unknown>>({ name: '' })
     const wrapper = mountBasicField(FieldText, 'r-text', model, 'name')
@@ -327,6 +386,50 @@ describe('基础值字段组件', () => {
 })
 
 describe('原查询字段双通道呈现', () => {
+  it.each([true, false])('form disabled only restricts the original field permission (editable=%s)', async (editable) => {
+    const view = await createCurrentRowDataView({ name: 'original',
+      lingma_sys_params: { e: editable ? ['name'] : [], d: false },
+    })
+    const state = reactive({ disabled: true })
+    const { registry, rootContext } = Spark.createSystem()
+    const Provider = defineComponent({ setup() {
+      const { sparkProvide } = useSparkComponent({ type: 'r-form' }, { parentContext: rootContext })
+      sparkProvide(DATA_SOURCE, view)
+      return () => h(ElForm, { disabled: state.disabled }, {
+        default: () => h(FieldText, { type: 'r-text', field: 'name' }),
+      })
+    } })
+    const wrapper = mount(Provider, { global: {
+      provide: { [SPARK_REGISTRY_KEY]: registry },
+      stubs: { 'el-input': ElInputStub, 'el-form-item': ElFormItemStub },
+    } })
+    try {
+      const input = wrapper.findComponent(ElInputStub)
+      expect(input.props('disabled')).toBe(true)
+      input.vm.$emit('update:modelValue', 'blocked')
+      await nextTick()
+      expect(view.hasEditingChanges()).toBe(false)
+      expect(view.fieldAccess(view.currentRow, 'name').write === 'allowed').toBe(editable)
+
+      state.disabled = false
+      await nextTick()
+      expect(input.props('disabled')).toBe(!editable)
+      input.vm.$emit('update:modelValue', 'explicit edit')
+      await nextTick()
+      expect(readCurrentFieldValue(view, 'name')).toBe(editable ? 'explicit edit' : 'original')
+
+      state.disabled = true
+      await nextTick()
+      input.vm.$emit('update:modelValue', 'blocked again')
+      await nextTick()
+      expect(readCurrentFieldValue(view, 'name')).toBe(editable ? 'explicit edit' : 'original')
+      expect(view.currentRow?.['name']).toBe('original')
+    } finally {
+      wrapper.unmount()
+      view.destroy()
+    }
+  })
+
   async function fixture(failOnRefresh = false) {
     return createCurrentRowDataView({ name: null, phone: null, secret: null,
       lingma_sys_params: { e: ['name', 'phone'], r: ['name'], h: ['name', 'secret'], m: ['phone'], d: false },

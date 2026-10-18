@@ -8,7 +8,7 @@ vi.mock('element-plus', () => ({ ElMessageBox: { confirm: fixture.confirm } }))
 vi.mock('@/services/project-model-artifacts', () => ({ createRuleJsonSchema: () => ({}), createRuleTreePolicy: () => ({}) }))
 vi.mock('@/views/app/dev-system/composables/useDevFileEditor', () => ({
   useDevFileEditor: (state: { dirty: ReturnType<typeof ref<boolean>> }) => ({
-    isDirty: state.dirty, isReady: ref(true), text: ref(''),
+    isDirty: state.dirty, isUnconfirmed: ref(false), isReady: ref(true), text: ref(''),
     isFileDirty: () => state.dirty.value, save: fixture.save, refresh: vi.fn(),
   }),
 }))

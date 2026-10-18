@@ -18,6 +18,23 @@ afterEach(() => {
 })
 
 describe('Vue page registry', () => {
+  it.each([
+    '/features/data-platform/data-set-management/ui/data-set-list-page',
+    '/features/data-platform/data-set-management/design/ui/data-set-design-page',
+  ])('resolves the unchanged native navigation path to its matching source: %s', path => {
+    const entry = getVuePageEntry(path)
+    expect(entry?.source).toBe(`src/views${path}.vue`)
+    expect(entry?.scope).toBe('app')
+    expect(entry?.shellTool).toBe(false)
+    expect(typeof entry?.load).toBe('function')
+  })
+
+  it('keeps the existing design URL on the same loader without a second page implementation', () => {
+    const entry = getVuePageEntry('/features/data-platform/data-set-management/design/ui/data-set-design-page')
+    expect(entry).toBeDefined()
+    expect(getVuePageEntry('/data-space-design')?.load).toBe(entry?.load)
+  })
+
   it('binds JSON page declarations to route metadata', () => {
     const publicPaths = getPublicPaths()
     const navTree = buildPreAuthNavTree()

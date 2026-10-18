@@ -195,7 +195,7 @@ describe('system page identity pool', () => {
     await router.push('/t/acme/project/dashboard?b=&a=1&a=2&__sparkNavigationId=system-node#x')
     const reordered = dynamic.getSystemPageInstance(router.currentRoute.value)
     expect(reordered?.instanceId).toBe(first?.instanceId)
-    expect(Object.keys(reordered ?? {}).sort()).toEqual(['componentName', 'instanceId', 'view'])
+    expect(Object.keys(reordered ?? {}).sort()).toEqual(['componentName', 'instanceId', 'isDirty', 'view'])
     expect(first?.view).toBeDefined()
   })
 

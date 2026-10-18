@@ -17,7 +17,7 @@ describe('pageDesign formal workflow contract', () => {
     expect(prompt).toContain('ScenarioViewFile')
     expect(prompt).toContain('loadScenarioViews({ scenarioId: "SCENE-A" })')
     expect(prompt).toContain('views.setText')
-    expect(prompt).toContain('#scenarioId@table@view')
+    expect(prompt).toContain('#scenarioId@modelName@viewId')
     expect(prompt).toContain('mainScenarioId')
     expect(prompt).not.toContain('pagedata.json')
     expect(prompt).not.toContain('ConfigPageNode')

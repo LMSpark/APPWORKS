@@ -2,10 +2,10 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
-import DataSpaceDesignGraph from '../../../../src/views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.vue'
-import type { DataSpaceDesignGraphProps } from '../../../../src/views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.props'
+import GraphCanvas from '../../../../packages/spark-component/src/components/containers/data-views/RendererGraph/GraphCanvas.vue'
+import type { GraphCanvasProps } from '../../../../packages/spark-component/src/components/containers/data-views/RendererGraph/GraphCanvas.types'
 
-const firstGraph: DataSpaceDesignGraphProps = {
+const firstGraph: GraphCanvasProps = {
   nodes: [
     { id: 'MODEL-1', x: -10, y: 20, title: '模型甲', description: '甲描述' },
     { id: 'MODEL-2', x: 300, y: 180, title: '模型乙', description: '乙描述' },
@@ -15,16 +15,16 @@ const firstGraph: DataSpaceDesignGraphProps = {
   ] }],
 }
 
-const secondGraph: DataSpaceDesignGraphProps = {
+const secondGraph: GraphCanvasProps = {
   nodes: [{ id: 'MODEL-1', x: 900, y: 700, title: '隔离模型', description: '隔离描述' }],
   edges: [],
 }
 
-describe('data-space design graph component', () => {
+describe('standard graph internal drawing primitive', () => {
   it('emits a moved center and connected polyline while keeping the fixed end', async () => {
     vi.stubGlobal('ResizeObserver', class { public observe(): void {} public unobserve(): void {} public disconnect(): void {} })
     const input = JSON.stringify(firstGraph)
-    const wrapper = mount(DataSpaceDesignGraph, {props: {...firstGraph, contextKey: 'SPACE:1', disabled: false}})
+    const wrapper = mount(GraphCanvas, {props: {...firstGraph, contextKey: 'SPACE:1', disabled: false}})
     await flushPromises()
     const flow = wrapper.findComponent(VueFlow)
     flow.vm.$emit('nodeDragStart', {node: {id: 'MODEL-1', position: {x: -126, y: -40}}})
@@ -45,7 +45,7 @@ describe('data-space design graph component', () => {
       {id: 'IN', source: 'B', target: 'A', pointsList: [{x: 100, y: 0}, {x: 0, y: 0}]},
       {id: 'SELF', source: 'A', target: 'A', pointsList: [{x: 0, y: 0}, {x: 10, y: 20}, {x: 0, y: 0}]},
     ]
-    const wrapper = mount(DataSpaceDesignGraph, {props: {nodes, edges, contextKey: 'K', disabled: false}})
+    const wrapper = mount(GraphCanvas, {props: {nodes, edges, contextKey: 'K', disabled: false}})
     await flushPromises()
     const flow = wrapper.findComponent(VueFlow)
     flow.vm.$emit('nodeDragStart', {node: {id: 'A', position: {x: -116, y: -60}}})
@@ -95,8 +95,8 @@ describe('data-space design graph component', () => {
         const firstMounted = ref(true)
         setFirstMounted = value => { firstMounted.value = value }
         return () => h('main', [
-          firstMounted.value ? h(DataSpaceDesignGraph, { ...firstGraph, key: 'first' }) : null,
-          h(DataSpaceDesignGraph, { ...secondGraph, key: 'second' }),
+          firstMounted.value ? h(GraphCanvas, { ...firstGraph, key: 'first' }) : null,
+          h(GraphCanvas, { ...secondGraph, key: 'second' }),
         ])
       },
     })

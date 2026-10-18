@@ -1,233 +1,137 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { DOMWrapper, flushPromises, mount } from '@vue/test-utils'
-import ElementPlus, { ElInput, ElSelect } from 'element-plus'
-import type { DataViewFilterFunctionContext } from '@spark-appworks/spark-data'
-import { FilterValueFunctionDialog } from '@spark-appworks/spark-component'
-import DataSpaceValueFunctionEditor from '@/views/app/control/data-platform/data-space/design/expression/DataSpaceValueFunctionEditor.vue'
+import {afterEach, describe, expect, it} from 'vitest'
+import {DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {computed, defineComponent, h, ref} from 'vue'
+import ElementPlus, {ElSelect, ElTabs} from 'element-plus'
+import JsonTreeEditor from '../../../../packages/spark-component/src/components/editors/JsonTreeEditor.vue'
+import {DataViewFilter, SparkData, getDataViewFilterFunctionDefinitions, type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {FieldValueFunction, FilterValueFunctionDialog, PAGE_RUNTIME, RendererForm, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 
-const wrappers: ReturnType<typeof mount>[] = []
-const tables: NonNullable<DataViewFilterFunctionContext['tables']> = [{
-  name: 'Orders', label: '订单', fields: [{ name: 'Id', label: '编号' }],
-}]
+const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = []
+const tables = [{name: 'Orders', label: '订单', fields: [{name: 'Id', label: '编号'}]}]
+afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); runtimes.splice(0).forEach(runtime => runtime.dispose())})
 
-afterEach(() => { wrappers.splice(0).forEach(wrapper => wrapper.unmount()) })
-
-function editor(modelValue?: string | null, functionContext?: DataViewFilterFunctionContext) {
-  const wrapper = mount(DataSpaceValueFunctionEditor, {
-    attachTo: document.body,
-    props: {
-      contextKey: 'design:SPACE-1:MODEL-1:FIELD-1',
-      ...(modelValue !== undefined ? { modelValue } : {}),
-      ...(functionContext !== undefined ? { functionContext } : {}),
-    },
-    global: { plugins: [ElementPlus] },
+async function editor(value = '', options: DataViewFilterFunctionContext = {}, source = false) {
+  registerAllRenderers()
+  const dataSet = SparkData.fromJson({scenarioId: 'C', dataSetName: 'Definitions', tables: {
+    Fields: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'ValueFun', type: 'string'}],
+      views: {default: {commitMode: 'staged', rows: [{id: 'first', ValueFun: value}, {id: 'second', ValueFun: value}]}}},
+  }})
+  const runtime = new PageRuntime({pageId: 'function-binding', scenarioIds: ['C'], loadScenario: async () => dataSet})
+  await runtime.load(); runtimes.push(runtime)
+  const view = dataSet.getView('Fields')!, context = ref(options), readonly = ref(false), sourceInput = ref(source)
+  view.setCurrentRowById('first')
+  const directory = computed(() => {
+    const normalized = DataViewFilter.editorContext(context.value)
+    return !sourceInput.value ? normalized : {...normalized, definitions: (normalized.definitions ?? []).map(item => ({...item,
+      enabled: () => ['GetInputParam', 'GetConstValue'].includes(item.type)}))}
   })
-  wrappers.push(wrapper)
-  return wrapper
+  const host = defineComponent({setup() {
+    const {sparkProvide} = useSparkComponent({type: 'function-binding-test'})
+    sparkProvide(PAGE_RUNTIME, runtime)
+    return () => h(RendererForm, {dataViewKey: 'C@Fields@default', autoColumns: false, showDataViewMeta: false},
+      () => h(FieldValueFunction, {dataViewKey: 'C@Fields@default', dataMember: 'currentRow', field: 'ValueFun', label: '值函数',
+        functionContext: directory.value, readonly: readonly.value}))
+  }})
+  const wrapper = mount(host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {JsonTreeEditor: true}}})
+  wrappers.push(wrapper); await flushPromises()
+  const open = async () => {await wrapper.get('[data-function-open]').trigger('click'); await flushPromises(); return wrapper.getComponent(FilterValueFunctionDialog)}
+  const cancel = async () => {wrapper.getComponent(FilterValueFunctionDialog).vm.$emit('update:modelValue', false); await flushPromises()}
+  const confirm = async () => {await new DOMWrapper(document.body).get('[data-function-confirm]').trigger('click'); await flushPromises()}
+  const current = () => view.getEditingRow('first')?.['ValueFun']
+  return {wrapper, view, context, readonly, sourceInput, open, cancel, confirm, current}
 }
 
-function clickButtonText(body: DOMWrapper<Element>, text: string): Promise<void> {
-  const button = body.findAll('button').find(item => item.text().includes(text))
-  if (!button) throw new Error(`missing button: ${text}`)
-  return button.trigger('click')
-}
+describe('data-space value functions through standard DataView binding', () => {
+  it('retains legacy source text until an unambiguous declared parameter is explicitly selected', async () => {
+    const original = ' {"Type":"SystemData","ParamName":"UserID","Extra":false} '
+    const f = await editor(original, {inputParams: [{label: '业务用户', value: 'UserID'}], tables}, true)
+    let dialog = await f.open()
+    expect(getDataViewFilterFunctionDefinitions(dialog.props('context')).map(item => item.type)).toEqual(['GetInputParam', 'GetConstValue'])
+    expect(dialog.props('value')).toMatchObject({Type: 'SystemData', ParamName: 'UserID'})
+    await f.cancel(); expect(f.current()).toBe(original); expect(f.view.hasEditingChanges()).toBe(false)
+    dialog = await f.open(); dialog.getComponent(ElTabs).vm.$emit('update:modelValue', 'GetInputParam'); await flushPromises()
+    const parameter = dialog.getComponent(ElSelect)
+    await f.confirm(); expect(f.view.hasEditingChanges()).toBe(false)
+    parameter.vm.$emit('update:modelValue', 'not-declared'); await f.confirm(); expect(f.view.hasEditingChanges()).toBe(false)
+    parameter.vm.$emit('update:modelValue', 'UserID'); await f.confirm()
+    expect(f.current()).toBe('{"Type":"GetInputParam","ParamName":"UserID"}')
+    expect(f.view.rows[0]?.['ValueFun']).toBe(original)
+  })
 
-function invokeStaleListener(listener: unknown, value: unknown): void {
-  if (typeof listener !== 'function') throw new Error('FilterValueFunctionDialog vnode listener is missing')
-  listener(value)
-}
+  it.each(['identity', 'declarations', 'permission', 'purpose', 'session', 'value'] as const)('rejects a previous callback after %s changes', async change => {
+    const original = '{"Type":"SystemData","ParamName":"UserID"}'
+    const f = await editor(original, {inputParams: [{label: '用户', value: 'UserID'}]}, true)
+    const dialog = await f.open(), stale = dialog.vm.$.vnode.props?.['onConfirm']
+    if (typeof stale !== 'function') throw new Error('Missing confirm handler')
+    if (change === 'identity') f.view.setCurrentRowById('second')
+    if (change === 'declarations') f.context.value = {inputParams: []}
+    if (change === 'permission') f.readonly.value = true
+    if (change === 'purpose') f.sourceInput.value = false
+    if (change === 'value') f.view.updateEditingValue('first', 'ValueFun', '{"Type":"GetConstValue","Value":false}')
+    if (change === 'session') {await f.cancel(); await f.open()}
+    await flushPromises()
+    const before = f.current()
+    await stale({Type: 'GetInputParam', ParamName: 'UserID'}); await flushPromises()
+    expect(f.current()).toBe(before); expect(f.view.getEditingRow('second')?.['ValueFun']).toBe(original)
+  })
 
-describe('DataSpaceValueFunctionEditor', () => {
+  it('preserves unavailable source functions and rejects fabricated confirmations', async () => {
+    const original = '{"Type":"SystemData","ParamName":"UserID"}', f = await editor(original, {}, true)
+    const dialog = await f.open()
+    expect(getDataViewFilterFunctionDefinitions(dialog.props('context')).map(item => item.type)).toEqual(['GetConstValue'])
+    dialog.vm.$emit('confirm', {Type: 'SystemData', ParamName: 'UserID'}); await flushPromises()
+    dialog.vm.$emit('confirm', {Type: 'GetInputParam', ParamName: 'UserID'}); await flushPromises()
+    expect(f.current()).toBe(original); expect(f.view.hasEditingChanges()).toBe(false)
+  })
+
+  it.each([0, false, null, '', [], {enabled: false, count: 0, empty: null}, 'literal text'])('writes the explicitly entered typed constant %j', async value => {
+    const f = await editor(), dialog = await f.open()
+    dialog.getComponent(ElTabs).vm.$emit('update:modelValue', 'GetConstValue'); await flushPromises()
+    dialog.getComponent(JsonTreeEditor).vm.$emit('update:documentValue', {value}); await f.confirm()
+    expect(f.current()).toBe(JSON.stringify({Type: 'GetConstValue', Value: value}))
+    expect(f.view.rows[0]?.['ValueFun']).toBe('')
+  })
+
+  it('rejects malformed JSON without confirming the previous value', async () => {
+    const f = await editor(), dialog = await f.open()
+    dialog.getComponent(ElTabs).vm.$emit('update:modelValue', 'GetConstValue'); await flushPromises()
+    await f.confirm(); expect(f.view.hasEditingChanges()).toBe(false)
+    const input = dialog.getComponent(JsonTreeEditor)
+    input.vm.$emit('update:documentValue', {value: 0}); input.vm.$emit('update:documentValue', {wrong: false})
+    await f.confirm(); expect(f.view.hasEditingChanges()).toBe(false)
+    expect(new DOMWrapper(document.body).get('[role="alert"]').text()).toContain('value')
+    input.vm.$emit('update:documentValue', {value: false}); await f.confirm()
+    expect(f.current()).toBe('{"Type":"GetConstValue","Value":false}')
+  })
+
   it.each([
-    ['0', 0],
-    ['false', false],
-    ['null', null],
-    ['""', ''],
-    ['[]', []],
-    ['{"enabled":false,"count":0,"empty":null}', { enabled: false, count: 0, empty: null }],
-    ['"literal text"', 'literal text'],
-  ] as const)('creates a typed constant from explicit JSON %s', async (source, expected) => {
-    const wrapper = editor()
-    await wrapper.get('[data-action="edit"]').trigger('click')
-    const dialog = wrapper.findComponent(FilterValueFunctionDialog)
-    const typeSelect = dialog.findComponent(ElSelect)
-    typeSelect.vm.$emit('update:modelValue', 'GetConstValue')
-    await flushPromises()
-    const valueInput = wrapper.findComponent(FilterValueFunctionDialog).findComponent(ElInput)
-    valueInput.vm.$emit('update:modelValue', source)
-    await new DOMWrapper(document.body).get('[data-function-confirm]').trigger('click')
-    expect(wrapper.emitted('change')?.[0]?.[0]).toEqual({
-      contextKey: 'design:SPACE-1:MODEL-1:FIELD-1',
-      value: JSON.stringify({ Type: 'GetConstValue', Value: expected }),
-    })
+    {Type: 'SystemData', ParamName: 'OrderId', Extra: {zero: 0, flag: false, empty: null}},
+    {Type: 'GetRefData', RefTableName: 'Orders', RefFieldName: 'Id', FkFieldName: 'Id', Extra: false},
+    {Type: 'GetConstValue', Value: false, Extra: {zero: 0, empty: null}},
+  ])('preserves extensions for %j and cancels without writes', async value => {
+    const original = JSON.stringify(value), f = await editor(original, {systemParams: [{label: '编号', value: 'OrderId'}], tables})
+    await f.open(); await f.cancel(); expect(f.current()).toBe(original); expect(f.view.hasEditingChanges()).toBe(false)
+    await f.open(); await f.confirm(); expect(f.current()).toBe(original)
   })
 
-  it('blocks missing or invalid JSON and never confirms the previous typed value', async () => {
-    const wrapper = editor()
-    const body = new DOMWrapper(document.body)
-    await wrapper.get('[data-action="edit"]').trigger('click')
-    const typeSelect = wrapper.findComponent(FilterValueFunctionDialog).findComponent(ElSelect)
-    typeSelect.vm.$emit('update:modelValue', 'GetConstValue')
-    await flushPromises()
-    await body.get('[data-function-confirm]').trigger('click')
-    expect(wrapper.emitted('change')).toBeUndefined()
-
-    let valueInput = wrapper.findComponent(FilterValueFunctionDialog).findComponent(ElInput)
-    valueInput.vm.$emit('update:modelValue', '0')
-    valueInput.vm.$emit('update:modelValue', 'not JSON')
-    await body.get('[data-function-confirm]').trigger('click')
-    expect(wrapper.emitted('change')).toBeUndefined()
-    expect(body.get('[role="alert"]').text()).toContain('请输入有效 JSON')
-    expect(wrapper.findComponent(FilterValueFunctionDialog).findComponent(ElInput).props('modelValue')).toBe('not JSON')
-
-    valueInput = wrapper.findComponent(FilterValueFunctionDialog).findComponent(ElInput)
-    valueInput.vm.$emit('update:modelValue', 'false')
-    await body.get('[data-function-confirm]').trigger('click')
-    expect(wrapper.emitted('change')?.[0]?.[0]).toEqual({
-      contextKey: 'design:SPACE-1:MODEL-1:FIELD-1',
-      value: JSON.stringify({ Type: 'GetConstValue', Value: false }),
-    })
+  it.each(['{broken json', '{"Type":"FutureFunction","Value":0,"Extension":null}'])('keeps %s until repair or explicit clear', async original => {
+    const f = await editor(original)
+    expect(f.wrapper.get('[data-function-diagnostic]').text()).toContain('原文已保留')
+    await f.open(); await f.cancel(); expect(f.current()).toBe(original); expect(f.view.hasEditingChanges()).toBe(false)
+    await f.wrapper.get('[data-function-clear]').trigger('click'); await flushPromises(); expect(f.current()).toBe('')
+    f.view.discardEditingRows(); await flushPromises(); expect(f.current()).toBe(original)
+    const dialog = await f.open(); dialog.getComponent(ElTabs).vm.$emit('update:modelValue', 'SystemData'); await flushPromises()
+    dialog.getComponent(ElSelect).vm.$emit('update:modelValue', 'UserID'); await f.confirm()
+    expect(f.current()).toBe('{"Type":"SystemData","ParamName":"UserID"}')
   })
 
-  it('uses the shared dialog for SystemData and table-field functions without emitting on cancel', async () => {
-    const systemData = { Type: 'SystemData', ParamName: 'OrderId', Extra: { zero: 0, flag: false, empty: null } }
-    const wrapper = editor(JSON.stringify(systemData), {
-      systemParams: [{ label: '单据编号', value: 'OrderId' }], tables,
-    })
-    const body = new DOMWrapper(document.body)
-    await wrapper.get('[data-action="edit"]').trigger('click')
-    const dialog = wrapper.findComponent(FilterValueFunctionDialog)
-    expect(dialog.exists()).toBe(true)
-    const context = dialog.props('context')
-    const systemDefinition = context.definitions?.find(item => item.type === 'SystemData')
-    const parameterField = systemDefinition?.fields.find(field => field.key === 'ParamName')
-    const optionSource = parameterField?.options
-    const options = typeof optionSource === 'function' ? optionSource({ Type: 'SystemData' }, context) : optionSource ?? []
-    expect(options.map(option => option.value)).toContain('UserID')
-    expect(options.map(option => option.value)).toContain('OrderId')
-    await clickButtonText(body, '取消')
-    expect(wrapper.emitted('change')).toBeUndefined()
-
-    await wrapper.get('[data-action="edit"]').trigger('click')
-    const parameter = wrapper.findComponent(FilterValueFunctionDialog).findAllComponents(ElSelect)[1]
-    if (!parameter) throw new Error('missing SystemData parameter control')
-    parameter.vm.$emit('update:modelValue', 'OrderId')
-    await body.get('[data-function-confirm]').trigger('click')
-    expect(wrapper.emitted('change')?.[0]?.[0]).toEqual({
-      contextKey: 'design:SPACE-1:MODEL-1:FIELD-1', value: JSON.stringify(systemData),
-    })
-    wrappers.splice(wrappers.indexOf(wrapper), 1)
-    wrapper.unmount()
-
-    const tableValue = { Type: 'GetRefData', RefTableName: 'Orders', RefFieldName: 'Id', FkFieldName: 'Id', Extra: false }
-    const tableEditor = editor(JSON.stringify(tableValue), { tables })
-    await tableEditor.get('[data-action="edit"]').trigger('click')
-    const tableDialog = tableEditor.findComponent(FilterValueFunctionDialog)
-    expect(tableDialog.props('context').tables).toEqual(tables)
-    await new DOMWrapper(document.body).get('[data-function-confirm]').trigger('click')
-    expect(tableEditor.emitted('change')?.[0]?.[0]).toEqual({
-      contextKey: 'design:SPACE-1:MODEL-1:FIELD-1', value: JSON.stringify(tableValue),
-    })
-  })
-
-  it('preserves constants and allows explicit clearing while damaged source stays unchanged', async () => {
-    const constant = { Type: 'GetConstValue', Value: false, Extra: { zero: 0, empty: null } }
-    const wrapper = editor(JSON.stringify(constant))
-    await wrapper.get('[data-action="edit"]').trigger('click')
-    await new DOMWrapper(document.body).get('[data-function-confirm]').trigger('click')
-    expect(wrapper.emitted('change')?.[0]?.[0]).toEqual({
-      contextKey: 'design:SPACE-1:MODEL-1:FIELD-1', value: JSON.stringify(constant),
-    })
-    wrappers.splice(wrappers.indexOf(wrapper), 1)
-    wrapper.unmount()
-
-    const damaged = '{broken json'
-    const damagedEditor = editor(damaged)
-    expect(damagedEditor.get('[role="alert"]').text()).toContain('原文已保留')
-    await damagedEditor.get('[data-action="edit"]').trigger('click')
-    await clickButtonText(new DOMWrapper(document.body), '取消')
-    expect(damagedEditor.props('modelValue')).toBe(damaged)
-    expect(damagedEditor.emitted('change')).toBeUndefined()
-    await damagedEditor.get('[data-action="clear"]').trigger('click')
-    expect(damagedEditor.emitted('change')?.[0]?.[0]).toEqual({
-      contextKey: 'design:SPACE-1:MODEL-1:FIELD-1', value: '',
-    })
-    await damagedEditor.get('[data-action="edit"]').trigger('click')
-    const typeSelect = damagedEditor.findComponent(FilterValueFunctionDialog).findAllComponents(ElSelect)[0]
-    if (!typeSelect) throw new Error('missing function type control for damaged-value repair')
-    typeSelect.vm.$emit('update:modelValue', 'SystemData')
-    await flushPromises()
-    const parameter = damagedEditor.findComponent(FilterValueFunctionDialog).findAllComponents(ElSelect)[1]
-    if (!parameter) throw new Error('missing SystemData parameter control for damaged-value repair')
-    parameter.vm.$emit('update:modelValue', 'UserID')
-    await new DOMWrapper(document.body).get('[data-function-confirm]').trigger('click')
-    expect(damagedEditor.emitted('change')?.[1]?.[0]).toEqual({
-      contextKey: 'design:SPACE-1:MODEL-1:FIELD-1', value: JSON.stringify({ Type: 'SystemData', ParamName: 'UserID' }),
-    })
-  })
-
-  it('keeps unknown types intact until a valid replacement is explicitly selected', async () => {
-    const unknown = JSON.stringify({ Type: 'FutureFunction', Value: 0, Extension: null })
-    const wrapper = editor(unknown)
-    expect(wrapper.get('[role="alert"]').text()).toContain('原文已保留')
-    await wrapper.get('[data-action="edit"]').trigger('click')
-    const dialog = wrapper.findComponent(FilterValueFunctionDialog)
-    const types = dialog.findAllComponents(ElSelect)[0]
-    if (!types) throw new Error('missing function type control')
-    types.vm.$emit('update:modelValue', 'SystemData')
-    await flushPromises()
-    const parameter = wrapper.findComponent(FilterValueFunctionDialog).findAllComponents(ElSelect)[1]
-    if (!parameter) throw new Error('missing SystemData parameter control')
-    parameter.vm.$emit('update:modelValue', 'UserID')
-    await new DOMWrapper(document.body).get('[data-function-confirm]').trigger('click')
-    expect(wrapper.emitted('change')?.[0]?.[0]).toEqual({
-      contextKey: 'design:SPACE-1:MODEL-1:FIELD-1', value: JSON.stringify({ Type: 'SystemData', ParamName: 'UserID' }),
-    })
-  })
-
-  it('rejects dialog callbacks captured before value, context, identity, or disabled state changes', async () => {
-    const value = JSON.stringify({ Type: 'SystemData', ParamName: 'UserID' })
-    const wrapper = editor(value, { systemParams: [{ label: '用户', value: 'UserID' }] })
-    await wrapper.get('[data-action="edit"]').trigger('click')
-
-    let dialog = wrapper.findComponent(FilterValueFunctionDialog)
-    let listener: unknown = dialog.vm.$.vnode.props?.['onConfirm']
-    await wrapper.setProps({ modelValue: JSON.stringify({ Type: 'SystemData', ParamName: 'UserName' }) })
-    invokeStaleListener(listener, { Type: 'SystemData', ParamName: 'UserID' })
-    expect(wrapper.emitted('change')).toBeUndefined()
-
-    dialog = wrapper.findComponent(FilterValueFunctionDialog)
-    listener = dialog.vm.$.vnode.props?.['onConfirm']
-    await wrapper.setProps({ functionContext: { systemParams: [{ label: '姓名', value: 'UserName' }] } })
-    invokeStaleListener(listener, { Type: 'SystemData', ParamName: 'UserID' })
-    expect(wrapper.emitted('change')).toBeUndefined()
-
-    dialog = wrapper.findComponent(FilterValueFunctionDialog)
-    listener = dialog.vm.$.vnode.props?.['onConfirm']
-    await wrapper.setProps({ contextKey: 'design:SPACE-1:MODEL-2:FIELD-1' })
-    invokeStaleListener(listener, { Type: 'SystemData', ParamName: 'UserID' })
-    expect(wrapper.emitted('change')).toBeUndefined()
-
-    dialog = wrapper.findComponent(FilterValueFunctionDialog)
-    listener = dialog.vm.$.vnode.props?.['onConfirm']
-    await wrapper.setProps({ disabled: true })
-    await wrapper.setProps({ disabled: false })
-    invokeStaleListener(listener, { Type: 'SystemData', ParamName: 'UserID' })
-    expect(wrapper.emitted('change')).toBeUndefined()
-  })
-
-  it('offers no role-category branch and blocks applying a stored role value', async () => {
-    const roleValue = JSON.stringify({ Type: 'GetUserMasterId', refType: 'role', roleClassId: 'legacy' })
-    const wrapper = editor(roleValue)
-    await wrapper.get('[data-action="edit"]').trigger('click')
-    const dialog = wrapper.findComponent(FilterValueFunctionDialog)
-    const definition = dialog.props('context').definitions?.find(item => item.type === 'GetUserMasterId')
+  it('retains the disabled role branch without offering or executing it', async () => {
+    const original = '{"Type":"GetUserMasterId","refType":"role","roleClassId":"legacy"}', f = await editor(original)
+    const dialog = await f.open(), definition = dialog.props('context').definitions?.find(item => item.type === 'GetUserMasterId')
     expect(definition?.fields.map(field => field.key)).toEqual(['refType', 'depLevel', 'getChildDep'])
-    expect(definition?.fields[0]?.options).toEqual([{ label: '部门级别', value: 'dep' }])
-    expect(wrapper.text()).not.toContain('角色分类')
-    await new DOMWrapper(document.body).get('[data-function-confirm]').trigger('click')
-    expect(new DOMWrapper(document.body).get('[role="alert"]').text()).toContain('已停用的角色分类分支')
-    expect(wrapper.props('modelValue')).toBe(roleValue)
-    expect(wrapper.emitted('change')).toBeUndefined()
+    expect(definition?.fields[0]?.options).toEqual([{label: '部门级别', value: 'dep'}])
+    await f.confirm(); expect(new DOMWrapper(document.body).get('[role="alert"]').text()).toContain('已停用的角色分类分支')
+    expect(f.current()).toBe(original); expect(f.view.hasEditingChanges()).toBe(false)
   })
 })

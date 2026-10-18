@@ -13,9 +13,15 @@ function createEditor(): ProjectWorkspace {
 }
 
 describe('guardPageDesignEditor', () => {
-  it('returns the editor unchanged without allowedOperations', () => {
+  it('always denies raw scenario storage even without an operation restriction', () => {
     const editor = createEditor()
-    expect(guardPageDesignEditor(editor, undefined)).toBe(editor)
+    const guarded = guardPageDesignEditor(editor, undefined)
+    expect(guarded.project.projectId).toBe('demo')
+    expect(() => guarded.getScenarioViews('S')).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.loadScenarioViews({scenarioId: 'S'})).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect('restoreScenarioVersion' in editor).toBe(false)
+    expect(() => guarded.saveDirtyScenarioDefinitions()).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
+    expect(() => guarded.dispose()).toThrow('PAGE_DESIGN_STORAGE_INTERNAL')
   })
 
   it('blocks a forbidden file domain while allowing other files on the same tool', () => {
@@ -29,7 +35,7 @@ describe('guardPageDesignEditor', () => {
     const guarded = guardPageDesignEditor(createEditor(), { nodeTree: false, dataSet: false })
     const page = guarded.project.openPageDesign('orders')
     expect(() => page.nodeTree).toThrow('PAGE_DESIGN_OPERATION_FORBIDDEN')
-    await expect(Promise.resolve().then(() => guarded.loadScenarioViews({ scenarioId: 'S' }))).rejects.toThrow('PAGE_DESIGN_OPERATION_FORBIDDEN')
+    await expect(Promise.resolve().then(() => guarded.loadScenarioDefinitions({ scenarioId: 'S' }))).rejects.toThrow('PAGE_DESIGN_OPERATION_FORBIDDEN')
   })
 
   it('blocks blueprint mutation and keeps private-field methods working through the facade', () => {

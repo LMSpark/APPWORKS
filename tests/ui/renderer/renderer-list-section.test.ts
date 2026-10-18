@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick } from 'vue'
-import { RendererList, RendererSection, Spark, useSparkComponent } from '@spark-appworks/spark-component'
+import { defineComponent, h, nextTick, markRaw } from 'vue'
+import ElementPlus from 'element-plus'
+import { RendererToolbar, RendererList, RendererTable, RendererSection, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 import { defineCapability } from '@spark-appworks/spark-utils'
-import { SparkData } from '@spark-appworks/spark-data'
+import { SparkData, getSparkNodeChildren, nodeInputProps, isSparkNode } from '@spark-appworks/spark-data'
 import { getMountedComponentApi, mountWithPageDataSet } from '../../support/helpers/mount-with-page-dataset'
 import { requireFunction, requireRecord, requireString } from '../../support/helpers/runtime-guards'
 
@@ -19,10 +20,17 @@ const SparkActionStub = defineComponent({
     },
   },
   setup(props) {
-    return () => h('button', {
-      class: 'spark-action-stub',
-      'data-type': readConfigType(props.config),
-    }, readConfigType(props.config))
+    return () => {
+      const type = readConfigType(props.config)
+      if (type === 'r-toolbar') {
+        if (!isSparkNode(props.config)) throw new TypeError('Invalid toolbar node')
+        const node = props.config
+        return h('div', {class: 'spark-action-stub', 'data-type': type}, [
+          h(RendererToolbar, {...nodeInputProps(node), children: getSparkNodeChildren(node['children'])}),
+        ])
+      }
+      return h('button', {class: 'spark-action-stub', 'data-type': type}, type)
+    }
   },
 })
 
@@ -40,6 +48,29 @@ const ElCardStub = defineComponent({
 })
 
 describe('RendererList and RendererSection container integration', () => {
+  it.each([['table', RendererTable], ['list', RendererList]] as const)('%s follows DataView pagination and preserves an explicit opt-out', async (kind, component) => {
+    const ds = SparkData.createDataSet({dataSetName: 'Paging', tables: {Nodes: {tableName: 'Nodes',
+      columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {}}}}})
+    const view = ds.getView('Nodes', 'default')!
+    view.updateFromServer({rows: [{id: 'A'}], total: 1})
+    const wrapper = mount(component, {props: {dataSource: markRaw(view)}, global: {plugins: [ElementPlus]}})
+    const pagination = () => wrapper.find(`.renderer-${kind}-pagination`).exists()
+    try {
+      expect(pagination()).toBe(true)
+      view.queryConfig = {tree: {keyField: 'id', parentField: 'pid', nodeId: 'root'}}
+      await nextTick()
+      expect(pagination()).toBe(false)
+      view.queryConfig = {outputType: 'Table', allPages: true}
+      await nextTick()
+      expect(pagination()).toBe(false)
+      view.queryConfig = {outputType: 'Table'}
+      await nextTick()
+      expect(pagination()).toBe(true)
+      await wrapper.setProps({showPagination: false})
+      expect(pagination()).toBe(false)
+    } finally {wrapper.unmount(); ds.destroy()}
+  })
+
   it('should render list toolbar children, item actions and template-driven item rendering with grid layout', async () => {
     const ds = SparkData.createDataSet({
       dataSetName: 'ListDS',
@@ -101,7 +132,7 @@ describe('RendererList and RendererSection container integration', () => {
     await nextTick()
   })
 
-  it('should keep structured item actions visible even when permDeniedBehavior is hide', () => {
+  it('leaves permission presentation to the action children', () => {
     const ds = SparkData.createDataSet({
       dataSetName: 'ListPermDS',
       tables: {
@@ -128,8 +159,8 @@ describe('RendererList and RendererSection container integration', () => {
         dataViewKey: 'Users@default',
         actions: {
           type: 'r-toolbar',
-          props: { position: 'left', permDeniedBehavior: 'hide' },
-          children: [{ type: 'list-item-delete', props: { permAction: 'delete' } }],
+          position: 'left',
+          children: [{ type: 'list-item-delete', props: { permAction: 'delete', permissionDeniedMode: 'hide' } }],
         },
       },
       slots: {

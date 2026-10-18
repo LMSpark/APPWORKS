@@ -1,798 +1,439 @@
-import { DataSpaceQueryContext } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
-import { DataSpaceQueryTable } from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
-import { flushPromises, mount } from '@vue/test-utils'
-import { createMemoryHistory, createRouter } from 'vue-router'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-const { runtimeQuery, readRequestScope } = vi.hoisted(() => ({
-  runtimeQuery: vi.fn(),
-  readRequestScope: vi.fn(() => ({ token: 'scope-a', headers: { 'X-AppId': 'app-a' } })),
-}))
-
-vi.mock('@/lowcode/lowcode-runtime', () => ({
-  lowcodeApi: {
-    readRequestScope,
-    dataSpace: { runtime: { query: runtimeQuery } },
-  },
-}))
-
-import { LowcodeDataSpaceCatalog } from '@/lowcode/data-space/lowcode-data-space-catalog'
-import DataSpaceCatalogPage from '@/views/app/control/data-platform/data-space/catalog/DataSpaceCatalogPage.vue'
-
-type ContextOptions = Readonly<{ total?: number; countReported?: boolean; metaName?: string; primaryKey?: string }>
-
-function context(rows: readonly Record<string, unknown>[], options: ContextOptions = {}): DataSpaceQueryContext {
-  const { total = 1, countReported = true, metaName = 'Base_DataSet' } = options
-  const primaryKey = options.primaryKey ?? (metaName === 'Base_UserInfo' ? 'ID' : 'rowid')
-  const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName })
-  const result = { Result: { data: { Count: countReported ? total : undefined, Items: rows, hasNextPage: false, Action: [] },
-    primaryKeyField: primaryKey, allowAdd: false } }
-  return new DataSpaceQueryContext({ identity: table.identity, snapshot: table.applyResult(result), scope: 'scope-a', readScope: () => 'scope-a' })
+import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
+import {config,flushPromises,mount} from '@vue/test-utils'
+import {createMemoryHistory,createRouter} from 'vue-router'
+import ElementPlus, {ElSelect} from 'element-plus'
+import {DataSet,type DataView,type QueryParams,type DataViewFilterTree} from '@spark-appworks/spark-data'
+import {Spark,FieldText,FieldSelect,RendererButton,RendererTable,RendererFilter,RendererToolbar,RendererForm} from '@spark-appworks/spark-component'
+import RendererFieldScope from '../../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
+import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
+import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+const {executeQuery,loadScenario,readRequestScope,openDesign}=vi.hoisted(()=>({executeQuery:vi.fn(),loadScenario:vi.fn(),openDesign:vi.fn(),
+  readRequestScope:vi.fn(()=>({token:'scope-a',headers:{'X-AppId':'app-a'}}))}))
+vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{readRequestScope,dataSpace:{runtime:{executeQuery,save:vi.fn()}}}}))
+vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:loadScenario}))
+vi.mock('@/lowcode/data-space/lowcode-data-space-design',()=>({openLowcodeDataSpaceDesignSession:openDesign}))
+import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-catalog'
+import CatalogPage from '@/views/features/data-platform/data-set-management/ui/data-set-list-page.vue'
+const disposals:Array<()=>void>=[],originalStubs=config.global.stubs
+const models={Base_DataSet:['rowid','Name','Type','description','sysid','createuser','createtime'],
+  Base_AppSystemList:['rowid','AppDesc','AppName'],Base_UserInfo:['ID','ROWID','rowid','UserName'],
+  Base_NavigationInfo:['rowid','SysId','conid','prowid','FunName','name','NavigationUrl']}
+function dataset(scenarioId='SCENE') {
+  return DataSet.fromJson({scenarioId,dataSetName:scenarioId,tables:Object.fromEntries(Object.entries(models).map(([name,fields])=>[name,{
+    modelBinding:{modelId:`M-${name}`,modelName:name},resourceType:'database-table',resourceId:name,
+    columns:fields.map((field,index)=>({name:field,type:'string',isPrimaryKey:index===0})),
+    views:{default:{autoLoad:false},[name==='Base_DataSet'?'catalog':name==='Base_UserInfo'?'catalogUsers':'catalogApps']:{autoLoad:false,
+      ...(name==='Base_DataSet'?{commitMode:'staged',pageSize:10,sortExpression:[{field:'createtime',direction:'desc'}]}:{})}},
+  }]))})
 }
-
-function firstRuntimeCall() {
-  const call = runtimeQuery.mock.calls[0]
-  if (call === undefined) throw new Error('Expected a catalog query')
-  return call
+function context(view:DataView,rows:readonly Record<string,unknown>[],opts:{count?:boolean;total?:number;key?:string}={}) {
+  const table=new DataSpaceQueryTable({scenarioId:view.dataSet!.scenarioId!,metaName:view.tableName})
+  return new DataSpaceQueryContext({identity:table.identity,scope:'scope-a',readScope:()=>readRequestScope().token,
+    snapshot:table.applyResult({Result:{primaryKeyField:opts.key??(view.tableName==='Base_UserInfo'?'ID':'rowid'),allowAdd:false,
+      data:{Items:rows,Count:opts.count===false?undefined:opts.total??rows.length,hasNextPage:false,Action:[]}}})})
 }
-
-function lastRuntimeCall() {
-  const call = runtimeQuery.mock.calls.filter(call => call[0]?.metaName === 'Base_DataSet').at(-1)
-  if (call === undefined) throw new Error('Expected a catalog query')
-  return call
+const defaults:Record<string,Record<string,unknown>[]>= {
+  Base_DataSet:[{rowid:'TARGET',Name:'Directory item',Type:'datasource',sysid:'APP',createuser:'USER',createtime:'2026-01-01'}],
+  Base_AppSystemList:[{rowid:'APP',AppDesc:'',AppName:'Application'}],Base_UserInfo:[{ID:'PERMISSION-USER',rowid:'USER',UserName:'Creator'}],
 }
-
-function listRuntimeCalls() {
-  return runtimeQuery.mock.calls.filter(call => call[0]?.metaName === 'Base_DataSet')
-}
-
-function mockByMetaName(data: DataSpaceQueryContext, apps = context([{ rowid: 'APP-1', AppDesc: 'App One' }], { metaName: 'Base_AppSystemList' }),
-  users = context([], { total: 0, metaName: 'Base_UserInfo' })) {
-  runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => Promise.resolve(
-    identity.metaName === 'Base_AppSystemList' ? apps : identity.metaName === 'Base_UserInfo' ? users : data,
-  ))
-}
-
-function mockListFlightsByMetaName(dataQuery: () => Promise<DataSpaceQueryContext>, apps = context([{ rowid: 'APP-1', AppDesc: 'App One' }], { metaName: 'Base_AppSystemList' }),
-  users = context([], { total: 0, metaName: 'Base_UserInfo' })) {
-  runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => identity.metaName === 'Base_AppSystemList'
-    ? Promise.resolve(apps) : identity.metaName === 'Base_UserInfo' ? Promise.resolve(users) : dataQuery())
-}
-
-describe('LowcodeDataSpaceCatalog', () => {
-  beforeEach(() => {
-    runtimeQuery.mockReset()
-    readRequestScope.mockReset()
-    readRequestScope.mockReturnValue({ token: 'scope-a', headers: { 'X-AppId': 'app-a' } })
+function writable() {
+  const rowsByModel=structuredClone(defaults)
+  let afterWrite: (()=>void)|undefined
+  executeQuery.mockImplementation(async(view:DataView)=> {
+    const rows=(rowsByModel[view.tableName]??[]).map(row=>({...row,lingma_sys_params:{e:['Name','description'],d:true,r:[],h:[],m:[]}}))
+    const table=new DataSpaceQueryTable({scenarioId:view.dataSet!.scenarioId!,metaName:view.tableName})
+    return new DataSpaceQueryContext({identity:table.identity,scope:'scope-a',readScope:()=>readRequestScope().token,
+      snapshot:table.applyResult({Result:{primaryKeyField:view.tableName==='Base_UserInfo'?'ID':'rowid',allowAdd:true,
+        data:{Items:rows,Count:rows.length,hasNextPage:false,Action:[]}}})})
   })
-
-  it('uses only the supplied scenario and sends the name OR rowid query with descending server pagination', async () => {
-    const queryContext = context([{ rowid: 'ROW-1', Name: 'Invoices', Type: 'datasource' }], { total: 12 })
-    runtimeQuery.mockResolvedValue(queryContext)
-    const catalog = new LowcodeDataSpaceCatalog('SCENE')
-
-    const queryInput = { name: '  ROW-1 ', sysid: ' APP-1 ', page: 2, pageSize: 5 }
-    const result = await catalog.query(queryInput)
-
-    expect(listRuntimeCalls()).toHaveLength(1)
-    const [identity, options] = firstRuntimeCall()
-    expect(identity).toEqual({ scenarioId: 'SCENE', metaName: 'Base_DataSet' })
-    expect(options.filter.toJSON()).toEqual({ logic: 'and', filters: [
-      { logic: 'or', filters: [
-        { field: 'Name', operator: 'contains', value: 'ROW-1' },
-        { field: 'rowid', operator: 'eq', value: 'ROW-1' },
-      ] },
-      { field: 'sysid', operator: 'eq', value: 'APP-1' },
-    ] })
-    expect(options.sort).toEqual([{ field: 'createtime', direction: 'desc' }])
-    expect(options.page).toEqual({ index: 2, size: 5 })
-    const wireRequest = new DataSpaceQueryTable(identity).buildRequest(options)
-    const wireFields = wireRequest.Table[0]?.['Fields']
-    expect(wireFields).toEqual([
-      { Name: 'rowid', IsOutput: true },
-      { Name: 'Name', IsOutput: true },
-      { Name: 'Type', IsOutput: true },
-      { Name: 'description', IsOutput: true },
-      { Name: 'sysid', IsOutput: true },
-      { Name: 'createuser', IsOutput: true },
-      { Name: 'createtime', IsOutput: true, OrderType: 'descending', Order: 1 },
-    ])
-    expect(result.total).toBe(12)
-    expect(result.rows).toHaveLength(1)
-  })
-
-  it('omits blank filters and never derives sysid from the execution application', async () => {
-    runtimeQuery.mockResolvedValue(context([{ rowid: 'ROW-1', sysid: 'business-app' }]))
-    await new LowcodeDataSpaceCatalog('SCENE').query({ name: '   ', sysid: '   ' })
-    const [, options] = firstRuntimeCall()
-    expect(options).not.toHaveProperty('filter')
-    expect(options).not.toHaveProperty('sysid')
-  })
-
-  it('loads all application options under the owner scenario and projects only readable keys and labels', async () => {
-    runtimeQuery.mockResolvedValue(context([
-      { rowid: 'APP-1', AppDesc: '部门平台', AppName: 'App One' },
-      { rowid: 'APP-2', AppDesc: '   ', AppName: 'App Two' },
-      { rowid: 'APP-3', AppDesc: 'MASKED-APP-LABEL', AppName: 'DO-NOT-FALLBACK', lingma_sys_params: { m: ['AppDesc'] } },
-      { rowid: 'MASKED-APP-ID', AppDesc: 'Hidden key', lingma_sys_params: { m: ['rowid'] } },
-      { rowid: 'INVISIBLE-APP-ID', AppDesc: 'Hidden key', lingma_sys_params: { h: ['rowid'] } },
-    ], { total: 5, metaName: 'Base_AppSystemList' }))
-
-    const options = await new LowcodeDataSpaceCatalog('SCENE').applications()
-
-    expect(firstRuntimeCall()[0]).toEqual({ scenarioId: 'SCENE', metaName: 'Base_AppSystemList' })
-    expect(firstRuntimeCall()[1]).toEqual({ fields: ['rowid', 'AppDesc', 'AppName'], allPages: true })
-    expect(options).toEqual([
-      { value: 'APP-1', label: '部门平台' },
-      { value: 'APP-2', label: 'App Two' },
-      { value: 'APP-3', label: '••••' },
-    ])
-    expect(JSON.stringify(options)).not.toContain('MASKED-APP-LABEL')
-    expect(JSON.stringify(options)).not.toContain('DO-NOT-FALLBACK')
-    expect(JSON.stringify(options)).not.toContain('MASKED-APP-ID')
-    expect(JSON.stringify(options)).not.toContain('INVISIBLE-APP-ID')
-  })
-
-  it('validates every application row key and rejects non-scalar readable labels', async () => {
-    runtimeQuery.mockResolvedValue(context([{ rowid: 'DUP', AppDesc: 'Visible' },
-      { rowid: 'DUP', AppDesc: 'Hidden', lingma_sys_params: { h: ['rowid'] } }], { total: 2, metaName: 'Base_AppSystemList' }))
-    await expect(new LowcodeDataSpaceCatalog('SCENE').applications()).rejects.toThrow(/唯一.*rowid/)
-
-    runtimeQuery.mockResolvedValue(context([{ rowid: 'APP-1', AppDesc: { value: 'not scalar' } }], { metaName: 'Base_AppSystemList' }))
-    await expect(new LowcodeDataSpaceCatalog('SCENE').applications()).rejects.toThrow(/标量值/)
-  })
-
-  it('binds an owner to its construction scope and rejects non-scalar visible values', async () => {
-    const owner = new LowcodeDataSpaceCatalog('SCENE')
-    readRequestScope.mockReturnValue({ token: 'scope-b', headers: { 'X-AppId': 'app-b' } })
-    await expect(owner.query()).rejects.toThrow(/执行域/)
-    expect(runtimeQuery).not.toHaveBeenCalled()
-
-    readRequestScope.mockReturnValue({ token: 'scope-a', headers: { 'X-AppId': 'app-a' } })
-    runtimeQuery.mockResolvedValue(context([{ rowid: 'ROW-1', Name: { nested: 'not scalar' } }]))
-    await expect(new LowcodeDataSpaceCatalog('SCENE').query()).rejects.toThrow(/标量值/)
-  })
-
-  it('fails when the backend did not report a total or when rowid is absent or duplicated', async () => {
-    const catalog = new LowcodeDataSpaceCatalog('SCENE')
-    runtimeQuery.mockResolvedValue(context([{ rowid: 'ROW-1' }], { countReported: false }))
-    await expect(catalog.query()).rejects.toThrow(/总数/)
-
-    runtimeQuery.mockResolvedValue(context([{ Name: 'no key' }]))
-    await expect(catalog.query()).rejects.toThrow(/rowid/i)
-
-    runtimeQuery.mockResolvedValue(context([{ rowid: 'DUP' }, { rowid: 'DUP' }], { total: 2 }))
-    await expect(catalog.query()).rejects.toThrow(/rowid/i)
-  })
-
-  it('projects each fixed field through the actual context and removes identity from presentation data', async () => {
-    const queryContext = context([{ rowid: 'ROW-1', Name: 'VISIBLE', Type: 'datasource', description: 'MASK-ME',
-      sysid: 'HIDE-ME', createuser: 'creator', createtime: '2026-01-01',
-      lingma_sys_params: { m: ['description'], h: ['sysid'], d: true },
-    }])
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => Promise.resolve(
-      identity.metaName === 'Base_UserInfo'
-        ? context([{ ID: 'PERMISSION-CREATOR', rowid: 'creator', UserName: 'Creator Name' }], { metaName: 'Base_UserInfo' })
-        : queryContext,
-    ))
-    const result = await new LowcodeDataSpaceCatalog('SCENE').query()
-    expect(result.rows[0]).toEqual({
-      rowid: 'ROW-1', Name: 'VISIBLE', Type: 'datasource', description: '••••',
-      sysid: '', createuser: 'Creator Name', createtime: '2026-01-01',
-    })
-    expect(JSON.stringify(result.rows)).not.toContain('HIDE-ME')
-    expect(JSON.stringify(result.rows)).not.toContain('MASK-ME')
-  })
-
-  it('looks up only distinct visible creator ids and projects names through both query contexts', async () => {
-    const dataContext = context([
-      { rowid: 'DATA-1', Name: 'one', createuser: ' USER-1 ' },
-      { rowid: 'DATA-2', Name: 'two', createuser: 'USER-1' },
-      { rowid: 'DATA-3', Name: 'masked', createuser: 'CREATEUSER-MASKED', lingma_sys_params: { m: ['createuser'] } },
-      { rowid: 'DATA-4', Name: 'invisible', createuser: 'CREATEUSER-HIDDEN', lingma_sys_params: { h: ['createuser'] } },
-      { rowid: 'DATA-5', Name: 'missing', createuser: 'NOT-FOUND' },
-      { rowid: 'DATA-6', Name: 'hidden-user-key', createuser: 'KEY-HIDDEN' },
-      { rowid: 'DATA-7', Name: 'empty-name', createuser: 'EMPTY-NAME' },
-      { rowid: 'DATA-8', Name: 'masked-user-name', createuser: 'USER-MASKED' },
-      { rowid: 'DATA-9', Name: 'hidden-user-name', createuser: 'USER-HIDDEN' },
-      { rowid: 'DATA-10', Name: 'masked-user-key', createuser: 'KEY-MASKED' },
-      { rowid: 'DATA-11', Name: 'hidden-output-key', createuser: 'ROWID-HIDDEN' },
-      { rowid: 'DATA-12', Name: 'masked-output-key', createuser: 'ROWID-MASKED' },
-    ], { total: 12 })
-    const userContext = context([
-      { ID: 'PERMISSION-1', rowid: 'USER-1', UserName: 'Ada' },
-      { ID: 'PERMISSION-MASKED', rowid: 'USER-MASKED', UserName: 'MASKED-NAME', lingma_sys_params: { m: ['UserName'] } },
-      { ID: 'PERMISSION-HIDDEN', rowid: 'USER-HIDDEN', UserName: 'HIDDEN-NAME', lingma_sys_params: { h: ['UserName'] } },
-      { ID: 'PERMISSION-KEY-HIDDEN', rowid: 'KEY-HIDDEN', UserName: 'HIDDEN-USER-NAME', lingma_sys_params: { h: ['ROWID'] } },
-      { ID: 'PERMISSION-KEY-MASKED', rowid: 'KEY-MASKED', UserName: 'MASKED-USER-NAME', lingma_sys_params: { m: ['ROWID'] } },
-      { ID: 'PERMISSION-EMPTY', rowid: 'EMPTY-NAME', UserName: '   ' },
-      { ID: 'PERMISSION-ROWID-HIDDEN', rowid: 'ROWID-HIDDEN', UserName: 'HIDDEN-OUTPUT-NAME', lingma_sys_params: { h: ['rowid'] } },
-      { ID: 'PERMISSION-ROWID-MASKED', rowid: 'ROWID-MASKED', UserName: 'MASKED-OUTPUT-NAME', lingma_sys_params: { m: ['rowid'] } },
-      { ID: 'PERMISSION-UNREQUESTED', rowid: 'UNREQUESTED', UserName: 'UNREQUESTED-NAME' },
-    ], { total: 9, metaName: 'Base_UserInfo' })
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => Promise.resolve(
-      identity.metaName === 'Base_UserInfo' ? userContext : dataContext,
-    ))
-
-    const result = await new LowcodeDataSpaceCatalog('SCENE').query()
-
-    expect(runtimeQuery).toHaveBeenCalledTimes(2)
-    expect(runtimeQuery.mock.calls[1]?.[0]).toEqual({ scenarioId: 'SCENE', metaName: 'Base_UserInfo' })
-    const lookupOptions = runtimeQuery.mock.calls[1]?.[1]
-    expect(lookupOptions.fields).toEqual(['ID', 'ROWID', 'UserName'])
-    expect(lookupOptions.allPages).toBe(true)
-    expect(lookupOptions.filter.toJSON()).toEqual({ field: 'ROWID', operator: 'in', value: [
-      'USER-1', 'NOT-FOUND', 'KEY-HIDDEN', 'EMPTY-NAME', 'USER-MASKED', 'USER-HIDDEN', 'KEY-MASKED', 'ROWID-HIDDEN', 'ROWID-MASKED',
-    ] })
-    expect(result.rows.map(row => row.createuser)).toEqual([
-      'Ada', 'Ada', '••••', '', '未解析用户', '未解析用户', '未解析用户', '••••', '', '未解析用户', '未解析用户', '未解析用户',
-    ])
-    expect(result.unresolvedCreatorCount).toBe(6)
-    expect(JSON.stringify(result)).not.toMatch(/PERMISSION-|CREATEUSER-MASKED|CREATEUSER-HIDDEN|MASKED-NAME|HIDDEN-NAME|HIDDEN-USER-NAME|MASKED-USER-NAME|HIDDEN-OUTPUT-NAME|MASKED-OUTPUT-NAME|UNREQUESTED-NAME/)
-  })
-
-  it.each([
-    { rowField: 'rowid', deniedField: 'rowid', access: 'm' },
-    { rowField: 'rowid', deniedField: 'rowid', access: 'h' },
-    { rowField: 'rowid', deniedField: 'ROWID', access: 'm' },
-    { rowField: 'rowid', deniedField: 'ROWID', access: 'h' },
-    { rowField: 'ROWID', deniedField: 'ROWID', access: 'm' },
-    { rowField: 'ROWID', deniedField: 'ROWID', access: 'h' },
-    { rowField: 'ROWID', deniedField: 'rowid', access: 'm' },
-    { rowField: 'ROWID', deniedField: 'rowid', access: 'h' },
-  ] as const)('withholds creator names when only $rowField exists and $access denies $deniedField', async ({ rowField, deniedField, access }) => {
-    const userRow: Record<string, unknown> = {
-      ID: 'PRIVATE-PERMISSION-ID', UserName: 'PRIVATE-CREATOR-NAME',
-      lingma_sys_params: { [access]: [deniedField] },
-    }
-    userRow[rowField] = 'BUSINESS-USER-ID'
-    const dataContext = context([{ rowid: 'DATA-1', createuser: 'BUSINESS-USER-ID' }])
-    const userContext = context([userRow], { metaName: 'Base_UserInfo' })
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => Promise.resolve(
-      identity.metaName === 'Base_UserInfo' ? userContext : dataContext,
-    ))
-
-    const result = await new LowcodeDataSpaceCatalog('SCENE').query()
-
-    expect(result.rows[0]?.createuser).toBe('未解析用户')
-    expect(result.unresolvedCreatorCount).toBe(1)
-    expect(JSON.stringify(result)).not.toMatch(/PRIVATE-PERMISSION-ID|PRIVATE-CREATOR-NAME/)
-  })
-
-  it('rejects malformed, duplicate, or wrong-primary-key user lookup rows and non-scalar names', async () => {
-    const dataContext = context([{ rowid: 'DATA-1', createuser: 'USER-1' }])
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => Promise.resolve(
-      identity.metaName === 'Base_UserInfo'
-        ? context([{ ID: 'PERMISSION-1', rowid: 'USER-1', UserName: 'Ada' },
-          { ID: 'PERMISSION-1', rowid: 'USER-1', UserName: 'Other' }], {
-          total: 2, metaName: 'Base_UserInfo',
-        })
-        : dataContext,
-    ))
-    await expect(new LowcodeDataSpaceCatalog('SCENE').query()).rejects.toThrow(/唯一.*ID/)
-
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => Promise.resolve(
-      identity.metaName === 'Base_UserInfo'
-        ? context([{ ID: 'PERMISSION-1', ROWID: 'USER-1', UserName: 'Ada' }], {
-          metaName: 'Base_UserInfo', primaryKey: 'rowid',
-        })
-        : dataContext,
-    ))
-    await expect(new LowcodeDataSpaceCatalog('SCENE').query()).rejects.toThrow(/唯一.*ID/)
-
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => Promise.resolve(
-      identity.metaName === 'Base_UserInfo'
-        ? context([{ ID: 'PERMISSION-1', rowid: 'USER-1', UserName: { name: 'not scalar' } }], { metaName: 'Base_UserInfo' })
-        : dataContext,
-    ))
-    await expect(new LowcodeDataSpaceCatalog('SCENE').query()).rejects.toThrow(/标量值/)
-  })
-
-  it('fails the catalog query when the creator lookup fails', async () => {
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => identity.metaName === 'Base_UserInfo'
-      ? Promise.reject(new Error('user directory unavailable')) : Promise.resolve(context([{ rowid: 'DATA-1', createuser: 'USER-1' }])))
-    await expect(new LowcodeDataSpaceCatalog('SCENE').query()).rejects.toThrow('user directory unavailable')
-  })
-
-  it('does not choose between different permission rows with a duplicate business ROWID', async () => {
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => Promise.resolve(
-      identity.metaName === 'Base_UserInfo'
-        ? context([
-          { ID: 'PERMISSION-A', rowid: 'DUPLICATE-BUSINESS-ID', UserName: 'First Person' },
-          { ID: 'PERMISSION-B', rowid: 'DUPLICATE-BUSINESS-ID', UserName: 'Second Person' },
-        ], { total: 2, metaName: 'Base_UserInfo' })
-        : context([{ rowid: 'DATA-1', createuser: 'DUPLICATE-BUSINESS-ID' }]),
-    ))
-    const result = await new LowcodeDataSpaceCatalog('SCENE').query()
-
-    expect(result.rows[0]?.createuser).toBe('未解析用户')
-    expect(result.unresolvedCreatorCount).toBe(1)
-    expect(JSON.stringify(result)).not.toMatch(/PERMISSION-A|PERMISSION-B|First Person|Second Person/)
-  })
-
-  it('rejects conflicting formal and output spellings of the user business ROWID', async () => {
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => Promise.resolve(
-      identity.metaName === 'Base_UserInfo'
-        ? context([{ ID: 'PERMISSION-1', ROWID: 'BUSINESS-ID', rowid: 'DIFFERENT-ID', UserName: 'Ada' }], { metaName: 'Base_UserInfo' })
-        : context([{ rowid: 'DATA-1', createuser: 'BUSINESS-ID' }]),
-    ))
-    await expect(new LowcodeDataSpaceCatalog('SCENE').query()).rejects.toThrow(/ROWID 与 rowid.*冲突/)
-  })
-
-  it('skips creator lookup when source creator identities are empty or unreadable', async () => {
-    runtimeQuery.mockResolvedValue(context([
-      { rowid: 'DATA-1', createuser: 'MASKED-ID', lingma_sys_params: { m: ['createuser'] } },
-      { rowid: 'DATA-2', createuser: 'INVISIBLE-ID', lingma_sys_params: { h: ['createuser'] } },
-      { rowid: 'DATA-3', createuser: '   ' },
-    ], { total: 3 }))
-    const result = await new LowcodeDataSpaceCatalog('SCENE').query()
-
-    expect(runtimeQuery).toHaveBeenCalledTimes(1)
-    expect(result.rows.map(row => row.createuser)).toEqual(['••••', '', '-'])
-    expect(result.unresolvedCreatorCount).toBe(0)
-  })
-
-  it('mounts the real page, uses route metadata rather than URL query, and renders projected permissions', async () => {
-    mockByMetaName(context([{ rowid: 'ROW-1', Name: 'VISIBLE-NAME', Type: 'datasource',
-      description: 'MASKED-SECRET', sysid: 'INVISIBLE-SECRET', createuser: 'USER-ID', createtime: 'DATE',
-      lingma_sys_params: { m: ['description'], h: ['sysid'] },
-    }], { total: 12 }))
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'META-SCENE' } },
-    ] })
-    await router.push('/directory?scenarioId=QUERY-SCENE')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-
-    const listCall = runtimeQuery.mock.calls.find(call => call[0].metaName === 'Base_DataSet')
-    expect(listCall?.[0]).toEqual({ scenarioId: 'META-SCENE', metaName: 'Base_DataSet' })
-    expect(wrapper.find('#catalog-application option[value="APP-1"]').text()).toBe('App One')
-    expect(wrapper.text()).toContain('VISIBLE-NAME')
-    expect(wrapper.text()).toContain('••••')
-    expect(wrapper.text()).not.toContain('MASKED-SECRET')
-    expect(wrapper.text()).not.toContain('INVISIBLE-SECRET')
-    expect(wrapper.html()).not.toContain('MASKED-SECRET')
-    expect(wrapper.html()).not.toContain('INVISIBLE-SECRET')
-    expect(wrapper.find('table tbody tr').exists()).toBe(true)
-    expect(wrapper.find('table tbody').attributes()).not.toHaveProperty('rowid')
-    expect(wrapper.find('table tbody tr').attributes()).not.toHaveProperty('data-rowid')
-
-    await wrapper.get('#catalog-name').setValue(' FIND-ME ')
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-    expect(lastRuntimeCall()[1]).toMatchObject({ page: { index: 1, size: 10 },
-      filter: expect.objectContaining({ toJSON: expect.any(Function) }) })
-    const searchOptions = lastRuntimeCall()[1]
-    expect(searchOptions.filter.toJSON()).toMatchObject({ logic: 'or', filters: [
-      { field: 'Name', operator: 'contains', value: 'FIND-ME' },
-      { field: 'rowid', operator: 'eq', value: 'FIND-ME' },
-    ] })
-    await wrapper.get('.catalog-pagination button:last-of-type').trigger('click')
-    await flushPromises()
-    expect(lastRuntimeCall()[1]).toMatchObject({ page: { index: 2, size: 10 } })
-    wrapper.unmount()
-  })
-
-  it('renders resolved creator names and an ID-free unresolved-count notice from the actual page', async () => {
-    const dataContext = context([
-      { rowid: 'DATA-1', Name: 'RESOLVED-ROW', createuser: 'VISIBLE-USER' },
-      { rowid: 'DATA-2', Name: 'UNRESOLVED-ROW', createuser: 'MISSING-USER' },
-      { rowid: 'DATA-3', Name: 'MASKED-ROW', createuser: 'MASKED-CREATOR-ID', lingma_sys_params: { m: ['createuser'] } },
-      { rowid: 'DATA-4', Name: 'HIDDEN-ROW', createuser: 'INVISIBLE-CREATOR-ID', lingma_sys_params: { h: ['createuser'] } },
-    ], { total: 4 })
-    const userContext = context([{ ID: 'PERMISSION-VISIBLE', rowid: 'VISIBLE-USER', UserName: 'Ada Lovelace' }], {
-      total: 1, metaName: 'Base_UserInfo',
-    })
-    mockByMetaName(dataContext, context([{ rowid: 'APP-1', AppDesc: 'App One' }], { metaName: 'Base_AppSystemList' }), userContext)
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'SCENE-A' } },
-    ] })
-    await router.push('/directory')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-
-    expect(wrapper.find('table thead th:nth-child(6)').text()).toBe('创建人')
-    expect(wrapper.text()).toContain('Ada Lovelace')
-    expect(wrapper.text()).toContain('未解析用户')
-    expect(wrapper.text()).toContain('有 1 位创建人当前无法解析')
-    expect(wrapper.text()).toContain('••••')
-    expect(wrapper.html()).not.toMatch(/PERMISSION-VISIBLE|VISIBLE-USER|MISSING-USER|MASKED-CREATOR-ID|INVISIBLE-CREATOR-ID/)
-    const lookup = runtimeQuery.mock.calls.find(call => call[0].metaName === 'Base_UserInfo')
-    expect(lookup?.[1].filter.toJSON()).toEqual({ field: 'ROWID', operator: 'in', value: ['VISIBLE-USER', 'MISSING-USER'] })
-    wrapper.unmount()
-  })
-
-  it.each(['success', 'failure'] as const)('keeps the newest page and creator notice when an older creator lookup finishes with %s', async outcome => {
-    let finishOldLookup: ((value: DataSpaceQueryContext) => void) | undefined
-    let failOldLookup: ((reason: Error) => void) | undefined
-    const oldLookup = new Promise<DataSpaceQueryContext>((resolve, reject) => {
-      finishOldLookup = resolve
-      failOldLookup = reject
-    })
-    let listCalls = 0
-    let userCalls = 0
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => {
-      if (identity.metaName === 'Base_AppSystemList') {
-        return Promise.resolve(context([{ rowid: 'APP-1', AppDesc: 'App One' }], { metaName: 'Base_AppSystemList' }))
+  const save=vi.fn(async(command:Parameters<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>>[0])=>{
+    return command.changes.map(change=>{
+      if(!(change.context instanceof DataSpaceQueryContext))throw Error('Expected formal query context')
+      const rows=rowsByModel[change.identity.metaName]??=[]
+      const requests=change.context.buildSaveRequest(change.changes)
+      const added:Record<string,unknown>[]=[],changed:Record<string,unknown>[]=[],deleted:Record<string,unknown>[]=[]
+      for(const request of requests) {
+        for(const row of request.CrudModel.Added){const result={...row,createuser:'USER',createtime:'2026-10-15'};rows.push(result);added.push(result)}
+        for(const row of request.CrudModel.Changed){const original=rows.find(item=>item['rowid']===row['rowid']);if(!original)throw Error('Missing row');Object.assign(original,row);changed.push(row)}
+        for(const row of request.CrudModel.Deleted){const i=rows.findIndex(item=>item['rowid']===row['rowid']);if(i<0)throw Error('Missing row');rows.splice(i,1);deleted.push(row)}
       }
-      if (identity.metaName === 'Base_DataSet') {
-        listCalls += 1
-        const rows = listCalls === 1 ? [{ rowid: 'INITIAL', Name: 'INITIAL-ROW', createuser: 'MISSING-INITIAL' }]
-          : listCalls === 2 ? [{ rowid: 'STALE', Name: 'STALE-ROW', createuser: 'USER-A' }]
-            : [{ rowid: 'CURRENT', Name: 'CURRENT-ROW', createuser: 'USER-B' }]
-        return Promise.resolve(context(rows))
-      }
-      userCalls += 1
-      if (userCalls === 1) return Promise.resolve(context([], { total: 0, metaName: 'Base_UserInfo' }))
-      if (userCalls === 2) return oldLookup
-      return Promise.resolve(context([{ ID: 'PERMISSION-B', rowid: 'USER-B', UserName: 'CURRENT CREATOR' }], {
-        metaName: 'Base_UserInfo',
-      }))
+      afterWrite?.()
+      return change.context.acceptSaveReceipt({requested:change.changes,receipt:{metaName:change.identity.metaName,added,changed,deleted}})
     })
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'SAME-SCENE' } },
-    ] })
-    await router.push('/directory')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    expect(wrapper.text()).toContain('有 1 位创建人当前无法解析')
-
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-    expect(wrapper.text()).toContain('正在加载数据空间')
-    expect(wrapper.text()).not.toContain('有 1 位创建人当前无法解析')
-
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-    expect(wrapper.text()).toContain('CURRENT-ROW')
-    expect(wrapper.text()).toContain('CURRENT CREATOR')
-    expect(wrapper.text()).not.toContain('STALE-ROW')
-    const currentDom = wrapper.html()
-    if (outcome === 'success') {
-      finishOldLookup?.(context([{ ID: 'PERMISSION-A', rowid: 'USER-A', UserName: 'STALE CREATOR' }], {
-        metaName: 'Base_UserInfo',
-      }))
-    } else {
-      failOldLookup?.(new Error('STALE CREATOR LOOKUP FAILURE'))
-    }
-    await flushPromises()
-
-    expect(wrapper.html()).toBe(currentDom)
-    expect(wrapper.text()).toContain('CURRENT-ROW')
-    expect(wrapper.text()).toContain('CURRENT CREATOR')
-    expect(wrapper.text()).not.toContain('STALE-ROW')
-    expect(wrapper.text()).not.toContain('STALE CREATOR')
-    expect(wrapper.text()).not.toContain('STALE CREATOR LOOKUP FAILURE')
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
-    wrapper.unmount()
   })
-
-  it('filters by selected application, retains it for paging, resolves the displayed label, and clears on reset', async () => {
-    const appContext = context([
-      { rowid: 'APP-1', AppDesc: '应用一', AppName: 'App One' },
-      { rowid: 'APP-2', AppDesc: '', AppName: 'App Two' },
-      { rowid: 'MASKED-APP-ID', AppDesc: 'Hidden key', lingma_sys_params: { m: ['rowid'] } },
-      { rowid: 'INVISIBLE-APP-ID', AppDesc: 'Hidden key', lingma_sys_params: { h: ['rowid'] } },
-      { rowid: 'APP-3', AppDesc: 'MASKED-APP-LABEL', AppName: 'NO-FALLBACK', lingma_sys_params: { m: ['AppDesc'] } },
-    ], { total: 5, metaName: 'Base_AppSystemList' })
-    mockByMetaName(context([{ rowid: 'DATA-1', Name: 'ITEM', Type: 'datasource', sysid: 'APP-2' }], { total: 25 }), appContext)
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'META-SCENE' } },
-    ] })
-    await router.push('/directory')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-
-    expect(wrapper.find('#catalog-application option[value="MASKED-APP-ID"]').exists()).toBe(false)
-    expect(wrapper.find('#catalog-application option[value="INVISIBLE-APP-ID"]').exists()).toBe(false)
-    expect(wrapper.html()).not.toContain('MASKED-APP-ID')
-    expect(wrapper.html()).not.toContain('INVISIBLE-APP-ID')
-    expect(wrapper.find('#catalog-application option[value="APP-3"]').text()).toBe('••••')
-    expect(wrapper.html()).not.toContain('MASKED-APP-LABEL')
-    expect(wrapper.html()).not.toContain('NO-FALLBACK')
-
-    await wrapper.get('#catalog-name').setValue(' ITEM ')
-    await wrapper.get('#catalog-application').setValue('APP-2')
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-    expect(wrapper.find('table tbody tr td:nth-child(5)').text()).toBe('App Two')
-    let listOptions = lastRuntimeCall()[1]
-    expect(listOptions.page).toEqual({ index: 1, size: 10 })
-    expect(listOptions.filter.toJSON()).toEqual({ logic: 'and', filters: [
-      { logic: 'or', filters: [
-        { field: 'Name', operator: 'contains', value: 'ITEM' },
-        { field: 'rowid', operator: 'eq', value: 'ITEM' },
-      ] },
-      { field: 'sysid', operator: 'eq', value: 'APP-2' },
-    ] })
-
-    await wrapper.get('.catalog-pagination button:last-of-type').trigger('click')
-    await flushPromises()
-    listOptions = lastRuntimeCall()[1]
-    expect(listOptions.page).toEqual({ index: 2, size: 10 })
-    expect(listOptions.filter.toJSON()).toMatchObject({ logic: 'and', filters: [
-      expect.objectContaining({ logic: 'or' }),
-      { field: 'sysid', operator: 'eq', value: 'APP-2' },
-    ] })
-
-    await wrapper.get('button').trigger('click')
-    await flushPromises()
-    listOptions = lastRuntimeCall()[1]
-    expect(listOptions.page).toEqual({ index: 1, size: 10 })
-    expect(listOptions.filter.toJSON()).toEqual({ logic: 'or', filters: [
-      { field: 'Name', operator: 'contains', value: 'ITEM' },
-      { field: 'rowid', operator: 'eq', value: 'ITEM' },
-    ] })
-    await wrapper.get('form button:last-of-type').trigger('click')
-    await flushPromises()
-    expect(lastRuntimeCall()[1]).not.toHaveProperty('filter')
-    wrapper.unmount()
+  loadScenario.mockImplementation(({scenarioId}:{scenarioId:string})=>{
+    const dataSet=dataset(scenarioId)
+    for(const name of Object.keys(models))dataSet.getTable(name)!.forEachView(view=>view.bindQueryExecutor({executeQuery,save}))
+    return Promise.resolve(dataSet)
   })
-
-  it('shows application-option failures and retries them independently of the data list', async () => {
-    let applicationCalls = 0
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => {
-      if (identity.metaName === 'Base_AppSystemList') {
-        applicationCalls += 1
-        return applicationCalls === 1
-          ? Promise.reject(new Error('application options unavailable'))
-          : Promise.resolve(context([{ rowid: 'APP-1', AppDesc: 'Retry Success' }], { metaName: 'Base_AppSystemList' }))
-      }
-      return Promise.resolve(context([{ rowid: 'DATA-1', Name: 'LIST-AVAILABLE', sysid: 'APP-1' }]))
+  return {save,rows:rowsByModel['Base_DataSet']!,onWrite(fn:()=>void){afterWrite=fn}}
+}
+function calls(name:string) {return executeQuery.mock.calls.filter(([view])=>view.tableName===name)}
+function last(name='Base_DataSet'):QueryParams {return calls(name).at(-1)![1] as QueryParams}
+async function owner() {const value=await LowcodeDataSpaceCatalog.load({projectId:'app-a',scenarioId:'SCENE'});disposals.push(()=>value.dispose());return value}
+function button(wrapper:ReturnType<typeof mount>,text:string) {const found=wrapper.findAll('button').find(item=>item.text()===text);if(!found)throw new Error(`Missing ${text}`);return found}
+const path='/t/TENANT/app-a/features/data-platform/data-set-management/ui/data-set-list-page'
+async function page(scenarioId='SCENE') {
+  const router=createRouter({history:createMemoryHistory(),routes:[{path,component:CatalogPage,meta:{blueprintScenarioId:scenarioId}},
+    {path:'/t/TENANT/app-a/data-space-design',component:{template:'<div>designer</div>'}},
+    {path:'/t/TENANT/app-a/second',component:CatalogPage,meta:{blueprintScenarioId:'OTHER'}}]})
+  await router.push(`${path}?scenarioId=UNTRUSTED&__sparkNavigationId=node`)
+  const registry=Spark.createRegistry()
+  for(const [type,component] of [['r-text',FieldText],['r-select',FieldSelect],['r-button',RendererButton],['r-filter',RendererFilter],['r-toolbar',RendererToolbar]] as const)registry.register({type,component})
+  registry.register({type:'r-field-scope',component:RendererFieldScope})
+  const wrapper=mount(CatalogPage,{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin({registry})]}})
+  disposals.push(()=>wrapper.unmount());await flushPromises();return {router,wrapper}
+}
+beforeEach(()=>{
+  executeQuery.mockReset();loadScenario.mockReset();readRequestScope.mockReset();openDesign.mockReset()
+  readRequestScope.mockReturnValue({token:'scope-a',headers:{'X-AppId':'app-a'}})
+  loadScenario.mockImplementation(({scenarioId}:{scenarioId:string})=>{
+    const dataSet=dataset(scenarioId)
+    for(const name of Object.keys(models))dataSet.getTable(name)!.forEachView(view=>view.bindQueryExecutor({executeQuery}))
+    return Promise.resolve(dataSet)
+  })
+  executeQuery.mockImplementation(async(view:DataView)=>context(view,defaults[view.tableName]??[],view.tableName==='Base_DataSet'?{total:25}:{}))
+  config.global.stubs={...originalStubs}
+  for(const key of ['el-table','el-table-column','SparkComponentRenderer','spark-component-renderer'])delete config.global.stubs[key]
+  vi.stubGlobal('ResizeObserver',class {observe(){}unobserve(){}disconnect(){}})
+})
+afterEach(()=>{disposals.splice(0).reverse().forEach(fn=>fn());config.global.stubs=originalStubs;vi.unstubAllGlobals()})
+describe('native DataView catalog',()=>{
+  it.each(['count','missing','duplicate','wrong-key','non-scalar'] as const)('rejects application %s while keeping the catalog available',async kind=>{
+    executeQuery.mockImplementation(async(view:DataView)=>view.tableName!=='Base_AppSystemList'?context(view,defaults[view.tableName]??[]):
+      context(view,kind==='missing'?[{AppDesc:'missing'}]:kind==='duplicate'?[{rowid:'DUP'},{rowid:'DUP'}]:
+        [{rowid:'APP',AppDesc:kind==='non-scalar'?{}:'name'}],{count:kind!=='count',...(kind==='wrong-key'?{key:'other'}:{})}))
+    const value=await owner();await value.initialize();expect(value.apps.loadingError).not.toBeNull();expect(value.view.loadingError).toBeNull()
+  })
+  it('honors application key/title permissions and does not fall through a masked title',async()=>{
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_AppSystemList'?[
+      {rowid:'MASK',AppDesc:'SECRET',AppName:'NO-FALLBACK',lingma_sys_params:{m:['AppDesc']}},
+      {rowid:'HIDE',AppDesc:'NO-IDENTITY',lingma_sys_params:{h:['rowid']}},
+      {rowid:'FALLBACK',AppDesc:'',AppName:'Fallback'},
+    ]:defaults[view.tableName]??[]))
+    const value=await owner();await value.initialize();expect(value.applicationLabel('MASK')).toBe('••••')
+    expect(value.applicationLabel('HIDE')).toBe('未解析应用');expect(value.applicationLabel('FALLBACK')).toBe('Fallback')
+  })
+  it('rejects an application mismatch before reading formal configuration',async()=>{
+    await expect(LowcodeDataSpaceCatalog.load({projectId:'other',scenarioId:'SCENE'})).rejects.toThrow('所属应用已失效')
+    expect(loadScenario).not.toHaveBeenCalled()
+  })
+  it('discards a delayed user lookup after a newer list query',async()=>{
+    let release!:(value:DataSpaceQueryContext)=>void,users!:DataView,attempts=0
+    const pending=new Promise<DataSpaceQueryContext>(resolve=>{release=resolve})
+    executeQuery.mockImplementation(async(view:DataView)=>{
+      if(view.tableName==='Base_UserInfo'){users=view;return pending}
+      return context(view,view.tableName==='Base_DataSet'?(++attempts===1?[{rowid:'OLD',createuser:'USER'}]:[{rowid:'NEW'}]):[])
     })
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'META-SCENE' } },
-    ] })
-    await router.push('/directory')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    expect(wrapper.get('.catalog-error').text()).toContain('application options unavailable')
-    expect(wrapper.get('#catalog-application').attributes('disabled')).toBeDefined()
-    expect(wrapper.text()).toContain('LIST-AVAILABLE')
-
-    await wrapper.get('.catalog-error button').trigger('click')
-    await flushPromises()
-    expect(wrapper.find('.catalog-error').exists()).toBe(false)
-    expect(wrapper.find('#catalog-application option[value="APP-1"]').text()).toBe('Retry Success')
-    expect(applicationCalls).toBe(2)
-    wrapper.unmount()
+    const value=await owner(),first=value.view.refresh();await flushPromises();await value.view.refresh()
+    release(context(users,[{ID:'P',ROWID:'USER',UserName:'Old'}]));await first
+    expect(value.view.rows[0]?.['rowid']).toBe('NEW');expect(value.view.loadingError).toBeNull();expect(value.unresolvedCreatorCount).toBe(0)
   })
+  it('loads formal views, retains native values and uses the same view for filtering and paging',async()=>{
+    const value=await owner();await value.initialize()
+    expect(loadScenario).toHaveBeenCalledWith({projectId:'app-a',scenarioId:'SCENE'})
+    expect(value.view).toBe(value.dataSet.getView('Base_DataSet','catalog'));expect(value.view.rows[0]?.['createuser']).toBe('USER')
+    expect(value.creatorLabel('USER')).toBe('Creator');expect(value.applicationLabel('APP')).toBe('Application')
+    expect(last().sort).toBe('createtime:desc');expect(last().pageSize).toBe(10);expect(value.view.total).toBe(25)
+    const filter:DataViewFilterTree={logic:'and',filters:[{logic:'or',filters:[{field:'Name',operator:'contains',value:'needle'},
+      {field:'rowid',operator:'eq',value:'needle'}]},{field:'sysid',operator:'eq',value:'APP'}]}
+    await value.view.executeFilter(filter);await value.view.setPage(2);expect(last()).toMatchObject({page:2,filter})
+    expect(last('Base_UserInfo')).toMatchObject({allPages:true,fields:['ID','ROWID','UserName'],filter:{field:'ROWID',operator:'in',value:['USER']}})
+    await value.view.executeFilter(undefined);expect(last()).not.toHaveProperty('filter')
+  })
+  it.each(['count','missing','duplicate','wrong-key','non-scalar'] as const)('rejects catalog %s failures',async kind=>{
+    executeQuery.mockImplementation(async(view:DataView)=>view.tableName!=='Base_DataSet'?context(view,[]):
+      context(view,kind==='missing'?[{Name:'missing'}]:kind==='duplicate'?[{rowid:'DUP'},{rowid:'DUP'}]:
+        [{rowid:'ROW',Name:kind==='non-scalar'?{}:'name'}],{count:kind!=='count',...(kind==='wrong-key'?{key:'other'}:{})}))
+    const value=await owner();await value.initialize();expect(value.view.loadingError).not.toBeNull();expect(value.designTarget()).toBe('')
+  })
+  it.each(['missing','duplicate','wrong-key','non-scalar','conflicting-alias','count'] as const)('rejects user directory %s without claiming list success',async kind=>{
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_UserInfo'?
+      kind==='missing'?[{ROWID:'USER'}]:kind==='duplicate'?[{ID:'DUP',ROWID:'USER'},{ID:'DUP',ROWID:'USER'}]:
+      [{ID:'P',ROWID:'USER',...(kind==='conflicting-alias'?{rowid:'DIFFERENT'}:{}),UserName:kind==='non-scalar'?{}:'name'}]:defaults[view.tableName]??[],
+      view.tableName==='Base_UserInfo'?{count:kind!=='count',...(kind==='wrong-key'?{key:'ROWID'}:{})}:{}))
+    const value=await owner();await value.initialize();expect(value.view.loadingError).not.toBeNull()
+  })
+  it('consumes both permissions, rejects ambiguous associations and never uses user permission IDs as business IDs',async()=>{
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_DataSet'?[
+      {rowid:'A',createuser:'VISIBLE'},{rowid:'B',createuser:'MISSING'},{rowid:'C',createuser:'MASKED',lingma_sys_params:{m:['createuser']}},
+      {rowid:'D',createuser:'HIDDEN',lingma_sys_params:{h:['createuser']}},{rowid:'E',createuser:'VISIBLE'},
+      {rowid:'F',createuser:'DUP'},{rowid:'G',createuser:'MASK-NAME'},{rowid:'H',createuser:'HIDE-NAME'},{rowid:'I',createuser:'HIDE-ASSOCIATION'},
+    ]:view.tableName==='Base_UserInfo'?[
+      {ID:'PERMISSION-VISIBLE',rowid:'VISIBLE',UserName:'Ada'},{ID:'P1',ROWID:'DUP',UserName:'First'},{ID:'P2',ROWID:'DUP',UserName:'Second'},
+      {ID:'P3',ROWID:'MASK-NAME',UserName:'SECRET',lingma_sys_params:{m:['UserName']}},
+      {ID:'P4',ROWID:'HIDE-NAME',UserName:'HIDDEN',lingma_sys_params:{h:['UserName']}},
+      {ID:'HIDE-ASSOCIATION',ROWID:'HIDE-ASSOCIATION',UserName:'NEVER',lingma_sys_params:{h:['ROWID']}},
+    ]:[]))
+    const value=await owner();await value.initialize()
+    expect(last('Base_UserInfo').filter).toEqual({field:'ROWID',operator:'in',value:['VISIBLE','MISSING','DUP','MASK-NAME','HIDE-NAME','HIDE-ASSOCIATION']})
+    expect(value.creatorLabel('VISIBLE')).toBe('Ada');expect(value.creatorLabel('DUP')).toBe('未解析用户')
+    expect(value.creatorLabel('MASK-NAME')).toBe('••••');expect(value.creatorLabel('HIDE-NAME')).toBe('')
+    expect(value.creatorLabel('HIDE-ASSOCIATION')).toBe('未解析用户');expect(value.unresolvedCreatorCount).toBe(3)
+  })
+  it('does not query users when source identities are empty or unreadable',async()=>{
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_DataSet'?
+      [{rowid:'A',createuser:'MASKED',lingma_sys_params:{m:['createuser']}},{rowid:'B'}]:[]))
+    const value=await owner();await value.initialize();expect(calls('Base_UserInfo')).toHaveLength(0)
+  })
+  it.each(['success','failure'] as const)('keeps the newest result after an earlier query %s',async outcome=>{
+    let resolve!:(value:DataSpaceQueryContext)=>void,reject!:(error:Error)=>void,oldView!:DataView,count=0
+    const pending=new Promise<DataSpaceQueryContext>((yes,no)=>{resolve=yes;reject=no})
+    executeQuery.mockImplementation(async(view:DataView)=>{if(view.tableName==='Base_DataSet'&&++count===1){oldView=view;return pending}
+      return context(view,view.tableName==='Base_DataSet'?[{rowid:'NEW',Name:'Latest'}]:[])})
+    const value=await owner(),first=value.view.refresh();await flushPromises();await value.view.refresh()
+    if(outcome==='success')resolve(context(oldView,[{rowid:'OLD',Name:'Stale'}]));else reject(new Error('Old failure'))
+    await first;expect(value.view.rows[0]?.['Name']).toBe('Latest');expect(value.view.loadingError).toBeNull()
+  })
+  it('rejects stale selected row identities and changed execution scopes',async()=>{
+    const value=await owner();await value.initialize();const row=value.view.rows[0]!
+    value.view.setSelectedRows([row]);expect(value.designTarget()).toBe('TARGET')
+    await value.view.refresh();expect(value.designTarget(row)).toBe('')
+    readRequestScope.mockReturnValue({token:'other',headers:{'X-AppId':'app-a'}});expect(value.isCurrent()).toBe(false);expect(value.designTarget()).toBe('')
+  })
+})
+describe('catalog original-view mutations',()=>{
+  async function selected(){const value=await owner();await value.initialize();value.view.setSelectedRows([value.view.rows[0]!]);return value}
+  it('saves one original row and consumes the same result after independent reopening',async()=>{
+    const server=writable(),value=await selected();value.beginEdit();value.view.updateEditingValue('TARGET','Name',' Renamed ')
+    await value.saveEdit();expect(server.save).toHaveBeenCalledTimes(1);expect(value.editing).toBeUndefined()
+    expect(server.rows[0]).toMatchObject({Name:'Renamed',Type:'datasource',sysid:'APP'})
+    const reopened=await owner();await reopened.initialize();expect(reopened.view.rows[0]?.['Name']).toBe('Renamed')
+  })
+  it('creates only the configured fields, then reloads server creator/time',async()=>{
+    const server=writable(),value=await selected();await value.beginCreate();const id=value.editing!.id
+    value.view.updateEditingValue(id,'Name','New space');value.view.updateEditingValue(id,'sysid','APP')
+    value.view.updateEditingValue(id,'description','Details');await value.saveEdit()
+    expect(server.save).toHaveBeenCalledTimes(1);expect(server.rows).toHaveLength(2)
+    expect(value.view.rows.find(row=>row['rowid']===id)).toMatchObject({Name:'New space',Type:'datasource',sysid:'APP',createuser:'USER',createtime:'2026-10-15'})
+  })
+  it('cancels a staged create without touching the server or other rows',async()=>{
+    const server=writable(),value=await selected();await value.beginCreate();const id=value.editing!.id
+    value.view.updateEditingValue(id,'Name','Discarded');value.cancelEdit()
+    expect(server.save).not.toHaveBeenCalled();expect(value.view.rows).toHaveLength(1);expect(value.editing).toBeUndefined()
+    expect(value.view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+  it.each(['empty','length','application'] as const)('rejects invalid create %s before writing',async kind=>{
+    const server=writable(),value=await selected();await value.beginCreate();const id=value.editing!.id
+    value.view.updateEditingValue(id,'Name',kind==='empty'?'':kind==='length'?'N'.repeat(101):'New')
+    value.view.updateEditingValue(id,'sysid',kind==='application'?'UNKNOWN':'APP')
+    await expect(value.saveEdit()).rejects.toThrow();expect(server.save).not.toHaveBeenCalled();expect(value.editing?.status).toBe('editing')
+  })
+  it('does not save unchanged edits or expand the editable property set',async()=>{
+    const server=writable(),value=await selected();value.beginEdit();await value.saveEdit();expect(server.save).not.toHaveBeenCalled()
+    value.beginEdit();value.view.updateEditingValue('TARGET','sysid','OTHER');await expect(value.saveEdit()).rejects.toThrow()
+    expect(server.save).not.toHaveBeenCalled()
+  })
+  it('rejects an obsolete query and scope before committing',async()=>{
+    const server=writable(),value=await selected();value.beginEdit();value.view.updateEditingValue('TARGET','Name','Obsolete')
+    readRequestScope.mockReturnValue({token:'scope-b',headers:{'X-AppId':'app-a'}})
+    await expect(value.saveEdit()).rejects.toThrow('STALE');expect(server.save).not.toHaveBeenCalled()
+  })
+  it('never retries an unknown write and can explicitly discard then query its actual result',async()=>{
+    const server=writable(),value=await selected();value.beginEdit();value.view.updateEditingValue('TARGET','Name','Applied')
+    server.onWrite(()=>{throw Error('Network lost after write')});await expect(value.saveEdit()).rejects.toThrow()
+    expect(value.editing?.status).toBe('unknown');await expect(value.saveEdit()).rejects.toThrow('不能重复提交')
+    expect(()=>value.cancelEdit()).toThrow('核验');await value.reloadEdit()
+    expect(server.save).toHaveBeenCalledTimes(1);expect(value.view.rows[0]?.['Name']).toBe('Applied');expect(value.editing).toBeUndefined()
+  })
+  it('retains confirmed-write readback failure and retries only the read',async()=>{
+    const server=writable(),value=await selected(),execute=executeQuery.getMockImplementation()!
+    value.beginEdit();value.view.updateEditingValue('TARGET','Name','Applied')
+    server.onWrite(()=>executeQuery.mockRejectedValue(Error('Read unavailable')))
+    await expect(value.saveEdit()).rejects.toThrow('Read unavailable');expect(value.editing?.status).toBe('readback')
+    executeQuery.mockImplementation(execute);await value.reloadEdit();expect(server.save).toHaveBeenCalledTimes(1)
+    expect(value.view.rows[0]?.['Name']).toBe('Applied')
+  })
+  it('keeps add/edit disabled for a formal read-only query',async()=>{
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,(defaults[view.tableName]??[]).map(row=>({...row,lingma_sys_params:{e:[],d:false}}))))
+    const value=await selected();expect(value.canCreate()).toBe(false);expect(value.canEdit()).toBe(false)
+    await expect(value.beginCreate()).rejects.toThrow();expect(()=>value.beginEdit()).toThrow()
+  })
+})
 
-  it('discards late application options when the formal scenario changes', async () => {
-    let finishOldOptions: ((value: DataSpaceQueryContext) => void) | undefined
-    const oldOptions = new Promise<DataSpaceQueryContext>(resolve => { finishOldOptions = resolve })
-    let applicationCalls = 0
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => {
-      if (identity.metaName === 'Base_AppSystemList') {
-        applicationCalls += 1
-        return applicationCalls === 1 ? oldOptions
-          : Promise.resolve(context([{ rowid: 'APP-NEW', AppDesc: 'NEW-SCENE-APP' }], { metaName: 'Base_AppSystemList' }))
-      }
-      return Promise.resolve(context([{ rowid: 'DATA-1', Name: 'DATA' }]))
+describe('catalog navigation bindings and API information',()=>{
+  const parent={rowid:'PARENT',SysId:'APP',conid:'',prowid:'000000',FunName:'Folder',name:'folder',NavigationUrl:''}
+  const leaf={rowid:'LEAF',SysId:'APP',conid:'TARGET',prowid:'PARENT',FunName:'Feature',name:'feature',NavigationUrl:'/feature'}
+  function navigation(nodes:Record<string,unknown>[]=[parent,leaf],bound:Record<string,unknown>[]=[leaf]) {
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_NavigationInfo'
+      ?view.viewId==='catalogBindings'?bound:nodes:defaults[view.tableName]??[]))
+  }
+  async function selected(){const value=await owner();await value.initialize();value.view.setSelectedRows([value.view.rows[0]!]);return value}
+  it('uses formal derived views, preserves scope, and resolves complete ancestor paths',async()=>{
+    navigation();const value=await selected(),source=value.dataSet.getView('Base_NavigationInfo')!
+    source.filterExpression={field:'rowid',operator:'ne',value:'HIDDEN'}
+    await value.queryBindings();expect(value.bindings).toBe(value.dataSet.getView('Base_NavigationInfo','catalogBindings'))
+    expect(value.bindings?.rows).toMatchObject([leaf]);expect(value.bindingPath('LEAF')).toBe('Folder / Feature')
+    expect(last('Base_NavigationInfo')).toMatchObject({allPages:true,filter:{logic:'and',filters:[source.filterExpression,{field:'SysId',operator:'eq',value:'APP'}]}})
+    const bound=calls('Base_NavigationInfo')[0]![1] as QueryParams
+    expect(bound.filter).toMatchObject({logic:'and',filters:[source.filterExpression,{field:'SysId',operator:'eq',value:'APP'},{field:'conid',operator:'eq',value:'TARGET'}]})
+    expect(source.rows).toEqual([]);value.closeBindings();expect(value.bindings).toBeUndefined()
+    expect(value.dataSet.getView('Base_NavigationInfo','catalogBindingAncestors')).toBeUndefined()
+  })
+  it('returns a real empty binding result without querying ancestors',async()=>{
+    navigation([],[]);const value=await selected();await value.queryBindings()
+    expect(value.bindings?.rows).toEqual([]);expect(calls('Base_NavigationInfo')).toHaveLength(1)
+  })
+  it.each(['missing','cycle','hidden','wrong-app','wrong-target'] as const)('rejects %s without publishing a partial binding view',async kind=>{
+    navigation(kind==='missing'?[leaf]:kind==='cycle'?[{...parent,prowid:'LEAF'},leaf]:[parent,leaf],
+      [{...leaf,...kind==='wrong-app'?{SysId:'OTHER'}:kind==='wrong-target'?{conid:'OTHER'}:kind==='hidden'?{lingma_sys_params:{h:['prowid']}}:{}}])
+    const value=await selected();await expect(value.queryBindings()).rejects.toThrow();expect(value.bindings).toBeUndefined()
+  })
+  it('rejects incomplete page counts instead of treating a truncated ancestor list as complete',async()=>{
+    navigation();const execute=executeQuery.getMockImplementation()!
+    executeQuery.mockImplementation(async(view:DataView,...args:unknown[])=>view.viewId==='catalogBindingAncestors'?context(view,[parent,leaf],{count:false}):execute(view,...args))
+    const value=await selected();await expect(value.queryBindings()).rejects.toThrow('总数');expect(value.bindings).toBeUndefined()
+  })
+  it('does not publish delayed bindings after close',async()=>{
+    navigation();const execute=executeQuery.getMockImplementation()!,value=await selected()
+    let release!:(result:DataSpaceQueryContext)=>void,pendingView!:DataView
+    executeQuery.mockImplementation(async(view:DataView,...args:unknown[])=>view.viewId==='catalogBindings'
+      ?new Promise(resolve=>{release=resolve;pendingView=view}):execute(view,...args))
+    const pending=value.queryBindings();await flushPromises();const response=context(pendingView,[leaf]);value.closeBindings();release(response)
+    await expect(pending).rejects.toThrow();expect(value.bindings).toBeUndefined()
+  })
+  it('invalidates paths when the catalog selection or query row changes',async()=>{
+    navigation();const value=await selected();await value.queryBindings();await value.view.refresh()
+    expect(()=>value.bindingPath('LEAF')).toThrow('失效')
+  })
+  it('delegates API information to the existing formal session and always releases it',async()=>{
+    const session={loadMetadataViews:vi.fn(),readApiInfo:vi.fn(async()=>'{"DataSetId":"TARGET"}'),dispose:vi.fn()}
+    openDesign.mockResolvedValue(session);const value=await selected()
+    expect(await value.readApiInfo()).toBe('{"DataSetId":"TARGET"}');expect(openDesign).toHaveBeenCalledWith('TARGET')
+    expect(session.loadMetadataViews).toHaveBeenCalledWith(['Base_DataModel_Field']);expect(session.dispose).toHaveBeenCalledOnce()
+    session.readApiInfo.mockRejectedValue(Error('Definition unavailable'));await expect(value.readApiInfo()).rejects.toThrow('Definition unavailable')
+    expect(session.dispose).toHaveBeenCalledTimes(2)
+  })
+  it('rejects delayed API text after target changes and releases its original session',async()=>{
+    let release!:(text:string)=>void
+    const session={loadMetadataViews:vi.fn(),readApiInfo:vi.fn(()=>new Promise<string>(resolve=>{release=resolve})),dispose:vi.fn()}
+    openDesign.mockResolvedValue(session);const value=await selected(),pending=value.readApiInfo();await flushPromises()
+    value.view.setSelectedRows([]);release('obsolete');await expect(pending).rejects.toThrow('目标已变化');expect(session.dispose).toHaveBeenCalledOnce()
+  })
+})
+
+describe('catalog page entry',()=>{
+  it('offers original row actions on the bound row without a prior selection',async()=>{
+    const {wrapper,router}=await page(),row=wrapper.get('tbody tr')
+    const design=row.findAll('button').find(item=>item.text()==='设计')
+    expect(design).toBeDefined();expect(design!.attributes('disabled')).toBeUndefined()
+    await design!.trigger('click');await flushPromises();expect(router.currentRoute.value.query['scenarioId']).toBe('TARGET')
+  })
+  it('targets the clicked row rather than a different selected row',async()=>{
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_DataSet'
+      ?[defaults['Base_DataSet']![0]!,{...defaults['Base_DataSet']![0],rowid:'SECOND',Name:'Second'}]:defaults[view.tableName]??[]))
+    const {wrapper,router}=await page(),rows=wrapper.findAll('tbody tr');await rows[0]!.trigger('click');await flushPromises()
+    await rows[1]!.findAll('button').find(item=>item.text()==='设计')!.trigger('click');await flushPromises()
+    expect(router.currentRoute.value.query['scenarioId']).toBe('SECOND')
+  })
+  it('closes a delayed binding query without keeping the list busy or publishing its late error',async()=>{
+    const execute=executeQuery.getMockImplementation()!
+    let release!:(result:DataSpaceQueryContext)=>void,pendingView!:DataView
+    executeQuery.mockImplementation(async(view:DataView,...args:unknown[])=>view.viewId==='catalogBindings'
+      ?new Promise(resolve=>{release=resolve;pendingView=view}):execute(view,...args))
+    const {wrapper}=await page();await button(wrapper,'查询绑定').trigger('click');await flushPromises()
+    const response=context(pendingView,[]);await button(wrapper,'关闭').trigger('click');await flushPromises()
+    expect(wrapper.getComponent(RendererTable).element.parentElement?.getAttribute('inert')).toBeNull();release(response);await flushPromises()
+    expect(wrapper.text()).not.toContain('目标已变化');expect(wrapper.text()).not.toContain('正在查询绑定')
+  })
+  it('creates through standard bound fields and consumes the saved query result',async()=>{
+    const server=writable(),{wrapper}=await page();await button(wrapper,'新增').trigger('click');await flushPromises()
+    const form=wrapper.getComponent(RendererForm);expect(form.props('dataViewKey')).toBe('SCENE@Base_DataSet@catalog')
+    const name=form.findAllComponents(FieldText).find(item=>item.props('field')==='Name')!
+    expect(name.props('modelValue')).toBeUndefined();await name.get('input').setValue('From form')
+    form.getComponent(FieldSelect).getComponent(ElSelect).vm.$emit('update:modelValue','APP');await flushPromises()
+    await button(wrapper,'确定').trigger('click');await flushPromises()
+    expect(server.save).toHaveBeenCalledTimes(1);expect(wrapper.findComponent(RendererForm).exists()).toBe(false)
+    expect(wrapper.text()).toContain('From form');expect(wrapper.text()).toContain('数据空间已保存')
+  })
+  it('blocks resubmission after an unknown write and offers a read-only reconciliation action',async()=>{
+    const server=writable(),{wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
+    await button(wrapper,'编辑').trigger('click');await flushPromises()
+    await wrapper.getComponent(RendererForm).findAllComponents(FieldText).find(item=>item.props('field')==='Name')!.get('input').setValue('Applied once')
+    server.onWrite(()=>{throw Error('Unknown write')});await button(wrapper,'确定').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain('保存结果尚未确认');expect(wrapper.findAll('button').some(item=>item.text()==='确定')).toBe(false)
+    await button(wrapper,'放弃本地修改并重新查询核验').trigger('click');await flushPromises()
+    expect(server.save).toHaveBeenCalledTimes(1);expect(wrapper.text()).toContain('Applied once');expect(wrapper.text()).not.toContain('数据空间已保存')
+  })
+  it('renders navigation paths from a bound standard table and releases the views on close',async()=>{
+    const leaf={rowid:'NODE',SysId:'APP',conid:'TARGET',prowid:'000000',FunName:'Bound feature',name:'node',NavigationUrl:'/bound'}
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_NavigationInfo'?[leaf]:defaults[view.tableName]??[]))
+    const {wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
+    await button(wrapper,'查询绑定').trigger('click');await flushPromises()
+    expect(wrapper.findAllComponents(RendererTable).map(table=>table.props('dataViewKey'))).toContain('SCENE@Base_NavigationInfo@catalogBindings')
+    expect(wrapper.text()).toContain('Bound feature');expect(wrapper.text()).toContain('/bound')
+    await button(wrapper,'关闭').trigger('click');await flushPromises();expect(wrapper.text()).not.toContain('Bound feature')
+  })
+  it('copies only the information returned by the formal session',async()=>{
+    const writeText=vi.fn(async()=>{});vi.stubGlobal('navigator',{...navigator,clipboard:{writeText}})
+    const session={loadMetadataViews:vi.fn(),readApiInfo:vi.fn(async()=>'formal API information'),dispose:vi.fn()};openDesign.mockResolvedValue(session)
+    const {wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
+    await button(wrapper,'复制API').trigger('click');await flushPromises()
+    expect(writeText).toHaveBeenCalledWith('formal API information');expect(session.dispose).toHaveBeenCalledOnce();expect(wrapper.text()).toContain('已复制')
+  })
+  it('opens the original catalog row in a standard bound edit form and cancels without saving',async()=>{
+    writable()
+    const {wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
+    await button(wrapper,'编辑').trigger('click');await flushPromises()
+    const text=wrapper.findAllComponents(FieldText).find(field=>field.props('field')==='Name'&&!field.props('readonly')&&!field.props('filterAlternatives'))!
+    expect(text.exists()).toBe(true)
+    expect(text.props('modelValue')).toBeUndefined()
+    await text.get('input').setValue('Changed');await flushPromises()
+    await button(wrapper,'取消').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain('Directory item');expect(wrapper.text()).not.toContain('Changed')
+  })
+  it('does not publish delayed application results after the formal route space changes',async()=>{
+    let release!:(value:DataSpaceQueryContext)=>void,oldView!:DataView
+    const pending=new Promise<DataSpaceQueryContext>(resolve=>{release=resolve})
+    executeQuery.mockImplementation(async(view:DataView)=>{
+      if(view.dataSet?.scenarioId==='SCENE'&&view.tableName==='Base_AppSystemList'){oldView=view;return pending}
+      return context(view,view.tableName==='Base_AppSystemList'?[{rowid:'APP',AppDesc:'Current application'}]:defaults[view.tableName]??[])
     })
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/first', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'SCENE-A' } },
-      { path: '/second', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'SCENE-B' } },
-    ] })
-    await router.push('/first')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    await router.push('/second')
-    await flushPromises()
-    expect(wrapper.find('#catalog-application option[value="APP-NEW"]').text()).toBe('NEW-SCENE-APP')
-
-    finishOldOptions?.(context([{ rowid: 'APP-OLD', AppDesc: 'OLD-SCENE-APP' }], { metaName: 'Base_AppSystemList' }))
-    await flushPromises()
-    expect(wrapper.find('#catalog-application option[value="APP-NEW"]').exists()).toBe(true)
-    expect(wrapper.find('#catalog-application option[value="APP-OLD"]').exists()).toBe(false)
-    expect(wrapper.html()).not.toContain('OLD-SCENE-APP')
-    wrapper.unmount()
+    const {wrapper,router}=await page()
+    const stale=context(oldView,[{rowid:'APP',AppDesc:'Obsolete application'}])
+    await router.push('/t/TENANT/app-a/second');await flushPromises();release(stale);await flushPromises()
+    expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe('OTHER@Base_DataSet@catalog')
+    expect(wrapper.text()).toContain('Current application');expect(wrapper.text()).not.toContain('Obsolete application')
   })
-
-  it.each(['success', 'failure'] as const)('does not publish pending application-option %s after only the execution scope changes', async outcome => {
-    let finishPending: ((value: DataSpaceQueryContext) => void) | undefined
-    let failPending: ((reason: Error) => void) | undefined
-    const pendingOptions = new Promise<DataSpaceQueryContext>((resolve, reject) => {
-      finishPending = resolve
-      failPending = reject
-    })
-    runtimeQuery.mockImplementation((identity: DataSpaceQueryTable['identity']) => identity.metaName === 'Base_AppSystemList'
-      ? pendingOptions : Promise.resolve(context([{ rowid: 'DATA-1', Name: 'LIST-READY', sysid: 'APP-1' }])))
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'SAME-SCENE' } },
-    ] })
-    await router.push('/directory?scenarioId=URL-ONLY')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    expect(listRuntimeCalls()).toHaveLength(1)
-    expect(wrapper.text()).toContain('LIST-READY')
-    expect(wrapper.text()).toContain('正在加载应用选项')
-    const pendingDom = wrapper.html()
-
-    readRequestScope.mockReturnValue({ token: 'scope-b', headers: { 'X-AppId': 'app-b' } })
-    if (outcome === 'success') {
-      finishPending?.(context([{ rowid: 'APP-LATE', AppDesc: 'LATE-APP-OPTION' }], { metaName: 'Base_AppSystemList' }))
-    } else {
-      failPending?.(new Error('LATE-APP-OPTION-FAILURE'))
-    }
-    await flushPromises()
-
-    expect(router.currentRoute.value.meta['blueprintScenarioId']).toBe('SAME-SCENE')
-    expect(listRuntimeCalls()).toHaveLength(1)
-    expect(wrapper.html()).toBe(pendingDom)
-    expect(wrapper.text()).toContain('LIST-READY')
-    expect(wrapper.text()).toContain('正在加载应用选项')
-    expect(wrapper.text()).not.toContain('LATE-APP-OPTION')
-    expect(wrapper.text()).not.toContain('LATE-APP-OPTION-FAILURE')
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
-    wrapper.unmount()
+  it('binds standard components to the formal route space and navigates with target and return path only',async()=>{
+    const {wrapper,router}=await page();expect(loadScenario).toHaveBeenCalledWith({projectId:'app-a',scenarioId:'SCENE'})
+    expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe('SCENE@Base_DataSet@catalog')
+    expect(wrapper.text()).toContain('Creator');expect(wrapper.text()).toContain('Application');expect(button(wrapper,'编辑').attributes('disabled')).toBeDefined()
+    await wrapper.get('tbody tr').trigger('click');await flushPromises();await button(wrapper,'设计').trigger('click');await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/t/TENANT/app-a/data-space-design')
+    expect(router.currentRoute.value.query).toEqual({scenarioId:'TARGET',returnTo:`${path}?scenarioId=UNTRUSTED&__sparkNavigationId=node`})
   })
-
-  it('shows initial configuration and execution-scope failures instead of an empty catalog', async () => {
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/unconfigured', component: DataSpaceCatalogPage, meta: {} },
-      { path: '/configured', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'META-SCENE' } },
-    ] })
-    await router.push('/unconfigured?scenarioId=QUERY-SCENE')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    expect(wrapper.get('[role="alert"]').text()).toContain('缺少正式蓝图场景')
-    expect(runtimeQuery).not.toHaveBeenCalled()
-
-    readRequestScope.mockImplementation(() => { throw new Error('SPARK_EXECUTION_SCOPE_REQUIRED: 需要明确选中应用') })
-    await router.push('/configured?scenarioId=QUERY-SCENE')
-    await flushPromises()
-    expect(wrapper.get('[role="alert"]').text()).toContain('SPARK_EXECUTION_SCOPE_REQUIRED')
-    expect(runtimeQuery).not.toHaveBeenCalled()
-    wrapper.unmount()
+  it('retains standard OR/application filters across paging and resets them',async()=>{
+    const {wrapper}=await page();await wrapper.get('input[placeholder="搜索名称或 ID"]').setValue(' FIND ');await flushPromises()
+    wrapper.findAllComponents(FieldSelect).find(item=>item.props('field')==='sysid')!.getComponent(ElSelect).vm.$emit('update:modelValue','APP');await flushPromises()
+    await button(wrapper,'查询').trigger('click');await flushPromises()
+    expect(last().filter).toEqual({logic:'and',filters:[{logic:'or',filters:[{field:'Name',operator:'contains',value:'FIND'},
+      {field:'rowid',operator:'eq',value:'FIND'}]},{field:'sysid',operator:'eq',value:'APP'}]})
+    await wrapper.get('.btn-next').trigger('click');await flushPromises();expect(last().page).toBe(2);expect(last().filter).toBeDefined()
+    await button(wrapper,'重置').trigger('click');await button(wrapper,'查询').trigger('click');await flushPromises();expect(last().filter).toBeUndefined()
   })
-
-  it('does not let a late earlier query replace the newest page result', async () => {
-    let finishOld: ((value: DataSpaceQueryContext) => void) | undefined
-    const older = new Promise<DataSpaceQueryContext>(resolve => { finishOld = resolve })
-    let listCallCount = 0
-    mockListFlightsByMetaName(() => ++listCallCount === 1
-      ? older : Promise.resolve(context([{ rowid: 'NEW', Name: 'LATEST' }])))
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'META-SCENE' } },
-    ] })
-    await router.push('/directory')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-    expect(wrapper.text()).toContain('LATEST')
-    finishOld?.(context([{ rowid: 'OLD', Name: 'STALE' }]))
-    await flushPromises()
-    expect(wrapper.text()).toContain('LATEST')
-    expect(wrapper.text()).not.toContain('STALE')
-    wrapper.unmount()
+  it('does not expose hidden/masked fields, permission keys or unresolved creator IDs',async()=>{
+    executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_DataSet'?[
+      {rowid:'ROW',Name:'VISIBLE',description:'SECRET',sysid:'HIDDEN-APP',createuser:'UNKNOWN',lingma_sys_params:{m:['description'],h:['sysid']}},
+      {rowid:'SECRET-ID',Name:'NO-DESIGN',createuser:'HIDDEN-USER',lingma_sys_params:{h:['rowid','createuser']}},
+    ]:[]))
+    const {wrapper}=await page();expect(wrapper.text()).toContain('未解析用户');expect(wrapper.text()).toContain('有 1 位创建人当前无法解析')
+    expect(wrapper.html()).not.toMatch(/SECRET-ID|HIDDEN-APP|HIDDEN-USER|UNKNOWN|SECRET/)
+    const hidden=wrapper.findAll('tbody tr')[1]!;await hidden.trigger('click');await flushPromises()
+    expect(hidden.findAll('button').find(item=>item.text()==='设计')!.attributes('disabled')).toBeDefined()
   })
-
-  it('does not let a late earlier failure replace the newest page state', async () => {
-    let failOld: ((reason: Error) => void) | undefined
-    const older = new Promise<DataSpaceQueryContext>((_resolve, reject) => { failOld = reject })
-    let listCallCount = 0
-    mockListFlightsByMetaName(() => ++listCallCount === 1
-      ? older : Promise.resolve(context([{ rowid: 'NEW', Name: 'LATEST' }])))
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'META-SCENE' } },
-    ] })
-    await router.push('/directory')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-    expect(wrapper.text()).toContain('LATEST')
-    failOld?.(new Error('STALE FAILURE'))
-    await flushPromises()
-    expect(wrapper.text()).toContain('LATEST')
-    expect(wrapper.text()).not.toContain('STALE FAILURE')
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
-    wrapper.unmount()
+  it('retries failed application options independently of the list',async()=>{
+    let attempts=0;executeQuery.mockImplementation(async(view:DataView)=>{if(view.tableName==='Base_AppSystemList'&&++attempts===1)throw new Error('Options unavailable')
+      return context(view,defaults[view.tableName]??[])})
+    const {wrapper}=await page();expect(wrapper.text()).toContain('Options unavailable');expect(wrapper.text()).toContain('Directory item')
+    await button(wrapper,'重试应用选项').trigger('click');await flushPromises();expect(wrapper.text()).not.toContain('Options unavailable')
+    expect(attempts).toBe(2);expect(calls('Base_DataSet')).toHaveLength(1)
   })
-
-  it.each(['success', 'failure'] as const)('ignores a late %s after the route owner changes execution scope', async outcome => {
-    let finishOld: ((value: DataSpaceQueryContext) => void) | undefined
-    let failOld: ((reason: Error) => void) | undefined
-    const older = new Promise<DataSpaceQueryContext>((resolve, reject) => {
-      finishOld = resolve
-      failOld = reject
-    })
-    let listCallCount = 0
-    mockListFlightsByMetaName(() => ++listCallCount === 1
-      ? older : Promise.resolve(context([{ rowid: 'CURRENT', Name: 'CURRENT-SCOPE' }])))
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'SCENE-A' } },
-      { path: '/directory-next', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'SCENE-B' } },
-    ] })
-    await router.push('/directory')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    readRequestScope.mockReturnValue({ token: 'scope-b', headers: { 'X-AppId': 'app-b' } })
-    await router.push('/directory-next')
-    await flushPromises()
-    expect(wrapper.text()).toContain('CURRENT-SCOPE')
-    if (outcome === 'success') finishOld?.(context([{ rowid: 'OLD', Name: 'OLD-SCOPE' }]))
-    else failOld?.(new Error('OLD-SCOPE-FAILURE'))
-    await flushPromises()
-    expect(wrapper.text()).toContain('CURRENT-SCOPE')
-    expect(wrapper.text()).not.toContain('OLD-SCOPE')
-    expect(wrapper.text()).not.toContain('OLD-SCOPE-FAILURE')
-    wrapper.unmount()
+  it('reports missing route metadata without falling back to URL query',async()=>{
+    const {wrapper}=await page('');expect(wrapper.text()).toContain('缺少正式蓝图场景');expect(loadScenario).not.toHaveBeenCalled()
   })
-
-  it.each(['success', 'failure'] as const)('does not publish a pending %s when only the execution scope changes', async outcome => {
-    let finishPending: ((value: DataSpaceQueryContext) => void) | undefined
-    let failPending: ((reason: Error) => void) | undefined
-    const pending = new Promise<DataSpaceQueryContext>((resolve, reject) => {
-      finishPending = resolve
-      failPending = reject
-    })
-    mockListFlightsByMetaName(() => pending)
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'SAME-SCENE' } },
-    ] })
-    await router.push('/directory?scenarioId=URL-ONLY')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    expect(listRuntimeCalls()).toHaveLength(1)
-    expect(wrapper.text()).toContain('正在加载')
-    const pendingDom = wrapper.html()
-
-    readRequestScope.mockReturnValue({ token: 'scope-b', headers: { 'X-AppId': 'app-b' } })
-    if (outcome === 'success') finishPending?.(context([{ rowid: 'LATE-ROW', Name: 'LATE-SUCCESS' }]))
-    else failPending?.(new Error('LATE-FAILURE'))
-    await flushPromises()
-
-    expect(router.currentRoute.value.meta['blueprintScenarioId']).toBe('SAME-SCENE')
-    expect(listRuntimeCalls()).toHaveLength(1)
-    expect(wrapper.html()).toBe(pendingDom)
-    expect(wrapper.text()).toContain('正在加载')
-    expect(wrapper.text()).not.toContain('LATE-ROW')
-    expect(wrapper.text()).not.toContain('LATE-SUCCESS')
-    expect(wrapper.text()).not.toContain('LATE-FAILURE')
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
-    wrapper.unmount()
-  })
-
-  it.each(['masked', 'invisible'] as const)('keeps a real table row while withholding a %s rowid from all DOM', async access => {
-    const rowid = 'SENSITIVE-ROWID'
-    mockByMetaName(context([{ rowid, Name: 'VISIBLE-NAME', Type: 'datasource',
-      lingma_sys_params: access === 'masked' ? { m: ['rowid'] } : { h: ['rowid'] },
-    }]))
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'META-SCENE' } },
-    ] })
-    await router.push('/directory')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-
-    expect(wrapper.findAll('table tbody tr')).toHaveLength(1)
-    expect(wrapper.text()).toContain('VISIBLE-NAME')
-    if (access === 'masked') expect(wrapper.text()).toContain('••••')
-    expect(wrapper.html()).not.toContain(rowid)
-    wrapper.unmount()
-  })
-
-  it.each(['success', 'failure'] as const)('does not publish a pending %s after the real page unmounts', async outcome => {
-    let finishPending: ((value: DataSpaceQueryContext) => void) | undefined
-    let failPending: ((reason: Error) => void) | undefined
-    const pending = new Promise<DataSpaceQueryContext>((resolve, reject) => {
-      finishPending = resolve
-      failPending = reject
-    })
-    mockListFlightsByMetaName(() => pending)
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: '/directory', component: DataSpaceCatalogPage, meta: { blueprintScenarioId: 'META-SCENE' } },
-    ] })
-    await router.push('/directory')
-    const wrapper = mount(DataSpaceCatalogPage, { global: { plugins: [router] } })
-    await flushPromises()
-    wrapper.unmount()
-    if (outcome === 'success') finishPending?.(context([{ rowid: 'UNMOUNTED-ROW', Name: 'UNMOUNTED-SUCCESS' }]))
-    else failPending?.(new Error('UNMOUNTED-FAILURE'))
-    await flushPromises()
-    expect(listRuntimeCalls()).toHaveLength(1)
+  it('reports missing formal pagedata rather than a successful empty result',async()=>{
+    loadScenario.mockRejectedValue(new Error('SCENARIO_VIEW_FILE_MISSING'));const {wrapper}=await page()
+    expect(wrapper.text()).toContain('SCENARIO_VIEW_FILE_MISSING');expect(executeQuery).not.toHaveBeenCalled()
   })
 })

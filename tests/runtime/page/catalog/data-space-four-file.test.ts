@@ -302,7 +302,32 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
   })
   const designConfig = new ScenarioViewConfig(designScenarioId,
     readFileSync(resolve(process.cwd(), 'config/pages/data-platform/data-space-design/pagedata.json'), 'utf8'))
+  // Catalog navigation does not query designer file resources; an unexpected query must fail explicitly.
+  const designFileExecutors = Object.fromEntries(Object.entries(recordAt(designConfig.toJSON()['tables'], 'design tables'))
+    .filter(([, table]) => recordAt(table, 'design table')['resourceType'] === 'file')
+    .map(([name]) => [name, {executeQuery: async () => { throw new Error(`Unexpected designer resource query: ${name}`) }}]))
+  // These are formal source catalog models now declared by the designer's real pagedata.
+  // Keep the full config in this fixture so missing declarations are not hidden by a reduced test scenario.
+  const sourceFields: Record<string, string[]> = {
+    Base_Desensitization_Rule: ['rowid', 'name'],
+    View_TblList: ['rowid', 'tblname', 'tbldesc', 'dbid', 'DbName'],
+    _Base_DictType: ['rowid', 'TypeName', 'functiondesc'],
+    Base_DataServiceInterface: ['rowid', 'Name', 'Desc', 'ProviderID'],
+    Base_JsonData: ['rowid', 'name'], Base_DataViewList: ['rowid', 'name'],
+    View_ViewList: ['rowid', 'vewname', 'vewdesc', 'dbid', 'DbName'],
+    Base_TblField: ['rowid', 'tblid', 'enname', 'cnname', 'description', 'DataType', 'IsPKey'],
+    _Base_ParamList: ['parid', 'pid', 'parname', 'pardesc'],
+  }
+  const designTables = recordAt(designConfig.toJSON()['tables'], 'tables')
   const designModels: FormalModel[] = [
+    ...Object.entries(sourceFields).map(([name, fields]) => {
+      const binding = recordAt(recordAt(designTables[name], name)['modelBinding'], `${name}.modelBinding`)
+      const id = binding['modelId'], primaryKey = fields[0]
+      if (typeof id !== 'string' || !primaryKey) throw new Error(`Missing formal fixture identity for ${name}`)
+      return formalModel({id, metaName: name, primaryKey,
+        fields: fields.map(field => ({id: `${name}-${field}`, name: field,
+          type: field === 'IsPKey' ? 'number' : 'string', primaryKey: field === primaryKey}))})
+    }),
     formalModel({ id: `${designScenarioId}p000`, metaName: 'Base_DataSet', primaryKey: 'rowid', fields: [
       { id: 'design-param-rowid', name: 'rowid', type: 'string', primaryKey: true },
       { id: 'design-param-input', name: 'inputParams', type: 'string', primaryKey: false },
@@ -334,7 +359,7 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
   ]
   const designAssembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({ config: designConfig,
     space: {dataSpaceId: designScenarioId, name: '设计空间'},
-    models: designModels, relations: [] })
+    models: designModels, relations: [], fileExecutors: designFileExecutors })
   const blueprintConfig = new ScenarioViewConfig(blueprintScenarioId,
     readFileSync(resolve(process.cwd(), 'config/pages/application/project-blueprint/pagedata.json'), 'utf8'))
   const blueprintAssembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({
@@ -411,29 +436,6 @@ function catalogPagingError(functions: CompiledPageFunctions): string {
 function createPageService(pageRuntime: PageRuntimeType, services: Partial<PageContext['$page']>): PageContext['$page'] {
   const pageService: PageContext['$page'] = {
     copyText: async () => undefined,
-    readDataSpaceLayout: async () => { throw new Error('数据空间布局读取未配置') },
-    saveDataSpaceLayout: async () => { throw new Error('数据空间布局保存未配置') },
-    createDataSpaceLayout: async () => { throw new Error('数据空间布局创建未配置') },
-    getDataSpaceLayoutContent: () => { throw new Error('数据空间布局内容未配置') },
-    setDataSpaceLayoutDraft: () => { throw new Error('数据空间布局内容未配置') },
-    discardDataSpaceLayoutDraft: () => { throw new Error('数据空间布局内容未配置') },
-    readDataSpaceLayoutForAdoption: async () => { throw new Error('数据空间布局内容未配置') },
-    adoptDataSpaceLayoutRead: () => { throw new Error('数据空间布局内容未配置') },
-    getLocalDraft: () => { throw new Error('本地草稿未配置') },
-    setLocalDraft: () => { throw new Error('本地草稿未配置') },
-    discardLocalDraft: () => { throw new Error('本地草稿未配置') },
-    readDataSpaceRelationDependencyOptions: async () => { throw new Error('数据关系依赖字典读取未配置') },
-    readDataSpaceModelSources: async () => { throw new Error('模型来源读取未配置') },
-    prepareDataSpaceModelSource: async () => { throw new Error('模型来源准备未配置') },
-    openDataSpaceViews: async () => { throw new Error('视图配置读取未配置') },
-    createDataSpaceViews: async () => { throw new Error('视图配置创建未配置') },
-    readDataSpaceViewModel: async () => { throw new Error('视图模型读取未配置') },
-    stageDataSpaceView: async () => { throw new Error('视图配置暂存未配置') },
-    saveDataSpaceViews: async () => { throw new Error('视图配置保存未配置') },
-    verifyDataSpaceViews: async () => { throw new Error('视图配置核验未配置') },
-    previewDataSpaceViewsRemote: async () => { throw new Error('视图配置远端预览未配置') },
-    adoptDataSpaceViews: async () => { throw new Error('视图配置接受远端未配置') },
-    previewDataSpaceView: async () => { throw new Error('视图预览未配置') },
     getDataSet: (id) => pageRuntime.getDataSet(id),
     resolveView: (binding) => pageRuntime.resolveView(binding) ?? undefined,
     showMessage: () => undefined,
@@ -491,7 +493,7 @@ const ElementDialogStub = defineComponent({
 })
 
 describe('data-space four-file page', () => {
-  it('opens the design tool with the verified catalog primary key and tenant-scoped return path', async () => {
+  it('opens the native designer with one verified target and the tenant-scoped return path', async () => {
     const navigations: Array<[string, Record<string, unknown> | undefined]> = []
     const fixture = await createCatalogScriptFixture({ navigate: (path, params) => { navigations.push([path, params]) } },
       undefined, { tenantId: 'tenant one', projectId: 'app', fullPath: '/t/tenant%20one/app/catalog?tab=data&next=%2F' })
@@ -502,8 +504,8 @@ describe('data-space four-file page', () => {
     if (!view || !row || !onClick) throw new Error('catalog design action fixture is incomplete')
     expect(view.getPkKey(row)).toBe('DATASET-1')
     await onClick()
-    expect(navigations).toEqual([['/t/tenant%20one/app/__tool/8D1AB14DD8277F3E7017CD38F77B09FD', {
-      scenarioId: designScenarioId, additionalScenarioIds: [scenarioId], dataSpaceId: 'DATASET-1',
+    expect(navigations).toEqual([['/t/tenant%20one/app/data-space-design', {
+      scenarioId: 'DATASET-1',
       returnTo: '/t/tenant%20one/app/catalog?tab=data&next=%2F',
     }]])
 

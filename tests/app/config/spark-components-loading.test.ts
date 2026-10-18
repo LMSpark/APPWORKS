@@ -23,8 +23,7 @@ describe('SPARK component loading strategy', () => {
     const fixtures: Array<readonly [string, string]> = [
       ['src/views/SmallPage.vue', '<template><main>small</main></template>'],
       ['src/views/nested/NestedPage.vue', '<template><main>nested</main></template>'],
-      ['src/views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.vue', '<template><main>graph</main></template>'],
-      ['src/views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.vue', '<template><main>parameters</main></template>'],
+      ['src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.vue', '<template><main>parameters</main></template>'],
       ['src/views/PageRenderer.vue', '<template><main>core</main></template>'],
       ['src/views-other/Neighbor.vue', '<template><main>neighbor</main></template>'],
       ['src/components/DefaultWidget.vue', '<template><main>default</main></template>'],
@@ -63,8 +62,7 @@ describe('SPARK component loading strategy', () => {
 
       expect(moduleCode).toContain("const smallPage = () => import('./src/views/SmallPage.vue')")
       expect(moduleCode).toContain("const nestedPage = () => import('./src/views/nested/NestedPage.vue')")
-      expect(moduleCode).toContain("const dataSpaceDesignGraph = () => import('./src/views/app/control/data-platform/data-space/design/graph/DataSpaceDesignGraph.vue')")
-      expect(moduleCode).toContain("const dataSpaceParametersEditor = () => import('./src/views/app/control/data-platform/data-space/design/parameters/DataSpaceParametersEditor.vue')")
+      expect(moduleCode).toContain("const dataSpaceParametersEditor = () => import('./src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.vue')")
       expect(moduleCode).toContain("import pageRenderer from './src/views/PageRenderer.vue'")
       expect(moduleCode).toContain("import neighbor from './src/views-other/Neighbor.vue'")
       expect(moduleCode).toContain("import defaultWidget from './src/components/DefaultWidget.vue'")
@@ -73,8 +71,7 @@ describe('SPARK component loading strategy', () => {
       expect(moduleCode).not.toContain('Excluded.test.vue')
       expect(moduleCode).toContain("registry.has('small-page')")
       expect(moduleCode).toContain("registry.register('small-page', defineAsyncComponent(smallPage))")
-      expect(moduleCode).toContain("registry.has('data-space-design-graph')")
-      expect(moduleCode).toContain("registry.register('data-space-design-graph', defineAsyncComponent(dataSpaceDesignGraph))")
+      expect(moduleCode).not.toContain('data-space-design-graph')
       expect(moduleCode).toContain("registry.register('data-space-parameters-editor', defineAsyncComponent(dataSpaceParametersEditor))")
       expect(moduleCode).toContain("registry.register('page-renderer', pageRenderer)")
     } finally {

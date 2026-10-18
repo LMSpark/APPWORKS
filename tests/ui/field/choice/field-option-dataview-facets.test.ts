@@ -1,7 +1,7 @@
 import { createTestPageRuntime } from '../../../support/helpers/create-test-page-runtime'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import {
   PAGE_RUNTIME,
   SPARK_REGISTRY_KEY,
@@ -10,6 +10,7 @@ import {
 } from '@spark-appworks/spark-component'
 import { DataMember, SparkData, type SparkNode } from '@spark-appworks/spark-data'
 import { useFieldOptions } from '../../../../packages/spark-component/src/components/fields/options/useFieldOptions'
+import {buildOptionSourceFromView} from '../../../../packages/spark-component/src/components/fields/options/option-source'
 
 const OptionProbe = defineComponent({
   props: {
@@ -66,14 +67,57 @@ function mountOptionProbe(dataSet: ReturnType<typeof SparkData.createDataSet>, s
 }
 
 describe('选项字段应继承 DataView facets', () => {
+  it('uses explicit label alternatives without falling through a masked label or unreadable key', () => {
+    const ds=SparkData.createDataSet({dataSetName:'Labels',tables:{Apps:{tableName:'Apps',resourceType:'static-data',
+      columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'title',type:'string'},{name:'name',type:'string'}],
+      views:{default:{rows:[{id:'a',title:' ',name:'Fallback'},{id:'b',title:'Secret',name:'Do not fall back'},
+        {id:'c',title:'Hidden identity',name:'Hidden'}]}}}}})
+    const view=ds.getView('Apps')!, original=view.fieldAccess.bind(view)
+    vi.spyOn(view,'fieldAccess').mockImplementation((row,field)=>({...original(row,field),
+      read: typeof row==='object' && row!==null && row['id']==='c' && field==='id' ? 'invisible'
+        : typeof row==='object' && row!==null && row['id']==='b' && field==='title' ? 'masked' : 'visible'}))
+    try {
+      const source=buildOptionSourceFromView(view,{labelField:'title',labelFields:['title','name'],valueField:'id',childrenField:'children'})
+      expect(source).toMatchObject([{id:'a',title:'Fallback'},{id:'b',title:'••••'}])
+      expect(JSON.stringify(source)).not.toContain('Secret')
+      expect(source).toHaveLength(2)
+    } finally {ds.destroy()}
+  })
+  it('refreshes direct view rows, facets and read access without an explicit cascade and releases subscriptions', async () => {
+    const ds = SparkData.createDataSet({dataSetName: 'Options', tables: {
+      Dict: {tableName: 'Dict', resourceType: 'static-data', columns: [{name: 'code', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}],
+        views: {default: {valueField: 'code', labelField: 'name', rows: [{code: 'A', name: '初始'}]}}},
+    }})
+    const view = ds.getView('Dict')!, wrapper = mountOptionProbe(ds, 'A')
+    const on = vi.spyOn(view.events, 'on'), off = vi.spyOn(view.events, 'off')
+    try {
+      view.replaceRows([{code: 'B', name: '回填'}]); await flushPromises()
+      expect(wrapper.get('.option-probe').attributes('data-first-label')).toBe('回填')
+      view.configure({labelField: 'code'}); await flushPromises()
+      expect(wrapper.get('.option-probe').attributes('data-first-label')).toBe('B')
+      const access = view.fieldAccess.bind(view)
+      const permission = vi.spyOn(view, 'fieldAccess').mockImplementation((row, field) => field === 'code'
+        ? {...access(row, field), read: 'invisible'} : access(row, field))
+      view.replaceRows([{code: 'B', name: '不可读'}]); await flushPromises()
+      expect(wrapper.get('.option-probe').attributes('data-option-count')).toBe('0')
+      permission.mockRestore()
+      view.replaceRows([{code: 'C', name: '恢复'}]); await flushPromises()
+      expect(wrapper.get('.option-probe').attributes('data-first-value')).toBe('C')
+      expect(on).not.toHaveBeenCalled()
+      wrapper.unmount()
+      expect(off.mock.calls.some(([event]) => event === 'rowsChanged')).toBe(true)
+    } finally {wrapper.unmount(); on.mockRestore(); off.mockRestore(); ds.destroy()}
+  })
+
   it('应默认使用 DataView.labelField/valueField/selectionDelimiter', () => {
     const dataSet = SparkData.createDataSet({
       dataSetName: 'DictDS',
       tables: {
         Dict: {
           tableName: 'Dict',
+          resourceType: 'static-data',
           columns: [
-            { name: 'code', type: 'string' as const },
+            { name: 'code', type: 'string' as const, isPrimaryKey: true },
             { name: 'name', type: 'string' as const },
           ],
           views: {
@@ -106,8 +150,9 @@ describe('选项字段应继承 DataView facets', () => {
       tables: {
         Dict: {
           tableName: 'Dict',
+          resourceType: 'static-data',
           columns: [
-            { name: 'code', type: 'string' as const },
+            { name: 'code', type: 'string' as const, isPrimaryKey: true },
             { name: 'name', type: 'string' as const },
           ],
           views: {

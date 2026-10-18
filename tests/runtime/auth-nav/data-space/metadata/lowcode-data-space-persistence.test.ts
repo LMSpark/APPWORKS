@@ -1,10 +1,14 @@
-import {describe, expect, it, vi} from 'vitest'
-import {DataSetCrudTool, DataViewFilter, RequestState, extractColumnRules} from '@spark-appworks/spark-data'
+import {afterEach, describe, expect, it, vi} from 'vitest'
+import {readFileSync} from 'node:fs'
+import {DataSet, DataViewFilter, RequestState, extractColumnRules} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
-import {ProjectWorkspace, type ScenarioViewFile} from '@spark-appworks/spark-project-model'
+import {ProjectWorkspace, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceAssembler} from '../../../../../src/lowcode/data-space/lowcode-data-space-assembler'
 import {LowcodeDataSpaceViewDesign} from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import {LowcodeDataSpaceViewMetadata} from '../../../../../src/lowcode/data-space/view-design/lowcode-data-space-view-metadata'
+
+import {withDefinitionResources} from '../view-design/definition-resource.fixture'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 type FormalRelations = Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>
@@ -48,6 +52,23 @@ class QueryHttp extends HttpClientBase {
   }
 }
 
+const sessions: Awaited<ReturnType<LowcodeDataSpaceViewDesign['openDesignSession']>>[] = []
+afterEach(() => {for (const session of sessions.splice(0)) session.dispose()})
+
+function editView(dataSet: DataSet, tableName: string, viewId: string, changes: Record<string, unknown>) {
+  const view = dataSet.getView('DataViewDefinition')!
+  const row = view.rows.find(item => item['tableName'] === tableName && item['viewId'] === viewId)!
+  for (const [field, value] of Object.entries(changes)) view.updateEditingValue(view.getPkKey(row)!, field, value)
+}
+function editColumns(dataSet: DataSet, tableName: string, columns: readonly Record<string, unknown>[]) {
+  const view = dataSet.getView('DataTableBindingDefinition')!
+  const row = view.rows.find(item => item['tableName'] === tableName)!
+  const key = view.getPkKey(row)!
+  const configuration = view.getEditingRow(key)?.['configuration']
+  if (!isRecord(configuration)) throw new Error('missing native table definition')
+  view.updateEditingValue(key, 'configuration', {...configuration, columns})
+}
+
 function fixture(text: string | null = initial) {
   const stored = new Map<string, string>()
   if (text !== null) stored.set('SPACE', text)
@@ -65,26 +86,28 @@ function fixture(text: string | null = initial) {
     const http = new QueryHttp()
     const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})})
     const assembler = new LowcodeDataSpaceAssembler(runtime, http)
-    const assemble = async (scenarioId: string, file: ScenarioViewFile) => {
-      if (file.scenarioId !== scenarioId) throw new Error('scenario identity mismatch')
-      return assembler.assemble({config: file.value, space: {dataSpaceId: scenarioId, name: formalSpaceName}, models, relations})
+    const assemble = async (scenarioId: string, config: ScenarioViewConfig) => {
+      if (config.scenarioId !== scenarioId) throw new Error('scenario identity mismatch')
+      return assembler.assemble({config, space: {dataSpaceId: scenarioId, name: formalSpaceName}, models, relations})
     }
     const service = new LowcodeDataSpaceViewDesign({workspace, assemble, assertScope: () => undefined,
+      loadMetadata: withDefinitionResources(async () => DataSet.fromJson({scenarioId: 'META', dataSetName: 'META', tables: {}})),
       readModel: async input => {
         const found = models.find(candidate => candidate.id === input.modelId)
         if (!found) throw new Error('formal model missing')
         return found
       }})
-    return {workspace, service, assemble, assembler, http}
+    const open = async () => {
+      const session = await service.openDesignSession('SPACE', {deferDefinition: true})
+      sessions.push(session)
+      return session
+    }
+    return {workspace, service, open, assemble, assembler, http}
   }
   return {stored, openOwner, setModels: (next: FormalModel[]) => {models = next},
     setSpaceName: (name: string) => {formalSpaceName = name}}
 }
 
-const parentShared = {scenarioId: 'SPACE', tableName: 'Parents', modelId: 'ParentModel',
-  modelName: 'ParentModel', viewId: 'shared'}
-const childShared = {scenarioId: 'SPACE', tableName: 'Children', modelId: 'ChildModel',
-  modelName: 'ChildModel', viewId: 'shared'}
 const projection = {fieldId: 'ParentModel-title', source: 'resource' as const,
   resourceFieldId: 'ParentModel-title', resourceField: 'title', viewField: 'title', type: 'string',
   label: 'Title', output: true, sortOrder: 0, sortDirection: null, group: 0,
@@ -92,9 +115,11 @@ const projection = {fieldId: 'ParentModel-title', source: 'resource' as const,
 
 describe('scenario view persistence and formal model assembly', () => {
   it.each(['parent-first', 'child-first'])('reopens named autoLoad views and queries their dependencies with %s table order', async order => {
-    const storage = fixture()
+    const seed = JSON.parse(initial)
+    if (order === 'child-first') seed.tables = {Children: seed.tables.Children, Parents: seed.tables.Parents}
+    const storage = fixture(JSON.stringify(seed))
     const first = storage.openOwner()
-    const opened = await first.service.open('SPACE')
+    const opened = await first.open()
     const parents = {modelBinding: {modelId: 'ParentModel', modelName: 'ParentModel'}, views: {
       default: {autoLoad: false}, shared: {autoLoad: true, queryContext: {purpose: 'parent'}},
       detail: {autoLoad: true, queryContext: {purpose: 'independent'}},
@@ -102,13 +127,16 @@ describe('scenario view persistence and formal model assembly', () => {
     const children = {modelBinding: {modelId: 'ChildModel', modelName: 'ChildModel'}, views: {
       default: {autoLoad: false}, shared: {autoLoad: true}, detail: {autoLoad: false},
     }}
-    opened.dirtySource.setText(JSON.stringify({scenarioId: 'SPACE', tables: order === 'parent-first'
-      ? {Parents: parents, Children: children} : {Children: children, Parents: parents},
-    viewCascades: [{...cascade, autoLoad: true}]}))
-    const saved = await first.service.save('SPACE')
+    for (const [tableName, table] of Object.entries({Parents: parents, Children: children})) {
+      for (const [viewId, configuration] of Object.entries(table.views)) editView(opened.metadataDataSet, tableName, viewId, configuration)
+    }
+    const cascades = opened.metadataDataSet.getView('DataViewCascadeDefinition')!
+    cascades.updateEditingValue(cascades.getPkKey(cascades.rows[0]!)!, 'autoLoad', true)
+    await opened.metadataDataSet.saveChanges()
+    const saved = opened.viewState!
     const reopened = storage.openOwner()
-    const read = await reopened.service.open('SPACE')
-    const {dataSet} = await reopened.assemble('SPACE', read.dirtySource)
+    const read = await reopened.open()
+    const {dataSet} = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
     const parent = dataSet.getView('Parents', 'shared')!
     const child = dataSet.getView('Children', 'shared')!
     const independent = dataSet.getView('Parents', 'detail')!
@@ -166,8 +194,8 @@ describe('scenario view persistence and formal model assembly', () => {
       expect(queries).toHaveLength(4)
       expect(queries[3]).toMatchObject({Name: 'ChildModel', Filter: {ValueFun: {Type: 'GetConstValue', Value: 'P2'}}})
       expect(independent.rows).toMatchObject([{id: 'INDEPENDENT'}])
-      expect(read.dirtySource.getText()).toBe(saved.text)
-      expect(read.dirtySource.isDirty).toBe(false)
+      expect(read.viewState!.text).toBe(saved.text)
+      expect(read.viewState!.dirty).toBe(false)
       expect(storage.stored.get('SPACE')).toBe(saved.text)
     } finally {
       finishParent?.()
@@ -178,14 +206,14 @@ describe('scenario view persistence and formal model assembly', () => {
   it.each(['failure', 'destruction'])('keeps named child queries gated after parent %s', async outcome => {
     const storage = fixture()
     const first = storage.openOwner()
-    const opened = await first.service.open('SPACE')
-    const parentStage = await first.service.stage({...parentShared, expectedText: opened.state.text,
-      configuration: {autoLoad: true}})
-    await first.service.stage({...childShared, expectedText: parentStage.text, configuration: {autoLoad: true}})
-    const saved = await first.service.save('SPACE')
+    const opened = await first.open()
+    editView(opened.metadataDataSet, 'Parents', 'shared', {autoLoad: true})
+    editView(opened.metadataDataSet, 'Children', 'shared', {autoLoad: true})
+    await opened.metadataDataSet.saveChanges()
+    const saved = opened.viewState!
     const reopened = storage.openOwner()
-    const read = await reopened.service.open('SPACE')
-    const {dataSet} = await reopened.assemble('SPACE', read.dirtySource)
+    const read = await reopened.open()
+    const {dataSet} = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
     const parent = dataSet.getView('Parents', 'shared')!
     const child = dataSet.getView('Children', 'shared')!
     let release: (() => void) | undefined
@@ -240,40 +268,31 @@ describe('scenario view persistence and formal model assembly', () => {
     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'country', 'province', 'city'], ['province']),
       model('ChildModel', 'ChildSource', ['id', 'code', 'parentId', 'provinceId', 'title'], ['provinceId'])])
     const first = storage.openOwner()
-    const opened = await first.service.open('SPACE')
-    const config = { ...structuredClone(opened.state.config) }
-    const tables = config['tables']
-    if (!isRecord(tables) || !isRecord(tables['Children']) || !isRecord(tables['Children']['views'])) {
-      throw new Error('missing named options view')
-    }
-    config['tables'] = {...tables, Children: {...tables['Children'], views: {...tables['Children']['views'], detail: {
+    const opened = await first.open()
+    editView(opened.metadataDataSet, 'Children', 'detail', {
       valueField: format === 'native' ? 'id' : 'code', labelField: 'title', selectionDelimiter: '|', filterExpression: {logic: 'and', filters: [
       {field: 'parentId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'countryId'}},
       {field: 'provinceId', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'provinceId'}},
-    ]}}}}}
+    ]}})
     const field = {kind: 'field' as const, cascadeId: 'city-by-region', tableName: 'Parents', viewId: 'shared',
       valueFormat: format, targetField: 'city',
       parents: [{tableName: 'Parents', viewId: 'shared', field: 'country', parameter: 'countryId'}, {tableName: 'Parents', viewId: 'shared', field: 'province', parameter: 'provinceId'}],
       optionsView: {tableName: 'Children', viewId: 'detail'},
       valuePolicy: {mode: 'retain-valid' as const, clearValue: format === 'native' ? null : ''}}
-    opened.dirtySource.setText(JSON.stringify(config))
-    const design = await first.assemble('SPACE', opened.dirtySource)
-    const editor = DataSetCrudTool.fromDataSet(design.dataSet)
-    try {
-      editor.createCascade({cascade: {...field, valuePolicy: {mode: 'retain' as const}}})
-      editor.updateCascade({cascadeId: field.cascadeId, updates: {valuePolicy: field.valuePolicy}})
-      config['viewCascades'] = editor.listCascades()
-    } finally { design.dataSet.destroy() }
-    opened.dirtySource.setText(JSON.stringify(config))
-    const saved = await first.service.save('SPACE')
+    const definitions = opened.metadataDataSet.getView('DataViewCascadeDefinition')!
+    await definitions.addRow({dataSetId: 'SPACE', ...field, valuePolicy: {mode: 'retain'}})
+    const added = definitions.rows.find(row => row['cascadeId'] === field.cascadeId)!
+    definitions.updateEditingValue(definitions.getPkKey(added)!, 'valuePolicy', field.valuePolicy)
+    await opened.metadataDataSet.saveChanges()
+    const saved = opened.viewState!
     expect(saved.dirty).toBe(false)
     expect(storage.stored.get('SPACE')).toBe(saved.text)
     expect(saved.text).toContain('"kind":"field"')
     expect(saved.text).not.toMatch(/"rows"|"lingma_sys_"|"options":/)
 
     const reopened = storage.openOwner()
-    const read = await reopened.service.open('SPACE')
-    const assembly = await reopened.assemble('SPACE', read.dirtySource)
+    const read = await reopened.open()
+    const assembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
     const dataSet = assembly.dataSet
     expect(dataSet.viewCascades).toMatchObject([cascade, field])
     expect(dataSet.resourceRelations).toMatchObject([{sourceRelationId: 'REL'}])
@@ -324,8 +343,8 @@ describe('scenario view persistence and formal model assembly', () => {
     dataSet.destroy()
 
     const fresh = storage.openOwner()
-    const freshFile = await fresh.service.open('SPACE')
-    const freshAssembly = await fresh.assemble('SPACE', freshFile.dirtySource)
+    const freshFile = await fresh.open()
+    const freshAssembly = await fresh.assemble('SPACE', new ScenarioViewConfig('SPACE', freshFile.viewState!.text))
     try {
       fresh.http.result = {primaryKeyField: 'id', allowAdd: false, data: {Items: [{...savedRow,
         lingma_sys_key: 'READBACK', lingma_sys_params: {r: ['id', 'title', 'country', 'province', 'city'], e: ['country', 'city']}}], Count: 1}}
@@ -334,14 +353,13 @@ describe('scenario view persistence and formal model assembly', () => {
       expect(freshTarget.rows[0]?.['city']).toBe(expectedCity)
       expect(freshTarget.getEditingPatch('P1')).toBeUndefined()
       expect(freshAssembly.dataSet.viewCascades).toMatchObject([cascade, field])
-      const reopenedEditor = DataSetCrudTool.fromDataSet(freshAssembly.dataSet)
-      reopenedEditor.deleteCascade({cascadeId: field.cascadeId})
-      freshFile.dirtySource.setText(JSON.stringify({...freshFile.state.config,
-        viewCascades: reopenedEditor.listCascades()}))
-      await fresh.service.save('SPACE')
+      const definitions = freshFile.metadataDataSet.getView('DataViewCascadeDefinition')!
+      const row = definitions.rows.find(item => item['cascadeId'] === field.cascadeId)!
+      await definitions.removeRow(definitions.getPkKey(row)!)
+      await freshFile.metadataDataSet.saveChanges()
       const finalOwner = storage.openOwner()
-      const finalFile = await finalOwner.service.open('SPACE')
-      const finalAssembly = await finalOwner.assemble('SPACE', finalFile.dirtySource)
+      const finalFile = await finalOwner.open()
+      const finalAssembly = await finalOwner.assemble('SPACE', new ScenarioViewConfig('SPACE', finalFile.viewState!.text))
       try {
         expect(finalAssembly.dataSet.viewCascades).toMatchObject([cascade])
         expect(finalAssembly.dataSet.resourceRelations).toMatchObject([{sourceRelationId: 'REL'}])
@@ -351,43 +369,37 @@ describe('scenario view persistence and formal model assembly', () => {
     } finally { freshAssembly.dataSet.destroy() }
   })
 
-  it('saves native DataSet settings through the file owner and reopens independent runtime instances', async () => {
-    const storage = fixture()
+  it('preserves native DataSet settings while saving definitions and reopens independent runtime instances', async () => {
+    // Root metadata has no editable definition resource yet; it is persisted input, preserved by granular saves.
+    const storage = fixture(JSON.stringify({...JSON.parse(initial), schemaVersion: 3, version: 0,
+      layout: {tablePositions: {Parents: {x: -2.5, y: 0}, Children: {x: 1, y: 3}}}, saveChanges: {mode: 'perView'}}))
     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'price', 'qty'], ['price', 'qty']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const first = storage.openOwner()
-    const opened = await first.service.open('SPACE')
-    const draft = {...structuredClone(opened.state.config)}
-    draft['schemaVersion'] = 3
-    draft['version'] = 0
-    draft['layout'] = {tablePositions: {Parents: {x: -2.5, y: 0}, Children: {x: 1, y: 3}}}
-    draft['saveChanges'] = {mode: 'perView'}
-    const tables = draft['tables']
-    if (!isRecord(tables) || !isRecord(tables['Parents'])) throw new Error('missing Parents')
-    tables['Parents']['columns'] = [{name: 'total', type: 'number', computeExpression: 'price * qty'}]
-    opened.dirtySource.setText(JSON.stringify(draft))
-    const staged = await first.service.stage({...parentShared, expectedText: opened.dirtySource.getText(),
-      configuration: {pageSize: 13, commitMode: 'staged'}})
-    expect(staged.config).toMatchObject({schemaVersion: 3, version: 0,
+    const opened = await first.open()
+    editColumns(opened.metadataDataSet, 'Parents', [{name: 'total', type: 'number', computeExpression: 'price * qty'}])
+    editView(opened.metadataDataSet, 'Parents', 'shared', {pageSize: 13, commitMode: 'staged'})
+    await opened.metadataDataSet.saveChanges()
+    const saved = opened.viewState!
+    expect(saved.config).toMatchObject({schemaVersion: 3, version: 0,
       layout: {tablePositions: {Parents: {x: -2.5, y: 0}}}, saveChanges: {mode: 'perView'}})
-    const saved = await first.service.save('SPACE')
     expect(saved.dirty).toBe(false)
     expect(saved.revision).toBeGreaterThan(0)
     expect(storage.stored.get('SPACE')).toBe(saved.text)
     expect(saved.text).not.toContain('正式空间名称')
 
     const reopened = storage.openOwner()
-    const read = await reopened.service.open('SPACE')
-    const firstAssembly = await reopened.assemble('SPACE', read.dirtySource)
+    const read = await reopened.open()
+    const firstAssembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
     expect(firstAssembly.dataSet.dataSetName).toBe('正式空间名称')
     expect(firstAssembly.dataSet.getTable('Parents')).toMatchObject({resourceType: 'database-table', resourceId: 'ParentSource'})
     storage.setSpaceName('正式空间新名称')
     storage.setModels([model('ParentModel', 'ParentSourceNext', ['id', 'title', 'price', 'qty'], ['price', 'qty']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
-    const secondAssembly = await reopened.assemble('SPACE', read.dirtySource)
+    const secondAssembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
     expect(secondAssembly.dataSet.dataSetName).toBe('正式空间新名称')
     expect(secondAssembly.dataSet.getTable('Parents')?.resourceId).toBe('ParentSourceNext')
-    expect(read.dirtySource.getText()).toBe(saved.text)
+    expect(read.viewState!.text).toBe(saved.text)
     expect(saved.text).not.toContain('ParentSourceNext')
     const dataSet = firstAssembly.dataSet
     expect(dataSet.toJson()).toMatchObject({schemaVersion: 3, version: 0,
@@ -396,7 +408,7 @@ describe('scenario view persistence and formal model assembly', () => {
     expect(secondAssembly.dataSet.layout).toEqual(dataSet.layout)
     dataSet.layout!.tablePositions!['Parents']!.x = 99
     expect(secondAssembly.dataSet.layout?.tablePositions?.['Parents']?.x).toBe(-2.5)
-    expect(read.dirtySource.value.toJSON()).toMatchObject({layout: {tablePositions: {Parents: {x: -2.5, y: 0}}}})
+    expect(new ScenarioViewConfig('SPACE', read.viewState!.text).toJSON()).toMatchObject({layout: {tablePositions: {Parents: {x: -2.5, y: 0}}}})
 
     const view = dataSet.getView('Parents', 'shared')!
     reopened.http.result = {primaryKeyField: 'id', allowAdd: false,
@@ -415,44 +427,37 @@ describe('scenario view persistence and formal model assembly', () => {
     expect(JSON.stringify(save?.data)).not.toContain('total')
     Reflect.deleteProperty(dataSet.saveChangesConfig!, 'mode')
     expect(secondAssembly.dataSet.saveChangesConfig).toEqual({mode: 'perView'})
-    expect(read.dirtySource.value.toJSON()).toMatchObject({saveChanges: {mode: 'perView'}})
+    expect(new ScenarioViewConfig('SPACE', read.viewState!.text).toJSON()).toMatchObject({saveChanges: {mode: 'perView'}})
     firstAssembly.dataSet.destroy()
     secondAssembly.dataSet.destroy()
 
-    const cleared = {...structuredClone(read.state.config)}
-    delete cleared['schemaVersion']
-    delete cleared['version']
-    delete cleared['layout']
-    delete cleared['saveChanges']
-    read.dirtySource.setText(JSON.stringify(cleared))
-    await reopened.service.save('SPACE')
-    const last = storage.openOwner()
-    const lastFile = await last.service.open('SPACE')
-    const lastAssembly = await last.assemble('SPACE', lastFile.dirtySource)
+    await read.metadataDataSet.saveChanges()
+    expect(read.viewState!.config).toMatchObject({schemaVersion: 3, version: 0, saveChanges: {mode: 'perView'}})
+    expect(storage.stored.get('SPACE')).toBe(saved.text)
+    // An independently persisted configuration without root overrides uses native defaults.
+    const last = fixture().openOwner()
+    const lastFile = await last.open()
+    const lastAssembly = await last.assemble('SPACE', new ScenarioViewConfig('SPACE', lastFile.viewState!.text))
     expect(lastAssembly.dataSet.toJson()).toMatchObject({schemaVersion: 2})
     expect(lastAssembly.dataSet.version).toBeUndefined()
     expect(lastAssembly.dataSet.layout).toBeUndefined()
     expect(lastAssembly.dataSet.saveChangesConfig).toBeUndefined()
     lastAssembly.dataSet.destroy()
   })
-  it('saves local computed definitions through the file owner and reopens formal query and save', async () => {
+  it('saves local computed definitions through DataSet and reopens formal query and save', async () => {
     const storage = fixture()
     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'price', 'qty'], ['price', 'qty']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const first = storage.openOwner()
-    const opened = await first.service.open('SPACE')
-    const draft = structuredClone(opened.state.config)
-    const tables = draft['tables']
-    if (!isRecord(tables) || !isRecord(tables['Parents']) || !isRecord(tables['Children'])) throw new Error('missing fixture tables')
-    tables['Parents']['columns'] = [{name: 'total', type: 'number', label: 'Total',
-      computeExpression: 'price * qty', min: 0}]
-    tables['Children']['columns'] = [{name: 'total', type: 'string', computeExpression: 'title + "!"'}]
-    opened.dirtySource.setText(JSON.stringify(draft))
-    await first.service.save('SPACE')
+    const opened = await first.open()
+    editColumns(opened.metadataDataSet, 'Parents', [{name: 'total', type: 'number', label: 'Total',
+      computeExpression: 'price * qty', min: 0}])
+    editColumns(opened.metadataDataSet, 'Children', [{name: 'total', type: 'string', computeExpression: 'title + "!"'}])
+    await opened.metadataDataSet.saveChanges()
     expect(storage.stored.get('SPACE')).toContain('"computeExpression":"price * qty"')
     const second = storage.openOwner()
-    const read = await second.service.open('SPACE')
-    const assembled = await second.assemble('SPACE', read.dirtySource)
+    const read = await second.open()
+    const assembled = await second.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
     const view = assembled.dataSet.getView('Parents', 'shared')!
     expect(view.columns.find(column => column.name === 'total')).toMatchObject({
       type: 'number', label: 'Total', computeExpression: 'price * qty', min: 0})
@@ -476,19 +481,15 @@ describe('scenario view persistence and formal model assembly', () => {
     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'price', 'qty', 'total'],
       ['price', 'qty', 'total']), model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const conflict = storage.openOwner()
-    const conflictFile = await conflict.service.open('SPACE')
-    await expect(conflict.assemble('SPACE', conflictFile.dirtySource)).rejects.toThrow('本地计算列与正式输出字段重名')
+    const conflictFile = await conflict.open()
+    await expect(conflict.assemble('SPACE', new ScenarioViewConfig('SPACE', conflictFile.viewState!.text))).rejects.toThrow('本地计算列与正式字段重名')
     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'price', 'qty'], ['price', 'qty']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
-    const cleared = structuredClone(read.state.config)
-    const clearedTables = cleared['tables']
-    if (!isRecord(clearedTables) || !isRecord(clearedTables['Parents'])) throw new Error('missing clear table')
-    clearedTables['Parents']['columns'] = []
-    read.dirtySource.setText(JSON.stringify(cleared))
-    await second.service.save('SPACE')
+    editColumns(read.metadataDataSet, 'Parents', [])
+    await read.metadataDataSet.saveChanges()
     const last = storage.openOwner()
-    const lastFile = await last.service.open('SPACE')
-    const lastAssembly = await last.assemble('SPACE', lastFile.dirtySource)
+    const lastFile = await last.open()
+    const lastAssembly = await last.assemble('SPACE', new ScenarioViewConfig('SPACE', lastFile.viewState!.text))
     expect(lastAssembly.dataSet.getTable('Parents')?.columns.map(column => column.name)).not.toContain('total')
     lastAssembly.dataSet.destroy()
   })
@@ -508,23 +509,18 @@ describe('scenario view persistence and formal model assembly', () => {
     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'amount'], ['amount']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const first = storage.openOwner()
-    const opened = await first.service.open('SPACE')
-    const config = structuredClone(opened.state.config)
-    const tables = config['tables']
-    if (!isRecord(tables) || !isRecord(tables['Parents']) || !isRecord(tables['Children'])) {
-      throw new Error('missing fixture tables')
-    }
-    tables['Parents']['columns'] = [{name: 'title', required: true, minLength: 2,
-      maxLength: 6, pattern: '^A', patternMessage: 'must start A'},
-    {name: 'amount', min: 0, max: 10}]
-    tables['Children']['columns'] = [{name: 'title', required: false, minLength: 0}]
-    opened.dirtySource.setText(JSON.stringify(config))
-    const saved = await first.service.save('SPACE')
+    const opened = await first.open()
+    const parentRules = [{name: 'title', required: true, minLength: 2,
+      maxLength: 6, pattern: '^A', patternMessage: 'must start A'}, {name: 'amount', min: 0, max: 10}]
+    editColumns(opened.metadataDataSet, 'Parents', parentRules)
+    editColumns(opened.metadataDataSet, 'Children', [{name: 'title', required: false, minLength: 0}])
+    await opened.metadataDataSet.saveChanges()
+    const saved = opened.viewState!
     expect(saved.dirty).toBe(false)
     expect(saved.text).not.toMatch(/"type"|"label"|"isPrimaryKey"|"rows"|"token"/)
     const reopened = storage.openOwner()
-    const read = await reopened.service.open('SPACE')
-    const assembled = await reopened.assemble('SPACE', read.dirtySource)
+    const read = await reopened.open()
+    const assembled = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
     const dataSet = assembled.dataSet
     const parent = dataSet.getTable('Parents')!.columns.find(column => column.name === 'title')!
     const child = dataSet.getTable('Children')!.columns.find(column => column.name === 'title')!
@@ -545,26 +541,23 @@ describe('scenario view persistence and formal model assembly', () => {
     expect(validator?.validate({title: 'Alex', amount: 0}).valid).toBe(true)
     expect(validator?.validate({title: 'Alex', amount: 5}).valid).toBe(true)
     dataSet.destroy()
-    const clearedConfig = structuredClone(read.state.config)
-    const clearedTables = clearedConfig['tables']
-    if (!isRecord(clearedTables) || !isRecord(clearedTables['Parents'])) throw new Error('missing fixture table')
-    clearedTables['Parents']['columns'] = []
-    read.dirtySource.setText(JSON.stringify(clearedConfig))
-    const cleared = await reopened.service.save('SPACE')
+    editColumns(read.metadataDataSet, 'Parents', [])
+    await read.metadataDataSet.saveChanges()
+    const cleared = read.viewState!
     const clearOwner = storage.openOwner()
-    const clearRead = await clearOwner.service.open('SPACE')
-    const clearAssembly = await clearOwner.assemble('SPACE', clearRead.dirtySource)
+    const clearRead = await clearOwner.open()
+    const clearAssembly = await clearOwner.assemble('SPACE', new ScenarioViewConfig('SPACE', clearRead.viewState!.text))
     expect(extractColumnRules(clearAssembly.dataSet.getTable('Parents')!.columns.find(column => column.name === 'title')!))
       .toEqual([])
     clearAssembly.dataSet.destroy()
     expect(cleared.text).not.toContain('"required":true')
-    read.dirtySource.setText(saved.text)
-    await reopened.service.save('SPACE')
+    editColumns(read.metadataDataSet, 'Parents', parentRules)
+    await read.metadataDataSet.saveChanges()
     storage.setModels([model('ParentModel', 'ParentSource', ['id']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const changed = storage.openOwner()
-    const stale = await changed.service.open('SPACE')
-    await expect(changed.assemble('SPACE', stale.dirtySource)).rejects.toThrow('未解析到唯一正式输出字段')
+    const stale = await changed.open()
+    await expect(changed.assemble('SPACE', new ScenarioViewConfig('SPACE', stale.viewState!.text))).rejects.toThrow('未解析到唯一正式输出字段')
     expect(storage.stored.get('SPACE')).toBe(saved.text)
   })
   it('validates persisted column rules before formal DataSet save and accepts the corrected receipt', async () => {
@@ -572,17 +565,14 @@ describe('scenario view persistence and formal model assembly', () => {
     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'amount'], ['amount']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const first = storage.openOwner()
-    const opened = await first.service.open('SPACE')
-    const draft = structuredClone(opened.state.config)
-    const tables = draft['tables']
-    if (!isRecord(tables) || !isRecord(tables['Parents'])) throw new Error('missing Parents')
-    tables['Parents']['columns'] = [{name: 'title', required: true, minLength: 2, maxLength: 6,
-      pattern: '^A', patternMessage: 'must start A'}, {name: 'amount', min: 0, max: 10}]
-    opened.dirtySource.setText(JSON.stringify(draft))
-    const saved = await first.service.save('SPACE')
+    const opened = await first.open()
+    editColumns(opened.metadataDataSet, 'Parents', [{name: 'title', required: true, minLength: 2, maxLength: 6,
+      pattern: '^A', patternMessage: 'must start A'}, {name: 'amount', min: 0, max: 10}])
+    await opened.metadataDataSet.saveChanges()
+    const saved = opened.viewState!
     const reopened = storage.openOwner()
-    const read = await reopened.service.open('SPACE')
-    const assembly = await reopened.assemble('SPACE', read.dirtySource)
+    const read = await reopened.open()
+    const assembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
     const dataSet = assembly.dataSet
     const view = dataSet.getView('Parents', 'shared')!
     reopened.http.result = {primaryKeyField: 'id', allowAdd: false,
@@ -608,7 +598,7 @@ describe('scenario view persistence and formal model assembly', () => {
   it('stages two model-owned views, saves and reopens native configuration with database columns', async () => {
     const storage = fixture()
     const first = storage.openOwner()
-    const opened = await first.service.open('SPACE')
+    const opened = await first.open()
     const parentConfig = {fieldProjection: [projection], queryContext: {formid: 'PARENT'},
       filterExpression: {logic: 'or' as const, filters: [
         {field: 'title', operator: 'eq' as const, value: 'one'},
@@ -619,15 +609,14 @@ describe('scenario view persistence and formal model assembly', () => {
       valueField: 'id', labelField: 'title', selectionDelimiter: '|',
       autoLoad: false, commitMode: 'staged' as const,
       aggregates: {title: {type: 'count' as const}}}
-    const stagedParent = await first.service.stage({...parentShared,
-      expectedText: opened.state.text, configuration: parentConfig})
+    editView(opened.metadataDataSet, 'Parents', 'shared', parentConfig)
     const childConfig = {queryContext: {formid: 'CHILD'}, page: 3, pageSize: 7,
       filterExpression: {field: 'parentId', operator: 'eq' as const, value: 'P'},
       valueField: 'parentId', labelField: 'title', autoLoad: false}
-    const stagedChild = await first.service.stage({...childShared,
-      expectedText: stagedParent.text, configuration: childConfig})
-    expect(stagedChild.dirty).toBe(true)
-    const saved = await first.service.save('SPACE')
+    editView(opened.metadataDataSet, 'Children', 'shared', childConfig)
+    expect(opened.metadataDataSet.getView('DataViewDefinition')!.hasEditingChanges()).toBe(true)
+    await opened.metadataDataSet.saveChanges()
+    const saved = opened.viewState!
     expect(saved).toMatchObject({dirty: false, persisted: true})
     expect(storage.stored.get('SPACE')).toBe(saved.text)
     expect(saved.text).not.toMatch(/"columns"|"rows"|"lingma_sys_/)
@@ -637,9 +626,9 @@ describe('scenario view persistence and formal model assembly', () => {
     }, viewCascades: [cascade]})
 
     const reopened = storage.openOwner()
-    const reread = await reopened.service.open('SPACE')
-    expect(reread.state.text).toBe(saved.text)
-    const assembly = await reopened.assemble('SPACE', reread.dirtySource)
+    const reread = await reopened.open()
+    expect(reread.viewState!.text).toBe(saved.text)
+    const assembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', reread.viewState!.text))
     const dataSet = assembly.dataSet
     expect(assembly.diagnostics).toEqual([])
     expect(dataSet.scenarioId).toBe('SPACE')
@@ -668,27 +657,70 @@ describe('scenario view persistence and formal model assembly', () => {
     expect(dataSet.viewCascades).toMatchObject([cascade])
     await expect(dataSet.getView('Children', 'detail')?.loadFromServer()).resolves.toMatchObject({success: true})
     expect(reopened.http.requests[0]?.data).toMatchObject({Table: [{Name: 'ChildModel'}]})
+    const parent = dataSet.getView('Parents', 'shared')!
+    reopened.http.result = {primaryKeyField: 'id', allowAdd: false,
+      data: {Items: [{id: 'P1', title: 'one'}], Count: 1}}
+    await expect(parent.loadFromServer()).resolves.toMatchObject({success: true})
+    expect(reopened.http.requests.at(-1)?.data).toMatchObject({Table: [{Name: 'ParentModel',
+      Fields: [expect.objectContaining({Name: 'title'}), expect.objectContaining({Name: 'id'})]}]})
+    expect(parent.rows[0]?.['id']).toBe('P1')
+    expect(parent.fieldAccess(parent.rows[0]!, 'id').read).toBe('visible')
+    parent.setSelectedRows([parent.rows[0]!])
+    expect(parent.value).toBe('P1')
+    expect(parent.labels).toEqual(['one'])
     dataSet.destroy()
 
     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'newColumn']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const third = storage.openOwner()
-    const latest = await third.service.open('SPACE')
-    const updated = await third.assemble('SPACE', latest.dirtySource)
+    const latest = await third.open()
+    const updated = await third.assemble('SPACE', new ScenarioViewConfig('SPACE', latest.viewState!.text))
     expect(updated.dataSet.getTable('Parents')?.columns.map(column => column.name).filter(name => name !== '_pk'))
       .toEqual(['id', 'title', 'newColumn'])
     expect(storage.stored.get('SPACE')).toBe(saved.text)
     updated.dataSet.destroy()
   })
 
-  it('keeps missing, damaged and wrong-bound files as distinct failures', async () => {
+  it.each([false, true])('offers only projected fields and formal query dependencies with tree=%s', async tree => {
+    const storage = fixture()
+    storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'parentId', 'name', 'unused']),
+      model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
+    const owner = storage.openOwner()
+    const opened = await owner.open()
+    editView(opened.metadataDataSet, 'Parents', 'shared', {fieldProjection: [projection], valueField: 'id', ...(tree ? {treeConfig: {}} : {})})
+    await opened.metadataDataSet.saveChanges()
+    const saved = opened.viewState!
+    const {dataSet} = await owner.assemble('SPACE', new ScenarioViewConfig('SPACE', opened.viewState!.text))
+    const configured = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
+    const metadata = DataSet.fromJson({scenarioId: 'META', dataSetName: 'metadata', tables: {DataViewDefinition: configured.tables.DataViewDefinition, DataTableBindingDefinition: configured.tables.DataTableBindingDefinition}})
+    try {
+      new LowcodeDataSpaceViewMetadata(metadata).setFieldOptions(dataSet)
+      const options = metadata.getTable('DataViewFieldOption')!.rows
+        .filter(row => row['tableName'] === 'Parents' && row['viewId'] === 'shared').map(row => row['name'])
+      expect(options).toEqual(tree ? ['title', 'id', 'parentId', 'name'] : ['title', 'id'])
+      editView(opened.metadataDataSet, 'Parents', 'shared', {valueField: 'unused'})
+      await expect(opened.metadataDataSet.saveChanges()).rejects.toThrow('SCENARIO_VIEW_FIELD')
+      expect(storage.stored.get('SPACE')).toBe(saved.text)
+      expect(opened.metadataDataSet.getView('DataViewDefinition')!.dirtyTracking.hasPendingChanges()).toBe(true)
+      opened.metadataDataSet.getView('DataViewDefinition')!.discardPendingChanges()
+      owner.http.result = {primaryKeyField: 'id', allowAdd: false,
+        data: {Items: [{id: 'P1', title: 'one', ...(tree ? {parentId: '', name: 'Node'} : {})}], Count: 1}}
+      await expect(dataSet.getView('Parents', 'shared')!.loadFromServer()).resolves.toMatchObject({success: true})
+      expect(owner.http.requests.at(-1)?.data).toMatchObject({Table: [{Fields:
+        options.map(name => expect.objectContaining({Name: name}))}]})
+    } finally {metadata.destroy(); dataSet.destroy()}
+  })
+
+  it('allows missing configuration for design and rejects damaged or wrong-bound definitions', async () => {
     const missing = fixture(null).openOwner()
-    await expect(missing.service.open('SPACE')).rejects.toThrow('SCENARIO_VIEW_FILE_MISSING')
+    const absent = await missing.open()
+    expect(absent.viewState).toBeNull()
+    expect(absent.metadataDataSet.getView('DataViewDefinition')!.rows).toEqual([])
     const damaged = fixture('{broken').openOwner()
-    await expect(damaged.service.open('SPACE')).rejects.toThrow()
+    await expect(damaged.open()).rejects.toThrow()
     const wrong = initial.replace('"modelId":"ParentModel"', '"modelId":"OTHER"')
     const wrongOwner = fixture(wrong).openOwner()
-    const opened = await wrongOwner.service.open('SPACE')
-    await expect(wrongOwner.assemble('SPACE', opened.dirtySource)).rejects.toThrow('唯一正式模型')
+    const opened = await wrongOwner.open()
+    await expect(wrongOwner.assemble('SPACE', new ScenarioViewConfig('SPACE', opened.viewState!.text))).rejects.toThrow('唯一正式模型')
   })
 })

@@ -15,6 +15,7 @@ function createDevSystemCtx(overrides: Record<string, unknown> = {}) {
     hasAnyDirty: ref(false),
     blueprintSaving: ref(false),
     pageIoBusy: ref(false),
+    allSaving: ref(false),
     blueprintLoading: ref(false),
     blueprintEmpty: ref(true),
     treeData: ref([]),

@@ -60,6 +60,39 @@ function fixture() {
 }
 
 describe('persisted DataTable submission configuration', () => {
+  it('saves only the changed row from one page without querying unopened views or deleting unloaded rows', async () => {
+    const f = await fixture().save({})
+    try {
+      f.http.query = {primaryKeyField: 'id', allowAdd: false, data: {Items: [
+        {id: 'A', title: 'Before', lingma_sys_key: 'SIGNED', lingma_sys_params: {r: ['id', 'title'], e: ['title'], d: true}},
+        {id: 'B', title: 'Untouched', lingma_sys_key: 'SIGNED-B', lingma_sys_params: {r: ['id', 'title'], e: ['title'], d: true}},
+      ], Count: 100}}
+      const unopened = f.dataSet.getView('Orders', 'default')!
+      const unused = f.dataSet.addTable('UnopenedMetadata', [{name: 'id', type: 'string', isPrimaryKey: true}]).getOrCreateView('default')
+      const unreadState = [unopened.requestState, unused.requestState]
+      await f.view.loadFromServer({page: 1, pageSize: 2})
+      expect(f.view.rows).toHaveLength(2)
+      expect(f.view.total).toBe(100)
+      f.view.updateEditingValue('A', 'title', 'Changed')
+
+      await expect(f.dataSet.saveChanges()).resolves.toMatchObject({success: true,
+        data: {createdCount: 0, savedCount: 1, deletedCount: 0, failedCount: 0}})
+      expect(f.http.requests).toHaveLength(2)
+      expect(f.http.requests[1]).toMatchObject({url: '/api/DataOperation/BatchTableOperateRequestByCRUD'})
+      expect(f.http.requests[1]?.data).toEqual([{TableName: 'Orders', CrudModel: {
+        Added: [], Changed: [{id: 'A', title: 'Changed', lingma_sys_key: 'SIGNED'}], Deleted: [],
+      }}])
+      expect(f.view.rows.find(row => row['id'] === 'B')?.['title']).toBe('Untouched')
+      expect(f.view.rows.find(row => row['id'] === 'A')?.['title']).toBe('Accepted')
+      expect(f.view.total).toBe(100)
+      expect([unopened.requestState, unused.requestState]).toEqual(unreadState)
+      expect(unopened.rows).toEqual([])
+      expect(unused.rows).toEqual([])
+      expect(f.view.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.file.isDirty).toBe(false)
+    } finally {f.dataSet.destroy()}
+  })
+
   it('applies the shared table timeout to the default formal query', async () => {
     const f = await fixture().save({crudConfig: {timeout: 1234}})
     try {

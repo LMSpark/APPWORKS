@@ -125,6 +125,93 @@ function createComponentRegistrationProbe(counts: Record<string, number>) {
   }
 }
 
+describe('configured DataView query completion', () => {
+  const script = `function loaded({view, dataViewKey, signal}) {
+    view.queryContext = {count: (view.queryContext.count || 0) + 1, key: dataViewKey, aborted: signal.aborted,
+      current: view.currentRow && view.currentRow.id};
+  }`
+  async function fixture(scriptText = script, scenarioIds = ['one'], autoLoad = false) {
+    const tool = markRaw(new PageTool({pageId: 'completion'}))
+    tool.hydrateFileText('rule.json', '[]'); tool.hydrateFileText('script.js', scriptText); tool.markLoaded()
+    const runtime = trackPageRuntime(markRaw(new PageRuntime({tool, scenarioIds, mainScenarioId: scenarioIds[0]!,
+      loadScenario: async scenarioId => SparkData.createDataSet({scenarioId, dataSetName: 'Completion', tables: {Internal: {
+        tableName: 'Internal', resourceType: 'static-data', modelBinding: {modelId: 'M', modelName: 'Items'},
+        columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {
+          rows: [{id: scenarioId}], onRequestComplete: 'loaded', autoCurrentFirst: true, autoLoad,
+        }},
+      }}}),
+    })))
+    const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: defineComponent({render: () => h('div')})}]})
+    await router.push('/'); await router.isReady()
+    const onRuntimeError = vi.fn()
+    const wrapper = mount(SparkPageRenderer, {props: {pageRuntime: runtime, routeSnapshot, onRuntimeError},
+      global: {plugins: [Spark.createPlugin(), router]}, slots: {content: () => h('div', 'ready')}})
+    await flushPromises()
+    return {runtime, wrapper, onRuntimeError, view: runtime.resolveView(`${scenarioIds[0]}@Items@default`)!}
+  }
+
+  it('runs for accepted queries in the right space/model/view, and detaches on release', async () => {
+    const {runtime, wrapper, view, onRuntimeError} = await fixture(script, ['one', 'two'])
+    try {
+      expect(view.queryContext).toEqual({}) // hydration is not a request
+      await view.refresh(); await flushPromises()
+      expect(view.queryContext).toMatchObject({count: 1, key: 'one@Items@default', current: 'one', aborted: false})
+      const other = runtime.resolveView('two@Items@default')!
+      expect(other.queryContext).toEqual({})
+      await other.refresh(); await view.refresh(); await flushPromises()
+      expect(other.queryContext).toMatchObject({count: 1, key: 'two@Items@default', current: 'two'})
+      expect(view.queryContext['count']).toBe(2)
+      const named = view.dataTable!.getOrCreateView('named')
+      named.configure({onRequestComplete: 'loaded'})
+      await named.refresh(); await flushPromises()
+      expect(named.queryContext).toMatchObject({count: 1, key: 'one@Items@named'})
+      view.onRequestComplete = ''
+      await view.refresh()
+      expect(view.queryContext['count']).toBe(2)
+      expect(onRuntimeError).not.toHaveBeenCalled()
+      wrapper.unmount()
+      expect(named.events.listenerCount('requestCompleted')).toBe(0)
+      await named.refresh()
+      expect(named.queryContext['count']).toBe(1)
+    } finally {if (wrapper.exists()) wrapper.unmount()}
+  })
+
+  it('binds the handler before the initial automatic query', async () => {
+    const {wrapper, view} = await fixture(script, ['one'], true)
+    try {expect(view.queryContext).toMatchObject({count: 1, key: 'one@Items@default'})}
+    finally {wrapper.unmount()}
+  })
+
+  it.each(['missing', 'sync', 'async'])('reports %s handlers without turning accepted data into a query failure', async mode => {
+    const text = mode === 'missing' ? '' : `${mode === 'async' ? 'async ' : ''}function loaded() { throw new Error('completion failed') }`
+    const {wrapper, view, onRuntimeError} = await fixture(text)
+    try {
+      await view.refresh(); await flushPromises()
+      expect(view.requestState).toBe(RequestState.Loaded)
+      expect(view.loadingError).toBeNull()
+      expect(view.rows).toHaveLength(1)
+      expect(onRuntimeError).toHaveBeenCalledTimes(1)
+      expect(onRuntimeError).toHaveBeenCalledWith(expect.objectContaining({phase: 'script-function',
+        message: expect.stringContaining(mode === 'missing' ? 'DATA_VIEW_COMPLETION_HANDLER' : 'completion failed')}))
+    } finally {wrapper.unmount()}
+  })
+
+  it('aborts the page signal for a pending handler on unmount', async () => {
+    const {wrapper, view, onRuntimeError} = await fixture(`async function loaded({view, signal}) {
+      view.queryContext = {signal};
+      await new Promise(resolve => signal.addEventListener('abort', resolve, {once:true}));
+      if (signal.aborted) return;
+      throw new Error('released handler ran');
+    }`)
+    await view.refresh(); await flushPromises()
+    const signal = view.queryContext['signal'] as AbortSignal
+    expect(signal.aborted).toBe(false)
+    wrapper.unmount(); await flushPromises()
+    expect(signal.aborted).toBe(true)
+    expect(onRuntimeError).not.toHaveBeenCalled()
+  })
+})
+
 describe('SparkPageRenderer root props aggregation', () => {
   function createActionContext(): ActionExecutionContext {
     return {
@@ -210,7 +297,7 @@ describe('SparkPageRenderer root props aggregation', () => {
     const props = requireRecord(firstChild['props'], 'Expected first rendered child props')
 
     expect(Array.isArray(children)).toBe(true)
-    expect(props['dataViewKey']).toBe('#test-scene@Users@default')
+    expect(props['dataViewKey']).toBe('test-scene@Users@default')
     expect(props['label']).toBe('用户列表')
     expect(firstChild['dataViewKey']).toBeUndefined()
     expect(firstChild['label']).toBeUndefined()
@@ -1013,16 +1100,14 @@ describe('SparkPageRenderer root props aggregation', () => {
     }
   })
 
-  it('passes the inherited layout reader from the app capability into page scripts', async () => {
+  it('passes host UI services while page scripts resolve data through the declared DataSet', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/pages/test', component: defineComponent({ render: () => h('div') }) }] })
     await router.push('/pages/test')
     await router.isReady()
-    const readDataSpaceLayout = vi.fn(async () => 'layout-source')
-    const services: PageRuntimeServicesCapability = { dataSpaceLayout: {
-      scenarioId: 'test-scene', createReader: () => ({ readDataSpaceLayout }),
-    } }
+    const copyText = vi.fn(async (_text: string) => {})
+    const services: PageRuntimeServicesCapability = {pageService: {copyText}}
     const pageRuntime = createPageRuntime({ ...createPageContentConfig('layout'), rule: [],
-      script: "async function __init__() { await $page.readDataSpaceLayout('DS-1') }" })
+      script: "async function __init__() { const view = $page.resolveView('test-scene@Users@default'); await $page.copyText(view.rows[0].id) }" })
     const Parent = defineComponent({ setup() {
       const { sparkProvide } = useSparkComponent({ type: 'layout-test-host' })
       sparkProvide(PAGE_RUNTIME_SERVICES, services)
@@ -1031,8 +1116,8 @@ describe('SparkPageRenderer root props aggregation', () => {
     const wrapper = mount(Parent, { global: { plugins: [Spark.createPlugin(), router] } })
     await flushPromises()
     await flushPromises()
-    expect(readDataSpaceLayout).toHaveBeenCalledOnce()
-    expect(readDataSpaceLayout).toHaveBeenCalledWith('DS-1')
+    expect(copyText).toHaveBeenCalledOnce()
+    expect(copyText).toHaveBeenCalledWith('u-1')
     wrapper.unmount()
   })
 

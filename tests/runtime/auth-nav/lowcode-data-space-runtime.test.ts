@@ -1,10 +1,7 @@
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { HttpClientBase, Request } from '@spark-appworks/spark-utils'
 import {
-  DataSpaceFrontendModel,
   DataSpaceRuntimeApi,
-  type DataSpaceDesignSnapshot,
-  type LowcodeModelRelationRecord,
 } from '@spark-appworks/spark-lowcode-api'
 import { DataViewFilter, RequestState } from '@spark-appworks/spark-data'
 import { afterEach, beforeAll, afterAll, describe, expect, it, vi } from 'vitest'
@@ -15,7 +12,7 @@ const originalTransport = Object.getOwnPropertyDescriptor(Request.prototype, 'ex
 let runtime: typeof import('../../../src/lowcode/lowcode-runtime')
 
 import { ScenarioViewConfig } from '../../../packages/spark-project-model/src/scenario/scenario-view-config'
-import { LowcodeDataSpaceAssembler } from '../../../src/lowcode/data-space/lowcode-data-space-assembler'
+import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssemblerInput } from '../../../src/lowcode/data-space/lowcode-data-space-assembler'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -222,6 +219,44 @@ describe('host scenario file request wiring', () => {
     ])
   })
 
+  it.each([
+    { fileName: 'rule.json' as const, versionId: undefined, expected: 'rule.json' },
+    { fileName: 'rule.json' as const, versionId: '2', expected: '2__rule.json' },
+    { fileName: 'rule.json' as const, versionId: 'style=3;rule=2;script=1', expected: '2__rule.json' },
+    { fileName: 'script.js' as const, versionId: 'style=3;rule=2;script=1', expected: '1__script.js' },
+    { fileName: 'style.css' as const, versionId: 'style=3;rule=2;script=1', expected: '3__style.css' },
+  ])('reads the exact tool file through the production gateway: $expected', async ({ fileName, versionId, expected }) => {
+    const workspace = sceneWorkspace()
+    transport.request.mockImplementation(async (config: RequestConfig) => ({
+      data: { Code: 200, Result: isRecord(config.data) ? config.data['fileName'] : null },
+      status: 200, statusText: 'OK', headers: {},
+    }))
+    await expect(workspace.previewPageFileRemote('orders', fileName, versionId)).resolves.toBe(expected)
+    expect(transport.request).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      url: '/api/File/content/text',
+      data: expect.objectContaining({ appType: 'designfile', customPath: 'APP-1/orders', fileName: expected }),
+    }))
+  })
+
+  it.each(['', ' ', 'style=3', 'rule=1;rule=2', 'rule=-1', 'v1'])(
+    'rejects an invalid or incomplete published tool pointer before transport: %j', async versionId => {
+      const workspace = sceneWorkspace()
+      await expect(workspace.previewPageFileRemote('orders', 'rule.json', versionId)).rejects.toThrow()
+      expect(transport.request).not.toHaveBeenCalled()
+    },
+  )
+
+  it('does not fall back to the working tool file when a published snapshot is missing', async () => {
+    const workspace = sceneWorkspace()
+    transport.request.mockResolvedValue({
+      data: { Code: 404, Msg: '文件不存在', Result: null }, status: 200, statusText: 'OK', headers: {},
+    })
+    await expect(workspace.previewPageFileRemote('orders', 'script.js', 'script=4')).rejects.toMatchObject({ code: 404 })
+    expect(transport.request).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      data: expect.objectContaining({ appType: 'designfile', customPath: 'APP-1/orders', fileName: '4__script.js' }),
+    }))
+  })
+
   it('refuses restoration over an unsaved tool file before transport', async () => {
     const workspace = sceneWorkspace()
     const page = workspace.project.openPageDesign('orders')
@@ -296,13 +331,13 @@ describe('host scenario file request wiring', () => {
     expect(transport.request).toHaveBeenCalledTimes(1)
   })
 
-  it('snapshots and restores shared scene files by actual filename without touching tool publishing', async () => {
+  it('snapshots and previews shared scene files with a fresh definition guard before upload', async () => {
     sceneWorkspace()
     const current = JSON.stringify({ scenarioId: 'SCENE-1', tables: {} })
     const previous = JSON.stringify({ scenarioId: 'SCENE-1', tables: {}, viewCascades: [] }, null, 2)
     const files = new Map([['pagedata.json', current], ['0__pagedata.json', previous], ['8__script.js', 'unrelated']])
     const gateway = runtime.createLowcodeProjectGateways('APP-1').scenarioViews
-    if (!gateway.listVersions || !gateway.createVersion || !gateway.readVersion || !gateway.restoreVersion) throw new Error('missing scene version gateway')
+    if (!gateway.listVersions || !gateway.createVersion || !gateway.readVersion) throw new Error('missing scene version gateway')
     transport.request.mockImplementation(async (config: RequestConfig) => {
       let data: unknown
       if (config.url === '/api/File/list') {
@@ -326,40 +361,28 @@ describe('host scenario file request wiring', () => {
     expect(await gateway.listVersions('SCENE-1')).toEqual([{version:0,fileName:'0__pagedata.json',lastModified:100}])
     expect(await gateway.createVersion('SCENE-1',current)).toEqual({version:1,fileName:'1__pagedata.json',lastModified:100})
     expect(await gateway.readVersion('SCENE-1',0)).toBe(previous)
-    await gateway.restoreVersion('SCENE-1',0)
-    expect(files.get('pagedata.json')).toBe(previous)
+    expect('restoreVersion' in gateway).toBe(false)
+    expect(files.get('pagedata.json')).toBe(current)
     expect(files.get('0__pagedata.json')).toBe(previous)
     expect(files.get('1__pagedata.json')).toBe(current)
     expect(transport.request.mock.calls.every(([config])=>config.url.startsWith('/api/File/'))).toBe(true)
+    let guards = 0
+    await expect(gateway.createVersion('SCENE-1',current,()=>{if (++guards > 1) throw new Error('DEFINITION_CHANGED')})).rejects.toThrow('DEFINITION_CHANGED')
+    expect(files.has('2__pagedata.json')).toBe(false)
   })
 
   it('rejects unsafe scene versions and foreign application history before transport', async () => {
     sceneWorkspace()
     const gateway = runtime.createLowcodeProjectGateways('APP-1').scenarioViews
-    if(!gateway.readVersion || !gateway.restoreVersion || !gateway.listVersions)throw new Error('missing scene version gateway')
+    if(!gateway.readVersion || !gateway.listVersions)throw new Error('missing scene version gateway')
     for(const version of [-1, 1.2, Number.MAX_SAFE_INTEGER + 1]) {
       await expect(gateway.readVersion('SCENE-1',version)).rejects.toThrow('非负安全整数')
-      await expect(gateway.restoreVersion('SCENE-1',version)).rejects.toThrow('非负安全整数')
     }
     sceneWorkspace('APP-2')
     await expect(gateway.listVersions('SCENE-1')).rejects.toThrow('SCOPE_STALE')
     expect(transport.request).not.toHaveBeenCalled()
   })
 
-  it('does not upload a corrupted or different-scene snapshot when restoring', async () => {
-    sceneWorkspace()
-    const gateway=runtime.createLowcodeProjectGateways('APP-1').scenarioViews
-    if(!gateway.restoreVersion)throw new Error('missing scene restore')
-    for(const text of ['invalid JSON',JSON.stringify({scenarioId:'OTHER',tables:{}})]) {
-      transport.request.mockImplementation(async()=>{
-        const bytes=new TextEncoder().encode(text), buffer=new ArrayBuffer(bytes.length)
-        new Uint8Array(buffer).set(bytes)
-        return {data:buffer,status:200,statusText:'OK',headers:{}}
-      })
-      await expect(gateway.restoreVersion('SCENE-1',0)).rejects.toThrow()
-    }
-    expect(transport.request.mock.calls.every(([config])=>config.url === '/api/File/DownFile')).toBe(true)
-  })
 
   it('rejects conflicting scene working content before snapshot upload', async () => {
     sceneWorkspace()
@@ -433,131 +456,38 @@ describe('host scenario file request wiring', () => {
   })
 })
 
-function field(resourceFieldId: string, name: string, primaryKey = false) {
-  return {
-    resourceFieldId,
-    name,
-    label: name,
-    dataType: primaryKey ? 'int' : 'varchar',
-    dataTypeName: primaryKey ? '整数型' : '字符串型',
-    length: '',
-    nullable: !primaryKey,
-    primaryKey,
-    unique: primaryKey,
-    system: false,
-    defaultValue: '',
-    description: '',
-    order: 0,
-  }
-}
-
 function model(input: Readonly<{
   modelId: string
   name: string
-  resourceId: string
   resourceName: string
   fields: readonly Readonly<{ id: string; name: string; alias?: string; primaryKey?: boolean }>[]
-  relations: readonly LowcodeModelRelationRecord[]
-}>): DataSpaceFrontendModel {
-  const resourceFields = input.fields.map(item => field(`RESOURCE-${item.id}`, item.name, item.primaryKey === true))
-  return new DataSpaceFrontendModel({
-    dataSpaceId: 'SPACE-1',
-    modelId: input.modelId,
-    name: input.name,
-    resource: {
-      resourceId: input.resourceId,
-      databaseId: 'DATABASE-1',
-      resourceName: input.resourceName,
-      resourceType: 'table',
-      primaryKeyField: input.fields.find(item => item.primaryKey === true)?.name ?? 'id',
-      databaseName: 'payroll',
-      fields: resourceFields,
-    },
-    fields: input.fields.map(item => ({
-      fieldId: item.id,
-      resourceFieldId: `RESOURCE-${item.id}`,
-      resourceField: item.name,
-      alias: item.alias ?? '',
-      fieldType: '',
-      output: true,
-      order: 0,
-      orderType: '',
-      group: 0,
-      distinct: false,
-      primaryKey: item.primaryKey === true,
-      value: '',
-      valueFunction: '',
-      expression: '',
-    })),
-    relations: input.relations,
-    query: {
-      outputType: 'Table',
-      filter: '',
-      distinct: false,
-      businessMain: true,
-      joinType: '',
-      joinFilter: '',
-      parentModelId: '',
-      requestComplete: '',
-      hasChildField: '',
-      parentField: '',
-      foreignKeyFields: '',
-      requestType: '',
-      shortName: '',
-      cacheType: '',
-      items: '',
-      selfType: '',
-      topValue: '',
-    },
-  })
-}
-
-const relation: LowcodeModelRelationRecord = {
-  sourceRelationId: 'RELATION-1',
-  dataSpaceId: 'SPACE-1',
-  parentModelId: 'MODEL-PARENT',
-  childModelId: 'MODEL-CHILD',
-  parentResourceName: 'Department',
-  childResourceName: 'Employee',
-  filterExpression: JSON.stringify({
-    Type: 'cond',
-    Field: 'Employee.departmentId',
-    Operator: 'equal',
-    ValueFun: { Type: 'GetTableField', Field: 'Department.id' },
-  }),
-  dependencyType: 'allRows',
-  cascadeDelete: false,
-}
-
-function design(): DataSpaceDesignSnapshot {
-  const parent = model({
-    modelId: 'MODEL-PARENT',
-    name: '部门模型',
-    resourceId: 'RESOURCE-PARENT',
-    resourceName: 'Department',
-    fields: [{ id: 'FIELD-P-ID', name: 'id', primaryKey: true }],
-    relations: [relation],
-  })
-  const child = model({
-    modelId: 'MODEL-CHILD',
-    name: '员工模型',
-    resourceId: 'RESOURCE-CHILD',
-    resourceName: 'Employee',
-    fields: [
-      { id: 'FIELD-C-ID', name: 'id', primaryKey: true },
-      { id: 'FIELD-C-PARENT', name: 'departmentId' },
-    ],
-    relations: [relation],
-  })
+}>): LowcodeDataSpaceAssemblerInput['models'][number] {
   return {
-    dataSpaceId: 'SPACE-1',
-    name: '组织场景',
-    description: '',
-    inputParameters: [],
-    resources: [parent.resource, child.resource],
-    models: [parent, child],
-    relations: [relation],
+    id: input.modelId, name: input.name, metaName: input.name,
+    sourceName: input.resourceName, sourceId: 'DATABASE-1', sourceType: 'table',
+    primaryKey: input.fields.find(item => item.primaryKey)?.name ?? 'id', businessMain: true, raw: {},
+    fields: input.fields.map(item => ({id: item.id, modelId: input.modelId, name: item.name,
+      canonicalName: item.alias || item.name, type: 'integer', primaryKey: item.primaryKey === true,
+      description: '', output: true, computed: false, order: 0, orderType: '', raw: {}})),
   }
+}
+
+function design() {
+  const models = [
+    model({modelId: 'MODEL-PARENT', name: '部门模型', resourceName: 'Department',
+      fields: [{id: 'FIELD-P-ID', name: 'id', primaryKey: true}]}),
+    model({modelId: 'MODEL-CHILD', name: '员工模型', resourceName: 'Employee', fields: [
+      {id: 'FIELD-C-ID', name: 'id', primaryKey: true}, {id: 'FIELD-C-PARENT', name: 'departmentId'},
+    ]}),
+  ]
+  const relations: LowcodeDataSpaceAssemblerInput['relations'] = [{
+    sourceRelationId: 'RELATION-1', dataSpaceId: 'SPACE-1', parentModelId: 'MODEL-PARENT', childModelId: 'MODEL-CHILD',
+    parentResourceName: 'Department', childResourceName: 'Employee', dependencyType: 'allRows', cascadeDelete: false,
+    filterExpression: DataViewFilter.group({logic: 'and', filters: [
+      {field: 'departmentId', operator: 'eq', value: {Type: 'GetTableField', Field: 'id'}},
+    ]}),
+  }]
+  return {name: '组织场景', models, relations}
 }
 
 class RuntimeFixtureHttpClient extends HttpClientBase {
@@ -590,18 +520,11 @@ class RuntimeFixtureHttpClient extends HttpClientBase {
   }
 }
 
-function formalAssemblyInput(snapshot: DataSpaceDesignSnapshot, scenarioId: string, options: Readonly<{viewCascades?: readonly unknown[]; namedViews?: readonly string[]}> = {}) {
-  const models = snapshot.models.map(model => ({ id: model.modelId, name: model.name, metaName: model.name,
-    sourceName: model.resource.resourceName, sourceId: model.resource.databaseId ?? '', sourceType: model.resource.resourceType,
-    primaryKey: model.resource.primaryKeyField, businessMain: model.query.businessMain, raw: {},
-    fields: model.fields.map(field => ({ id: field.fieldId, modelId: model.modelId, name: field.resourceField,
-      canonicalName: field.alias || field.resourceField, type: 'integer', primaryKey: field.primaryKey,
-      description: '', output: field.output, computed: false, order: field.order, orderType: field.orderType, raw: {} })) }))
-  const tables = Object.fromEntries(models.map(model => [model.id, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: Object.fromEntries(['default', ...(options.namedViews ?? [])].map(viewId => [viewId, {}]))}]))
+function formalAssemblyInput(snapshot: ReturnType<typeof design>, scenarioId: string,
+  options: Readonly<{viewCascades?: readonly unknown[]; namedViews?: readonly string[]}> = {}): LowcodeDataSpaceAssemblerInput {
+  const tables = Object.fromEntries(snapshot.models.map(model => [model.id, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: Object.fromEntries(['default', ...(options.namedViews ?? [])].map(viewId => [viewId, {}]))}]))
   const config = new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables, ...(options.viewCascades === undefined ? {} : {viewCascades: options.viewCascades})}))
-  const relations = snapshot.relations.map(relation => ({...relation,
-    filterExpression: DataViewFilter.group({logic:'and', filters:[{field: 'departmentId',operator:'eq',value:{Type:'GetTableField', Field:'id'}}]})}))
-  return {config, space: {dataSpaceId: scenarioId, name: snapshot.name}, models, relations}
+  return {config, space: {dataSpaceId: scenarioId, name: snapshot.name}, models: snapshot.models, relations: snapshot.relations}
 }
 
 describe('lowcode data-space DataView runtime', () => {
@@ -806,14 +729,10 @@ describe('lowcode data-space DataView runtime', () => {
     const assembly = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({ http,
       readScope: () => ({ token: 'fixture-request-scope', headers: {} }) }), http).assemble({
       ...formalAssemblyInput({
-        dataSpaceId: 'SPACE-1',
         name: '组织场景',
-        description: '',
-        inputParameters: [],
-        resources: [],
         models: [
-          model({ modelId: 'MODEL-A', name: '部门模型', resourceId: 'RESOURCE-SHARED', resourceName: 'Department', fields: sharedFields, relations: [] }),
-          model({ modelId: 'MODEL-B', name: '员工模型', resourceId: 'RESOURCE-SHARED', resourceName: 'Department', fields: sharedFields, relations: [] }),
+          model({ modelId: 'MODEL-A', name: '部门模型', resourceName: 'Department', fields: sharedFields }),
+          model({ modelId: 'MODEL-B', name: '员工模型', resourceName: 'Department', fields: sharedFields }),
         ],
         relations: [],
       }, 'FORM-1'),

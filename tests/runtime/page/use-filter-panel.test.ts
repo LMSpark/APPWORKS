@@ -78,6 +78,41 @@ async function mountTableFilters(view: FilterViewLike, filterChildren: SparkNode
 }
 
 describe('useFilterPanel', () => {
+  it('rejects mixing a keyword alternatives filter with a resident field reference', async () => {
+    const {view}=createView({resourceType:'static-data',columns:[{name:'Name'}]})
+    await expect(mountTableFilters(view,[{type:'r-text',props:{field:'Name',filterValueRefField:'Name',
+      filterAlternatives:[{field:'Name',operator:'eq'}]}}])).rejects.toThrow('不能与filterValueRefField混用')
+  })
+  it('applies one keyword to explicit OR fields while retaining the other AND filters', async () => {
+    const {view, setFilter} = createView({resourceType: 'static-data', columns: [{name:'Name'},{name:'rowid'},{name:'sysid'}]})
+    const {scope, api} = await mountTableFilters(view, [
+      {type:'r-text', props:{field:'Name', filterAlternatives:[{field:'Name',operator:'contains'},{field:'rowid',operator:'eq'}]}},
+      {type:'r-select', props:{field:'sysid'}},
+    ])
+    try {
+      api.filterModel['Name'] = ' FIND '
+      api.filterModel['sysid'] = 'APP'
+      await nextTick()
+      expect(setFilter).toHaveBeenLastCalledWith({logic:'and',filters:[
+        {logic:'or',filters:[{field:'Name',operator:'contains',value:'FIND'},{field:'rowid',operator:'eq',value:'FIND'}]},
+        {field:'sysid',operator:'eq',value:'APP'},
+      ]})
+      await api.resetFilters(); await nextTick()
+      expect(setFilter).toHaveBeenLastCalledWith(undefined)
+    } finally {scope.stop()}
+  })
+
+  it('rejects an unknown alternative field instead of silently dropping part of the search', async () => {
+    const {view, setFilter} = createView({resourceType:'static-data', columns:[{name:'Name'}]})
+    const {scope, api} = await mountTableFilters(view, [{type:'r-text',props:{field:'Name',filterAlternatives:[{field:'missing',operator:'eq'}]}}])
+    try {
+      api.filterModel['Name']='keep'
+      await nextTick()
+      expect(await api.searchFilters()).toBe(false)
+      expect(api.filterError.value).toContain('missing')
+      expect(setFilter).not.toHaveBeenCalled()
+    } finally {scope.stop()}
+  })
   it('invalid input predicates remain visible and do not execute a partial query', async () => {
     const { view, setFilter } = createView({ resourceType: 'static-data' })
     const { scope, api } = await mountTableFilters(view, [{ type: 'r-text', props: { field: 'Name', filterOperator: 'obsolete' } }])

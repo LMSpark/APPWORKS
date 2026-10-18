@@ -1,3 +1,4 @@
+import {withDefinitionResources} from '../view-design/definition-resource.fixture'
 import {describe, expect, it} from 'vitest'
 import {DataSpaceDesignApi, DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ProjectWorkspace, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
@@ -140,14 +141,14 @@ function fixture() {
     const formalInput = {designScenarioId: metadataId, dataSpaceId: targetId}
     const service = new LowcodeDataSpaceViewDesign({workspace, assertScope: () => undefined,
       readModel: input => design.readModel({...formalInput, metaName: input.modelName}),
-      assemble: async (id, file) => {
+      assemble: async (id, config) => {
         expect(id).toBe(targetId)
-        return assembler.assemble({config: file.value,
+        return assembler.assemble({config,
           space: await design.readSpaceDefinition(formalInput),
           models: [await design.readModel({...formalInput, metaName: 'Orders'})],
           relations: await design.readRelations(formalInput)})
       },
-      loadMetadata: async id => {
+      loadMetadata: withDefinitionResources(async id => {
         expect(id).toBe(targetId)
         const models: FormalModel[] = metaTables.map(name => ({id: `META-${name}`, name, metaName: name,
           sourceName: name, sourceId: 'DB', sourceType: 'table', primaryKey: 'rowid', businessMain: false, raw: {},
@@ -158,9 +159,9 @@ function fixture() {
         const config = new ScenarioViewConfig(metadataId, JSON.stringify({scenarioId: metadataId,
           tables: Object.fromEntries(models.map(model => [model.metaName, {
             modelBinding: {modelId: model.id, modelName: model.metaName}, views: {default: {
-              queryContext: {formid: id}, filterExpression: {
+              queryContext: {dataSpaceId: id}, filterExpression: {
                 field: model.metaName === 'Base_DataSet' ? 'rowid' : 'dataSetId', operator: 'eq',
-                value: {Type: 'GetInputParam', ParamName: 'formid'},
+                value: {Type: 'GetInputParam', ParamName: 'dataSpaceId'},
               }},
             },
           }]))}))
@@ -171,7 +172,7 @@ function fixture() {
           if (!result.success) {dataSet.destroy(); throw new Error('metadata query failed')}
         }
         return dataSet
-      },
+      }),
     })
     return service.openDesignSession(targetId)
   }
@@ -199,25 +200,44 @@ describe('definition editing across database and scenario file persistence', () 
     expect(repair.definitionError?.message).toContain('未解析到唯一正式输出字段: title')
     expect(repair.metadataDataSet.getView('Base_DataModel_Field', 'default')?.rows
       .find(row => row['rowid'] === 'FIELD-title')?.['AsName']).toBe('caption')
-    await expect(repair.saveViews()).rejects.toThrow('未解析到唯一正式输出字段')
-    await expect(repair.stageDefinition({expectedText: definition('title'), text: definition('absent')}))
-      .rejects.toThrow('未解析到唯一正式输出字段: absent')
+    const definitions = repair.metadataDataSet.getView('DataViewDefinition')!
+    const definitionRow = definitions.rows.find(row => row['tableName'] === 'Orders' && row['viewId'] === 'editor')!
+    const definitionKey = definitions.getPkKey(definitionRow)!
+    const bindings = repair.metadataDataSet.getView('DataTableBindingDefinition')!
+    const bindingRow = bindings.rows.find(row => row['tableName'] === 'Orders')!
+    const bindingKey = bindings.getPkKey(bindingRow)!
+    const saveSelection = {views: [{tableName: 'DataViewDefinition', viewId: 'default'}, {tableName: 'DataTableBindingDefinition', viewId: 'default'}]}
+    const repairField = (field: string) => {
+      definitions.updateEditingValue(definitionKey, 'labelField', field)
+      bindings.updateEditingValue(bindingKey, 'configuration', {...record(bindingRow['configuration']), columns: [{name: field, required: true}]})
+    }
+    expect((await repair.metadataDataSet.saveChanges(saveSelection)).success).toBe(true)
+    expect(repair.definitionError?.message).toContain('未解析到唯一正式输出字段: title')
+    repairField('absent')
+    await expect(repair.metadataDataSet.saveChanges(saveSelection)).rejects.toThrow('未解析到唯一正式输出字段: absent')
     expect(storage.stored).toBe(definition('title'))
     expect(storage.fileWrites).toBe(0)
-    await repair.stageDefinition({expectedText: definition('title'), text: definition('caption')})
-    expect(repair.definitionError).toBeNull()
-    expect(repair.viewState?.dirty).toBe(true)
-    expect(repair.definitionDataSet?.getTable('Orders')?.columns.find(column => column.name === 'caption')?.required).toBe(true)
+    expect(definitions.hasEditingChanges() || definitions.dirtyTracking.hasPendingChanges()).toBe(true)
+    definitions.discardPendingChanges(); bindings.discardPendingChanges()
+    expect(definitions.getEditingRow(definitionKey)?.['labelField']).toBe('title')
+    repairField('caption')
+    expect(repair.viewState?.dirty).toBe(false)
     if (lostResponse) {
       storage.failFileResponse()
-      await expect(repair.saveViews()).rejects.toThrow('file response lost')
+      await expect(repair.metadataDataSet.saveChanges(saveSelection)).rejects.toThrow('file response lost')
       expect(repair.viewState?.saveStatus).toBe('unknown')
-      await expect(repair.saveViews()).rejects.toThrow('SAVE_PENDING')
-      await expect(repair.verifyViews()).resolves.toMatchObject({outcome: 'confirmed', state: {dirty: false}})
-    } else await repair.saveViews()
+      expect(storage.fileWrites).toBe(1)
+      await expect(repair.metadataDataSet.saveChanges(saveSelection)).resolves.toMatchObject({success: true})
+    } else await expect(repair.metadataDataSet.saveChanges(saveSelection)).resolves.toMatchObject({success: true})
+    expect(repair.viewState).toMatchObject({dirty: false, saveStatus: 'idle'})
+    expect(definitions.hasEditingChanges() || definitions.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(bindings.hasEditingChanges() || bindings.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(repair.definitionError).toBeNull()
+    await repair.loadDefinition()
+    expect(repair.definitionDataSet?.getTable('Orders')?.columns.find(column => column.name === 'caption')?.required).toBe(true)
     expect(storage.fileWrites).toBe(1)
     expect(storage.http.writes).toHaveLength(1)
-    expect(storage.stored).toBe(definition('caption'))
+    expect(JSON.parse(storage.stored)).toEqual(JSON.parse(definition('caption')))
     repair.dispose()
 
     const reopened = await storage.open()

@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ProjectWorkspace, type PageToolFileName } from '@spark-appworks/spark-project-model'
+import { ProjectWorkspace, ScenarioDefinitionResource, type PageToolFileName } from '@spark-appworks/spark-project-model'
+import {DataSet} from '@spark-appworks/spark-data'
+import definitionConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 import { AiAgentRegistration, createAiAgentHost, createSimpleInputContract, DefaultAiAgentSessionStore, AiAgentToolResult } from '@spark-appworks/spark-ai/agent'
 import type {
   AiAgentHost,
@@ -13,9 +15,31 @@ import type { ActivatePageDesignAgentWorkflowOptions } from '@/services/ai/agent
 import { readAiDeliveryErrorExtras } from '@/services/ai/ai-delivery-port'
 import { resolvePageDesignProject } from '@/services/page-design/page-design-agent-workflow-binding'
 import { readPageDesignRunContext } from '@/services/page-design/page-design-gates'
+import {guardPageDesignEditor} from '@/services/page-design/page-design-operation-guard'
 
 type PageDesignTestActivationOptions = Pick<ActivatePageDesignAgentWorkflowOptions, 'host' | 'getPageDesignEditor'>
 type PageDesignTestActivation = (options: PageDesignTestActivationOptions) => Promise<AiAgentRunTarget>
+
+/** Storage adapter is real; formal model validation is covered by the metadata chain suite. */
+async function loadDefinitions(workspace: ProjectWorkspace, scenarioId: string, assertCurrent: () => void): Promise<DataSet> {
+  const tables = Object.fromEntries(Object.entries(definitionConfig.tables).filter(([, table]) => 'resourceId' in table && table.resourceId.startsWith('pagedata:')))
+  const dataSet = DataSet.fromJson({scenarioId: definitionConfig.scenarioId, dataSetName: 'Definitions', tables})
+  const resource = new ScenarioDefinitionResource({workspace, metadataScenarioId: definitionConfig.scenarioId, targetScenarioId: scenarioId,
+    assertCurrent, validate: async () => {}})
+  for (const table of Object.values(dataSet.tables)) for (const view of table.viewList) {
+    view.queryContext = {...view.queryContext, dataSpaceId: scenarioId}
+    view.bindQueryExecutor(resource, {resource: {resourceType: 'file', resourceId: table.resourceId!}})
+  }
+  return dataSet
+}
+
+async function editScene(editor: ProjectWorkspace) {
+  const scene = await editor.loadScenarioDefinitions({scenarioId: 'SCENE-A'})
+  const view = scene.getView('DataSpaceLayoutDefinition')!
+  await view.refresh()
+  view.updateEditingValue(view.getPkKey(view.rows[0]!)!, 'modelPositions', {M: {x: 25, y: 30}})
+  return {scene, view}
+}
 
 const mocks = vi.hoisted(() => {
   const createHeadlessPageDesignEditor = vi.fn()
@@ -138,7 +162,7 @@ describe('pageDesign actual working-file delivery', () => {
     const result = await saving
 
     expect(settledBeforeCompletion).toBe(false)
-    expect(result.artifacts).toEqual([{ kind: 'page-file', name: 'script.js', status: 'saved' },
+    expect(result.artifacts).toEqual([{ kind: 'page-file', name: 'script.js', status: 'dirty' },
       { kind: 'page-file', name: 'style.css', status: 'dirty' }])
     expect(saved).toEqual(['script A'])
     expect(page.script.text).toBe('script B')
@@ -147,6 +171,27 @@ describe('pageDesign actual working-file delivery', () => {
 })
 
 describe('preparePageDesignAgentRun', () => {
+  it('reports a recovered scene as still dirty until later edits are explicitly delivered', async () => {
+    let remote = JSON.stringify({scenarioId:'SCENE-A',tables:{}}), writes = 0
+    const editor = new ProjectWorkspace({projectId:'demo',pageFiles:{readPageFile:async()=>''},
+      blueprint:{loadRoot:async()=>({children:[]})},scenarioDefinitions:loadDefinitions,
+      scenarioViews:{readScope:()=> 'tenant-A',readText:async()=>remote,writeText:async(_id,text)=>{
+        remote=text; if(++writes===1)throw new Error('receipt lost')
+      }}})
+    await editor.selectPage('orders')
+    const {view}=await editScene(editor), port=createPageDesignInlineDeliveryPort({autoSave:true})
+    const target={editor,pageId:'orders',scenarioId:'SCENE-A'}
+    expect((await port.save(target)).status).toBe('failed')
+    view.updateEditingValue(view.getPkKey(view.rows[0]!)!,'modelPositions',{M:{x:55,y:60}})
+    const verified=await port.save(target)
+    expect(verified.status).toBe('failed')
+    expect(verified.artifacts).toEqual([{kind:'scenario-view',name:'SCENE-A',status:'dirty'}])
+    expect(verified.message).toContain('仍有修改待保存')
+    expect(writes).toBe(1)
+    expect((await port.save(target)).status).toBe('saved')
+    expect(writes).toBe(2);expect(JSON.parse(remote).layout.modelPositions.M.x).toBe(55)
+    editor.dispose()
+  })
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.delegateHost.has.mockReturnValue(true)
@@ -156,40 +201,55 @@ describe('preparePageDesignAgentRun', () => {
 
   it('keeps confirmed page writes when scenario save fails and reports the remaining scene dirty', async () => {
     let remote = JSON.stringify({ scenarioId: 'SCENE-A', tables: {} })
+    let writes = 0
     const editor = new ProjectWorkspace({ projectId: 'demo',
       pageFiles: { readPageFile: async () => '', saveFileContent: async () => {} },
       blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
       scenarioViews: { readScope: () => 'tenant-A', readText: async () => remote,
-        writeText: async (_id, text) => { remote = text; throw new Error('scene write unconfirmed') } },
+        writeText: async (_id, text) => { writes++; remote = text; throw new Error('scene write unconfirmed') } },
+      scenarioDefinitions: loadDefinitions,
     })
     await editor.selectPage('orders')
-    const scene = await editor.loadScenarioViews({ scenarioId: 'SCENE-A' })
-    scene.setText(JSON.stringify({ scenarioId: 'SCENE-A', tables: {} }, null, 2))
+    const {scene, view} = await editScene(editor)
     editor.project.writePageFile({ fileName: 'script.js', text: 'script A' })
     const result = await createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders', requestId: 'A', scenarioId: 'SCENE-A' })
     expect(result.status).toBe('failed')
     expect(result.artifacts).toEqual([{ kind: 'page-file', name: 'script.js', status: 'saved' }, { kind: 'scenario-view', name: 'SCENE-A', status: 'dirty' }])
-    expect(scene.isDirty).toBe(true)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
     expect(editor.project.getActivePage()?.script.isDirty).toBe(false)
+    const verification = await createPageDesignInlineDeliveryPort({autoSave: true}).save({editor, pageId: 'orders', scenarioId: 'SCENE-A'})
+    expect(verification.status).toBe('saved')
+    expect(writes).toBe(1)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    scene.destroy()
   })
 
-  it('confirms explicit scenario delivery by real Workspace preimage and byte readback', async () => {
-    let remote = JSON.stringify({ scenarioId: 'SCENE-A', tables: {} })
+  it('shares manual and guarded AI DataView edits and confirms only explicit delivery by storage readback', async () => {
+    let remote = JSON.stringify({ scenarioId: 'SCENE-A', tables: {Orders: {modelBinding: {modelId: 'ORDER-ID', modelName: 'Orders'}, views: {default: {}}}} })
     const writes: string[] = []
     const editor = new ProjectWorkspace({ projectId: 'demo', pageFiles: { readPageFile: async () => '' },
       blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root' }, source: {}, children: [] }) },
       scenarioViews: { readScope: () => 'tenant-A', readText: async () => remote,
         writeText: async (_id, text) => { writes.push(text); remote = text } },
+      scenarioDefinitions: loadDefinitions,
     })
     await editor.selectPage('orders')
-    const scene = await editor.loadScenarioViews({ scenarioId: 'SCENE-A' })
-    scene.setText(JSON.stringify({ scenarioId: 'SCENE-A', tables: {} }, null, 2))
-    const submitted = scene.getText()
+    const {scene, view} = await editScene(editor)
+    const guarded = guardPageDesignEditor(editor, {dataSet: true})
+    const aiDefinitions = await guarded.loadScenarioDefinitions({scenarioId: 'SCENE-A'})
+    const aiView = aiDefinitions.getView('DataSpaceLayoutDefinition')!
+    expect(aiView.getEditingRow(view.getPkKey(view.rows[0]!)!)?.['modelPositions']).toEqual({M: {x: 25, y: 30}})
+    aiView.updateEditingValue(aiView.getPkKey(aiView.rows[0]!)!, 'tablePositions', {Orders: {x: 40, y: 50}})
+    const manual = await createPageDesignInlineDeliveryPort({autoSave: false}).save({editor, pageId: 'orders', scenarioId: 'SCENE-A'})
+    expect(manual.artifacts).toEqual([{kind: 'scenario-view', name: 'SCENE-A', status: 'dirty'}])
+    expect(writes).toHaveLength(0)
     const result = await createPageDesignInlineDeliveryPort({ autoSave: true }).save({ editor, pageId: 'orders', scenarioId: 'SCENE-A' })
     expect(result).toEqual({ mode: 'auto', status: 'saved', artifacts: [{ kind: 'scenario-view', name: 'SCENE-A', status: 'saved' }] })
-    expect(writes).toEqual([submitted])
-    expect(remote).toBe(submitted)
-    expect(scene.isDirty).toBe(false)
+    expect(writes).toEqual([remote])
+    expect(JSON.parse(remote)).toMatchObject({layout: {modelPositions: {M: {x: 25, y: 30}}, tablePositions: {Orders: {x: 40, y: 50}}}})
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.hasEditingChanges()).toBe(false)
+    scene.destroy()
   })
 
   it('isolates real Host.ensure factories, same-page editors, request contexts and A/B release', async () => {

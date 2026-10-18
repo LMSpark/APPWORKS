@@ -20,7 +20,7 @@ vi.mock('@/services/ai/agent-workflow-bindings', async (importOriginal) => {
 function createEditor(): ProjectWorkspace {
   const editor = new ProjectWorkspace({
     projectId: 'demo',
-    pageFiles: { readPageFile: async () => '' },
+    pageFiles: { readPageFile: async () => '', saveFileContent: async () => {} },
     blueprint: { loadRoot: async () => ({ nodeId: 'root', parentNodeId: '', projectId: 'demo', kind: 'module', capability: { name: 'Root', description: '需求' }, source: {}, children: [{ nodeId: 'orders', parentNodeId: 'root', projectId: 'demo', kind: 'page', capability: { name: 'Orders', description: '订单页' }, navigation: { title: 'Orders', target: 'cfg:orders', order: 0, publishInMenu: true, showChildren: false, beginGroup: false }, source: { implGate: 'open', upstreamContractsSatisfied: true } }] }) },
   })
   editor.project.replaceBlueprintTree({
@@ -96,7 +96,7 @@ describe('runPageDesignAiSession delivery', () => {
 
   it('saves dirty page files when saveDirtyFilesAfterRun is true', async () => {
     const editor = createEditor()
-    const savePageFile = vi.spyOn(editor, 'savePageFile').mockResolvedValue()
+    const savePageFile = vi.spyOn(editor, 'savePageFile')
     const adapter = createAdapter(vi.fn(async () => {
       editor.project.writePageFile({ fileName: 'script.js', text: 'export default {}' })
       return 'completed' as const

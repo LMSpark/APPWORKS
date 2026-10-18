@@ -240,6 +240,8 @@ describe('useFieldContext attrs 集成传递', () => {
     },
     setup(props) {
       const permission = {
+        contextData: computed(() => null),
+        isCurrentFieldEditable: computed(() => false),
         fieldName: computed(() => props.field ?? 'id'),
         displayLabel: computed(() => props.label ?? 'ID'),
         isCurrentFieldHidden: computed(() => false),

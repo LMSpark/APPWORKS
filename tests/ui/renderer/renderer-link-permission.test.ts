@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { computed, defineComponent, effectScope, h, nextTick, shallowRef, type Component } from 'vue'
+import { mount, flushPromises } from '@vue/test-utils'
+import { computed, defineComponent, effectScope, h, nextTick, reactive, shallowRef, type Component } from 'vue'
 import {
   DATA_SOURCE,
   PAGE_PERMISSION_MODE,
+  PAGE_RUNTIME,
   SPARK_REGISTRY_KEY,
   Spark,
   RendererLink,
@@ -11,6 +12,7 @@ import {
   useSparkComponent,
 } from '@spark-appworks/spark-component'
 import { SparkData, type DataView, type SparkNode } from '@spark-appworks/spark-data'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
 import { DataSpaceQueryTable } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 import { DataSpaceQueryContext } from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import { useActionButtonRuntime } from '../../../packages/spark-component/src/components/containers/layout/action/RendererButton/useActionButtonRuntime'
@@ -29,7 +31,7 @@ const ElLinkStub = defineComponent({
   },
 })
 
-function mountRendererLinkWithDataSource(dataSource: DataView, componentProps?: Record<string, unknown>, component: Component = RendererLink) {
+function mountRendererLinkWithDataSource(dataSource: DataView, componentProps?: Record<string, unknown>, component: Component = RendererLink, runtime?: PageRuntime) {
   const { registry, rootContext } = Spark.createSystem()
 
   const Provider = defineComponent({
@@ -38,6 +40,7 @@ function mountRendererLinkWithDataSource(dataSource: DataView, componentProps?: 
       const { sparkProvide } = useSparkComponent(node, { parentContext: rootContext })
       sparkProvide(DATA_SOURCE, dataSource)
       sparkProvide(PAGE_PERMISSION_MODE, 'none')
+      if (runtime) sparkProvide(PAGE_RUNTIME, runtime)
 
       return () => h(component, {
         type: 'r-link',
@@ -62,11 +65,11 @@ function mountRendererLinkWithDataSource(dataSource: DataView, componentProps?: 
 }
 
 describe('RendererLink 权限作用域', () => {
-  async function fixture(allowAdd = false) {
+  async function fixture(allowAdd = false, scenarioId = 'SCENE') {
     let fail = false
     const dataSet = SparkData.createDataSet({
       dataSetName: 'RendererLinkPermissionDS',
-      scenarioId: 'SCENE',
+      scenarioId,
       tables: {
         Users: {
           tableName: 'Users',
@@ -85,7 +88,7 @@ describe('RendererLink 权限作用域', () => {
     })
 
     const view = dataSet.getView('Users', 'default')!
-    const table = new DataSpaceQueryTable({ scenarioId: 'SCENE', metaName: 'Users' })
+    const table = new DataSpaceQueryTable({ scenarioId, metaName: 'Users' })
     const context = new DataSpaceQueryContext({ identity: table.identity, scope: 'scene', readScope: () => 'scene',
       snapshot: table.applyResult({ Result: { primaryKeyField: 'id', allowAdd, data: {
         Items: [
@@ -123,6 +126,38 @@ describe('RendererLink 权限作用域', () => {
     expect(context && Object.hasOwn(context, 'permissionSnapshot')).toBe(false)
     scope.stop()
     dataSet.destroy()
+  })
+
+  it('binds button actions and permission to the explicit space rather than the inherited same-name view', async () => {
+    const inherited = await fixture(true)
+    const target = await fixture(false, 'TARGET')
+    const runtime = new PageRuntime({pageId: 'buttons', scenarioIds: ['SCENE', 'TARGET'],
+      loadScenario: async id => id === 'SCENE' ? inherited.dataSet : target.dataSet})
+    await runtime.load()
+    const inheritedRefresh = vi.spyOn(inherited.view, 'refresh')
+    const targetRefresh = vi.spyOn(target.view, 'refresh')
+    const refresh = mountRendererLinkWithDataSource(inherited.view, {type: 'r-button', action: 'refresh',
+      dataViewKey: 'TARGET@Users@default', silent: true}, RendererButton, runtime)
+    const createProps = reactive({type: 'r-button', permAction: 'create', dataViewKey: 'TARGET@Users@default'})
+    const create = mountRendererLinkWithDataSource(inherited.view, createProps, RendererButton, runtime)
+    try {
+      expect(create.get('.el-link-stub').attributes('data-disabled')).toBe('true')
+      await refresh.get('.el-link-stub').trigger('click'); await flushPromises()
+      expect(targetRefresh).toHaveBeenCalledTimes(1)
+      expect(inheritedRefresh).not.toHaveBeenCalled()
+      createProps.dataViewKey = 'SCENE@Users@default'; await nextTick()
+      expect(create.get('.el-link-stub').attributes('data-disabled')).toBe('false')
+    } finally {refresh.unmount(); create.unmount(); runtime.dispose()}
+  })
+
+  it('rejects an invalid explicit button binding instead of borrowing the inherited view', async () => {
+    const {dataSet, view} = await fixture(true)
+    const runtime = new PageRuntime({pageId: 'buttons', scenarioIds: ['SCENE'], loadScenario: async () => dataSet})
+    await runtime.load()
+    try {
+      expect(() => mountRendererLinkWithDataSource(view, {type: 'r-button', action: 'refresh',
+        dataViewKey: 'OTHER@Users@default'}, RendererButton, runtime)).toThrow()
+    } finally {runtime.dispose()}
   })
 
   it('container scopes retain DataView without forwarding a second permission object', async () => {

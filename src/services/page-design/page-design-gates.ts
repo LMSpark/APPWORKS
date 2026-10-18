@@ -20,7 +20,7 @@ import type {
 export type PageDesignAllowedOperations = Readonly<{
   /** 是否允许读写节点树（editNodeTree / getNodeTree） */
   nodeTree?: boolean
-  /** 是否允许读写显式场景视图（loadScenarioViews / ScenarioViewFile.setText） */
+  /** 是否允许通过正式定义DataSet读写显式目标场景（loadScenarioDefinitions / DataView） */
   dataSet?: boolean
   /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */
   script?: boolean
@@ -240,7 +240,7 @@ export function assertPageDesignRunGateAllowed(
 
 const OPERATION_FALSE_SCRIPT_MARKERS = {
   nodeTree: ['editNodeTree', 'getNodeTree'],
-  dataSet: ['loadScenarioViews', 'saveScenarioViews', 'getScenarioViews', 'setText'],
+  dataSet: ['loadScenarioDefinitions', 'getScenarioDefinitions'],
   script: ['setFileText', 'getFileText', 'writePageFile'],
   style: ['setFileText', 'getFileText', 'writePageFile'],
   blueprint: [
@@ -310,7 +310,7 @@ export function evaluatePageDesignScriptOperationGate(
   return {
     ok: false,
     reason: `pageDesign: model_script 禁止调用 ${marker}；当前 allowedOperations 未放行该操作域。`,
-    fix: '调整 allowedOperations，或改写 script 只调用已放行的 API（如 loadScenarioViews / editNodeTree）。',
+    fix: '调整 allowedOperations，或改写 script 只调用已放行的 API（如 loadScenarioDefinitions / editNodeTree）。',
   }
 }
 

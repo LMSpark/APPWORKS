@@ -477,9 +477,7 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
         if (command.projectId !== normalizedProjectId) {
           throw new Error('SPARK_EXECUTION_SCOPE_STALE: 工具文件读取不属于当前工作区')
         }
-        return lowcodeApi.design.readTextFile({
-          appType: 'designfile', customPath: toolFilePath(normalizedProjectId, command.pageId), fileName: command.fileName,
-        })
+        return readLowcodePageFile(command)
       },
       saveFileContent: async (pageId, fileName, text) => {
         if (!LowcodePlatform.LOWCODE_BLUEPRINT_FILE_NAMES.some(name => name === fileName)) {
@@ -549,33 +547,28 @@ export function createLowcodeProjectGateways(projectId: string): LowcodeProjectG
           customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: `${version}__pagedata.json` })
         return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
       },
-      createVersion: async (scenarioId, text) => {
+      createVersion: async (scenarioId, text, assertCurrent) => {
+        assertCurrent?.()
         new ScenarioViewConfig(scenarioId, text)
         const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
         const scope = lowcodeApi.readRequestScope().token
         const versions = await lowcodeApi.design.listFileVersions({ appType: 'designfile', customPath, fileName: 'pagedata.json' })
+        assertCurrent?.()
         const version = Math.max(0, ...versions.map(item => item.version)) + 1
         if (!Number.isSafeInteger(version)) throw new Error('快照编号超出安全范围')
         const working = await lowcodeApi.design.readTextFile({ appType: 'designfile', customPath, fileName: 'pagedata.json' })
+        assertCurrent?.()
         if (working !== text) throw new Error('SCENARIO_VIEW_CONFLICT: 远端场景配置已改变')
         if (lowcodeApi.readRequestScope().token !== scope) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 创建场景版本所属应用已失效')
         const fileName = `${version}__pagedata.json`
         await scenarioFileUpload.uploadTextVersion({ customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName, text })
+        assertCurrent?.()
         const actual = await lowcodeApi.design.listFileVersions({ appType: 'designfile',
           customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json' })
+        assertCurrent?.()
         const summary = actual.find(item => item.fileName === fileName && item.version === version)
         if (summary === undefined) throw new Error('SCENARIO_VIEW_VERSION_UNCONFIRMED: 已上传快照未出现在实际列表')
         return summary
-      },
-      restoreVersion: async (scenarioId, version) => {
-        if (!Number.isSafeInteger(version) || version < 0) throw new Error('版本号必须为非负安全整数')
-        const customPath = scenarioViewPath(normalizedProjectId, scenarioId)
-        const bytes = await lowcodeApi.design.readFileBytes({ appType: 'designfile', customPath, fileName: `${version}__pagedata.json` })
-        const text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
-        new ScenarioViewConfig(scenarioId, text)
-        await scenarioFileUpload.uploadWorkingText({
-          customPath: scenarioViewPath(normalizedProjectId, scenarioId), fileName: 'pagedata.json', text,
-        })
       },
     },
     blueprint: {

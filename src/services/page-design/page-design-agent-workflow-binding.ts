@@ -46,12 +46,12 @@ export function buildPageDesignToolLoopNudge(
 ): string | undefined {
   switch (reason) {
     case 'plan_without_tool':
-      return `pageId="${pageId}"；下一回合必须真实 tool_call，先查询 ProjectWorkspace / PageTool / ScenarioViewFile 契约。`
+      return `pageId="${pageId}"；下一回合必须真实 tool_call，先查询 ProjectWorkspace / PageTool / DataSet / DataView 契约。`
     case 'execution_phase':
       if (isPageDesignDataSetOnlyMode(allowedOperations)) {
-        return `pageId="${pageId}"；model_script 只写函数体；仅通过显式 scenarioId 的 this.loadScenarioViews({scenarioId}) 获取 ScenarioViewFile 后 setText；页面三文件本轮禁止修改。`
+        return `pageId="${pageId}"；model_script 只写函数体；通过显式 scenarioId 的 this.loadScenarioDefinitions({scenarioId}) 获取正式元数据DataSet，按需查询并编辑定义DataView；页面三文件本轮禁止修改。`
       }
-      return `pageId="${pageId}"；model_script 只写函数体；const page = this.project.openPageDesign("${pageId}"); 只写 rule.json / script.js / style.css。场景配置仅通过显式 scenarioId 的 this.loadScenarioViews({scenarioId}) 获取 ScenarioViewFile 后 setText。`
+      return `pageId="${pageId}"；model_script 只写函数体；const page = this.project.openPageDesign("${pageId}"); 只写 rule.json / script.js / style.css。场景配置通过 this.loadScenarioDefinitions({scenarioId}) 的定义DataView编辑，交付沿DataSet保存。`
     case 'model_script_retry':
       return `pageId="${pageId}"；按 RECOVERY_HINT 修正后重试，this.project.openPageDesign 接收字符串 pageId；页面三文件与场景视图分开操作。`
     default:
@@ -138,7 +138,7 @@ export function formatPageDesignSystemPrompt(input: PageDesignRunInput): string 
   return [
     `当前 pageDesign 页面: ${input.pageId}（${planningTitle}，path=${planningPath}）`,
     ...sharedHeader,
-    '知识索引: DTS ClassModel（ProjectWorkspace → project.openPageDesign → PageTool；loadScenarioViews → ScenarioViewFile）。用 model_query / model_action_guide 读取正式契约后执行。',
+    '知识索引: DTS ClassModel（ProjectWorkspace → project.openPageDesign → PageTool；loadScenarioDefinitions → DataSet → DataView）。用 model_query / model_action_guide 读取正式契约后执行。',
     '工具参数: model_query 只用 kind / keyword / includeMembers；model_action_guide 只用 kind / actionName；禁止 member / select / query 旧参数。',
     ...pageDesignScriptSopLines(input),
     '模型来源: generated/dts-class-model。',
@@ -150,10 +150,10 @@ function pageDesignScriptSopLines(input: PageDesignRunInput): readonly string[] 
     'model_script.script 是 JavaScript async function body；禁止 TS/JSX、import/export 和 function 包裹。',
     `页面三文件: const page = this.project.openPageDesign("${input.pageId}"); page.setFileText("rule.json", ruleText); page.setFileText("script.js", scriptText); page.setFileText("style.css", cssText)。仅修改 allowedOperations 放行的操作域。`,
     ...(input.scenarioId === undefined ? ['本轮未提供 scenarioId，禁止推断场景身份或读写场景配置。'] : [
-      `场景视图: const views = await this.loadScenarioViews({ scenarioId: "${input.scenarioId}" }); views.setText(validScenarioViewText)。ScenarioViewConfig 校验数据模型引用、视图及关系；不得自造物理模型或用 pageId 当 scenarioId。`,
-      '交付阶段通过 saveScenarioViews({scenarioId}) 保存，保留原文、并发冲突与回读确认；禁止把场景配置写入页面文件。',
+      `场景定义: const definitions = await this.loadScenarioDefinitions({ scenarioId: "${input.scenarioId}" }); 返回正式元数据空间C，scenarioId参数是目标T，不能互换。通过DataTableBindingDefinition、DataViewDefinition、DataResourceRelationDefinition、DataViewCascadeDefinition、DataSpaceLayoutDefinition的DataView按需loadFromServer，读取成功后以DataView API编辑或取消；不得伪造模型身份、replaceRows或直接调用文件owner。`,
+      '交付阶段只提交本目标已修改的定义视图，沿DataSet.saveChanges由原查询资源处理冲突及真实回执；未加载记录不视为删除。场景配置不能写入工具三文件，不自动保存其他元数据草稿。',
     ]),
-    '绑定按实际场景视图配置构造为 #scenarioId@table@view；只有页面调用明确声明 mainScenarioId 才允许局部 table@view。禁止推断主场景、旧点号路径及不存在的 DataSetCrudTool。',
+    '绑定按场景 ID、模型名称和视图 ID 构造为 #scenarioId@modelName@viewId；正式模型名称取 modelBinding.modelName，原生本地模型取自身 tableName。只有页面调用明确声明 mainScenarioId 才允许局部 modelName@viewId。禁止用正式模型的配置表别名或物理来源名替代模型名称，禁止推断主场景、旧点号路径及不存在的 DataSetCrudTool。',
     ...leaveRequestPageDesignHintLines(input),
   ]
 }

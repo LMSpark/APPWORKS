@@ -21,11 +21,11 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
             <el-button
               type="primary"
               size="small"
-              :disabled="!fileEditor.isDirty.value"
+              :disabled="!fileEditor.isDirty.value && !fileEditor.isUnconfirmed.value"
               :loading="state.pageIoBusy.value"
               @click="saveFile"
             >
-              <NavIcon name="DocumentChecked" :size="14" /> 保存
+              <NavIcon name="DocumentChecked" :size="14" /> {{ fileEditor.isUnconfirmed.value ? '核验原提交' : '保存' }}
             </el-button>
           </el-tooltip>
           <span class="action-divider" />
@@ -96,7 +96,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
                 <span class="version-badge">v{{ v.version }}</span>
                 <span class="vs-time">{{ formatVersionTime(v.lastModified) }}</span>
                 <span class="vs-spacer" />
-                <el-button size="small" type="primary" text :disabled="versionBusy || fileEditor.isDirty.value" :loading="restoringVersion === v.version" @click="restoreVersion(v.version)">恢复</el-button>
+                <el-button size="small" type="primary" text :disabled="versionBusy || fileEditor.isDirty.value || fileEditor.isUnconfirmed.value" :loading="restoringVersion === v.version" @click="restoreVersion(v.version)">恢复</el-button>
                 <el-button size="small" type="danger" text :disabled="versionBusy" @click="confirmDeleteVersion(v)"><NavIcon name="Delete" :size="12" /></el-button>
               </div>
             </div>
@@ -192,11 +192,11 @@ function fileIcon(name: string): string {
 }
 
 function saveFile() {
-  void fileEditor.save()
+  void fileEditor.save().catch(() => undefined)
 }
 
 function refreshFile() {
-  void fileEditor.refresh()
+  void fileEditor.refresh().catch(() => undefined)
 }
 
 async function loadVersions() {
@@ -226,7 +226,7 @@ function toggleVersionPanel() {
 }
 
 async function restoreVersion(version: number) {
-  if (versionBusy.value || fileEditor.isDirty.value) return
+  if (versionBusy.value || fileEditor.isDirty.value || fileEditor.isUnconfirmed.value) return
   const pageId = props.state.activePageId.value
   const fileName = resolvedActiveFile.value
   if (!pageId || !alignActivePage()) return

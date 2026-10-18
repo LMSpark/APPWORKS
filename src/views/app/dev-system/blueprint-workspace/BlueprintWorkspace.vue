@@ -8,7 +8,7 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
   <el-tabs v-if="state.selectedNode.value" v-model="activeStage" type="border-card" class="blueprint-workspace" v-loading="loading">
     <el-tab-pane label="功能策划" name="planning"><PlanningPane v-model="draft.planningContent" :saving="saving" @save="save({ memo: draft.planningContent }, '功能策划')" /></el-tab-pane>
     <el-tab-pane label="原型设计" name="prototype"><PrototypePane v-model="draft.prototypeHtml" :saving="saving" @save="save({ htmlDesc: draft.prototypeHtml }, '原型设计')" /></el-tab-pane>
-    <el-tab-pane label="数据规划" name="data"><DataPlanningPane :form="draft" :state="state" :saving="saving" @save="save({ conid: draft.formKey }, '数据规划')" /></el-tab-pane>
+    <el-tab-pane label="数据规划" name="data"><DataPlanningPane v-if="activeStage === 'data'" :form="draft" :state="state" :saving="saving" @save="save({ conid: draft.formKey }, '数据规划')" /></el-tab-pane>
     <el-tab-pane label="节点估算" name="estimate"><EstimatePane :form="draft" :saving="saving" @save="saveEstimate" /></el-tab-pane>
     <el-tab-pane label="开发交付" name="delivery" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" @save="saveDelivery" /></el-tab-pane>
     <el-tab-pane label="发布运行" name="release"><ReleasePane :form="draft" :runtime-summary="runtimeSummary" :saving="saving" @save="save({ IsShowAtNav: draft.visible ? 1 : 0, NavigationType: draft.navigationType }, '发布运行')" /></el-tab-pane>

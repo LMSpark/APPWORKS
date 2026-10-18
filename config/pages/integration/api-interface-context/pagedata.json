@@ -1,0 +1,39 @@
+{
+  "tables": {
+    "Base_InterfaceProvider": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "Base_InterfaceProvider_Account": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "rowid",
+          "labelField": "UserName",
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "ProviderID",
+              "UserName"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    }
+  }
+}

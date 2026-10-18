@@ -14,7 +14,8 @@ import { createAiAgentTurnCallbacks } from '@/services/ai/ai-turn-bridge'
 import { asJsonValue } from '@spark-appworks/spark-json-document'
 import type { JsonParams } from '@spark-appworks/spark-json-document'
 import type { PageToolFileName, ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import { PAGE_TOOL_FILE_NAMES } from '@spark-appworks/spark-project-model'
+import { PAGE_TOOL_FILE_NAMES, ScenarioDefinitionRecords } from '@spark-appworks/spark-project-model'
+import type {DataSet} from '@spark-appworks/spark-data'
 import {
   PAGE_DESIGN_MODULE_ID,
   resolvePageDesignPlanningContext,
@@ -103,10 +104,12 @@ function createPageDesignDeliveryPort(
       const selectedNames = resolveDeliveryTargetFileNames(dirtyFileNames, options.saveFileNames)
       const targetNames = isPageDesignDataSetOnlyMode(options.allowedOperations) ? [] : selectedNames
       const artifactNames = options.saveFileNames ?? dirtyFileNames
-      const scene = context.scenarioId === undefined ? null : context.editor.getScenarioViews(context.scenarioId)
-      if (context.scenarioId !== undefined && scene === null) throw new Error('PAGE_DESIGN_SCENARIO_MISSING: 场景尚未加载')
-      const shouldSaveScene = options.allowedOperations?.dataSet !== false && scene?.isDirty === true
-      const sceneArtifact: AiDeliveryArtifact[] = scene === null ? [] : [{ kind: 'scenario-view', name: scene.scenarioId, status: scene.isDirty ? 'dirty' : 'skipped' }]
+      const scenarioId = context.scenarioId
+      const scene = scenarioId === undefined ? null : context.editor.getScenarioDefinitions(scenarioId)
+      if (scenarioId !== undefined && scene === null) throw new Error('PAGE_DESIGN_SCENARIO_MISSING: 场景尚未加载')
+      const sceneViews = scene === null || scenarioId === undefined ? [] : pendingDefinitionViews(scene, scenarioId)
+      const shouldSaveScene = options.allowedOperations?.dataSet !== false && sceneViews.length > 0
+      const sceneArtifact: AiDeliveryArtifact[] = scene === null || scenarioId === undefined ? [] : [{ kind: 'scenario-view', name: scenarioId, status: sceneViews.length ? 'dirty' : 'skipped' }]
       if (!options.shouldSave || (targetNames.length === 0 && !shouldSaveScene)) {
         return {
           mode: options.mode,
@@ -115,14 +118,25 @@ function createPageDesignDeliveryPort(
         }
       }
       const saves = targetNames.map(name => context.editor.savePageFile(name))
-      if (scene && shouldSaveScene) saves.push(context.editor.saveScenarioViews({ scenarioId: scene.scenarioId }))
+      if (scene && shouldSaveScene) saves.push(scene.saveChanges({views: sceneViews}).then(result => {
+        if (!result.success) throw result.error ?? new Error(result.message ?? '场景定义保存失败')
+      }))
       const results = await Promise.allSettled(saves)
       const errors = results.flatMap(result => result.status === 'rejected' ? [toError(result.reason).message] : [])
+      const remainingFiles = new Set(context.editor.project.findPageTool(context.pageId)?.getDirtyFileNames() ?? [])
+      for (const pending of context.editor.unconfirmedPageFiles) if (pending.pageId === context.pageId) remainingFiles.add(pending.fileName)
+      const scenePending = scene !== null && scenarioId !== undefined && pendingDefinitionViews(scene, scenarioId).length > 0
+      const artifacts: AiDeliveryArtifact[] = [...targetNames.map((name, index): AiDeliveryArtifact => ({kind: 'page-file', name,
+        status: results[index]?.status === 'fulfilled' && !remainingFiles.has(name) ? 'saved' : 'dirty'})),
+      ...sceneArtifact.map(artifact => ({...artifact, status: shouldSaveScene ? scenePending || results[targetNames.length]?.status !== 'fulfilled'
+        ? 'dirty' as const : 'saved' as const : artifact.status}))]
+      const remaining: string[] = targetNames.filter((name, index) => results[index]?.status === 'fulfilled' && remainingFiles.has(name))
+      if (shouldSaveScene && results[targetNames.length]?.status === 'fulfilled' && scenePending && scenarioId) remaining.push(scenarioId)
+      if (remaining.length) errors.push(`本轮提交已确认，仍有修改待保存：${remaining.join('、')}`)
       return {
         mode: options.mode,
         status: errors.length === 0 ? 'saved' : 'failed',
-        artifacts: [...targetNames.map((name, index): AiDeliveryArtifact => ({ kind: 'page-file', name,
-          status: results[index]?.status === 'fulfilled' ? 'saved' : 'dirty' })), ...sceneArtifact.map(artifact => ({ ...artifact, status: artifact.status === 'dirty' && results.length > targetNames.length ? (results[targetNames.length]?.status === 'fulfilled' ? 'saved' as const : 'dirty' as const) : artifact.status }))],
+        artifacts,
         ...(errors.length === 0 ? {} : { message: errors.join('\n') }),
       }
     },
@@ -132,8 +146,9 @@ function createPageDesignDeliveryPort(
     rollback(context, error) {
       const dirtyFileNames = readDirtyPageFileNames(context.editor)
       const artifactNames = options.saveFileNames ?? dirtyFileNames
-      const scene = context.scenarioId === undefined ? null : context.editor.getScenarioViews(context.scenarioId)
-      const sceneArtifacts: AiDeliveryArtifact[] = scene === null ? [] : [{ kind: 'scenario-view', name: scene.scenarioId, status: scene.isDirty ? 'dirty' : 'skipped' }]
+      const scenarioId = context.scenarioId
+      const scene = scenarioId === undefined ? null : context.editor.getScenarioDefinitions(scenarioId)
+      const sceneArtifacts: AiDeliveryArtifact[] = scene === null || scenarioId === undefined ? [] : [{ kind: 'scenario-view', name: scenarioId, status: pendingDefinitionViews(scene, scenarioId).length ? 'dirty' : 'skipped' }]
       return Promise.resolve({
         mode: options.mode,
         status: 'skipped',
@@ -142,6 +157,16 @@ function createPageDesignDeliveryPort(
       })
     },
   }
+}
+
+/** Only already edited definition views for this target participate in delivery; other metadata drafts remain separate. */
+function pendingDefinitionViews(dataSet: DataSet, target: string): Array<{tableName: string; viewId: string}> {
+  return Object.entries(ScenarioDefinitionRecords.resources).flatMap(([name, resourceId]) => {
+    const table = dataSet.getTable(name)
+    if (table?.resourceType !== 'file' || table.resourceId !== resourceId) throw new Error(`PAGE_DESIGN_SCENARIO_IDENTITY: 缺少正式定义资源 ${name}`)
+    return table.viewList.filter(view => view.queryContext['dataSpaceId'] === target && (view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
+      .map(view => ({tableName: view.tableName, viewId: view.viewId}))
+  })
 }
 
 function resolveDeliveryTargetFileNames(
@@ -175,7 +200,8 @@ function createFilteredPageFileArtifacts(
 }
 
 function readDirtyPageFileNames(editor: ProjectWorkspace): PageToolFileName[] {
-  return Array.from(editor.project.readDirtyProjection().dirtyFiles)
+  return [...new Set([...editor.project.readDirtyProjection().dirtyFiles,
+    ...editor.unconfirmedPageFiles.filter(item => item.pageId === editor.project.getActivePage()?.pageId).map(item => item.fileName)])]
 }
 
 // --- agent run ---
@@ -195,7 +221,7 @@ export const preparePageDesignAgentRun: AiAgentRunPrepare<AiAgentHost> = async (
   const scenarioId = typeof event.args['scenarioId'] === 'string' ? event.args['scenarioId'].trim() : undefined
   if (scenarioId !== undefined) {
     if (!scenarioId) throw new Error('pageDesign scenarioId 不能为空')
-    await editor.loadScenarioViews({ scenarioId })
+    await editor.loadScenarioDefinitions({ scenarioId })
   }
   const editors = new Map<string, ProjectWorkspace>([[requestId, editor]])
 

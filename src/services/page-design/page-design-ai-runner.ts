@@ -123,7 +123,7 @@ export async function runPageDesignAiSession(command: PageDesignAiRunCommand): P
   }
   assertPageDesignRunGateAllowed(summary, command.mode)
 
-  if (command.scenarioId !== undefined) await command.editor.loadScenarioViews({ scenarioId: command.scenarioId })
+  if (command.scenarioId !== undefined) await command.editor.loadScenarioDefinitions({ scenarioId: command.scenarioId })
   const pageDesignHost = await activatePageDesignAgentWorkflow({
     host: createAiAgentHost({ turnCallbacks: createAiAgentTurnCallbacks(), maxToolRounds: 16 }),
     getPageDesignEditor: (context) => {

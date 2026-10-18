@@ -144,8 +144,6 @@ import {
   lowcodeRequestHeaders,
   readLowcodePrincipal,
 } from '@/lowcode/lowcode-runtime'
-import { lowcodeDataSpaceLayout } from '@/lowcode/data-space/lowcode-data-space-layout'
-import { lowcodeDataSpaceDesign } from '@/lowcode/data-space/lowcode-data-space-design'
 import { resetAppProjectWorkspace } from '@/services/project/project-shell'
 import {
   registerShellNavRootListener,
@@ -472,7 +470,7 @@ const nav = useNavigation(_navRoot, {
   actionRegistry: navigationActionRegistry,
 })
 const pageUiService = appPageUiService
-sparkProvide(PAGE_RUNTIME_SERVICES, { pageService: pageUiService, dataSpaceLayout: lowcodeDataSpaceLayout, dataSpaceDesign: lowcodeDataSpaceDesign })
+sparkProvide(PAGE_RUNTIME_SERVICES, { pageService: pageUiService })
 const pageModuleContext = computed<ContextSnapshot | null>(() => {
   const state = nav.moduleContext.value
   if (!state) return null

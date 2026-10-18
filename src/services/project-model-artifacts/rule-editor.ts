@@ -172,7 +172,7 @@ export function createRuleJsonSchema(): Record<string, unknown> {
               ],
             },
           }),
-          dataViewKey: withMeta('DataView 定位键 DataView Key', 'DataViewKey 格式：table@viewId 或 #scope@table@viewId。', { type: 'string' }),
+          dataViewKey: withMeta('DataView 定位键 DataView Key', '页面绑定格式：#scenarioId@modelName@viewId（数据空间 ID、模型名称、视图 ID）；明确主场景时可用 modelName@viewId。正式模型名称取 modelBinding.modelName，本地模型取自身 tableName。', { type: 'string' }),
           dataMember: withMeta('DataView 成员 Data Member', 'DataView 成员枚举，如 rows、currentRow、aggregateResult。', {
             type: 'string',
             enum: ['rows', 'columns', 'currentRow', 'selectedRows', 'aggregateResult', 'selectionAggregateResult', 'total', 'page', 'pageSize', 'requestState', 'mutating', 'loadingError', 'mutatingError'],

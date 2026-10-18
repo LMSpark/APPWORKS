@@ -10,6 +10,7 @@ import {
   readLowcodePrincipal,
 } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import {loadLowcodeScenarioDefinitions} from '@/lowcode/data-space/lowcode-data-space-runtime'
 
 /** Page Design Editor Resolve Context 的运行上下文。 */
 export type PageDesignEditorResolveContext = {
@@ -22,6 +23,7 @@ export function createHeadlessPageDesignEditor(): ProjectWorkspace {
   return new ProjectWorkspace({
     projectId,
     ...createLowcodeProjectGateways(projectId),
+    scenarioDefinitions: loadLowcodeScenarioDefinitions,
   })
 }
 

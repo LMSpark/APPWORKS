@@ -35,7 +35,7 @@ import {
 import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shell'
 import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
-import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
+import type {DataView} from '@spark-appworks/spark-data'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
 
@@ -192,6 +192,7 @@ export function useDevState() {
   if (getCurrentScope() !== undefined) {
     onScopeDispose(() => {
       unsubscribeProjectBlueprint()
+      installScenarioDocument(null)
       cancelAutoSave()
     })
   }
@@ -266,8 +267,7 @@ export function useDevState() {
     activeEditScope.value = nextScope
     projectPicker.tenantId = nextScope.tenantId
     projectPicker.projectId = nextScope.projectId
-    scenarioViewFile.value = null
-    scenarioViewRevision.value++
+    installScenarioDocument(null)
     currentEditor.value = getAppProjectBlueprintWorkspace(nextScope)
     bindProjectBlueprintEvents()
     linkProbeInfo.value = null
@@ -303,6 +303,7 @@ export function useDevState() {
 
   // ── 页面文件状态（经 ProjectWorkspace 加载/保存）──
   const pageIoBusy = ref(false)
+  const allSaving = ref(false)
 
   function bumpPageCache(
     pageId: string,
@@ -370,27 +371,66 @@ export function useDevState() {
   })
 
   const hasAnyDirty = computed(() => {
-    void scenarioViewRevision.value
-    return dirtyProjection.value.hasAnyDirty || editor.dirtyScenarioIds.length > 0
+    void scenarioDefinitionRevision.value
+    return dirtyProjection.value.hasAnyDirty || editor.dirtyScenarioIds.length > 0 || editor.unconfirmedPageFiles.length > 0
   })
 
-  const scenarioViewFile = shallowRef<ProjectBlueprintDomain.ScenarioViewFile | null>(null)
-  const scenarioViewRevision = ref(0)
-  const pageDataDirty = computed(() => { void scenarioViewRevision.value; return scenarioViewFile.value?.isDirty === true })
+  const scenarioDefinitionDocument = shallowRef<ProjectBlueprintDomain.ScenarioDefinitionDocument | null>(null)
+  const scenarioDefinitionRevision = ref(0)
+  const pageDataDirty = computed(() => { void scenarioDefinitionRevision.value; return scenarioDefinitionDocument.value?.isDirty === true })
+  let releaseScenarioDocument = () => {}
+  let scenarioLoad = 0
+
+  function installScenarioDocument(document: ProjectBlueprintDomain.ScenarioDefinitionDocument | null): void {
+    releaseScenarioDocument()
+    scenarioDefinitionDocument.value?.dispose()
+    scenarioDefinitionDocument.value = document
+    const views = document?.viewSelectors.map(item => document.dataSet.getView(item.tableName, item.viewId)).filter((view): view is DataView => view !== undefined) ?? []
+    const changed = () => {scenarioDefinitionRevision.value++}
+    const events = ['editingChanged', 'editingDiscarded', 'rowsChanged', 'mutatingChanged'] as const
+    for (const view of views) for (const event of events) view.events.on(event, changed)
+    releaseScenarioDocument = () => {for (const view of views) for (const event of events) view.events.off(event, changed)}
+    changed()
+  }
+
+  function definitionViews(document: ProjectBlueprintDomain.ScenarioDefinitionDocument): DataView[] {
+    return document.viewSelectors.map(item => {
+      const view = document.dataSet.getView(item.tableName, item.viewId)
+      if (!view) throw new Error('SCENARIO_DOCUMENT_IDENTITY: 定义视图已释放')
+      return view
+    })
+  }
   const pageDataError = ref<string | null>(null)
   function selectedScenarioMatches(id: string): boolean { return selectedNode.value?.dataSpace?.scenarioId === id }
   async function loadSelectedScenarioViews(forceReload = false): Promise<void> {
     const scenarioId = selectedNode.value?.dataSpace?.scenarioId
+    const generation = ++scenarioLoad
     pageDataError.value = null
-    if (!scenarioId) { scenarioViewFile.value = null; scenarioViewRevision.value++; return }
+    if (!scenarioId) {installScenarioDocument(null); return}
     const workspace = currentEditor.value
-    scenarioViewFile.value = workspace.getScenarioViews(scenarioId)
-    scenarioViewRevision.value++
+    const previous = scenarioDefinitionDocument.value
+    if (!forceReload && previous?.scenarioId === scenarioId && workspace.getScenarioDefinitions(scenarioId) === previous.dataSet) return
+    if (forceReload && previous?.isDirty) throw new Error('SCENARIO_VIEW_UNSAVED: 请先保存或撤销当前定义修改')
+    installScenarioDocument(null)
     try {
-      const file = await workspace.loadScenarioViews({ scenarioId, forceReload })
-      if (currentEditor.value === workspace && selectedScenarioMatches(scenarioId)) { scenarioViewFile.value = file; scenarioViewRevision.value++ }
+      const dataSet = await workspace.loadScenarioDefinitions({scenarioId})
+      if (generation !== scenarioLoad || currentEditor.value !== workspace || !selectedScenarioMatches(scenarioId)) return
+      if (forceReload) {
+        const source = dataSet.getView('DataViewDefinition')
+        if (!source) throw new Error('SCENARIO_DOCUMENT_IDENTITY: 正式元数据缺少定义视图')
+        const snapshot = await source.previewSource()
+        if (snapshot.version !== null) await source.adoptSource(snapshot)
+        for (const name of Object.keys(ProjectBlueprintDomain.ScenarioDefinitionRecords.resources)) {
+          const view = dataSet.getView(name)
+          if (!view) throw new Error('SCENARIO_DOCUMENT_IDENTITY: 正式元数据缺少定义视图')
+          await view.refresh()
+        }
+      }
+      const document = await ProjectBlueprintDomain.ScenarioDefinitionDocument.open(dataSet, scenarioId)
+      if (generation !== scenarioLoad || currentEditor.value !== workspace || !selectedScenarioMatches(scenarioId)) {document.dispose(); return}
+      installScenarioDocument(document)
     } catch(error) {
-      if (currentEditor.value === workspace && selectedScenarioMatches(scenarioId)) pageDataError.value = `场景 ${scenarioId} 视图配置加载失败: ${String(error)}`
+      if (generation === scenarioLoad && currentEditor.value === workspace && selectedScenarioMatches(scenarioId)) pageDataError.value = `场景 ${scenarioId} 视图配置加载失败: ${String(error)}`
       throw error
     }
   }
@@ -398,80 +438,88 @@ export function useDevState() {
     const scenarioId = selectedNode.value?.dataSpace?.scenarioId
     const nodeId = selectedNode.value?.nodeId
     if (!scenarioId || !nodeId) throw new Error('请先绑定现有业务场景')
-    const workspace = currentEditor.value
-    const requestToken = lowcodeApi.readRequestScope().token
-    const assertCurrent = (): void => {
-      if (currentEditor.value !== workspace || selectedNode.value?.nodeId !== nodeId || !selectedScenarioMatches(scenarioId)
-        || lowcodeApi.readRequestScope().token !== requestToken) throw new Error('SCENARIO_VIEW_SCOPE_STALE: 新建目标已切换')
-    }
-    const models = await lowcodeApi.dataSpace.design.readModels({ designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: scenarioId, assertCurrent })
-    assertCurrent()
+    const document = scenarioDefinitionDocument.value
+    if (document?.scenarioId !== scenarioId || document.isPersisted || document.isDirty) throw new Error('请先加载尚无配置的正式场景')
+    const modelView = document.dataSet.getView('Base_DataModel')
+    if (!modelView) throw new Error('正式模型目录尚未加载')
+    const models = modelView.rows
     if (models.length === 0) throw new Error('当前场景没有正式模型，不能创建视图草稿')
     const tables: Record<string, unknown> = {}
     for (const model of models) {
-      if (!model.id.trim() || !model.metaName.trim() || Object.hasOwn(tables, model.metaName)) throw new Error('正式模型标识或 Name 无效、重复')
-      Object.defineProperty(tables, model.metaName, { enumerable: true, value: { modelBinding: { modelId: model.id, modelName: model.metaName }, views: { default: {} } } })
+      const id = model['rowid'], name = model['Name']
+      if (model['dataSetId'] !== scenarioId || modelView.fieldAccess(model, 'rowid').read !== 'visible' || modelView.fieldAccess(model, 'Name').read !== 'visible'
+        || typeof id !== 'string' || !id.trim() || typeof name !== 'string' || !name.trim() || Object.hasOwn(tables, name)) throw new Error('正式模型标识或 Name 不可读、无效或重复')
+      Object.defineProperty(tables, name, { enumerable: true, value: { modelBinding: { modelId: id, modelName: name }, views: { default: {} } } })
     }
-    const file = await workspace.createScenarioViews({ scenarioId, text: JSON.stringify({ scenarioId, tables, viewCascades: [] }, null, 2) })
-    assertCurrent()
-    scenarioViewFile.value = file
-    scenarioViewRevision.value++
+    await document.setText(JSON.stringify({...JSON.parse(document.getText()), tables}))
+    scenarioDefinitionRevision.value++
     pageDataError.value = null
     addStatus('已按正式模型新建场景视图草稿，请检查并保存', 'info')
   }
 
-  function writeScenarioViewText(text: string): void {
-    const file = scenarioViewFile.value
-    if (!file) throw new Error('场景视图文件尚未加载')
-    file.setText(text); scenarioViewRevision.value++; pageDataError.value = null
+  async function writeScenarioViewText(text: string): Promise<void> {
+    const target = captureScenarioVersionTarget()
+    await target.document.setText(text)
+    target.assertCurrent(); scenarioDefinitionRevision.value++; pageDataError.value = null
   }
   async function saveScenarioViewText(): Promise<void> {
-    const file = scenarioViewFile.value
-    if (!file) throw new Error('场景视图文件尚未加载')
-    await editor.saveScenarioViews({scenarioId:file.scenarioId}); scenarioViewRevision.value++
+    const target = captureScenarioVersionTarget()
+    const result = await target.document.dataSet.saveChanges({views: target.document.viewSelectors})
+    target.assertCurrent()
+    if (!result.success) throw result.error ?? new Error(result.message ?? '场景定义保存失败')
+    scenarioDefinitionRevision.value++
   }
 
   /** 版本请求绑定实际工作区、节点与共享文件，迟到结果不能落入新的选择。 */
   function captureScenarioVersionTarget() {
     const workspace = currentEditor.value
-    const file = scenarioViewFile.value
+    const file = scenarioDefinitionDocument.value
     const nodeId = selectedNode.value?.nodeId
     const token = lowcodeApi.readRequestScope().token
     if (!file || !selectedScenarioMatches(file.scenarioId)) throw new Error('场景视图文件尚未加载或选择已切换')
     const assertCurrent = (): void => {
-      if (currentEditor.value !== workspace || scenarioViewFile.value !== file || selectedNode.value?.nodeId !== nodeId
+      if (currentEditor.value !== workspace || scenarioDefinitionDocument.value !== file || selectedNode.value?.nodeId !== nodeId
         || !selectedScenarioMatches(file.scenarioId) || lowcodeApi.readRequestScope().token !== token) {
         throw new Error('SCENARIO_VIEW_SCOPE_STALE: 场景版本目标已切换')
       }
     }
-    return { workspace, scenarioId: file.scenarioId, assertCurrent }
+    const source = definitionViews(file).find(view => view.tableName === 'DataViewDefinition')
+    if (!source) throw new Error('正式定义视图缺失')
+    return { document: file, source, scenarioId: file.scenarioId, assertCurrent }
   }
 
-  async function listScenarioVersions(): Promise<ProjectBlueprintDomain.PageToolFileVersionSummary[]> {
+  async function listScenarioVersions(): ReturnType<DataView['listSourceVersions']> {
     const target = captureScenarioVersionTarget()
-    const versions = await target.workspace.listScenarioVersions({ scenarioId: target.scenarioId })
+    const versions = await target.source.listSourceVersions()
     target.assertCurrent()
     return versions
   }
 
-  async function previewScenarioVersion(version: number): Promise<string> {
+  async function previewScenarioVersion(version: string | number): Promise<string> {
     const target = captureScenarioVersionTarget()
-    const text = await target.workspace.previewScenarioVersion({ scenarioId: target.scenarioId, version })
+    const text = await target.source.previewSourceVersion(version)
     target.assertCurrent()
     return text
   }
 
   async function createScenarioVersion(): Promise<void> {
     const target = captureScenarioVersionTarget()
-    await target.workspace.createScenarioVersion({ scenarioId: target.scenarioId })
+    await target.source.createSourceVersion()
     target.assertCurrent()
   }
 
-  async function restoreScenarioVersion(version: number, previewText: string): Promise<void> {
+  async function restoreScenarioVersion(version: string | number, previewText: string): Promise<void> {
     const target = captureScenarioVersionTarget()
-    await target.workspace.restoreScenarioVersion({ scenarioId: target.scenarioId, version, previewText })
+    const hasChanges = () => target.document.isDirty
+    if (hasChanges()) throw new Error('SCENARIO_VIEW_UNSAVED: 请先处理当前定义修改')
+    const current = target.document.getText()
+    const verified = await target.source.previewSourceVersion(version)
     target.assertCurrent()
-    scenarioViewRevision.value++
+    if (verified !== previewText) throw new Error('SCENARIO_VIEW_PREVIEW_CHANGED: 快照与预览不一致')
+    if (hasChanges() || target.document.getText() !== current) throw new Error('SCENARIO_VIEW_UNSAVED: 预览期间定义已改变')
+    await target.document.setText(verified)
+    target.assertCurrent()
+    await saveScenarioViewText()
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -910,30 +958,34 @@ export function useDevState() {
     }
   }
 
-  async function saveCurrentNavScope(): Promise<void> {
+  async function saveCurrentNavScope(): Promise<boolean> {
     if (selectedNode.value) {
-      await saveNodeChanges()
-      return
+      return saveNodeChanges()
     }
     addStatus('未选中节点，无需保存蓝图属性', 'info')
-  }
-
-  async function flushDirtyScopes(): Promise<void> {
-    if (blueprintDirty.value) await saveCurrentNavScope()
-    await editor.saveDirtyPageFiles()
-    for(const scenarioId of editor.dirtyScenarioIds)await editor.saveScenarioViews({scenarioId})
-    scenarioViewRevision.value++
-  }
-
-  async function ensureCurrentNavScopePersistedWhenClean(): Promise<void> {
-    if (!blueprintDirty.value && !hasAnyFileDirty.value) {
-      await saveCurrentNavScope()
-    }
+    return true
   }
 
   async function saveAll(): Promise<void> {
-    await flushDirtyScopes()
-    await ensureCurrentNavScopePersistedWhenClean()
+    if (allSaving.value || pageIoBusy.value || blueprintSaving.value) return
+    const workspace = currentEditor.value, scope = currentScopeKey()
+    const assertCurrent = () => {if (currentEditor.value !== workspace || currentScopeKey() !== scope) throw new Error('保存期间工作区已切换')}
+    let stage = '蓝图属性'
+    allSaving.value = true; cancelAutoSave()
+    try {
+      if ((blueprintDirty.value || !hasAnyDirty.value) && !await saveCurrentNavScope()) throw new Error('蓝图属性未保存；后续文件尚未提交')
+      assertCurrent(); stage = '工具工作文件'
+      const hadFiles = workspace.unconfirmedPageFiles.length > 0 || [...workspace.project.design.pages].some(page => page.getDirtyFileNames().length > 0)
+      await workspace.saveDirtyPageFiles(); assertCurrent()
+      if (hadFiles) addStatus('工具工作文件本轮提交已确认', 'success')
+      stage = '场景定义'
+      await workspace.saveDirtyScenarioDefinitions(); assertCurrent()
+      scenarioDefinitionRevision.value++
+      addStatus(hasAnyDirty.value ? '本轮提交已确认，仍有新修改待保存' : '全部保存已确认', hasAnyDirty.value ? 'info' : 'success')
+    } catch (cause) {
+      if (currentEditor.value === workspace && currentScopeKey() === scope) addStatus(
+        `${stage}保存未完成：${String(cause)}。已确认部分保留，未确认修改仍待处理${stage === '场景定义' ? '' : '；后续场景定义尚未提交'}${workspace.unconfirmedPageFiles.length ? '；再次保存先核验原工具提交' : ''}`, 'error')
+    } finally {allSaving.value = false; scenarioDefinitionRevision.value++}
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -943,14 +995,15 @@ export function useDevState() {
   async function selectNode(node: ProjectBlueprintDomain.ProjectBlueprintTreeNodeData): Promise<void> {
     cancelAutoSave()
     if (blueprintDirty.value && selectedNode.value) void saveNodeChanges()
+    if (selectedNode.value?.nodeId !== node.nodeId || selectedNode.value.dataSpace?.scenarioId !== node.dataSpace?.scenarioId) {
+      scenarioLoad++; installScenarioDocument(null); pageDataError.value = null
+    }
     loadNodeToForm(node)
     const pageId = resolvePageNodePageId(node)
     if (pageId && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(node))) {
       try { await editor.selectPage(pageId); persistActivePageId(pageId) }
       catch(error) { addStatus(`工具 ${pageId} 文件加载失败: ${String(error)}`, 'error') }
     }
-    try { await loadSelectedScenarioViews() }
-    catch(error) { addStatus(`场景视图配置加载失败: ${String(error)}`, 'error') }
   }
 
   function handlePathChange(val: string): void {
@@ -1116,10 +1169,11 @@ export function useDevState() {
     pageFileNames,
     activePageId,
     pageIoBusy,
+    allSaving,
     projectRevision,
     pageDataError,
-    scenarioViewFile,
-    scenarioViewRevision,
+    scenarioDefinitionDocument,
+    scenarioDefinitionRevision,
     loadSelectedScenarioViews,
     createSelectedScenarioViews,
     writeScenarioViewText,

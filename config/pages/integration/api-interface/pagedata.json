@@ -1,0 +1,270 @@
+{
+  "tables": {
+    "Base_DataServiceInterface": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "ProviderID",
+              "Name",
+              "AccountName",
+              "ContentType",
+              "request",
+              "LinkUrl",
+              "Desc",
+              "paramType",
+              "GetParamStr",
+              "FormDataParam",
+              "BodyParamJsonStr",
+              "resultPath",
+              "requiresAuth",
+              "RequestType",
+              "PathStr"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "_Base_ParamList": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "queryConfig": {
+            "fields": [
+              "parid",
+              "pid",
+              "parname",
+              "pardesc",
+              "parzdtype"
+            ],
+            "allPages": true
+          },
+          "valueField": "parname",
+          "labelField": "pardesc"
+        },
+        "references": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "parname",
+          "labelField": "pardesc",
+          "queryConfig": {
+            "fields": [
+              "parid",
+              "pid",
+              "parname",
+              "pardesc"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "Base_InterfaceApi_Headers": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "interfaceId",
+              "ParamName",
+              "ParamDesc",
+              "ValueFun"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "Base_TblField": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblid",
+              "enname",
+              "cnname",
+              "DataTypeName"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "Base_Interface_PublicParam": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "paramName",
+          "labelField": "desc",
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "providerId",
+              "paramName",
+              "desc"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "ContentType": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "val",
+          "labelField": "txt",
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "val",
+              "txt"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "request": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "val",
+          "labelField": "txt",
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "val",
+              "txt"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "接口参数类型": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "val",
+          "labelField": "txt",
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "val",
+              "txt"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "ParamType": {
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "val",
+          "labelField": "txt",
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "val",
+              "txt"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": [
+    {
+      "kind": "query",
+      "cascadeId": "interface-_Base_ParamList-default",
+      "parentTable": "Base_DataServiceInterface",
+      "parentViewId": "default",
+      "childTable": "_Base_ParamList",
+      "childViewId": "default",
+      "autoLoad": false,
+      "filterBindings": [
+        {
+          "targetField": "pid",
+          "operator": "in"
+        }
+      ]
+    },
+    {
+      "kind": "query",
+      "cascadeId": "interface-_Base_ParamList-references",
+      "parentTable": "Base_DataServiceInterface",
+      "parentViewId": "default",
+      "childTable": "_Base_ParamList",
+      "childViewId": "references",
+      "autoLoad": false,
+      "filterBindings": [
+        {
+          "targetField": "pid",
+          "operator": "in"
+        }
+      ]
+    },
+    {
+      "kind": "query",
+      "cascadeId": "interface-Base_InterfaceApi_Headers-default",
+      "parentTable": "Base_DataServiceInterface",
+      "parentViewId": "default",
+      "childTable": "Base_InterfaceApi_Headers",
+      "childViewId": "default",
+      "autoLoad": false,
+      "filterBindings": [
+        {
+          "targetField": "interfaceId",
+          "operator": "in"
+        }
+      ]
+    },
+    {
+      "kind": "query",
+      "cascadeId": "interface-Base_TblField-default",
+      "parentTable": "Base_DataServiceInterface",
+      "parentViewId": "default",
+      "childTable": "Base_TblField",
+      "childViewId": "default",
+      "autoLoad": false,
+      "filterBindings": [
+        {
+          "targetField": "tblid",
+          "operator": "in"
+        }
+      ]
+    }
+  ]
+}

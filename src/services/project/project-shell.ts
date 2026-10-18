@@ -14,6 +14,7 @@ import {
   readLowcodePrincipal,
 } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/tenant-scope'
+import {loadLowcodeScenarioDefinitions} from '@/lowcode/data-space/lowcode-data-space-runtime'
 
 // --- project-switch ---
 
@@ -61,6 +62,7 @@ function createScopedProjectWorkspace(scope: ProjectWorkspaceScope): ProjectWork
   const workspace = new ProjectWorkspace({
     projectId: scope.projectId,
     ...createLowcodeProjectGateways(scope.projectId),
+    scenarioDefinitions: loadLowcodeScenarioDefinitions,
   })
   workspace.project.replaceProjectInfo({
     tenantId: scope.tenantId,
@@ -98,6 +100,7 @@ export function getAppProjectBlueprintWorkspace(
 }
 
 export function resetAppProjectWorkspace(): void {
+  for (const workspace of new Set([...projectWorkspaces.values(), ...projectBlueprintWorkspaces.values()])) workspace.dispose()
   projectWorkspaces.clear()
   projectBlueprintWorkspaces.clear()
 }

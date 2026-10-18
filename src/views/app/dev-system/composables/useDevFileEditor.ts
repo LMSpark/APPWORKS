@@ -27,6 +27,10 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
     return project.isActivePageLoaded()
   })
   const isDirty = computed(() => isFileDirty(activeFile.value))
+  const isUnconfirmed = computed(() => {
+    void state.projectRevision.value
+    return editor.unconfirmedPageFiles.some(item => item.pageId === state.activePageId.value && item.fileName === activeFile.value)
+  })
   const canUndo = computed(() => {
     void state.projectRevision.value
     return project.canUndoPageFile(activeFile.value)
@@ -55,15 +59,17 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
   }
 
   async function save() {
+    if (state.pageIoBusy.value || state.allSaving.value) return
     const pageId = state.activePageId.value
+    const fileName = activeFile.value
     if (!pageId || !alignActivePage()) return
 
     state.pageIoBusy.value = true
     try {
-      await editor.savePageFile(activeFile.value)
-      state.addStatus(`页面 ${pageId} 已保存 ${activeFile.value}`, 'success')
+      await editor.savePageFile(fileName)
+      state.addStatus(`页面 ${pageId}/${fileName} 本轮提交已确认${isFileDirty(fileName) ? '，仍有新修改待保存' : ''}`, 'success')
     } catch (e) {
-      state.addStatus(`保存 ${activeFile.value} 失败: ${String(e)}`, 'error')
+      state.addStatus(`保存 ${fileName} 失败: ${String(e)}${isUnconfirmed.value ? '；再次保存先核验原提交' : ''}`, 'error')
       throw e
     } finally {
       state.pageIoBusy.value = false
@@ -71,14 +77,15 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
   }
 
   async function refresh() {
-    await ensureLoaded({ forceReload: true })
+    try {await ensureLoaded({ forceReload: true })}
+    catch (cause) {state.addStatus(`文件重载未完成：${String(cause)}`, 'error'); throw cause}
   }
 
   watch(
     () => state.activePageId.value,
     (pageId) => {
       if (!pageId) return
-      void ensureLoaded()
+      void ensureLoaded().catch(cause => state.addStatus(`工具文件加载失败：${String(cause)}`, 'error'))
     },
     { immediate: true },
   )
@@ -86,6 +93,7 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
   return {
     isReady,
     isDirty,
+    isUnconfirmed,
     canUndo,
     canRedo,
     text,

@@ -13,15 +13,17 @@ const METHOD_DOMAINS: Readonly<Record<string, OperationDomain>> = {
   editNodeTree: 'nodeTree',
   getNodeTree: 'nodeTree',
   nodeTree: 'nodeTree',
-  loadScenarioViews: 'dataSet',
-  createScenarioViews: 'dataSet',
-  getScenarioViews: 'dataSet',
-  saveScenarioViews: 'dataSet',
+  loadScenarioDefinitions: 'dataSet',
+  getScenarioDefinitions: 'dataSet',
   replaceBlueprintChildren: 'blueprint',
   replaceBlueprintTree: 'blueprint',
   readBlueprintPlanningInputs: 'blueprint',
   readProjectPlanningInput: 'blueprint',
 }
+
+const STORAGE_METHODS = new Set(['loadScenarioViews', 'createScenarioViews', 'getScenarioViews', 'saveScenarioViews',
+  'verifyScenarioViews', 'previewScenarioViewsRemote', 'adoptScenarioViews', 'listScenarioVersions', 'previewScenarioVersion',
+  'createScenarioVersion', 'restoreScenarioVersion', 'saveAll', 'saveDirtyScenarioDefinitions', 'dispose'])
 
 const FILE_METHODS = new Set(['setFileText', 'getFileText', 'writePageFile'])
 
@@ -59,7 +61,7 @@ function isPromiseLike(value: unknown): value is Promise<unknown> {
 
 function isValidProjectWorkspace(value: unknown): boolean {
   if (value === null || typeof value !== 'object') return false
-  return 'project' in value && 'loadScenarioViews' in value
+  return 'project' in value && 'loadScenarioDefinitions' in value
 }
 
 type WrapEditorContext = Readonly<{
@@ -91,13 +93,13 @@ function wrapEditorTarget(target: object, context: WrapEditorContext): object {
   return proxy
 }
 
-/** 返回受限门面；allowedOperations 缺省时原样返回编辑器。 */
+/** 返回同一实例的操作门面；存储owner始终内部使用，定义数据只从DataSet入口访问。 */
 export function guardPageDesignEditor(editor: ProjectWorkspace, allowedOperations: PageDesignAllowedOperations | undefined): ProjectWorkspace {
-  if (allowedOperations === undefined) return editor
   const proxies = new WeakMap<object, object>()
   const assertAllowed = (name: string, args: readonly unknown[]): void => {
+    if (STORAGE_METHODS.has(name)) throw new Error(`PAGE_DESIGN_STORAGE_INTERNAL: ${name} 仅供资源存储适配使用，请通过场景定义DataSet操作`)
     const domain = resolveDomain(name, args)
-    if (domain !== undefined && allowedOperations[domain] === false) {
+    if (domain !== undefined && allowedOperations?.[domain] === false) {
       throw new Error(`PAGE_DESIGN_OPERATION_FORBIDDEN: ${name} 属于未放行的操作域 ${domain}`)
     }
   }

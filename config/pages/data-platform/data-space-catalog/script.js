@@ -648,10 +648,8 @@ function openCatalogDesign(view, row) {
   if (typeof $route.fullPath !== 'string' || !$route.fullPath.startsWith(prefix)) return
   catalogOperationBusy = true
   try {
-    $page.navigate(`/t/${encodeURIComponent(tenantId.trim())}/${encodeURIComponent(projectId.trim())}/__tool/8D1AB14DD8277F3E7017CD38F77B09FD`, {
-      scenarioId: '8D1AB14DD8277F3E7017CD38F77B09FD',
-      additionalScenarioIds: ['90A82E287930A234FEC3E687C94A93EA'],
-      dataSpaceId: id,
+    $page.navigate(`${prefix}data-space-design`, {
+      scenarioId: id,
       returnTo: $route.fullPath,
     })
   } finally {

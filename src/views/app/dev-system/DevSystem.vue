@@ -69,7 +69,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           v-if="canSaveFromHeader"
           size="small"
           type="success"
-          :loading="state.blueprintSaving.value || state.pageIoBusy.value"
+          :loading="state.allSaving.value || state.blueprintSaving.value || state.pageIoBusy.value"
           @click="saveAll"
         >
           <NavIcon name="FolderChecked" :size="14" /> {{ headerSaveLabel }}

@@ -50,7 +50,7 @@ catalog:
   '@types/jmespath': ^0.15.2
   '@vitejs/plugin-vue': ^6.0.7
   '@vue/language-core': 3.3.5
-  '@vue/test-utils': ^2.4.11
+  '@vue/test-utils': ^2.5.1
   vue-tsc: ^3.3.5
   rimraf: ^6.1.3
 
@@ -67,3 +67,8 @@ overrides:
   '@vue/compiler-dom': 3.5.38
   '@vue/compiler-sfc': 3.5.38
   '@vue/server-renderer': 3.5.38
+
+patchedDependencies:
+  # 2.5.1在卸载钩子前清事件，会重新保留focusAfterReleased等子组件载荷。
+  # 上游修复后先通过component-test-cleanup.test.ts及整页回归，再删除此补丁。
+  '@vue/test-utils@2.5.1': patches/@vue__test-utils@2.5.1.patch

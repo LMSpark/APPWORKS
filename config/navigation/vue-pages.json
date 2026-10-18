@@ -178,14 +178,59 @@
       "shellTool": false
     },
     {
+      "path": "/data-space-design",
+      "title": "数据空间设计",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
+      "description": "按目标空间组织模型、字段、数据视图与两类关系"
+    },
+    {
+      "path": "/features/data-platform/data-set-management/design/ui/data-set-design-page",
+      "title": "数据空间设计",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
+      "description": "保留原生业务文件路径的数据空间设计入口",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/features/data-platform/data-set-management/ui/data-set-list-page",
       "title": "数据空间目录",
       "icon": "Grid",
       "scope": "app",
-      "source": "src/views/app/control/data-platform/data-space/catalog/DataSpaceCatalogPage.vue",
+      "source": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
       "description": "正式数据空间目录只读列表",
       "hidden": true,
       "shellTool": false
+    },
+    {
+      "path": "/features/integration/api-management/ui/api-management-page",
+      "title": "外部服务管理",
+      "scope": "app",
+      "source": "src/views/features/integration/api-management/ui/api-management-page.vue",
+      "description": "外部服务商目录与独立基础定义维护",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "title": "数据字典",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "description": "字典方案设计目录，配置与业务数据分别维护",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page",
+      "title": "字典数据维护",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
+      "description": "按dictionaryId消费已保存的设计，仅维护业务数据",
+      "hidden": true,
+      "shellTool": true
     }
   ]
 }

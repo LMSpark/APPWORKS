@@ -45,6 +45,7 @@ import {
   writeDtsManifestSnapshot,
 } from './lib/class-model-incremental-build.mjs'
 import { buildDebugBreak } from './lib/build-debug.mjs'
+import { createInMemoryDeclarationCompilerHost } from './lib/class-model/declaration-host.ts'
 
 const require = createRequire(import.meta.url)
 const vueTscRequire = createRequire(require.resolve('vue-tsc'))
@@ -163,7 +164,10 @@ if (skipDeclarationEmit) {
     },
   })
   dtsFiles = [...declarationEmit.files.keys()].sort((left, right) => left.localeCompare(right))
-  declarationCompilerHost = createInMemoryDeclarationCompilerHost(declarationEmit.files)
+  declarationCompilerHost = createInMemoryDeclarationCompilerHost({
+    files: declarationEmit.files,
+    sourceOptions: parseClassModelEmitProject({repoRoot, configPath: classModelEmitConfigPath}).compilerOptions,
+  })
 
   if (dtsFiles.length === 0) {
     throw new Error('No in-memory ClassModel emit outputs were produced.')
@@ -643,44 +647,6 @@ function emitDeclarationsWithCompilerApiToMemory(options) {
   reportTiming(options, timings, 'emit-declarations')
   options.onEvent?.({ phase: 'emit-done', total: files.size, emitSkipped: emitResult.emitSkipped })
   return { files, emitSkipped: emitResult.emitSkipped }
-}
-
-function createInMemoryDeclarationCompilerHost(files) {
-  const compilerOptions = {
-    allowJs: false,
-    declaration: true,
-    emitDeclarationOnly: true,
-    skipLibCheck: true,
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ES2022,
-    moduleResolution: ts.ModuleResolutionKind.Bundler,
-  }
-  const host = ts.createCompilerHost(compilerOptions, true)
-  const originalFileExists = host.fileExists.bind(host)
-  const originalReadFile = host.readFile.bind(host)
-  const originalGetSourceFile = host.getSourceFile.bind(host)
-  const fileByKey = new Map([...files.entries()].map(([fileName, text]) => [
-    normalizeSourceFileKey(fileName),
-    { fileName: resolve(fileName), text },
-  ]))
-
-  host.fileExists = fileName => fileByKey.has(normalizeSourceFileKey(fileName)) || originalFileExists(fileName)
-  host.readFile = fileName => fileByKey.get(normalizeSourceFileKey(fileName))?.text ?? originalReadFile(fileName)
-  host.getSourceFile = (fileName, languageVersionOrOptions, onError, shouldCreateNewSourceFile) => {
-    const inMemoryFile = fileByKey.get(normalizeSourceFileKey(fileName))
-    if (inMemoryFile !== undefined) {
-      return ts.createSourceFile(
-        inMemoryFile.fileName,
-        inMemoryFile.text,
-        languageVersionOrOptions,
-        true,
-        ts.ScriptKind.TS,
-      )
-    }
-    return originalGetSourceFile(fileName, languageVersionOrOptions, onError, shouldCreateNewSourceFile)
-  }
-
-  return host
 }
 
 function removeTreeSync(targetPath) {
@@ -1218,11 +1184,6 @@ function uniqueStrings(values) {
 
 function isDeclarationOutput(fileName) {
   return /\.d\.[cm]?ts$/u.test(fileName)
-}
-
-function normalizeSourceFileKey(fileName) {
-  const resolved = resolve(fileName)
-  return ts.sys.useCaseSensitiveFileNames ? resolved : resolved.toLowerCase()
 }
 
 function createDtsCompilerOptions() {

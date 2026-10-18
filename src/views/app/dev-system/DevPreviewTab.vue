@@ -60,7 +60,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
 <script setup lang="ts">
 import { ref, shallowRef, watch, onMounted, onBeforeUnmount } from 'vue'
 import { SparkPageRenderer } from '@spark-appworks/spark-component'
-import { PageRuntime, PageTool } from '@spark-appworks/spark-project-model'
+import { PageRuntime, PageTool, ScenarioDefinitionDocument, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '@spark-appworks/spark-component/runtime'
 import { loadScenarioDataSet } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
@@ -108,9 +108,12 @@ async function refresh():Promise<void> {
       const scope=lowcodeApi.readRequestScope()
       if(scope.headers['X-AppId']!==props.state.projectId)throw new Error('场景预览需要当前运行应用与编辑项目一致')
       const assertScope=():void=>{assertCurrent();if(lowcodeApi.readRequestScope().token!==scope.token)throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景预览请求代次已失效')}
-      const scene=await workspace.loadScenarioViews({scenarioId})
+      const definitions=await workspace.loadScenarioDefinitions({scenarioId})
       assertScope()
-      const result=await loadScenarioDataSet({scenarioId,config:scene.value,assertCurrent:assertScope})
+      const document=await ScenarioDefinitionDocument.open(definitions,scenarioId)
+      let config:ScenarioViewConfig
+      try {assertScope();config=new ScenarioViewConfig(scenarioId,document.getText())} finally {document.dispose()}
+      const result=await loadScenarioDataSet({scenarioId,config,assertCurrent:assertScope})
       assertScope()
       return result.dataSet
     }})
@@ -149,7 +152,7 @@ watch(
     () => props.state.activePageId.value,
     () => { void props.state.projectRevision.value; return props.state.project.readPageFileText('rule.json') },
     () => props.state.selectedNode.value?.dataSpace?.scenarioId,
-    () => { void props.state.scenarioViewRevision.value; return props.state.scenarioViewFile.value?.getText() },
+    () => { void props.state.scenarioDefinitionRevision.value; return props.state.scenarioDefinitionDocument.value?.getText() },
     () => { void props.state.projectRevision.value; return props.state.project.readPageFileText('script.js') },
     () => { void props.state.projectRevision.value; return props.state.project.readPageFileText('style.css') },
   ],

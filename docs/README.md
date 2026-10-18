@@ -18,7 +18,7 @@ PageRuntime -> PageTool + 多个独立场景 DataSet -> SparkPageRenderer
 3. [architecture/system-architecture.md](architecture/system-architecture.md)：系统分层与启动路由。
 4. [SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md](SPARK_APPWORKS_PROJECT_DEEP_DIVE_ZH.md)：项目整体认知。
 5. [architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md](architecture/SPARK_PAGE_CONFIG_ARCHITECTURE.md)：项目、工具、场景与调用边界。
-6. [architecture/DATAFLOW_ARCHITECTURE.md](architecture/DATAFLOW_ARCHITECTURE.md)：真实装配、查询和保存链。
+6. [数据空间主合同](architecture/DATAFLOW_ARCHITECTURE.md)：领域与身份、数据库和 pagedata 真源、DataView 完整配置、元数据空间、查询保存、关系级联与当前差距。
 7. [DTS ClassModel](../packages/spark-ai/docs/class-model-knowledge-system-zh-cn.md)：知识生成与按需消费。
 
 ## 目录边界
@@ -31,3 +31,5 @@ PageRuntime -> PageTool + 多个独立场景 DataSet -> SparkPageRenderer
 - [AGENTS.md](../AGENTS.md)：AI 编码工作流。
 
 正文中的类、路径与行为以当前源码为准。新增说明先判断能否合并到现有文档；计划、历史调研与目标草案不能被当作运行合同。
+
+数据空间任务从[完整链路合同](architecture/DATAFLOW_ARCHITECTURE.md)和[唯一删除记录](../notes/data-space-retirement-ledger.md)接续；台账保存当前编号、依赖、验收证据和下一动作，不依赖聊天恢复进度。

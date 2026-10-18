@@ -119,7 +119,7 @@ src/main.ts / SparkApp.start
 
 1. **场景视图与正式模型设计不同。** `src/views/app/dev-system/DevDataSetDesigner.vue` 编辑 `pagedata.json`，明确不在该文件重定义正式模型字段。参考 `AppWorksDataSpaceDesign` 另有模型/字段/关系读写和设计布局处理。
 2. **业务流程、数据工作流、AI workflow 不是一个对象。** 当前 `src/services/workflow-designs.ts` 管理 `agent.workflow.design`，开头明确只处理编辑态设计稿；不能因页面均称“工作流”就判定重复。
-3. **准备命令不等于写入。** 当前 DataSpaceDesignApi 与 PermissionDesignApi 都有 prepareMutation；本轮定位到的实现只生成命令。`src` 对数据空间设计入口的直接消费主要是 readModel/readModels/readRelations。
+3. **准备命令不等于写入。** 历史核查时 DataSpaceDesignApi 与 PermissionDesignApi 均有 prepareMutation，只生成命令。2026-10-17已删除无生产消费者的数据空间旧快照/准备协议；权限设计入口保持原范围，当前数据空间实施见唯一台账。`src` 对数据空间设计入口的直接消费主要是 readModel/readModels/readRelations。
 4. **数据库治理有显式未接通入口。** DBMS 的 submitCreateServer、submitCreateDatabase、submitCreateTable、submitCreateRelation 等调用 reportGovernanceBlocked。保留按钮外观不能算完整集成。
 5. **管理目标与运行应用须单独核验。** 参考 owner 的 applicationId 用作业务记录过滤，根 execution 负责实际请求域；当前 LowcodeApi 的 scope 来自当前选中应用。后续必须逐项核对读写与切换失效，不能混成一个 ID。
 6. **授权与运行实例不只在 API 层。** 参考 53 个文件直接引用 Vue runtime；UI 还消费 SparkResourceQueryContext、导航结果、人员选择和公共表单合同，不能只桥接 HTTP。

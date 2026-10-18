@@ -121,7 +121,7 @@ flowchart BT
 1. 工具加载使用明确的发布引用读取三文件；调用的场景 ID 逐个通过宿主 `loadScenario` 装配。
 2. 样式以 `instanceId` 加作用域；script 在本实例沙箱编译，`Render*` 函数组件只注册到本页组件注册表。
 3. 通过 `PAGE_RUNTIME` 提供本次调用。脚本使用 `$page.getDataSet(scenarioId)` 或 `$page.resolveView(binding)` 获取明确场景的数据。
-4. rule 经 `SparkNodeTree.fromPageChildren` → `buildPageChildren` → `SparkComponentRenderer` 递归渲染；绑定统一为 `#scenarioId@table@view`。只有调用明确声明主场景时才接受局部 `table@view`，不会选择首个场景兜底。
+4. rule 经 `SparkNodeTree.fromPageChildren` → `buildPageChildren` → `SparkComponentRenderer` 递归渲染；页面绑定统一为 `scenarioId@modelName@viewId`，正式模型名称取 modelBinding.modelName，本地模型取自身 tableName。只有调用明确声明主场景时才接受局部 `modelName@viewId`，不会选择首个场景兜底。
 5. 每次重载或销毁使旧脚本、异步回执及定时器失效；脏运行数据阻止直接替换实例。
 
 未注册的组件类型渲染提示卡片。页面脚本组件、数据和样式不注册到应用全局；两个实例即便工具 ID 与 Render 名称相同，也保持各自的状态和释放边界。字段权限沿用正式 DataView 快照。
@@ -140,7 +140,7 @@ flowchart BT
 运行查询 (dataSpace.runtime)      ─┘
 ```
 
-- 平台数据定义与运行装配：`spark-lowcode-api` 读取设计与权限，宿主 `LowcodeDataSpaceAssembler` 负责投影成 `spark-data` 的 `DataSet`。前端过滤统一为 `DataViewFilter` 的公开树；公开过滤与 wire 字面量之间的转换仅在 SPARK API 的 `runtime/protocol/data-space-filter.ts`，assembler 不再提供过滤 mapper。
+- 平台数据定义与运行装配：`spark-lowcode-api`读取设计与权限，宿主`LowcodeDataSpaceAssembler`装配`spark-data`的`DataSet`。前端过滤统一为`DataViewFilter`公开树；公开树与SPARK存储格式的转换由spark-data的`DataViewFilterCodec`负责，查询API与标准过滤编辑器复用，assembler不另设过滤mapper。
 - 权限事实由后端最终给出：原始返回行带 `lingma_sys_params` 与 `lingma_sys_key`，每次查询由私有 `DataSpaceQueryContext` 持有基线，公开业务行剥离这两个系统字段。前端经 DataView 消费读写通道及动作状态，不按角色名推导授权。细节见 [PERMISSION_SYSTEM.md](PERMISSION_SYSTEM.md)。
 - 写操作由原查询 owner 统一执行实际批量 CRUD 请求，回放私有凭据并核对后端回执；缺少有效 owner、执行域或正式字段身份时明确失败。
 

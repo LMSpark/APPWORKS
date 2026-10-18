@@ -6,7 +6,7 @@
 
 ```text
 ScenarioViewFile -> ScenarioViewConfig + 正式模型 -> 场景 DataSet
-PageRuntime.resolveView(#scenarioId@table@view)
+PageRuntime.resolveView(scenarioId@modelName@viewId)
  -> RendererTree -> DATA_SOURCE / DATA_ROW -> 节点内容与动作
  -> DataView -> TreeManager
 ```
@@ -21,12 +21,16 @@ rule.json 声明 r-tree、绑定与动作；场景 pagedata.json 声明命名视
     "idField": "id",
     "parentIdField": "parentId",
     "textField": "name",
-    "treeMode": "flat"
+    "treeMode": "flat",
+    "serverPaginationMode": "root",
+    "filterMode": "include-ancestors",
+    "depthLimit": 10,
+    "lazy": false
   }
 }
 ```
 
-字段必须属于正式模型输出。flat 表示平铺行，nested 表示嵌套结构；配置不证明后端支持某种远程树端点。稳定 string/number 主键用于选中、展开、定位与移动，不使用数组下标。
+idField、parentIdField 须能解析为正式模型输出；textField 也可引用本地计算文本。八项配置的归属与查询边界统一见[数据空间主合同](../architecture/DATAFLOW_ARCHITECTURE.md#31-dataview-配置完整清单)。flat/nested 表示数据形态，配置不证明后端支持某种远程端点。稳定 string/number 主键用于选中、展开、定位与移动，不使用数组下标。
 
 RendererTree 支持 currentKey、expandLevel、expandToKey。平铺行可经 TreeManager 构建嵌套 children；树表也由绑定视图的 treeConfig 形成树数据。
 
@@ -36,20 +40,25 @@ DataView 保持 rows/currentRow/selectedRows 与查询代次，提供 loadFromSe
 
 TreeManager 负责节点缓存与本地算法：getNode、getChildren、getRoots、getNodePath、searchNodes、buildNestedTree、buildSubTree。UI 优先调用 DataView，纯内存算法才直接消费 TreeManager。
 
-正式场景查询由 DataSpaceRuntimeApi 和原 query context 持有，Name 请求与 AsName 输出映射由 API 完成。不存在从菜单目录推断模型字段或补造业务主键的步骤。
+正式场景由 DataSpaceRuntimeApi 和原 query context 查询，API 完成 Name/AsName 映射并补齐实际需要的树结构字段。显式tree查询输入编码为SelfRefData；也可仅配置outputType为SelfRefData，例如JSON来源返回完整节点集合，不强加数据库节点参数。treeConfig不自动提供nodeId或查询模式。SelfRef的无分页与完整性检查、JSON文档包及正式节点身份的边界统一见[数据空间主合同](../architecture/DATAFLOW_ARCHITECTURE.md#32-datatableapi-与-datatablecrudconfig)。当前TreeManager的远程path/subtree/move通道未因此全部绑定到SPARK owner，不能把通用端点测试当作正式场景接通证据。
 
 ## 容器与动作
 
-RendererTree 提供 DATA_SOURCE 给节点内容，节点作用域同时提供 DATA_ROW；点击同步 DataView.currentRow。toolbar 与 actions dock 分开声明，内置动作通过统一 action-executor 执行。
+RendererTree 提供 DATA_SOURCE 给节点内容，节点作用域同时提供 DATA_ROW；点击同步 DataView.currentRow。工具栏与节点动作分别配置`RTreeProps.toolbar/actions`，二者都使用`RToolbarProps.children`编排标准子组件；内置动作通过统一 action-executor 执行。
 
 ```json
 {
   "type": "r-tree",
-  "props": { "dataViewKey": "#SCENE@Nodes@default", "nodeKey": "id" },
-  "children": [
-    { "type": "r-button", "dock": "toolbar", "props": { "action": "refresh", "label": "刷新" } },
-    { "type": "r-button", "dock": "actions", "props": { "action": "delete-row", "label": "删除" } }
-  ]
+  "props": {
+    "dataViewKey": "SCENE@Nodes@default",
+    "nodeKey": "id",
+    "toolbar": { "children": [
+      { "type": "r-button", "props": { "action": "refresh", "label": "刷新" } }
+    ] },
+    "actions": { "children": [
+      { "type": "r-button", "props": { "action": "delete-row", "label": "删除" } }
+    ] }
+  }
 }
 ```
 
@@ -66,8 +75,8 @@ dirty 阻止覆盖与配置刷新，stale 暂停编辑；清除或恢复需要�
 ## 验证
 
 ```bash
-pnpm exec vitest run packages/spark-data/src/tests/dataset-tree-4-plus-7.test.ts
-pnpm exec vitest run tests/renderer/renderer-list-section.test.ts tests/renderer/renderer-layout-containers.test.ts
+pnpm exec vitest run packages/spark-data/src/tests/dataset/dataset-tree-4-plus-7.test.ts
+pnpm exec vitest run tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-tree-query.test.ts
 ```
 
 聚焦回归包括平铺重建、children/path 编排、缓存、currentRow 同步、动作权限与失败。模拟端点测试不等于真实后端已注册对应端点；生产验收需实际模型和请求证据。

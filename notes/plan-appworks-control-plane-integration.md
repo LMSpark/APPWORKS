@@ -205,7 +205,7 @@ C1 生产构建补充闭环（C1c，C2 前）：C1a/C1b 的组合 build 暴露 `
 | `src/lowcode/lowcode-runtime.ts` | 当前 API/scope 与授权蓝图的投影 |
 | `config/navigation/vue-pages.json` | 按领域逐批补正式地址到当前页面的映射 |
 | `packages/spark-lowcode-api/src/lowcode-api.ts`、`packages/spark-lowcode-api/src/index.ts` | 组合必要领域能力，最少显式导出 |
-| `packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts`、`data-space-design-mutation.ts`（同目录） | 正式设计变更与确认，保留读取 |
+| `packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts` | 正式读取与纯解析保留；2026-10-17已删除旧mutation准备协议，设计变更经DataView/DataSet提交，执行见唯一数据空间台账 |
 | `packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts`、`permission-design-mutation.ts`（同目录） | 授权编辑与确认，不改运行权限事实 |
 | `packages/spark-lowcode-api/src/design/lowcode-design-api.ts`、`lowcode-design-file-upload.ts`（同目录） | 补实际缺失文件能力，保留版本与回读语义 |
 | `src/views/tenant/AppList.vue`、`src/views/platform/PlatformTenantManagement.vue` | 应用与企业操作补差 |

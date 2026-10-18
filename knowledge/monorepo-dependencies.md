@@ -44,10 +44,10 @@
 - **违反后果**：`verify:rules` / `verify` 门禁失败，CI 红
 - **发现来源**：2026-06 合并 AI 编码标准、删除 `docs/ai/AI_CODE_CHANGE_PROTOCOL.md` 等三个重复文档时
 
-### pnpm 11 要求 Node ≥22.13
+### Node 环境以根 engines 为准
 
 - **场景**：升级 pnpm 10 → 11，或在 Node 20 环境运行 pnpm 11
-- **规则**：pnpm 11.8.0 依赖 `node:sqlite` 内置模块，要求 Node.js ≥22.13。升级 pnpm 11 时必须同步升级 Node 并更新 `package.json` 的 `engines.node`（本项目改为 `>=22.13.0`）
+- **规则**：pnpm 的最低 Node 要求不能代替本仓全部依赖的要求。使用根 `package.json` 的 `engines.node` 选择环境，同步核对 QUICKSTART；不要沿用早期升级记录中的 `>=22.13.0`。测试依赖升级后，较旧的 Node 22 即使能运行 pnpm，也未必满足本仓要求。
 - **违反后果**：Node 20 下运行 pnpm 11 报 `No such built-in module: node:sqlite`；corepack 启用 pnpm 11 报 `ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING`
 - **发现来源**：2026-06 升级全部基础依赖时
 

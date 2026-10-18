@@ -12,11 +12,11 @@
 - **规则**：`.props.ts` + `.vue` 配对文件必须放入组件专属子目录（如 `fields/data-components/datetime/FieldDatePicker/FieldDatePicker.props.ts` + `FieldDatePicker.vue`；先放入语义分组目录，再放组件专属目录），禁止平铺在父目录。
 - **违反后果**：`verify:ai-codegen` 检测组件配对文件平铺会报违规；平铺后目录文件数很快超过 10 个限制
 
-### Element Plus 组件的使用约定
+### 业务页与标准组件的边界
 
 - **场景**：在页面视图中使用 UI 组件
-- **规则**：本项目统一使用 Element Plus 组件库。图标使用 `@element-plus/icons-vue`。表格场景优先使用 `vxe-table`（高性能虚拟滚动），普通表单用 Element Plus 原生组件。
-- **违反后果**：混用其他组件库（如 Ant Design Vue）→ 样式不一致、包体积膨胀
+- **规则**：业务Vue及rule.json使用spark-component标准组件，按ClassModel合同绑定DataView及字段；表格、表单、详情通过标准子组件表达字段。Element Plus等底层控件仅由标准组件内部封装，缺少能力先扩展标准组件，不能在业务页直接拼控件或另建列配置。实际合同见`docs/architecture/DATAFLOW_ARCHITECTURE.md`。
+- **违反后果**：业务页绕过标准绑定、字段取值、编辑和权限链，生成第二套交互逻辑。
 
 ### Vue 3 Composition API
 
@@ -33,8 +33,8 @@
 ### src/views/ 的路由对应
 
 - **场景**：新增页面视图
-- **规则**：`src/views/` 的目录结构与路由对应：`app/` = 应用页面，`platform/` = 平台管理，`tenant/` = 租户管理。`dev-system/` 工作台以同一ProjectWorkspace管理蓝图和PageTool，场景设计器消费其显式ScenarioViewFile；运行预览使用独立PageRuntime，不能把编辑对象或运行数据混为同一实例。
-- **违反后果**：视图放在错误目录下 → 路由配置找不到组件
+- **规则**：参考AppWorks业务页在`src/views/`下保留原`apps/appworks/src/ui/`相对目录与文件层级，导航URL保持原值，由页面注册表解析。系统工作台的ProjectWorkspace管理蓝图及工具文件；数据空间设计的读取、编辑、取消和保存统一消费DataSet/DataTable/DataView，文件owner仅在数据层资源适配内部使用。运行预览使用独立PageRuntime，不能把设计定义或编辑草稿当作业务运行数据。当前差距须核对`notes/data-space-retirement-ledger.md`与实际调用链，不沿已撤回方案的旧编号续作，也不将历史旁路当作开发范例。
+- **违反后果**：迁移目录或URL偏离参考入口，或业务层直用文件owner形成第二套数据链。
 
 ### 数据权限由原查询 owner 持有
 

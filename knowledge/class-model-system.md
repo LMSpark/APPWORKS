@@ -34,7 +34,9 @@
 
 - **场景**：修改了模型 class 的字段或 JSDoc，运行时知识没更新
 - **规则**：`generated/dts-class-model/` 由 `pnpm run generate:class-model-surface` 生成。修改模型后需要重新生成，否则运行时知识是旧的。运行时通过 Web Worker（Comlink）按需加载 shard，主线程不加载全量 manifest。
+- **验收**：`verify:class-model` 调用的 `ensure:class-model-bundle` 仅在 manifest 缺失时生成，已有产物不会自动刷新。公共类型、属性或方法变更后，先执行正式生成器，再跑门禁，并直接核对对应 shard/schema 和 manifest 的新增或删除结果；门禁通过本身不证明知识已更新。
 - **违反后果**：AI 在运行时读到的是旧版字段/API，基于过期知识生成错误脚本
+- **发现来源**：2026-10-09 授权配置 SSOT 清理中，旧分类在常规门禁通过后仍留在生成 schema；正式重新生成及直接对账后消除，用户确认沉淀。
 
 ### 增量重生成会顺带重写无关 shard
 

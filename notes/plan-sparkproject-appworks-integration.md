@@ -231,7 +231,7 @@ flowchart TB
 | `packages/spark-lowcode-api/src/lowcode-api.ts` | 组合新增领域能力，共享现有 HTTP/scope，不创建第二根 |
 | `packages/spark-lowcode-api/src/index.ts` | 显式最少公共导出；新增公共面需消费者与导入验证 |
 | `packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts` | 正式设计写入接线，保留已存在读取合同 |
-| `packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts` | 按真实后端合同收束设计变更与确认，不能把 prepare 当执行 |
+| 数据空间设计旧准备协议（2026-10-17已退役） | 旧mutation文件及整空间快照已删除；设计变更经DataView/DataSet提交，当前执行见data-space-retirement-ledger.md |
 | `packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts` | 治理写入及确认，与运行权限消费分开 |
 | `packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts` | 正式授权变更命令及失败合同 |
 | `packages/spark-lowcode-api/src/design/lowcode-design-api.ts` | 仅补实际缺少的文件读/列/删除合同，不改变既有版本语义 |

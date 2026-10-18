@@ -2,7 +2,7 @@
 
 ## 环境
 
-- Node.js 22.13+
+- Node.js 22.22.2+（22.x）、24.15.0+（24.x）或 26+，与根 `package.json` 的引擎范围一致。
 - pnpm 11
 - 可访问的 lowcode-jdk17 gateway
 

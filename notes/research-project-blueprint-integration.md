@@ -1109,16 +1109,16 @@ README同步逐模型拒绝与DataView组批边界。没有真实后端写入、
 
 生产TS/Vue调用搜索在src/packages/tests范围未找到.runtime.prepareQuery/parseQueryResult/prepareMutation直接调用。旧DataSpaceRuntimeQuery/Snapshot/Row/PreparedQuery/Mutation及prepareDataSpaceRuntimeMutation符号全范围文件匹配仅4个：runtime/data-space-runtime-api.ts、同目录实际API测试、src/index.ts、runtime/data-space-runtime-mutation.ts。已读class末段显示原query封包与解析仍独立保留公开systemKey/原凭据快照，prepareMutation仍为纯转发。旧运行入口退役是计划406/540原批准范围，后续可独立实施，不等待新增身份策略。
 
-设计DataSpaceDesignApi.prepareMutation仍有正式元数据消费者与设计测试，不因同名检索纳入runtime退役；这项边界不能批量删同名方法。下一退役闭环必须复读上述4文件完整当前版本、旧mutation算法和相应测试，并核对README/import smoke及生成模型后再改。当前仅反向依赖证据，未删除源/测试/导出。
+当时将设计DataSpaceDesignApi.prepareMutation列为保留项，未纳入runtime退役。2026-10-17重新核定：其实际消费者仅为旧快照测试，已随整套旧设计协议删除；权限设计的同名入口仍独立保留。下一退役闭环必须复读上述4文件完整当前版本、旧mutation算法和相应测试，并核对README/import smoke及生成模型后再改。当前仅反向依赖证据，未删除源/测试/导出。
 ### 2026-10-06 23:58 运行旧准备入口退役
 
-按原已批准计划406/540，完整读取runtime-api、runtime-mutation、公共index及对应测试，反查src/packages/tests/tools/scripts，旧合同仅四文件存在直接类型/函数依赖。删除prepareQuery/parseQueryResult/prepareMutation与全部独立旧封包/解析/权限辅助，删除公开DataSpaceRuntimeQuery/InputParameter/Sort/PreparedQuery/Row/Snapshot/SparsePermission以及运行mutation类型导出，删除data-space-runtime-mutation.ts。两条依赖旧可修改快照并按R+E裁业务字段的假prepare成功测试移除；已有实际原查询/统一保存70项承担真实合同回归，不加镜像删除测试。设计DataSpaceDesignApi.prepareMutation及其正式元数据合同保留，不因同名误删。
+按原已批准计划406/540，完整读取runtime-api、runtime-mutation、公共index及对应测试，反查src/packages/tests/tools/scripts，旧合同仅四文件存在直接类型/函数依赖。删除prepareQuery/parseQueryResult/prepareMutation与全部独立旧封包/解析/权限辅助，删除公开DataSpaceRuntimeQuery/InputParameter/Sort/PreparedQuery/Row/Snapshot/SparsePermission以及运行mutation类型导出，删除data-space-runtime-mutation.ts。两条依赖旧可修改快照并按R+E裁业务字段的假prepare成功测试移除；已有实际原查询/统一保存70项承担真实合同回归，不加镜像删除测试。当轮保留设计DataSpaceDesignApi.prepareMutation；2026-10-17已按实际无生产消费者的证据退役，不再作为当前保留要求。
 
 最小实际runtime-api70项、包级API全17文件515项及生成后ClassModel49项通过，共564；根typecheck基线/最终、3文件Lint、API依赖闭包JS/DTS构建、ClassModel生成及scoped diff通过。实际发布dist/index.js加载DataSpaceRuntimeApi成功，prototype无三个旧入口；旧mutation的JS/DTS不存在，生成旧shard不存在。src/packages/tests/tools/scripts精确旧运行类型及旧函数搜索零命中；generated API shards旧方法/旧类型零命中。rg无结果exit1是零匹配，不作为验证报错。README同步真实唯一运行合同。
 
 未修改Java、提交、推送或分支，无真实后端写入或根全套验证。新增身份方向仍待本轮人工答复，原Name/AsName、版本列表和旧dirty夹具三项待审不动，整体implementing。查询/保存实际owner已在本仓，下一独立闭环可继续正式场景文件或多空间运行实例完整调用影响面研读，不能借新身份待审暂停所有已批准工作。
 
-待沉淀：旧运行prepare-only协议无真实调用时应连公开快照/权限算法一起删除；设计元数据同名prepareMutation属于不同用途。暂留研读，未写knowledge。
+待沉淀：旧运行prepare-only协议无真实调用时应连公开快照/权限算法一起删除；设计元数据同名prepareMutation随后于2026-10-17按实际调用图退役，当前设计保存走DataView/DataSet；权限设计仍分别处理。暂留历史研读，未写knowledge。
 ### 2026-10-07 00:02 页面工具到多场景实例的依赖复核
 
 按原批准依赖顺序继续，没有开始改变新增身份策略或新增运行类。当前真实调用：DynamicRouter注册时调用createRuntimePageNode构造ConfigPageNode；该类继承ProjectBlueprintNode，持rule/pagedata/script/style及DataSet，toRenderConfig同时返回蓝图节点、formKey/dataSpaceId/modelId闭包和data。SparkPageRenderer.loadNodeProps加载四文件，resolveRuntimeDataSet只选择单个旧binding或工具data，applyNodeProps交给usePageDataSet单引用；hook卸载只释放引用，理由仍是DataSet由PageNode持有。这不符合已批准PageTool三文件/无业务DataSet与PageRuntime多空间独立生命周期，不以新增Map包装旧链伪装完成。

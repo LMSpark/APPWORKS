@@ -6,7 +6,7 @@
 
 本仓 .cursor/skills 是 Markdown 工作方法；其存在不证明有可执行 registry、授权 validator 或恢复账本。技能登记见 [DOCUMENT-GOVERNANCE.dm](DOCUMENT-GOVERNANCE.dm)。浏览器 AiAgentHost、Tool Loop、ClassModel、workflow binding 和 Agent Run provider 构成执行基础。
 
-pageDesign 使用 ProjectWorkspace 根，经 project.openPageDesign(pageId) 编辑 PageTool 的 rule.json/script.js/style.css。数据域操作必须明确 scenarioId，并经 loadScenarioViews/getScenarioViews 编辑 ScenarioViewFile；pagedata.json 位于 SysForm/<scenarioId>，不是工具文件。
+pageDesign 使用 ProjectWorkspace 根，经 project.openPageDesign(pageId) 编辑 PageTool 的 rule.json/script.js/style.css。场景定义通过loadScenarioDefinitions({scenarioId:T})取得宿主正式装配的元数据DataSet C，同一工作区与请求代次复用同一实例；按需查询定义DataView后编辑、取消，交付仅提交T的已修改定义视图。ScenarioDefinitionResource内部执行文件比较、写入和回读，pagedata.json位于SysForm/<scenarioId>，不是工具文件。AI操作门面始终拒绝原文件owner入口。此链已接线并有离线回执测试，实际服务验收仍未完成；DevSystem文本编辑、撤销、历史恢复与预览同样从该DataSet消费，原文差异由ScenarioDefinitionDocument写回定义视图；验收边界见唯一台账I6。
 
 当前 PageDesignAllowedOperations 为 nodeTree/dataSet/script/style/blueprint。dataSet 域表示明确场景的视图配置，不是页面本地业务数据集。requestId 持独立 run/editor/Host；gate、完成与释放按该身份工作。
 
@@ -19,7 +19,7 @@ pageDesign 使用 ProjectWorkspace 根，经 project.openPageDesign(pageId) 编�
 1. 入口互斥：项目策划、页面/场景设计、普通代码、诊断、验证、审查与交付各有 owner。
 2. 结构化交接：传可校验制品与事实证据，不传完整聊天记录。
 3. 计划批准与远端写入授权区分，且尊重用户当前会话的明确授权。
-4. 生成先进入实际模型内存态，落盘必须经现有 ProjectWorkspace/Delivery，不造平行文件写入器。
+4. 工具三文件由PageTool管理；数据空间定义通过正式元数据DataView进入编辑态，DataSet提交捕获的变更。Delivery编排各对象结果，不另造文件或数据写入器。
 5. 验证证明验收范围，审查报告可行动缺陷；两者不互相替代。
 
 QYAPI 资源模型、Ed25519 信任链、平台 provision journal 不直接复制为 AppWorks 产品合同。若将来增加高风险平台写入，再单独论证这些机制。
@@ -74,20 +74,20 @@ routed -> researching -> research confirmation -> questioning
 
 ## 页面设计面
 
-页面合同规定入口、状态、角色、权限与验收；rule.json 描述组件树/动作；场景 pagedata.json 声明单场景 tables/modelBinding/views/viewCascades；script.js 承载最小业务分支；style.css 管视觉。
+页面合同规定业务目的、输入输出、状态、数据权限、异常与验收；前端不建立角色模型。rule.json 按 ClassModel 描述组件树/动作；场景 pagedata.json 按[数据空间主合同](architecture/DATAFLOW_ARCHITECTURE.md)声明模型绑定与视图；script.js 承载必要业务编排；style.css 管视觉。
 
-运行数据由正式 readModel/readRelations 与场景配置装配；每次 PageRuntime 持多个独立 DataSet。绑定为 #scenarioId@table@view，局部键要求明确主场景。组件成员读取使用 dataViewKey/dataMember/dataField，不靠全局页面状态。
+运行数据由正式 readModel/readRelations 与场景配置装配；每次 PageRuntime 持多个独立 DataSet。新页面绑定为 scenarioId@modelName@viewId，正式模型取 modelBinding.modelName，本地模型取自身 tableName，局部键要求明确主场景；已有带#的三段键仅保留读取兼容。组件成员读取使用 dataViewKey/dataMember/dataField，不靠全局页面状态。
 
 查询/保存使用共享 DataSpaceRuntimeApi 私有原 context，API持Name/AsName映射；业务行/source不能伪造权限。dirty/stale/作用域与销毁合同仍由实际 owner 强制。场景不同模型一次save不保证事务；设计文件交付授权不包含业务审批、支付或通知。
 
 ## 操作域与保存范围
 
-| 变化 | 操作域 | 编辑owner | 实际保存入口 |
+| 变化 | 操作域 | 编辑归属 | 提交合同 |
 |---|---|---|---|
 | 组件树 | nodeTree | PageTool.rule | savePageFile(rule.json) |
 | 脚本 | script | PageTool.script | savePageFile(script.js) |
 | 样式 | style | PageTool.style | savePageFile(style.css) |
-| 场景视图 | dataSet + 明确scenarioId | ScenarioViewFile | saveScenarioViews({scenarioId}) |
+| 场景视图 | dataSet + 明确scenarioId | loadScenarioDefinitions返回正式C的定义DataView，查询输入为T | DataSet.saveChanges只提交目标定义变更；ScenarioViewFile在资源适配内部保存 |
 | 项目蓝图 | blueprint | ProjectBlueprint | 蓝图保存 |
 
 同一闭环可跨工具与场景，但身份、dirty基线与结果必须分别记录。deliverySaveFileNames 不能承载 pagedata.json；场景身份不能由 pageId 推断。操作允许修改不表示授权保存，目标授权制品需分别表达工具、场景和蓝图动作。
@@ -131,7 +131,7 @@ researchDigest绑定源码事实；planDigest绑定目标、范围和验证；sc
 
 ## 分阶段目标与目录
 
-W1互斥路由 -> W2计划/批准摘要 -> W3页面与场景蓝图 -> W4既有gate接入 -> W5验证报告 -> W6交付授权 -> W7按owner保存/读回 -> W8蓝图交付 -> W9闭集治理工具 -> W10中断恢复E2E。
+W1互斥路由 -> W2计划/批准摘要 -> W3页面与场景蓝图 -> W4既有gate接入 -> W5验证报告 -> W6交付授权 -> W7按对象语义提交/读回（数据空间经SPARK data） -> W8蓝图交付 -> W9闭集治理工具 -> W10中断恢复E2E。
 
 逻辑目标目录可分contracts/lifecycle/page/scenario/quality/delivery、governance、routing、tools；这不是已批准新增文件清单。治理工具可为workflow_query/guide/validate/status/invoke；validate不隐式执行，invoke不自动获得Delivery权。
 
@@ -149,7 +149,7 @@ W1互斥路由 -> W2计划/批准摘要 -> W3页面与场景蓝图 -> W4既有ga
 
 ## 端到端场景示例
 
-用户请求只调整一个真实场景的视图。设计制品包含pageId、scenarioId、现有配置基线和允许dataSet域；run加载对应ScenarioViewFile并修改内存。完成后验证正式装配与绑定，交付通过saveScenarioViews({scenarioId})并消费读回结果。出现工具dirty时判断既有编辑、并发编辑或越界，不能把工具文件随场景一起保存。
+目标用例：用户请求只调整一个真实场景的视图。设计制品包含pageId、scenarioId、现有配置基线和允许dataSet域；run消费正式元数据DataSet中的定义DataView，记录视图变更。完成后验证正式装配与绑定，交付通过DataSet.saveChanges提交选定变更并消费回执。出现工具dirty时判断既有编辑、并发编辑或越界，不能把工具文件随场景一起保存。此处是应实现的链路，现行AI直接文件路径尚未满足，不能当作已验收示例。
 
 projectPlanning从需求和当前ProjectBlueprint投影形成目录，默认只标blueprintDirty；saveBlueprintAfterRun显式true时沿现有editor保存。工具与场景实施仍需分别设计，策划完成不代表页面已实现。
 

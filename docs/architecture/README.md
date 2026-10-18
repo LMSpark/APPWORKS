@@ -6,7 +6,8 @@
 
 - [system-architecture.md](system-architecture.md)：系统定位、启动、包分层、路由与 AI。
 - [SPARK_PAGE_CONFIG_ARCHITECTURE.md](SPARK_PAGE_CONFIG_ARCHITECTURE.md)：蓝图、页面工具、场景文件和运行实例。
-- [DATAFLOW_ARCHITECTURE.md](DATAFLOW_ARCHITECTURE.md)：配置装配与 query/save 数据流。
+- [数据空间主合同](DATAFLOW_ARCHITECTURE.md)：数据空间语义唯一入口；覆盖模型/视图、两类持久来源、元数据设计、query/save、值级联和未完成项。
+- [数据空间实施台账](../../notes/data-space-retirement-ledger.md)：链路任务、依赖、当前断点和证据；属于执行记录，不替代主合同。
 - [PLATFORM_TENANT_ROUTING.md](PLATFORM_TENANT_ROUTING.md)：平台、应用、企业与路由边界。
 - [PERMISSION_SYSTEM.md](PERMISSION_SYSTEM.md)：原查询上下文中的权限消费。
 

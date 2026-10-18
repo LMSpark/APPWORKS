@@ -16,6 +16,8 @@ E/R/h/m 是后端返回的稀疏字段名单，各自只作用于命中的字段
 | `c` | 树形自引用模型中，当前行能否作为新增记录的父行 |
 | `allowAdd` | 模型新增动作许可，不代表新增草稿所有字段可写 |
 
+公开 `DataRow.lingma_sys_params` 的形状由 spark-data 的 `DataPermissionSets` 定义，查询解析层复用它。`r` 可省略（后端默认可编辑分支不返回），`c` 可省略（仅自引用模型返回）；两者缺省均不补授必填或新增子项能力。`e/h/m` 是字段名单，`d/c` 是布尔值，不能将这六项都称作字段集合。原始响应允许携带这些系统字段，不代表 DataView 的公开业务行仍携带它们。
+
 读取结合实际返回值与 h/m；最终载荷同时包含 h/m 时前端投影为不可见。写入与读状态独立，h/m 不撤销 E。R 不是可读名单，不能据此把正常字段设为只读。
 
 本仓 `DataSpaceRowPermission.fieldAccess` 按 E 判定 write，按 `E && R` 判定 required；参考 sparkproject `DataRowAuth.fieldAccess` 按 `R || E` 判定 write，按 R 判定 required。对于后端正常的 `R ⊆ E` 输出两者等价；不能将参考实现描述成只有 E 命中，也不能自行补齐异常载荷。缺权限载荷时遵循具体查询入口的 missingAuthPolicy；本仓当前模型查询默认 `allow`。缺少原查询上下文、未返回行、空或重复主键，不适用该缺载荷策略，不能借此补权。
@@ -50,11 +52,11 @@ LowcodeDataSpaceAssembler：正式模型 + ScenarioViewFile
 
 `SUBTREE_FIELD_POLICY=unrestricted` 仅供筛选等明确的本地输入子树，使用独立模型，不修改业务 DataView 的授权。按钮与字段随查询状态、行和选择变化更新。行消息及同步 `onBeforeRender` 钩子也消费 DataView，不转发第二份权限对象；钩子控制展示，不能授权。
 
-脚本通过 `$page.getDataSet(scenarioId)` 或 `$page.resolveView('#scenarioId@table@view')` 获取明确场景，再调用 DataView.fieldAccess(row, field) 和动作状态方法。仅明确 mainScenarioId 的调用允许局部 `table@view`。脚本没有旧 `$dataSet` 注入或 permission 转发命名空间，权限随当前调用的原查询上下文消费。
+脚本通过 `$page.getDataSet(scenarioId)` 或 `$page.resolveView('scenarioId@modelName@viewId')` 获取明确场景及模型视图，再调用 DataView.fieldAccess(row, field) 和动作状态方法。正式模型名称取 modelBinding.modelName，本地模型取自身 tableName；仅明确 mainScenarioId 的调用允许局部 `modelName@viewId`。脚本没有旧 `$dataSet` 注入或 permission 转发命名空间，权限随当前调用的原查询上下文消费。
 
 ## 保存与后端强验证
 
-DataView.saveChanges 和 DataSet 的统一保存入口使用原查询 owner。同一批次要求同场景、同 owner、模型不重复；DataSpaceRuntimeApi 按执行域/场景/模型核验上下文归属，串行化同模型读写。请求为实际 `/api/DataOperation/BatchTableOperateRequestByCRUD`，场景身份通过 x-FormKey；不是旧 prepareMutation 准备命令。
+DataView.saveChanges 和 DataSet 的统一保存入口使用原查询 owner。一次提交先核同场景运行实例、原查询字段和记录身份，再按 owner 分组；每个批次由自己的 owner 核验、提交并接纳回执，同一记录不能从多个视图重复提交。不同来源不共享权限或事务，后组失败不撤销前组已确认结果。DataSpaceRuntimeApi 继续按执行域/场景/模型核验上下文归属，串行化同模型读写。请求为实际 `/api/DataOperation/BatchTableOperateRequestByCRUD`，场景身份通过 x-FormKey；不是旧 prepareMutation 准备命令。
 
 更新与私有原行基线比较，仅封包真实差异；删除定位唯一原行。业务候选值不按前端 E/R 名单静默裁剪，正式模型负责字段身份与可提交输出校验，计算字段不能作为业务写入。调用方的系统字段及 `_pk` 被剥离，修改/删除回放对应原行 token，普通新增和树根新增使用原查询表级 token，树子新增回放唯一原父行 token。前端不解码 token 建立另一套授权。
 

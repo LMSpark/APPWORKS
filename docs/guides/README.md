@@ -1,6 +1,6 @@
 # 使用指南
 
-这个目录只保留当前还能直接执行或直接指导开发的指南。历史计划、重复说明和过期专题已删除。
+本目录维护操作指南。数据空间概念与跨包边界统一见[数据空间主合同](../architecture/DATAFLOW_ARCHITECTURE.md)，指南不另建一套模型、权限或保存规则。
 
 ## 推荐顺序
 
@@ -11,6 +11,7 @@
 
 ## 专题指南
 
+- [resource-topic-template.md](resource-topic-template.md)：按原理、方案设计、数据维护组织资源专题，含可直接填写的交付表及字典样板。
 - [TREE_CAPABILITY.md](TREE_CAPABILITY.md)：树形场景、treeMode 和节点权限。
 - [CONDITION_EXPRESSION.md](CONDITION_EXPRESSION.md)：过滤表达式与计算表达式。
 - [SAVE_DATASET_ACTION.md](SAVE_DATASET_ACTION.md)：声明式保存动作。

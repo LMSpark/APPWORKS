@@ -2,7 +2,7 @@
 
 # Rokid AIUI 设备通道实施台账
 
-独立于 `notes/plan-data-space-metadata-dataset.md`（E62），未改动数据空间主链、spark-data、pageDesign 或 Java。
+独立于 `notes/data-space-retirement-ledger.md`（E62），未改动数据空间主链、spark-data、pageDesign 或 Java。
 
 ## 用户裁定（2026-10-17，"全部按推荐"）
 - 无 Rokid 账号时先按公开文档编写侧车，mock fetch 测试，明确标注未经真实服务验证。

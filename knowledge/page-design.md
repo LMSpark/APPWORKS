@@ -1,18 +1,18 @@
 # 页面设计
 
-> 本文件是 AI 编码知识，不替代源码合同。2026-10 场景整合已更新下列旧四文件及继承入口规则；历史发现来源保留，当前入口以 PageTool、ProjectWorkspace、ScenarioViewFile、PageRuntime 为准。
+> 本文件是 AI 编码知识，不替代源码合同。工具三文件使用PageTool；数据空间定义与运行数据使用DataSet/DataView，场景文件owner只在资源适配内部保存。当前事实与差距以[数据链路合同](../docs/architecture/DATAFLOW_ARCHITECTURE.md)为准。
 
 ### 工具三文件与场景配置分别编辑
 
 - **场景**：AI 修改规则、脚本、样式或场景视图。
-- **规则**：pageDesign 的 this 是本次请求的 ProjectWorkspace；`this.project.openPageDesign(pageId)` 返回 PageTool。工具文件仅 rule.json、script.js、style.css，通过 `setFileText` 或 `editNodeTree` 编辑。场景配置通过显式 `loadScenarioViews({scenarioId})` 返回 ScenarioViewFile，再用 `setText` 编辑经 ScenarioViewConfig 校验的内容；不能把场景配置塞回工具文件或修改正式物理模型定义。
+- **规则**：工具文件仅rule.json、script.js、style.css，使用本次请求的PageTool编辑。数据空间定义必须明确目标scenarioId，通过正式元数据DataView编辑、取消，由DataSet提交；ScenarioViewConfig负责配置校验。现行AI pageDesign仍直接编辑ScenarioViewFile，这是待迁移差距，不作为新代码模板；不能把场景配置塞回工具文件或修改正式物理模型定义。
 - **违反后果**：混用工具和场景身份会覆盖共享场景或回生第二套数据定义。
 - **发现来源**：原页面内存编辑记录；2026-10 按当前 PageTool/ScenarioViewFile 合同替换旧入口。
 
-### 保存由工作区编排，回执才是持久化事实
+### 数据保存统一入口，回执才是持久化事实
 
 - **场景**：编辑后需要确认文件已经保存。
-- **规则**：ProjectWorkspace 的页面与场景保存分别执行实际 IO，保留原文、冲突检查和字节回读。只有实际确认回执可以说明持久化成功；多个文件部分成功时保留逐文件已写/已确认事实，不宣称整批回滚，也不清掉等待期间的新编辑。
+- **规则**：数据空间定义通过DataSet/DataView保存；数据库和文件分别由资源适配确认真实回执。ProjectWorkspace/ScenarioViewFile只在场景文件适配内部承担原文、冲突检查和字节回读。工具三文件由PageTool管理。只有实际确认回执可以说明持久化成功；部分成功保留分项已写/已确认事实，不宣称整批回滚，也不清掉等待期间的新编辑。
 - **违反后果**：把内存修改或上传候选当保存结果，会在刷新后丢失改动或错误报告交付。
 
 ### requestId 隔离每次 AI 运行
@@ -38,7 +38,7 @@
 ### 场景、稳定表名与正式模型分别定位
 
 - **场景**：编辑多视图配置、关系或组件绑定。
-- **规则**：后端正式模型提供字段和查询身份；单场景 SysForm/<scenarioId>/pagedata.json 通过 modelBinding 引用模型并配置稳定 tableName、多 DataView 和 viewCascades。完整绑定为 #scenarioId@tableName@viewId；局部 table@view 只由明确 mainScenarioId 补全，不自动选第一个场景。应用/租户留在请求scope和后端可信目录，不进入业务 JSON。
+- **规则**：后端正式模型提供字段和查询身份；单场景 SysForm/<scenarioId>/pagedata.json 通过 modelBinding 引用模型并配置稳定 tableName、多 DataView 和 viewCascades。页面完整绑定为 scenarioId@modelName@viewId：正式模型名称取 modelBinding.modelName，本地模型取自身 tableName，重名拒绝；局部 modelName@viewId 只由明确 mainScenarioId 补全，不自动选第一个场景。应用/租户留在请求scope和后端可信目录，不进入业务 JSON。
 - **违反后果**：强制表名等于模型ID、推断场景或在配置重定义字段，会导致双真源及跨场景串用。
 - **发现来源**：DataSet 整合 SPARK 数据空间语义审核及当前运行装配合同。
 

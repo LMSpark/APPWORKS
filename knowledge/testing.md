@@ -30,6 +30,13 @@
 - **规则**：用 `pnpm --filter @spark-appworks/<pkg> run test` 或 `test:run` 跑单包测试。全量测试用 `pnpm run test:all`。
 - **违反后果**：每次改一行跑全量测试 → 反馈周期长，效率低
 
+### 定向路径仍受 Vitest include 约束
+
+- **场景**：指定 `packages/spark-lowcode-api/src/platform/permission/permission-api.test.ts`，根 Vitest 报 `No test files found`。
+- **规则**：命令行文件路径不会绕过配置中的 include。根配置不收集该 platform 目录；定向用 `pnpm --filter @spark-appworks/spark-lowcode-api exec vitest run src/platform/permission/permission-api.test.ts`，包级回归用该包的 `test:run`。先核实际 Vitest 配置，再区分测试未收集与行为失败。
+- **违反后果**：没有执行目标测试却把退出码 1 当作产品 RED，或者根测试通过就误认为包含该包全部用例。
+- **发现来源**：2026-10-09 授权配置 SSOT 清理，用户确认沉淀。
+
 ### ClassModel 相关测试的生成步骤
 
 - **场景**：修改了模型 class 后跑 `verify:class-model` 失败

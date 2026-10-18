@@ -13,7 +13,7 @@ import type {
   DataViewFilterValueOption,
 } from './data-view-filter-contract'
 
-/** SPARK 公开过滤运算符的唯一目录；wire 名称由 API 边界负责。 */
+/** SPARK公开过滤运算符的唯一目录；存储名称由同包DataViewFilterCodec转换。 */
 export const DATA_VIEW_FILTER_OPERATORS = [
   'eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'is-null', 'is-not-null',
   'contains', 'not-contains', 'starts-with', 'not-starts-with',
@@ -58,8 +58,18 @@ const groupValueTypes: readonly DataViewFilterValueOption[] = [
   { label: '平均数', value: 'AVERAGE' },
   { label: '总量', value: 'SUM' },
   { label: '总数据条数', value: 'COUNT' },
-  { label: '字符串拼接', value: 'JOINSTR' },
 ]
+
+/** 聚合属于输出字段值函数；旧引用分组不是当前GetGroupData的跨表执行合同。 */
+function validateAggregateFunction(value: DataViewFilterValueFunction): string | null {
+  if (Object.hasOwn(value, 'GroupTableName') || Object.hasOwn(value, 'GroupField')) {
+    return '旧引用分组的GroupTableName/GroupField没有当前后端执行合同；原文保留，请明确迁移后再确认'
+  }
+  const allowed = value.Type === 'GetGroupData' ? ['Type', 'ValType', 'Field'] : ['Type', 'Field']
+  if (Object.keys(value).some(key => !allowed.includes(key))) return '聚合值函数含未承接的属性；原文保留，请检查后端合同'
+  if (value['Field'] !== undefined && (typeof value['Field'] !== 'string' || !value['Field'].trim())) return '聚合Field必须是非空字段名'
+  return null
+}
 
 function tableOptions(context: DataViewFilterFunctionContext): readonly DataViewFilterValueOption[] {
   return (context.tables ?? []).map(table => ({ label: table.label ?? table.name, value: table.name }))
@@ -79,13 +89,14 @@ const functionDefinitions: readonly DataViewFilterFunctionDefinition[] = [
     ],
   },
   {
-    type: 'GetGroupData', label: '引用分组', fields: [
-      { key: 'GroupTableName', label: '引用表', control: 'select', required: true, options: (_value, context) => tableOptions(context) },
-      { key: 'GroupField', label: '分组字段', control: 'select', required: true, options: (value, context) => tableFieldOptions(value, context, 'GroupTableName') },
-      { key: 'Field', label: '函数字段', control: 'select', required: true, options: (value, context) => tableFieldOptions(value, context, 'GroupTableName') },
+    type: 'GetGroupData', label: '聚合', validate: validateAggregateFunction, fields: [
       { key: 'ValType', label: '聚合方式', control: 'select', required: true, options: (_value, context) => context.groupValueTypes ?? groupValueTypes },
     ],
   },
+  ...[
+    {type: 'Sum', label: '求和'}, {type: 'Count', label: '计数'}, {type: 'Avg', label: '平均值'},
+    {type: 'Min', label: '最小值'}, {type: 'Max', label: '最大值'},
+  ].map(item => ({...item, fields: [], validate: validateAggregateFunction})),
   {
     type: 'SystemData', label: '系统数据', fields: [
       { key: 'ParamName', label: '系统参数', control: 'select', required: true, options: (_value, context) => context.systemParams ?? systemParams },
@@ -138,14 +149,14 @@ const functionDefinitions: readonly DataViewFilterFunctionDefinition[] = [
   },
   {
     type: 'GetUserMasterId', label: '获取用户宿主', fields: [
-      { key: 'refType', label: '类型', control: 'select', required: true, options: [{ label: '角色分类', value: 'role' }, { label: '部门级别', value: 'dep' }] },
-      { key: 'roleClassId', label: '角色分类', control: 'select', required: true, options: (_value, context) => context.roleClassItems ?? [], visible: value => value['refType'] === 'role' },
+      { key: 'refType', label: '类型', control: 'select', required: true, options: [{ label: '部门级别', value: 'dep' }] },
       { key: 'depLevel', label: '部门级别', control: 'select', required: true, visible: value => value['refType'] === 'dep', options: [
         { label: '顶级部门', value: '0' }, { label: '一级部门', value: '1' }, { label: '二级部门', value: '2' }, { label: '三级部门', value: '3' },
         { label: '四级部门', value: '4' }, { label: '五级部门', value: '5' }, { label: '六级部门', value: '6' }, { label: '七级部门', value: '7' },
       ] },
       { key: 'getChildDep', label: '包含子部门', control: 'checkbox', visible: value => value['refType'] === 'dep' },
     ],
+    validate: value => value['refType'] === 'dep' ? null : '该存量值属于已停用的角色分类分支，不能通过部门过滤编辑器应用',
   },
   {
     type: 'GetFlowNodeStepUserId', label: '指定流程节点人员（当前步骤相关）', fields: [

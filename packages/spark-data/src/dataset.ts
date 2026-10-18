@@ -41,6 +41,7 @@ import { assertNoSeparator } from './core/utils'
 import { DataViewCascadeValueBinding } from './strategies/cascade/cascade-value-binding'
 import { ResourceRelationDefinition } from './resource-relation/resource-relation-definition'
 import { DataViewFieldCascadeDefinition } from './strategies/cascade/field-cascade-definition'
+import { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
 import { DataViewFieldCascadeRuntime } from './strategies/cascade/field-cascade-runtime'
 
 /** @internal 从未知值推断列类型 */
@@ -252,7 +253,7 @@ function isDataViewQueryCascade(value: unknown): value is DataViewQueryCascade {
     && typeof record['childTable'] === 'string'
     && typeof record['childViewId'] === 'string'
     && Array.isArray(record['filterBindings'])
-    && record['filterBindings'].length > 0
+    && (record['filterBindings'].length > 0 || Array.isArray(record['inputBindings']))
     && record['filterBindings'].every((binding) => {
       const bindingRecord = asRecord(binding)
       return bindingRecord !== null
@@ -274,6 +275,7 @@ function readViewCascades(value: unknown): DataViewCascade[] | undefined {
     throw new Error('DataSet.fromJson: viewCascades 必须是 DataViewCascade 数组')
   })
   DataViewFieldCascadeDefinition.validateAll(cascades)
+  DataViewQueryCascadeInputs.validateAll(cascades)
   return cascades
 }
 
@@ -300,14 +302,21 @@ function readSaveChangesConfig(value: unknown): DataSetSaveChangesConfig | undef
 function isDataSetLayout(value: unknown): value is DataSetMetadata['layout'] {
   const record = asRecord(value)
   if (record === null) return false
-  const tablePositions = record['tablePositions']
-  if (tablePositions === undefined) return true
-  if (!isRecord(tablePositions)) return false
-  return Object.values(tablePositions).every((item) => {
-    const position = asRecord(item)
-    return position !== null
-      && typeof position['x'] === 'number'
-      && typeof position['y'] === 'number'
+  const edges = record['unboundEdges']
+  if (edges !== undefined && (!isRecord(edges) || !Object.entries(edges).every(([id, edge]) => id.trim() === id && !!id
+    && isRecord(edge) && Object.keys(edge).every(key => ['source', 'target'].includes(key))
+    && ['source', 'target'].every(key => typeof edge[key] === 'string' && !!edge[key] && edge[key].trim() === edge[key])))) return false
+  return ['tablePositions', 'modelPositions', 'unboundNodes'].every(key => {
+    const positions = record[key]
+    if (positions === undefined) return true
+    if (!isRecord(positions)) return false
+    return Object.entries(positions).every(([id, item]) => {
+      const position = asRecord(item)
+      return position !== null && typeof position['x'] === 'number' && typeof position['y'] === 'number'
+        && (key === 'tablePositions' || id.trim() === id && !!id && Number.isFinite(position['x']) && Number.isFinite(position['y']))
+        && (key !== 'unboundNodes' || typeof position['label'] === 'string' && !!position['label'].trim()
+          && Object.keys(position).every(field => ['label', 'x', 'y'].includes(field)))
+    })
   })
 }
 
@@ -394,13 +403,13 @@ export class DataSet extends SparkAIModel implements DataSetContract {
   /** DataView 输入级联定义 */
   viewCascades: DataViewCascade[] | undefined
 
-  /** Schema 格式版本（默认 1） */
+  /** Schema 格式版本（默认 2），与数据集快照版本分别维护。 */
   schemaVersion = 2
 
   /** SPARK 场景身份只读；变更时重新装配运行 DataSet。本地数据集为 undefined。 */
   readonly scenarioId: string | undefined
 
-  /** 业务数据版本号（乐观锁） */
+  /** 数据集快照版本；commitSnapshot/restoreSnapshot 维护，不是后端数据写入的乐观锁。 */
   version: number | undefined
 
   /** 页面ID */
@@ -448,7 +457,7 @@ export class DataSet extends SparkAIModel implements DataSetContract {
    */
   _activeViewSubs: Array<{
     handlers: ViewChangeHandlers
-    unsubs: Array<() => void>
+    unsubs: Map<DataView, Array<() => void>>
   }> = []
 
   /**
@@ -458,7 +467,7 @@ export class DataSet extends SparkAIModel implements DataSetContract {
   _activeOnSubs: Array<{
     event: 'loadSuccess' | 'loadError'
     handler: (payload: { tableName: string; viewId: string; error?: Error }) => void
-    unsubs: Array<() => void>
+    unsubs: Map<DataView, Array<() => void>>
   }> = []
 
 
@@ -568,7 +577,7 @@ getRequestTemplateParams(): Record<string, unknown> {
     event: 'loadSuccess' | 'loadError',
     handler: (payload: { tableName: string; viewId: string; error?: Error }) => void
   ): () => void {
-    const entry: (typeof this._activeOnSubs)[number] = { event, handler, unsubs: [] }
+    const entry: (typeof this._activeOnSubs)[number] = { event, handler, unsubs: new Map() }
     this._activeOnSubs.push(entry)
 
     // 订阅当前已存在的所有视图
@@ -577,8 +586,8 @@ getRequestTemplateParams(): Record<string, unknown> {
     }
 
     return () => {
-      for (const u of entry.unsubs) u()
-      entry.unsubs.length = 0
+      for (const callbacks of entry.unsubs.values()) for (const unsubscribe of callbacks) unsubscribe()
+      entry.unsubs.clear()
       const idx = this._activeOnSubs.indexOf(entry)
       if (idx >= 0) this._activeOnSubs.splice(idx, 1)
     }
@@ -601,7 +610,7 @@ getRequestTemplateParams(): Record<string, unknown> {
    * ```
    */
   onAnyViewChange(handlers: ViewChangeHandlers): () => void {
-    const entry: (typeof this._activeViewSubs)[number] = { handlers, unsubs: [] }
+    const entry: (typeof this._activeViewSubs)[number] = { handlers, unsubs: new Map() }
     this._activeViewSubs.push(entry)
 
     // 订阅当前已存在的所有视图
@@ -610,8 +619,8 @@ getRequestTemplateParams(): Record<string, unknown> {
     }
 
     return () => {
-      for (const u of entry.unsubs) u()
-      entry.unsubs.length = 0
+      for (const callbacks of entry.unsubs.values()) for (const unsubscribe of callbacks) unsubscribe()
+      entry.unsubs.clear()
       const idx = this._activeViewSubs.indexOf(entry)
       if (idx >= 0) this._activeViewSubs.splice(idx, 1)
     }
@@ -624,6 +633,9 @@ getRequestTemplateParams(): Record<string, unknown> {
     entry: (typeof this._activeViewSubs)[number],
     view: DataView,
   ): void {
+    if (view.isDestroyed() || entry.unsubs.has(view)) return
+    const unsubs: Array<() => void> = []
+    entry.unsubs.set(view, unsubs)
     const tn = view.tableName
     const vid = view.viewId
     const h = entry.handlers
@@ -631,62 +643,67 @@ getRequestTemplateParams(): Record<string, unknown> {
     if (h.currentRowChanged !== undefined) {
       const fn = (currentRow: DataRow | null, originatorId?: string) => h.currentRowChanged?.(tn, vid, currentRow, originatorId)
       view.events.on('currentRowChanged', fn)
-      entry.unsubs.push(() => view.events.off('currentRowChanged', fn))
+      unsubs.push(() => view.events.off('currentRowChanged', fn))
     }
     if (h.selectedRowsChanged !== undefined) {
       const fn = (selectedRows: DataRow[], originatorId?: string) => h.selectedRowsChanged?.(tn, vid, selectedRows, originatorId)
       view.events.on('selectedRowsChanged', fn)
-      entry.unsubs.push(() => view.events.off('selectedRowsChanged', fn))
+      unsubs.push(() => view.events.off('selectedRowsChanged', fn))
     }
     if (h.rowsChanged !== undefined) {
       const fn = () => h.rowsChanged?.(tn, vid)
       view.events.on('rowsChanged', fn)
-      entry.unsubs.push(() => view.events.off('rowsChanged', fn))
+      unsubs.push(() => view.events.off('rowsChanged', fn))
     }
     if (h.editingFieldChanged !== undefined) {
       const fn = (event: Parameters<NonNullable<ViewChangeHandlers['editingFieldChanged']>>[2]) => h.editingFieldChanged?.(tn, vid, event)
       view.events.on('editingFieldChanged', fn)
-      entry.unsubs.push(() => view.events.off('editingFieldChanged', fn))
+      unsubs.push(() => view.events.off('editingFieldChanged', fn))
     }
     if (h.editingChanged !== undefined) {
       const fn = () => h.editingChanged?.(tn, vid)
       view.events.on('editingChanged', fn)
-      entry.unsubs.push(() => view.events.off('editingChanged', fn))
+      unsubs.push(() => view.events.off('editingChanged', fn))
     }
     if (h.editingDiscarded !== undefined) {
       const fn = (ids: ReadonlyArray<string | number> | undefined) => h.editingDiscarded?.(tn, vid, ids)
       view.events.on('editingDiscarded', fn)
-      entry.unsubs.push(() => view.events.off('editingDiscarded', fn))
+      unsubs.push(() => view.events.off('editingDiscarded', fn))
     }
     if (h.cleared !== undefined) {
       const fn = () => h.cleared?.(tn, vid)
       view.events.on('cleared', fn)
-      entry.unsubs.push(() => view.events.off('cleared', fn))
+      unsubs.push(() => view.events.off('cleared', fn))
     }
     if (h.configChanged !== undefined) {
       const fn = () => h.configChanged?.(tn, vid)
       view.events.on('configChanged', fn)
-      entry.unsubs.push(() => view.events.off('configChanged', fn))
+      unsubs.push(() => view.events.off('configChanged', fn))
     }
     if (h.requestStateChanged !== undefined) {
       const fn = (requestState: RequestState) => h.requestStateChanged?.(tn, vid, requestState)
       view.events.on('requestStateChanged', fn)
-      entry.unsubs.push(() => view.events.off('requestStateChanged', fn))
+      unsubs.push(() => view.events.off('requestStateChanged', fn))
+    }
+    if (h.requestCompleted !== undefined) {
+      const fn = () => h.requestCompleted?.(tn, vid)
+      view.events.on('requestCompleted', fn)
+      unsubs.push(() => view.events.off('requestCompleted', fn))
     }
     if (h.mutatingChanged !== undefined) {
       const fn = (mutating: boolean) => h.mutatingChanged?.(tn, vid, mutating)
       view.events.on('mutatingChanged', fn)
-      entry.unsubs.push(() => view.events.off('mutatingChanged', fn))
+      unsubs.push(() => view.events.off('mutatingChanged', fn))
     }
     if (h.summaryChanged !== undefined) {
       const fn = () => h.summaryChanged?.(tn, vid)
       view.events.on('summaryChanged', fn)
-      entry.unsubs.push(() => view.events.off('summaryChanged', fn))
+      unsubs.push(() => view.events.off('summaryChanged', fn))
     }
     if (h.selectionSummaryChanged !== undefined) {
       const fn = () => h.selectionSummaryChanged?.(tn, vid)
       view.events.on('selectionSummaryChanged', fn)
-      entry.unsubs.push(() => view.events.off('selectionSummaryChanged', fn))
+      unsubs.push(() => view.events.off('selectionSummaryChanged', fn))
     }
   }
 
@@ -695,6 +712,9 @@ getRequestTemplateParams(): Record<string, unknown> {
     entry: (typeof this._activeOnSubs)[number],
     view: DataView,
   ): void {
+    if (view.isDestroyed() || entry.unsubs.has(view)) return
+    const unsubs: Array<() => void> = []
+    entry.unsubs.set(view, unsubs)
     const h = (requestState: RequestState) => {
       if (entry.event === 'loadSuccess' && requestState === RequestState.Loaded) {
         entry.handler({ tableName: view.tableName, viewId: view.viewId })
@@ -705,7 +725,7 @@ getRequestTemplateParams(): Record<string, unknown> {
       }
     }
     view.events.on('requestStateChanged', h)
-    entry.unsubs.push(() => view.events.off('requestStateChanged', h))
+    unsubs.push(() => view.events.off('requestStateChanged', h))
   }
 
   /**
@@ -722,19 +742,29 @@ getRequestTemplateParams(): Record<string, unknown> {
     }
   }
 
-  /** @internal 在结构变化后重绑所有活跃订阅，避免悬空闭包持有已删除视图。 */
+  /** @internal 视图销毁时立即释放其订阅闭包，保留其他视图的原订阅。 */
+  _unsubscribeView(view: DataView): void {
+    for (const entry of [...this._activeViewSubs, ...this._activeOnSubs]) {
+      const callbacks = entry.unsubs.get(view)
+      if (!callbacks) continue
+      entry.unsubs.delete(view)
+      for (const unsubscribe of callbacks) unsubscribe()
+    }
+  }
+
+  /** @internal 整体替换定义后，为新结构重绑活跃订阅。 */
   private _rebindActiveSubscriptions(): void {
     for (const entry of this._activeViewSubs) {
-      for (const u of entry.unsubs) u()
-      entry.unsubs.length = 0
+      for (const callbacks of entry.unsubs.values()) for (const unsubscribe of callbacks) unsubscribe()
+      entry.unsubs.clear()
       for (const table of Object.values(this.tables)) {
         table.forEachView(view => this._subscribeViewChange(entry, view))
       }
     }
 
     for (const entry of this._activeOnSubs) {
-      for (const u of entry.unsubs) u()
-      entry.unsubs.length = 0
+      for (const callbacks of entry.unsubs.values()) for (const unsubscribe of callbacks) unsubscribe()
+      entry.unsubs.clear()
       for (const table of Object.values(this.tables)) {
         table.forEachView(view => this._subscribeOnView(entry, view))
       }
@@ -783,6 +813,8 @@ getRequestTemplateParams(): Record<string, unknown> {
 
   /** 将 DataView 输入级联解析为目标视图过滤表达式。 */
   resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null {
+    if (!DataViewQueryCascadeInputs.enabled(this, rel)) return null
+    if (rel.filterBindings.length === 0) return undefined
     const values = DataViewCascadeValueBinding.inputs(this, rel.filterBindings.map(binding => ({
       tableName: rel.parentTable, viewId: rel.parentViewId,
       ...(binding.sourceField === undefined ? {} : {field: binding.sourceField}),
@@ -791,13 +823,18 @@ getRequestTemplateParams(): Record<string, unknown> {
     const filters: DataViewFilterTree[] = []
     for (const [index, binding] of rel.filterBindings.entries()) {
       const value = values[index]
-      filters.push(Array.isArray(value)
+      if (binding.omitEmpty && (value === '' || value === null)) continue
+      const operator = binding.operator ?? (Array.isArray(value) ? 'in' : 'eq')
+      if (operator === 'contains' && typeof value !== 'string') throw new Error('QUERY_CASCADE_INPUT: contains需要文本值')
+      if (operator === 'in' && !Array.isArray(value)) throw new Error('QUERY_CASCADE_INPUT: in需要数组值')
+      filters.push(operator === 'in' && Array.isArray(value)
         ? DataViewFilter.condition({field: binding.targetField, operator: 'in',
           value: value.map((item: unknown) => toFilterScalar(item, binding.targetField))}).toJSON()
-        : DataViewFilter.condition({field: binding.targetField, operator: 'eq',
+        : DataViewFilter.condition({field: binding.targetField, operator,
           value: toFilterScalar(value, binding.targetField)}).toJSON())
     }
 
+    if (filters.length === 0) return undefined
     if (filters.length === 1) return filters[0]
     return DataViewFilter.group({ logic: 'and', filters }).toJSON()
   }
@@ -850,6 +887,8 @@ getRequestTemplateParams(): Record<string, unknown> {
 
   /** @internal 重建运行时关系图与索引，并通知各视图刷新级联订阅/聚合解析。 */
   private _rebuildDataLinks(): void {
+    DataViewQueryCascadeInputs.validateAll(this.viewCascades ?? [])
+    for (const cascade of this.viewCascades ?? []) if (cascade.kind !== 'field' && cascade.inputBindings) this._assertCascadeShape(cascade)
     const fields = DataViewFieldCascadeDefinition.validateAll(this.viewCascades ?? [])
     DataViewFieldCascadeDefinition.validateRuntime(fields, this)
     for (const unsubscribe of this._fieldCascadeListeners.values()) unsubscribe()
@@ -1022,7 +1061,6 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     table.dataSet = undefined
     const { [tableName]: _removed, ...rest } = this.tables
     this.tables = rest
-    this._rebindActiveSubscriptions()
   }
 
   private _relationReferencesTable(relation: DataResourceRelation, tableName: string): boolean {
@@ -1179,7 +1217,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
   private _assertCascadeShape(cascade: DataViewQueryCascade): void {
     const input: unknown = cascade
     const allowed = ['kind', 'cascadeId', 'sourceRelationId', 'parentTable', 'parentViewId',
-      'childTable', 'childViewId', 'filterBindings', 'autoLoad']
+      'childTable', 'childViewId', 'filterBindings', 'inputBindings', 'when', 'autoLoad']
     if (!isRecord(input) || Object.keys(input).some(key => !allowed.includes(key))
       || (input['kind'] !== undefined && input['kind'] !== 'query')
       || [input['parentTable'], input['parentViewId'], input['childTable'], input['childViewId']]
@@ -1193,8 +1231,20 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     if (!parentView) throw new Error(`Parent view "${cascade.parentTable}:${cascade.parentViewId}" not found`)
     const childView = childTable.getView(cascade.childViewId)
     if (!childView) throw new Error(`Child view "${cascade.childTable}:${cascade.childViewId}" not found`)
-    if (cascade.filterBindings.length === 0) {
+    const inputBindings = DataViewQueryCascadeInputs.parse(cascade.inputBindings)
+    DataViewQueryCascadeInputs.parseFilters(cascade.filterBindings)
+    for (const condition of DataViewQueryCascadeInputs.parseWhen(cascade.when)) {
+      if (!parentView.columns.some(column => column.name === condition.field)) throw new Error(`QUERY_CASCADE_INPUT: Source field ${condition.field} not found`)
+    }
+    if (cascade.filterBindings.length === 0 && inputBindings.length === 0) {
       throw new Error(`Cascade ${cascade.parentTable}:${cascade.parentViewId}→${cascade.childTable}:${cascade.childViewId} requires filterBindings`)
+    }
+    for (const binding of inputBindings) {
+      for (const field of [binding.sourceField, binding.when?.field]) {
+        if (field !== undefined && !parentView.columns.some(column => column.name === field)) {
+          throw new Error(`QUERY_CASCADE_INPUT: Source field "${field}" not found in view "${cascade.parentTable}:${cascade.parentViewId}"`)
+        }
+      }
     }
     for (const binding of cascade.filterBindings) {
       if (binding.sourceField !== undefined && !parentView.columns.some(column => column.name === binding.sourceField)) {
@@ -1228,6 +1278,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
         && dep.childTable === cascade.childTable
         && dep.childViewId === cascade.childViewId
         && JSON.stringify(dep.filterBindings) === JSON.stringify(cascade.filterBindings)
+        && JSON.stringify(dep.inputBindings) === JSON.stringify(cascade.inputBindings)
     })
     if (dup) {
       throw new Error(`Cascade ${cascade.parentTable}:${cascade.parentViewId}→${cascade.childTable}:${cascade.childViewId} already exists`)
@@ -1235,6 +1286,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
 
     const next = deepClone(cascade)
     const candidates = [...(this.viewCascades ?? []), next]
+    DataViewQueryCascadeInputs.validateAll(candidates)
     const fields = DataViewFieldCascadeDefinition.validateAll(candidates)
     DataViewFieldCascadeDefinition.validateRuntime(fields, this)
     this.viewCascades = candidates
@@ -1268,12 +1320,14 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       if ((this.viewCascades ?? []).some((dep, index) => index !== idx && dep.kind !== 'field'
         && dep.parentTable === candidate.parentTable && dep.parentViewId === candidate.parentViewId
         && dep.childTable === candidate.childTable && dep.childViewId === candidate.childViewId
-        && JSON.stringify(dep.filterBindings) === JSON.stringify(candidate.filterBindings))) {
+        && JSON.stringify(dep.filterBindings) === JSON.stringify(candidate.filterBindings)
+        && JSON.stringify(dep.inputBindings) === JSON.stringify(candidate.inputBindings))) {
         throw new Error('Cascade already exists')
       }
       next = candidate
     }
     const candidates = (this.viewCascades ?? []).map((item, index) => index === idx ? next : item)
+    DataViewQueryCascadeInputs.validateAll(candidates)
     const fields = DataViewFieldCascadeDefinition.validateAll(candidates)
     DataViewFieldCascadeDefinition.validateRuntime(fields, this)
     this.viewCascades = candidates
@@ -1333,14 +1387,14 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
 
     // 1. 清理 DataSet 级别的事件订阅
     for (const entry of this._activeViewSubs) {
-      for (const u of entry.unsubs) u()
-      entry.unsubs.length = 0
+      for (const callbacks of entry.unsubs.values()) for (const unsubscribe of callbacks) unsubscribe()
+      entry.unsubs.clear()
     }
     this._activeViewSubs.length = 0
 
     for (const entry of this._activeOnSubs) {
-      for (const u of entry.unsubs) u()
-      entry.unsubs.length = 0
+      for (const callbacks of entry.unsubs.values()) for (const unsubscribe of callbacks) unsubscribe()
+      entry.unsubs.clear()
     }
     this._activeOnSubs.length = 0
 
@@ -1385,16 +1439,22 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * 保存 DataSet 范围内的编辑态和 staged 变更。
    *
    * 默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。
-   * 场景视图通过同一查询 owner 一次保存；本地 CRUD 视图按资源关系顺序提交。
+   * 场景视图先捕获请求配置与变更，再按原查询 owner 串行分组保存；各来源独立确认，不提供跨来源事务。
+   * 中途抛错时已确认视图保留接纳结果，未确认视图保留变更，不返回汇总成功结果；本地 CRUD 视图按资源关系顺序提交。
+   * 来源明确持有未知提交时，本轮仅核验所选视图的原捕获，不应用新编辑或派发其他视图；剩余修改须随后显式保存。
    */
   async saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>> {
-    const targets = this.resolveSaveChangesTargets(options)
+    const requested = this.resolveSaveChangesTargets(options)
+    const recovering = requested.some(target => target.view.hasUnconfirmedSave)
+    const targets = recovering ? requested.filter(target => target.view.hasUnconfirmedSave) : requested
+    if (recovering) options = {...options, applyEditingRows: false}
     const mode = options?.mode ?? this.saveChangesConfig?.mode ?? 'perView'
     this.assertScenarioSaveTargets(targets, mode, options)
     if (this.scenarioId !== undefined) {
       for (const target of targets) {
         if (!hasPendingChanges(target.view, target.ids)
           && !((options?.applyEditingRows ?? true) && hasEditingChanges(target.view, target.ids))) continue
+        if (recovering) continue
         target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
           includeEditingRows: options?.applyEditingRows ?? true })
       }
@@ -1411,7 +1471,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       for (const target of targets) {
         const view = target.view
         const shouldApply = shouldApplyEditingRows && hasEditingChanges(view, target.ids)
-        const shouldSave = hasPendingChanges(view, target.ids)
+        const shouldSave = view.hasUnconfirmedSave || hasPendingChanges(view, target.ids)
         if (!shouldApply && !shouldSave) continue
 
         const viewResult: DataSetSaveChangesViewResult = {
@@ -1502,17 +1562,30 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     if (mode === 'transaction') {
       throw new Error('DATA_SET_SAVE_TRANSACTION_UNSUPPORTED: SPARK save 不提供事务保证')
     }
-    const modelIds = new Set<string>()
-    const modelNames = new Set<string>()
-    for (const { view } of active) {
+    const modelIds = new Map<string, DataTable>()
+    const modelNames = new Map<string, DataTable>()
+    const records = new Map<DataTable, Set<string>>()
+    for (const {view, ids} of active) {
       if (view.dataSet !== this) throw new Error('DATA_SET_SAVE_IDENTITY: 保存视图不属于当前场景运行实例')
-      const binding = view.dataTable?.modelBinding
-      if (!binding) throw new Error(`DATA_SET_SAVE_IDENTITY: ${view.tableName}@${view.viewId} 缺少正式模型绑定`)
-      if (modelIds.has(binding.modelId) || modelNames.has(binding.modelName)) {
-        throw new Error(`DATA_SET_SAVE_MODEL_CONFLICT: ${binding.modelName} 存在多个有变更视图，请明确选择一个视图`)
+      const table = view.dataTable, binding = table?.modelBinding
+      if (!table || (binding === undefined && (table.resourceType === undefined || table.resourceId === undefined || table.resourceId === ''))) {
+        throw new Error(`DATA_SET_SAVE_IDENTITY: ${view.tableName}@${view.viewId} 缺少正式模型或显式资源绑定`)
       }
-      modelIds.add(binding.modelId)
-      modelNames.add(binding.modelName)
+      const modelId = binding ? JSON.stringify(['model', binding.modelId]) : JSON.stringify(['resource', table.resourceType, table.resourceId])
+      const modelName = binding?.modelName ?? table.tableName
+      if ((modelIds.has(modelId) && modelIds.get(modelId) !== table)
+        || (modelNames.has(modelName) && modelNames.get(modelName) !== table)) {
+        throw new Error(`DATA_SET_SAVE_MODEL_CONFLICT: ${modelName} 对应不同 DataTable 身份`)
+      }
+      modelIds.set(modelId, table)
+      modelNames.set(modelName, table)
+      const previous = records.get(table) ?? new Set<string>()
+      const keys = view.getQuerySaveRowKeys({...(ids === undefined ? {} : {ids}), includeEditingRows: options?.applyEditingRows ?? true})
+      if (keys.some(key => key !== '' && previous.has(key))) {
+        throw new Error(`DATA_SET_SAVE_MODEL_CONFLICT: ${modelName} 的同一记录不能从多个视图一起保存`)
+      }
+      keys.forEach(key => previous.add(key))
+      records.set(table, previous)
     }
   }
 

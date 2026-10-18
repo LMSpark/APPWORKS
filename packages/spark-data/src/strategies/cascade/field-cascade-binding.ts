@@ -101,6 +101,7 @@ export class DataViewFieldCascadeBinding {
         && DataViewCascadeValueBinding.equal(valueFields, view.valueField ?? view.effectivePkFields[0])
         && view.selectionDelimiter === delimiter,
       evaluate: (current: unknown, rows: readonly DataRow[]) => {
+        if (current === undefined) return {status: 'empty' as const, retained: undefined, hasRetained: false}
         const nativeOptions = rows.map(row => typeof valueFields === 'string' ? row[valueFields] : DataViewSelectionValue.token(row, valueFields))
         let values: readonly unknown[]
         let retained: unknown

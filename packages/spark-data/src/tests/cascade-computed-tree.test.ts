@@ -119,7 +119,7 @@ describe('Cascade with computed parent field on tree data', () => {
 
     // Should NOT throw — missing computed field is handled gracefully
     const rel = ds.viewCascades?.[0]
-    if (!rel) throw new Error('Expected a DataView cascade')
+    if (!rel || rel.kind === 'field') throw new Error('Expected a query cascade')
     const filter = ds.resolveCascadeFilter(rel)
     // Returns null when computed field can't be resolved
     expect(filter).toBeNull()

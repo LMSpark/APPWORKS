@@ -7,8 +7,8 @@
 /**
  * AggregateDelegate — 视图级聚合委托
  *
- * 持有 aggregateResult（全部行聚合）和 selectionAggregateResult（选中行聚合）的缓存状态，
- * 并在行数据或选中行变更时完成重算与事件通知。
+ * 持有本地aggregateResult（已加载行聚合）和selectionAggregateResult（选中行聚合）的缓存状态，
+ * 并在行数据或选中行变更时完成重算与事件通知。DataView按查询owner的能力拦截禁止的远程旧配置；本委托不推断服务端统计。
  *
  * `computeAggregateRow` 纯函数也在此文件定义（原位于 computed-column-delegate.ts）。
  */

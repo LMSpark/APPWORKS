@@ -96,16 +96,22 @@ constructor(
    */
   applyAutoFirst(): void {
     const host = this.host
-    const prevHadCurrent = host._currentRowId !== null
-    const prevHadSelected = host._selectedRowIds.length > 0
+    const prevHadCurrent = host._currentRowId !== null || host._keylessCurrentRow !== null
+    const prevHadSelected = host._selectedRowIds.length > 0 || host._keylessSelectedRows.length > 0
     host._currentRowId = null
+    host._keylessCurrentRow = null
     host._selectedRowIds = []
+    host._keylessSelectedRows = []
 
     const firstRow = host.rows[0] ?? null
     const firstPk = firstRow !== null ? (host.getPkKey(firstRow) ?? null) : null
 
     // ── autoCurrentFirst ──
-    if (host.autoCurrentFirst !== false && firstPk !== null) {
+    if (host.autoCurrentFirst !== false && firstRow !== null && host.primaryKey === '') {
+      this._suppressSelectionSync = true
+      this.setCurrentRow(firstRow)
+      this._suppressSelectionSync = false
+    } else if (host.autoCurrentFirst !== false && firstPk !== null) {
       // 抑制单选同步，让 autoSelectFirst 独立控制
       this._suppressSelectionSync = true
       this._setCurrentId(firstPk)
@@ -115,7 +121,9 @@ constructor(
     }
 
     // ── autoSelectFirst ──
-    if (host.autoSelectFirst !== false && firstPk !== null) {
+    if (host.autoSelectFirst !== false && firstRow !== null && host.primaryKey === '') {
+      this.setSelectedRows([firstRow])
+    } else if (host.autoSelectFirst !== false && firstPk !== null) {
       this._setSelectedIds([firstPk])
     } else if (prevHadSelected) {
       this.emitSelectedRowsChanged()
@@ -134,7 +142,10 @@ constructor(
     const host = this.host
 
     // 幂等守卫
-    if (id === host._currentRowId) return
+    if (id === host._currentRowId) {
+      if (!this._suppressSelectionSync && !host.isMultiSelect) this._setSelectedIds(id !== null ? [id] : [], originatorId)
+      return
+    }
 
     host._currentRowId = id
     this.emitCurrentRowChanged(originatorId)
@@ -150,6 +161,10 @@ constructor(
   private _setSelectedIds(ids: Array<string | number>, originatorId?: string): void {
     const host = this.host
     const oldIds = host._selectedRowIds
+    if (host._keylessSelectedRows.length) {
+      host._keylessSelectedRows = []
+      this.emitSelectedRowsChanged(originatorId)
+    }
 
     // 幂等守卫：长度 + 集合比较（忽略顺序）
     if (oldIds.length === ids.length) {
@@ -169,10 +184,21 @@ constructor(
   /**
    * 设置当前行（通过行对象）
    *
-   * 内部提取 PK 后委托给 {@link _setCurrentId}。
-   * 外部 UI 层推荐使用 {@link setCurrentRowById}。
+   * 有主键时提取 PK；无主键时仅接受本次 rows 中的原始对象作为只读指针。
+   * 单选模式同步选择集合；无主键选择以显式valueField取值，跨查询不得复用，也不产生写入身份。
    */
   setCurrentRow(row: DataRow | null, originatorId?: string): void {
+    this.checkDestroyed()
+    const host = this.host
+    if (host.primaryKey === '') {
+      if (row !== null && !host.rows.includes(row)) return
+      if (host._keylessCurrentRow !== row) {
+        host._keylessCurrentRow = row
+        this.emitCurrentRowChanged(originatorId)
+      }
+      if (!this._suppressSelectionSync && !host.isMultiSelect) this.setSelectedRows(row ? [row] : [], originatorId)
+      return
+    }
     if (row === null) {
       this._setCurrentId(null, originatorId)
       return
@@ -192,9 +218,19 @@ constructor(
    * 外部 UI 层推荐使用 {@link setSelectedRowsById}。
    */
   setSelectedRows(rows: DataRow[], originatorId?: string): void {
+    this.checkDestroyed()
     const host = this.host
     if (!Array.isArray(rows)) {
       logger.warn('setSelectedRows 收到非数组参数', { rows, tableName: host.tableName, viewId: host.viewId })
+      return
+    }
+    if (host.primaryKey === '') {
+      if (rows.some(row => !host.rows.includes(row))) return
+      const next = [...new Set(rows)]
+      const old = host._keylessSelectedRows
+      if (old.length === next.length && next.every(row => old.includes(row))) return
+      host._keylessSelectedRows = next
+      this.emitSelectedRowsChanged(originatorId)
       return
     }
     const ids: Array<string | number> = []
@@ -218,7 +254,7 @@ constructor(
    */
   setCurrentRowById(id: string | number | null, originatorId?: string): boolean {
     if (id === null) {
-      this._setCurrentId(null, originatorId)
+      this.setCurrentRow(null, originatorId)
       return true
     }
     this.checkDestroyed()
@@ -326,6 +362,11 @@ constructor(
       return 0
     }
     if (rows.length === 0) return 0
+    if (host.primaryKey === '') {
+      const before = host.selectedRows.length
+      this.setSelectedRows([...host.selectedRows, ...rows])
+      return host.selectedRows.length - before
+    }
 
     const selectedSet = new Set(host._selectedRowIds)
     const toAddIds: Array<string | number> = []
@@ -352,6 +393,11 @@ constructor(
     if (!Array.isArray(rows)) {
       logger.warn('removeSelectedRows 收到非数组参数', { rows, tableName: host.tableName, viewId: host.viewId })
       return 0
+    }
+    if (host.primaryKey === '') {
+      const before = host.selectedRows.length
+      this.setSelectedRows(host.selectedRows.filter(row => !rows.includes(row)))
+      return before - host.selectedRows.length
     }
     if (rows.length === 0 || host._selectedRowIds.length === 0) return 0
 
@@ -456,6 +502,17 @@ constructor(
    */
   cleanupInvalidSelections(): boolean {
     const host = this.host
+    let keylessPruned = false
+    if (host._keylessSelectedRows.some(row => host.primaryKey !== '' || !host.rows.includes(row))) {
+      host._keylessSelectedRows = host.primaryKey === '' ? host.selectedRows : []
+      this.emitSelectedRowsChanged()
+      keylessPruned = true
+    }
+    if (host._keylessCurrentRow !== null && (host.primaryKey !== '' || !host.rows.includes(host._keylessCurrentRow))) {
+      host._keylessCurrentRow = null
+      this.emitCurrentRowChanged()
+      return true
+    }
     const rowPkSet = new Set(this.getIdToRowMap().keys())
     const { currentRowPruned, selectedRowsPruned } = pruneInvalidSelections(host, rowPkSet)
 
@@ -466,7 +523,7 @@ constructor(
       this.emitSelectedRowsChanged()
     }
 
-    return currentRowPruned || selectedRowsPruned
+    return currentRowPruned || selectedRowsPruned || keylessPruned
   }
 
   // ─────────────────────────────────────────────
@@ -481,6 +538,7 @@ constructor(
    */
   get value(): string {
     const host = this.host
+    if (host.primaryKey === '' && host.valueField !== undefined) this.getValues()
     if (host.valueField !== undefined) {
       const values: string[] = []
       for (const row of host.selectedRows) {
@@ -504,6 +562,18 @@ constructor(
     if (tokens.length === 0) { this.clearSelectedRows(); return }
 
     if (host.valueField !== undefined) {
+      if (host.primaryKey === '') {
+        const fields = host.valueField
+        const names = typeof fields === 'string' ? [fields] : fields
+        const rows = this.getAllRows().filter(row => names.every(field => host.fieldAccess(row, field).read === 'visible'))
+        const matched = tokens.flatMap(token => {
+          const candidates = rows.filter(row => DataViewSelectionValue.token(row, fields) === token)
+          if (candidates.length > 1) throw new Error('DATA_VIEW_VALUE_KEY: 选择值未唯一定位')
+          return candidates
+        })
+        this.setSelectedRows(matched)
+        return
+      }
       if (Array.isArray(host.valueField)) {
         const fields = host.valueField
         const tokenSet = new Set(tokens)
@@ -551,6 +621,11 @@ constructor(
    */
   get labels(): string[] {
     const host = this.host
+    if (host.primaryKey === '') return host.selectedRows.map(row => {
+      const field = host.labelField
+      if (field) return host.fieldAccess(row, field).read === 'visible' ? String(row[field] ?? '') : ''
+      return ''
+    })
     if (!host.labelField) {
       return host._selectedRowIds.map(id => String(id))
     }
@@ -571,11 +646,38 @@ constructor(
    */
   get label(): string | null {
     const host = this.host
+    if (host.primaryKey === '') {
+      const row = host.currentRow, field = host.labelField
+      return row && field && host.fieldAccess(row, field).read === 'visible' ? String(row[field] ?? '') : null
+    }
     if (host._currentRowId === null) return null
     if (!host.labelField) return String(host._currentRowId)
     const row = host.currentRow
     if (!row) return String(host._currentRowId)
     const v: unknown = row[host.labelField]
     return v !== undefined && v !== null ? String(v) : String(host._currentRowId)
+  }
+  /** 列表的原生值，不序列化字符串；无主键结果只使用显式值字段，不推断rowid或写入身份。 */
+  getValues(): Array<string | number | boolean> {
+    this.checkDestroyed()
+    const host = this.host
+    return host.selectedRows.map(row => {
+      const fields = host.primaryKey === '' ? host.valueField : host.effectivePkFields
+      if (fields === undefined) throw new Error('DATA_VIEW_VALUE_KEY: 无主键选择必须配置valueField')
+      const names = typeof fields === 'string' ? [fields] : fields
+      if (!names.length || names.some(field => host.fieldAccess(row, field).read !== 'visible')) {
+        throw new Error('DATA_VIEW_VALUE_READ: 选择值字段不可读')
+      }
+      if (host.primaryKey !== '') {
+        const key = host.getPkKey(row)
+        if (key === undefined) throw new Error('DATA_VIEW_VALUE_KEY: 选中值缺少主键')
+        return key
+      }
+      const value = typeof fields === 'string' ? row[fields] : DataViewSelectionValue.token(row, fields)
+      if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
+        throw new Error('DATA_VIEW_VALUE_KEY: 选择值必须是标量')
+      }
+      return value
+    })
   }
 }

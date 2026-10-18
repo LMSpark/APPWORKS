@@ -150,7 +150,11 @@ describe('DataSet Tree 4+7 interfaces', () => {
       expect(result.success).toBe(true)
       expect(get).toHaveBeenCalledOnce()
       expect(get.mock.calls[0]?.[0]).toBe(NAV_BASE)
-      expect(get.mock.calls[0]?.[1]).toEqual({ treeMode: 'nested' })
+      expect(get.mock.calls[0]?.[1]).toEqual({
+        treeMode: 'nested', page: 1, pageSize: 20, viewId: 'default',
+        viewConfig: {tableName: 'NavigationNodes', viewId: 'default', page: 1, pageSize: 20,
+          treeConfig: {idField: 'id', parentIdField: 'parentId', textField: 'name', treeMode: 'nested'}},
+      })
       expect(view!.rows[0]?.['id']).toBe(1)
     })
 

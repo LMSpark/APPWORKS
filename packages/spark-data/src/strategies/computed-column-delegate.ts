@@ -14,7 +14,9 @@ import { ResourceRelationDefinition } from '../resource-relation/resource-relati
 const logger = Logger('DataView:Computed')
 
 type ComputedEvaluation = { deny(): void; isDenied(): boolean;
-  values: Map<string, { success: boolean; value: unknown }> }
+  bound: boolean;
+  failAggregate(error: Error): void; aggregateError(): Error | undefined;
+  values: Map<string, { success: boolean; value: unknown; aggregateError?: Error }> }
 type CompiledColumn = (row: DataRow, evaluation?: ComputedEvaluation) => unknown
 type BoundReadRowOptions = Readonly<{ view: DataView; row: DataRow; evaluation: ComputedEvaluation; chain?: boolean }>
 
@@ -33,7 +35,11 @@ function createBoundReadRow(options: BoundReadRowOptions): DataRow {
       if (typeof key !== 'string') return undefined
       if (chain && evaluation.values.has(key)) {
         const computed = evaluation.values.get(key)
-        if (!computed?.success) { evaluation.deny(); throw new Error(`computed input denied: ${key}`) }
+        if (!computed?.success) {
+          if (computed?.aggregateError) evaluation.failAggregate(computed.aggregateError)
+          else evaluation.deny()
+          throw new Error(`computed input denied: ${key}`)
+        }
         return computed.value
       }
       const configuredChildRead = !chain && view.columns.some(column => column.name === key && Boolean(column.computeExpression))
@@ -56,6 +62,16 @@ function createBoundReadRow(options: BoundReadRowOptions): DataRow {
   })
 }
 
+/** 纯本地行保留原取值语义；仅传播已停止的远程聚合，防止下游公式将其转成默认0。 */
+function createLocalReadRow(row: DataRow, evaluation: ComputedEvaluation): DataRow {
+  return new Proxy(row, {get(target, key, receiver) {
+    const error = typeof key === 'string' ? evaluation.values.get(key)?.aggregateError : undefined
+    if (error) {evaluation.failAggregate(error); throw error}
+    const value: unknown = Reflect.get(target, key, receiver)
+    return value
+  }})
+}
+
 // ─────────────────────────────────────────────
 // 类型
 // ─────────────────────────────────────────────
@@ -75,7 +91,7 @@ class ComputedColumnAggregateResolver {
   constructor(
     relations: readonly DataResourceRelation[],
     private readonly dataSet: DataSet,
-    _defaultParentField: string,
+    private readonly parentView: DataView,
   ) {
     for (const relation of relations) {
       const relationsForChild = this.relMap.get(relation.childTable) ?? []
@@ -85,6 +101,11 @@ class ComputedColumnAggregateResolver {
   }
 
   resolveChildRows(childRef: string, parentRow: DataRow, evaluation?: ComputedEvaluation): DataRow[] {
+    if (!this.parentView.supportsLocalAggregates) {
+      const error = remoteAggregateError()
+      evaluation?.failAggregate(error)
+      throw error
+    }
     const relations = this.relMap.get(childRef)
     if (!relations || relations.length === 0) return []
     if (relations.length > 1) throw new Error(`子表 ${childRef} 存在多个模型关系，聚合引用无法隐式选择`)
@@ -93,13 +114,18 @@ class ComputedColumnAggregateResolver {
     const expression = rel.filterExpression
     const childView = this.dataSet.getView(rel.childTable, 'default')
     if (!childView) return []
+    if (!childView.supportsLocalAggregates) {
+      const error = remoteAggregateError()
+      evaluation?.failAggregate(error)
+      throw error
+    }
     const childTable = this.dataSet.getTable(rel.childTable)
     const parentTable = this.dataSet.getTable(rel.parentTable)
     if (!childTable || !parentTable) throw new Error(`模型关系 ${childRef} 引用的表不存在`)
     const matches = ResourceRelationDefinition.createMatcher({expression, parentTable: rel.parentTable, childTable: rel.childTable,
       parent: parentRow, parentFields: new Set(parentTable.columns.map(column => column.name)),
       childFields: new Set(childTable.columns.map(column => column.name))})
-    const rows = evaluation === undefined ? childView.rows
+    const rows = !evaluation?.bound ? childView.rows
       : childView.rows.map(row => createBoundReadRow({ view: childView, row, evaluation }))
     return rows.filter(matches)
   }
@@ -115,8 +141,12 @@ const MAX_EXPRESSION_LENGTH = 2048
 /** 行数据安全代理（复用 spark-utils 共享沙箱策略） */
 const createSafeRowProxy = (row: DataRow): DataRow => createSafeProxy(row)
 
-/** 检测表达式中是否含有子表聚合函数调用 */
-const AGG_PATTERN = /\$(?:sum|count|avg|min|max|list|join)\s*\(/
+/** 检测可能引用的子表聚合函数；实际调用时核边界，字符串中的同名文本不触发停算。 */
+const AGG_PATTERN = /\$(?:sum|count|avg|min|max|list|join)\b/
+
+function remoteAggregateError(): Error {
+  return new Error('DATA_VIEW_REMOTE_COMPUTED_AGGREGATE: 子表聚合公式尚未迁移到服务端，已停止本地统计；原公式已保留，请在字段设计中处理。')
+}
 
 /**
  * 将表达式字符串编译为 ComputedColumnFn。
@@ -261,9 +291,26 @@ export class ComputedColumnDelegate {
   /** 上次编译时传入的 ctx 对象引用（用于检测 ctx 切换，不做深比较） */
   private _compiledCtxRef: ComputedColumnContext | undefined
   private _ctx: ComputedColumnContext = {}
+  private _unsubscribeRelations: (() => void) | undefined
+  private _recomputingRelations = false
+  private _aggregateErrors = new Map<string, Error>()
 
     /** 创建 Computed Column Delegate 实例。 */
 constructor(private readonly host: DataView) {}
+
+  /** 原解析器在实际调用聚合时记录诊断；不把公式中的字符串文本误判为聚合执行。 */
+  get aggregateError(): Error | null {
+    for (const column of this.host.columns) {
+      const error = this.aggregateFieldError(column.name)
+      if (error) return error
+    }
+    return null
+  }
+
+  /** 只报告跨行聚合执行边界，不把一般表达式错误或权限拒绝变为可读结果。 */
+  aggregateFieldError(name: string): Error | null {
+    return this._aggregateErrors.get(name) ?? null
+  }
 
   // ── 公共 API ─────────────────────────────────
 
@@ -318,11 +365,29 @@ constructor(private readonly host: DataView) {}
       strict: Boolean(this.host.dataTable?.modelBinding) })
     const removed = [...this._configuredColumns.keys()].filter(name => !compiled.has(name))
     this._configuredColumns = compiled
+    this._aggregateErrors.clear()
     for (const row of this.host.rows) for (const name of removed) Reflect.deleteProperty(row, name)
     this._compiledExprKey = exprFingerprint
     this._compiledCtxRef = this._ctx
     this._readable = new WeakMap<DataRow, Map<string, object>>()
     this._namesCache = undefined
+    this.subscribeAggregateInputs()
+  }
+
+  /** 子表结果及其权限变化只重算显式聚合；不生成查询级联或共享视图状态。 */
+  private subscribeAggregateInputs(): void {
+    this._unsubscribeRelations?.()
+    this._unsubscribeRelations = undefined
+    const dataSet = this.host.getDataSet()
+    if (!dataSet || !this.host.columns.some(column => typeof column.computeExpression === 'string' && AGG_PATTERN.test(column.computeExpression))) return
+    const children = new Set(dataSet.getResourceChildRelations(this.host.tableName).map(relation => relation.childTable))
+    if (!children.size) return
+    const update = (tableName: string, viewId: string): void => {
+      if (viewId !== 'default' || !children.has(tableName) || this.host.destroyed || this._recomputingRelations) return
+      this._recomputingRelations = true
+      try { this.host.recomputeColumns() } finally { this._recomputingRelations = false }
+    }
+    this._unsubscribeRelations = dataSet.onAnyViewChange({rowsChanged: update, cleared: update, requestStateChanged: update, configChanged: update})
   }
 
   /** 注册计算列（已编译函数）。 */
@@ -341,6 +406,7 @@ constructor(private readonly host: DataView) {}
   /** 对行集合就地写入所有计算列。无计算列时短路返回，零开销。 */
   apply(rows: DataRow[]): void {
     this.syncFromConfig()
+    this._aggregateErrors.clear()
     if (this.names.size === 0 || rows.length === 0) return
     const bound = Boolean(this.host.dataTable?.modelBinding)
     const token = bound ? this.host.computedQueryToken() : undefined
@@ -354,21 +420,27 @@ constructor(private readonly host: DataView) {}
           }
         }
       }
-      const values = new Map<string, { success: boolean; value: unknown }>()
+      const values: ComputedEvaluation['values'] = new Map()
       const readable = new Map<string, object>()
       for (const [name, fn] of this._configuredColumns) {
         let denied = false
-        const evaluated: ComputedEvaluation = { deny: () => { denied = true }, isDenied: () => denied, values }
+        let aggregateError: Error | undefined
+        const evaluated: ComputedEvaluation = { bound, deny: () => { denied = true }, isDenied: () => denied, values,
+          failAggregate: error => { aggregateError = error }, aggregateError: () => aggregateError }
         try {
-          const input = bound ? createBoundReadRow({ view: this.host, row, evaluation: evaluated, chain: true }) : row
-          const value = fn(input, bound ? evaluated : undefined)
+          const blocked = this.aggregateFieldError(name)
+          if (blocked) { evaluated.failAggregate(blocked); throw blocked }
+          const input = bound ? createBoundReadRow({ view: this.host, row, evaluation: evaluated, chain: true }) : createLocalReadRow(row, evaluated)
+          const value = fn(input, evaluated)
+          if (evaluated.aggregateError()) throw evaluated.aggregateError()
           if (evaluated.isDenied()) throw new Error(`computed input denied: ${name}`)
           row[name] = value
           evaluated.values.set(name, { success: true, value })
           if (token) readable.set(name, token)
         } catch (e) {
+          if (aggregateError) this._aggregateErrors.set(name, aggregateError)
           row[name] = undefined
-          evaluated.values.set(name, { success: false, value: undefined })
+          evaluated.values.set(name, { success: false, value: undefined, ...(aggregateError ? {aggregateError} : {}) })
           if (import.meta.env.DEV) logger.debug(`计算列 "${name}" 求值失败: ${toErrorMessage(e)}`)
         }
       }
@@ -388,8 +460,11 @@ constructor(private readonly host: DataView) {}
 
   /** 清空所有状态（DataView.destroy 时调用）。 */
   destroy(): void {
+    this._unsubscribeRelations?.()
+    this._unsubscribeRelations = undefined
     this._registeredColumns.clear()
     this._configuredColumns.clear()
+    this._aggregateErrors.clear()
     this._readable = new WeakMap<DataRow, Map<string, object>>()
     this._namesCache = undefined
     this._ctx = {}
@@ -409,6 +484,6 @@ constructor(private readonly host: DataView) {}
     const resourceRelations = ds.resourceRelations?.length
       ? ds.getResourceChildRelations(this.host.tableName)
       : []
-    return new ComputedColumnAggregateResolver(resourceRelations, ds, this.host.primaryKey)
+    return new ComputedColumnAggregateResolver(resourceRelations, ds, this.host)
   }
 }

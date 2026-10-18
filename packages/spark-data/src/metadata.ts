@@ -187,17 +187,19 @@ export function normalizeDataSetMetadata(input: DataSetMetadata): DataSetMetadat
 
   const normalizedLayout = (() => {
     if (input.layout === undefined) return undefined
-    const raw = input.layout.tablePositions
-    if (raw === undefined) return {}
-
-    const tablePositions: Record<string, { x: number; y: number }> = {}
-    for (const [tableName, value] of Object.entries(raw)) {
-      if (Number.isFinite(value.x) && Number.isFinite(value.y)) {
-        tablePositions[tableName] = { x: value.x, y: value.y }
-      }
+    const layout: NonNullable<DataSetMetadata['layout']> = {}
+    for (const key of ['tablePositions', 'modelPositions'] as const) {
+      const raw = input.layout[key]
+      if (raw === undefined) continue
+      layout[key] = Object.fromEntries(Object.entries(raw)
+        .filter(([, value]) => Number.isFinite(value.x) && Number.isFinite(value.y))
+        .map(([id, value]) => [id, {x: value.x, y: value.y}]))
     }
-
-    return { tablePositions }
+    if (input.layout.unboundNodes !== undefined) layout.unboundNodes = Object.fromEntries(Object.entries(input.layout.unboundNodes)
+      .map(([id, value]) => [id, {label: value.label, x: value.x, y: value.y}]))
+    if (input.layout.unboundEdges !== undefined) layout.unboundEdges = Object.fromEntries(Object.entries(input.layout.unboundEdges)
+      .map(([id, value]) => [id, {source: value.source, target: value.target}]))
+    return layout
   })()
 
   return {

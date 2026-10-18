@@ -9,6 +9,7 @@ import type {
   DataViewFilterCondition,
   DataViewFilterGroup,
   DataViewFilterFunctionContext,
+  DataViewFilterFunctionTableField,
   DataViewFilterIssue,
   DataViewFilterJsonObject,
   DataViewFilterJsonValue,
@@ -129,6 +130,23 @@ function readNode(input: unknown, context: FilterReadContext): DataViewFilterTre
 
 /** 不可变的 SPARK 公开过滤树；解析失败不代表清空，也不产生可查询的部分树。 */
 export class DataViewFilter {
+  /**
+   * 为定义编辑器合并内置系统参数与调用方候选，复用同一值函数目录。
+   * 同名内置参数保留标准定义；显式函数覆盖（包括禁用声明）保留给下游，重复装配不扩大候选范围。
+   * @param context 调用方的模型、字段、参数及扩展函数上下文。
+   * @returns 保留扩展能力和候选的编辑上下文，不执行值函数或授予数据权限。
+   */
+  static editorContext(context: DataViewFilterFunctionContext = {}): DataViewFilterFunctionContext {
+    const system = getDataViewFilterFunctionDefinitions({}).find(item => item.type === 'SystemData')
+    const source = system?.fields.find(field => field.key === 'ParamName')?.options
+    const defaults = typeof source === 'function' ? source({Type: 'SystemData'}, {}) : source ?? []
+    const systemParams = [...new Map([...(context.systemParams ?? []), ...defaults].map(option => [option.value, option])).values()]
+    const result = {...context, systemParams}
+    const definitions = new Map([...getDataViewFilterFunctionDefinitions(result), ...(context.definitions ?? [])]
+      .map(definition => [definition.type, definition]))
+    return {...result, definitions: [...definitions.values()]}
+  }
+
   /** 只持有已校验冻结的树；外部通过解析或构造入口建立过滤器。 */
   private constructor(private readonly tree: DataViewFilterTree) { Object.freeze(this) }
 
@@ -159,6 +177,73 @@ export class DataViewFilter {
   toJSON(): DataViewFilterTree { return this.tree }
 
   serialize(): string { return JSON.stringify(this.tree) }
+
+  /** 返回值函数显式引用的模型名称，去重保序；仅识别正式表参数，不递归猜测常量或未知扩展。 */
+  referencedTableNames(): readonly string[] {
+    const names = new Set<string>()
+    const visit = (node: DataViewFilterTree): void => {
+      if ('logic' in node) {node.filters.forEach(visit); return}
+      if (!DataViewFilter.isValueFunction(node.value)) return
+      const value = node.value
+      const key = value.Type === 'GetRefData' ? 'RefTableName' : value.Type === 'GetGroupData' ? 'GroupTableName'
+        : value.Type === 'GetExpData' ? 'refTableName' : undefined
+      const name = key === undefined ? undefined : value[key]
+      if (typeof name === 'string' && name.length > 0) names.add(name)
+    }
+    visit(this.tree)
+    return Object.freeze([...names])
+  }
+
+  /**
+   * 为当前过滤树读取显式引用模型的字段编辑目录，保留全部模型候选。
+   * 未提供字段且声明 loadFields 的模型才读取；同次每个模型只读一次，不修改输入上下文。
+   * @param context 正式数据 owner 提供的可读模型及字段目录。
+   * @returns 补齐所需字段的编辑上下文；失败拒绝，不缓存空目录。调用方仍须核对编辑身份并执行 validate。
+   */
+  async loadEditorContext(context: DataViewFilterFunctionContext): Promise<DataViewFilterFunctionContext> {
+    const names = this.referencedTableNames(), tables = context.tables ?? []
+    const referenced = tables.filter(table => names.includes(table.name))
+    if (new Set(referenced.map(table => table.name)).size !== referenced.length) throw new Error('值函数模型目录存在重复名称')
+    const pending = referenced.filter(table => table.fields === undefined && table.loadFields !== undefined)
+    if (!pending.length) return context
+    const loaded = new Map(await Promise.all(pending.map(async table => {
+      const fields: unknown = await table.loadFields?.()
+      const error = `模型 ${table.name} 的字段目录无效`
+      if (!Array.isArray(fields)) throw new Error(error)
+      const snapshot: DataViewFilterFunctionTableField[] = []
+      for (const field of fields as unknown[]) {
+        if (!isRecord(field) || typeof field['name'] !== 'string' || field['name'].trim().length === 0
+          || field['label'] !== undefined && typeof field['label'] !== 'string') throw new Error(error)
+        snapshot.push(Object.freeze({name: field['name'], ...(typeof field['label'] === 'string' ? {label: field['label']} : {})}))
+      }
+      if (new Set(snapshot.map(field => field.name)).size !== snapshot.length) throw new Error(error)
+      return [table.name, Object.freeze(snapshot)] as const
+    })))
+    return {...context, tables: tables.map(table => {
+      const fields = loaded.get(table.name)
+      return fields === undefined ? table : {...table, fields}
+    })}
+  }
+
+  /** Bind only explicit input-parameter values; preserve constants and other function execution domains. */
+  bindInputParams(context: Readonly<Record<string, unknown>>): DataViewFilter {
+    const bind = (tree: DataViewFilterTree): DataViewFilterTree => {
+      if ('logic' in tree) return {...tree, filters: tree.filters.map(bind)}
+      const value = tree.value
+      if (!isRecord(value) || value['Type'] !== 'GetInputParam') return tree
+      const name = value['ParamName']
+      if (typeof name !== 'string' || !name.trim() || !Object.hasOwn(context, name)) {
+        throw new TypeError(`SPARK DataView GetInputParam 参数缺失或不是有效 JSON: ${String(name)}`)
+      }
+      try {
+        const snapshot = snapshotValue(context[name], {path: name, ancestors: new Set(), issues: []})
+        return {...tree, value: {Type: 'GetConstValue', Value: snapshot}}
+      } catch {
+        throw new TypeError(`SPARK DataView GetInputParam 参数缺失或不是有效 JSON: ${name}`)
+      }
+    }
+    return DataViewFilter.require(bind(this.tree))
+  }
 
   validate(context: DataViewFilterValidationContext): readonly DataViewFilterIssue[] {
     const issues: DataViewFilterIssue[] = []

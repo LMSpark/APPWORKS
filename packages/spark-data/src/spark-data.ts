@@ -13,6 +13,7 @@ import { TreeManager } from './node-tree/tree-manager'
 import { DataTable } from './data-table'
 import { DataView } from './data-view'
 import { DataSetCrudTool } from './dataset-crud-tool'
+import { DataViewFilterCodec } from './query/filter/data-view-filter-codec'
 import {
   commitDataSetSnapshot,
   createLocalStorageHistoryAdapter,
@@ -97,6 +98,8 @@ function createDataSetCrudTool(dataSetName: string): DataSetCrudTool {
 }
 
 export const SparkData = {
+  /** 过滤定义的统一编解码与校验；供页面脚本复用数据层合同。 */
+  DataViewFilterCodec,
   createDataSet,
   fromJson,
   createTreeManager,

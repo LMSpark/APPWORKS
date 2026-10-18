@@ -4,6 +4,7 @@
 import { describe, it, expect } from 'vitest'
 import { DataSet } from '../dataset'
 import { DataTable } from '../data-table'
+import {normalizeDataSetMetadata} from '../metadata'
 import type { DataViewFieldProjection, TableMetadata, ViewMetadata, DataSetMetadata } from '../types'
 
 const salaryProjection: DataViewFieldProjection = {
@@ -201,6 +202,19 @@ describe('TableMetadata canonical structure', () => {
     expect(ds2.toJson().layout?.tablePositions?.['Users']).toEqual({ x: 120, y: 240 })
   })
 
+  it('preserves formal model positions without requiring a DataTable binding', () => {
+    const layout = {modelPositions: {MODEL: {x: -30, y: 45}}, unboundNodes: {DRAFT: {label: '待配置模型', x: 80, y: 90}},
+      unboundEdges: {EDGE: {source: 'MODEL', target: 'DRAFT'}}}
+    const first = DataSet.fromJson({dataSetName: 'Design', scenarioId: 'SPACE', tables: {}, layout})
+    const second = DataSet.fromJson(first.toJson())
+    try {
+      expect(first.toJson().layout).toEqual(layout)
+      expect(normalizeDataSetMetadata(first.toJson()).layout).toEqual(layout)
+      expect(second.toJson().layout).toEqual(layout)
+      expect(Object.keys(second.tables)).toEqual([])
+    } finally {first.destroy(); second.destroy()}
+  })
+
   it('DataSet.fromJson() should reject legacy dataset wrapper shape', () => {
     expect(() => DataSet.fromJson({
       dataset: {
@@ -283,7 +297,7 @@ describe('L4: schemaVersion in DataSetMetadata', () => {
       version: 99,
     })
     expect(ds.schemaVersion).toBe(2)  // schema 格式版本
-    expect(ds.version).toBe(99)        // 业务乐观锁版本
+    expect(ds.version).toBe(99)        // 数据集快照版本
     const data = ds.toJson()
     expect(data.schemaVersion).toBe(2)
     expect(data.version).toBe(99)

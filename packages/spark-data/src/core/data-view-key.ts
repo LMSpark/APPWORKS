@@ -9,7 +9,7 @@
  *
  * DataViewKey locates a DataView:
  *   - `tableName@viewId`
- *   - `#scope@tableName@viewId`
+ *   - `scenarioId@modelName@viewId` (also reads existing `#scenarioId@modelName@viewId`)
  *
  * DataMember identifies a DataView output member. dataField optionally reads a
  * business field/path from object-shaped members including currentRow or
@@ -61,9 +61,9 @@ MutatingError = 'mutatingError',
 
 /** Data View Key Descriptor 的语义模型。 */
 export type DataViewKeyDescriptor = {
-  /** DataSet scope, present only for cross-page `#scope` references. */
+  /** 完整绑定的数据空间身份；不能用显示名称或目标输入参数代替。 */
   scope?: string
-  /** DataTable name. */
+  /** 局部绑定的表键；有scope时为正式模型名称，本地模型使用自身表名。 */
   tableName: string
   /** DataView id. */
   viewId: string
@@ -120,11 +120,6 @@ const FIELD_ADDRESSABLE_MEMBERS = new Set<DataMember>([
   DataMember.AggregateResult,
   DataMember.SelectionAggregateResult,
 ])
-
-function parseScopedParts(rawKey: string): string[] | null {
-  if (!rawKey.startsWith(CROSS_PAGE_PREFIX)) return null
-  return rawKey.substring(1).split(SEPARATOR)
-}
 
 function normalizeDataField(dataField: string | undefined): string | undefined {
   if (typeof dataField !== 'string') return undefined
@@ -194,14 +189,7 @@ function readDataViewInputValue(view: DataView, field?: string): DataViewMemberV
     }
     return normalizeDataViewMemberValue(deepClone(row[field]))
   }
-  return view.selectedRows.map(row => {
-    if (view.effectivePkFields.some(key => view.fieldAccess(row, key).read !== 'visible')) {
-      throw new Error('DATA_VIEW_VALUE_READ: 选中主键不可读')
-    }
-    const key = view.getPkKey(row)
-    if (key === undefined) throw new Error('DATA_VIEW_VALUE_KEY: 选中值缺少主键')
-    return key
-  })
+  return view.getSelectedValues()
 }
 
 function getDataViewMemberValue(view: DataView, dataMember: DataMember, dataField?: string): DataViewMemberValue {
@@ -242,16 +230,15 @@ export function isDataViewKey(dataViewKey: string): boolean {
 export function parseDataViewKey(dataViewKey: string): DataViewKeyDescriptor | null {
   if (!dataViewKey) return null
 
-  const scopedParts = parseScopedParts(dataViewKey)
-  if (scopedParts) {
-    if (scopedParts.length !== 3) return null
-    const [scope, tableName, viewId] = scopedParts
+  const prefixed = dataViewKey.startsWith(CROSS_PAGE_PREFIX)
+  const parts = (prefixed ? dataViewKey.substring(1) : dataViewKey).split(SEPARATOR)
+  if (parts.length === 3) {
+    const [scope, tableName, viewId] = parts
     if (!scope || !tableName || !viewId) return null
-    return { scope, tableName, viewId, raw: dataViewKey, crossPage: true }
+    return { scope, tableName, viewId, raw: dataViewKey, ...(prefixed ? {crossPage: true} : {}) }
   }
 
-  const parts = dataViewKey.split(SEPARATOR)
-  if (parts.length !== 2) return null
+  if (prefixed || parts.length !== 2) return null
   const [tableName, viewId] = parts
   if (!tableName || !viewId) return null
   return { tableName, viewId, raw: dataViewKey }
@@ -262,8 +249,17 @@ export function buildDataViewKey(
   viewId = 'default',
   scope?: string,
 ): string {
-  const prefix = scope ? `${CROSS_PAGE_PREFIX}${scope}${SEPARATOR}` : ''
+  const prefix = scope ? `${scope}${SEPARATOR}` : ''
   return `${prefix}${tableName}${SEPARATOR}${viewId}`
+}
+
+function resolveBindingTable(descriptor: DataViewKeyDescriptor, dataSet: DataSetContract) {
+  if (dataSet.destroyed) return undefined
+  if (descriptor.scope === undefined) return dataSet.getTable(descriptor.tableName)
+  if (descriptor.scope !== dataSet.scenarioId) return undefined
+  const tables = Object.values(dataSet.tables).filter(table => (table.modelBinding?.modelName ?? table.tableName) === descriptor.tableName)
+  if (tables.length > 1) throw new Error(`视图绑定模型名称不唯一: ${descriptor.scope}@${descriptor.tableName}`)
+  return tables[0]
 }
 
 export function resolveDataViewKey(
@@ -273,7 +269,7 @@ export function resolveDataViewKey(
   if (!dataViewKey || !dataSet) return undefined
   const descriptor = parseDataViewKey(dataViewKey)
   if (!descriptor) return undefined
-  return dataSet.getView(descriptor.tableName, descriptor.viewId)
+  return resolveBindingTable(descriptor, dataSet)?.getView(descriptor.viewId)
 }
 
 function parseDataViewMemberDescriptor(input: DataViewMemberInput): DataViewMemberDescriptor | null {
@@ -297,7 +293,7 @@ export function resolveDataViewMember(
   if (!dataSet) return undefined
   const descriptor = parseDataViewMemberDescriptor(input)
   if (!descriptor) return undefined
-  const view = dataSet.getView(descriptor.tableName, descriptor.viewId)
+  const view = resolveBindingTable(descriptor, dataSet)?.getView(descriptor.viewId)
   if (!view) return undefined
   return resolveValueWithField(
     getDataViewMemberValue(view, descriptor.dataMember, descriptor.dataField),
@@ -324,7 +320,7 @@ export function resolveDataViewMemberBinding(
   if (!dataSet) return null
   const descriptor = parseDataViewMemberDescriptor(input)
   if (!descriptor) return null
-  const view = dataSet.getView(descriptor.tableName, descriptor.viewId)
+  const view = resolveBindingTable(descriptor, dataSet)?.getView(descriptor.viewId)
   if (!view) return null
   const value = resolveValueWithField(
     getDataViewMemberValue(view, descriptor.dataMember, descriptor.dataField),
@@ -431,7 +427,7 @@ export function diagnoseDataViewKey(
   if (!dataSet) {
     return dataViewKeyDiagnostic({ status: 'missing-dataset', rawKey, descriptor, message: `DataSet 未就绪: ${rawKey}` })
   }
-  const table = dataSet.getTable(descriptor.tableName)
+  const table = resolveBindingTable(descriptor, dataSet)
   if (!table) {
     return dataViewKeyDiagnostic({ status: 'missing-table', rawKey, descriptor, message: `DataViewKey 表不存在: ${descriptor.tableName}` })
   }
@@ -469,7 +465,7 @@ export function diagnoseDataViewMember(
     return dataViewMemberDiagnostic({ status: 'missing-dataset', rawKey, descriptor, message: `DataSet 未就绪: ${rawKey}` })
   }
 
-  const table = dataSet.getTable(descriptor.tableName)
+  const table = resolveBindingTable(descriptor, dataSet)
   if (!table) {
     return dataViewMemberDiagnostic({ status: 'missing-table', rawKey, descriptor, message: `DataViewKey 表不存在: ${descriptor.tableName}` })
   }
@@ -496,6 +492,10 @@ export function diagnoseDataViewMember(
     }
     return dataViewMemberDiagnostic({status: 'ok', rawKey, descriptor, message: `绑定值可解析: ${rawKey}`})
   }
+  if ((descriptor.dataMember === DataMember.AggregateResult || descriptor.dataMember === DataMember.SelectionAggregateResult)
+    && view.aggregateError) {
+    return dataViewMemberDiagnostic({status: 'value-unavailable', rawKey, descriptor, message: view.aggregateError.message})
+  }
   const value = getDataViewMemberValue(view, descriptor.dataMember)
   if (descriptor.dataMember === DataMember.CurrentRow && value === null) {
     return dataViewMemberDiagnostic({ status: 'empty-current-row', rawKey, descriptor, message: `DataMember 当前行为空: ${rawKey}` })
@@ -520,6 +520,7 @@ export function diagnoseDataViewMember(
 }
 
 export function getDataViewIdentity(descriptor: DataViewKeyDescriptor): string {
+  if (descriptor.scope !== undefined) return buildDataViewKey(descriptor.tableName, descriptor.viewId, descriptor.scope)
   return `${descriptor.tableName}.${descriptor.viewId}`
 }
 

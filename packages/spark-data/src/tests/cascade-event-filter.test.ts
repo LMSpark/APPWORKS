@@ -55,8 +55,9 @@ describe('query cascade native values', () => {
     try {
       expect(() => ds.resolveCascadeFilter(fieldCascade)).toThrow('DATA_VIEW_VALUE_READ')
       for (const dependencyType of ['currentRow', 'selectedRows', 'allRows', 'pagedRows']) {
-        expect(() => ds.addCascade({...fieldCascade, dependencyType})).toThrow('QUERY_CASCADE_CONFIG')
-        expect(() => SparkData.fromJson({...ds.toJson(), viewCascades: [{...fieldCascade, dependencyType}]})).toThrow('viewCascades')
+        const obsoleteCascade = {...fieldCascade, dependencyType}
+        expect(() => ds.addCascade(obsoleteCascade)).toThrow('QUERY_CASCADE_CONFIG')
+        expect(() => SparkData.fromJson({...ds.toJson(), viewCascades: [obsoleteCascade]})).toThrow('viewCascades')
       }
       expect(ds.viewCascades).toBeUndefined()
     } finally { ds.destroy() }

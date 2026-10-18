@@ -460,7 +460,9 @@ describe('DataSetCrudTool', () => {
         {field: 'customerId', operator: 'eq', value: {Type: 'GetTableField', Field: 'customerKey'}},
       ]}]},
     })
-    expect(tool.dataSet.viewCascades?.[0]?.filterBindings).toEqual([
+    const cascade = tool.dataSet.viewCascades?.[0]
+    if (!cascade || cascade.kind === 'field') throw new Error('Expected a query cascade')
+    expect(cascade.filterBindings).toEqual([
       { sourceField: 'customerKey', targetField: 'customerId' },
     ])
     expect(tool.getView({ tableName: 'Customers', viewId: 'customerModel' })?.fieldProjection).toMatchObject([

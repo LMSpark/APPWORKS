@@ -28,6 +28,14 @@ export { DataSet } from './dataset'
 export { DataTable } from './data-table'
 export { DataView } from './data-view'
 export { DataViewFilter } from './query/filter/data-view-filter'
+export { DataViewFilterCodec } from './query/filter/data-view-filter-codec'
+export type { DataViewFilterWire } from './query/filter/data-view-filter-codec'
+export { DataViewQuery } from './query/data-view-query'
+export { DataViewQueryCache } from './query/data-view-query-cache'
+export { DataViewArrayQuery } from './query/data-view-array-query'
+export { DataViewLocalQuery } from './query/data-view-local-query'
+export { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
+export { FormalTableRequestConfig } from './core/formal-table-request-config'
 export type { DataViewFilterTree, DataViewFilterOperator, DataViewFilterJsonValue } from './query/filter/data-view-filter-contract'
 export type {
   DataViewFilterField, DataViewFilterFunctionContext, DataViewFilterValueFunction,
@@ -173,6 +181,7 @@ export type {
   DataResourceRelationFieldMapping,
   DataViewCascade,
   DataViewQueryCascade,
+  DataViewCascadeInputBinding,
   DataViewFieldCascade,
   DataViewFieldCascadeAddress,
   DataViewFieldCascadeState,

@@ -54,9 +54,9 @@ export type SparkEventEmitter<TEventMap extends Record<string, any[]> = Record<s
   /** 返回指定事件当前注册的 handler 数量；省略 event 时返回所有事件 handler 总数 */
   listenerCount<K extends string & keyof TEventMap>(event?: K): number}
 
-/** 数据行：所有数据容器的基本行形状，可选携带 lowcode 后端权限事实。 */
+/** 数据行形状；原始响应可携带后端权限，DataView 公开行不暴露系统权限及签名，消费方经视图读取权限。 */
 export type DataRow = Record<string, unknown> & {
-  /** lowcode 后端对当前行计算出的五个稀疏权限集合。 */
+  /** 后端当次查询的字段权限及行操作许可；由原查询上下文保存和消费。 */
   lingma_sys_params?: DataPermissionSets
   /** lowcode 后端签发的当前行防篡改上下文。 */
   lingma_sys_key?: string
@@ -598,6 +598,18 @@ export type DataViewFieldProjection = Readonly<{
 /** 后端无关的视图查询上下文；具体适配器解释其中的身份和输入参数。 */
 export type DataViewQueryContext = Readonly<Record<string, unknown>>
 
+/** 将目标字段的文本contains条件解释为辅助视图匹配后的值集合；不改变模型关系或选中值。 */
+export type DataViewFilterLookupConfig = Readonly<{
+  /** 当前视图的正式输出字段；其他操作符继续按原字段值过滤。 */
+  field: string
+  /** 同一DataSet内的完整空间ID@模型名称@视图名称；不允许回退绑定。 */
+  sourceViewKey: string
+  /** 辅助视图用于文本contains查询的字段，必须可读且未脱敏。 */
+  matchField: string
+  /** 辅助结果映射到目标字段的原生值；不默认替换成源主键。 */
+  valueField: string
+}>
+
 /**
  * 数据视图元数据
  *
@@ -606,6 +618,12 @@ export type DataViewQueryContext = Readonly<Record<string, unknown>>
  * 其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。
  */
 export type ViewMetadata = {
+  /**
+   * 查询成功接纳结果后的页面script.js函数名；省略或空字符串禁用。不存脚本体。
+   * 页面宿主以{view, dataViewKey, signal}调用；非页面消费者可订阅requestCompleted。
+   * 失败、过期响应、初始灌入及普通编辑不触发；函数异常不撤销已接纳的查询结果。
+   */
+  onRequestComplete?: string
   /** 所属表名 */
   tableName?: string
   /** 视图 ID */
@@ -614,6 +632,15 @@ export type ViewMetadata = {
   fieldProjection?: readonly DataViewFieldProjection[]
   /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */
   queryContext?: DataViewQueryContext
+  /** 查询模式、输出字段、服务器节点参数及读取范围；每次刷新沿用，空对象恢复默认。不含结果或权限。 */
+  queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'maxRows' | 'fields' | 'sourceInputMode'> & {
+    /** 结果缓存：省略/none禁用，page随本次DataSet释放，browser仅当前浏览器会话内复用。需查询适配器支持；刷新、保存及身份变化清除。 */
+    cacheType?: 'none' | 'page' | 'browser'
+    /** 父输入及过滤输入变化是否自动查询；缺省true，false等待显式查询，不限制翻页和排序。 */
+    autoQuery?: boolean
+    /** 文本条件的辅助值查询配置；完整取值并核权限，不修改来源视图状态。仅支持一级辅助查询；来源不得有查询级联依赖。 */
+    filterLookups?: readonly DataViewFilterLookupConfig[]
+  }>
   /**
    * 视图行数据。
    *
@@ -662,7 +689,8 @@ export type ViewMetadata = {
    *
    * 设为 `true` 时，页面调用渲染层在构建 DataSet 后自动调用 `view.requestData()`，
    * 业务脚本无需在 `__init__` 中手动编写加载代码。
-   * 仅对有配置 `api` 且为 default 视图的主表有意义。
+   * DataSet.triggerAutoLoad 遍历所有表的视图，仅对空闲且启用 autoLoad 的视图发起请求；
+   * 请求由各视图绑定的数据源执行，父值依赖与在途请求复用由 requestData 处理。
    */
   autoLoad?: boolean
   /**
@@ -681,6 +709,7 @@ export type ViewMetadata = {
    *
    * 聚合配置与列定义（`DataColumn.computeExpression`）完全独立：
    * 列负责逐行求值，聚合负责对已求值的行集合做整列汇总。
+   * 正式远程owner禁止该本地算法；原配置保留，读取汇总成员抛出aggregateError，不自动转换为fieldProjection。
    */
   aggregates?: Record<string, AggregateColumnConfig>}
 
@@ -700,6 +729,8 @@ export type TreeConfig = {
   idField?: string
   /** 父节点 ID 字段名 */
   parentIdField?: string
+  /** 根节点的父字段值；省略按null/undefined根处理。保留0和空字符串，不把其他孤立节点当根。只影响本地树组织，不改写记录或服务端查询参数。 */
+  rootParentValue?: string | number
   /** 节点文本显示字段名 */
   textField?: string
   /** 最大展开深度 */
@@ -829,6 +860,26 @@ export type DataViewCascadeFilterBinding = Readonly<{
   sourceField?: string
   /** 作为目标 DataView 查询过滤条件的字段。 */
   targetField: string
+  /** 缺省按标量eq/数组in；contains只接受文本，适用于名称等搜索输入。 */
+  operator?: 'eq' | 'in' | 'contains'
+  /** 空字符串或null不形成筛选；空数组仍表示无候选，不会扩大范围。 */
+  omitEmpty?: boolean
+}>
+
+/** 父视图原生值到子视图查询输入的映射；与过滤字段绑定共同参与一次级联。 */
+export type DataViewCascadeInputBinding = Readonly<{
+  /** 省略时取父视图选中主键数组，字段值仍由统一值绑定解析。 */
+  sourceField?: string
+  /** 查询配置的正式属性路径；不接受任意对象路径或权限属性。 */
+  target: 'queryContext' | 'pageSize' | 'queryConfig.outputType' | 'queryConfig.allPages' | 'queryConfig.maxRows'
+    | 'queryConfig.tree.keyField' | 'queryConfig.tree.parentField' | 'queryConfig.tree.nodeId'
+    | 'queryConfig.tree.hasChildrenField' | 'queryConfig.tree.mode'
+  /** 显式将JSON文本解码为调用参数对象；省略保留原生类型。 */
+  format?: 'json'
+  /** 空字符串或null撤销此目标属性；不会拆分普通字符串。 */
+  omitEmpty?: boolean
+  /** 同一父视图中控制该输入的字段值；不满足时撤销目标属性，保留父字段草稿。 */
+  when?: Readonly<{field: string; equals: string | number | boolean | null}>
 }>
 
 /** 原生输入值约束目标视图查询；不引用 DataResourceRelation。 */
@@ -848,6 +899,10 @@ export type DataViewQueryCascade = {
   childViewId: string
   /** 源字段到目标过滤字段的绑定。 */
   filterBindings: readonly DataViewCascadeFilterBinding[]
+  /** 多个父值共同配置子视图查询；与filterBindings至少有一项，全部校验后应用。 */
+  inputBindings?: readonly DataViewCascadeInputBinding[]
+  /** 所有父字段条件满足才查询；关闭时清空候选及选择，保留父输入。 */
+  when?: ReadonlyArray<Readonly<{field: string; equals: string | number | boolean | null}>>
   /** 源变化时是否自动重新查询目标视图（默认 true）。 */
   autoLoad?: boolean
 }
@@ -949,7 +1004,14 @@ export type CommitMode = 'immediate' | 'staged'
  */
 export type DataSetLayoutMetadata = {
   /** 表名 -> 画布位置 */
-  tablePositions?: Record<string, { x: number; y: number }>}
+  tablePositions?: Record<string, { x: number; y: number }>
+  /** 正式模型ID -> 设计画布位置；与表绑定及命名视图无关，不参与运行查询。 */
+  modelPositions?: Record<string, { x: number; y: number }>
+  /** 未绑定模型的设计节点，键为局部唯一ID；仅保存标题和位置，不构成DataTable或查询/保存目标。 */
+  unboundNodes?: Record<string, {label: string; x: number; y: number}>
+  /** 尚未配置为模型关系的设计连线；端点是正式模型ID或unboundNodes局部ID。只承载布局意图，不参与查询、级联或数据提交。 */
+  unboundEdges?: Record<string, {source: string; target: string}>
+}
 
 /**
  * 数据集元数据（对应 DataSet.toJson() 输出）
@@ -969,11 +1031,11 @@ export type DataSetMetadata = {
   /** 表集合（表名 -> 表元数据） */
   tables: Record<string, TableMetadata>
 
-  /** 数据资源关系 — 声明 DataTable 所对应资源间的字段关系 */
+  /** 数据资源关系 — 以完整过滤表达式声明 DataTable 所对应资源间的稳定关系 */
   resourceRelations?: DataResourceRelation[]
   /** DataView 输入级联 — 显式声明运行时输入图；不从 resourceRelations 自动推导 */
   viewCascades?: DataViewCascade[]
-  /** 业务数据版本号（乐观锁），与 schemaVersion 含义不同 */
+  /** 数据集快照版本，与 schemaVersion 含义不同；本身不提供后端数据写入的乐观锁。 */
   version?: number
   /** 页面 ID */
   pageId?: string
@@ -1015,10 +1077,11 @@ export type DataSetAppServices = {
  *    表达式可直接读取行字段，可通过 `ctx` 读取外部上下文，也可通过
  *    `$sum/$count/$avg/$min/$max/$list/$join` 读取 DataResourceRelation 匹配到的子资源行。
  * 2. 视图级聚合配置：定义在 `ViewMetadata.aggregates`，不是 `DataSource` 字段。
- *    每个输出项包含 `type / field / separator` 等后端 API 认得的规则信息。
+ *    每个输出项包含 `type / field / separator` 等本地规则，不代表后端 API 已支持。
  * 3. 运行时聚合结果：`aggregateResult` 基于当前 `rows` 计算，`selectionAggregateResult`
  *    基于当前 `selectedRows` 计算；二者都是由 aggregates 配置生成的"聚合结果输出行"，
- *    字段名来自 aggregates 的输出 key，字段值是对应聚合计算结果。
+ *    字段名来自 aggregates 的输出 key，字段值是对应聚合计算结果。此行为仅适用于允许本地汇总的来源；
+ *    正式远程owner禁止旧算法时，aggregateError给出诊断，读取两个汇总成员均抛错；配置保持原样。
  * 4. UI / DataView 成员消费：组件可直接读取 `dataSource.aggregateResult`，也可通过
  *    dataViewKey=`Table@default` + dataMember=`aggregateResult` + dataField=`totalAmount` 引用。
  * 5. 序列化边界：`DataView.toJson()` 只持久化 `aggregates` 配置；`aggregateResult`、
@@ -1027,23 +1090,28 @@ export type DataSetAppServices = {
 export type DataSource = {
   /** 当前视图行集合，表格/列表/树等数据容器的主要渲染输入 */
   rows?: readonly DataRow[]
-  /** 列定义数组（只读，来自 DataTable.columns）。UI 组件据此渲染表头 / 表单标签 */
+  /** 数据字段元信息（只读，来自 DataTable.columns），供标准字段子组件消费，不是页面列配置。 */
   columns?: readonly DataColumn[]
   /** 表名（来自 DataView.tableName） */
   tableName?: string
   /** 数据加载状态（Idle / Loading / Loaded / Failed） */
   requestState?: RequestState
-  /** 当前聚焦行（UI 高亮行 / 级联父行） */
+  /** 当前指针行，用于高亮及字段值定位；级联消费统一值绑定解析出的值。 */
   currentRow?: DataRow | null
-  /** 当前选中行集合（勾选行 / 级联选中行） */
+  /** 当前选中行集合；无字段的值绑定从中取得主键数组，级联不直接传递行对象。 */
   selectedRows?: readonly DataRow[]
-  /** 后端最终权限快照；缺失时权限组件必须 fail-closed。 */
   /** 当前查询结果总行数，用于分页器展示总量 */
   total?: number
   /** 当前页码，通常从 1 开始 */
   page?: number
   /** 每页行数，用于分页查询和分页器状态同步 */
   pageSize?: number
+  /** 旧汇总不可执行时的诊断；明细查询/编辑仍独立可用，不能把错误当作空汇总或零值。 */
+  aggregateError?: Error | null
+  /** 子表计算聚合的配置诊断；与旧view.aggregates及普通请求错误分开，不是业务字段值。 */
+  computedAggregateError?: Error | null
+  /** 指定计算字段的远程聚合诊断；不改变原字段权限。 */
+  computedColumnError?(field: string): Error | null
   /**
    * 当前 `rows` 的全量聚合输出行；按视图 aggregates 配置自动计算，行变更后自动重算。
    *
@@ -1053,6 +1121,7 @@ export type DataSource = {
    * `{ totalAmount: 1234, avgScore: 87.5 }`。
    * 当视图已配置 aggregates 且 rows 为空时，源码按类型填默认输出：
    * `sum/count/avg` 为 `0`，`min/max` 为 `undefined`，`join` 为空字符串。
+   * 上述计算仅适用于允许本地汇总的来源；aggregateError非空时读取此成员会抛错，不返回默认值。
    */
   aggregateResult?: Readonly<AggregateResultRow>
   /**
@@ -1060,6 +1129,7 @@ export type DataSource = {
    *
    * 无选中行时源码直接返回空对象 `{}`，而不是按聚合类型填默认输出。
    * 选中行存在时字段结构与 aggregateResult 相同。
+   * aggregateError非空时读取会抛错，不使用当前选中行缓存代替服务统计。
    */
   selectionAggregateResult?: Readonly<AggregateResultRow>
 
@@ -1139,6 +1209,8 @@ export type ViewChangeHandlers = {
   configChanged?: (tableName: string, viewId: string) => void
   /** 请求状态变化 */
   requestStateChanged?: (tableName: string, viewId: string, requestState: RequestState) => void
+  /** 一次查询结果已接纳并完成计算/自动指针；不包括初始灌入、失败或过期响应。 */
+  requestCompleted?: (tableName: string, viewId: string) => void
   /** 变更中标记变化 */
   mutatingChanged?: (tableName: string, viewId: string, mutating: boolean) => void
   /** 聚合结果变化 */
@@ -1160,6 +1232,8 @@ export type ViewChangeHandlers = {
  * 便于测试 mock 与未来扩展。
  */
 export type DataSetContract = {
+  /** 正式场景身份；完整DataView绑定须精确匹配，本地数据集可以没有场景。 */
+  readonly scenarioId?: string | undefined
   /** 数据集名称 */
   readonly dataSetName: string
   /** 数据表集合 */
@@ -1168,9 +1242,9 @@ export type DataSetContract = {
   readonly resourceRelations: DataResourceRelation[] | undefined
   /** DataView 输入级联定义 */
   readonly viewCascades: DataViewCascade[] | undefined
-  /** Schema 格式版本（默认 1） */
+  /** Schema 格式版本（默认 2），与数据集快照版本分别维护。 */
   readonly schemaVersion: number
-  /** 业务数据版本号（乐观锁） */
+  /** 数据集快照版本；commitSnapshot/restoreSnapshot 维护，不是后端数据写入的乐观锁。 */
   readonly version: number | undefined
   /** 页面 ID */
   readonly pageId: string | undefined
@@ -1256,7 +1330,7 @@ export type DataSetContract = {
    */
   onAnyViewChange(handlers: ViewChangeHandlers): () => void
   /**
-   * 触发所有标记了 `autoLoad: true` 的 default 视图自动加载。
+   * 触发所有表中标记了 `autoLoad: true` 且处于 Idle 状态的视图自动加载。
    * 渲染层构建 DataSet 后调用；业务脚本无需手动编写加载代码。
    */
   triggerAutoLoad(): void
@@ -1332,7 +1406,7 @@ export type DataSetTransactionResponse = {
   /** 是否为重放结果 */
   replayed?: boolean}
 
-/** DataSet.saveChanges 事务配置（ViewMetadata 中持久化用） */
+/** DataSetMetadata.saveChanges 的事务配置；正式场景配置不支持 transaction 模式。 */
 export type DataSetSaveChangesTransactionConfig = {
   /** 事务端点 */
   endpoint: HttpEndpoint
@@ -1346,7 +1420,7 @@ export type DataSetSaveChangesTransactionOptions = {
   /** 请求 ID（可选） */
   requestId?: string}
 
-/** DataSet.saveChanges 配置（ViewMetadata 中持久化用） */
+/** DataSetMetadata.saveChanges 的默认提交配置；正式场景配置仅支持 perView。 */
 export type DataSetSaveChangesConfig = {
   /** 提交模式（默认 'perView'） */
   mode?: DataSetSaveChangesMode
@@ -1439,14 +1513,46 @@ export type QueryParams = {
   page?: number
   /** 每页大小 */
   pageSize?: number
+  /** 请求查询责任方读取过滤条件下的完整集合；省略或false保留分页。SPARK API逐页校验后一次发布结果。 */
+  allPages?: boolean
+  /** 完整集合允许的最大行数，正安全整数；SPARK API省略时为50000，超限报错而非截断。 */
+  maxRows?: number
+  /**
+   * 查询责任方的输出模式。SPARK API默认Table；SelfRefData表示完整节点集合。
+   * JSON来源可直接返回节点集合；需要定位节点时另配tree，来源要求由正式查询责任方校验。
+   * DataView通过queryConfig持有此配置，过滤、排序、分页及刷新均沿用。
+   */
+  outputType?: string
+  /**
+   * 正式资源来源入参的解释方式。省略或mapped按保存的取值映射解析context；direct按来源参数名直接读取context中的JSON值。
+   * direct用于接口/逻辑视图来源测试，须提供全部正式来源参数，不执行其取值函数；不改变查询身份、数据权限或持久定义。
+   * 由支持正式来源绑定的查询责任方执行，不能把此属性作为后端协议字段透传。
+   */
+  sourceInputMode?: 'mapped' | 'direct'
+  /**
+   * 显式服务器节点查询参数，交由正式查询owner执行；不同于DataView.treeConfig的树呈现结构。
+   * 字段使用视图输出名，由正式模型绑定owner映射到模型Name；不从当前行或模型关系猜测节点。
+   */
+  tree?: Readonly<{
+    /** 节点主键字段，非空。 */
+    keyField: string
+    /** 父节点字段，非空。 */
+    parentField: string
+    /** 本次查询的节点ID，非空字符串；根值也须显式提供。 */
+    nodeId: string
+    /** 子节点存在标志字段；省略时SPARK API使用hasChild。 */
+    hasChildrenField?: string
+    /** child查询直接子节点；parent定位祖先及各级同级节点；省略时为child。 */
+    mode?: 'child' | 'parent'
+  }>
   /** 排序字符串 */
   sort?: string
   /** 过滤条件 */
   filter?: DataViewFilterTree
   /** 搜索关键字 */
   search?: string
-  /** 要查询的字段列表 */
-  fields?: string[]
+  /** 要查询的输出字段名；可由queryConfig持久声明，省略时使用视图投影。身份及依赖字段由查询适配器补齐。 */
+  fields?: readonly string[]
   /** 要包含的关联数据 */
   include?: string[]
   /** 视图 ID */
@@ -1502,11 +1608,18 @@ export type CrudOperationConfig = {
   transformRequest?: (data: unknown) => unknown
   /** 响应数据转换函数 */
   transformResponse?: (data: unknown, request: unknown) => unknown}
-/** 后端最终返回的五个稀疏权限集合；字段集合互相独立，不得压缩为枚举。 */
+/** 后端最终返回的字段权限及行操作许可；读写通道独立，不得压缩为单一权限枚举。 */
 export type DataPermissionSets = Readonly<{
-  r: readonly string[]
+  /** 必填字段；后端同时并入 e，默认可编辑分支可省略，省略不表示全部必填。 */
+  r?: readonly string[]
+  /** 可写字段名单；不由 h/m 撤销。 */
   e: readonly string[]
+  /** 原值不可见的字段名单。 */
   h: readonly string[]
+  /** 由后端脱敏的字段名单。 */
   m: readonly string[]
+  /** 当前行删除许可，与字段可写独立。 */
   d: boolean
+  /** 当前行作为父行新增子项的许可；仅自引用模型返回，只有明确 true 才允许。 */
+  c?: boolean
 }>

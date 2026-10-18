@@ -8,8 +8,104 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { RequestState, SparkData } from '@spark-appworks/spark-data'
+import { DataView, RequestState, SparkData, type CrudResult } from '@spark-appworks/spark-data'
 import { setMember } from '../test-type-helpers'
+
+describe('query completion lifecycle', () => {
+  function fixture() {
+    const ds = SparkData.createDataSet({scenarioId: 'S', dataSetName: 'Completion', tables: {Items: {
+      tableName: 'Items', columns: [{name: 'id', type: 'number', isPrimaryKey: true}],
+      api: {list: {url: '/items', method: 'GET'}}, views: {default: {onRequestComplete: 'loaded', autoCurrentFirst: true}},
+    }}})
+    const view = ds.getView('Items')!
+    const list = vi.fn<() => Promise<CrudResult>>(async () => ({success: true, data: {rows: [{id: 1}], total: 1}}))
+    setMember(view.dataTable!, '_crudService', {list})
+    return {ds, view, list}
+  }
+
+  it('round trips the explicit function name, supports clearing and rejects script text', () => {
+    const {ds, view} = fixture()
+    try {
+      expect(DataView.fromJson(view.toJson(), 'Items', 'copy').onRequestComplete).toBe('loaded')
+      expect(view.createQueryView('auxiliary').onRequestComplete).toBe('')
+      for (const value of [false, null, 'loaded()', 'function loaded() {}', ' loaded ', 'page.loaded']) {
+        expect(() => DataView.fromJson({onRequestComplete: value}, 'Items', 'bad')).toThrow('onRequestComplete')
+      }
+      view.configure({onRequestComplete: ''})
+      expect(view.onRequestComplete).toBe('')
+      expect(view.toJson().onRequestComplete).toBeUndefined()
+    } finally {ds.destroy()}
+  })
+
+  it('fires after result and pointer acceptance for each query, independently of row editing', async () => {
+    const {ds, view, list} = fixture(), completed = vi.fn(() => ({state: view.requestState, id: view.currentRow?.['id']}))
+    const off = ds.onAnyViewChange({requestCompleted: completed})
+    try {
+      await view.loadFromServer()
+      await view.refresh()
+      await view.setPage(2)
+      await view.setSort([{field: 'id', direction: 'desc'}])
+      await view.setFilter({field: 'id', operator: 'eq', value: 1})
+      expect(completed).toHaveBeenCalledTimes(list.mock.calls.length)
+      expect(completed).toHaveBeenCalledWith('Items', 'default')
+      expect(completed.mock.results.every(result => result.type === 'return'
+        && result.value.state === RequestState.Loaded && result.value.id === 1)).toBe(true)
+      const count = completed.mock.calls.length
+      view.setCurrentRow(null)
+      view.updateFromServer([{id: 1}])
+      expect(completed).toHaveBeenCalledTimes(count)
+      off()
+      await view.refresh()
+      expect(completed).toHaveBeenCalledTimes(count)
+    } finally {off(); ds.destroy()}
+  })
+
+  it('does not complete failed, superseded or disposed requests', async () => {
+    const {ds, view, list} = fixture(), completed = vi.fn()
+    view.events.on('requestCompleted', completed)
+    list.mockResolvedValueOnce({success: false, message: 'rejected'})
+    await view.loadFromServer()
+    list.mockRejectedValueOnce(new Error('offline'))
+    await view.refresh()
+    expect(view.loadingError?.message).toBe('offline')
+    for (const dispose of [false, true]) {
+      let resolve!: (result: CrudResult) => void
+      list.mockImplementationOnce(() => new Promise(done => {resolve = done}))
+      const loading = view.refresh()
+      await vi.waitFor(() => expect(resolve).toBeTypeOf('function'))
+      if (dispose) ds.destroy()
+      else view.queryConfig = {allPages: true}
+      resolve({success: true, data: {rows: [{id: 2}], total: 1}})
+      await loading
+    }
+    expect(completed).not.toHaveBeenCalled()
+  })
+
+  it('keeps an accepted query successful when a completion subscriber throws', async () => {
+    const {ds, view} = fixture()
+    view.events.on('requestCompleted', () => {throw new Error('completion failed')})
+    try {
+      expect((await view.loadFromServer()).success).toBe(true)
+      expect(view.requestState).toBe(RequestState.Loaded)
+      expect(view.loadingError).toBeNull()
+    } finally {ds.destroy()}
+  })
+
+  it('completes the nested tree query only after successful acceptance', async () => {
+    const {ds, view} = fixture(), completed = vi.fn()
+    const fetchNested = vi.fn().mockResolvedValue([{id: 1, children: [{id: 2}]}])
+    setMember(view, 'treeManager', {fetchNested})
+    view.events.on('requestCompleted', completed)
+    try {
+      expect((await view.loadTreeNested()).success).toBe(true)
+      expect(view.rows[0]?.['children']).toMatchObject([{id: 2}])
+      expect(completed).toHaveBeenCalledTimes(1)
+      fetchNested.mockRejectedValueOnce(new Error('tree failed'))
+      await expect(view.loadTreeNested()).rejects.toThrow('tree failed')
+      expect(completed).toHaveBeenCalledTimes(1)
+    } finally {setMember(view, 'treeManager', undefined); ds.destroy()}
+  })
+})
 
 function createTestDataSet() {
   return SparkData.createDataSet({

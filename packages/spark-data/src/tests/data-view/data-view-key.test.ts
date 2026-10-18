@@ -111,7 +111,7 @@ describe('DataViewKey', () => {
   })
 
   it('rejects member keys and malformed keys', () => {
-    const keyWithMember = ['Orders', 'grid', 'rows'].join('@')
+    const keyWithMember = ['SPACE', 'Orders', 'grid', 'rows'].join('@')
     expect(parseDataViewKey(keyWithMember)).toBeNull()
     expect(parseDataViewKey('Orders')).toBeNull()
     expect(parseDataViewKey('#SharedDS@Orders')).toBeNull()
@@ -132,7 +132,7 @@ describe('DataViewKey', () => {
   it('builds data view keys', () => {
     expect(buildDataViewKey('Users')).toBe('Users@default')
     expect(buildDataViewKey('Users', 'grid')).toBe('Users@grid')
-    expect(buildDataViewKey('Users', 'grid', 'SharedDS')).toBe('#SharedDS@Users@grid')
+    expect(buildDataViewKey('Users', 'grid', 'SharedDS')).toBe('SharedDS@Users@grid')
   })
 })
 
@@ -235,7 +235,8 @@ describe('DataMember resolution', () => {
   })
 
   it('extracts view identity from parsed keys', () => {
-    expect(getDataViewIdentity(parseDataViewKey('#SharedDS@Users@grid')!)).toBe('Users.grid')
+    expect(getDataViewIdentity(parseDataViewKey('#SharedDS@Users@grid')!)).toBe('SharedDS@Users@grid')
+    expect(getDataViewIdentity(parseDataViewKey('OtherSpace@Users@grid')!)).not.toBe(getDataViewIdentity(parseDataViewKey('SharedDS@Users@grid')!))
   })
 })
 

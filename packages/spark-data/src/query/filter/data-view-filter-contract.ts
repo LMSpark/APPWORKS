@@ -65,6 +65,12 @@ export type DataViewFilterFunctionTable = Readonly<{
   name: string
   label?: string
   fields?: readonly DataViewFilterFunctionTableField[]
+  /**
+   * 字段未提供时，独立编辑器按所选模型或表达式显式引用调用此目录读取器。
+   * 显式空 fields 表示已加载的空目录，不再调用；读取失败保留原草稿。
+   * 读取器由正式数据 owner 提供并核对身份/数据权限；不查询业务行、不执行值函数，不能序列化进过滤树。
+   */
+  loadFields?: () => Promise<readonly DataViewFilterFunctionTableField[]>
 }>
 /** 按流程模型 ID 分组的节点选项，供值函数字段选择。 */
 export type DataViewFilterFlowNodeOptions = Readonly<Record<string, readonly DataViewFilterValueOption[]>>
@@ -79,7 +85,6 @@ export type DataViewFilterFunctionContext = Readonly<{
   apiPublicParams?: readonly DataViewFilterValueOption[]
   inputParams?: readonly DataViewFilterValueOption[]
   apiAccounts?: readonly DataViewFilterValueOption[]
-  roleClassItems?: readonly DataViewFilterValueOption[]
   capabilities?: readonly DataViewFilterFunctionCapability[]
   flowModelOptions?: readonly DataViewFilterValueOption[]
   flowNodeOptionsByModelId?: DataViewFilterFlowNodeOptions

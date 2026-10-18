@@ -612,10 +612,11 @@ describe('PROMPT 验证 — 案例 C: HR 部门管理', () => {
   it('C-5: DataSet 含 api 配置时显式 DataView cascade 能正常读取', () => {
     const ds = fromPromptJson(CASE_C_JSON)
     const rel = ds.viewCascades?.[0]
-    expect(rel?.parentTable).toBe('Departments')
-    expect(rel?.childTable).toBe('Employees')
-    expect(rel?.parentViewId).toBe('default')
-    expect(rel?.childViewId).toBe('default')
+    if (!rel || rel.kind === 'field') throw new Error('Expected a query cascade')
+    expect(rel.parentTable).toBe('Departments')
+    expect(rel.childTable).toBe('Employees')
+    expect(rel.parentViewId).toBe('default')
+    expect(rel.childViewId).toBe('default')
     // 有 API 的子表 crudService 存在（cascade 走网络路径）
     const employees = ds.getView('Employees')!
     expect(employees.crudService).not.toBeNull()
@@ -1196,15 +1197,24 @@ describe('Case I：标准提示词模板自测 - 物业管理系统（三级层�
     expect(f(communities.rows[2], 'totalUnits')).toBe(48)   // 1栋 48
   })
 
-  it('I-10: $count 二级计算列 - 1栋(id=101) repairCount=2', async () => {
+  it('I-10: $count 二级计算列随子视图当前结果重算，不保留被筛除工单的旧汇总', async () => {
     const ds = fromPromptJson(CASE_I_JSON)
-    const communities = ds.getView('Communities')!
-    const buildings   = ds.getView('Buildings')!
-    communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园
-    await flushDataViewDebouncers()
-    // 级联后 Buildings 只有 id=101, 102
-    expect(f(buildings.rows[0], 'repairCount')).toBe(2) // 1栋: 1001, 1002
-    expect(f(buildings.rows[1], 'repairCount')).toBe(1) // 2栋: 1003
+    try {
+      const communities = ds.getView('Communities')!
+      const buildings = ds.getView('Buildings')!
+      const repairOrders = ds.getView('RepairOrders')!
+      expect(buildings.rows.map(row => f(row, 'repairCount'))).toEqual([2, 1, 1, 1])
+      communities.selection.setCurrentRow(communities.rows[0]!) // 翠湖花园
+      await flushDataViewDebouncers()
+      expect(buildings.rows.map(row => f(row, 'id'))).toEqual([101, 102])
+      expect(repairOrders.rows.map(row => f(row, 'id'))).toEqual([1001, 1002])
+      // 聚合读取default当前结果；2栋的工单已被子视图过滤，不能沿用旧值1。
+      expect(buildings.rows.map(row => f(row, 'repairCount'))).toEqual([2, 0])
+      buildings.selection.setCurrentRow(buildings.rows[1]!)
+      await flushDataViewDebouncers()
+      expect(repairOrders.rows.map(row => f(row, 'id'))).toEqual([1003])
+      expect(buildings.rows.map(row => f(row, 'repairCount'))).toEqual([0, 1])
+    } finally { ds.destroy() }
   })
 
   it('I-11: $join 二级计算列 - 1栋(id=101) repairTypes', async () => {

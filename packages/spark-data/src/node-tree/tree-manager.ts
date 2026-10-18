@@ -293,7 +293,7 @@ export class TreeManager {
    * @returns 根节点数组
    */
   getRoots(): FlatTreeNode[] {
-    return this.getChildren(null)
+    return this.getChildren(this.config.rootParentValue ?? null)
   }
 
   // ===== HTTP 树操作（需配置 api） =====

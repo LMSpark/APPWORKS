@@ -10,9 +10,9 @@ SPARK 的纯数据层包，提供 DataSet、DataTable、DataView、TreeManager �
 
 ## 核心对象
 
-- `DataSet`：页面级数据容器与协调中心
-- `DataTable`：表定义、列定义与源数据
-- `DataView`：UI 绑定视图、选中态、分页与聚合
+- `DataSet`：正式场景的运行数据空间；也支持独立局部数据集，一次页面调用可持多个 DataSet
+- `DataTable`：模型绑定、columns 与多个命名 DataView；静态数据可另有本地来源行
+- `DataView`：独立查询、结果、选择、分页、树、编辑与权限消费
 - `TreeManager`：树节点缓存、路径展开与嵌套输出
 
 ## 开发命令

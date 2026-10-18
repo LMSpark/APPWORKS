@@ -128,7 +128,7 @@ function saveFixture() {
 }
 
 describe('SPARK DataSet save preflight', () => {
-  it('rejects same-model editing views before applying drafts or touching cascades', async () => {
+  it('rejects same-record editing views before applying drafts or touching cascades', async () => {
     const { dataSet, first, second, apply, save, teardown } = saveFixture()
     first.updateEditingValue('1', 'name', 'first draft')
     second.updateEditingValue('1', 'name', 'second draft')
@@ -141,7 +141,7 @@ describe('SPARK DataSet save preflight', () => {
     dataSet.destroy()
   })
 
-  it('rejects a pending change and an editing draft for the same model', async () => {
+  it('rejects a pending change and an editing draft for the same record', async () => {
     const { dataSet, first, second, apply, save, teardown } = saveFixture()
     first.dirtyTracking.markDirty('1', { name: 'pending' })
     second.updateEditingValue('1', 'name', 'draft')
@@ -150,6 +150,18 @@ describe('SPARK DataSet save preflight', () => {
     expect(save).not.toHaveBeenCalled()
     expect(teardown).not.toHaveBeenCalled()
     expect(first.dirtyTracking.isDirty('1')).toBe(true)
+    dataSet.destroy()
+  })
+
+  it('permits different rows in same-model views and still requires the original query owner', async () => {
+    const {dataSet, first, second, teardown} = saveFixture()
+    second.replaceRows([{id: '2', name: 'second'}])
+    first.updateEditingValue('1', 'name', 'first draft')
+    second.updateEditingValue('2', 'name', 'second draft')
+    await expect(dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_OWNER')
+    expect(teardown).not.toHaveBeenCalled()
+    expect(first.getEditingPatch('1')).toEqual({name: 'first draft'})
+    expect(second.getEditingPatch('2')).toEqual({name: 'second draft'})
     dataSet.destroy()
   })
 

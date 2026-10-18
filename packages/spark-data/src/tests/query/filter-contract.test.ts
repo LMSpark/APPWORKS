@@ -1,7 +1,50 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DataViewFilter } from '../../query/filter/data-view-filter'
+import {getDataViewFilterFunctionDefinitions} from '../../query/filter/data-view-filter-catalog'
 import { DataViewFilterLocal } from '../../query/filter/data-view-filter-local'
 import type { DataViewFilterFunctionContext, DataViewFilterJsonObject } from '../../query/filter/data-view-filter-contract'
+
+describe('filter editor context constraints', () => {
+  it('retains explicit disabled definitions through repeated normalization and validation', () => {
+    const context: DataViewFilterFunctionContext = {inputParams: [{label: '目标空间', value: 'dataSpaceId'}], definitions: [
+      ...getDataViewFilterFunctionDefinitions({inputParams: [{label: '目标空间', value: 'dataSpaceId'}]})
+        .map(item => ({...item, enabled: () => item.type === 'GetInputParam'})),
+      {type: 'GetConstValue', label: '常量', fields: [{key: 'Value', label: '值', control: 'json', required: true}]},
+    ]}
+    const once = DataViewFilter.editorContext(context), twice = DataViewFilter.editorContext(once)
+    for (const result of [once, twice]) {
+      expect(getDataViewFilterFunctionDefinitions(result).map(item => item.type)).toEqual(['GetInputParam', 'GetConstValue'])
+      expect(DataViewFilter.condition({field: 'value', operator: 'eq', value: {Type: 'SystemData', ParamName: 'UserID'}})
+        .validate({fields: [{name: 'value', type: 'text'}], valueFunctions: result}).length).toBeGreaterThan(0)
+      expect(DataViewFilter.condition({field: 'value', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'dataSpaceId'}})
+        .validate({fields: [{name: 'value', type: 'text'}], valueFunctions: result})).toEqual([])
+    }
+    expect(once.systemParams?.filter(item => item.value === 'UserID')).toHaveLength(1)
+    expect(twice.systemParams).toEqual(once.systemParams)
+  })
+})
+
+describe('backend aggregate value-function editing', () => {
+  it.each(['SUM', 'COUNT', 'AVERAGE', 'MIN', 'MAX'])('edits %s without inventing a referenced table', ValType => {
+    const value = {Type: 'GetGroupData', ValType}
+    const filter = DataViewFilter.condition({field: 'amount', operator: 'eq', value})
+    expect(filter.validate({fields: [{name: 'amount', type: 'number'}], valueFunctions: {}})).toEqual([])
+    expect(getDataViewFilterFunctionDefinitions({}).find(item => item.type === 'GetGroupData')?.fields.map(field => field.key)).toEqual(['ValType'])
+    expect(filter.toJSON()).toEqual({field: 'amount', operator: 'eq', value})
+  })
+  it.each(['Sum', 'Count', 'Avg', 'Min', 'Max'])('recognizes the backend %s subtype in the same editor', Type => {
+    const filter = DataViewFilter.condition({field: 'amount', operator: 'eq', value: {Type}})
+    expect(filter.validate({fields: [{name: 'amount', type: 'number'}], valueFunctions: {}})).toEqual([])
+  })
+  it.each([
+    {Type: 'GetGroupData', GroupTableName: 'Orders', GroupField: 'customer', Field: 'amount', ValType: 'SUM'},
+    {Type: 'GetGroupData', ValType: 'JOINSTR'},
+  ])('preserves unsupported legacy aggregate data and diagnoses it rather than inventing execution: %j', value => {
+    const filter = DataViewFilter.condition({field: 'amount', operator: 'eq', value})
+    expect(filter.validate({fields: [{name: 'amount', type: 'number'}], valueFunctions: {}}).length).toBeGreaterThan(0)
+    expect(filter.toJSON()).toEqual({field: 'amount', operator: 'eq', value})
+  })
+})
 
 const functionContext: DataViewFilterFunctionContext = {
   tables: [{ name: 'Orders', fields: [{ name: 'id' }, { name: 'amount' }, { name: 'customerId' }] }],
@@ -9,7 +52,6 @@ const functionContext: DataViewFilterFunctionContext = {
   apiPublicParams: [{ label: '公共参数', value: 'publicKey' }],
   inputParams: [{ label: '查询参数', value: 'query' }],
   apiAccounts: [{ label: '账号', value: 'account' }],
-  roleClassItems: [{ label: '角色分类', value: 'roleClass' }],
   flowModelOptions: [{ label: '模型', value: 'flow' }],
   flowNodeOptionsByModelId: { flow: [{ label: '节点', value: 'node' }] },
   capabilities: ['huoshan', 'api-account', 'coze-auth'],
@@ -17,19 +59,69 @@ const functionContext: DataViewFilterFunctionContext = {
 
 const functionCases: readonly DataViewFilterJsonObject[] = [
   { Type: 'GetRefData', RefTableName: 'Orders', RefFieldName: 'amount', FkFieldName: 'customerId' },
-  { Type: 'GetGroupData', GroupTableName: 'Orders', GroupField: 'customerId', Field: 'amount', ValType: 'SUM' },
+  { Type: 'GetGroupData', ValType: 'SUM' },
   { Type: 'SystemData', ParamName: 'UserID' },
   { Type: 'GetExpData', refTableName: 'Orders', Exp: 'amount + 1' },
   { Type: 'GetTableField', Field: 'Orders.amount' },
   { Type: 'GetApiPublicParam', ParamName: 'publicKey' },
   { Type: 'GetInputParam', ParamName: 'query' },
   { Type: 'GetObjectArray', arrParamName: 'query', objectConstruct: '{"id":"item.id"}' },
-  { Type: 'GetUserMasterId', refType: 'role', roleClassId: 'roleClass' },
+  { Type: 'GetUserMasterId', refType: 'dep', depLevel: '0' },
   { Type: 'GetFlowNodeStepUserId', ModelId: 'flow', NodeId: 'node', Role: 'send' },
   { Type: 'GetHuoShanData', accessKey: 'fixture-key', secretKey: 'fixture-secret' },
   { Type: 'GetApiAccount', ParamName: 'account' },
   { Type: 'CozeAuth', publicKey: 'fixture-public', privateKey: 'fixture-private', appId: 'app' },
 ]
+
+describe('filter editor field loading', () => {
+  it('loads only explicit function tables once and preserves the full model catalogue', async () => {
+    const orders = vi.fn(async () => [{name: 'amount'}, {name: 'id'}])
+    const unused = vi.fn(async () => [{name: 'secret'}])
+    const context = {tables: [{name: 'Orders', loadFields: orders}, {name: 'Unused', loadFields: unused}]}
+    const filter = DataViewFilter.group({logic: 'and', filters: [
+      {field: 'Name', operator: 'eq', value: {Type: 'GetRefData', RefTableName: 'Orders', RefFieldName: 'amount', FkFieldName: 'id'}},
+      {field: 'Name', operator: 'eq', value: {Type: 'GetGroupData', GroupTableName: 'Orders', GroupField: 'id', Field: 'amount', ValType: 'SUM'}},
+      {field: 'Name', operator: 'eq', value: {Type: 'GetConstValue', Value: {Type: 'GetRefData', RefTableName: 'Unused'}}},
+    ]})
+    const result = await filter.loadEditorContext(context)
+    expect(orders).toHaveBeenCalledOnce(); expect(unused).not.toHaveBeenCalled()
+    expect(result.tables?.map(table => table.name)).toEqual(['Orders', 'Unused'])
+    expect(result.tables?.[0]?.fields).toEqual([{name: 'amount'}, {name: 'id'}])
+    expect(context.tables[0]).not.toHaveProperty('fields')
+    expect(filter.validate({fields: [{name: 'Name', type: 'text'}], valueFunctions: result}))
+      .toEqual([expect.objectContaining({code: 'invalid-value-function', message: expect.stringContaining('旧引用分组')})])
+    expect(filter.toJSON()).toHaveProperty('filters.1.value.GroupTableName', 'Orders')
+  })
+
+  it('keeps an explicit empty field catalogue authoritative and does not load unknown tables', async () => {
+    const loadFields = vi.fn(async () => [{name: 'id'}])
+    for (const name of ['Orders', 'Unknown']) {
+      const filter = DataViewFilter.condition({field: 'Name', operator: 'eq', value: {Type: 'GetRefData', RefTableName: name, RefFieldName: 'id', FkFieldName: 'id'}})
+      const result = await filter.loadEditorContext({tables: [{name: 'Orders', fields: [], loadFields}]})
+      expect(filter.validate({fields: [{name: 'Name', type: 'text'}], valueFunctions: result})).not.toEqual([])
+    }
+    expect(loadFields).not.toHaveBeenCalled()
+  })
+
+  it('propagates loader errors without caching a false empty catalogue', async () => {
+    const loadFields = vi.fn().mockRejectedValueOnce(new Error('fields unavailable')).mockResolvedValueOnce([{name: 'id'}])
+    const context = {tables: [{name: 'Orders', loadFields}]}
+    const filter = DataViewFilter.condition({field: 'Name', operator: 'eq', value: {Type: 'GetExpData', refTableName: 'Orders', Exp: 'id'}})
+    await expect(filter.loadEditorContext(context)).rejects.toThrow('fields unavailable')
+    expect((await filter.loadEditorContext(context)).tables?.[0]?.fields).toEqual([{name: 'id'}])
+    expect(loadFields).toHaveBeenCalledTimes(2)
+  })
+
+  it('rejects ambiguous model identity and malformed field catalogues', async () => {
+    const filter = DataViewFilter.condition({field: 'Name', operator: 'eq', value: {Type: 'GetExpData', refTableName: 'Orders', Exp: 'id'}})
+    const loadFields = vi.fn(async () => [{name: 'id'}])
+    await expect(filter.loadEditorContext({tables: [{name: 'Orders', fields: []}, {name: 'Orders', loadFields}]})).rejects.toThrow('重复名称')
+    expect(loadFields).not.toHaveBeenCalled()
+    for (const fields of [[{name: ''}], [{name: 'id'}, {name: 'id'}]]) {
+      await expect(filter.loadEditorContext({tables: [{name: 'Orders', loadFields: async () => fields}]})).rejects.toThrow('字段目录无效')
+    }
+  })
+})
 
 describe('local execution of the public filter tree', () => {
   it.each([
@@ -265,7 +357,10 @@ describe('SPARK public filter value object', () => {
     expect(validate({ Type: 'CozeAuth', publicKey: 'p', privateKey: 's', appId: 'a' }, {})[0]?.code)
       .toBe('invalid-value-function')
     expect(validate({ Type: 'GetUserMasterId', refType: 'dep', depLevel: '0', getChildDep: false })).toEqual([])
-    expect(validate({ Type: 'GetUserMasterId', refType: 'role', depLevel: '0' })[0]?.path).toBe('$.value.roleClassId')
+    const legacy = {Type: 'GetUserMasterId', refType: 'role', roleClassId: 'legacy'}
+    expect(validate(legacy)[0]).toMatchObject({path: '$.value', code: 'invalid-value-function',
+      message: expect.stringContaining('已停用的角色分类分支')})
+    expect(DataViewFilter.condition({field: 'result', operator: 'eq', value: legacy}).toJSON().value).toEqual(legacy)
   })
 
   it('does not substitute defaults for explicitly empty choices or reset disabled selections', () => {

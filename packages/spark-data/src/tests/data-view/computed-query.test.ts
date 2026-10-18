@@ -3,13 +3,21 @@ import { DataSet } from '../../dataset'
 import { DataView } from '../../data-view'
 import type { DataRow } from '../../types'
 
-type FixtureRow = DataRow & { lingma_sys_params?: { h?: string[]; m?: string[] } }
+type FixturePermissions = Readonly<{ h?: readonly string[]; m?: readonly string[] }>
+type FixtureRow = Record<string, unknown> & { lingma_sys_params?: FixturePermissions }
 
-function makeResult(tableName: string, rows: FixtureRow[], keyless = false) {
+function makeResult(tableName: string, input: FixtureRow[], keyless = false) {
   const identity = { scenarioId: 'SCENE', metaName: tableName }
+  // 查询夹具拥有权限事实；公开业务行不携带原始权限字段。
+  const permissions = new WeakMap<DataRow, FixturePermissions>()
+  const rows = input.map(({ lingma_sys_params, ...row }): DataRow => {
+    permissions.set(row, lingma_sys_params ?? {})
+    return row
+  })
   const access = (row: DataRow, field: string) => {
-    const read = !rows.includes(row) || row.lingma_sys_params?.h?.includes(field) ? 'invisible'
-      : row.lingma_sys_params?.m?.includes(field) ? 'masked'
+    const permission = permissions.get(row)
+    const read = !permission || permission.h?.includes(field) ? 'invisible'
+      : permission.m?.includes(field) ? 'masked'
         : 'visible'
     return { read, write: 'denied', component: read === 'invisible' ? 'hidden' : 'readonly',
       required: false, writeMode: 'readonly' } as const
@@ -85,8 +93,10 @@ describe('bound computed query consumption', () => {
     const row = Object.fromEntries([['id', 1], ['__proto__', 'CHOICE']])
     view.bindQueryExecutor({ executeQuery: async () => makeResult('Orders', [row]) })
     const options = await view.queryOptionRows({ fields: ['__proto__'] })
-    expect(Object.hasOwn(options[0], '__proto__')).toBe(true)
-    expect(options[0]?.['__proto__']).toBe('CHOICE')
+    const option = options[0]
+    if (!option) throw new Error('missing option row')
+    expect(Object.hasOwn(option, '__proto__')).toBe(true)
+    expect(option['__proto__']).toBe('CHOICE')
     ds.destroy()
   })
 
@@ -113,9 +123,15 @@ describe('bound computed query consumption', () => {
 
   it.each(['h', 'm'] as const)('rejects %s-protected option inputs and dependent calculations', async marker => {
     const { view } = makeDataSet()
-    view.bindQueryExecutor({ executeQuery: async () => makeResult('Orders', [
+    const result = makeResult('Orders', [
       { id: 1, price: 3, qty: 4, lingma_sys_params: { [marker]: ['price'] } },
-    ]) })
+    ])
+    const row = result.rows[0]
+    if (!row) throw new Error('missing protected option row')
+    expect(row).not.toHaveProperty('lingma_sys_params')
+    expect(result.readFieldAccess(row, 'price')).toBe(marker === 'h' ? 'invisible' : 'masked')
+    expect(result.readFieldAccess({ ...row }, 'price')).toBe('invisible')
+    view.bindQueryExecutor({ executeQuery: async () => result })
     await expect(view.queryOptionRows({ fields: ['price'] })).rejects.toThrow('DATA_VIEW_OPTIONS_FIELD')
     await expect(view.queryOptionRows({ fields: ['total'] })).rejects.toThrow('DATA_VIEW_OPTIONS_FIELD')
     expect(view.rows).toEqual([])
@@ -385,8 +401,12 @@ describe('bound computed query consumption', () => {
       ? { ...column, computeExpression: 'price + qty' } : column)
     view.recomputeColumns()
     expect(view.rows[0]?.['total']).toBe(7)
-    table.columns = table.columns.map(column => column.name === 'total'
-      ? { ...column, computeExpression: undefined } : column)
+    table.columns = table.columns.map(column => {
+      if (column.name !== 'total') return column
+      const cleared = { ...column }
+      delete cleared.computeExpression
+      return cleared
+    })
     view.recomputeColumns()
     expect(view.computedColumnNames.has('total')).toBe(false)
     expect(view.computedColumnNames.has('_pk')).toBe(true)
@@ -439,6 +459,29 @@ function makeAggregateDataSet(expression: string, childExpression?: string) {
 }
 
 describe('bound computed relation aggregation', () => {
+  it('recomputes a loaded parent after child query results change and consumes the latest child field permissions', async () => {
+    const {orders, items} = makeAggregateDataSet("$sum('Items', 'amount') + $count('Items')")
+    try {
+      orders.bindQueryExecutor({executeQuery: async () => makeResult('Orders', [{id: 1}])})
+      let result = makeResult('Items', [{id: 10, orderId: 1, amount: 5}])
+      items.bindQueryExecutor({executeQuery: async () => result})
+      await orders.loadFromServer()
+      await items.loadFromServer()
+      expect(orders.rows[0]?.['total']).toBe(6)
+      result = makeResult('Items', [{id: 10, orderId: 1, amount: 12}])
+      await items.loadFromServer()
+      expect(orders.rows[0]?.['total']).toBe(13)
+      result = makeResult('Items', [{id: 10, orderId: 1, amount: 12, lingma_sys_params: {h: ['amount']}}])
+      await items.loadFromServer()
+      expect(orders.rows[0]?.['total']).toBeUndefined()
+      expect(orders.fieldAccess(orders.rows[0]!, 'total').read).toBe('invisible')
+      result = makeResult('Items', [{id: 10, orderId: 1, amount: 7}])
+      await items.loadFromServer()
+      expect(orders.rows[0]?.['total']).toBe(8)
+      expect(orders.fieldAccess(orders.rows[0]!, 'total').read).toBe('visible')
+    } finally {orders.dataSet?.destroy()}
+  })
+
   it('ignores unrelated hidden fields while using the full relation filter', async () => {
     const { orders, items } = makeAggregateDataSet("$sum('Items', 'amount') + $count('Items')")
     const children = makeResult('Items', [{ id: 10, orderId: 1, amount: 5, secret: 99,
@@ -450,6 +493,37 @@ describe('bound computed relation aggregation', () => {
     await orders.loadFromServer()
     expect(orders.rows[0]?.['total']).toBe(6)
     expect(orders.fieldAccess(orders.rows[0] ?? null, 'total').read).toBe('visible')
+  })
+
+  it('keeps relation aggregation tied to the default child view and releases its subscriptions with the parent', async () => {
+    const {orders, items} = makeAggregateDataSet("$sum('Items', 'amount')")
+    const independent = makeAggregateDataSet("$sum('Items', 'amount')")
+    try {
+      orders.bindQueryExecutor({executeQuery: async () => makeResult('Orders', [{id: 1}])})
+      let childRows = [{id: 10, orderId: 1, amount: 5}]
+      items.bindQueryExecutor({executeQuery: async () => makeResult('Items', childRows)})
+      independent.orders.bindQueryExecutor({executeQuery: async () => makeResult('Orders', [{id: 1}])})
+      independent.items.bindQueryExecutor({executeQuery: async () => makeResult('Items', [{id: 20, orderId: 1, amount: 30}])})
+      await orders.loadFromServer(); await items.loadFromServer()
+      await independent.orders.loadFromServer(); await independent.items.loadFromServer()
+      const events = vi.fn()
+      orders.events.on('rowsChanged', events)
+      const options = items.dataTable!.getOrCreateView('options')
+      options.bindQueryExecutor({executeQuery: async () => makeResult('Items', [{id: 99, orderId: 1, amount: 1000}])})
+      await options.loadFromServer()
+      items.setSelectedRows(items.rows)
+      expect(orders.rows[0]?.['total']).toBe(5)
+      expect(events).not.toHaveBeenCalled()
+      expect(independent.orders.rows[0]?.['total']).toBe(30)
+      childRows = []
+      await items.loadFromServer()
+      expect(orders.rows[0]?.['total']).toBe(0)
+      expect(independent.orders.rows[0]?.['total']).toBe(30)
+      orders.destroy()
+      const recompute = vi.spyOn(orders, 'recomputeColumns')
+      await items.loadFromServer()
+      expect(recompute).not.toHaveBeenCalled()
+    } finally {items.dataSet?.destroy(); independent.items.dataSet?.destroy()}
   })
 
   it.each(['orderId', 'amount'] as const)('rejects child %s permission and caught partial aggregates', async field => {

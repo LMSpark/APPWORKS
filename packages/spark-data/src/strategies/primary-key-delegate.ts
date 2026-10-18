@@ -13,7 +13,7 @@
  * - 主键值强转（coercePkValue）
  * - 主键生成器（PrimaryKeyGenerator）
  *
- * DataView 通过构造函数注入四个轻量回调持有对 DataView 资源的引用，
+ * DataView 通过构造函数注入轻量回调持有对 DataView 资源和本次结果身份的引用，
  * 避免循环依赖和双向耦合。
  *
  * ## `_pk` 统一计算列
@@ -107,12 +107,14 @@ export class PrimaryKeyDelegate {
    * @param _getColumnMap      获取列名→列定义 Map（用于 _coercePkValue O(1) 查找）
    * @param _getRows           获取当前行数组（用于主键生成器 / 补计算触发点）
    * @param _registerComputed  向 ComputedColumnDelegate 注册计算列（用于合成 _pk）
+   * @param _getResultPrimaryKey 当前查询结果的行身份；空字符串表示无主键结果，undefined沿用配置。
    */
   constructor(
     private readonly _getColumns: () => DataColumn[],
     private readonly _getColumnMap: () => Map<string, DataColumn> | undefined,
     private readonly _getRows: () => DataRow[],
     private readonly _registerComputed: (name: string, fn: (row: DataRow) => unknown) => void,
+    private readonly _getResultPrimaryKey?: () => string | undefined,
   ) {}
 
   // ─────────────────────────────────────────────
@@ -143,9 +145,11 @@ export class PrimaryKeyDelegate {
   /**
    * 推导实际的主键字段列表（不触发 _pk 注册副作用）。
    *
-   * 优先级：显式覆盖 > isPrimaryKey 列 > 默认 'id'
+   * 优先级：本次查询结果身份 > 显式覆盖 > isPrimaryKey 列 > 默认 'id'
    */
   private _resolveRawPkFields(): string[] {
+    const resultKey = this._getResultPrimaryKey?.()
+    if (resultKey !== undefined) return [resultKey]
     if (this._primaryKeyOverride !== undefined) return [this._primaryKeyOverride]
     const cols = this._getColumns()
     if (cols.length > 0) {
@@ -166,6 +170,7 @@ export class PrimaryKeyDelegate {
 
     const getColumnMap = this._getColumnMap
     this._registerComputed('_pk', (row: DataRow) => {
+      if (field === '') return undefined
       const value = row[field]
       if (value === undefined || value === null) return undefined
       return coercePkValue(value, getColumnMap()?.get(field))
@@ -227,14 +232,17 @@ export class PrimaryKeyDelegate {
    * 主键字段名（逻辑名称，用于级联、事件元数据等外部消费）。
    *
    * 解析优先级：
-   * 1. 显式覆盖值（通过 `primaryKey = 'xxx'` 设置）
-   * 2. DataTable 列定义中 `isPrimaryKey: true` 的列名（单列返回列名，多列返回 `'_pk'`）
-   * 3. 回退默认值 `'id'`
+   * 1. 本次查询结果身份（空字符串表示无主键只读结果，不改配置）
+   * 2. 显式覆盖值（通过 `primaryKey = 'xxx'` 设置）
+   * 3. DataTable 列定义中 `isPrimaryKey: true` 的列名（单列返回列名，多列返回 `'_pk'`）
+   * 4. 回退默认值 `'id'`
    *
    * 注意：此 getter 是纯函数（无副作用），不再触发计算列注册。
    * `_pk` 计算列由 `ensurePkColumn()` 统一管理。
    */
   get primaryKey(): string {
+    const resultKey = this._getResultPrimaryKey?.()
+    if (resultKey !== undefined) return resultKey
     if (this._primaryKeyOverride !== undefined) return this._primaryKeyOverride
 
     const cols = this._getColumns()
@@ -277,6 +285,7 @@ export class PrimaryKeyDelegate {
    * @internal 供委托（`LocalMutationDelegate` 等）校验/遍历真实字段
    */
   get effectivePkFields(): string[] {
+    if (this.primaryKey === '') return []
     return this._syntheticPkFields ?? [this.primaryKey]
   }
 
@@ -296,6 +305,7 @@ export class PrimaryKeyDelegate {
    * 所有内部 Map/Set/`===` 比较均使用此方法。
    */
   getPkKey(row: DataRow): string | number | undefined {
+    if (this.primaryKey === '') return undefined
     // 快速路径：_pk 计算列已注册，值已预计算
     if (this._pkColumnRegistered) {
       const pk = row['_pk']

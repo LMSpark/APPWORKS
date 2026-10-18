@@ -727,7 +727,15 @@ export class DataSetCrudTool {
         parents: cascade.parents.map(parent => parent.tableName === tableName && parent.field === columnName
           ? { ...parent, field: newColumnName } : parent),
       }) : ({ ...cascade,
+        ...(cascade.when ? {when: cascade.when.map(condition => cascade.parentTable === tableName && condition.field === columnName
+          ? {...condition, field: newColumnName} : condition)} : {}),
+        ...(cascade.inputBindings ? {inputBindings: cascade.inputBindings.map(binding => ({...binding,
+          ...(cascade.parentTable === tableName && binding.sourceField === columnName ? {sourceField: newColumnName} : {}),
+          ...(cascade.parentTable === tableName && binding.when?.field === columnName
+            ? {when: {...binding.when, field: newColumnName}} : {}),
+        }))} : {}),
         filterBindings: cascade.filterBindings.map((binding) => ({
+          ...binding,
           ...(binding.sourceField === undefined ? {} : {sourceField: cascade.parentTable === tableName && binding.sourceField === columnName
             ? newColumnName
             : binding.sourceField}),
@@ -765,7 +773,11 @@ export class DataSetCrudTool {
           || cascade.parents.some(parent => parent.tableName === tableName && (parent.field === columnName
             || (parent.field === undefined && this.dataSet.getView(parent.tableName, parent.viewId)?.effectivePkFields.includes(columnName))))
           || (cascade.optionsView.tableName === tableName && this.cascadeOptionsReferenceField(cascade, columnName))
-        : (cascade.parentTable === tableName
+        : (cascade.parentTable === tableName && cascade.when?.some(condition => condition.field === columnName) === true)
+          || (cascade.parentTable === tableName
+          && cascade.inputBindings?.some(binding => binding.sourceField === columnName || binding.when?.field === columnName
+            || (binding.sourceField === undefined && this.dataSet.getView(cascade.parentTable, cascade.parentViewId)?.effectivePkFields.includes(columnName))) === true)
+          || (cascade.parentTable === tableName
           && cascade.filterBindings.some(binding => binding.sourceField === columnName
             || (binding.sourceField === undefined && this.dataSet.getView(cascade.parentTable, cascade.parentViewId)?.effectivePkFields.includes(columnName))))
           || (cascade.childTable === tableName

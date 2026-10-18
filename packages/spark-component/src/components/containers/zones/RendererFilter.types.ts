@@ -10,24 +10,23 @@ import type { SparkNode, DataViewFilterFunctionContext } from '@spark-appworks/s
 /**
  * `r-filter` / `RendererFilter` 完整属性定义。
  *
- * SSOT 设计：r-filter 通过 `dataViewKey` 自治绑定 DataView，
- * 自己维护 filterModel / DataViewFilterTree / DataView.setFilter 同步。
- * 父容器（r-table 等）不再注入桥接字段；嵌入 r-table 时可省略 dataViewKey，
- * 由 r-table 提供的 DATA_SOURCE 能力向下注入。
+ * 容器统一过滤入口：通过 `dataViewKey` 绑定 DataView，未指定时继承父级 DATA_SOURCE。
+ * 完整表达式编辑器使用 DataViewFilterTree / DataView.executeFilter；
+ * 可选的常用筛选子组件通过同一 useFilterPanel / DataView.setFilter 同步。
+ * 过滤属于绑定视图，表格、树、列表共享视图时消费同一结果；容器不另建过滤或查询逻辑。
  */
 export type RFilterProps = SparkNodeProps & {
   /** 组件类型固定为 `r-filter`。 */
     type?: 'r-filter'
     /** 节点标识。 */
     id?: string
-    /** 默认筛选项节点列表（首选入口）。 */
+    /** 常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。 */
     children?: SparkNode[]
   
-    // ── 配置字段（pagedata.json 可设置） ─────────────────────────────────────
+    // ── 组件配置（rule.json 或原生 Vue） ─────────────────────────────────────
     /**
      * 筛选区附加 CSS class。
-     * @remarks 由父容器（r-table 等）直接读取并应用到自身包裹层（如 `:filter-class`），
-     * RendererFilter.vue 本身不消费此字段。
+     * @remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。
      */
     class?: string
     /**
@@ -36,6 +35,10 @@ export type RFilterProps = SparkNodeProps & {
      * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。
      */
     dataViewKey?: string
+    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与常用筛选时机。 */
+    autoQuery?: boolean | undefined
+    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器，取消恢复已应用条件，应用仍走DataView过滤链。 */
+    expressionDisplay?: 'dialog' | 'inline'
     /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */
     filterFunctionContext?: DataViewFilterFunctionContext
     /** 是否允许折叠。 */

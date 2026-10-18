@@ -11,6 +11,7 @@ AI用途：需要定位 components/containers/support/RendererFieldScope 的声�
     :label-position="labelPosition"
     :label-width="labelWidth"
     :inline="inline"
+    @submit.prevent
   >
     <div v-if="!inline" class="renderer-field-scope-grid" :style="gridStyle">
       <div
@@ -38,6 +39,7 @@ AI用途：需要定位 components/containers/support/RendererFieldScope 的声�
  * 使内部字段组件（r-text / r-select 等）可消费当前行数据并参与表单校验；
  * 同时通过 useContainerGrid 提供 24 列栅格布局。
  * 本组件自身不渲染任何字段，字段由 children 中的子节点声明。
+ * 阻止浏览器原生提交导航；显式监听器和字段键盘事件保持，查询由过滤器动作执行。
  * @category internal
  */
 import { computed, shallowReactive, watch } from 'vue'

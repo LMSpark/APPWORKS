@@ -221,6 +221,9 @@ function createResidentFieldRefDescriptor(
 /** 将节点配置描述为过滤描述符（优先检测 field-ref，否则作为用户输入过滤器）。 */
 function describeFilterNode(config: SparkNode): InputFilterDescriptor | ResidentFieldRefFilterDescriptor {
   const residentFieldRef = createResidentFieldRefDescriptor(config)
+  if (residentFieldRef && nodeInputProp(config, 'filterAlternatives') !== undefined) {
+    throw new Error('RendererFilter: filterAlternatives不能与filterValueRefField混用')
+  }
   if (residentFieldRef) return residentFieldRef
   return { kind: 'input', config, field: getNodeField(config) }
 }
@@ -258,9 +261,22 @@ function toResidentFieldRefCondition(descriptor: ResidentFieldRefFilterDescripto
 }
 
 /** UI 空输入不生成条件；公开 JSON 中的显式空值由 DataViewFilter 保留。 */
-function buildCondition(config: SparkNode, value: unknown): DataViewFilterTree | undefined {
+function buildCondition(config: SparkNode, value: unknown, view: FilterPanelDataView | null | undefined): DataViewFilterTree | undefined {
   const field = getNodeField(config)
   if (!field || isEmptyFilterValue(value)) return undefined
+  const alternatives = nodeInputProp(config, 'filterAlternatives')
+  if (alternatives !== undefined) {
+    if (config.type !== FILTER_NODE_TYPE_TEXT || typeof value !== 'string'
+      || !Array.isArray(alternatives) || !alternatives.length || isRangeFilterConfig(config)) {
+      throw new Error('RendererFilter: filterAlternatives需要文本及非空条件列表')
+    }
+    return DataViewFilter.group({logic:'or',filters:alternatives.map(item => {
+      if (!isRecord(item) || Object.keys(item).some(key => key !== 'field' && key !== 'operator')
+        || typeof item['field'] !== 'string' || !item['field'].trim()) throw new Error('RendererFilter: filterAlternatives条件无效')
+      if (!viewHasField(view,item['field'])) throw new Error(`RendererFilter: 过滤条件字段不存在 "${item['field']}"`)
+      return requireCondition(item['field'],item['operator'],value.trim())
+    })}).toJSON()
+  }
   const inferredRange = Array.isArray(value)
     && (config.type === FILTER_NODE_TYPE_DATE || config.type === FILTER_NODE_TYPE_NUMBER)
     && nodeInputProp(config, 'filterOp') === undefined && nodeInputProp(config, 'filterOperator') === undefined
@@ -322,9 +338,10 @@ function getInputFilterModelValue(
 function buildInputFilterConditions(
   descriptors: readonly InputFilterDescriptor[],
   model: Record<string, unknown>,
+  view: FilterPanelDataView | null | undefined,
 ): DataViewFilterTree[] {
   return descriptors
-    .map(descriptor => buildCondition(descriptor.config, getInputFilterModelValue(descriptor, model)))
+    .map(descriptor => buildCondition(descriptor.config, getInputFilterModelValue(descriptor, model), view))
     .filter((expr): expr is DataViewFilterTree => expr !== undefined)
 }
 
@@ -401,6 +418,8 @@ async function applyFilterSafely(params: ApplyFilterSafelyOptions): Promise<stri
 
 /** Use Filter Panel Options 的调用配置。 */
 type UseFilterPanelOptions = {
+  /** false时保留筛选草稿，查询按钮才应用；缺省立即。 */
+  autoQuery?: MaybeRefOrGetter<boolean>
   /** 过滤器子节点列表（响应式）。 */
   filterChildren: MaybeRefOrGetter<SparkNode[]>
   /** 目标 DataView（响应式）。 */
@@ -471,7 +490,7 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
     try {
       const conditions = [
         ...residentFieldRefConditions.value,
-        ...buildInputFilterConditions(inputFilterDescriptors.value, filterModel),
+        ...buildInputFilterConditions(inputFilterDescriptors.value, filterModel, resolvedFilterDataView.value),
       ]
       return { expr: combineFilterConditions(conditions), error: null }
     } catch (error) {
@@ -484,6 +503,7 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
 
   // DataView 切换时：将当前过滤表达式应用到新 view（用于持续过滤场景）。
   watch(resolvedFilterDataView, async (view) => {
+    if (toValue(options.autoQuery) === false) return
     if (filterBuild.value.error !== null) { filterError.value = filterBuild.value.error; return }
     if (filterBuild.value.expr === undefined) return
     filterError.value = await applyFilterSafely({
@@ -496,7 +516,8 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
   }, { immediate: true })
 
   // 表达式变化时：自动应用（set 模式，后续行为由 DataView 决定）。
-  watch(filterBuild, async (built, previous) => {
+  watch([filterBuild, () => toValue(options.autoQuery)], async ([built, automatic], [previous]) => {
+    if (automatic === false) return
     if (built.error !== null) { filterError.value = built.error; return }
     if (built.expr === undefined && previous.expr === undefined && previous.error === null) return
     filterError.value = await applyFilterSafely({

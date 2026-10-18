@@ -5,9 +5,20 @@
 AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <el-dialog
+  <FullscreenDialog
+    :title="resolvedTitle"
+    :fullscreen="fullscreen"
+    :fullscreenable="fullscreenable"
+    :auto-fullscreen-below="autoFullscreenBelow"
+    :reset-fullscreen-on-close="resetFullscreenOnClose"
+    :width="width"
+    :top="top"
+    :append-to-body="appendToBody"
+    :destroy-on-close="destroyOnClose"
     :model-value="visibleValue"
+    :before-close="beforeClose"
     @update:model-value="handleModelUpdate"
+    @update:fullscreen="emit('update:fullscreen', $event)"
     @open="handleOpen"
     @close="handleClose"
     @opened="handleOpened"
@@ -27,7 +38,8 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
       </div>
     </template>
 
-    <div :class="['renderer-dialog-body', bodyClass]" :style="gridStyle">
+    <div :key="scopeKey" :class="['renderer-dialog-body', bodyClass]" :style="gridStyle">
+        <p v-if="aggregateError" role="alert" style="grid-column: 1 / -1">{{ aggregateError.message }}</p>
         <div
           v-for="(child, index) in gridChildren"
           :key="nodeId(child) ?? `r-dialog-child-${index}`"
@@ -36,7 +48,9 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
         >
           <SparkComponentRenderer :config="child" />
         </div>
-        <slot v-bind="getDefaultScope()" />
+        <div v-if="$slots['default']" style="grid-column: 1 / -1; min-width: 0; width: 100%">
+          <slot v-bind="getDefaultScope()" />
+        </div>
     </div>
 
     <template v-if="showFooter" #footer>
@@ -49,7 +63,7 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
         <slot name="footer" v-bind="getFooterScope()" />
       </div>
     </template>
-  </el-dialog>
+  </FullscreenDialog>
 </template>
 
 <script setup lang="ts">
@@ -59,9 +73,11 @@ AI用途：需要理解 renderer dialog 的实际渲染结构、slot/toolbar/状
  * @notes 头部动作区与底部区域通过结构化 `header` / `footer` 声明
  */
 import { computed, getCurrentInstance, useSlots } from 'vue'
-import { useSparkPageComponent, SparkComponentRenderer } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 
 import type { RDialogProps } from './RendererDialog.props'
+import FullscreenDialog from './FullscreenDialog.vue'
 import { useContainerGrid } from '../../../runtime/container-layout'
 import type { VisibilityContainerApi } from '../../../support/crud/base-container-api'
 import { createVisibilityContainerZeroCode } from '../../../support/visibility-container-zero-code'
@@ -76,15 +92,20 @@ const props = withDefaults(defineProps<RDialogProps>(), {
   gridColumns: 24,
   gridGap: 0,
   gridAutoRows: 'minmax(32px, auto)',
+  fullscreen: false,
+  fullscreenable: false,
+  autoFullscreenBelow: 0,
+  resetFullscreenOnClose: false,
 })
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
+  'update:fullscreen': [fullscreen: boolean]
 }>()
 
 const instance = getCurrentInstance()
 const slots = useSlots()
-const { registerApi } = useSparkPageComponent(props)
+const { registerApi, scopeKey, aggregateError } = useLayoutDataContext(props)
 
 // 头/尾区域优先通过 props.header / props.footer 输入。
 const contentChildren = computed(() => props.children ?? [])
@@ -118,7 +139,16 @@ const hasHeader = computed(() => resolvedTitle.value.length > 0 || hasHeaderActi
 const showFooter = computed(() => footerActionConfigs.value.length > 0 || slots['footer'] !== undefined)
 
 function closeDialog(): void {
-  commitVisibleValue(false)
+  commitAllowedVisibility(false)
+}
+
+function commitAllowedVisibility(value: boolean): void {
+  if (!value && props.closeDisabled === true) return
+  commitVisibleValue(value)
+}
+
+function beforeClose(done: () => void): void {
+  if (props.closeDisabled !== true) done()
 }
 
 function hasExplicitModelValue(): boolean {
@@ -149,7 +179,7 @@ const {
   handleClosed: () => void
 } = createVisibilityContainerZeroCode({
   visibleValue,
-  commitVisibleValue,
+  commitVisibleValue: commitAllowedVisibility,
   onOpen: props.onOpen,
   onClose: props.onClose,
   onOpened: props.onOpened,
@@ -195,7 +225,7 @@ function getFooterScope() {
   min-width: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .renderer-dialog-header-actions,

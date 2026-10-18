@@ -13,11 +13,12 @@ import { type SparkRuntimeOwner, sparkResolveParentContext } from '../../../core
 /**
  * 字段渲染模式 — 与容器 type 名解耦的语义标签。
  *
- * 约定值：'table' | 'form' | 'tree' | 'detail'。
+ * 约定值：'table' | 'form' | 'tree' | 'detail'；内部'cell'宿主复用字段输入控件，不重复生成表格列或表单标题。
  * 字段根据最近宿主 type 推导渲染模式，不再依赖独立 fieldMode 能力键。
  */
 function inferModeFromHostType(hostType: string | null): string | null {
   if (hostType === null) return null
+  if (hostType === 'r-field-cell-control') return 'cell'
   if (hostType === 'r-field-scope' || hostType.endsWith('-field-scope')) return null
   if (hostType === 'r-filter' || hostType.includes('filter-panel')) return 'form'
   if (hostType.includes('table')) return 'table'

@@ -4,11 +4,12 @@
  * 边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
  * AI用途：生成或修订页面配置时，用本模块判断 renderer section 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
-import type { SparkGridLayoutProps, SparkNodeProps } from '../../../../shared-types'
+import type { SparkGridLayoutProps } from '../../../../shared-types'
+import type { LayoutDataContextProps } from '../../../runtime/layout-data-context'
 import type { RHeaderProps } from '../../../zones/RendererHeader.types'
 
 /** RSection Props 的属性契约。 */
-export type RSectionProps = SparkNodeProps & SparkGridLayoutProps & {
+export type RSectionProps = LayoutDataContextProps & SparkGridLayoutProps & {
   /** 结构化头部 */
     header?: RHeaderProps
     /** 分区标题 */
@@ -19,6 +20,8 @@ export type RSectionProps = SparkNodeProps & SparkGridLayoutProps & {
     collapsible?: boolean
     /** 默认折叠 */
     defaultCollapsed?: boolean
+    /** 首次展开时才挂载内容，之后折叠保留组件与编辑状态；默认关闭。 */
+    lazy?: boolean
     /** 显示边框 */
     bordered?: boolean
     /** 使用卡片样式 */

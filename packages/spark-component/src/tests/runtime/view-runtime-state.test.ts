@@ -38,6 +38,25 @@ describe('useDataViewState', () => {
     for (const scope of scopes.splice(0)) scope.stop()
   })
 
+  it('projects pagination across query configuration and binding changes', () => {
+    const view = createView(), other = createView(), resolvedView = shallowRef<DataView | null>(view)
+    const scope = effectScope(); scopes.push(scope)
+    const state = scope.run(() => useDataViewState(resolvedView))!
+    expect(state.paginated.value).toBe(true)
+    view.queryConfig = {tree: {keyField: 'id', parentField: 'parentId', nodeId: 'root'}}
+    expect(state.paginated.value).toBe(false)
+    view.queryConfig = {outputType: 'Table', allPages: true}
+    expect(state.paginated.value).toBe(false)
+    view.queryConfig = {outputType: 'Table', allPages: false}
+    expect(state.paginated.value).toBe(true)
+    other.queryConfig = {tree: {keyField: 'id', parentField: 'parentId', nodeId: 'root'}}
+    resolvedView.value = other
+    expect(state.paginated.value).toBe(false)
+    view.queryConfig = {}
+    expect(state.paginated.value).toBe(false)
+    view.dataSet?.destroy(); other.dataSet?.destroy()
+  })
+
   it('uses DataView domain events instead of getSnapshot', async () => {
     const view = createView()
     const getSnapshot = vi.fn(() => {

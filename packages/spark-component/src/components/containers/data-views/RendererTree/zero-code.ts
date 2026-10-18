@@ -96,7 +96,7 @@ export type TreeEventControl = {
 
 /** r-tree 节点交互事件处理函数。 */
 export type TreeEventHandler = {
-  /** 树节点交互回调；可通过 control.cancel() 接管默认选中、展开等行为。 */
+  /** 树节点交互回调；设置 control.cancel = true 阻止组件默认行为。 */
   (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent, control: TreeEventControl): void | Promise<void>
 }
 
@@ -178,6 +178,8 @@ export function createRendererTreeZeroCode(options: RendererTreeZeroCodeOptions)
   }
 
   function syncCurrentByKey(key: string | number | null | undefined): void {
+    // A pending nextTick may resume after its page DataSet has been disposed.
+    if (resolvedView.value?.destroyed) return
     const tree = getNativeTree()
     if (key === null || key === undefined) {
       resolvedView.value?.setCurrentRowById(null)

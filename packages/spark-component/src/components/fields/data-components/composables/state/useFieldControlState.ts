@@ -14,6 +14,8 @@ import { useControlledFieldChange } from '../value/useControlledFieldChange'
 
 /** 字段上下文对控件层暴露的只读显示和校验状态。 */
 type FieldContextStateLike = {
+  /** 权限及宿主交互锁定后的写入可用性。 */
+  isCurrentFieldEditable: ComputedRef<boolean>
   /** 字段绑定的数据列名。 */
   fieldName: ComputedRef<string>
   /** 字段显示标题，通常来自列标题或组件 title。 */
@@ -37,13 +39,15 @@ type ControlledFieldStateLike<TValue> = FieldContextStateLike & {
   /** 当前字段值，已经按字段组件类型收窄。 */
   fieldValue: ComputedRef<TValue>
   /** 当前字段所在的上下文数据行。 */
-  contextData: DataRow | null
+  contextData: ComputedRef<DataRow | null>
   /** 当前字段所在的数据源，可以是 DataView 或外部传入对象。 */
   dataSource: unknown
   /** 当前 DataView 当前行。 */
   currentRow: ComputedRef<DataRow | null>
   /** 将控件值同步回字段状态。 */
   syncValue: (value: TValue) => void
+  /** 捕获本次交互的绑定身份和有效性。 */
+  captureWriteGuard: () => () => boolean
 }
 
 /** 字段控件层消费的通用组件属性子集。 */
@@ -51,12 +55,16 @@ type FieldControlProps = FieldComposableProps<Pick<SparkNodeProps,
   | 'type' | 'children'
 >> & FieldComposableProps<Pick<SparkFieldSemanticProps,
   | 'width'
+  | 'minWidth'
+  | 'showOverflowTooltip'
+  | 'header'
   | 'resizable'
   | 'onChange'
   | 'titleAlign' | 'valueAlign'
   | 'headerCellClassName' | 'cellClassName'
   | 'titleClassName' | 'valueClassName'
   | 'sortable'
+  | 'editOnDblclick'
 >>
 
 /** 创建字段控件运行态所需的输入。 */
@@ -74,9 +82,13 @@ type UseFieldControlStateOptions<TValue> = {
 export function useFieldControlState<TValue>(options: UseFieldControlStateOptions<TValue>) {
   const fieldCtx = useFieldContext({
     type: options.props.type ?? options.fieldType,
+    ...(options.props.editOnDblclick !== undefined ? {editOnDblclick: options.props.editOnDblclick} : {}),
     width: options.props.width,
+    get header() {return options.props.header},
+    ...(options.props.minWidth !== undefined ? {minWidth: options.props.minWidth} : {}),
+    get showOverflowTooltip() {return options.props.showOverflowTooltip},
     ...(options.props.resizable !== undefined ? { resizable: options.props.resizable } : {}),
-    ...(options.props.children !== undefined ? { children: options.props.children } : {}),
+    get children() {return options.props.children},
     ...(options.props.titleAlign !== undefined ? { titleAlign: options.props.titleAlign } : {}),
     ...(options.props.valueAlign !== undefined ? { valueAlign: options.props.valueAlign } : {}),
     ...(options.props.headerCellClassName !== undefined ? { headerCellClassName: options.props.headerCellClassName } : {}),
@@ -90,6 +102,7 @@ export function useFieldControlState<TValue>(options: UseFieldControlStateOption
     getValue: () => options.state.fieldValue.value,
     emitUpdate: value => options.emitUpdate(value),
     syncValue: options.state.syncValue,
+    captureWriteGuard: options.state.captureWriteGuard,
     handlerSource: {
       ...(options.props.onChange !== undefined ? { onChange: options.props.onChange } : {}),
     },

@@ -5,16 +5,31 @@
 AI用途：需要理解 field select 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <FieldContextRenderer v-bind="fieldCtx">
+  <FieldContextRenderer v-bind="fieldCtx" :edit-on-dblclick="props.showCellControl ? false : props.editOnDblclick">
+    <template #table-cell="{row, value}">
+      <span v-if="!props.showCellControl || permission.isTableCellMasked(row)" :class="['field-table-value', props.valueClassName]">{{ value }}</span>
+      <FieldTableCellScope v-else :source="permission.dataSource.value ?? undefined" :row="row">
+        <FieldSelect v-bind="cellProps" :readonly="props.readonly || props.cellReadonly?.(row) === true"
+          @update:model-value="value => emitFieldValueUpdate(emit, value)" />
+      </FieldTableCellScope>
+    </template>
     <template #form>
+      <el-tabs v-if="presentation === 'tabs'" class="field-select-tabs" :model-value="fieldValue" @update:model-value="handleTabChange">
+        <el-tab-pane v-for="option in options" :key="String(option.value)" :name="option.value" :label="option.label"
+          :disabled="!isCurrentFieldEditable || option.disabled === true" />
+      </el-tabs>
       <el-select
+        v-else
         :model-value="fieldValue"
         :placeholder="placeholder"
         :clearable="clearable"
+        :value-on-clear="''"
         :filterable="filterable"
+        :persistent="false"
         :disabled="!isCurrentFieldEditable"
         @update:model-value="handleChange"
       >
+        <template #label>{{ selectedLabel }}</template>
         <el-option
           v-for="option in options"
           :key="String(option.value)"
@@ -31,10 +46,12 @@ AI用途：需要理解 field select 的实际渲染结构、slot/toolbar/状态
 /**
  * @description 单选下拉字段，绑定 string/number 值，支持静态选项列表或 optionDataViewKey 动态数据源绑定。
  */
-import { useChoiceFieldState } from '../../composables/state/useChoiceFieldState'
+import {computed} from 'vue'
+import { useOptionFieldState } from '../../composables/state/useOptionFieldState'
 import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coercePrimitiveOptionValue } from '../../composables/value/fieldValueCoercion'
 import FieldContextRenderer from '../../../non-data-components/FieldContextRenderer.vue'
+import FieldTableCellScope from '../../../non-data-components/FieldTableCellScope.vue'
 import type { RSelectProps } from './FieldSelect.props'
 
 const props = withDefaults(defineProps<RSelectProps>(), {
@@ -45,23 +62,36 @@ const props = withDefaults(defineProps<RSelectProps>(), {
 })
 
 const emit = defineEmits<FieldValueUpdateEmits<string | number>>()
+const cellProps = computed<RSelectProps>(() => Object.fromEntries(Object.entries(props)
+  .filter(([key, value]) => value !== undefined && key !== 'modelValue' && key !== 'value')))
 
 const {
-  fieldOptions: options,
-  fieldValue,
-  isCurrentFieldEditable,
+  optionResult: permission,
   fieldCtx,
   handleControlledChange,
-} = useChoiceFieldState<string | number>({
+} = useOptionFieldState<string | number>({
   props,
   fieldType: 'r-select',
   fallbackValue: '',
   coerce: coercePrimitiveOptionValue,
   emitUpdate: value => emitFieldValueUpdate(emit, value),
 })
+const {options, fieldValue, isCurrentFieldEditable} = permission
+// 标题从当前选项源派生，不依赖关闭后已释放或候选变化前的ElOption缓存。
+const selectedLabel = computed(() => options.value.find(option => option.value === fieldValue.value)?.label ?? String(fieldValue.value))
 
 async function handleChange(value: string | number): Promise<void> {
   await handleControlledChange(value)
 }
+async function handleTabChange(value: string | number): Promise<void> {
+  if (!isCurrentFieldEditable.value || !options.value.some(option => option.value === value && !option.disabled)) return
+  await handleChange(value)
+}
 </script>
+
+<style scoped>
+.field-select-tabs {width:100%; min-width:0;}
+.field-select-tabs :deep(.el-tabs__header) {margin:0;}
+.field-select-tabs :deep(.el-tabs__content) {display:none;}
+</style>
 

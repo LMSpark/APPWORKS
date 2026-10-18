@@ -4,7 +4,7 @@
  * 边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
  * AI用途：生成或修订页面配置时，用本模块判断 renderer tabs 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
-import type { SparkNodeProps } from '../../../../shared-types'
+import type { LayoutDataContextProps } from '../../../runtime/layout-data-context'
 import type { RToolbarProps } from '../../action/RendererToolbar/RendererToolbar.types'
 
 /** Tabs Click Event 的事件载荷。 */
@@ -14,9 +14,11 @@ export type TabsClickEvent = {
   [key: string]: unknown}
 
 /** RTabs Props 的属性契约。 */
-export type RTabsProps = SparkNodeProps & {
+export type RTabsProps = LayoutDataContextProps & {
   /** 结构化工具栏 */
     toolbar?: RToolbarProps
+    /** 工具栏位于标签头同一行或容器外侧；默认outside沿toolbar.position布局，header在窄屏自动换行。 */
+    toolbarPlacement?: 'outside' | 'header'
     /** 当前激活标签页 */
     modelValue?: string | number
     /** 标签页切换回调（activeName 变更） */

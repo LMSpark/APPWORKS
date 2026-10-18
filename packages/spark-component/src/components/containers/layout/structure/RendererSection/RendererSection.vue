@@ -5,7 +5,8 @@
 AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <el-card v-if="useCard" :shadow="cardShadow" class="renderer-section renderer-section--card">
+  <el-card v-if="useCard" :key="scopeKey" :shadow="cardShadow" class="renderer-section renderer-section--card">
+    <p v-if="aggregateError" role="alert">{{ aggregateError.message }}</p>
     <template v-if="hasHeader || collapsible" #header>
       <div :class="['renderer-section-header', headerClassValue]" @click="handleHeaderClick">
         <div class="renderer-section-heading">
@@ -33,7 +34,7 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
       </div>
     </template>
 
-    <div v-show="!collapsed" :class="['renderer-section-body', bodyClass]" :style="gridStyle">
+    <div v-if="renderBody" v-show="!collapsed" :class="['renderer-section-body', bodyClass]" :style="gridStyle">
       <div
         v-for="(child, index) in gridChildren"
         :key="nodeId(child) ?? `r-section-child-${index}`"
@@ -46,7 +47,8 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
     </div>
   </el-card>
 
-  <div v-else :class="['renderer-section', { 'renderer-section--bordered': bordered }]">
+  <div v-else :key="scopeKey" :class="['renderer-section', { 'renderer-section--bordered': bordered }]">
+    <p v-if="aggregateError" role="alert">{{ aggregateError.message }}</p>
     <div v-if="hasHeader || collapsible" :class="['renderer-section-header', headerClassValue]" @click="handleHeaderClick">
       <div class="renderer-section-heading">
         <div v-if="title" class="renderer-section-title">{{ title }}</div>
@@ -72,7 +74,7 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
       </div>
     </div>
 
-    <div v-show="!collapsed" :class="['renderer-section-body', bodyClass]" :style="gridStyle">
+    <div v-if="renderBody" v-show="!collapsed" :class="['renderer-section-body', bodyClass]" :style="gridStyle">
       <div
         v-for="(child, index) in gridChildren"
         :key="nodeId(child) ?? `r-section-child-${index}`"
@@ -92,8 +94,9 @@ AI用途：需要理解 renderer section 的实际渲染结构、slot/toolbar/�
  * @category container
  * @notes 头部操作区通过结构化 `header` 区域声明
  */
-import { computed, useSlots } from 'vue'
-import { useSparkPageComponent, SparkComponentRenderer } from '../../../../internal'
+import { computed, ref, useSlots, watch } from 'vue'
+import { SparkComponentRenderer } from '../../../../internal'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 
 import { useContainerGrid } from '../../../runtime/container-layout'
 import type { RendererSectionApi } from './types'
@@ -122,7 +125,7 @@ const props = withDefaults(defineProps<RSectionProps>(), {
   gridAutoRows: 'minmax(32px, auto)',
 })
 const slots = useSlots()
-const { registerApi } = useSparkPageComponent(props)
+const { registerApi, scopeKey, aggregateError } = useLayoutDataContext(props)
 
 // 头部区域优先通过 props.header 输入。
 const contentChildren = computed(() => props.children)
@@ -139,6 +142,10 @@ const { gridChildren, gridStyle, getChildGridStyle } = useContainerGrid({
 })
 
 const collapsed = useMirroredValue(computed(() => props.defaultCollapsed))
+const renderBody = ref(false)
+watch(() => !props.lazy || !collapsed.value, visible => {
+  if (visible) renderBody.value = true
+}, {immediate: true})
 const hasHeader = computed(() => Boolean(props.title || props.description))
 const hasHeaderRight = computed(() => headerActionConfigs.value.length > 0 || slots['header-actions'] !== undefined || props.collapsible)
 
@@ -180,9 +187,9 @@ function getDefaultScope() {
 }
 
 .renderer-section--bordered {
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-lighter);
   border-radius: 8px;
-  background: #fff;
+  background: var(--el-bg-color);
 }
 
 .renderer-section-header {
@@ -191,7 +198,7 @@ function getDefaultScope() {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
 
 .renderer-section-heading {
@@ -201,21 +208,21 @@ function getDefaultScope() {
 .renderer-section-title {
   font-size: 14px;
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color-primary);
   line-height: 1.4;
 }
 
 .renderer-section-description {
   margin-top: 4px;
   font-size: 12px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   line-height: 1.5;
 }
 
 .renderer-section-toggle {
   border: 0;
   background: transparent;
-  color: #409eff;
+  color: var(--el-color-primary);
   cursor: pointer;
   display: inline-flex;
   align-items: center;

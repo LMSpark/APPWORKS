@@ -6,12 +6,8 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
 -->
 <template>
   <div :class="['renderer-list-layout', `renderer-list-layout--${toolbarPositionValue}`]">
-    <div v-if="showToolbar" :class="['renderer-list-toolbar', toolbarClassValue]">
-        <SparkComponentRenderer
-          v-for="(action, index) in visibleToolbarConfigs"
-          :key="nodeId(action) ?? `r-list-toolbar-${index}`"
-          :config="action"
-        />
+    <div v-if="toolbarConfig" :class="['renderer-list-toolbar', toolbarClassValue]">
+      <SparkComponentRenderer :config="toolbarConfig" />
     </div>
 
     <DataViewMetaBar
@@ -19,6 +15,7 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
       :columns="dataState.columns.value"
       :selected-rows="dataState.selectedRows.value"
       :total="dataState.total.value"
+      :paginated="dataState.paginated.value"
       :page="dataState.page.value"
       :page-size="dataState.pageSize.value"
       :request-state="dataState.requestState.value"
@@ -26,6 +23,7 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
       :loading-error="dataState.loadingError.value"
       :mutating-error="dataState.mutatingError.value"
       :aggregate-result="dataState.aggregateResult.value"
+      :aggregate-error="dataState.aggregateError.value"
       :selection-aggregate-result="dataState.selectionAggregateResult.value"
       :show-data-view-meta="props.showDataViewMeta !== false"
       :show-aggregate-summary="props.showAggregateSummary !== false"
@@ -49,7 +47,7 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
                 :class="['renderer-list-item-actions', itemActionsClassValue]"
               >
                 <RendererHostScope :row="row">
-                  <SparkComponentRenderer :config="rawItemActionsToolbarConfig" />
+                  <SparkComponentRenderer v-if="rawItemActionsToolbarConfig" :config="rawItemActionsToolbarConfig" />
                 </RendererHostScope>
               </div>
 
@@ -79,7 +77,7 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
                 :class="['renderer-list-item-actions', itemActionsClassValue]"
               >
                 <RendererHostScope :row="row">
-                  <SparkComponentRenderer :config="rawItemActionsToolbarConfig" />
+                  <SparkComponentRenderer v-if="rawItemActionsToolbarConfig" :config="rawItemActionsToolbarConfig" />
                 </RendererHostScope>
               </div>
             </div>
@@ -118,7 +116,7 @@ import {
   MODULE_CONTEXT,
 } from '../../../internal'
 import type { RListProps } from './RendererList.props'
-import { type SparkNode, type DataView, type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
+import { type DataView, type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import type { RendererListApi } from './types'
 import { useContainerToolbar, useContainerModuleContext } from '../../runtime/container-ui'
 import { useContainerDataSource } from '../view-data-source'
@@ -130,6 +128,7 @@ import DataViewMetaBar from '../DataViewMetaBar.vue'
 
 const props = withDefaults(defineProps<RListProps>(), {
   type: 'r-list',
+  showPagination: true,
   columns: 1,
   minItemWidth: '',
   rowKey: 'id',
@@ -159,30 +158,29 @@ const dataState = useContainerDataSource({
   logPrefix: 'RendererList',
 })
 const { rows } = dataState
-const showPagination = computed(() => props.showPagination !== false && dataState.total.value > 0)
+const showPagination = computed(() => props.showPagination !== false && dataState.paginated.value && dataState.total.value > 0)
 
 const toolbarNode = computed(() => props.toolbar)
-const actionsNode = computed(() => props.actions)
 const mergedChildren = computed(() => getSparkNodeChildren(props.children))
 
 const showListItems = computed(
   () => rows.value.length > 0 && (mergedChildren.value.length > 0 || hasDefaultSlot)
 )
 
-const itemActionConfigs = computed(() => getSparkNodeChildren(actionsNode.value?.children))
+const {toolbarConfig: rawItemActionsToolbarConfig} = useContainerToolbar({toolbarNode: () => props.actions})
 const itemActionsPositionValue = computed<'left' | 'right'>(() => {
-  const position = actionsNode.value?.position
+  const position = props.actions?.position
   return position === 'left' || position === 'right' ? position : 'right'
 })
 const itemActionsClassValue = computed(() => {
-  const className = actionsNode.value?.class
+  const className = props.actions?.class
   return typeof className === 'string' ? className : ''
 })
 const showItemActionsLeft = computed(
-  () => itemActionConfigs.value.length > 0 && itemActionsPositionValue.value === 'left'
+  () => rawItemActionsToolbarConfig.value !== undefined && itemActionsPositionValue.value === 'left'
 )
 const showItemActionsRight = computed(
-  () => itemActionConfigs.value.length > 0 && itemActionsPositionValue.value === 'right'
+  () => rawItemActionsToolbarConfig.value !== undefined && itemActionsPositionValue.value === 'right'
 )
 
 const itemBodyWrapperTag = computed(() => props.useCard ? 'el-card' : 'div')
@@ -232,16 +230,10 @@ const itemGridStyle = computed<Record<string, string | number>>(() => ({
   minWidth: 0,
 }))
 
-const rawItemActionsToolbarConfig = computed<SparkNode>(() => ({
-  type: 'r-toolbar',
-  children: itemActionConfigs.value,
-}))
-
 const {
-  visibleToolbarConfigs,
+  toolbarConfig,
   toolbarPositionValue,
   toolbarClassValue,
-  showToolbar,
 } = useContainerToolbar({
   toolbarNode,
 })

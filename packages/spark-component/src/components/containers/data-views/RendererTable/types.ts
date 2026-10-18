@@ -23,6 +23,8 @@ pathNodes?: DataRow[]}
 
 /** Renderer Table Api 的语义模型。 */
 export type RendererTableApi = BaseContainerApi & {
+  /** 列表组件的原生选择值数组，直接消费绑定DataView；单选也返回数组，空选择为[]。不使用当前行或返回显示文本，不序列化成字符串。 */
+  getValue(): Array<string | number | boolean>
   /** 获取当前表格绑定的全部行数据。 */
   getRows(): DataRow[]
   /** 获取当前多选选中的行集合。 */

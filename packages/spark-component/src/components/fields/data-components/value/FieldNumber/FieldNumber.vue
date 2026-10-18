@@ -13,6 +13,8 @@ AI用途：需要理解 field number 的实际渲染结构、slot/toolbar/状态
           :min="min"
           :max="max"
           :precision="precision"
+          :step="step"
+          :controls-position="controlsPosition"
           :disabled="!isCurrentFieldEditable"
           @update:model-value="handleRangeStartChange"
         />
@@ -22,6 +24,8 @@ AI用途：需要理解 field number 的实际渲染结构、slot/toolbar/状态
           :min="min"
           :max="max"
           :precision="precision"
+          :step="step"
+          :controls-position="controlsPosition"
           :disabled="!isCurrentFieldEditable"
           @update:model-value="handleRangeEndChange"
         />
@@ -32,6 +36,8 @@ AI用途：需要理解 field number 的实际渲染结构、slot/toolbar/状态
         :min="min"
         :max="max"
         :precision="precision"
+        :step="step"
+        :controls-position="controlsPosition"
         :disabled="!isCurrentFieldEditable"
         @update:model-value="handleChange"
       />

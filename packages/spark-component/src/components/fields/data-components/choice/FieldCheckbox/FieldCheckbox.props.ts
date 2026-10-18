@@ -5,9 +5,16 @@
  * AI用途：生成或修订页面配置时，用本模块判断 field checkbox 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
 import type { SparkFieldSemanticProps, SparkNodeProps } from '../../../../shared-types'
+import type {DataRow} from '@spark-appworks/spark-data'
 
 /** RCheckbox Props 的属性契约。 */
 export type RCheckboxProps = SparkNodeProps & SparkFieldSemanticProps<boolean> & {
+  /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */
+  trueValue?: boolean | string | number
+  /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */
+  falseValue?: boolean | string | number
+  /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */
+  cellReadonly?: (row: Readonly<DataRow>) => boolean
   /** 选中状态下展示的文本。 */
     checkedText?: string
     /** 未选中状态下展示的文本。 */

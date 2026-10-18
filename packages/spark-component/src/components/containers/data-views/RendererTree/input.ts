@@ -36,19 +36,14 @@ export function useRendererTreeInput(options: RendererTreeInputOptions) {
   const nodeContentChildren = computed<SparkNode[]>(() => {
     return getSparkNodeChildren(options.props.children)
   })
-  const nodeActionConfigs = computed(() => getSparkNodeChildren(actionsNode.value?.children))
-  const hasNodeActions = computed(() => nodeActionConfigs.value.length > 0)
+  const {toolbarConfig: actionsConfig, showToolbar: hasNodeActions} = useContainerToolbar({toolbarNode: actionsNode})
   const {
-    visibleToolbarConfigs: toolbarConfigs,
+    toolbarConfig,
     toolbarPositionValue,
     toolbarClassValue,
   } = useContainerToolbar({
     toolbarNode,
     defaultClass: '',
-  })
-  const nodeActionClassValue = computed<string>(() => {
-    const className = actionsNode.value?.class
-    return typeof className === 'string' ? className : ''
   })
   const {
     visibleToolbarConfigs: editorConfigs,
@@ -76,11 +71,10 @@ export function useRendererTreeInput(options: RendererTreeInputOptions) {
 
   return {
     nodeContentChildren,
-    toolbarConfigs,
+    toolbarConfig,
     toolbarPositionValue,
     toolbarClassValue,
-    nodeActionConfigs,
-    nodeActionClassValue,
+    actionsConfig,
     hasNodeActions,
     editorConfigs,
     editorPositionValue,

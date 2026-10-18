@@ -55,17 +55,17 @@ export function useOptionFieldState<TValue>(options: UseOptionFieldStateOptions<
 
   function syncTextStorage(value: TValue): void {
     const storageField = options.props.textStorageField?.trim()
-    if (!storageField || optionResult.contextData === null) return
+    if (!storageField || optionResult.currentRow.value === null) return
 
     const labels = optionResult.findOptionLabels(value)
-    optionResult.contextData[storageField] = labels.length > 1
+    optionResult.writeField(storageField, labels.length > 1
       ? labels.join(options.props.textSeparator ?? ', ')
-      : (labels[0] ?? '')
+      : (labels[0] ?? ''))
   }
 
   async function handleOptionFieldChange(value: TValue): Promise<void> {
-    await handleControlledChange(value)
-    syncTextStorage(value)
+    const valid = optionResult.captureWriteGuard()
+    if (await handleControlledChange(value) && valid()) syncTextStorage(value)
   }
 
   return {

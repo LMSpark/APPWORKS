@@ -21,9 +21,9 @@ type UseSwitchNullValueOptions = {
     /** bound Column 字段。 */
 boundColumn: ValueRef<BoundBooleanColumn | null | undefined>
     /** context Data 字段。 */
-contextData: DataRow | null
+contextData: ValueRef<DataRow | null>
     /** data Source 字段。 */
-dataSource: unknown
+dataSource: ValueRef<unknown>
     /** 绑定字段名。 */
 fieldName: ValueRef<string>
     /** sync Value 回调。 */
@@ -39,7 +39,7 @@ export function useSwitchNullValue(options: UseSwitchNullValueOptions) {
   })
 
   watchEffect(() => {
-    const contextData = options.contextData
+    const contextData = options.contextData.value
     const fieldName = options.fieldName.value
     if (fieldName.length === 0 || contextData === null) return
     const column = options.boundColumn.value
@@ -48,7 +48,7 @@ export function useSwitchNullValue(options: UseSwitchNullValueOptions) {
     if (colType !== 'boolean' && colType !== 'bool') return
     const raw = contextData[fieldName]
     if (raw === '' || raw === undefined) {
-      if (isDataViewEditingSource(options.dataSource) && options.dataSource.getPkKey(contextData) === undefined) return
+      if (isDataViewEditingSource(options.dataSource.value) && options.dataSource.value.getPkKey(contextData) === undefined) return
       options.syncValue(normalizedEmptyValue.value)
     }
   })

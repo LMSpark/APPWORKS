@@ -176,8 +176,8 @@ AI用途：需要理解 json tree editor 的实际渲染结构、slot/toolbar/�
           <template #default="{ row }">
             <div class="vxe-json-tree-editor__action-cell">
               <template v-if="isRowActive(row)">
-                <el-button v-if="row.type === 'object' || row.type === 'array'" size="small" link type="primary" @click="handleAddChild(row)">加子项</el-button>
-                <el-button v-if="row.depth > 0" size="small" link type="primary" @click="handleAddSibling(row)">加同级</el-button>
+                <el-button v-if="row.childAddable" size="small" link type="primary" @click="handleAddChild(row)">加子项</el-button>
+                <el-button v-if="row.siblingAddable" size="small" link type="primary" @click="handleAddSibling(row)">加同级</el-button>
                 <el-button v-if="row.deletable" size="small" link type="danger" @click="handleDelete(row)">删除</el-button>
               </template>
               <span v-else class="vxe-json-tree-editor__action-hint">选中行后可编辑</span>
@@ -286,6 +286,8 @@ const props = withDefaults(defineProps<JsonTreeEditorProps>(), {
 const emit = defineEmits<{
   'update:modelValue': [value: string]
   'update:documentValue': [value: Sjd.JsonDocument]
+  /** 输入中的键名或字符串尚未写回文档；接纳结果由绑定字段负责。 */
+  'editing-change': [value: boolean]
 }>()
 
 // ── 字段能力接入 ────────────────────────────────────────────
@@ -341,6 +343,10 @@ const typeFilter = ref<'all' | Sjd.JsonNodeType>('all')
 const schemaOnly = ref(false)
 const keyInputDrafts = ref<Record<string, string>>({})
 const stringInputDrafts = ref<Record<string, string>>({})
+let active = true
+watch(() => Object.keys(keyInputDrafts.value).length > 0 || Object.keys(stringInputDrafts.value).length > 0,
+  value => emit('editing-change', value), {immediate: true, flush: 'sync'})
+watch(isEditable, value => {if (!value) clearInputDrafts()}, {flush: 'sync'})
 const parseError = ref<string | null>(null)
 const treeModelRef = shallowRef<Sjd.TreeModel>(Sjd.buildTreeModel({}))
 const currentRowId = ref(Sjd.rootOf(treeModelRef.value))
@@ -459,6 +465,7 @@ watch(displayRows, () => {
 }, { immediate: true })
 
 onBeforeUnmount(() => {
+  active = false; emit('editing-change', false)
   if (keywordTimer) clearTimeout(keywordTimer)
 })
 
@@ -652,8 +659,9 @@ function getStringInputValue(row: DisplayRow): string {
 }
 
 function handleKeyInput(row: DisplayRow, value: string | number): void {
-  if (typeof value !== 'string') return
-  keyInputDrafts.value[row.id] = value
+  if (!active || !isEditable.value || typeof value !== 'string') return
+  if (value === row.displayKey) delete keyInputDrafts.value[row.id]
+  else keyInputDrafts.value[row.id] = value
 }
 
 function handleKeyChange(row: DisplayRow, value: string | number): void {
@@ -689,8 +697,9 @@ function handleStringUpdate(row: DisplayRow, value: string | undefined): void {
 }
 
 function handleStringInput(row: DisplayRow, value: string | number): void {
-  if (typeof value !== 'string') return
-  stringInputDrafts.value[row.id] = value
+  if (!active || !isEditable.value || typeof value !== 'string') return
+  if (value === row.stringValue) delete stringInputDrafts.value[row.id]
+  else stringInputDrafts.value[row.id] = value
 }
 
 function handleStringChange(row: DisplayRow, value: string | number): void {
@@ -726,8 +735,9 @@ function mutateModel(
   changedPath?: Sjd.JsonPath,
   changedValue?: Sjd.JsonValue,
 ): void {
-  if (!isEditable.value) return
+  if (!active || !isEditable.value) return
   const result = mutator(treeModelRef.value)
+  if (result.model === treeModelRef.value) return
   // uid 稳定标识，直接用作焦点/展开行，无数组索引偏移问题
   currentRowId.value = result.focusId
   pendingExpandRowId = result.expandId

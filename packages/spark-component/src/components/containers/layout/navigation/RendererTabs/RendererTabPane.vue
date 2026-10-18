@@ -12,7 +12,8 @@ AI用途：需要理解 renderer tab pane 的实际渲染结构、slot/toolbar/�
     :lazy="paneLazy"
     :closable="paneClosable"
   >
-    <div :class="['renderer-tabs-pane-body', paneBodyClass]" :style="paneGridStyle">
+    <div :key="scopeKey" :class="['renderer-tabs-pane-body', paneBodyClass]" :style="paneGridStyle">
+        <p v-if="aggregateError" role="alert" style="grid-column: 1 / -1">{{ aggregateError.message }}</p>
         <div
           v-for="(child, index) in paneChildren"
           :key="nodeId(child) ?? `r-tab-pane-child-${index}`"
@@ -21,7 +22,9 @@ AI用途：需要理解 renderer tab pane 的实际渲染结构、slot/toolbar/�
         >
           <SparkComponentRenderer :config="child" />
         </div>
-        <slot />
+        <div v-if="$slots['default']" class="renderer-tabs-pane-slot" style="grid-column: 1 / -1; min-width: 0; width: 100%">
+          <slot />
+        </div>
     </div>
   </el-tab-pane>
 </template>
@@ -32,40 +35,18 @@ AI用途：需要理解 renderer tab pane 的实际渲染结构、slot/toolbar/�
  * @category internal
  */
 import { computed } from 'vue'
-import { SparkComponentRenderer, useSparkComponent } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
 
 import { useCompositeItemGrid } from '../../../runtime/container-layout'
-import type { SparkNodeProps } from '../../../../shared-types'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
+import type { RTabPaneProps } from './RendererTabPane.props'
 import { nodeId } from '@spark-appworks/spark-data'
 
-/** r-tabs 内部标签页面板属性，描述标签头和内容区布局。 */
-type Props = SparkNodeProps & {
-  /** 标签页唯一标识 */
-    name?: string | number
-    /** 标签页标签文本 */
-    label?: string
-    /** 是否禁用 */
-    disabled?: boolean
-    /** 是否延迟加载 */
-    lazy?: boolean
-    /** 是否可关闭 */
-    closable?: boolean
-    /** 标签页体自定义 class */
-    bodyClass?: string
-    /** CSS Grid 列数 */
-    gridColumns?: number | string
-    /** 栅格行高 */
-    gridAutoRows?: string
-    /** 栅格间距 */
-    gridGap?: number | string
-    /** 在父容器中的位置序号 */
-    index: number}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<RTabPaneProps>(), {
   type: 'r-tab-pane',
 })
 
-useSparkComponent(props)
+const {scopeKey, aggregateError} = useLayoutDataContext(props)
 
 const {
   contentChildren: paneChildren,

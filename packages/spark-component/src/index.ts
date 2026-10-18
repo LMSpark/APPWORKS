@@ -12,6 +12,8 @@
 
 // ── 1. System 层（命名空间 / 插件 / 注册表） ──
 export { Spark } from './core/system/index.js'
+export type { RFilterExpressionProps } from './components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props'
+export { FilterExpressionEditorDraft } from './components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props'
 export type {
   SparkSystem
 } from './core/system/index.js'
@@ -89,6 +91,11 @@ export type {
   RendererFormApi,
   RendererDetailApi,
   RendererTreeApi,
+  RGraphProps,
+  GraphSelection,
+  GraphNodeMove,
+  GraphArrange,
+  RendererGraphApi,
   RendererListApi,
   RendererVirtualCardApi,
   RendererTabsApi,
@@ -106,9 +113,6 @@ export type {
   InlineAlign,
   InlineJustify,
   RFilterProps,
-  ActionsAlign,
-  ActionsPosition,
-  RendererActionsProps,
   REditorProps,
   RHeaderProps,
   RFooterProps,
@@ -169,6 +173,8 @@ export {
   FieldSlider,
   FieldSwitch,
   FieldText,
+  FieldValueFunction,
+  FieldJson,
   FieldTextarea,
   FieldTimePicker,
   FieldTimeSelect,
@@ -178,6 +184,8 @@ export {
   FieldUpload,
   FieldUserPicker,
   FilterExpressionEditor,
+  RendererFilterExpression,
+  RendererFilter,
   FilterValueFunctionDialog,
   JsonTreeEditor,
   registerAllRenderers,
@@ -222,6 +230,8 @@ export {
   RendererTooltip,
   RendererTour,
   RendererTree,
+  RendererGraph,
+  GraphLayout,
   RendererVirtualCard,
   RendererWatermark,
   SparkCodeEditor,

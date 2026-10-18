@@ -6,12 +6,8 @@ AI用途：需要理解 renderer tree 的实际渲染结构、slot/toolbar/状�
 -->
 <template>
   <div :class="['renderer-tree-layout', `renderer-tree-layout--${toolbarPositionValue}`]">
-    <div v-if="showToolbar" :class="['renderer-tree-toolbar', toolbarClassValue]">
-        <SparkComponentRenderer
-          v-for="(action, index) in visibleToolbarConfigs"
-          :key="nodeId(action) ?? `r-tree-toolbar-${index}`"
-          :config="action"
-        />
+    <div v-if="toolbarConfig" :class="['renderer-tree-toolbar', toolbarClassValue]">
+      <SparkComponentRenderer :config="toolbarConfig" />
     </div>
 
     <DataViewMetaBar
@@ -19,6 +15,7 @@ AI用途：需要理解 renderer tree 的实际渲染结构、slot/toolbar/状�
       :columns="dataState.columns.value"
       :selected-rows="dataState.selectedRows.value"
       :total="dataState.total.value"
+      :paginated="dataState.paginated.value"
       :page="dataState.page.value"
       :page-size="dataState.pageSize.value"
       :request-state="dataState.requestState.value"
@@ -26,6 +23,7 @@ AI用途：需要理解 renderer tree 的实际渲染结构、slot/toolbar/状�
       :loading-error="dataState.loadingError.value"
       :mutating-error="dataState.mutatingError.value"
       :aggregate-result="dataState.aggregateResult.value"
+      :aggregate-error="dataState.aggregateError.value"
       :selection-aggregate-result="dataState.selectionAggregateResult.value"
       :show-data-view-meta="props.showDataViewMeta !== false"
       :show-aggregate-summary="props.showAggregateSummary !== false"
@@ -64,7 +62,7 @@ AI用途：需要理解 renderer tree 的实际渲染结构、slot/toolbar/状�
                 v-if="hasNodeActions"
                 class="tree-node-actions"
               >
-                <SparkComponentRenderer :config="rawNodeActionsToolbarConfig" />
+                <SparkComponentRenderer v-if="actionsConfig" :config="actionsConfig" />
               </span>
             </RendererHostScope>
           </span>
@@ -101,7 +99,7 @@ import {
   DATA_SOURCE,
 } from '../../../internal'
 import type { RTreeProps } from './RendererTree.props'
-import { type SparkNode, type DataRow, type DataView, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
+import { type DataRow, type DataView, nodeId } from '@spark-appworks/spark-data'
 import type { RendererTreeApi } from './types'
 import {
   createRendererTreeZeroCode,
@@ -114,7 +112,6 @@ import { useRendererTreeInput } from './input'
 import { useContainerDataSource } from '../view-data-source'
 import { useRendererTreeViewState } from '../view-tree-state'
 import { resolveTreeNodeText, toDataRecord } from '../data-row-utils'
-import { resolveNodeBeforeRender, mergeNodeBeforeRenderProps } from '../../../support/beforeRender'
 import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
 
@@ -124,10 +121,10 @@ const props = withDefaults(defineProps<RTreeProps>(), {
 const treePropsValue = computed<Record<string, unknown>>(() => ({ ...(props.treeProps ?? {}) }))
 const {
   nodeContentChildren,
-  toolbarConfigs,
+  toolbarConfig,
   toolbarPositionValue,
   toolbarClassValue,
-  nodeActionConfigs,
+  actionsConfig,
   hasNodeActions,
   editorConfigs,
   editorPositionValue,
@@ -180,28 +177,6 @@ const elTreeFieldProps = computed(() => ({
   children: 'children',
   label: labelField.value,
 }))
-
-function resolveToolbarActionNode(node: SparkNode): SparkNode {
-  const scopedRow = currentRow.value !== null && typeof currentRow.value === 'object' && !Array.isArray(currentRow.value)
-    ? currentRow.value
-    : undefined
-
-  const beforeRender = resolveNodeBeforeRender(node, {
-    row: scopedRow,
-    data: scopedRow,
-    dataSource: dataState.resolvedView.value,
-    host: { type: 'r-tree-toolbar' },
-  })
-
-  return mergeNodeBeforeRenderProps(node, beforeRender.propsPatch, { markResolved: true })
-}
-
-const visibleToolbarConfigs = computed<SparkNode[]>(() =>
-  toolbarConfigs.value
-    .map(resolveToolbarActionNode)
-    .filter(node => nodeInputProp(node, 'visible') !== false)
-)
-const showToolbar = computed(() => visibleToolbarConfigs.value.length > 0)
 
 // ── r-tree 包装 API ──────────────────────────────────────────────────────
 
@@ -331,11 +306,6 @@ function collectExpandKeysByLevel(
 }
 
 registerApi(treeApi)
-
-const rawNodeActionsToolbarConfig = computed<SparkNode>(() => ({
-  type: 'r-toolbar',
-  children: nodeActionConfigs.value,
-}))
 
 // 事件处理器与零代码动作由 createRendererTreeZeroCode 收口
 </script>

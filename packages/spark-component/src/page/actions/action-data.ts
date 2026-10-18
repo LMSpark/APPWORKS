@@ -106,11 +106,6 @@ function targetEmptyFallback(target: ActionRowTarget): string {
   return target === 'selected' ? '请先选择记录' : '请先选择当前行'
 }
 
-function canRefreshRemoteList(view: DataView): boolean {
-  const table = view.dataTable
-  return table?.resourceType !== 'static-data' && table?.api?.list !== undefined
-}
-
 // ── DataView 就绪保护 ─────────────────────────────────────────────────────
 
 /**
@@ -623,7 +618,7 @@ function permissionSafeMessageRow(view: DataView, row: DataRow): DataRow {
 // ── refresh / clear-rows 执行器 ───────────────────────────────────────────
 
 /**
- * 执行刷新数据视图动作：调用 `view.refresh()` 重新加载远程数据。
+ * 执行刷新数据视图动作：调用 `view.refresh()`，由视图决定正式查询或本地数据来源。
  * 适用于用户手动刷新或条件变化后需要重新加载的场景。
  */
 export async function executeRefresh(
@@ -634,9 +629,8 @@ export async function executeRefresh(
   const view = ensureView(desc, ctx, notifier)
   if (!view) return
 
-  if (!canRefreshRemoteList(view)) return
-
   await view.refresh()
+  if (view.loadingError) throw view.loadingError
   notifier.notify('success', desc.successMessage ?? '刷新完成')
 }
 
@@ -775,12 +769,39 @@ export async function executeSaveDataSet(
   const options: DataSetSaveChangesOptions = {}
   if (desc.mode !== undefined) options.mode = desc.mode
   if (desc.applyEditingRows !== undefined) options.applyEditingRows = desc.applyEditingRows
-  if (desc.views !== undefined) options.views = desc.views
+  if (desc.views !== undefined) options.views = desc.views.map(selector => ({...selector,
+    ...(selector.ids === undefined ? {} : {ids: [...selector.ids]}),
+  }))
   const requestId = desc.requestId ?? (desc.requestIdStrategy === 'auto' ? createAutoRequestId() : undefined)
   if (requestId !== undefined) options.transaction = { requestId }
 
+  // Capture the same target instances and row range before awaiting the receipt.
+  // An omitted viewId selects default, as in DataSet.saveChanges; other drafts do not affect this action.
+  const targets: Array<{view: DataView; ids?: Array<string | number>}> = []
+  if (options.views === undefined) {
+    for (const table of Object.values(dataSet.tables)) {
+      for (const view of Object.values(table.views)) targets.push({view})
+    }
+  } else {
+    for (const selector of options.views) {
+      const view = dataSet.getView(selector.tableName, selector.viewId ?? 'default')
+      if (view) targets.push({view, ...(selector.ids === undefined ? {} : {ids: selector.ids})})
+    }
+  }
+
   const result = await dataSet.saveChanges(options)
   if (result.success) {
+    if (targets.some(({view}) => view.hasUnconfirmedSave)) {
+      notifier.notify('warning', '目标范围仍有提交结果待核验，请先核验原提交')
+      return
+    }
+    const hasRemainingChanges = targets.some(({view, ids}) => ids === undefined
+      ? view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges()
+      : ids.some(id => view.dirtyTracking.hasPendingChanges(id) || view.hasEditingChanges(id)))
+    if (hasRemainingChanges) {
+      notifier.notify('warning', '本轮保存已确认，目标范围仍有修改待保存')
+      return
+    }
     notifier.notify('success', desc.successMessage ?? result.message ?? '保存成功')
     return
   }

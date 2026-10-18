@@ -5,13 +5,9 @@
 AI用途：需要理解 renderer collapse 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <div class="renderer-collapse-layout">
-    <div v-if="showToolbar" class="renderer-collapse-toolbar">
-      <SparkComponentRenderer
-        v-for="(tool, index) in visibleToolbarConfigs"
-        :key="nodeId(tool) ?? `r-collapse-toolbar-${index}`"
-        :config="tool"
-      />
+  <div :class="['renderer-collapse-layout', `renderer-collapse-layout--${toolbarPositionValue}`]">
+    <div v-if="toolbarConfig" :class="['renderer-collapse-toolbar', toolbarClassValue]">
+      <SparkComponentRenderer :config="toolbarConfig" />
     </div>
     <div class="renderer-collapse-main">
       <el-collapse
@@ -60,7 +56,7 @@ const { registerApi } = useSparkPageComponent(props)
 
 // 工具栏优先通过 props.toolbar 输入。
 const itemConfigs = computed(() => getSparkNodeChildren(props.children))
-const { visibleToolbarConfigs, showToolbar } = useContainerToolbar({ toolbarNode: () => props.toolbar })
+const { toolbarConfig, toolbarPositionValue, toolbarClassValue } = useContainerToolbar({ toolbarNode: () => props.toolbar })
 const {
   state: currentValue,
   commitValue: commitCollapseValue,
@@ -122,11 +118,26 @@ function createItemRendererConfig(item: SparkNode, index: number): SparkNode {
 
 <style scoped>
 .renderer-collapse-layout {
+  display: flex;
+  gap: 8px;
   width: 100%;
+}
+
+.renderer-collapse-layout--top {
+  flex-direction: column;
+}
+
+.renderer-collapse-layout--bottom {
+  flex-direction: column-reverse;
+}
+
+.renderer-collapse-layout--right {
+  flex-direction: row-reverse;
 }
 
 .renderer-collapse-main {
   min-width: 0;
+  flex: 1;
 }
 
 .renderer-collapse-toolbar {
@@ -134,7 +145,6 @@ function createItemRendererConfig(item: SparkNode, index: number): SparkNode {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  margin-bottom: 8px;
 }
 
 .renderer-collapse-item-body {

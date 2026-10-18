@@ -19,12 +19,15 @@ export {
 } from './editors/index.js'
 
 // ── 组件 re-exports（leaf barrel 统一导出）──────────────────────────────────
+export { RendererFilter } from './containers/index.js'
 export {
   RendererDetail,
   RendererForm,
   RendererList,
   RendererTable,
   RendererTree,
+  RendererGraph,
+  GraphLayout,
   RendererVirtualCard,
 } from './containers/data-views/index.js'
 
@@ -42,6 +45,11 @@ export type {
   RendererTreePath,
   RTableProps,
   RTreeProps,
+  RGraphProps,
+  GraphSelection,
+  GraphNodeMove,
+  GraphArrange,
+  RendererGraphApi,
 } from './containers/data-views/index.js'
 
 export {
@@ -194,7 +202,13 @@ export {
 } from './fields/non-data-components/index.js'
 
 export { default as FilterExpressionEditor } from './containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue'
+export { default as RendererFilterExpression } from './containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue'
+export type { RFilterExpressionProps } from './containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props'
 export { default as FilterValueFunctionDialog } from './containers/filter/value/FilterValueFunctionDialog/FilterValueFunctionDialog.vue'
+export {FieldValueFunction} from './fields/data-components/index.js'
+export {FieldJson} from './fields/data-components/index.js'
+export type {RJsonProps} from './fields/data-components/index.js'
+export type {RValueFunctionProps} from './fields/data-components/index.js'
 
 export type {
   RTreeNodeSummaryProps,

@@ -5,7 +5,7 @@
 AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <div v-if="isPanelMode && standaloneChildren.length > 0" class="renderer-table-filters">
+  <div v-if="isPanelMode && standaloneChildren.length > 0" class="renderer-table-filters" :class="props.class">
     <div v-if="props.collapsible" class="renderer-table-filters__header">
       <div class="renderer-table-filters__heading">
         <span class="renderer-table-filters__title">筛选条件</span>
@@ -40,6 +40,7 @@ AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状
       :loading-error="dataState.loadingError.value"
       :mutating-error="dataState.mutatingError.value"
       :aggregate-result="dataState.aggregateResult.value"
+      :aggregate-error="dataState.aggregateError.value"
       :selection-aggregate-result="dataState.selectionAggregateResult.value"
       :show-data-view-meta="props.showDataViewMeta !== false"
       :show-aggregate-summary="props.showAggregateSummary !== false"
@@ -63,17 +64,18 @@ AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状
     </div>
   </div>
 
-  <div v-else-if="standaloneChildren.length > 0" class="renderer-filter">
+  <div v-else-if="standaloneChildren.length > 0" class="renderer-filter" :class="props.class">
     <SparkComponentRenderer
       v-for="(child, i) in standaloneChildren"
       :key="nodeId(child) ?? `r-filter-${i}`"
       :config="child"
     />
   </div>
-  <div v-if="dataState.resolvedView.value" class="renderer-filter">
+  <div v-if="dataState.resolvedView.value" class="renderer-filter" :class="props.class">
     <FilterExpressionEditor
       :key="viewInstanceRevision"
       :model-value="appliedFilter"
+      :display="props.expressionDisplay ?? 'dialog'"
       :columns="dataState.columns.value"
       :function-context="props.filterFunctionContext ?? {}"
       :disabled="applyingExpression"
@@ -86,9 +88,10 @@ AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状
 
 <script setup lang="ts">
 /**
- * @description 筛选区组件，自治绑定 DataView。独立使用时仅渲染 wrapper 子节点；
- * 当 children 中含有带 `field` 的过滤项节点时进入面板模式，自维护 filterModel
- * 与 DataView.setFilter 同步，无需父容器注入桥接字段。
+ * @description 统一过滤组件，按 dataViewKey 或父级 DATA_SOURCE 绑定 DataView。
+ * 绑定后显示完整表达式编辑器，以 DataView.executeFilter 应用；不要求 children。
+ * children 中含带 field 的过滤项时附加常用筛选面板，复用 useFilterPanel 同步 DataView，
+ * 容器不另建过滤表达式、查询或权限逻辑。
  */
 import { computed, ref, toRef, watch } from 'vue'
 import { SUBTREE_FIELD_POLICY } from '../../../permission'
@@ -107,6 +110,7 @@ import type { RFilterProps as Props } from './RendererFilter.types'
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'r-filter',
+  autoQuery: undefined,
 })
 
 const { sparkConsume, sparkProvide, logger } = useSparkPageComponent(props)
@@ -134,6 +138,18 @@ const dataState = useContainerDataSource({
   inheritedDataSource,
   skipEffects: true,
 })
+watch([dataState.resolvedView, () => props.autoQuery], ([view, autoQuery], _previous, onCleanup) => {
+  if (!view || autoQuery === undefined) return
+  const original = view.queryConfig.autoQuery
+  view.queryConfig = {...view.queryConfig, autoQuery}
+  onCleanup(() => {
+    if (view.destroyed || view.queryConfig.autoQuery !== autoQuery) return
+    const next = {...view.queryConfig}
+    if (original === undefined) delete next.autoQuery
+    else next.autoQuery = original
+    view.queryConfig = next
+  })
+}, {immediate: true, flush: 'sync'})
 // 面板模式下必须能解析到 DataView，否则 fail-fast。
 watch(
   [isPanelMode, dataState.resolvedView],
@@ -159,6 +175,7 @@ const {
   filterChildren: () => isPanelMode.value ? standaloneChildren.value : [],
   dataView: dataState.resolvedView,
   logger,
+  autoQuery: () => props.autoQuery ?? dataState.resolvedView.value?.queryConfig.autoQuery ?? true,
 })
 
 const expressionError = ref<string | null>(null)

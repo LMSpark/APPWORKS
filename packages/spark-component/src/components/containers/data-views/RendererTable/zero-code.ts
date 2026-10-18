@@ -5,6 +5,7 @@
  * AI用途：当动作、脚本或 ClassModel 需要调用 renderer table 的选择、刷新、编辑、分页或树/表操作时，使用本模块确认 API 语义。
  */
 import { isDataRow, type DataView, type DataRow } from '@spark-appworks/spark-data'
+import { toRaw } from 'vue'
 import type { LoggerApi } from '@spark-appworks/spark-utils'
 import { getSelectedRows } from '../../../../page/actions/index.js'
 import { createContainerCrudContext, getNativeRefValue } from '../zero-code-shared.js'
@@ -43,7 +44,7 @@ type RendererTableZeroCodeOptions = {
 }
 
 function toDataRows(value: unknown): DataRow[] {
-  return Array.isArray(value) ? value.filter(isDataRow) : []
+  return Array.isArray(value) ? value.filter(isDataRow).map(row => toRaw(row)) : []
 }
 
 function isNativeTableLike(value: unknown): value is NativeTableLike {
@@ -116,7 +117,7 @@ export function createRendererTableZeroCode(options: RendererTableZeroCodeOption
       'current-change': {
         systemDefault: (currentRow: unknown) => {
           resolvedView.value?.selection.setCurrentRow(
-            isDataRow(currentRow) ? currentRow : null,
+            isDataRow(currentRow) ? toRaw(currentRow) : null,
             currentRowOriginatorId,
           )
         },
@@ -125,7 +126,7 @@ export function createRendererTableZeroCode(options: RendererTableZeroCodeOption
         systemDefault: (row: unknown) => {
           if (!isDataRow(row)) return
           resolvedView.value?.selection.setCurrentRow(
-            row,
+            toRaw(row),
             currentRowOriginatorId,
           )
         },
@@ -147,6 +148,9 @@ export function createRendererTableZeroCode(options: RendererTableZeroCodeOption
 
   const tableApi: RendererTableApi = {
     ...baseMethods,
+    getValue() {
+      return resolvedView.value?.getSelectedValues() ?? []
+    },
     getRows() {
       return resolvedView.value?.rows ?? []
     },
@@ -198,7 +202,7 @@ export function createRendererTableZeroCode(options: RendererTableZeroCodeOption
     },
     // DataView-first: watcher in RendererTable.vue syncs to nativeTableRef
     setCurrentRow(row) {
-      const targetRow = row ?? null
+      const targetRow = row ? toRaw(row) : null
       resolvedView.value?.selection.setCurrentRow(targetRow)
     },
     setCurrentRowById(id) {
@@ -207,7 +211,7 @@ export function createRendererTableZeroCode(options: RendererTableZeroCodeOption
       return view.selection.setCurrentRowById(id ?? null)
     },
     setSelectedRows(rows) {
-      resolvedView.value?.selection.setSelectedRows(rows)
+      resolvedView.value?.selection.setSelectedRows(rows.map(row => toRaw(row)))
     },
     setSelectedRowsById(ids) {
       return resolvedView.value?.selection.setSelectedRowsById(ids) ?? 0

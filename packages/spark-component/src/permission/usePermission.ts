@@ -16,9 +16,9 @@
  * - 前端权限仅为渲染层表现，真正安全由后端控制
  * - 所有权限判断收口到本模块，方便统一维护
  */
-import { computed, shallowRef } from 'vue'
+import { computed, shallowRef, toRaw } from 'vue'
 import { FieldVisibility } from '@spark-appworks/spark-data'
-import type { DataRow, SparkNode } from '@spark-appworks/spark-data'
+import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import { useDataViewEventBridge } from '../components/containers/runtime/useDataViewEventBridge'
 import type { SubtreeFieldPolicy } from '../core/capability-keys.js'
 import type { PermissionMode } from '@spark-appworks/spark-utils'
@@ -57,14 +57,21 @@ export type UsePermissionReturn = {
  *
  * 内部自动消费 PAGE_PERMISSION_MODE 能力，返回绑定了当前模式的权限 API。
  */
-export function usePermission(): UsePermissionReturn {
+export function usePermission(binding?: {
+  /** 动态数据源；与字段值绑定使用同一解析结果。 */
+  dataSource: () => DataView | null
+  /** 显式字段绑定不得借用父子树的本地输入放行策略。 */
+  inheritFieldPolicy: () => boolean
+}): UsePermissionReturn {
   const { sparkConsume } = useSparkConsume()
   const mode = sparkConsume(PAGE_PERMISSION_MODE) ?? undefined
   const subtreeFieldPolicy = sparkConsume(SUBTREE_FIELD_POLICY) ?? undefined
+  const source = () => binding ? binding.dataSource() : sparkConsume(DATA_SOURCE)
+  const fieldPolicy = () => !binding || binding.inheritFieldPolicy() ? subtreeFieldPolicy : undefined
   const permissionRevision = shallowRef(0)
   const bumpPermissionRevision = () => { permissionRevision.value += 1 }
   useDataViewEventBridge({
-    resolvedView: computed(() => sparkConsume(DATA_SOURCE)),
+    resolvedView: computed(source),
     onCurrentRowChanged: bumpPermissionRevision,
     onSelectedRowsChanged: bumpPermissionRevision,
     onRowsChanged: bumpPermissionRevision,
@@ -74,23 +81,23 @@ export function usePermission(): UsePermissionReturn {
 
   return {
     get permissionMode() { return mode },
-    get subtreeFieldPolicy() { return subtreeFieldPolicy },
+    get subtreeFieldPolicy() { return fieldPolicy() },
 
     isModelActionAllowed(action) {
       permissionRevision.value
-      return isModelActionAllowed(action, sparkConsume(DATA_SOURCE))
+      return isModelActionAllowed(action, source())
     },
 
     isRowActionAllowed(action, row) {
       permissionRevision.value
-      return isRowActionAllowed(action, row, sparkConsume(DATA_SOURCE))
+      return isRowActionAllowed(action, row, source())
     },
 
     resolveFieldState(field, row, config) {
       permissionRevision.value
       if (!field || !row) return null
-      const localInput = subtreeFieldPolicy === 'unrestricted'
-      const access = localInput ? null : sparkConsume(DATA_SOURCE)?.fieldAccess(row, field)
+      const localInput = fieldPolicy() === 'unrestricted'
+      const access = localInput ? null : source()?.fieldAccess(toRaw(row), field)
       const visibility = localInput || access?.read === 'visible' ? FieldVisibility.Visible
         : access?.read === 'masked' ? FieldVisibility.Masked : FieldVisibility.Hidden
       const readable = visibility !== FieldVisibility.Hidden && config?.visible !== false

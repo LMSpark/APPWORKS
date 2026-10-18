@@ -64,6 +64,8 @@ export function toDisplayRows(model: TreeModel, policy?: Partial<JsonTreePolicy>
       keyEditable: p.canEditKey(path),
       typeEditable: p.canEditType(path),
       deletable: depth > 0 && !p.isProtected(path),
+      childAddable: (node.type === 'object' || node.type === 'array') && p.canAddChild(path),
+      siblingAddable: depth > 0 && p.canAddChild(path.slice(0, -1)),
     })
     for (const childId of children) {
       const ch = model.get(childId)

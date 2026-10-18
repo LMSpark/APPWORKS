@@ -55,6 +55,7 @@
     "vanilla-jsoneditor": "catalog:"
   },
   "peerDependencies": {
+    "@vue-flow/core": "catalog:",
     "@element-plus/icons-vue": "catalog:",
     "element-plus": "catalog:",
     "vue": "catalog:",

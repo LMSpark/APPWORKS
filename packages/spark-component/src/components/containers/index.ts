@@ -31,6 +31,11 @@ export type {
 	RendererTreePath,
 	RTableProps,
 	RTreeProps,
+	RGraphProps,
+	GraphSelection,
+	GraphNodeMove,
+	GraphArrange,
+	RendererGraphApi,
 } from './data-views/index.js'
 export {
 	RendererAffix,
@@ -109,7 +114,6 @@ export { default as RendererFieldScope } from './support/scope/RendererFieldScop
 // ── 结构节点类型（供容器 Props 组合使用） ──
 export type { RToolbarProps, InlineAlign, InlineJustify } from './layout/action/RendererToolbar/RendererToolbar.types.js'
 export type { RFilterProps } from './zones/RendererFilter.types.js'
-export type { ActionsAlign, ActionsPosition, RendererActionsProps } from './support/RendererActions.types.js'
 export type { VisibilityContainerApi } from './support/crud/base-container-api.js'
 export type { REditorProps } from './zones/RendererEditor.types.js'
 export type { RHeaderProps } from './zones/RendererHeader.types.js'

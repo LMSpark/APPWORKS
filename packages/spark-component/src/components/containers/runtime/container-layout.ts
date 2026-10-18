@@ -247,7 +247,7 @@ export function useContainerGrid(options: UseContainerGridOptions): ContainerGri
     const hasExplicitColSpan =
       hasNodeInputOverride(child, DEFAULT_COL_SPAN_KEYS) || resolved.defaultColSpanValue !== undefined
     const colSpan = resolved.hasAutoFit
-      ? normalizeAutoFitSpan(rawColSpan, resolved.columns, resolved.children.length)
+      ? hasExplicitColSpan ? normalizeAutoFitSpan(rawColSpan, resolved.columns, resolved.children.length) : 1
       : rawColSpan
     const rowSpan = getSpanValue(child, DEFAULT_ROW_SPAN_KEYS, 1)
     const finalColSpan = resolveLastRowColSpan({

@@ -10,6 +10,16 @@ import type { ActionDescriptor, BuiltinActionName } from '../../../../../page/ac
 /** RButton Props 的属性契约。 */
 export type RButtonProps = SparkNodeProps & {
   /**
+   * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。
+   * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。
+   * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。
+   */
+  permAction?: 'create' | 'edit' | 'delete' | 'create-child'
+
+  /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */
+  disabled?: boolean
+
+  /**
    * CRUD 或页面动作名，由宿主内置 action runner 接管执行。
    * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。
    * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。
@@ -19,7 +29,7 @@ export type RButtonProps = SparkNodeProps & {
   /**
    * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。
    * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。
-   * 格式示例：table@viewId。
+   * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。
    */
   dataViewKey?: string
 

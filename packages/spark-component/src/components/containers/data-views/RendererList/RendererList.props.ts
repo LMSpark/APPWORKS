@@ -50,5 +50,5 @@ export type RListProps = SparkNodeProps & SparkCrudDataContainerProps & SparkGri
     onItemClick?: RowClickHandler
     /** 透传给列表根节点的显式属性 */
     listProps?: Record<string, unknown>
-    /** 是否显示分页器。默认 true。 */
+    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */
     showPagination?: boolean}

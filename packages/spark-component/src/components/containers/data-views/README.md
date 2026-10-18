@@ -19,5 +19,7 @@
 
 说明：
 
-1. `r-column-group` 是 `FieldContextRenderer` 的表格列投影节点，由 `RendererTable` 在列区投影为 `el-table-column`。
-2. 不保留没有真实组件实现的 `RendererRowFragment/` 空壳目录。
+1. 页面结构由 `children` 中的标准子组件表达。字段子组件按父容器在表格、表单、详情中渲染；`DataView.columns` 是数据字段元信息。`autoColumns` 只是在没有显式 children 时自动生成这些子组件，不建立另一套页面列定义。
+2. 表单自动路径按基础值类型生成文本、数字、开关、日期子组件；复合、枚举及未知类型只展示且禁用修改，编辑须显式配置 children。业务显式选择的组件不会被模型字段类型替换。
+3. `r-column-group` 仅表达子组件分组，表格内部投影为 `el-table-column`；不能用没有 children 的分组替代普通字段子组件。
+4. 不保留没有真实组件实现的 `RendererRowFragment/` 空壳目录。

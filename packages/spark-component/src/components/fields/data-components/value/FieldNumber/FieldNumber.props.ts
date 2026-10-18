@@ -8,5 +8,9 @@ import type { SparkNodeProps, SparkRangeNumericFieldProps } from '../../../../sh
 
 /** RNumber Props 的属性契约。 */
 export type RNumberProps = SparkNodeProps & SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]> & {
+  /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */
+  step?: number
+  /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */
+  controlsPosition?: '' | 'right'
   /** 数值展示与写回时使用的小数精度。 */
     precision?: number}

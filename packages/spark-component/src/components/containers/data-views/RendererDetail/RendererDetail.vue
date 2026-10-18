@@ -6,12 +6,8 @@ AI用途：需要理解 renderer detail 的实际渲染结构、slot/toolbar/状
 -->
 <template>
   <div :class="['renderer-detail-layout', `renderer-detail-layout--${toolbarPositionValue}`]">
-    <div v-if="showToolbar" :class="['renderer-detail-toolbar', toolbarClassValue]">
-        <SparkComponentRenderer
-          v-for="(action, index) in visibleToolbarConfigs"
-          :key="nodeId(action) ?? `r-detail-toolbar-${index}`"
-          :config="action"
-        />
+    <div v-if="toolbarConfig" :class="['renderer-detail-toolbar', toolbarClassValue]">
+      <SparkComponentRenderer :config="toolbarConfig" />
     </div>
 
     <DataViewMetaBar
@@ -19,6 +15,7 @@ AI用途：需要理解 renderer detail 的实际渲染结构、slot/toolbar/状
       :columns="dataState.columns.value"
       :selected-rows="dataState.selectedRows.value"
       :total="dataState.total.value"
+      :paginated="dataState.paginated.value"
       :page="dataState.page.value"
       :page-size="dataState.pageSize.value"
       :request-state="dataState.requestState.value"
@@ -26,6 +23,7 @@ AI用途：需要理解 renderer detail 的实际渲染结构、slot/toolbar/状
       :loading-error="dataState.loadingError.value"
       :mutating-error="dataState.mutatingError.value"
       :aggregate-result="dataState.aggregateResult.value"
+      :aggregate-error="dataState.aggregateError.value"
       :selection-aggregate-result="dataState.selectionAggregateResult.value"
       :show-data-view-meta="props.showDataViewMeta !== false"
       :show-aggregate-summary="props.showAggregateSummary !== false"
@@ -70,12 +68,12 @@ import {
 } from '../../../internal'
 import type { RDetailProps } from './RendererDetail.props'
 import {
-  buildFormDetailContainerProps,
   useFormDetailContainer,
 } from '../../runtime/container-form-detail'
 import { createRendererDetailZeroCode } from './zero-code'
 import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
+import { useContainerToolbar } from '../../runtime/container-ui'
 
 const props = withDefaults(defineProps<RDetailProps>(), {
   type: 'r-detail',
@@ -92,6 +90,8 @@ const detailAlignStyle = computed<StyleValue>(() => ({
   '--spark-detail-value-align': props.valueAlign,
 }))
 
+const {toolbarConfig, toolbarPositionValue, toolbarClassValue} = useContainerToolbar({toolbarNode: () => props.toolbar})
+
 const {
   registerApi,
   logger,
@@ -100,27 +100,10 @@ const {
   gridChildren,
   gridStyle,
   getChildGridStyle,
-  toolbarPositionValue,
-  toolbarClassValue,
-  visibleToolbarConfigs,
-  showToolbar,
   getDefaultScope,
   contextData: detailData,
 } = useFormDetailContainer(
-  buildFormDetailContainerProps({
-    type: props.type,
-    ...(props.id !== undefined ? { id: props.id } : {}),
-    ...(props.toolbar !== undefined ? { toolbar: props.toolbar } : {}),
-    ...(props.children !== undefined ? { children: props.children } : {}),
-    ...(props.dataSource !== undefined ? { dataSource: props.dataSource } : {}),
-    dataViewKey: props.dataViewKey,
-    contextDataMember: props.contextDataMember,
-    contextDataField: props.contextDataField,
-    autoColumns: props.autoColumns,
-    gridColumns: props.gridColumns,
-    gridGap: props.gridGap,
-    gridAutoRows: props.gridAutoRows,
-  }),
+  props,
   'r-detail',
 )
 

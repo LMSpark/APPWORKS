@@ -5,7 +5,7 @@
 AI用途：需要理解 spark json editor 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <div class="spark-json-editor" :style="rootStyle">
+  <div class="spark-json-editor" :style="rootStyle" @input.capture="inputStarted" @focusout.capture="flushPendingInput">
     <div v-if="initError" class="spark-json-editor__notice">
       {{ initError }}
     </div>
@@ -14,7 +14,7 @@ AI用途：需要理解 spark json editor 的实际渲染结构、slot/toolbar/�
     </div>
     <textarea
       v-if="initError"
-      :value="modelValue"
+      :value="toEditorText(currentContent)"
       class="spark-json-editor__fallback"
       :readonly="readOnly"
       spellcheck="false"
@@ -32,6 +32,7 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vu
 import type {
   AjvValidatorOptions,
   Content,
+  ContentErrors,
   JSONEditorPropsOptional,
   JSONSchema,
   JSONSchemaDefinitions,
@@ -47,6 +48,7 @@ type SparkJsonEditorRenderValueResult = ReturnType<SparkJsonEditorRenderValue>
 
 type SparkJsonEditorInstance = {
   updateProps: (props: JSONEditorPropsOptional) => void
+  validate: () => ContentErrors | undefined
   destroy: () => Promise<void>}
 
 type SparkJsonEditorModule = {
@@ -113,7 +115,10 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
+  /** 底层编辑器有尚未发出的输入通知；原字段接纳由宿主负责。 */
+  'editing-change': [value: boolean]
 }>()
+let active = true
 
 const containerRef = ref<HTMLDivElement | null>(null)
 const editorRef = shallowRef<SparkJsonEditorInstance | null>(null)
@@ -205,12 +210,14 @@ function buildEditorProps(): JSONEditorPropsOptional {
     askToFormat: props.askToFormat,
     ...editorExtensionProps.value,
     onChange: (updatedContent) => {
+      if (!active || props.readOnly) return
       currentContent.value = updatedContent
       const nextValue = toEditorText(updatedContent)
       lastSerializedValue.value = nextValue
       if (nextValue !== props.modelValue) {
         emit('update:modelValue', nextValue)
       }
+      emit('editing-change', false)
     },
   }
 }
@@ -239,12 +246,24 @@ async function mountEditor(): Promise<void> {
   }
 }
 
+function flushPendingInput(): void {
+  // TextMode.validate会同步排空其延迟的文本通知，外部应用/保存动作才能消费最新内容。
+  editorRef.value?.validate()
+}
+
+function inputStarted(event: Event): void {
+  // 编辑内容与搜索/筛选输入分开；底层文本和表格值编辑器均使用contenteditable。
+  if (active && !props.readOnly && event.target instanceof HTMLElement
+    && event.target.closest('[contenteditable="true"], .spark-json-editor__fallback')) emit('editing-change', true)
+}
+
 function handleFallbackInput(event: Event): void {
-  if (!(event.target instanceof HTMLTextAreaElement)) return
+  if (!active || props.readOnly || !(event.target instanceof HTMLTextAreaElement)) return
   const target = event.target
   currentContent.value = { text: target.value }
   lastSerializedValue.value = target.value
   emit('update:modelValue', target.value)
+  emit('editing-change', false)
 }
 
 watch(() => props.modelValue, (value) => {
@@ -252,6 +271,7 @@ watch(() => props.modelValue, (value) => {
   if (value === lastSerializedValue.value) return
   currentContent.value = toEditorContent(value)
   lastSerializedValue.value = value
+  emit('editing-change', false)
   editorRef.value?.updateProps(buildEditorProps())
 })
 
@@ -267,6 +287,7 @@ watch(
     props.askToFormat,
   ] as const,
   () => {
+    if (props.readOnly) emit('editing-change', false)
     editorRef.value?.updateProps(buildEditorProps())
   },
 )
@@ -290,6 +311,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  active = false; emit('editing-change', false)
   const editor = editorRef.value
   editorRef.value = null
   editorModuleRef.value = null

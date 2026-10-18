@@ -68,7 +68,7 @@ const emit = defineEmits<FieldValueUpdateEmits<string> & {
 }>()
 
 const { isVisible, isDisabled } = useSparkPageComponent(props)
-const { activeRow } = useActiveFieldRow()
+const { activeRow } = useActiveFieldRow(props)
 const activePrefix = ref<string | null>(null)
 
 function normalizeTextValue(value: unknown): string {

@@ -51,6 +51,10 @@ export type TreeDisplayNode = JsonTreeNode & {
   readonly typeEditable: boolean
   /** 是否可删除 */
   readonly deletable: boolean
+  /** 是否可在此容器内新增子项；由节点类型和新增策略共同确定。 */
+  readonly childAddable: boolean
+  /** 是否可新增同级项；核对实际父容器的新增策略，根节点为false。 */
+  readonly siblingAddable: boolean
 }
 
 // ── 树模型 ────────────────────────────────────────────────────
@@ -108,6 +112,8 @@ export type JsonTreePolicy = {
   canEditKey?(path: JsonPath): boolean
   /** 该路径的类型是否可切换。默认：除根节点外均可 */
   canEditType?(path: JsonPath): boolean
+  /** 是否允许向此路径的容器新增子项。默认允许；新增同级项使用父容器路径。与不可删除的isProtected独立，不限制已有子项的值或类型。 */
+  canAddChild?(parentPath: JsonPath): boolean
   /** 为目标对象建议新子键名 */
   suggestChildKey?(target: JsonObject, parentPath: JsonPath): string
   /** 为数组添加子项时的默认值 */

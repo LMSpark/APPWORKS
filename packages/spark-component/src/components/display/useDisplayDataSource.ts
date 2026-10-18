@@ -12,7 +12,7 @@
  * 2. props.dataViewKey + props.dataMember + props.dataField（DataView 输出读取，依赖 PAGE_RUNTIME）
  * 3. props.field（从 DATA_ROW / DATA_SOURCE.currentRow 读取字段）
  */
-import { computed, type ComputedRef } from 'vue'
+import { computed, shallowRef, type ComputedRef } from 'vue'
 import { useSparkConsume, DATA_ROW, DATA_SOURCE } from '../internal'
 import { PAGE_RUNTIME } from '../internal'
 import {
@@ -22,6 +22,8 @@ import {
   type DataRow,
 } from '@spark-appworks/spark-data'
 import { usePermission } from '../../permission'
+import { useDataViewEventBridge } from '../containers/runtime/useDataViewEventBridge'
+import {resolveReactiveRow} from '../containers/support/scope/row-mirror-sync'
 
 /** Display Data Props 的属性契约。 */
 type DisplayDataProps = {
@@ -47,6 +49,21 @@ export function useDisplayDataSource(props: DisplayDataProps): UseDisplayDataSou
   const dataSource = sparkConsume(DATA_SOURCE)
   const runtime = sparkConsume(PAGE_RUNTIME)
   const permission = usePermission()
+  const boundView = computed(() => {
+    if (props.value !== undefined || props.dataViewKey === undefined || props.dataMember === undefined) return null
+    if (!runtime) throw new Error('PAGE_RUNTIME_MISSING')
+    const view = runtime.resolveView(props.dataViewKey)
+    if (!view) throw new Error(`DATA_VIEW_MISSING: ${props.dataViewKey}`)
+    return view
+  })
+  const revision = shallowRef(0)
+  const refresh = () => { revision.value++ }
+  useDataViewEventBridge({resolvedView: computed(() => boundView.value ?? dataSource ?? null),
+    onRowsChanged: refresh, onCurrentRowChanged: refresh, onSelectedRowsChanged: refresh,
+    onCleared: refresh, onRequestStateChanged: refresh, onConfigChanged: refresh,
+    onSummaryChanged: refresh, onSelectionSummaryChanged: refresh,
+    onEditingChanged: refresh, onMutatingChanged: refresh,
+  })
 
   function permittedValue(value: unknown, row: DataRow | null, field: string | undefined): unknown {
     if (row === null || !field) return value
@@ -57,8 +74,9 @@ export function useDisplayDataSource(props: DisplayDataProps): UseDisplayDataSou
   }
 
   const resolvedValue = computed(() => {
+    revision.value
     // 静态值优先（直接传入 value 的场景）
-    const activeRow = contextData ?? dataSource?.currentRow ?? null
+    const activeRow = resolveReactiveRow(contextData ?? dataSource?.currentRow)
     if (props.value !== undefined) return permittedValue(props.value, activeRow, props.field)
 
     // DataView 输出读取：支持 aggregateResult / currentRow / rows 等成员解析。
@@ -66,24 +84,30 @@ export function useDisplayDataSource(props: DisplayDataProps): UseDisplayDataSou
       props.dataViewKey !== undefined
       && props.dataMember !== undefined
     ) {
-      if (!runtime) throw new Error('PAGE_RUNTIME_MISSING')
-      const boundView = runtime.resolveView(props.dataViewKey)
-      if (!boundView) throw new Error(`DATA_VIEW_MISSING: ${props.dataViewKey}`)
+      const view = boundView.value
+      if (!view) throw new Error(`DATA_VIEW_MISSING: ${props.dataViewKey}`)
+      if ((props.dataMember === 'aggregateResult' || props.dataMember === 'selectionAggregateResult') && view.aggregateError) {
+        return view.aggregateError.message
+      }
+      const computedError = view.computedColumnError(props.dataField ?? props.field ?? '')
+      if (computedError) return computedError.message
       const boundValue = resolveDataViewMember({
-        dataViewKey: `${boundView.tableName}@${boundView.viewId}`,
+        dataViewKey: `${view.tableName}@${view.viewId}`,
         dataMember: props.dataMember,
         dataField: props.dataField,
-      }, boundView.dataSet)
+      }, view.dataSet)
       if (boundValue !== undefined) {
         const field = props.dataField ?? props.field
-        const row = boundView.currentRow
+        const row = view.currentRow
         if (!row || !field) return boundValue
-        const access = boundView.fieldAccess(row, field)
+        const access = view.fieldAccess(row, field)
         return access.read === 'invisible' ? '' : access.read === 'masked' ? '••••' : boundValue
       }
     }
 
     // 从当前行数据读取字段
+    const computedError = props.field ? dataSource?.computedColumnError(props.field) : null
+    if (computedError) return computedError.message
     if (activeRow !== null && props.field && props.field in activeRow) {
       return permittedValue(activeRow[props.field], activeRow, props.field)
     }

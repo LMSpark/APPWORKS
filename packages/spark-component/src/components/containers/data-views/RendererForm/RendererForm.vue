@@ -6,12 +6,8 @@ AI用途：需要理解 renderer form 的实际渲染结构、slot/toolbar/状�
 -->
 <template>
   <div :class="['renderer-form-layout', `renderer-form-layout--${toolbarPositionValue}`]">
-    <div v-if="showToolbar" :class="['renderer-form-toolbar', toolbarClassValue]">
-        <SparkComponentRenderer
-          v-for="(action, index) in visibleToolbarConfigs"
-          :key="nodeId(action) ?? `r-form-toolbar-${index}`"
-          :config="action"
-        />
+    <div v-if="toolbarConfig" :class="['renderer-form-toolbar', toolbarClassValue]">
+      <SparkComponentRenderer :config="toolbarConfig" />
     </div>
 
     <DataViewMetaBar
@@ -19,6 +15,7 @@ AI用途：需要理解 renderer form 的实际渲染结构、slot/toolbar/状�
       :columns="dataState.columns.value"
       :selected-rows="dataState.selectedRows.value"
       :total="dataState.total.value"
+      :paginated="dataState.paginated.value"
       :page="dataState.page.value"
       :page-size="dataState.pageSize.value"
       :request-state="dataState.requestState.value"
@@ -26,13 +23,14 @@ AI用途：需要理解 renderer form 的实际渲染结构、slot/toolbar/状�
       :loading-error="dataState.loadingError.value"
       :mutating-error="dataState.mutatingError.value"
       :aggregate-result="dataState.aggregateResult.value"
+      :aggregate-error="dataState.aggregateError.value"
       :selection-aggregate-result="dataState.selectionAggregateResult.value"
       :show-data-view-meta="props.showDataViewMeta !== false"
       :show-aggregate-summary="props.showAggregateSummary !== false"
       :show-selection-summary="props.showSelectionSummary !== false"
     />
 
-    <el-form ref="nativeFormRef" class="renderer-form-main" :model="formModel" :label-width="labelWidth" v-bind="formPropsValue">
+    <el-form ref="nativeFormRef" class="renderer-form-main" :model="formModel" :label-width="labelWidth" v-bind="formPropsValue" @submit.prevent>
         <div class="renderer-form-grid" :style="gridStyle">
           <div
             v-for="(child, index) in gridChildren"
@@ -70,12 +68,12 @@ import {
 } from '../../../internal'
 import type { RFormProps } from './RendererForm.props'
 import {
-  buildFormDetailContainerProps,
   useFormDetailContainer,
 } from '../../runtime/container-form-detail'
 import { createRendererFormZeroCode } from './zero-code'
 import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
+import { useContainerToolbar } from '../../runtime/container-ui'
 
 const props = withDefaults(defineProps<RFormProps>(), {
   type: 'r-form',
@@ -87,6 +85,8 @@ const props = withDefaults(defineProps<RFormProps>(), {
 
 const formPropsValue = computed<Record<string, unknown>>(() => ({ ...(props.formProps ?? {}) }))
 
+const {toolbarConfig, toolbarPositionValue, toolbarClassValue} = useContainerToolbar({toolbarNode: () => props.toolbar})
+
 const {
   registerApi,
   logger,
@@ -96,26 +96,9 @@ const {
   gridChildren,
   gridStyle,
   getChildGridStyle,
-  toolbarPositionValue,
-  toolbarClassValue,
-  visibleToolbarConfigs,
-  showToolbar,
   getDefaultScope,
 } = useFormDetailContainer(
-  buildFormDetailContainerProps({
-    type: props.type,
-    ...(props.id !== undefined ? { id: props.id } : {}),
-    ...(props.toolbar !== undefined ? { toolbar: props.toolbar } : {}),
-    ...(props.children !== undefined ? { children: props.children } : {}),
-    ...(props.dataSource !== undefined ? { dataSource: props.dataSource } : {}),
-    dataViewKey: props.dataViewKey,
-    contextDataMember: props.contextDataMember,
-    contextDataField: props.contextDataField,
-    autoColumns: props.autoColumns,
-    gridColumns: props.gridColumns,
-    gridGap: props.gridGap,
-    gridAutoRows: props.gridAutoRows,
-  }),
+  props,
   'r-form',
 )
 

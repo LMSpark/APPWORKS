@@ -11,7 +11,7 @@
  * 用于纯 TS 文件中接受 ref-like 对象而无需 import vue。
  */
 import type { DataMember, DataView } from '@spark-appworks/spark-data'
-import type { SparkNodeChildren } from '@spark-appworks/spark-data'
+import type { SparkNode, SparkNodeChildren } from '@spark-appworks/spark-data'
 import type {
   AddRowHandler,
   EditRowHandler,
@@ -136,6 +136,12 @@ export type SparkDataDisplayProps<TValue = unknown> = {
  * 不引入 `SparkNodeProps`，以便具体组件能够显式挂在根层上而不形成重复继承。
  */
 export type SparkFieldSemanticProps<TValue = unknown> = {
+  /** 值所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。 */
+  dataViewKey?: string
+  /** 值的数据成员，默认currentRow。currentRow/value的字段可按数据权限编辑，其余成员只读。 */
+  dataMember?: DataMember | `${DataMember}`
+  /** 数据成员的字段；优先于field。字段编辑必须定位实际列，选项来源仍由optionDataViewKey或字段级联定义。 */
+  dataField?: string
   /**
    * 字段宽度。
    *
@@ -143,6 +149,12 @@ export type SparkFieldSemanticProps<TValue = unknown> = {
    * 这里统一约定为数值宽度，由具体组件决定如何映射到样式层。
    */
   width?: number
+  /** 表格父容器中字段的最小宽度（像素）；未指定固定width时参与剩余空间分配，其他宿主不改变布局。 */
+  minWidth?: number
+  /** 表格单元格文本溢出时省略并显示提示；默认关闭，提示使用经数据权限处理的渲染文本，其他宿主不受影响。 */
+  showOverflowTooltip?: boolean
+  /** 表格字段标题下的标准组件区域；用于表头筛选等交互，子组件遵循自身数据绑定与权限。与children分组字段分别配置，不定义另一套列或查询。 */
+  header?: SparkNode
   /**
    * 表格列是否允许拖动列宽。
    *
@@ -187,6 +199,12 @@ export type SparkFieldSemanticProps<TValue = unknown> = {
    * 它与完全禁用或隐藏是不同层级的语义。
    */
   readonly?: boolean
+  /**
+   * 表格中双击当前字段进入原标准控件编辑，缺省false；非表格宿主不受影响。
+   * 使用所属DataView已被表格接受的当前行，不继承外层窗口的行；仍消费字段权限及编辑覆盖。
+   * 失焦/Enter结束单元格输入但不保存或放弃草稿；切换行、视图或失去写权限时退出。
+   */
+  editOnDblclick?: boolean
   /**
    * 占位文案。
    * 当组件无值且支持 placeholder 时，用来提示用户预期输入或显示内容格式。
@@ -496,6 +514,8 @@ export type SparkOptionFieldProps<TValue = unknown, TOption = unknown> = SparkFi
      * 组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。
      */
     optionDataViewKey?: string
+    /** 直接绑定DataView.rows时按顺序读取候选标题；空值继续，脱敏立即显示掩码，不可读字段跳过，全部为空时使用可读选项值。省略沿用optionLabelField；不用于级联临时结果或其他数据成员。 */
+    optionLabelFields?: string[]
     /** 选项来源 DataView 成员，默认 rows。 */
     optionDataMember?: DataMember | `${DataMember}`
     /** 选项来源成员内部字段或路径。 */
@@ -672,7 +692,8 @@ export type SparkTableModelProps = {
   dataSource?: DataView
   /**
    * DataView 定位键。
-   * 固定格式为 `table@viewId` 或 `#scope@table@viewId`，用于把表级容器绑定到页面 DataSet 的某个视图。
+   * 完整格式为 `scenarioId@modelName@viewId`（数据空间ID@模型名称@视图名称），由本次 PageRuntime 校验身份并解析。
+   * `modelName@viewId` 仅在运行实例明确主场景时使用；已有 `#scenarioId@modelName@viewId` 保留读取兼容，新配置不生成前导 #。
    */
   dataViewKey?: string
   /** DataView 成员枚举值，用于读取 DataView 输出成员。 */

@@ -7,6 +7,7 @@
 import { computed, shallowRef } from 'vue'
 import type { ComputedRef } from 'vue'
 import {
+  DataViewQuery,
   RequestState,
   type DataView,
   type DataColumn,
@@ -66,6 +67,8 @@ export type DataViewPermissionState = {
 export type DataViewRequestAndAggregateState = {
   /** 当前数据请求状态，用于 loading/empty/error 渲染。 */
   requestState: ComputedRef<RequestState>
+  /** 旧视图汇总或子表公式无法执行的原DataView诊断；与明细请求错误分别呈现。 */
+  aggregateError: ComputedRef<Error | null>
   /** 全量或当前查询条件下的聚合结果。 */
   aggregateResult: ComputedRef<AggregateResultState>
   /** 已选择行集合的聚合结果。 */
@@ -76,6 +79,8 @@ export type DataViewRequestAndAggregateState = {
   page: ComputedRef<number>
   /** 当前分页大小。 */
   pageSize: ComputedRef<number>
+  /** 当前查询是否按页消费；完整集合不显示分页入口。 */
+  paginated: ComputedRef<boolean>
   /** 当前是否存在本地或远端变更中的写操作。 */
   mutating: ComputedRef<boolean>
   /** 最近一次写操作错误。 */
@@ -263,13 +268,24 @@ export function useDataViewState(
     return resolvedView.value?.requestState ?? RequestState.Idle
   })
 
+  const aggregateError = computed(() => {
+    revisions.configRevision.value
+    revisions.aggregateRevision.value
+    revisions.rowsRevision.value
+    return resolvedView.value?.aggregateError ?? resolvedView.value?.computedAggregateError ?? null
+  })
+
   const aggregateResult = computed<AggregateResultState>(() => {
     revisions.aggregateRevision.value
+    revisions.configRevision.value
+    if (aggregateError.value) return EMPTY_AGGREGATE_RESULT
     return normalizeAggregateResult(resolvedView.value?.aggregateResult, EMPTY_AGGREGATE_RESULT)
   })
 
   const selectionAggregateResult = computed<AggregateResultState>(() => {
     revisions.aggregateRevision.value
+    revisions.configRevision.value
+    if (aggregateError.value) return EMPTY_SELECTION_AGGREGATE_RESULT
     return normalizeAggregateResult(resolvedView.value?.selectionAggregateResult, EMPTY_SELECTION_AGGREGATE_RESULT)
   })
 
@@ -287,6 +303,10 @@ export function useDataViewState(
     revisions.rowsRevision.value
     revisions.configRevision.value
     return resolvedView.value?.pageSize ?? 20
+  })
+  const paginated = computed(() => {
+    revisions.configRevision.value
+    return DataViewQuery.isPaginated(resolvedView.value?.queryConfig ?? {})
   })
 
   const mutating = computed<boolean>(() => {
@@ -306,8 +326,8 @@ export function useDataViewState(
     tableName, viewId, primaryKey, treeConfig,
     rows, columns, currentRow, selectedRows, editingRows, isMultiSelect,
     value, label, labels,
-    requestState, aggregateResult, selectionAggregateResult,
-    total, page, pageSize,
+    requestState, aggregateError, aggregateResult, selectionAggregateResult,
+    total, page, pageSize, paginated,
     mutating, mutatingError, loadingError,
   }
 }

@@ -5,16 +5,13 @@
 AI用途：需要理解 renderer tabs 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <div :class="['renderer-tabs-layout', `renderer-tabs-layout--${toolbarPositionValue}`]">
-    <div v-if="showToolbar" :class="['renderer-tabs-toolbar', toolbarClassValue]">
-      <SparkComponentRenderer
-        v-for="(action, index) in visibleToolbarConfigs"
-        :key="nodeId(action) ?? `r-tabs-toolbar-${index}`"
-        :config="action"
-      />
+  <div :key="scopeKey" :class="['renderer-tabs-layout', `renderer-tabs-layout--${toolbarPositionValue}`, {'renderer-tabs-layout--header': props.toolbarPlacement === 'header'}]">
+    <div v-if="toolbarConfig" :class="['renderer-tabs-toolbar', toolbarClassValue]">
+      <SparkComponentRenderer :config="toolbarConfig" />
     </div>
 
     <div class="renderer-tabs-main">
+      <p v-if="aggregateError" role="alert">{{ aggregateError.message }}</p>
       <el-tabs
         :model-value="currentActiveName"
         @update:model-value="handleModelUpdate"
@@ -41,7 +38,8 @@ AI用途：需要理解 renderer tabs 的实际渲染结构、slot/toolbar/状�
  * @notes children 内放 r-tab-pane，每个 tab-pane 内可嵌套任意组件
  */
 import { computed } from 'vue'
-import { useSparkPageComponent, SparkComponentRenderer } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 
 import { useContainerToolbar } from '../../../runtime/container-ui'
 import type { RendererTabsApi } from './types'
@@ -59,7 +57,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number]
 }>()
 
-const { registerApi } = useSparkPageComponent(props)
+const { registerApi, scopeKey, aggregateError } = useLayoutDataContext(props)
 
 // 工具栏优先通过 props.toolbar 输入；children 作为面板内容输入。
 const paneConfigs = computed(() => getSparkNodeChildren(props.children))
@@ -69,7 +67,7 @@ const currentActiveName = useDefaultedSelection({
   getValue: getPaneName,
 })
 
-const { visibleToolbarConfigs, toolbarPositionValue, toolbarClassValue, showToolbar } =
+const { toolbarConfig, toolbarPositionValue, toolbarClassValue } =
   useContainerToolbar({ toolbarNode: () => props.toolbar })
 
 // ── r-tabs 包装 API ──────────────────────────────────────────────────────
@@ -173,5 +171,16 @@ function handleTabClick(pane: TabsClickEvent, event: Event): void {
 
 .renderer-tabs-pane-grid-item {
   min-width: 0;
+}
+.renderer-tabs-layout--header {display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start; column-gap:16px; row-gap:8px;}
+.renderer-tabs-layout--header > .renderer-tabs-toolbar {grid-column:2; grid-row:1; justify-content:flex-end;}
+.renderer-tabs-layout--header > .renderer-tabs-main,
+.renderer-tabs-layout--header :deep(.renderer-tabs-main > .el-tabs) {display:contents;}
+.renderer-tabs-layout--header :deep(.renderer-tabs-main > .el-tabs > .el-tabs__header) {grid-column:1; grid-row:1; min-width:0; margin:0;}
+.renderer-tabs-layout--header :deep(.renderer-tabs-main > .el-tabs > .el-tabs__content) {grid-column:1 / -1; grid-row:2; min-width:0;}
+@media (max-width:760px) {
+  .renderer-tabs-layout--header {grid-template-columns:minmax(0,1fr);}
+  .renderer-tabs-layout--header > .renderer-tabs-toolbar {grid-column:1; grid-row:2; justify-content:flex-start;}
+  .renderer-tabs-layout--header :deep(.renderer-tabs-main > .el-tabs > .el-tabs__content) {grid-row:3;}
 }
 </style>

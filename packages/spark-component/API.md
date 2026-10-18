@@ -336,7 +336,7 @@ export type {
 
 `SparkPageRenderer` 接收 `pageRuntime: PageRuntime` 和冻结的 `routeSnapshot: PageRoute`。宿主按 `instanceId` 为 Vue 组件设置 key。工具定义只包含 rule、script、css；每次调用独立装载场景 DataSet、脚本函数、组件注册表及样式作用域。渲染器借用宿主的 PageRuntime，卸载会中止脚本、解除视图订阅并清理渲染资源，不销毁运行实例。实例创建者负责最终 `dispose()`；页面池关闭和开发预览刷新/卸载是现有所有者入口。
 
-绑定使用 `#scenarioId@tableName@viewId`；只有明确声明 mainScenarioId 的调用允许本地 `tableName@viewId`。不存在隐式第一空间。显式空键、未知场景或视图会拒绝执行。普通静态组件可在局部提供 `DATA_SOURCE`。
+新绑定使用 `scenarioId@modelName@viewId`，模型名称取正式`modelBinding.modelName`，原生本地模型使用自身`tableName`；不能把内部表键替代正式模型名称。只有明确声明 mainScenarioId 的调用允许局部 `modelName@viewId`，不存在隐式第一空间。显式空键、未知场景或视图会拒绝执行。普通静态组件可在局部提供 `DATA_SOURCE`。
 
 脚本通过 `$page.getDataSet(scenarioId)` 和 `$page.resolveView(binding)` 访问数据，通过 DataView 的 `requestData()` 刷新。保存动作必须指定 scenarioId；显式视图列表有空值或坏值时整次拒绝。失败或权限拒绝不执行后续 then 动作。
 
@@ -508,15 +508,6 @@ export type {
 
 > **注意**：`r-header`/`r-footer`（区域组件）与 `r-layout-header`/`r-layout-footer`（Layout）是不同组件——区域组件是容器内操作栏（div 弹性布局），Layout 是 el-header/el-footer 页面结构容器。
 
-## 页面脚本的数据空间布局
+## 页面脚本的数据访问
 
-`$page.readDataSpaceLayout(dataSpaceId)` 始终存在；只有宿主提供能力且页面明确声明并装载设计场景时才可调用，否则会显式失败。它读取固定应用身份下的数据空间布局原文；文件明确返回 404 时为 `null`，其他请求或协议错误会抛出。页面失效或应用/会话身份变化时，迟到结果会被拒绝。该能力只读，不创建或写入布局。
-
-`$page.createDataSpaceLayout({ dataSpaceId, content })` 仅用于明确缺失的首次布局创建；与已有布局使用的 `$page.saveDataSpaceLayout({ dataSpaceId, content, expectedContent })` 分开。创建前复核文件缺失，上传采用禁止覆盖模式并核对返回文件名和逐字节回读。宿主未配置或设计场景未装载时显式失败；上传或回读结果未知时，调用方须保留证据并显式重读，不自动重试。后端的缺失检查和写入不是原子操作，因此此接口不承诺并发排他创建。
-
-同一 PageRuntime 按设计场景与数据空间身份持有不透明布局原文、草稿及 `idle/pending/unknown` 状态。脚本可用 `$page.getDataSpaceLayoutContent(dataSpaceId)` 读取状态、`$page.setDataSpaceLayoutDraft({ dataSpaceId, content })` 设置草稿、`$page.discardDataSpaceLayoutDraft(dataSpaceId)` 放弃未在途草稿。真实保存或创建请求由该 runtime 结算；旧 Renderer 失效后其回调仍被拒绝，但运行实例会记录实际 host 结果并通知新 Renderer。pending/unknown 时普通 `readDataSpaceLayout` 拒绝读取，防止重挂载或预像核对覆盖草稿。经用户明确同意放弃本地状态后，调用 `readDataSpaceLayoutForAdoption(dataSpaceId)` 获取真实远端原文，页面用当前正式模型/关系校验后，将其返回对象原样交给 `adoptDataSpaceLayoutRead(dataSpaceId, read)`；取消、坏图或期间草稿修订变化不得采用。unknown 不表示请求必然成功或失败，采用远端仅确认本次实际读到的内容。此状态只在同一运行实例内保留，不跨进程硬刷新。
-
-`$page.getLocalDraft(name)` 返回当前 PageRuntime 中命名本地文本草稿的 `{ content, revision }`。脚本用 `$page.setLocalDraft({ name, content, expectedRevision })` 写入、`$page.discardLocalDraft({ name, expectedRevision })` 丢弃；名称和内容必须为字符串，名称为非空规范键，修订必须匹配。此桥只保存不透明文本，不执行关系或其他业务 I/O，不持有查询权限；草稿使运行实例保持 dirty，旧 PageContext 失效后不得继续修改。内容仅随当前 PageRuntime 存活，不跨进程刷新。
-
-数据空间设计场景可选提供 `$page.readDataSpaceModelSources({type, keyword?, description?, databaseName?, page?, pageSize?})` 与 `$page.prepareDataSpaceModelSource(source)`。`type` 只接受 `table/dict/interface/json/logicView/databaseView`；前者返回按正式查询权限投影的 `{rows,total}`，每行仅含来源类型、ID、名称、描述及必要数据库/提供者身份，不返回原行或权限凭据。后者按该来源身份重新查询并核一致性，返回模型及初始字段的只读模板，不分配新模型/字段 ID，也不写入。能力缺失、场景未装载、页面或应用执行域失效时显式失败；迟到结果不会交给脚本继续使用。脚本须通过当前设计场景 DataView owner 分配 ID、保存并回读。
-
+页面脚本通过 `$page.getDataSet(scenarioId)` 与 `$page.resolveView("空间ID@模型名称@视图名称")` 定位本次运行的原生数据对象。查询、编辑、取消和保存使用 DataView/DataSet API；数据库与配置文件的持久化差异由资源适配内部承接。`$page` 保留消息、确认和导航等宿主交互服务，不再暴露设计器专用布局读写、视图暂存或本地文本草稿接口。

@@ -47,7 +47,8 @@ export function isJsonObject(value: unknown): value is JsonObject {
 
 /** 将未知值安全收窄为 JsonValue；不符合时返回 null */
 export function asJsonValue(value: unknown): JsonValue | null {
-  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value === null) return value
+  if (typeof value === 'string' || typeof value === 'boolean' || value === null) return value
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null
   if (Array.isArray(value)) {
     const items: JsonValue[] = []
     for (const item of value) {
@@ -62,7 +63,7 @@ export function asJsonValue(value: unknown): JsonValue | null {
     for (const [k, v] of Object.entries(value)) {
       const narrowed = asJsonValue(v)
       if (narrowed === null && v !== null) return null
-      obj[k] = narrowed ?? null
+      Object.defineProperty(obj, k, {value:narrowed ?? null, enumerable:true, configurable:true, writable:true})
     }
     return obj
   }

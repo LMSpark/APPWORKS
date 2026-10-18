@@ -5,6 +5,7 @@
 AI用途：需要理解 field context renderer 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
+  <div v-if="bindingError && resolvedContext !== 'table'" role="alert" data-computed-error>{{ bindingError }}</div>
   <!-- table 模式：el-table-column -->
   <template v-if="resolvedContext === 'table'">
     <!-- 分组列（多行表头） -->
@@ -20,6 +21,12 @@ AI用途：需要理解 field context renderer 的实际渲染结构、slot/tool
       :label-class-name="tableHeaderClassName"
       :class-name="tableCellClassName"
     >
+      <template v-if="header" #header>
+        <div class="field-table-header" @click.stop>
+          <span>{{ resolvedDisplayLabel }}</span>
+          <SparkComponentRenderer :config="header" />
+        </div>
+      </template>
       <SparkComponentRenderer
         v-for="(child, i) in resolvedChildren"
         :key="nodeId(child) ?? `fcr-child-${i}`"
@@ -34,6 +41,7 @@ AI用途：需要理解 field context renderer 的实际渲染结构、slot/tool
       :sortable="resolvedSortable"
       :width="width"
       :min-width="minWidth"
+      :show-overflow-tooltip="showOverflowTooltip"
       :resizable="resolvedResizable"
       :fixed="fixed"
       :header-align="resolvedHeaderAlign"
@@ -41,9 +49,22 @@ AI用途：需要理解 field context renderer 的实际渲染结构、slot/tool
       :label-class-name="tableHeaderClassName"
       :class-name="tableCellClassName"
     >
+      <template v-if="header" #header>
+        <div class="field-table-header" @click.stop>
+          <span>{{ resolvedDisplayLabel }}</span>
+          <SparkComponentRenderer :config="header" />
+        </div>
+      </template>
       <template #default="{ row }">
         <template v-if="!resolveTableCellHidden(row)">
-          <slot name="table-cell" :row="row" :value="resolveTableCellDisplayValue(row)">
+          <div v-if="editOnDblclick" class="field-table-cell" @dblclick="beginCellEdit(row, $event)"
+            @focusout="endCellEdit" @keydown.enter="editing = false" @keydown.esc="editing = false">
+            <slot v-if="editing && canEditCell(row)" name="form" />
+            <slot v-else name="table-cell" :row="row" :value="resolveTableCellDisplayValue(row)">
+              <span :class="['field-table-value', tableValueClassName]">{{ resolveTableCellDisplayValue(row) }}</span>
+            </slot>
+          </div>
+          <slot v-else name="table-cell" :row="row" :value="resolveTableCellDisplayValue(row)">
             <span :class="['field-table-value', tableValueClassName]">{{ resolveTableCellDisplayValue(row) }}</span>
           </slot>
         </template>
@@ -51,6 +72,10 @@ AI用途：需要理解 field context renderer 的实际渲染结构、slot/tool
         <span v-else />
       </template>
     </el-table-column>
+  </template>
+
+  <template v-else-if="resolvedContext === 'cell' && resolvedShouldRenderCurrentField">
+    <slot name="form" />
   </template>
 
   <!-- form 模式：el-form-item（携带列级验证规则） -->
@@ -95,7 +120,7 @@ AI用途：需要理解 field context renderer 的实际渲染结构、slot/tool
 // FieldContextRenderer 渲染为 fragment（多分支 <template>），无法自动透传 attrs。
 // 声明 inheritAttrs: false 以避免 Vue 的 "Extraneous non-props attributes" 告警。
 defineOptions({ inheritAttrs: false })
-import { computed, inject } from 'vue'
+import { computed, inject, nextTick, ref, toRaw, watch } from 'vue'
 import { SparkComponentRenderer } from '../../internal'
 
 import { type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
@@ -107,6 +132,14 @@ import type { SparkNode } from '@spark-appworks/spark-data'
 
 /** 字段上下文渲染器属性，统一描述字段在表格、表单、详情中的展示状态。 */
 type Props = SparkNodeProps & {
+  /** 原数据绑定的配置诊断；独立呈现，不放宽字段权限或生成字段值。 */
+  bindingError?: string | undefined
+  /** 表格双击编辑使用字段本身的form槽，不建立第二份值。 */
+  editOnDblclick?: boolean | undefined
+  /** 原绑定当前行，与表格事件已确认的行一致时才允许进入输入。 */
+  editingContextRow?: DataRow | null | undefined
+  /** 字段消费正式权限与宿主锁定后的可写性。 */
+  isCurrentFieldEditable?: boolean | undefined
   error?: string | undefined
   /** 显示标签 */
   displayLabel?: string | undefined
@@ -122,6 +155,10 @@ type Props = SparkNodeProps & {
   filterable?: boolean | undefined
   /** 最小列宽 */
   minWidth?: string | number | undefined
+  /** 省略溢出文本并提示已渲染的权限过滤内容。 */
+  showOverflowTooltip?: boolean | undefined
+  /** 表头标准组件区域，复用组件绑定与权限。 */
+  header?: SparkNode | undefined
   /** 固定列方向 */
   fixed?: boolean | 'left' | 'right' | undefined
   /** 列对齐 */
@@ -156,6 +193,23 @@ type Props = SparkNodeProps & {
   valueClassName?: string | undefined}
 
 const props = defineProps<Props>()
+const editing = ref(false)
+watch(() => [props.editingContextRow, props.isCurrentFieldEditable, props.fieldName, props.editOnDblclick], () => {editing.value = false})
+function canEditCell(row: DataRow): boolean {
+  return props.isCurrentFieldEditable === true && props.editingContextRow != null
+    && toRaw(row) === toRaw(props.editingContextRow)
+}
+async function beginCellEdit(row: DataRow, event: MouseEvent): Promise<void> {
+  if (!canEditCell(row)) return
+  const cell = event.currentTarget
+  editing.value = true
+  await nextTick()
+  if (editing.value && cell instanceof HTMLElement) cell.querySelector<HTMLElement>('input, textarea, [tabindex="0"]')?.focus()
+}
+function endCellEdit(event: FocusEvent): void {
+  if (event.currentTarget instanceof HTMLElement && event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) return
+  editing.value = false
+}
 
 const resolvedContext = useResolvedFieldContext()
 const tableColumnResizable = inject(TABLE_COLUMN_RESIZABLE_KEY, undefined)
@@ -264,6 +318,9 @@ defineSlots<{
 .field-table-value {
   display: inline;
 }
+.field-table-cell {min-height: 1.5em;}
+.field-table-header {display:flex; flex-direction:column; gap:8px;}
+.field-table-header :deep(.el-form-item) {margin-bottom:0;}
 
 .field-table-value--left {
   text-align: left;

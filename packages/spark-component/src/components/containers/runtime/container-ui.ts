@@ -10,7 +10,8 @@ import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 import type { ContextSnapshot } from '@spark-appworks/spark-utils'
 import type { ModuleContextCapability } from '../../../core/capability-keys.js'
 import { getSparkNodeChildren } from '@spark-appworks/spark-data'
-import type { SparkNode, SparkNodeChildren } from '@spark-appworks/spark-data'
+import type { SparkNode } from '@spark-appworks/spark-data'
+import type { RToolbarProps } from '../layout/action/RendererToolbar/RendererToolbar.types'
 
 // ============================================================
 // § 工具栏常量
@@ -56,19 +57,10 @@ export function useContainerModuleContext(
 /** 工具栏位置枚举。 */
 export type ToolbarPosition = 'top' | 'bottom' | 'left' | 'right'
 
-/** 工具栏节点所需的最小属性形状（与 RToolbarProps 结构对齐）。 */
-type ToolbarLike = {
-    /** 子节点集合。 */
-children?: SparkNodeChildren
-    /** position 字段。 */
-position?: string
-    /** class 字段。 */
-class?: string | string[]}
-
 /** Use Container Toolbar Options 的调用配置。 */
 type UseContainerToolbarOptions = {
-  /** toolbar SparkNode（响应式 getter 或 ref）。 */
-  toolbarNode: MaybeRefOrGetter<ToolbarLike | null | undefined>
+  /** 标准工具栏完整属性；不能只传 children 而丢失尾区、绑定或布局。 */
+  toolbarNode: MaybeRefOrGetter<RToolbarProps | null | undefined>
   /**
    * class 回退值（toolbar.class 未设置时使用）。
    * @default 'renderer-toolbar-default'
@@ -82,13 +74,15 @@ type UseContainerToolbarOptions = {
 
 /** `useContainerToolbar` 返回状态。 */
 export type ContainerToolbarState = {
-  /** 当前可见的工具栏子节点列表。 */
+  /** 标准 r-toolbar 节点，完整保留 RToolbarProps；无主区和尾区子组件时不渲染。 */
+  toolbarConfig: ComputedRef<SparkNode | undefined>
+  /** 主区结构子节点；编辑区复用位置解析时使用，工具栏应直接渲染 toolbarConfig。 */
   visibleToolbarConfigs: ComputedRef<SparkNode[]>
   /** 工具栏位置（经过合法性校验后的值）。 */
   toolbarPositionValue: ComputedRef<ToolbarPosition>
   /** 工具栏 CSS class（来自节点属性或回退值）。 */
   toolbarClassValue: ComputedRef<string>
-  /** 工具栏是否可见（至少有一个子节点时为 true）。 */
+  /** 主区或尾区至少配置一个结构子节点；具体子组件可见性由标准工具栏处理。 */
   showToolbar: ComputedRef<boolean>}
 
 function isToolbarPosition(value: unknown): value is ToolbarPosition {
@@ -117,9 +111,23 @@ export function useContainerToolbar(options: UseContainerToolbarOptions): Contai
     return typeof className === 'string' ? className : fallbackClass
   })
 
-  const showToolbar = computed(() => visibleToolbarConfigs.value.length > 0)
+  const showToolbar = computed(() => visibleToolbarConfigs.value.length > 0
+    || getSparkNodeChildren(toolbarNodeValue.value?.tail?.children).length > 0)
+
+  const toolbarConfig = computed<SparkNode | undefined>(() => {
+    const input = toolbarNodeValue.value
+    if (!input || !showToolbar.value) return undefined
+    const {type: _type, id, children, ...props} = input
+    return {
+      type: 'r-toolbar',
+      ...(id !== undefined ? {id} : {}),
+      ...(children !== undefined ? {children} : {}),
+      props,
+    }
+  })
 
   return {
+    toolbarConfig,
     visibleToolbarConfigs,
     toolbarPositionValue,
     toolbarClassValue,

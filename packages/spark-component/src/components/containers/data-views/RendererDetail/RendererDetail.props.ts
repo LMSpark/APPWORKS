@@ -22,11 +22,11 @@ export type RDetailProps = SparkNodeProps & SparkCrudDataContainerProps & SparkG
     dataSource?: DataView
     /** 结构化工具栏 */
     toolbar?: RToolbarProps
-    /** 上下文 DataView 成员，默认 currentRow。 */
+    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */
     contextDataMember?: DataMember | `${DataMember}`
     /** 上下文成员内部业务字段或点路径。 */
     contextDataField?: string
-    /** 没有显式 children 时，是否从 DataView.columns 自动生成字段。默认 true。 */
+    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。子组件依据详情父容器只读展示；显式children优先，它不是独立列配置。 */
     autoColumns?: boolean
     /** 标题对齐 */
     titleAlign?: 'left' | 'center' | 'right'

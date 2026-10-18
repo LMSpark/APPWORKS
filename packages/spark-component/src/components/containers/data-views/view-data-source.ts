@@ -4,7 +4,7 @@
  * 边界：只覆盖当前组件目录 containers/data-views 的局部能力，不定义全局页面模型，也不越级操作业务数据源。
  * AI用途：需要判断 view data source 的组件分层、辅助类型或内部接线时，用本模块作为局部语义入口。
  */
-import { computed, toValue, watch } from 'vue'
+import { computed, shallowRef, toValue, watch } from 'vue'
 import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 import {
   resolveDataViewCapabilities,
@@ -21,6 +21,7 @@ import type {
 } from './view-runtime-state.js'
 import { useDataViewState } from './view-runtime-state.js'
 import { toDataRecord } from './data-row-utils.js'
+import { useDataViewEventBridge } from '../runtime/useDataViewEventBridge.js'
 
 /** 极简日志接口，仅供 useContainerDataSource 内部使用。 */
 type DataSourceLoggerLike = {
@@ -52,7 +53,7 @@ function isDataView(value: unknown): value is DataView {
 
 /** 容器解析 DataView 或派生数据源时使用的统一输入。 */
 type UseContainerDataSourceOptions<TSource> = {
-  /** 显式 DataView 定位键，格式为 table@viewId 或带作用域的 #scope@table@viewId。 */
+  /** 显式 DataView 定位键，完整格式为 scenarioId@modelName@viewId；局部格式须由运行实例明确主场景。 */
   dataViewKey: MaybeRefOrGetter<string | undefined>
   /** 从上级 DataView 上下文读取的成员名，例如 currentRow、rows 或 selectedRows。 */
   contextDataMember?: MaybeRefOrGetter<DataMember | `${DataMember}` | undefined>
@@ -108,6 +109,7 @@ export type ContainerDataSourceState<TSource> = {
 
 function useContainerDataSourceCore<TSource>(options: UseContainerDataSourceOptions<TSource>): ContainerDataSourceState<TSource> {
   const runtime = options.sparkConsume(PAGE_RUNTIME)
+  const contextRevision = shallowRef(0)
   const boundView = computed(() => {
     const key = toValue(options.dataViewKey)
     if (key === undefined) return null
@@ -117,6 +119,7 @@ function useContainerDataSourceCore<TSource>(options: UseContainerDataSourceOpti
     return view
   })
   const contextCapabilities = computed(() => {
+    contextRevision.value
     const view = boundView.value
     return resolveDataViewCapabilities({
       dataViewKey: view ? `${view.tableName}@${view.viewId}` : undefined,
@@ -143,6 +146,7 @@ function useContainerDataSourceCore<TSource>(options: UseContainerDataSourceOpti
 
   // 4. 行数据同样按显式来源优先；找不到时尝试从当前视图 currentRow 或继承源读取。
   const resolvedDataRow = computed<DataRow | null>(() => {
+    contextRevision.value
     boundView.value
     const provided = resolveMaybeValue(options.externalDataSource)
     if (provided !== undefined) return pickRowFromSource(provided)
@@ -155,6 +159,20 @@ function useContainerDataSourceCore<TSource>(options: UseContainerDataSourceOpti
 
     const inherited = resolveMaybeValue(options.inheritedDataSource)
     return pickRowFromSource(inherited)
+  })
+
+  // DataView is not a Vue reactive object; cached member/row resolution must follow its events.
+  const refreshContext = () => { contextRevision.value++ }
+  useDataViewEventBridge({
+    resolvedView: computed(() => isDataView(resolvedView.value) ? resolvedView.value : null),
+    onCurrentRowChanged: refreshContext,
+    onSelectedRowsChanged: refreshContext,
+    onRowsChanged: refreshContext,
+    onSummaryChanged: refreshContext,
+    onSelectionSummaryChanged: refreshContext,
+    onConfigChanged: refreshContext,
+    onEditingChanged: refreshContext,
+    onCleared: refreshContext,
   })
 
   if (options.skipEffects !== true) {

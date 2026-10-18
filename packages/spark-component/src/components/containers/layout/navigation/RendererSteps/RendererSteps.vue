@@ -6,12 +6,8 @@ AI用途：需要理解 renderer steps 的实际渲染结构、slot/toolbar/状�
 -->
 <template>
   <div :class="['renderer-steps-layout', `renderer-steps-layout--${toolbarPositionValue}`]">
-    <div v-if="showToolbar" :class="['renderer-steps-toolbar', toolbarClassValue]">
-      <SparkComponentRenderer
-        v-for="(action, index) in visibleToolbarConfigs"
-        :key="nodeId(action) ?? `r-steps-toolbar-${index}`"
-        :config="action"
-      />
+    <div v-if="toolbarConfig" :class="['renderer-steps-toolbar', toolbarClassValue]">
+      <SparkComponentRenderer :config="toolbarConfig" />
     </div>
 
     <div class="renderer-steps-main">
@@ -65,7 +61,7 @@ const activeStepName = useDefaultedSelection({
   getValue: getStepName,
 })
 
-const { visibleToolbarConfigs, toolbarPositionValue, toolbarClassValue, showToolbar } =
+const { toolbarConfig, toolbarPositionValue, toolbarClassValue } =
   useContainerToolbar({ toolbarNode: () => props.toolbar })
 
 const activeStepIndex = computed(() => {

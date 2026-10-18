@@ -38,6 +38,7 @@ export function addChildNode(model: TreeModel, uid: string, policy?: Partial<Jso
 
   const p = resolvePolicy(policy)
   const path = getNodePath(model, uid)
+  if (!p.canAddChild(path)) return unchanged(model, uid)
   const nodes = new Map(model)
   const existingChildren = getChildIds(model, uid)
   const nextOrder = existingChildren.length
@@ -73,6 +74,7 @@ export function addSiblingNode(model: TreeModel, uid: string, policy?: Partial<J
   if (!parent) return unchanged(model, uid)
   const p = resolvePolicy(policy)
   const parentPath = getNodePath(model, parent.id)
+  if (!p.canAddChild(parentPath)) return unchanged(model, uid)
   const nodes = new Map(model)
   let newId: string
 

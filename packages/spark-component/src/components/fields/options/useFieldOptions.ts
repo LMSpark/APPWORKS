@@ -4,17 +4,19 @@
  * 边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。
  * AI用途：需要定位 components/fields/options/useFieldOptions 的声明、导出和使用边界时，从本模块开始。
  */
-import { computed } from 'vue'
+import { computed, shallowRef } from 'vue'
 import type { ComputedRef } from 'vue'
 import type { SparkOptionFieldProps } from '../../shared-types.js'
 import { PAGE_RUNTIME, useSparkConsume } from '../../internal'
 import { DataMember, DataViewSelectionValue, resolveDataViewMember } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { useFieldCascadeOptions } from './useFieldCascadeOptions'
+import {useActiveFieldRow} from '../context/useActiveFieldRow'
 import { useFieldPermission } from '../context/useFieldPermission'
 import type { FieldPermissionProps } from '../context/useFieldPermission'
 import type { FieldComposableProps } from '../context/field-composable-props'
 import { buildOptionSourceFromView } from './option-source.js'
+import { useDataViewEventBridge } from '../../containers/runtime/useDataViewEventBridge'
 import {
   flattenOptions,
   normalizeMultiValue,
@@ -36,8 +38,9 @@ disabled?: boolean}
 /** Field Option Props 的属性契约。 */
 type FieldOptionProps = FieldComposableProps<Pick<
   SparkOptionFieldProps,
-  'field' | 'options'
+  'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options'
   | 'optionLabelField'
+  | 'optionLabelFields'
   | 'optionValueField'
   | 'optionDisabledField'
   | 'optionChildrenField'
@@ -84,8 +87,8 @@ coerce: (rawValue: unknown) => TValue
     /** format Display 回调。 */
 formatDisplay?: (value: unknown, helpers: UseFieldOptionsReturn) => string}
 
-export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn {
-  const cascade = useFieldCascadeOptions(props)
+export function useFieldOptions(props: FieldOptionProps, binding = useActiveFieldRow(props)): UseFieldOptionsReturn {
+  const cascade = useFieldCascadeOptions(binding)
   const resolvedOptionDataViewKey = computed(() => props.optionDataViewKey)
   const resolvedOptionDataMember = computed(() => props.optionDataMember ?? DataMember.Rows)
   const { sparkConsume } = useSparkConsume()
@@ -114,7 +117,14 @@ export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn 
     return view
   })
 
+  const optionRevision = shallowRef(0)
+  const refreshOptions = () => {optionRevision.value++}
+  useDataViewEventBridge({resolvedView: optionDataView, onRowsChanged: refreshOptions, onCleared: refreshOptions,
+    onRequestStateChanged: refreshOptions, onConfigChanged: refreshOptions,
+    onCurrentRowChanged: refreshOptions, onSelectedRowsChanged: refreshOptions, onEditingChanged: refreshOptions})
+
   const optionConfig = computed(() => {
+    optionRevision.value
     cascade.configuration.value
     const view = optionDataView.value
     return {labelField: view?.labelField, valueField: view?.valueField, primaryKey: view?.primaryKey,
@@ -138,15 +148,20 @@ export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn 
   const valueSeparator = computed(() => props.valueSeparator ?? optionConfig.value.selectionDelimiter ?? ',')
 
   const options = computed<FieldOption[]>(() => {
+    optionRevision.value
     const view = optionDataView.value
+    if (props.optionLabelFields && (!view || cascade.definition.value || resolvedOptionDataMember.value !== DataMember.Rows)) {
+      throw new Error('FIELD_OPTION_LABEL: 多标题字段需要直接绑定DataView.rows')
+    }
     if (view) {
       const source = cascade.definition.value
-        ? buildOptionSourceFromView(view, {labelField: optionLabelField.value, childrenField: optionChildrenField.value,
+        ? buildOptionSourceFromView(view, {labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
             rows: cascade.bound.value && cascade.state.value.status === 'ready' ? cascade.state.value.options : []})
         : resolvedOptionDataMember.value === DataMember.Rows
         ? buildOptionSourceFromView(
             view,
-            {labelField: optionLabelField.value, childrenField: optionChildrenField.value},
+            {labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
+              ...(props.optionLabelFields ? {labelFields:props.optionLabelFields} : {})},
           )
         : resolveDataViewMember({
             dataViewKey: `${view.tableName}@${view.viewId}`,
@@ -286,8 +301,10 @@ export function useFieldOptions(props: FieldOptionProps): UseFieldOptionsReturn 
 }
 
 export function useOptionField<TValue>(options: UseOptionFieldOptions<TValue>) {
-  const optionHelpers = useFieldOptions(options.props)
+  const binding = useActiveFieldRow(options.props)
+  const optionHelpers = useFieldOptions(options.props, binding)
   const permissionHelpers = useFieldPermission<TValue>({
+    binding,
     props: options.props,
     type: options.type,
     fallbackValue: options.fallbackValue,

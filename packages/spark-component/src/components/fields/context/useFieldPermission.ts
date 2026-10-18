@@ -5,6 +5,7 @@
  * AI用途：需要定位 components/fields/context/useFieldPermission 的声明、导出和使用边界时，从本模块开始。
  */
 import { computed, getCurrentInstance } from 'vue'
+import { useFormDisabled } from 'element-plus'
 import { FieldVisibility } from '@spark-appworks/spark-data'
 import type { DataColumn } from '@spark-appworks/spark-data'
 import type { DataRow } from '@spark-appworks/spark-data'
@@ -19,7 +20,7 @@ import { writeDataViewEditingValue } from './dataViewEditing'
 import type { FieldComposableProps } from './field-composable-props'
 
 /** Field Permission Props 的属性契约。 */
-export type FieldPermissionProps<TValue> = FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'label' | 'modelValue' | 'value'>, 'modelValue' | 'value'>> & {
+export type FieldPermissionProps<TValue> = FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'label' | 'modelValue' | 'value' | 'readonly' | 'editOnDblclick'>, 'modelValue' | 'value'>> & {
     /** model Value 字段。 */
 modelValue?: TValue | undefined
         /** 当前值。 */
@@ -27,6 +28,8 @@ value?: TValue | undefined}
 
 /** Use Field Permission Options 的调用配置。 */
 type UseFieldPermissionOptions<TValue> = {
+  /** 选项字段共享的值绑定上下文。 */
+  binding?: ReturnType<typeof useActiveFieldRow>
     /** 组件属性集合。 */
 props: FieldPermissionProps<TValue>
     /** 类型标识。 */
@@ -53,15 +56,16 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   const { sparkConsume } = useSparkConsume()
   const instance = getCurrentInstance()
 
-  const fieldName = computed(() => props.field ?? '')
+  const binding = options.binding ?? useActiveFieldRow(props)
+  const {fieldName, contextData, dataSource, activeRow, activeSelectedRows} = binding
   const displayLabel = computed(() => props.label ?? fieldName.value)
-  const { contextData, dataSource, activeRow, activeSelectedRows } = useActiveFieldRow()
   const pageService = sparkConsume(PAGE_SERVICE)
-  const perm = usePermission()
+  const perm = usePermission({dataSource: () => dataSource.value, inheritFieldPolicy: () => !binding.explicit.value})
+  const formDisabled = useFormDisabled()
 
   const boundColumn = computed<DataColumn | null>(() => {
-    if (!fieldName.value || !dataSource?.columns) return null
-    return dataSource.columns.find(c => c.name === fieldName.value) ?? null
+    if (!fieldName.value || !dataSource.value?.columns) return null
+    return dataSource.value.columns.find(c => c.name === fieldName.value) ?? null
   })
 
   const validationRules = computed<FormItemRule[]>(() => {
@@ -69,7 +73,7 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     if (!column) return []
     const rules = columnToFormRules(column)
     if (perm.subtreeFieldPolicy !== 'unrestricted'
-      && dataSource?.fieldAccess(currentRow.value, fieldName.value).required === true
+      && dataSource.value?.fieldAccess(currentRow.value, fieldName.value).required === true
       && !rules.some(rule => rule.required === true)) {
       rules.push({ required: true, message: `${displayLabel.value}为必填字段`, trigger: 'blur' })
     }
@@ -77,7 +81,7 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   })
 
   const currentRow = computed<DataRow | null>(() =>
-    perm.subtreeFieldPolicy === 'unrestricted' ? contextData : activeRow.value,
+    perm.subtreeFieldPolicy === 'unrestricted' ? contextData.value : activeRow.value,
   )
   const selectedRows = computed<DataRow[]>(() => activeSelectedRows.value)
 
@@ -89,10 +93,17 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
 
   const hasExplicitModelValue = computed(() => hasRawProp('modelValue', 'model-value'))
   const hasExplicitValue = computed(() => hasRawProp('value'))
+  const memberError = computed(() => hasExplicitModelValue.value && props.modelValue !== undefined
+    || hasExplicitValue.value && props.value !== undefined ? null : binding.memberError.value)
+  // 配置诊断独立于字段值呈现；不将停算字段提升为可读/可写，也不显示数字控件的默认0。
+  const bindingError = computed(() => binding.fieldMember.value ? memberError.value?.message : undefined)
 
   const sourceFieldValue = computed<TValue>(() => {
+    binding.revision.value
     if (hasExplicitModelValue.value && props.modelValue !== undefined) return props.modelValue
     if (hasExplicitValue.value && props.value !== undefined) return props.value
+    if (memberError.value) return fallbackValue
+    if (!binding.fieldMember.value) return options.coerce(binding.memberValue.value)
     const row = currentRow.value
     if (row !== null && fieldName.value && fieldName.value in row) {
       return options.coerce(row[fieldName.value])
@@ -115,7 +126,8 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   })
 
   const isCurrentFieldEditable = computed(() => {
-    return currentFieldState.value?.editable ?? false
+    // 表单交互锁定只能收紧字段写入，不能替代或扩大本次查询的数据权限。
+    return binding.fieldMember.value && props.readonly !== true && !formDisabled.value && (currentFieldState.value?.editable ?? false)
   })
 
   const shouldSuppressReadableValueWhenWritable = computed(() => {
@@ -125,13 +137,15 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
   })
 
   const fieldValue = computed<TValue>(() => {
-    if (shouldSuppressReadableValueWhenWritable.value) return fallbackValue
+    const state = currentFieldState.value
+    if (state && state.visibility !== FieldVisibility.Visible) return fallbackValue
     return sourceFieldValue.value
   })
   const currentRawValue = computed(() => fieldValue.value)
   const currentRawStringValue = computed(() => String(currentRawValue.value ?? ''))
 
   const shouldRenderCurrentField = computed(() => {
+    if (binding.fieldMember.value && dataSource.value && !currentRow.value) return false
     const state = currentFieldState.value
     if (!state) return true
     return state.readable || state.editable
@@ -146,6 +160,7 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     const state = currentFieldState.value
     if (state?.visibility === FieldVisibility.Hidden) return ''
     if (state?.visibility === FieldVisibility.Masked) return state.displayValue ?? '••••'
+    if (memberError.value) return memberError.value.message
     return formatValue(sourceFieldValue.value)
   })
 
@@ -153,9 +168,14 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     return perm.resolveFieldState(fieldName.value, row)?.visibility === FieldVisibility.Hidden
   }
 
+  function isTableCellMasked(row: DataRow): boolean {
+    return perm.resolveFieldState(fieldName.value, row)?.visibility === FieldVisibility.Masked
+  }
+
   function getRowRawValue(row: DataRow): unknown {
     if (!fieldName.value) return fallbackValue
-    return row[fieldName.value]
+    const resolved = perm.subtreeFieldPolicy === 'unrestricted' ? row : binding.resolveEditingRow(row)
+    return resolved?.[fieldName.value]
   }
 
   function getRowRawStringValue(row: DataRow): string {
@@ -170,22 +190,30 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     return formatValue(getRowRawValue(row))
   }
 
+  function writeField(field: string, value: unknown): void {
+    if (!binding.fieldMember.value || props.readonly === true || formDisabled.value
+      || !perm.resolveFieldState(field, currentRow.value)?.editable) return
+    const row = currentRow.value
+    if (!row || !field) return
+    if (perm.subtreeFieldPolicy !== 'unrestricted') {
+      writeDataViewEditingValue({source: dataSource.value, row, field, value})
+      return
+    }
+    row[field] = value
+  }
+
   function syncValue(value: TValue): void {
     if (!isCurrentFieldEditable.value) return
-    const row = currentRow.value
-    if (row !== null && fieldName.value) {
-      const sourceValue = options.toSourceValue ? options.toSourceValue(value) : value
-      if (perm.subtreeFieldPolicy !== 'unrestricted' && writeDataViewEditingValue({
-        source: dataSource,
-        row,
-        field: fieldName.value,
-        value: sourceValue,
-      })) return
-      row[fieldName.value] = sourceValue
-    }
+    writeField(fieldName.value, options.toSourceValue ? options.toSourceValue(value) : value)
+  }
+
+  function captureWriteGuard(): () => boolean {
+    const valid = binding.captureWriteGuard()
+    return () => valid() && isCurrentFieldEditable.value
   }
 
   return {
+    bindingError,
     permissionMode,
     fieldName,
     displayLabel,
@@ -204,10 +232,13 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     shouldRenderCurrentField,
     currentDisplayValue,
     isTableCellHidden,
+    isTableCellMasked,
     getRowRawValue,
     getRowRawStringValue,
     getTableCellDisplayValue,
     syncValue,
     validationRules,
+    captureWriteGuard,
+    writeField,
   }
 }

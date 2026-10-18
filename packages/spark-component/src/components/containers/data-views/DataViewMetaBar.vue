@@ -5,10 +5,13 @@
 AI用途：需要理解 data view meta bar 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
+  <div v-if="aggregateError" role="alert" class="spark-data-view-meta spark-data-view-meta__item--error" data-aggregate-error>
+    {{ aggregateError.message }}
+  </div>
   <div v-if="visible" class="spark-data-view-meta" data-testid="data-view-meta">
     <span class="spark-data-view-meta__item">行数 {{ rowCount }}</span>
     <span v-if="total > 0" class="spark-data-view-meta__item">总数 {{ total }}</span>
-    <span v-if="total > 0" class="spark-data-view-meta__item">第 {{ page }} 页 / {{ pageSize }} 条</span>
+    <span v-if="total > 0 && paginated" class="spark-data-view-meta__item">第 {{ page }} 页 / {{ pageSize }} 条</span>
     <span v-if="selectedCount > 0" class="spark-data-view-meta__item">已选 {{ selectedCount }}</span>
     <span class="spark-data-view-meta__item">状态 {{ requestStateText }}</span>
     <span v-if="mutating" class="spark-data-view-meta__item">变更中</span>
@@ -42,9 +45,11 @@ const props = withDefaults(defineProps<{
   total?: number
   page?: number
   pageSize?: number
+  paginated?: boolean
   requestState?: RequestState | undefined
   mutating?: boolean
   loadingError?: Error | null
+  aggregateError?: Error | null
   mutatingError?: Error | null
   aggregateResult?: Readonly<Record<string, unknown>>
   selectionAggregateResult?: Readonly<Record<string, unknown>>
@@ -58,8 +63,10 @@ const props = withDefaults(defineProps<{
   total: 0,
   page: 1,
   pageSize: 20,
+  paginated: true,
   mutating: false,
   loadingError: null,
+  aggregateError: null,
   mutatingError: null,
   aggregateResult: () => ({}),
   selectionAggregateResult: () => ({}),
@@ -107,11 +114,11 @@ function toEntries(value: Readonly<Record<string, unknown>> | undefined): Aggreg
 }
 
 const aggregateEntries = computed(() =>
-  props.showAggregateSummary === true ? toEntries(props.aggregateResult) : [],
+  !props.aggregateError && props.showAggregateSummary === true ? toEntries(props.aggregateResult) : [],
 )
 
 const selectionAggregateEntries = computed(() =>
-  props.showSelectionSummary === true ? toEntries(props.selectionAggregateResult) : [],
+  !props.aggregateError && props.showSelectionSummary === true ? toEntries(props.selectionAggregateResult) : [],
 )
 
 const visible = computed(() => props.showDataViewMeta === true)

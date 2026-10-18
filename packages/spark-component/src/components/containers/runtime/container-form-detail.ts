@@ -12,13 +12,13 @@ import {
   MODULE_CONTEXT,
   useSparkPageComponent,
 } from '../../internal.js'
-import type { RToolbarProps } from '../layout/action/RendererToolbar/RendererToolbar.types'
 import { createCurrentRowScope } from '../support/scope/scopeFactories'
 import { syncReactiveRow } from '../support/scope/row-mirror-sync'
 import { useContainerDataSource } from '../data-views/view-data-source.js'
 import { useDataViewEventBridge } from './useDataViewEventBridge.js'
 import { useContainerGrid } from './container-layout.js'
-import { useContainerModuleContext, useContainerToolbar } from './container-ui.js'
+import { useContainerModuleContext } from './container-ui.js'
+import { resolveDataViewEditingRow } from '../../fields/context/dataViewEditing'
 
 // ============================================================
 // § 常量
@@ -46,89 +46,40 @@ const DEFAULT_GRID_GAP = 0
 // ============================================================
 
 /** 容器内部完整属性形状（包括私有布局字段）。 */
-type FormDetailContainerProps = SparkNode & {
+type FormDetailContainerProps = {
+  /** 已由标准组件默认值确定的组件类型。 */
+  type: string
+  /** 运行时props允许未传入的可选项显式为undefined。 */
+  id?: string | undefined
+  /** 同一响应式props上的子组件配置。 */
+  children?: SparkNode['children'] | undefined
+  /** 表单自适应项宽；详情未声明时保留原固定栅格。 */
+  gridMinWidth?: string | undefined
     /** DataView 定位键。 */
-dataViewKey: string | undefined
+dataViewKey?: string | undefined
         /** context Data Member 字段。 */
-contextDataMember: DataMember | `${DataMember}` | undefined
+contextDataMember?: DataMember | `${DataMember}` | undefined
         /** context Data Field 字段。 */
-contextDataField: string | undefined
+contextDataField?: string | undefined
         /** data Source 字段。 */
-dataSource?: DataView
-        /** toolbar 字段。 */
-toolbar?: RToolbarProps
+dataSource?: DataView | undefined
         /** auto Columns 字段。 */
-autoColumns: boolean | undefined
+autoColumns?: boolean | undefined
         /** grid Columns 字段。 */
-gridColumns: number | undefined
+gridColumns?: number | undefined
         /** grid Gap 字段。 */
-gridGap: number | string | undefined
+gridGap?: number | string | undefined
         /** grid Auto Rows 字段。 */
-gridAutoRows: string | undefined}
-
-/**
- * r-form / r-detail 消费 `useFormDetailContainer` 时的最小输入形状。
- *
- * 目的：统一两侧组件的入参组装，避免在消费端重复展开同一批可选字段。
- */
-export type FormDetailContainerConsumerProps = {
-    /** 类型标识。 */
-type: SparkNode['type']
-    /** 唯一标识。 */
-id?: SparkNode['id']
-    /** toolbar 字段。 */
-toolbar?: RToolbarProps
-    /** 子节点集合。 */
-children?: SparkNode['children']
-    /** data Source 字段。 */
-dataSource?: DataView
-    /** DataView 定位键。 */
-dataViewKey: string | undefined
-    /** context Data Member 字段。 */
-contextDataMember: DataMember | `${DataMember}` | undefined
-    /** context Data Field 字段。 */
-contextDataField: string | undefined
-    /** auto Columns 字段。 */
-autoColumns: boolean | undefined
-    /** grid Columns 字段。 */
-gridColumns: number | undefined
-    /** grid Gap 字段。 */
-gridGap: number | string | undefined
-    /** grid Auto Rows 字段。 */
-gridAutoRows: string | undefined}
-
-/**
- * 构建 `useFormDetailContainer` 规范入参。
- *
- * 仅在字段存在时写入可选属性，避免引入 undefined 噪声字段。
- */
-export function buildFormDetailContainerProps(
-  props: FormDetailContainerConsumerProps,
-): FormDetailContainerProps {
-  return {
-    type: props.type,
-    ...(props.id !== undefined ? { id: props.id } : {}),
-    ...(props.toolbar !== undefined ? { toolbar: props.toolbar } : {}),
-    ...(props.children !== undefined ? { children: props.children } : {}),
-    ...(props.dataSource !== undefined ? { dataSource: props.dataSource } : {}),
-    dataViewKey: props.dataViewKey,
-    contextDataMember: props.contextDataMember,
-    contextDataField: props.contextDataField,
-    autoColumns: props.autoColumns,
-    gridColumns: props.gridColumns,
-    gridGap: props.gridGap,
-    gridAutoRows: props.gridAutoRows,
-  }
-}
+gridAutoRows?: string | undefined}
 
 // ============================================================
 // § useFormDetailContainer
 // ============================================================
 
 /**
- * r-form / r-detail 容器完整编排。
+ * r-form / r-detail 容器完整编排。直接消费响应式props，标题、子组件、绑定与布局不得截成初始化快照。
  *
- * 返回模板层所需的全部响应式状态：布局、DataView、contextData、工具栏、作用域。
+ * 返回模板层所需的全部响应式状态：布局、DataView、contextData、作用域。
  */
 export function useFormDetailContainer(
   props: FormDetailContainerProps,
@@ -156,13 +107,23 @@ export function useFormDetailContainer(
   // ==========================================================================
 
   function toAutoFieldNode(column: DataColumn): SparkNode {
+    const common = {field: column.name, label: column.label ?? column.name, colSpan: 6}
+    switch (column.type) {
+      case 'string': case 'varchar': case 'text': case 'time':
+        return {type: 'r-text', props: common}
+      case 'number': case 'int': case 'integer': case 'decimal': case 'float': case 'double':
+        return {type: 'r-number', props: common}
+      case 'boolean': case 'bool':
+        return {type: 'r-switch', props: common}
+      case 'date': case 'datetime':
+        return {type: 'r-date', props: {...common, dateType: column.type}}
+      case 'object': case 'array': case 'enum':
+        break
+    }
+    // 复杂值及枚举需要业务显式配置子组件，自动展示不能把原值改写成字符串。
     return {
-      type: 'r-column-group',
-      props: {
-        fieldName: column.name,
-        displayLabel: column.label ?? column.name,
-        colSpan: 6,
-      },
+      type: 'r-text',
+      props: {...common, readonly: true},
     }
   }
 
@@ -177,6 +138,7 @@ export function useFormDetailContainer(
   const { gridChildren, gridStyle, getChildGridStyle } = useContainerGrid({
     children: computed(() => getSparkNodeChildren(contentChildren.value)),
     columns: computed(() => props.gridColumns ?? DEFAULT_GRID_COLUMNS),
+    autoFitMinWidth: computed(() => props.gridMinWidth ?? ''),
     gap: computed(() => props.gridGap ?? DEFAULT_GRID_GAP),
     autoRows: computed(() => props.gridAutoRows ?? DEFAULT_AUTO_ROWS),
   })
@@ -211,6 +173,8 @@ export function useFormDetailContainer(
    */
   function resolveContextRow(): DataRow | null {
     const view = dataState.resolvedView.value
+    if (dataState.aggregateError.value && (props.contextDataMember === DataMember.AggregateResult
+      || props.contextDataMember === DataMember.SelectionAggregateResult)) return null
     // 选中行汇总：仅统计 selectedRows 的聚合输出。
     if (props.contextDataMember === DataMember.SelectionAggregateResult) {
       return aggregateToDataRow(view?.selectionAggregateResult ?? dataState.selectionAggregateResult.value)
@@ -219,7 +183,8 @@ export function useFormDetailContainer(
     if (props.contextDataMember === DataMember.AggregateResult) {
       return aggregateToDataRow(view?.aggregateResult ?? dataState.aggregateResult.value)
     }
-    return dataState.resolvedDataRow.value ?? dataState.currentRow.value
+    const row = dataState.resolvedDataRow.value ?? dataState.currentRow.value
+    return resolveDataViewEditingRow(view, row) ?? row
   }
 
   /**
@@ -230,7 +195,7 @@ export function useFormDetailContainer(
   function syncContextDataFromCurrentRow(row: DataRow | null, options?: { skipSameRef?: boolean }): void {
     if (options?.skipSameRef === true && row === prevRow) return
     prevRow = row
-    syncReactiveRow(contextData, row)
+    syncReactiveRow(contextData, row, true)
   }
 
   function syncResolvedContextRow(): void {
@@ -251,10 +216,15 @@ export function useFormDetailContainer(
     resolvedView: dataState.resolvedView,
     // currentRow 变化：以 resolveContextRow 为准，确保汇总 contextDataMember 不被 currentRow 覆盖。
     onCurrentRowChanged: ({ row }) => {
-      syncContextDataFromCurrentRow(resolveContextRow() ?? row)
+      const summary = props.contextDataMember === DataMember.AggregateResult || props.contextDataMember === DataMember.SelectionAggregateResult
+      syncContextDataFromCurrentRow(summary ? resolveContextRow() : resolveContextRow() ?? row)
     },
     // rows 变化可能导致 currentRow/聚合行失效，统一重算并同步。
     onRowsChanged: () => {
+      syncResolvedContextRow()
+    },
+    // 插槽条件、表单模型和字段子组件读取同一编辑覆盖；丢弃时恢复原行。
+    onEditingChanged: () => {
       syncResolvedContextRow()
     },
     // aggregateResult 重算后立即同步到 contextData。
@@ -265,21 +235,6 @@ export function useFormDetailContainer(
     onSelectionSummaryChanged: () => {
       syncResolvedContextRow()
     },
-  })
-
-  // ==========================================================================
-  // 分区 4：工具栏投影层
-  //
-  // 目标：统一解析 toolbar 可见项、位置与样式类，供模板直接消费。
-  // ==========================================================================
-
-  const {
-    visibleToolbarConfigs,
-    toolbarPositionValue,
-    toolbarClassValue,
-    showToolbar,
-  } = useContainerToolbar({
-    toolbarNode: () => props.toolbar,
   })
 
   // ==========================================================================
@@ -315,10 +270,6 @@ export function useFormDetailContainer(
     gridChildren,
     gridStyle,
     getChildGridStyle,
-    toolbarPositionValue,
-    toolbarClassValue,
-    visibleToolbarConfigs,
-    showToolbar,
     getDefaultScope,
     aggregateResult: dataState.aggregateResult,
     selectionAggregateResult: dataState.selectionAggregateResult,

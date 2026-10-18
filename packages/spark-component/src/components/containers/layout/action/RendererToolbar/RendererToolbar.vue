@@ -7,11 +7,12 @@ AI用途：需要理解 renderer toolbar 的实际渲染结构、slot/toolbar/�
 <template>
   <!--
     工具栏整体布局：
-    - 根容器使用 Grid 做“主区 + 尾区”两列分区。
+    - 默认使用 Grid 做“主区 + 尾区”两列分区；允许换行时两区按可用宽度折行。
     - 主区渲染 props.children。
     - 尾区渲染 props.tail.children，并固定右对齐。
   -->
-  <div class="renderer-toolbar" :style="rootStyle">
+  <div :key="scopeKey" :class="['renderer-toolbar', {'renderer-toolbar--wrap': props.wrap}, props.class]" :style="rootStyle">
+    <p v-if="aggregateError" role="alert" style="grid-column: 1 / -1">{{ aggregateError.message }}</p>
     <div
       v-if="startChildren.length > 0"
       class="renderer-toolbar-lane renderer-toolbar-lane--start"
@@ -42,17 +43,12 @@ AI用途：需要理解 renderer toolbar 的实际渲染结构、slot/toolbar/�
 /**
  * @description 工具栏容器，flex 水平布局分为起始区（默认 children）和尾部区（r-tail 子节点），组织操作按钮。
  */
-import { computed, ref, toRef } from 'vue'
-import {
-  DATA_ROW,
-  DATA_SOURCE,
-  SparkComponentRenderer,
-  useSparkPageComponent,
-} from '../../../../internal'
-import { type SparkNode, type DataView, type DataRow, getSparkNodeChildren, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
+import { computed, ref } from 'vue'
+import { SparkComponentRenderer } from '../../../../internal'
+import { type SparkNode, getSparkNodeChildren, nodeInputProp, nodeId } from '@spark-appworks/spark-data'
 import { mergeNodeBeforeRenderProps, resolveNodeBeforeRender } from '../../../../support/beforeRender'
 import type { RToolbarProps } from './RendererToolbar.types'
-import { useContainerDataSource } from '../../../data-views/view-data-source'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 import { useDataViewEventBridge } from '../../../runtime/useDataViewEventBridge'
 
 // ============================================================================
@@ -64,39 +60,11 @@ const props = withDefaults(defineProps<RToolbarProps>(), {
   type: 'r-toolbar',
 })
 
-const { sparkConsume, sparkProvide } = useSparkPageComponent(props)
-
-// ============================================================================
-// 2) 上下文能力与响应触发器
-//    - DATA_SOURCE: 上游提供的数据源
-//    - DATA_ROW: 上游行上下文（优先级高于 currentRow）
-//    - toolbarReactiveVersion: 事件触发计数器，用于让 beforeRender 相关逻辑重新计算
-// ============================================================================
-const inheritedDataSource = sparkConsume(DATA_SOURCE)
-const inheritedDataRow = sparkConsume(DATA_ROW)
+// 共享绑定层区分显式视图/成员与继承行，防止新视图动作继续消费旧父行。
+const {resolvedView, row: contextRow, scopeKey, aggregateError} = useLayoutDataContext(props, {autoLoad: true})
 const toolbarReactiveVersion = ref(0)
-
-// ============================================================================
-// 3) 数据源解析策略
-//    优先级：
-//    1. 显式 props.dataSource
-//    2. dataViewKey + dataMember 解析得到的 dataSource
-//    3. 继承父级 DATA_SOURCE
-// ============================================================================
-const dataState = useContainerDataSource({
-  dataViewKey: toRef(props, 'dataViewKey'),
-  contextDataMember: toRef(props, 'dataMember'),
-  contextDataField: toRef(props, 'dataField'),
-  sparkConsume,
-  externalDataSource: computed(() => props.dataSource),
-  inheritedDataSource: computed(() => inheritedDataSource),
-  provideDataSource: (source: DataView) => {
-    // 工具栏子动作通常直接消费 DATA_SOURCE；统一在数据解析层提供。
-    sparkProvide(DATA_SOURCE, source)
-  },
-})
 useDataViewEventBridge({
-  resolvedView: dataState.resolvedView,
+  resolvedView,
   onCurrentRowChanged: () => {
     toolbarReactiveVersion.value += 1
   },
@@ -118,12 +86,8 @@ function resolveToolbarActionNode(node: SparkNode): SparkNode {
   // 事件触发时该值递增，从而让动作节点计算链整体刷新。
   void toolbarReactiveVersion.value
 
-  const dataSource = dataState.resolvedView.value
-
-  // 行上下文优先使用父级明确传入的 DATA_ROW，
-  // 若不存在则回退到当前 DataView.currentRow。
-  const rowInput = inheritedDataRow ?? dataSource?.currentRow
-  const row: DataRow | undefined = rowInput ?? undefined
+  const dataSource = resolvedView.value
+  const row = contextRow.value ?? undefined
 
   const beforeRender = resolveNodeBeforeRender(node, {
     row,
@@ -163,16 +127,17 @@ const endChildren = computed(() =>
 //    - laneStyle: 控制分区内按钮横向流式排列
 // ============================================================================
 const rootStyle = computed<Record<string, string>>(() => ({
-  display: 'grid',
-  gridTemplateColumns: endChildren.value.length > 0 ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)',
+  ...(props.wrap === true ? {display: 'flex', flexWrap: 'wrap', rowGap: typeof props.zoneGap === 'number' ? `${props.zoneGap}px` : (props.zoneGap ?? '12px')} : {
+    display: 'grid', gridTemplateColumns: endChildren.value.length > 0 ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)',
+  }),
   columnGap: typeof props.zoneGap === 'number' ? `${props.zoneGap}px` : (props.zoneGap ?? '12px'),
   alignItems: props.align ?? 'center',
 }))
 
 const laneStyle = computed<Record<string, string>>(() => ({
-  display: 'grid',
-  gridAutoFlow: 'column',
-  gridAutoColumns: 'max-content',
+  ...(props.wrap === true ? {display: 'flex', flexWrap: 'wrap'} : {
+    display: 'grid', gridAutoFlow: 'column', gridAutoColumns: 'max-content',
+  }),
   gap: typeof props.gap === 'number' ? `${props.gap}px` : (props.gap ?? '8px'),
   alignItems: props.align ?? 'center',
   justifyContent: props.justify ?? 'start',
@@ -190,5 +155,21 @@ const laneStyle = computed<Record<string, string>>(() => ({
 
 .renderer-toolbar-lane--end {
   justify-self: end;
+}
+
+.renderer-toolbar--wrap > .renderer-toolbar-lane {
+  max-width: 100%;
+}
+
+.renderer-toolbar--wrap > [role="alert"] {
+  flex-basis: 100%;
+}
+
+.renderer-toolbar--wrap > .renderer-toolbar-lane--start {
+  flex: 1 1 auto;
+}
+
+.renderer-toolbar--wrap > .renderer-toolbar-lane--end {
+  margin-inline-start: auto;
 }
 </style>

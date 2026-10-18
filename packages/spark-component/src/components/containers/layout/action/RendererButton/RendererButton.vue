@@ -39,7 +39,7 @@ AI用途：需要理解 renderer button 的实际渲染结构、slot/toolbar/状
  * @binding action
  * @notes 常用 action: append-row, refresh, patch-row, delete-row, delete-selected, message-row
  */
-import { computed, markRaw, type Component } from 'vue'
+import { computed, markRaw, toRef, type Component } from 'vue'
 import * as ElIcons from '@element-plus/icons-vue'
 import {
   DATA_ROW,
@@ -55,6 +55,7 @@ import { usePermission } from '../../../../../permission'
 import { type SparkNode, type DataView, type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { useActionButtonRuntime } from './useActionButtonRuntime'
+import {useContainerDataSource} from '../../../data-views/view-data-source'
 
 type ClickHandler = {
   (...args: unknown[]): unknown}
@@ -74,8 +75,10 @@ function isClickHandler(value: unknown): value is ClickHandler {
 // ── 一、基础能力与上下文 ─────────────────────────────────────────────────
 // useSparkPageComponent 负责接入可见性、禁用态、规范化 props 以及 capability 消费入口。
 const { isVisible, isDisabled, resolvedProps, sparkConsume, logger } = useSparkPageComponent(props)
+const dataState = useContainerDataSource({dataViewKey: toRef(props, 'dataViewKey'), sparkConsume,
+  inheritedDataSource: () => sparkConsume(DATA_SOURCE), skipAutoLoadEffect: true, logger, logPrefix: 'RendererButton'})
 // 权限能力用于模型级与行级动作授权判断。
-const permission = usePermission()
+const permission = usePermission({dataSource: resolveActionView, inheritFieldPolicy: () => props.dataViewKey === undefined})
 
 // ── 二、动作节点建模 ─────────────────────────────────────────────────────
 const currentNode = computed<SparkNode>(() => ({
@@ -85,27 +88,27 @@ const currentNode = computed<SparkNode>(() => ({
 }))
 
 function resolveActionView(): DataView | null {
-  return sparkConsume(DATA_SOURCE)
+  return dataState.resolvedView.value
 }
 
 // 优先 DATA_ROW；退化到 DATA_SOURCE.currentRow（覆盖行内按钮与工具栏按钮）
 function resolveScopedRow(): DataRow | undefined {
-  const dataSource = sparkConsume(DATA_SOURCE)
-  const dataRow = sparkConsume(DATA_ROW)
-  return (dataRow ?? dataSource?.currentRow) ?? undefined
+  const dataSource = resolveActionView()
+  const dataRow = dataSource === sparkConsume(DATA_SOURCE) ? sparkConsume(DATA_ROW) : null
+  return (dataRow ?? dataState.currentRow.value) ?? undefined
 }
 
 function resolvePermissionScopeRows(): DataRow[] {
-  const dataRow = sparkConsume(DATA_ROW)
+  const dataSource = resolveActionView()
+  const dataRow = dataSource === sparkConsume(DATA_SOURCE) ? sparkConsume(DATA_ROW) : null
   if (dataRow !== null) {
     return [dataRow]
   }
-  const dataSource = sparkConsume(DATA_SOURCE)
   if (dataSource && dataSource.isMultiSelect === true) {
-    const selected = dataSource.selectedRows ?? []
+    const selected = dataState.selectedRows.value
     return selected.length > 0 ? selected.slice() : []
   }
-  const currentRow = dataSource?.currentRow
+  const currentRow = dataState.currentRow.value
   return currentRow !== null && currentRow !== undefined ? [currentRow] : []
 }
 

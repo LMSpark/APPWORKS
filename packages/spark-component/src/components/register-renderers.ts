@@ -27,7 +27,7 @@ import { Spark } from '../core/system/spark.js'
 
 // ── 数据容器 ──
 import {
-  RendererTable, RendererForm, RendererDetail, RendererTree, RendererList, RendererVirtualCard,
+  RendererTable, RendererForm, RendererDetail, RendererTree, RendererList, RendererVirtualCard, RendererGraph,
 } from './containers/data-views/index.js'
 
 // ── 命名区域 ──
@@ -51,7 +51,7 @@ import {
 
 // ── 核心字段 ──
 import {
-  FieldText, FieldTextarea, FieldNumber, FieldDate, FieldSelect,
+  FieldText, FieldTextarea, FieldJson, FieldNumber, FieldDate, FieldSelect, FieldValueFunction,
   FieldMultiSelect, FieldRadio, FieldCheckbox, FieldCheckboxGroup, FieldSwitch,
   FieldHtmlEditor, FieldSlider, FieldRate, FieldColor, FieldIcon, FieldImage,
   FieldFilePath, FieldFileBrowser, FieldUpload, FieldEntityPicker, FieldUserPicker,
@@ -88,6 +88,7 @@ import {
 
 // ── 支持组件 ──
 import { SparkCodeEditor, SparkJsonEditor } from './editors/index.js'
+import RendererFilterExpression from './containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 注册表
@@ -109,11 +110,13 @@ const CORE_COMPONENTS: Array<readonly [string, unknown]> = [
   ['r-form', RendererForm],
   ['r-detail', RendererDetail],
   ['r-tree', RendererTree],
+  ['r-graph', RendererGraph],
   ['r-list', RendererList],
   ['r-virtual-card', RendererVirtualCard],
   // 区域子组件
   ['r-field-scope', RendererFieldScope],
   ['r-filter', RendererFilter],
+  ['r-filter-expression', RendererFilterExpression],
   ['r-editor', RendererEditor],
   ['r-header', RendererHeader],
   ['r-footer', RendererFooter],
@@ -144,6 +147,8 @@ const CORE_COMPONENTS: Array<readonly [string, unknown]> = [
   ['r-number', FieldNumber],
   ['r-date', FieldDate],
   ['r-select', FieldSelect],
+  ['r-value-function', FieldValueFunction],
+  ['r-json', FieldJson],
   ['r-multi-select', FieldMultiSelect],
   ['r-radio', FieldRadio],
   ['r-checkbox', FieldCheckbox],

@@ -24,6 +24,8 @@ export function emitFieldValueUpdate<TValue>(
 
 /** Use Controlled Field Change Options 的调用配置。 */
 type UseControlledFieldChangeOptions<TValue> = {
+  /** 等待业务回调后，核对视图、行指针与字段是否仍属于本次交互。 */
+  captureWriteGuard?: () => () => boolean
     /** get Value 回调。 */
 getValue: () => TValue
     /** emit Update 回调。 */
@@ -42,21 +44,21 @@ handlerSource?: Readonly<Record<string, unknown>>}
  * 内部统一委托给 useEventDefaults，避免各字段组件重复拼装 change 分发逻辑。
  */
 export function useControlledFieldChange<TValue>(options: UseControlledFieldChangeOptions<TValue>) {
-  const { dispatch } = useEventDefaults<{ change: [nextValue: TValue, previousValue: TValue] }>({
-    change: {
-      systemDefault: async (nextValue, previousValue) => {
-        options.emitUpdate(nextValue)
-        options.syncValue(nextValue)
-        await options.afterDefault?.(nextValue, previousValue)
-      },
-    },
-  }, options.handlerSource ?? {})
-
-  async function handleControlledChange(nextValue: TValue): Promise<void> {
-    await dispatch('change', nextValue, options.getValue())
+  async function handleControlledChange(nextValue: TValue): Promise<boolean> {
+    const valid = options.captureWriteGuard?.() ?? (() => true)
+    const previousValue = options.getValue()
+    let applied = false
+    const {dispatch} = useEventDefaults<{change: [nextValue: TValue, previousValue: TValue]}>({
+      change: {systemDefault: async (next, previous) => {
+        if (!valid()) return
+        options.syncValue(next)
+        options.emitUpdate(next)
+        applied = true
+        await options.afterDefault?.(next, previous)
+      }},
+    }, options.handlerSource ?? {})
+    await dispatch('change', nextValue, previousValue)
+    return applied
   }
-
-  return {
-    handleControlledChange,
-  }
+  return {handleControlledChange}
 }

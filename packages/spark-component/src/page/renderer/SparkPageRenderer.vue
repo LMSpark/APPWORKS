@@ -33,7 +33,7 @@ AI用途：接入页面调用渲染或检查多实例隔离、脚本响应更新
 
 <script setup lang="ts">
 import { cloneVNode, toRaw, ref, watch, nextTick, getCurrentInstance, shallowRef, defineComponent, markRaw, onErrorCaptured, onUnmounted, isVNode, type VNode, type VNodeArrayChildren } from 'vue'
-import { type SparkNode, getSparkNodeChildren, nodeId, SparkNodeTree } from '@spark-appworks/spark-data'
+import { type SparkNode, getSparkNodeChildren, nodeId, SparkNodeTree, buildDataViewKey } from '@spark-appworks/spark-data'
 import { Logger, isCallable } from '@spark-appworks/spark-utils'
 import type { PageRuntime, PageToolDefinition } from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '../../runtime'
@@ -219,21 +219,9 @@ async function loadConfig():Promise<void> {
    const ds=runtime.getDataSet(scenarioId)
    if(!ds)throw new Error(`页面场景尚未装载: ${scenarioId}`)
    ds.setAppServices(pageRuntimeServices);ds.setPageRoute(route)
-   releaseViewSubscriptions.push(ds.onAnyViewChange({
-    currentRowChanged:refresh,
-    selectedRowsChanged:refresh,
-    rowsChanged:refresh,
-    cleared:refresh,
-    configChanged:refresh,
-    requestStateChanged:refresh,
-    mutatingChanged:refresh,
-    editingChanged:refresh,
-    summaryChanged:refresh,
-    selectionSummaryChanged:refresh,
-   }))
   }
   sparkProvide(PAGE_RUNTIME,runtime)
-  pageContext=buildPageContext({pageRuntime:runtime,signal,pageRoute:route,pageContainer,pageService,dataSpaceLayout:pageRuntimeServices.dataSpaceLayout,dataSpaceDesign:pageRuntimeServices.dataSpaceDesign,getComponentRegistry:()=>componentRegistry,getModuleContext:()=>moduleContext?.getCurrent() ?? null})
+  pageContext=buildPageContext({pageRuntime:runtime,signal,pageRoute:route,pageContainer,pageService,getComponentRegistry:()=>componentRegistry,getModuleContext:()=>moduleContext?.getCurrent() ?? null})
   setScopedCss(runtime.instanceId,definition.css ?? '')
   try {functions=compileFunctions(definition.script ?? '',pageContext)}
   catch(errorLike){report('script-compile',runtime,errorLike);throw errorLike}
@@ -256,6 +244,36 @@ async function loadConfig():Promise<void> {
     if(isPromiseLike(result))return Promise.resolve(result).catch(errorLike=>{if(current())report('script-function',runtime,errorLike);throw errorLike})
     return result
    }catch(errorLike){if(current())report('script-function',runtime,errorLike);throw errorLike}
+  }
+  for(const scenarioId of runtime.call.scenarioIds) {
+   const ds=runtime.getDataSet(scenarioId)!
+   releaseViewSubscriptions.push(ds.onAnyViewChange({
+    currentRowChanged:refresh,
+    selectedRowsChanged:refresh,
+    rowsChanged:refresh,
+    cleared:refresh,
+    configChanged:refresh,
+    requestStateChanged:refresh,
+    mutatingChanged:refresh,
+    editingChanged:refresh,
+    summaryChanged:refresh,
+    selectionSummaryChanged:refresh,
+    requestCompleted:(tableName,viewId)=>{
+     if(!current())return
+     const view=ds.getView(tableName,viewId),name=view?.onRequestComplete
+     if(!view || view.destroyed || !name)return
+     if(!Object.hasOwn(currentFunctions,name)) {
+      report('script-function',runtime,new Error(`DATA_VIEW_COMPLETION_HANDLER: 页面未声明函数 ${name}`))
+      return
+     }
+     const dataViewKey=buildDataViewKey(view.dataTable?.modelBinding?.modelName ?? tableName,viewId,scenarioId)
+     // 查询已经成功；脚本错误由callFunc诊断，不回流为查询失败。异步动作复用页面失效信号。
+     try {
+      const result=callFunc(name,{view,dataViewKey,signal})
+      if(isPromiseLike(result))void Promise.resolve(result).catch(()=>undefined)
+     }catch { /* callFunc已记录当前页面的诊断。 */ }
+     },
+   }))
   }
   registerRenders(currentFunctions,current)
   nodeTree=SparkNodeTree.fromPageChildren(definition.rule)

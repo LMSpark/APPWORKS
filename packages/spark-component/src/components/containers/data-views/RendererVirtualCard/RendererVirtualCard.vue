@@ -6,12 +6,8 @@ AI用途：需要理解 renderer virtual card 的实际渲染结构、slot/toolb
 -->
 <template>
   <div :class="['renderer-virtual-card-layout', `renderer-virtual-card-layout--${toolbarPositionValue}`]">
-    <div v-if="showToolbar" :class="['renderer-virtual-card-toolbar', toolbarClassValue]">
-      <SparkComponentRenderer
-        v-for="(action, index) in visibleToolbarConfigs"
-        :key="nodeId(action) ?? `r-virtual-card-toolbar-${index}`"
-        :config="action"
-      />
+    <div v-if="toolbarConfig" :class="['renderer-virtual-card-toolbar', toolbarClassValue]">
+      <SparkComponentRenderer :config="toolbarConfig" />
     </div>
 
     <DataViewMetaBar
@@ -19,6 +15,7 @@ AI用途：需要理解 renderer virtual card 的实际渲染结构、slot/toolb
       :columns="dataState.columns.value"
       :selected-rows="dataState.selectedRows.value"
       :total="dataState.total.value"
+      :paginated="dataState.paginated.value"
       :page="dataState.page.value"
       :page-size="dataState.pageSize.value"
       :request-state="dataState.requestState.value"
@@ -26,6 +23,7 @@ AI用途：需要理解 renderer virtual card 的实际渲染结构、slot/toolb
       :loading-error="dataState.loadingError.value"
       :mutating-error="dataState.mutatingError.value"
       :aggregate-result="dataState.aggregateResult.value"
+      :aggregate-error="dataState.aggregateError.value"
       :selection-aggregate-result="dataState.selectionAggregateResult.value"
       :show-data-view-meta="props.showDataViewMeta !== false"
       :show-aggregate-summary="props.showAggregateSummary !== false"
@@ -198,10 +196,9 @@ const toolbarNode = computed(() => props.toolbar)
 const mergedChildren = computed(() => getSparkNodeChildren(props.children))
 
 const {
-  visibleToolbarConfigs,
+  toolbarConfig,
   toolbarPositionValue,
   toolbarClassValue,
-  showToolbar,
 } = useContainerToolbar({
   toolbarNode,
 })

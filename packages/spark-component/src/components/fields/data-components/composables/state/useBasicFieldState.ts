@@ -15,11 +15,15 @@ type BasicFieldProps<TValue> = FieldPermissionProps<TValue> & FieldComposablePro
     | 'type' | 'children'
   >> & FieldComposableProps<Pick<SparkFieldSemanticProps,
     | 'width'
+    | 'minWidth'
+    | 'showOverflowTooltip'
+    | 'header'
     | 'resizable'
     | 'titleAlign' | 'valueAlign'
     | 'headerCellClassName' | 'cellClassName'
     | 'titleClassName' | 'valueClassName'
     | 'sortable'
+    | 'editOnDblclick'
   >>
 
 /** Use Basic Field State Options 的调用配置。 */
@@ -35,7 +39,9 @@ emitUpdate: (value: TValue) => void
     /** format Display 回调。 */
 formatDisplay?: (value: unknown) => string
     /** coerce 回调。 */
-coerce: (rawValue: unknown) => TValue}
+coerce: (rawValue: unknown) => TValue
+  /** Explicit conversion at the field write boundary; editing and permissions remain with the same DataView. */
+  toSourceValue?: (value: TValue) => unknown}
 
 export function useBasicFieldState<TValue>(options: UseBasicFieldStateOptions<TValue>) {
   const permission = useFieldPermission<TValue>({
@@ -43,6 +49,7 @@ export function useBasicFieldState<TValue>(options: UseBasicFieldStateOptions<TV
     type: options.fieldType,
     fallbackValue: options.fallbackValue,
     coerce: options.coerce,
+    ...(options.toSourceValue !== undefined ? {toSourceValue: options.toSourceValue} : {}),
     ...(options.formatDisplay !== undefined ? { formatDisplay: options.formatDisplay } : {}),
   })
 

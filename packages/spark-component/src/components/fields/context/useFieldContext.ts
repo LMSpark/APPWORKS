@@ -15,14 +15,28 @@ import type { FieldComposableProps } from './field-composable-props'
 
 /** Field Context Props 的属性契约。 */
 export type FieldContextProps = {
+  /** 数据绑定的配置诊断，独立于值和权限呈现。 */
+  bindingError?: string
     /** 类型标识。 */
 type: string
+  /** 表格单元格是否允许双击进入字段控件。 */
+  editOnDblclick?: boolean
+  /** 字段绑定当前原始行；用于核对单元格身份，不复制编辑覆盖。 */
+  editingContextRow: DataRow | null
+  /** 当前字段经权限和交互锁定后是否可编辑。 */
+  isCurrentFieldEditable: boolean
     /** display Label 字段。 */
 displayLabel: string
     /** 绑定字段名。 */
 fieldName: string
     /** width 字段。 */
 width: number | undefined
+  /** 表格字段的最小宽度，由标准字段属性显式传递；未配置时由表格分配。 */
+  minWidth?: number
+  /** 表格单元格溢出提示，仅消费权限处理后的显示内容。 */
+  showOverflowTooltip?: boolean
+  /** 标题下的标准组件区域，由所属组件提供自己的数据绑定。 */
+  header?: SparkNode
     /** resizable 字段。 */
 resizable?: boolean
     /** title Align 字段。 */
@@ -56,6 +70,12 @@ validationRules: FormItemRule[]}
 
 /** Field Permission For Context 的运行上下文。 */
 type FieldPermissionForContext = {
+  /** 停算配置的只读诊断，不改变字段值可见性。 */
+  bindingError?: ComputedRef<string | undefined>
+  /** 原字段绑定的行上下文；不复制运行数据。 */
+  contextData: ComputedRef<DataRow | null>
+  /** 原查询许可与界面限制共同确定的可编辑性。 */
+  isCurrentFieldEditable: ComputedRef<boolean>
     /** 绑定字段名。 */
 fieldName: ComputedRef<string>
     /** display Label 字段。 */
@@ -78,11 +98,15 @@ type FieldContextInputProps = FieldComposableProps<Pick<SparkNodeProps,
   | 'type' | 'children'
 >> & FieldComposableProps<Pick<SparkFieldSemanticProps,
   | 'width'
+  | 'minWidth'
+  | 'showOverflowTooltip'
+  | 'header'
   | 'resizable'
   | 'titleAlign' | 'valueAlign'
   | 'headerCellClassName' | 'cellClassName'
   | 'titleClassName' | 'valueClassName'
   | 'sortable'
+  | 'editOnDblclick'
 >> & {
     /** 类型标识。 */
 type: string}
@@ -98,10 +122,17 @@ export function useFieldContext(
 
   return computed(() => {
     const result: FieldContextProps = {
+      ...(permission.bindingError?.value ? {bindingError: permission.bindingError.value} : {}),
       type: fieldProps.type,
+      ...(fieldProps.editOnDblclick !== undefined ? {editOnDblclick: fieldProps.editOnDblclick} : {}),
+      editingContextRow: permission.contextData.value,
+      isCurrentFieldEditable: permission.isCurrentFieldEditable.value,
       displayLabel: permission.displayLabel.value,
       fieldName: permission.fieldName.value,
       width: fieldProps.width,
+      ...(fieldProps.header !== undefined ? {header: fieldProps.header} : {}),
+      ...(fieldProps.minWidth !== undefined ? {minWidth: fieldProps.minWidth} : {}),
+      ...(fieldProps.showOverflowTooltip !== undefined ? {showOverflowTooltip: fieldProps.showOverflowTooltip} : {}),
       ...(fieldProps.resizable !== undefined ? { resizable: fieldProps.resizable } : {}),
       ...(fieldProps.titleAlign !== undefined && { titleAlign: fieldProps.titleAlign }),
       ...(fieldProps.valueAlign !== undefined && { valueAlign: fieldProps.valueAlign }),

@@ -35,8 +35,8 @@
         },
         "permissionDeniedMode": {
           "enum": [
-            "hide",
-            "disable"
+            "disable",
+            "hide"
           ]
         },
         "value": true,
@@ -46,28 +46,16 @@
         "dataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -92,8 +80,8 @@
           "enum": [
             "number",
             "date",
-            "percent",
-            "currency"
+            "currency",
+            "percent"
           ]
         },
         "precision": {

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/runtime/layout-data-context",
+    "sourcePath": "packages/spark-component/src/components/containers/runtime/layout-data-context.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/runtime/layout-data-context.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/runtime/layout-data-context",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/runtime/layout-data-context\n职责：为标准布局容器解析同一 PageRuntime 的 DataView，并向子组件提供视图和稳定的行上下文。\n边界：默认不查询；工具栏可沿原DataView自动加载，不保存、不复制编辑状态或权限。行镜像只服务渲染。\nAI用途：标签页等布局需要标准数据成员绑定时复用；视图实例变化须以 scopeKey 重建消费子树。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LayoutDataContextProps"
+    ]
+  },
+  "$defs": {
+    "LayoutDataContextProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LayoutDataContextProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-16T05:14:03.118Z",
+  "models": {
+    "LayoutDataContextProps": {
+      "name": "LayoutDataContextProps",
+      "jsdoc": "布局定位视图、选择成员和成员字段的标准配置；未显式配置时保留父级行上下文。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & {\n    /** 完整视图键 scenarioId@modelName@viewId；未配置时继承原视图，不发起查询。 */\n    dataViewKey?: SparkTableModelProps['dataViewKey'];\n    /** 原生 DataView 成员；数组或值成员不自动取当前行作为字段上下文。 */\n    dataMember?: SparkTableModelProps['dataMember'];\n    /** 在所选成员上继续定位字段，复用 spark-data 的成员解析合同。 */\n    dataField?: SparkTableModelProps['dataField'];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 完整视图键 scenarioId@modelName@viewId；未配置时继承原视图，不发起查询。 */\n    dataViewKey?: SparkTableModelProps['dataViewKey'];\n    /** 原生 DataView 成员；数组或值成员不自动取当前行作为字段上下文。 */\n    dataMember?: SparkTableModelProps['dataMember'];\n    /** 在所选成员上继续定位字段，复用 spark-data 的成员解析合同。 */\n    dataField?: SparkTableModelProps['dataField'];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "jsdoc": "完整视图键 scenarioId@modelName@viewId；未配置时继承原视图，不发起查询。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "jsdoc": "原生 DataView 成员；数组或值成员不自动取当前行作为字段上下文。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "jsdoc": "在所选成员上继续定位字段，复用 spark-data 的成员解析合同。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

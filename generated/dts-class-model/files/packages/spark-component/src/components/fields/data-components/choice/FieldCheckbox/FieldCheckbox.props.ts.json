@@ -24,98 +24,30 @@
       "type": "object",
       "title": "RCheckboxProps",
       "properties": {
-        "type": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "children": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "permissionDeniedMode": {
-          "enum": [
-            "hide",
-            "disable"
+        "trueValue": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
           ]
         },
-        "width": {
-          "type": "number"
-        },
-        "resizable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "clearable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "modelValue": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "value": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "field": {
-          "type": "string"
-        },
-        "label": {
-          "type": "string"
-        },
-        "readonly": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "placeholder": {
-          "type": "string"
-        },
-        "onChange": {
-          "type": "object",
-          "title": "(...args: unknown[]) => void | Promise<void>"
-        },
-        "titleAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "valueAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "headerCellClassName": {
-          "type": "string"
-        },
-        "cellClassName": {
-          "type": "string"
-        },
-        "titleClassName": {
-          "type": "string"
-        },
-        "valueClassName": {
-          "type": "string"
-        },
-        "sortable": {
-          "enum": [
-            false,
-            true,
-            "custom"
+        "falseValue": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
           ]
         },
         "checkedText": {
@@ -128,10 +60,24 @@
           "type": "string"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.cellReadonly.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellReadonly.return": {
+          "type": "boolean"
+        }
+      }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.163Z",
+  "generatedAt": "2026-10-10T21:21:03.164Z",
   "models": {
     "RCheckboxProps": {
       "name": "RCheckboxProps",
@@ -145,7 +91,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<boolean> & {\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<boolean> & {\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -159,11 +105,23 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}"
+            "typeText": "{\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "trueValue",
+              "jsdoc": "Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "falseValue",
+              "jsdoc": "Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags.",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "checkedText",
               "jsdoc": "选中状态下展示的文本。",
@@ -181,6 +139,31 @@
               "jsdoc": "复选框旁边的标签文本。",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "cellReadonly",
+              "jsdoc": "Additional table-cell restriction; true makes this row readonly and can never grant write permission.",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
             }
           ]
         }

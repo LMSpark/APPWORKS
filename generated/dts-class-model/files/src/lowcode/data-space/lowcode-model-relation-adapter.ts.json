@@ -14,6 +14,117 @@
     ]
   },
   "$defs": {
+    "Model": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Model",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalField"
+          }
+        },
+        "raw": {
+          "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "Relation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Relation",
+      "properties": {
+        "sourceRelationId": {
+          "type": "string"
+        },
+        "cascadeDelete": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "parentModelId": {
+          "type": "string"
+        },
+        "childModelId": {
+          "type": "string"
+        },
+        "parentResourceName": {
+          "type": "string"
+        },
+        "childResourceName": {
+          "type": "string"
+        },
+        "dependencyType": {
+          "type": "string"
+        },
+        "filterExpression": {
+          "$ref": "../../../packages/spark-data/src/query/filter/data-view-filter.ts.json#/$defs/DataViewFilter"
+        }
+      },
+      "required": [
+        "sourceRelationId",
+        "cascadeDelete",
+        "dataSpaceId",
+        "parentModelId",
+        "childModelId",
+        "parentResourceName",
+        "childResourceName",
+        "dependencyType",
+        "filterExpression"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeModelRelationAdapter": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -23,6 +134,131 @@
           "type": "object",
           "properties": {},
           "additionalProperties": false
+        },
+        "method.readMetadataEndpoints.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readMetadataEndpoints.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceRelationId": {
+                "type": "string"
+              },
+              "parentModelId": {
+                "type": "string"
+              },
+              "childModelId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "sourceRelationId",
+              "parentModelId",
+              "childModelId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "method.readMetadataRelations.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readMetadataRelations.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Relation"
+          }
+        },
+        "method.endpoints.params": {
+          "type": "object",
+          "properties": {
+            "relations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Pick<Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>[number], 'sourceRelationId' | 'parentModelId' | 'childModelId'>"
+              }
+            },
+            "bindings": {
+              "type": "object",
+              "title": "ReadonlyMap<string, Pick<Model, 'id'>>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.endpoints.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Pick<DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable'>"
+          }
+        },
+        "method.scopeDependencies.params": {
+          "type": "object",
+          "properties": {
+            "relations": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Relation"
+              }
+            },
+            "bindings": {
+              "type": "object",
+              "title": "ReadonlyMap<string, Pick<Model, 'id' | 'name'>>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.scopeDependencies.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "referencedTables": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "relationId": {
+                "type": "string"
+              },
+              "sourceRelationId": {
+                "type": "string"
+              },
+              "parentTable": {
+                "type": "string"
+              },
+              "childTable": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "referencedTables",
+              "parentTable",
+              "childTable"
+            ],
+            "additionalProperties": false
+          }
         },
         "method.adapt.params": {
           "type": "object",
@@ -63,8 +299,54 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T02:01:57.306Z",
+  "generatedAt": "2026-10-15T00:56:31.349Z",
   "models": {
+    "Model": {
+      "name": "Model",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Relation": {
+      "name": "Relation",
+      "jsdoc": "正式关系查询返回的一条定义；保留源身份、端点、完整过滤表达式和删除配置，不代表已转换为本仓关系。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>[number], 'filterExpression'> & Readonly<{\n    /** 经正式解码的完整过滤树，继续通过DataViewFilter合同消费和转换。 */\n    filterExpression: DataViewFilter;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Omit<Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>[number], 'filterExpression'>",
+            "targetName": "Omit"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 经正式解码的完整过滤树，继续通过DataViewFilter合同消费和转换。 */\n    filterExpression: DataViewFilter;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "filterExpression",
+              "jsdoc": "经正式解码的完整过滤树，继续通过DataViewFilter合同消费和转换。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeModelRelationAdapter": {
       "name": "LowcodeModelRelationAdapter",
       "jsdoc": "无状态关系适配器，可直接无参创建；只消费 readRelations 和 readModel 正式定义，不读取物理目录。",
@@ -78,7 +360,217 @@
         "members": {
           "methods": [
             {
+              "name": "readMetadataEndpoints",
+              "jsdoc": "从当次元关系视图读取可确认的正式端点，供画布及上游目录共用。\n@param dataSet 元数据空间运行实例；关系视图必须已完整查询且无未提交修改。\n@param targetId 被设计空间ID，核对queryContext、行归属及每个身份字段的数据权限。\n@returns 正式关系ID和父子模型ID；完整filter仅校验语法，不执行或转换字段别名。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "unknown",
+                  "name": "{\n        sourceRelationId: string;\n        parentModelId: string;\n        childModelId: string;\n    }"
+                }
+              }
+            },
+            {
+              "name": "readMetadataRelations",
+              "jsdoc": "从元空间正式DataView读取完整旧关系，复用SPARK API的来源解码，不重复查询或改写记录。\n@param dataSet 本次元空间实例；来源须已完整查询、无未提交变更。\n@param targetId 被设计空间身份；转换消费的资源名、过滤、依赖及删除字段须可读。\n@returns 与readRelations一致的来源合同，尚未成为原生DataResourceRelation。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly Relation[]"
+              }
+            },
+            {
+              "name": "endpoints",
+              "jsdoc": "将正式模型ID映射为绑定表端点，供目录读取与完整装配共用；不推导级联或伪造过滤表达式。",
+              "parameters": [
+                {
+                  "name": "relations",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Pick",
+                      "typeArguments": [
+                        {
+                          "type": "unknown",
+                          "name": "Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>[number]"
+                        },
+                        {
+                          "type": "union",
+                          "types": [
+                            {
+                              "type": "literal",
+                              "value": "sourceRelationId"
+                            },
+                            {
+                              "type": "literal",
+                              "value": "parentModelId"
+                            },
+                            {
+                              "type": "literal",
+                              "value": "childModelId"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "bindings",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadonlyMap",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Pick",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "Model",
+                            "sourcePath": "src/lowcode/data-space/lowcode-model-relation-adapter.ts"
+                          },
+                          {
+                            "type": "literal",
+                            "value": "id"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Pick",
+                  "typeArguments": [
+                    {
+                      "type": "reference",
+                      "name": "DataResourceRelation"
+                    },
+                    {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "literal",
+                          "value": "relationId"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "sourceRelationId"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "parentTable"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "childTable"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "scopeDependencies",
+              "jsdoc": "正式关系已完整读取后，描述端点和值函数引用的模型范围；不读取字段，不执行或持久化表达式。\n@param relations 当次正式查询解码的全部旧关系。\n@param bindings 配置表键到正式模型身份；只需ID和模型名，字段留待范围确定后读取。\n@returns 运行范围依赖；同名多绑定全部保留供原转换器诊断，未绑定引用保留原名供范围校验拒绝。",
+              "parameters": [
+                {
+                  "name": "relations",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly Relation[]"
+                  }
+                },
+                {
+                  "name": "bindings",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadonlyMap",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Pick",
+                        "typeArguments": [
+                          {
+                            "type": "reference",
+                            "name": "Model",
+                            "sourcePath": "src/lowcode/data-space/lowcode-model-relation-adapter.ts"
+                          },
+                          {
+                            "type": "union",
+                            "types": [
+                              {
+                                "type": "literal",
+                                "value": "id"
+                              },
+                              {
+                                "type": "literal",
+                                "value": "name"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "unknown",
+                  "name": "{\n        referencedTables: string[];\n        relationId?: string;\n        sourceRelationId?: string;\n        parentTable: string;\n        childTable: string;\n    }"
+                }
+              }
+            },
+            {
               "name": "adapt",
+              "jsdoc": "将完整正式关系转换为运行关系，端点映射与目录共用，字段转换仍核对正式Name及输出别名。\n@param relations 正式查询已解码的完整关系；不使用depType推导前端级联。\n@param bindings 配置表名与正式模型定义的绑定，字段必须已读取。\n@returns 完整原生关系及无法转换的诊断；不改输入或持久化旧记录。",
               "parameters": [
                 {
                   "name": "relations",

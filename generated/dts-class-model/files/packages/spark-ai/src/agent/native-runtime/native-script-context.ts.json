@@ -40,7 +40,10 @@
             "type": "string"
           }
         },
-        "host": true
+        "host": {
+          "type": "object",
+          "title": "AiAgentRuntimeHostContext"
+        }
       },
       "required": [
         "segments"
@@ -53,7 +56,10 @@
       "title": "AiApiScriptContextCommand",
       "properties": {
         "instance": true,
-        "api": true,
+        "api": {
+          "type": "object",
+          "title": "AiApiObjectMetadata"
+        },
         "ctx": {
           "$ref": "#/$defs/AiNativePathContext"
         },
@@ -74,7 +80,10 @@
       "title": "ExecuteAiApiActionCommand",
       "properties": {
         "target": true,
-        "action": true,
+        "action": {
+          "type": "object",
+          "title": "AiApiActionMetadata"
+        },
         "args": {
           "$ref": "#/$defs/ScriptActionArg"
         },

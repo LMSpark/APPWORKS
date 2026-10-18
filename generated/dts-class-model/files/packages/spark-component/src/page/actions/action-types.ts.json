@@ -195,7 +195,6 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "ActionDescriptorActionName",
       "enum": [
-        "patch",
         "delete",
         "open",
         "confirm",
@@ -204,6 +203,7 @@
         "navigate",
         "set-field",
         "append-row",
+        "patch",
         "move",
         "message-row",
         "refresh",

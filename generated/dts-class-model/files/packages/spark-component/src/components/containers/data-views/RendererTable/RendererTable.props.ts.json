@@ -10,6 +10,7 @@
     "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererTable/RendererTable.props\n职责：定义 RendererTable（r-table）的配置属性契约，把页面 JSON 中的字段、数据绑定、显示选项和交互开关约束成可生成的类型。\n边界：只描述 table-level/data-view-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。\nAI用途：生成或修订页面配置时，用本模块判断 renderer table 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "TableRowClassContext",
       "RTableProps"
     ],
     "componentName": "RendererTable",
@@ -19,145 +20,86 @@
     "componentDirectory": "containers/data-views"
   },
   "$defs": {
+    "TableRowClassContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TableRowClassContext",
+      "properties": {
+        "row": {
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "rowIndex": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "row",
+        "rowIndex"
+      ],
+      "additionalProperties": false
+    },
     "RTableProps": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "RTableProps",
       "properties": {
-        "type": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "children": {
-          "$ref": "../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "permissionDeniedMode": {
-          "enum": [
-            "hide",
-            "disable"
-          ]
-        },
         "dataSource": {
           "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
         },
-        "dataViewKey": {
-          "type": "string"
-        },
-        "dataMember": {
-          "enum": [
-            "page",
-            "currentRow",
-            "selectedRows",
-            "requestState",
-            "columns",
-            "rows",
-            "rows",
-            "columns",
-            "currentRow",
-            "selectedRows",
-            "aggregateResult",
-            "selectionAggregateResult",
-            "total",
-            "page",
-            "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
-            "mutating",
-            "loadingError",
-            "mutatingError"
-          ]
-        },
-        "dataField": {
-          "type": "string"
-        },
-        "showDataViewMeta": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "showAggregateSummary": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "showSelectionSummary": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "onAddRow": {
-          "type": "object",
-          "title": "AddRowHandler"
-        },
-        "onEditRow": {
-          "type": "object",
-          "title": "EditRowHandler"
-        },
-        "onRemoveRow": {
-          "type": "object",
-          "title": "RemoveRowHandler"
-        },
-        "onRowClick": {
-          "type": "object",
-          "title": "RowClickHandler"
-        },
-        "onSelectionChange": {
-          "type": "object",
-          "title": "RowSelectionHandler"
-        },
-        "onCurrentChange": {
-          "type": "object",
-          "title": "CurrentRowChangeHandler"
-        },
         "border": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         },
         "stripe": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         },
         "highlightCurrentRow": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         },
         "rowKey": {
           "type": "string"
         },
         "resizable": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         },
         "autoColumns": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
         },
         "showPagination": {
-          "enum": [
-            false,
-            true
+          "type": "boolean"
+        },
+        "maxHeight": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
           ]
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "pageSizes": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "showJumper": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
         },
         "toolbar": {
           "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
@@ -169,14 +111,28 @@
           "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.rowClassName.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/TableRowClassContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rowClassName.return": {
+          "type": "string"
+        }
+      }
     }
   },
-  "generatedAt": "2026-10-07T02:30:26.800Z",
+  "generatedAt": "2026-10-11T04:22:57.703Z",
   "models": {
-    "RTableProps": {
-      "name": "RTableProps",
-      "jsdoc": "r-table 组件公开属性接口。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。",
+    "TableRowClassContext": {
+      "name": "TableRowClassContext",
+      "jsdoc": "标准表格行的呈现上下文；仅用于样式，不提供编辑或查询入口。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "RendererTable",
@@ -186,7 +142,38 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkInteractiveDataContainerProps & {\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 没有显式 children 时，是否从 DataView.columns 自动生成列。默认 true。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true。 */\n    showPagination?: boolean;\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 结构化筛选区\n     * 提示词模板：常用字段过滤 + range 过滤；优先复用列字段并保持字段名一致。\n     */\n    filter?: RFilterProps;\n    /**\n     * 结构化行动作\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}",
+        "declarationTypeText": "{\n    /** 本次DataView结果中的行；按字段读取前仍须消费原DataView数据权限。 */\n    row: Readonly<DataRow>;\n    /** 当前表格呈现顺序中的索引，从0开始，不作为记录身份。 */\n    rowIndex: number;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "row",
+              "jsdoc": "本次DataView结果中的行；按字段读取前仍须消费原DataView数据权限。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rowIndex",
+              "jsdoc": "当前表格呈现顺序中的索引，从0开始，不作为记录身份。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "RTableProps": {
+      "name": "RTableProps",
+      "jsdoc": "r-table 组件公开属性接口。\n页面只声明标准子组件 children；子组件依据父组件类型及数据上下文渲染。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTable",
+        "type": "r-table",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkInteractiveDataContainerProps & {\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -200,7 +187,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 没有显式 children 时，是否从 DataView.columns 自动生成列。默认 true。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true。 */\n    showPagination?: boolean;\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 结构化筛选区\n     * 提示词模板：常用字段过滤 + range 过滤；优先复用列字段并保持字段名一致。\n     */\n    filter?: RFilterProps;\n    /**\n     * 结构化行动作\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}"
+            "typeText": "{\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}"
           }
         ],
         "members": {
@@ -243,13 +230,25 @@
             },
             {
               "name": "autoColumns",
-              "jsdoc": "没有显式 children 时，是否从 DataView.columns 自动生成列。默认 true。",
+              "jsdoc": "设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。",
               "readable": true,
               "writable": false
             },
             {
               "name": "showPagination",
-              "jsdoc": "是否显示分页器。默认 true。",
+              "jsdoc": "是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxHeight",
+              "jsdoc": "表格主体最大高度；数值为像素，不包含工具栏和分页器。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pagination",
+              "jsdoc": "分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。",
               "readable": true,
               "writable": false
             },
@@ -261,15 +260,35 @@
             },
             {
               "name": "filter",
-              "jsdoc": "结构化筛选区\n提示词模板：常用字段过滤 + range 过滤；优先复用列字段并保持字段名一致。",
+              "jsdoc": "统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\nchildren 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。",
               "readable": true,
               "writable": false
             },
             {
               "name": "actions",
-              "jsdoc": "结构化行动作\n提示词模板：默认动作 message-row / delete-row。",
+              "jsdoc": "行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n提示词模板：默认动作 message-row / delete-row。",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "rowClassName",
+              "jsdoc": "返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "TableRowClassContext",
+                    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
             }
           ]
         }

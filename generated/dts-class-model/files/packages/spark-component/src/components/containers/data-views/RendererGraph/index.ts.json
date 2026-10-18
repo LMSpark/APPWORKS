@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererGraph/index",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/index.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/index.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererGraph/index",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/index\n职责：暴露标准DataView关系图及绑定/选择合同。\n边界：纯公共出口，没有运行状态或独立查询通道。\nAI用途：通过RGraphProps选择绑定属性及事件。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [],
+    "componentName": "RendererGraph",
+    "componentType": "r-graph",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-11T23:12:10.302Z",
+  "models": {}
+}

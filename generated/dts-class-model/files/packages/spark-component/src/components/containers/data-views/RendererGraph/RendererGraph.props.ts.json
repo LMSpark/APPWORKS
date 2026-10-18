@@ -1,0 +1,1213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererGraph/RendererGraph.props",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererGraph/RendererGraph.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/RendererGraph.props\n职责：声明节点与关系DataView驱动的关系图及可取消的对象选择。\n边界：节点和边来自视图，位置只是布局；不推导关系、授权或保存业务记录。\nAI用途：先绑定节点模型与关系模型，再指定显示字段和端点字段。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "GraphArrange",
+      "RendererGraphApi",
+      "GraphNodeMove",
+      "GraphSelection",
+      "GraphCaptionOption",
+      "GraphNodeSource",
+      "RGraphProps"
+    ],
+    "componentName": "RendererGraph",
+    "componentType": "r-graph",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "GraphArrange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphArrange",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "x",
+              "y"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "pointsList": {
+                "type": "array",
+                "items": {
+                  "$ref": "GraphCanvas.types.ts.json#/$defs/GraphCanvasPoint"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "pointsList"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "control": {
+          "type": "object",
+          "properties": {
+            "cancel": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "cancel"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "nodes",
+        "edges",
+        "control"
+      ],
+      "additionalProperties": false
+    },
+    "RendererGraphApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RendererGraphApi",
+      "$defs": {
+        "method.selectCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.selectCurrent.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.center.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.center.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.fitView.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.fitView.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.zoomIn.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.zoomIn.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.zoomOut.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.zoomOut.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.arrange.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.arrange.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        }
+      }
+    },
+    "GraphNodeMove": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphNodeMove",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "pointsList": {
+                "type": "array",
+                "items": {
+                  "$ref": "GraphCanvas.types.ts.json#/$defs/GraphCanvasPoint"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "pointsList"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "x",
+        "y",
+        "edges"
+      ],
+      "additionalProperties": false
+    },
+    "GraphSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphSelection",
+      "properties": {
+        "kind": {
+          "enum": [
+            "node",
+            "edge"
+          ]
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "open": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "control": {
+          "type": "object",
+          "properties": {
+            "cancel": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "cancel"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "open",
+        "control"
+      ],
+      "additionalProperties": false
+    },
+    "GraphCaptionOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphCaptionOption",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "tone": {
+          "enum": [
+            "info",
+            "warning",
+            "success",
+            "danger",
+            "primary"
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "GraphNodeSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphNodeSource",
+      "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "labelField": {
+          "type": "string"
+        },
+        "descriptionField": {
+          "type": "string"
+        },
+        "nodeCaptionField": {
+          "type": "string"
+        },
+        "nodeCaptionOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphCaptionOption"
+          }
+        }
+      },
+      "required": [
+        "dataViewKey"
+      ],
+      "additionalProperties": false
+    },
+    "RGraphProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RGraphProps",
+      "properties": {
+        "toolbar": {
+          "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
+        },
+        "dataMember": {
+          "enum": [
+            "rows",
+            "selectedRows"
+          ]
+        },
+        "additionalNodeSources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphNodeSource"
+          }
+        },
+        "edgeDataViewKey": {
+          "type": "string"
+        },
+        "additionalEdgeDataViewKey": {
+          "type": "string"
+        },
+        "edgeDataMember": {
+          "enum": [
+            "rows",
+            "selectedRows"
+          ]
+        },
+        "labelField": {
+          "type": "string"
+        },
+        "descriptionField": {
+          "type": "string"
+        },
+        "nodeCaptionField": {
+          "type": "string"
+        },
+        "nodeCaptionOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphCaptionOption"
+          }
+        },
+        "nodeDefaultBadge": {
+          "type": "string"
+        },
+        "nodeBadgeRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              },
+              "label": {
+                "type": "string"
+              },
+              "tone": {
+                "enum": [
+                  "primary",
+                  "success",
+                  "warning",
+                  "danger",
+                  "info"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "viewportControls": {
+          "type": "boolean"
+        },
+        "edgeSourceField": {
+          "type": "string"
+        },
+        "edgeTargetField": {
+          "type": "string"
+        },
+        "edgeNodeKeys": {
+          "type": "object",
+          "title": "Record<string, string | number>"
+        },
+        "nodePositions": {
+          "type": "object",
+          "title": "Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>"
+        },
+        "hiddenNodeKeys": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "edgePaths": {
+          "type": "object",
+          "title": "Record<string, readonly GraphCanvasPoint[]>"
+        },
+        "draggableKeys": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "connectableKeys": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "current": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "node",
+                "edge"
+              ]
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "additionalProperties": false
+        },
+        "disabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "labelField"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.onNodeMove.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/GraphNodeMove"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onNodeMove.return": true,
+        "method.onArrange.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/GraphArrange"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onArrange.return": true,
+        "method.onConnect.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                "target": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "source",
+                "target"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onConnect.return": true,
+        "method.onSelect.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/GraphSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onSelect.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-13T23:37:14.980Z",
+  "models": {
+    "GraphArrange": {
+      "name": "GraphArrange",
+      "jsdoc": "一次整图对齐建议；同步接收并更新布局属性，或取消。组件不写入任何DataView。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 全部可见节点的原始主键及新中心坐标；隐藏节点保持不变。 */\n    nodes: ReadonlyArray<Readonly<{\n        id: string | number;\n        x: number;\n        y: number;\n    }>>;\n    /** 已配置显式路径的可见边的新路径；自动连线仍由画布计算。 */\n    edges: GraphNodeMove['edges'];\n    /** owner预检失败时同步设为true，阻止完成及自动适应。 */\n    control: {\n        cancel: boolean;\n    };\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 全部可见节点的原始主键及新中心坐标；隐藏节点保持不变。 */\n    nodes: ReadonlyArray<Readonly<{\n        id: string | number;\n        x: number;\n        y: number;\n    }>>;\n    /** 已配置显式路径的可见边的新路径；自动连线仍由画布计算。 */\n    edges: GraphNodeMove['edges'];\n    /** owner预检失败时同步设为true，阻止完成及自动适应。 */\n    control: {\n        cancel: boolean;\n    };\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodes",
+              "jsdoc": "全部可见节点的原始主键及新中心坐标；隐藏节点保持不变。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edges",
+              "jsdoc": "已配置显式路径的可见边的新路径；自动连线仍由画布计算。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "control",
+              "jsdoc": "owner预检失败时同步设为true，阻止完成及自动适应。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RendererGraphApi": {
+      "name": "RendererGraphApi",
+      "jsdoc": "标准关系图实例API；工具栏可调用，所有动作只作用于当前已绑定实例。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 将当前受控节点/连线选择重新应用到画布，无当前元素则清除高亮；不触发onSelect或修改DataView指针、值与数据。绑定/当前元素在等待中变化、身份无效、不可见、禁用或销毁时返回false。 */\n    selectCurrent(): Promise<boolean>;\n    /** 将可见节点集合居中，保持当前缩放，不修改布局。 */\n    center(): Promise<boolean>;\n    /** 缩放和平移到可见节点全图，不修改布局。 */\n    fitView(): Promise<boolean>;\n    /** 放大当前视口，不修改布局。 */\n    zoomIn(): Promise<boolean>;\n    /** 缩小当前视口，不修改布局。 */\n    zoomOut(): Promise<boolean>;\n    /** 全部可见节点可拖动且投影无诊断时，发送onArrange；owner同步确认后适应新布局。无回调、取消、失效或不可编辑返回false。 */\n    arrange(): Promise<boolean>;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "selectCurrent",
+              "jsdoc": "将当前受控节点/连线选择重新应用到画布，无当前元素则清除高亮；不触发onSelect或修改DataView指针、值与数据。绑定/当前元素在等待中变化、身份无效、不可见、禁用或销毁时返回false。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "center",
+              "jsdoc": "将可见节点集合居中，保持当前缩放，不修改布局。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "fitView",
+              "jsdoc": "缩放和平移到可见节点全图，不修改布局。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "zoomIn",
+              "jsdoc": "放大当前视口，不修改布局。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "zoomOut",
+              "jsdoc": "缩小当前视口，不修改布局。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "arrange",
+              "jsdoc": "全部可见节点可拖动且投影无诊断时，发送onArrange；owner同步确认后适应新布局。无回调、取消、失效或不可编辑返回false。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "GraphNodeMove": {
+      "name": "GraphNodeMove",
+      "jsdoc": "一次受控布局移动；坐标不写入节点/关系记录。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 节点DataView原始主键。 */\n    id: string | number;\n    /** 节点中心水平坐标。 */\n    x: number;\n    /** 节点中心垂直坐标。 */\n    y: number;\n    /** 有显式折线的关联边；端点随节点移动，其余端点保持不变。 */\n    edges: ReadonlyArray<Readonly<{\n        /** 关系DataView原始主键。 */\n        id: string | number;\n        /** 新折线路径；由布局owner确认或丢弃。 */\n        pointsList: readonly GraphCanvasPoint[];\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 节点DataView原始主键。 */\n    id: string | number;\n    /** 节点中心水平坐标。 */\n    x: number;\n    /** 节点中心垂直坐标。 */\n    y: number;\n    /** 有显式折线的关联边；端点随节点移动，其余端点保持不变。 */\n    edges: ReadonlyArray<Readonly<{\n        /** 关系DataView原始主键。 */\n        id: string | number;\n        /** 新折线路径；由布局owner确认或丢弃。 */\n        pointsList: readonly GraphCanvasPoint[];\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "节点DataView原始主键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "x",
+              "jsdoc": "节点中心水平坐标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "jsdoc": "节点中心垂直坐标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edges",
+              "jsdoc": "有显式折线的关联边；端点随节点移动，其余端点保持不变。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "GraphSelection": {
+      "name": "GraphSelection",
+      "jsdoc": "图中一次对象选择；取消时不改变所属DataView的当前行。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 节点或关系记录。 */\n    kind: 'node' | 'edge';\n    /** 所属视图的主键，保留原始类型。 */\n    id: string | number;\n    /** 双击为true，可由页面打开对象配置。 */\n    open: boolean;\n    /** 同步设为true可阻止当前行切换。 */\n    control: {\n        cancel: boolean;\n    };\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "节点或关系记录。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "jsdoc": "所属视图的主键，保留原始类型。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "open",
+              "jsdoc": "双击为true，可由页面打开对象配置。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "control",
+              "jsdoc": "同步设为true可阻止当前行切换。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "GraphCaptionOption": {
+      "name": "GraphCaptionOption",
+      "jsdoc": "节点类别的显示选项；仅转换可读的原始值，不改写DataView。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 严格匹配的字段标量，不隐式转换。 */\n    value: string | number | boolean;\n    /** 类别显示文字。 */\n    label: string;\n    /** 普通节点徽标的语义色，命中的业务徽标规则优先。 */\n    tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 严格匹配的字段标量，不隐式转换。 */\n    value: string | number | boolean;\n    /** 类别显示文字。 */\n    label: string;\n    /** 普通节点徽标的语义色，命中的业务徽标规则优先。 */\n    tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "严格匹配的字段标量，不隐式转换。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "类别显示文字。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tone",
+              "jsdoc": "普通节点徽标的语义色，命中的业务徽标规则优先。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "GraphNodeSource": {
+      "name": "GraphNodeSource",
+      "jsdoc": "一个补充节点视图；直接消费rows，主键须与其他节点来源唯一。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次运行实例的完整数据视图绑定。 */\n    dataViewKey: string;\n    /** 标题字段，缺省继承主节点配置。 */\n    labelField?: string;\n    /** 描述字段，缺省继承主节点配置。 */\n    descriptionField?: string;\n    /** 类别文字字段，缺省继承主节点配置。 */\n    nodeCaptionField?: string;\n    /** 类别显示选项，省略继承主节点配置；空数组保持字段原文。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次运行实例的完整数据视图绑定。 */\n    dataViewKey: string;\n    /** 标题字段，缺省继承主节点配置。 */\n    labelField?: string;\n    /** 描述字段，缺省继承主节点配置。 */\n    descriptionField?: string;\n    /** 类别文字字段，缺省继承主节点配置。 */\n    nodeCaptionField?: string;\n    /** 类别显示选项，省略继承主节点配置；空数组保持字段原文。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "jsdoc": "本次运行实例的完整数据视图绑定。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelField",
+              "jsdoc": "标题字段，缺省继承主节点配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "descriptionField",
+              "jsdoc": "描述字段，缺省继承主节点配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeCaptionField",
+              "jsdoc": "类别文字字段，缺省继承主节点配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeCaptionOptions",
+              "jsdoc": "类别显示选项，省略继承主节点配置；空数组保持字段原文。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RGraphProps": {
+      "name": "RGraphProps",
+      "jsdoc": "r-graph：模型节点和关系边分别绑定视图，不接受业务rows数组。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & Pick<SparkTableModelProps, 'dataViewKey'> & {\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: Readonly<{\n        source: string | number;\n        target: string | number;\n    }>) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Pick<SparkTableModelProps, 'dataViewKey'>",
+            "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: Readonly<{\n        source: string | number;\n        target: string | number;\n    }>) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "toolbar",
+              "jsdoc": "标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "jsdoc": "节点取rows或selectedRows；默认rows。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "additionalNodeSources",
+              "jsdoc": "多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgeDataViewKey",
+              "jsdoc": "关系视图的完整绑定；省略时只呈现节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "additionalEdgeDataViewKey",
+              "jsdoc": "补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgeDataMember",
+              "jsdoc": "关系视图消费成员；默认rows。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "labelField",
+              "jsdoc": "节点标题字段，经DataView.fieldAccess读取。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "descriptionField",
+              "jsdoc": "节点描述字段，经DataView.fieldAccess读取。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeCaptionField",
+              "jsdoc": "节点顶部的类别文字字段，复用字段读取/脱敏权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeCaptionOptions",
+              "jsdoc": "对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeDefaultBadge",
+              "jsdoc": "未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeBadgeRules",
+              "jsdoc": "按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewportControls",
+              "jsdoc": "显示放大、缩小和适应画布控件，默认true；只改变当前视口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgeSourceField",
+              "jsdoc": "边记录的起点字段，默认source。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgeTargetField",
+              "jsdoc": "边记录的终点字段，默认target。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgeNodeKeys",
+              "jsdoc": "端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodePositions",
+              "jsdoc": "节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hiddenNodeKeys",
+              "jsdoc": "仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edgePaths",
+              "jsdoc": "关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draggableKeys",
+              "jsdoc": "允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "connectableKeys",
+              "jsdoc": "允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "jsdoc": "外部对象导航同步的高亮目标；null明确清空。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "阻止对象选择、拖动和连线，不改变后端数据权限。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onNodeMove",
+              "jsdoc": "拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "GraphNodeMove",
+                    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onArrange",
+              "jsdoc": "整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "GraphArrange",
+                    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onConnect",
+              "jsdoc": "连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        source: string | number;\n        target: string | number;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onSelect",
+              "jsdoc": "对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "GraphSelection",
+                    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

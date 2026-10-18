@@ -19,13 +19,13 @@
       "type": "object",
       "title": "ValueSource",
       "properties": {
+        "field": {
+          "type": "string"
+        },
         "tableName": {
           "type": "string"
         },
         "viewId": {
-          "type": "string"
-        },
-        "field": {
           "type": "string"
         }
       },

@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key",
+    "sourcePath": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key",
+    "jsdoc": "@module app:lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key\n职责：核定一次模型主键变更涉及的正式字段标记和提交前基线。\n边界：复用原DataView查询/编辑/权限，不修改物理主键，不保存场景文件。\nAI用途：模型配置保存时共同提交PrimaryKeyFields、IsPKey和必要IsOutput。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpacePrimaryKey"
+    ]
+  },
+  "$defs": {
+    "FormalModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalField"
+          }
+        },
+        "raw": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "KeyChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "KeyChange",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "patch": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "patch"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpacePrimaryKey": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpacePrimaryKey",
+      "properties": {
+        "fields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/KeyChange"
+          }
+        },
+        "candidate": {
+          "$ref": "#/$defs/FormalModel"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.sourceControlled.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sourceControlled.return": {
+          "type": "boolean"
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "assertLive": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "workspace": {
+              "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDataSpacePrimaryKey>"
+        },
+        "method.assertStaged.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertStaged.return": true,
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {
+            "applied": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-14T22:06:12.093Z",
+  "models": {
+    "FormalModel": {
+      "name": "FormalModel",
+      "jsdoc": "复用正式元数据投影的输出定义，不携带查询授权。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof DataSpaceDesignApi.projectModel>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof DataSpaceDesignApi.projectModel>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "KeyChange": {
+      "name": "KeyChange",
+      "jsdoc": "一条正式字段记录的主键标记差异。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 原Base_DataModel_Field记录的rowid。 */\n    id: string;\n    /** 仅含本次必要的IsPKey和IsOutput数值标记。 */\n    patch: Record<string, number>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "原Base_DataModel_Field记录的rowid。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "patch",
+              "jsdoc": "仅含本次必要的IsPKey和IsOutput数值标记。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpacePrimaryKey": {
+      "name": "LowcodeDataSpacePrimaryKey",
+      "jsdoc": "一次显式主键变更；正式记录及授权始终由原视图持有。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "从原元数据视图捕获一次计划；调用方须经prepare核最新记录和权限。",
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "fields",
+              "jsdoc": "原元数据字段视图，持有正式行、权限及编辑状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changes",
+              "jsdoc": "拟提交的字段标记，不包含其他消费者的编辑。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "candidate",
+              "jsdoc": "采用拟定主键后的正式定义投影，供场景配置依赖校验。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "sourceControlled",
+              "jsdoc": "数据库表主键来自来源目录；定义配置不执行DDL。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "prepare",
+              "jsdoc": "独立读取最新正式元记录和权限，旧记录不因投影失败而无法修复。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertLive",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "workspace",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDataSpacePrimaryKey",
+                    "sourcePath": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertStaged",
+              "jsdoc": "应用字段草稿前，仅接受本次计划的字段和值，不卷入其他编辑器的草稿。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "提交前核对定义和当次权限；applied只允许已计划的字段标记变化。",
+              "parameters": [
+                {
+                  "name": "applied",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

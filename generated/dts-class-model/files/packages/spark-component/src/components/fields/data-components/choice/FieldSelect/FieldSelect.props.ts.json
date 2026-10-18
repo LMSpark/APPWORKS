@@ -24,201 +24,38 @@
       "type": "object",
       "title": "RSelectProps",
       "properties": {
-        "type": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "children": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "permissionDeniedMode": {
+        "presentation": {
           "enum": [
-            "hide",
-            "disable"
+            "select",
+            "tabs"
           ]
         },
-        "width": {
-          "type": "number"
-        },
-        "resizable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "clearable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "modelValue": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "number"
-            }
-          ]
-        },
-        "value": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "number"
-            }
-          ]
-        },
-        "field": {
-          "type": "string"
-        },
-        "label": {
-          "type": "string"
-        },
-        "readonly": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "placeholder": {
-          "type": "string"
-        },
-        "onChange": {
-          "type": "object",
-          "title": "(...args: unknown[]) => void | Promise<void>"
-        },
-        "titleAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "valueAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "headerCellClassName": {
-          "type": "string"
-        },
-        "cellClassName": {
-          "type": "string"
-        },
-        "titleClassName": {
-          "type": "string"
-        },
-        "valueClassName": {
-          "type": "string"
-        },
-        "sortable": {
-          "enum": [
-            false,
-            true,
-            "custom"
-          ]
-        },
-        "options": {
-          "type": "array",
-          "items": true
-        },
-        "optionLabelField": {
-          "type": "string"
-        },
-        "optionValueField": {
-          "type": "string"
-        },
-        "optionDisabledField": {
-          "type": "string"
-        },
-        "optionChildrenField": {
-          "type": "string"
-        },
-        "dataSource": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-data\").DataView"
-        },
-        "optionDataViewKey": {
-          "type": "string"
-        },
-        "optionDataMember": {
-          "enum": [
-            "page",
-            "currentRow",
-            "selectedRows",
-            "requestState",
-            "columns",
-            "rows",
-            "rows",
-            "columns",
-            "currentRow",
-            "selectedRows",
-            "aggregateResult",
-            "selectionAggregateResult",
-            "total",
-            "page",
-            "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
-            "mutating",
-            "loadingError",
-            "mutatingError"
-          ]
-        },
-        "optionDataField": {
-          "type": "string"
-        },
-        "valueSeparator": {
-          "type": "string"
-        },
-        "valueMode": {
-          "enum": [
-            "array",
-            "auto",
-            "separated-string"
-          ]
-        },
-        "textSeparator": {
-          "type": "string"
-        },
-        "textStorageField": {
-          "type": "string"
-        },
-        "filterable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "multiple": {
-          "enum": [
-            false,
-            true
-          ]
+        "showCellControl": {
+          "type": "boolean"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.cellReadonly.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellReadonly.return": {
+          "type": "boolean"
+        }
+      }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.160Z",
+  "generatedAt": "2026-10-14T04:25:52.737Z",
   "models": {
     "RSelectProps": {
       "name": "RSelectProps",
-      "jsdoc": "RSelect Props 的属性契约。",
+      "jsdoc": "单值选择字段的属性契约。下拉选项在展开时挂载，关闭后释放；标题读取当前同一选项源并严格匹配值类型。\n没有匹配选项时显示原值，不自动选中其他候选；选择、清空和取消沿原字段DataView处理。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "FieldSelect",
@@ -228,7 +65,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkOptionFieldProps<string | number>",
+        "declarationTypeText": "SparkNodeProps & SparkOptionFieldProps<string | number> & {\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -239,9 +76,53 @@
             "kind": "intersection",
             "typeText": "SparkOptionFieldProps<string | number>",
             "targetName": "SparkOptionFieldProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "presentation",
+              "jsdoc": "单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showCellControl",
+              "jsdoc": "表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "cellReadonly",
+              "jsdoc": "逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
       }
     }
   }

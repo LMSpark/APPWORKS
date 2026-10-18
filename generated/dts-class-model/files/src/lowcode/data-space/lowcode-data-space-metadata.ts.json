@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/lowcode-data-space-metadata",
+    "sourcePath": "src/lowcode/data-space/lowcode-data-space-metadata.ts",
+    "sourceFile": "src/lowcode/data-space/lowcode-data-space-metadata.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/lowcode-data-space-metadata",
+    "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-metadata\n职责：在元数据DataView接纳查询结果前核对目标归属，按工作区需求完整读取并合并在途请求。\n边界：数据、权限及请求状态由原 DataView 持有，不复制数据、不参与保存。\nAI用途：设计器首屏读取空间和模型目录，其他工作区经设计会话按需读取字段或关系。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceMetadata"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceMetadata": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceMetadata",
+      "properties": {
+        "tables": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": "Base_DataSet"
+            },
+            {
+              "const": "Base_DataModel"
+            },
+            {
+              "const": "Base_DataModel_Field"
+            },
+            {
+              "const": "Base_DataModel_Relation"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T02:07:05.227Z",
+  "models": {
+    "LowcodeDataSpaceMetadata": {
+      "name": "LowcodeDataSpaceMetadata",
+      "jsdoc": "设计器元数据的按需读取；数据、权限及查询状态始终由原 DataView 持有。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定本次元数据实例的默认目录校验；错误目标不能替换原查询守卫，不复制结果或保存状态。",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string, assertCurrent: () => void)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "tables",
+              "jsdoc": "正式定义表；来源候选及模型工作区仍使用各自的命名视图。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "jsdoc": "仅查询指定且尚未完整读取的视图；合并本实例同一视图的在途读取，失败可显式重试。",
+              "parameters": [
+                {
+                  "name": "names",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "unknown",
+                      "name": "(typeof LowcodeDataSpaceMetadata.tables)[number]"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

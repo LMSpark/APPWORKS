@@ -79,6 +79,10 @@
           "type": "object",
           "title": "ComputedRef<import(\"@spark-appworks/spark-data\").RequestState>"
         },
+        "aggregateError": {
+          "type": "object",
+          "title": "ComputedRef<Error | null>"
+        },
         "aggregateResult": {
           "type": "object",
           "title": "ComputedRef<import(\"./view-runtime-state.js\").AggregateResultState>"
@@ -98,6 +102,10 @@
         "pageSize": {
           "type": "object",
           "title": "ComputedRef<number>"
+        },
+        "paginated": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
         },
         "mutating": {
           "type": "object",
@@ -143,11 +151,13 @@
         "label",
         "labels",
         "requestState",
+        "aggregateError",
         "aggregateResult",
         "selectionAggregateResult",
         "total",
         "page",
         "pageSize",
+        "paginated",
         "mutating",
         "mutatingError",
         "loadingError",

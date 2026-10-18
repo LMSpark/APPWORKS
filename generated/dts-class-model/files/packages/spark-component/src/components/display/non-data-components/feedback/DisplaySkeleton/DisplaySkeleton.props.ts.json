@@ -35,8 +35,8 @@
         },
         "permissionDeniedMode": {
           "enum": [
-            "hide",
-            "disable"
+            "disable",
+            "hide"
           ]
         },
         "rows": {

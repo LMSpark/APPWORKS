@@ -7,13 +7,46 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/runtime/query/data-space-query-cache",
-    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-cache\n职责：复用当前请求域内的场景执行器与在途查询。\n边界：完成结果不缓存；身份变化销毁旧资源并阻止旧上下文使用。\nAI用途：避免相同执行输入重复在途请求而不复用过期结果。",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-cache\n职责：复用当前请求域的执行器及在途查询，按DataView显式配置消费spark-data结果缓存。\n边界：默认不缓存完成结果；身份变化销毁旧资源，缓存不落Web Storage。\nAI用途：页面和浏览器会话复用同一正式查询上下文，保存和刷新清除缓存。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DataSpaceQueryCache"
     ]
   },
   "$defs": {
+    "ResultCacheRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResultCacheRequest",
+      "properties": {
+        "page": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "definition": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.isCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isCurrent.return": {
+          "type": "boolean"
+        },
+        "method.accept.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "data-space-query-context.ts.json#/$defs/DataSpaceQueryContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.accept.return": true
+      }
+    },
     "DataSpaceQueryCacheOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -54,6 +87,23 @@
           "additionalProperties": false
         },
         "method.invalidate.return": true,
+        "method.invalidateResults.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.invalidateResults.return": true,
+        "method.releaseResults.params": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releaseResults.return": true,
         "method.dispose.params": {
           "type": "object",
           "properties": {},
@@ -68,6 +118,12 @@
             },
             "options": {
               "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+            },
+            "config": {
+              "$ref": "../protocol/data-space-request-config.ts.json#/$defs/DataSpaceRequestConfig"
+            },
+            "cache": {
+              "$ref": "#/$defs/ResultCacheRequest"
             }
           },
           "additionalProperties": false
@@ -79,8 +135,68 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T20:52:04.612Z",
+  "generatedAt": "2026-10-15T05:56:20.517Z",
   "models": {
+    "ResultCacheRequest": {
+      "name": "ResultCacheRequest",
+      "jsdoc": "已核定的结果缓存请求，独立于后端GetData线协议。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 页面DataSet身份；省略表示当前owner的浏览器会话范围。 */\n    page?: object;\n    /** 正式模型定义和视图身份，作为查询键的一部分。 */\n    definition: unknown;\n    /** 请求完成时核对页面实例仍可使用，失效后不回填。 */\n    isCurrent(): boolean;\n    /** 缓存前完成正式输出绑定与必要字段检查，失败不缓存。 */\n    accept?(context: DataSpaceQueryContext): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 页面DataSet身份；省略表示当前owner的浏览器会话范围。 */\n    page?: object;\n    /** 正式模型定义和视图身份，作为查询键的一部分。 */\n    definition: unknown;\n    /** 请求完成时核对页面实例仍可使用，失效后不回填。 */\n    isCurrent(): boolean;\n    /** 缓存前完成正式输出绑定与必要字段检查，失败不缓存。 */\n    accept?(context: DataSpaceQueryContext): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "page",
+              "jsdoc": "页面DataSet身份；省略表示当前owner的浏览器会话范围。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definition",
+              "jsdoc": "正式模型定义和视图身份，作为查询键的一部分。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "isCurrent",
+              "jsdoc": "请求完成时核对页面实例仍可使用，失效后不回填。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "accept",
+              "jsdoc": "缓存前完成正式输出绑定与必要字段检查，失败不缓存。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
     "DataSpaceQueryCacheOptions": {
       "name": "DataSpaceQueryCacheOptions",
       "jsdoc": "查询资源的 HTTP 与 scope 配置，所有资源共享同一请求身份读取器。",
@@ -92,7 +208,7 @@
     },
     "DataSpaceQueryCache": {
       "name": "DataSpaceQueryCache",
-      "jsdoc": "请求 owner 内的场景执行器和模型在途查询缓存；不以完成结果替代新查询。",
+      "jsdoc": "请求owner内的执行器、在途请求及显式配置的结果复用；保留原权限上下文。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -114,6 +230,32 @@
             {
               "name": "invalidate",
               "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "invalidateResults",
+              "jsdoc": "保留已接纳上下文的有效性，只清除可复用结果及旧在途复用入口。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "releaseResults",
+              "jsdoc": "页面释放时删除对应DataSet的缓存引用。",
+              "parameters": [
+                {
+                  "name": "page",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "object"
+                  }
+                }
+              ],
               "type": {
                 "type": "intrinsic",
                 "name": "void"
@@ -144,6 +286,28 @@
                     "type": "reference",
                     "name": "DataSpaceQueryOptions",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRequestConfig",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "cache",
+                  "type": {
+                    "type": "reference",
+                    "name": "ResultCacheRequest",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts"
                   },
                   "flags": {
                     "isOptional": true

@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts",
     "packageName": "@spark-appworks/spark-app",
     "modulePath": "router/system-page-identity/system-page-identity-pool",
-    "jsdoc": "@spark-appworks/spark-app 的 router/system-page-identity/system-page-identity-pool 模块。\n导出 DtsTypeDeclarationModel symbol: SystemPageInstance, SystemPageIdentityPool（共 2 个 symbol）。",
-    "jsdocSource": "inferred",
+    "jsdoc": "@module @spark-appworks/spark-app:router/system-page-identity/system-page-identity-pool\n职责：按导航身份与调用参数隔离原生系统页及其路由快照。\n边界：脏状态由页面owner提供；实例池不保存业务草稿，不阻止强制身份撤销。\nAI用途：定位原生页标签复用、关闭保护和生命周期释放。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "SystemPageInstance",
       "SystemPageIdentityPool"
@@ -29,12 +29,36 @@
         "view": {
           "type": "object",
           "title": "Component"
+        },
+        "isDirty": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [
         "instanceId",
         "componentName",
-        "view"
+        "view",
+        "isDirty"
+      ],
+      "additionalProperties": false
+    },
+    "SystemPageDirtySource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SystemPageDirtySource",
+      "properties": {
+        "isDirty": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "isDirty"
       ],
       "additionalProperties": false
     },
@@ -76,6 +100,12 @@
         "method.getById.return": {
           "$ref": "#/$defs/SystemPageInstance"
         },
+        "method.assertClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertClean.return": true,
         "method.close.params": {
           "type": "object",
           "properties": {
@@ -114,18 +144,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T11:18:04.185Z",
+  "generatedAt": "2026-10-09T09:27:44.868Z",
   "models": {
     "SystemPageInstance": {
       "name": "SystemPageInstance",
-      "jsdoc": "",
+      "jsdoc": "系统页实例的公开投影，不暴露导航owner、缓存键或内部脏源集合。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    instanceId: string;\n    componentName: string;\n    view: Component;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 当前调用实例身份，同页面不同参数分离。 */\n    instanceId: string;\n    /** KeepAlive使用的独立组件名称。 */\n    componentName: string;\n    /** 提供本次不可变路由快照的宿主组件。 */\n    view: Component;\n    /** 原生页草稿或待核验提交仍由页面owner持有；壳只读取是否允许释放。 */\n    isDirty: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    instanceId: string;\n    componentName: string;\n    view: Component;\n}>",
+            "typeText": "Readonly<{\n    /** 当前调用实例身份，同页面不同参数分离。 */\n    instanceId: string;\n    /** KeepAlive使用的独立组件名称。 */\n    componentName: string;\n    /** 提供本次不可变路由快照的宿主组件。 */\n    view: Component;\n    /** 原生页草稿或待核验提交仍由页面owner持有；壳只读取是否允许释放。 */\n    isDirty: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -133,16 +163,50 @@
           "attributes": [
             {
               "name": "instanceId",
+              "jsdoc": "当前调用实例身份，同页面不同参数分离。",
               "readable": true,
               "writable": false
             },
             {
               "name": "componentName",
+              "jsdoc": "KeepAlive使用的独立组件名称。",
               "readable": true,
               "writable": false
             },
             {
               "name": "view",
+              "jsdoc": "提供本次不可变路由快照的宿主组件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDirty",
+              "jsdoc": "原生页草稿或待核验提交仍由页面owner持有；壳只读取是否允许释放。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SystemPageDirtySource": {
+      "name": "SystemPageDirtySource",
+      "jsdoc": "原owner的只读释放条件；可用getter反映草稿、在途或待核验提交。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** true表示主动关闭或切换作用域前仍需处理；不表示数据权限。 */\n    isDirty: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** true表示主动关闭或切换作用域前仍需处理；不表示数据权限。 */\n    isDirty: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "isDirty",
+              "jsdoc": "true表示主动关闭或切换作用域前仍需处理；不表示数据权限。",
               "readable": true,
               "writable": false
             }
@@ -204,6 +268,15 @@
                   "name": "SystemPageInstance",
                   "sourcePath": "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts"
                 }
+              }
+            },
+            {
+              "name": "assertClean",
+              "jsdoc": "应用切换等主动释放前检查；身份撤销与强制退出仍直接清除实例。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

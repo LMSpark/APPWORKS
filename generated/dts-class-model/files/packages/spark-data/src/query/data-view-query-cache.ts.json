@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/data-view-query-cache",
+    "sourcePath": "packages/spark-data/src/query/data-view-query-cache.ts",
+    "sourceFile": "packages/spark-data/src/query/data-view-query-cache.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/data-view-query-cache",
+    "jsdoc": "@module @spark-appworks/spark-data:query/data-view-query-cache\n职责：查询适配器共用的有界内存结果缓存；不解释后端权限，不序列化结果。\n边界：适配器提供完整请求键与有效身份检查；清除后旧在途结果不得回填。\nAI用途：为数据资源查询适配器复用页面或浏览器会话结果，保持身份检查和存储协议在原适配器内。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewQueryCache"
+    ]
+  },
+  "$defs": {
+    "DataViewQueryCache": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQueryCache",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clear.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clear.return": true,
+        "method.release.params": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.release.return": true,
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "page": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "load": {
+              "type": "object",
+              "title": "() => Promise<T>"
+            },
+            "isCurrent": {
+              "type": "object",
+              "title": "() => boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<T>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-15T05:56:20.516Z",
+  "models": {
+    "DataViewQueryCache": {
+      "name": "DataViewQueryCache",
+      "jsdoc": "数据资源适配器持有的结果缓存；页面使用对象身份分区，浏览器缓存仅内存持有。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "数据资源适配器持有的结果缓存；页面使用对象身份分区，浏览器缓存仅内存持有。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "clear",
+              "jsdoc": "丢弃结果引用；不撤销正在使用的查询上下文或已经确认的编辑。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "release",
+              "jsdoc": "页面释放时立即丢弃其结果引用；浏览器会话缓存由身份责任方清除。",
+              "parameters": [
+                {
+                  "name": "page",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "object"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "query",
+              "jsdoc": "page省略表示浏览器会话；最多保留每个作用域128个最近查询，失败不缓存。",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "page",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "intrinsic",
+                      "name": "object"
+                    }
+                  }
+                },
+                {
+                  "name": "load",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "reference",
+                            "name": "Promise",
+                            "typeArguments": [
+                              {
+                                "type": "reference",
+                                "name": "T",
+                                "refersToTypeParameter": true
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "isCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "boolean"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

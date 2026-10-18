@@ -8,7 +8,7 @@
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/runtime/protocol/data-space-permission",
     "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-permission\n职责：从原查询行的后端权限快照派生消费权限。\n边界：读 h/m 与写 E/R 独立，新增子项只接受明确 c=true。\nAI用途：正确消费字段、行操作和缺失权限策略。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "DataSpaceMissingAuthPolicy",
       "DataSpaceFieldAccess",
@@ -47,8 +47,8 @@
         "component": {
           "enum": [
             "hidden",
-            "editable",
-            "readonly"
+            "readonly",
+            "editable"
           ]
         },
         "required": {
@@ -60,8 +60,8 @@
         "writeMode": {
           "enum": [
             "required",
-            "editable",
-            "readonly"
+            "readonly",
+            "editable"
           ]
         }
       },
@@ -151,7 +151,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T20:52:04.609Z",
+  "generatedAt": "2026-10-12T01:27:01.220Z",
   "models": {
     "DataSpaceMissingAuthPolicy": {
       "name": "DataSpaceMissingAuthPolicy",

@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/view-design/lowcode-data-space-cascade-metadata",
+    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-cascade-metadata.ts",
+    "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-cascade-metadata.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/view-design/lowcode-data-space-cascade-metadata",
+    "jsdoc": "@module app:lowcode/data-space/view-design/lowcode-data-space-cascade-metadata\n职责：接入元数据空间中两种原生值级联的定义视图。\n边界：复用定义DataView的编辑与保存，不从模型关系推导级联或存储运行值。\nAI用途：通过DataViewCascadeDefinition维护query/field定义。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceCascadeMetadata"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceCascadeMetadata": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceCascadeMetadata",
+      "properties": {
+        "tableName": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertClean.return": true,
+        "method.reset.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reset.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-17T17:10:20.056Z",
+  "models": {
+    "LowcodeDataSpaceCascadeMetadata": {
+      "name": "LowcodeDataSpaceCascadeMetadata",
+      "jsdoc": "文件所属的输入级联元模型；结构化属性保留原生定义形状。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "使用正式定义视图；原生记录键使没有cascadeId的既有query记录也能编辑。",
+          "signatureText": "constructor(dataSet: DataSet)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "正式元数据配置中的文件资源表键，不是后端模型注册名。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertClean",
+              "jsdoc": "防止工作区刷新覆盖尚未保存的级联编辑。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reset",
+              "jsdoc": "经原DataView重新查询定义；不向缺省query配置补kind或cascadeId。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

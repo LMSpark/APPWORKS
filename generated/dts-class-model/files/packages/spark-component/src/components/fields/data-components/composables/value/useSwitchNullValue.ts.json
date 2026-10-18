@@ -44,16 +44,11 @@
           "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
         },
         "contextData": {
-          "anyOf": [
-            {
-              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
         },
-        "dataSource": true,
+        "dataSource": {
+          "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
+        },
         "fieldName": {
           "$ref": "../../../../shared-types.ts.json#/$defs/ValueRef"
         }
@@ -82,7 +77,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.187Z",
+  "generatedAt": "2026-10-10T11:03:19.955Z",
   "models": {
     "BoundBooleanColumn": {
       "name": "BoundBooleanColumn",
@@ -123,7 +118,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** bound Column 字段。 */\n    boundColumn: ValueRef<BoundBooleanColumn | null | undefined>;\n    /** context Data 字段。 */\n    contextData: DataRow | null;\n    /** data Source 字段。 */\n    dataSource: unknown;\n    /** 绑定字段名。 */\n    fieldName: ValueRef<string>;\n    /** sync Value 回调。 */\n    syncValue: (value: boolean | null) => void;\n}",
+        "declarationTypeText": "{\n    /** bound Column 字段。 */\n    boundColumn: ValueRef<BoundBooleanColumn | null | undefined>;\n    /** context Data 字段。 */\n    contextData: ValueRef<DataRow | null>;\n    /** data Source 字段。 */\n    dataSource: ValueRef<unknown>;\n    /** 绑定字段名。 */\n    fieldName: ValueRef<string>;\n    /** sync Value 回调。 */\n    syncValue: (value: boolean | null) => void;\n}",
         "members": {
           "attributes": [
             {

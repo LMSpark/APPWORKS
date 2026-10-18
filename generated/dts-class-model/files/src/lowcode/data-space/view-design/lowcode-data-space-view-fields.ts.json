@@ -1,0 +1,585 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/view-design/lowcode-data-space-view-fields",
+    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
+    "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/view-design/lowcode-data-space-view-fields",
+    "jsdoc": "@module app:lowcode/data-space/view-design/lowcode-data-space-view-fields\n职责：装配完整正式模型列，按命名视图投影核对可用输出与选择引用。\n边界：模型结构与视图输出分别处理，不推导数据权限或改变原配置。\nAI用途：按需字段目录、设计暂存与运行装配共用原生字段合同。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceViewFieldCatalog",
+      "LowcodeDataSpaceViewFields"
+    ]
+  },
+  "$defs": {
+    "FormalModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalField"
+          }
+        },
+        "raw": {
+          "$ref": "../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceViewFieldCatalog": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceViewFieldCatalog",
+      "properties": {
+        "outputProjection": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataViewFieldProjection"
+          }
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "selectionColumns": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "primaryKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "columns",
+        "selectionColumns",
+        "primaryKeys"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceViewFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceViewFields",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.columns.params": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "$ref": "#/$defs/FormalModel"
+            },
+            "configured": true,
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.columns.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "method.validateProjection.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "model": {
+              "$ref": "#/$defs/FormalModel"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateProjection.return": true,
+        "method.project.params": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "$ref": "#/$defs/FormalModel"
+            },
+            "tableName": {
+              "type": "string"
+            },
+            "configured": true,
+            "viewId": {
+              "type": "string"
+            },
+            "definition": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.project.return": {
+          "$ref": "#/$defs/LowcodeDataSpaceViewFieldCatalog"
+        },
+        "method.selectionColumns.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "available": {
+              "type": "object",
+              "title": "ReadonlySet<string>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectionColumns.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "method.validateSelection.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "fields": {
+              "type": "object",
+              "title": "ReadonlySet<string>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateSelection.return": true,
+        "method.validateReferences.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "fields": {
+              "type": "object",
+              "title": "ReadonlySet<string>"
+            },
+            "local": {
+              "type": "object",
+              "title": "ReadonlySet<string>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateReferences.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T12:18:49.490Z",
+  "models": {
+    "FormalModel": {
+      "name": "FormalModel",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeDataSpaceViewFieldCatalog": {
+      "name": "LowcodeDataSpaceViewFieldCatalog",
+      "jsdoc": "单个原生视图的只读字段目录；仅用于设计候选，不包含业务行或持久编辑。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 正式模型可用输出的只读投影模板；不是当前视图配置，须用户显式初始化才写入定义。文件资源不提供。 */\n    readonly outputProjection?: readonly DataViewFieldProjection[];\n    /** 当前视图投影的输出字段。 */\n    readonly columns: readonly DataColumn[];\n    /** 输出字段及原生身份/树依赖中可供绑定选择的字段。 */\n    readonly selectionColumns: readonly DataColumn[];\n    /** 视图实际主键字段；包含复合主键，不可作为级联写入目标。 */\n    readonly primaryKeys: readonly string[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "outputProjection",
+              "jsdoc": "正式模型可用输出的只读投影模板；不是当前视图配置，须用户显式初始化才写入定义。文件资源不提供。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "jsdoc": "当前视图投影的输出字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectionColumns",
+              "jsdoc": "输出字段及原生身份/树依赖中可供绑定选择的字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKeys",
+              "jsdoc": "视图实际主键字段；包含复合主键，不可作为级联写入目标。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceViewFields": {
+      "name": "LowcodeDataSpaceViewFields",
+      "jsdoc": "Selection references must resolve in the owning view, including explicitly available computed outputs.",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "Selection references must resolve in the owning view, including explicitly available computed outputs.",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "columns",
+              "jsdoc": "完整正式模型列及本地扩展；输出范围由所属DataView.fieldProjection表达。",
+              "parameters": [
+                {
+                  "name": "model",
+                  "type": {
+                    "type": "reference",
+                    "name": "FormalModel",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts"
+                  }
+                },
+                {
+                  "name": "configured",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataColumn"
+                }
+              }
+            },
+            {
+              "name": "validateProjection",
+              "jsdoc": "视图可配置GetData安全聚合及分组；正式字段身份、类型及任意计算定义保持不变。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "model",
+                  "type": {
+                    "type": "reference",
+                    "name": "FormalModel",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "project",
+              "jsdoc": "Project one view's field catalog with native DataTable semantics; never bind query/save owners or load rows.",
+              "parameters": [
+                {
+                  "name": "model",
+                  "type": {
+                    "type": "reference",
+                    "name": "FormalModel",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts"
+                  }
+                },
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "configured",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "definition",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceViewFieldCatalog",
+                "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts"
+              }
+            },
+            {
+              "name": "selectionColumns",
+              "jsdoc": "Projection plus the formal query's identity/tree dependencies; omitted ordinary columns stay unavailable.",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "available",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadonlySet",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataColumn[]"
+              }
+            },
+            {
+              "name": "validateSelection",
+              "jsdoc": "Preserve the existing empty-string default and array format; reject missing field references.",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadonlySet",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validateReferences",
+              "jsdoc": "查询用排序与树身份引用正式字段；显示与聚合可引用已声明的本地计算列。保存和运行装配共用，不解析后端过滤值函数。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadonlySet",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "local",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadonlySet",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -7,8 +7,8 @@
     "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "scenario/scenario-view-config",
-    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-config\n职责：单场景视图配置的校验和不可变值。\n边界：正式模型与运行数据不属于此文件。\nAI用途：校验modelBinding、命名视图与显式级联。",
-    "jsdocSource": "source-file-jsdoc",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-config\n职责：单场景视图配置的校验和不可变值。\n边界：后端模型真源与运行数据不属于此文件，显式文件资源须由已有owner承接。\nAI用途：校验模型绑定或文件资源、命名视图与显式级联。",
+    "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ScenarioViewConfig"
     ]
@@ -21,10 +21,92 @@
       "properties": {},
       "additionalProperties": true
     },
+    "ScenarioRelationEndpoint": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioRelationEndpoint",
+      "properties": {
+        "relationId": {
+          "type": "string"
+        },
+        "sourceRelationId": {
+          "type": "string"
+        },
+        "relationName": {
+          "type": "string"
+        },
+        "parentTable": {
+          "type": "string"
+        },
+        "childTable": {
+          "type": "string"
+        },
+        "cascadeUpdate": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "parentTable",
+        "childTable"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioRelationDependency": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioRelationDependency",
+      "properties": {
+        "relationId": {
+          "type": "string"
+        },
+        "sourceRelationId": {
+          "type": "string"
+        },
+        "relationName": {
+          "type": "string"
+        },
+        "parentTable": {
+          "type": "string"
+        },
+        "childTable": {
+          "type": "string"
+        },
+        "cascadeUpdate": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "referencedTables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "parentTable",
+        "childTable",
+        "referencedTables"
+      ],
+      "additionalProperties": false
+    },
     "ScenarioViewConfig": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "ScenarioViewConfig",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "usesNativeResourceRelations": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -38,6 +120,18 @@
           },
           "additionalProperties": false
         },
+        "method.isViewProperty.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isViewProperty.return": {
+          "type": "boolean"
+        },
         "method.toJSON.params": {
           "type": "object",
           "properties": {},
@@ -45,11 +139,187 @@
         },
         "method.toJSON.return": {
           "$ref": "#/$defs/ScenarioConfigObject"
+        },
+        "method.getTableRemovalReferences.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getTableRemovalReferences.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.selectModelScope.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "inherited": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ScenarioRelationDependency"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectModelScope.return": {
+          "$ref": "#/$defs/ScenarioViewConfig"
+        },
+        "method.selectViewValidationScope.params": {
+          "type": "object",
+          "properties": {
+            "previous": {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectViewValidationScope.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.selectCascadeValidationScope.params": {
+          "type": "object",
+          "properties": {
+            "previous": {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectCascadeValidationScope.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.getLayoutNodeKey.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getLayoutNodeKey.return": {
+          "type": "string"
+        },
+        "method.selectRelationValidationScope.params": {
+          "type": "object",
+          "properties": {
+            "previous": {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectRelationValidationScope.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.selectTableValidationScope.params": {
+          "type": "object",
+          "properties": {
+            "previous": {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectTableValidationScope.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.selectDefinitionValidationScope.params": {
+          "type": "object",
+          "properties": {
+            "previous": {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selectDefinitionValidationScope.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScenarioViewConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.resolveResourceRelations.params": {
+          "type": "object",
+          "properties": {
+            "inherited": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataResourceRelation"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveResourceRelations.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataResourceRelation"
+          }
+        },
+        "method.resolveResourceRelationEndpoints.params": {
+          "type": "object",
+          "properties": {
+            "inherited": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ScenarioRelationEndpoint"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveResourceRelationEndpoints.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ScenarioRelationEndpoint"
+          }
         }
       }
     }
   },
-  "generatedAt": "2026-10-08T19:28:48.778Z",
+  "generatedAt": "2026-10-15T05:23:15.450Z",
   "models": {
     "ScenarioConfigObject": {
       "name": "ScenarioConfigObject",
@@ -67,13 +337,54 @@
         "members": {}
       }
     },
+    "ScenarioRelationEndpoint": {
+      "name": "ScenarioRelationEndpoint",
+      "jsdoc": "目录依赖只消费关系身份与端点；不代表完整运行关系或过滤表达式已转换。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ScenarioRelationDependency": {
+      "name": "ScenarioRelationDependency",
+      "jsdoc": "已读正式关系的依赖投影；仅用于选取运行范围，不是可保存的关系配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<ScenarioRelationEndpoint & {\n    /** 关系值函数明确引用的配置表键；未解析的原引用保留以便范围校验报错，不作模型字段或保存数据。 */\n    referencedTables: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<ScenarioRelationEndpoint & {\n    /** 关系值函数明确引用的配置表键；未解析的原引用保留以便范围校验报错，不作模型字段或保存数据。 */\n    referencedTables: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "referencedTables",
+              "jsdoc": "关系值函数明确引用的配置表键；未解析的原引用保留以便范围校验报错，不作模型字段或保存数据。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "ScenarioViewConfig": {
       "name": "ScenarioViewConfig",
-      "jsdoc": "一个场景的配置文本合同；正式字段及运行数据不属于此文件，字段引用由正式模型装配时校验。",
+      "jsdoc": "场景配置：后端模型仅保存绑定和字段约束；显式文件资源保存列定义，由资源owner提供查询与保存，配置不授予权限或包含运行数据。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "校验明确场景的合法视图JSON，冻结配置且拒绝模型定义与运行数据。",
+          "jsdoc": "校验明确场景的合法配置JSON，冻结配置且拒绝复制后端模型定义或存入运行数据。",
           "signatureText": "constructor(scenarioId: string, text: string)",
           "parameters": [
             {
@@ -93,7 +404,37 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "usesNativeResourceRelations",
+              "jsdoc": "仓内DataSet v2的完整关系配置；显式空数组保持为空，不再从旧数据库关系恢复。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
+            {
+              "name": "isViewProperty",
+              "jsdoc": "只判定正式视图定义的顶层属性；属性内容及正式字段引用仍须继续验证。",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
             {
               "name": "toJSON",
               "parameters": [],
@@ -101,6 +442,249 @@
                 "type": "reference",
                 "name": "ScenarioConfigObject",
                 "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+              }
+            },
+            {
+              "name": "getTableRemovalReferences",
+              "jsdoc": "列出当前场景内仍引用指定模型绑定的配置路径，供删除预览和存储适配共同校验。\n所属视图与局部配置随模型删除；外部页面不在此文件内，不能据此声明没有外部消费者。\n不读取业务行或数据库字段，不把常量文本解释为模型引用。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly string[]"
+              }
+            },
+            {
+              "name": "selectModelScope",
+              "jsdoc": "提取模型及原生关系、显式级联、辅助过滤引用的模型，供独立运行消费；保留这些模型的全部视图与请求配置。\n旧格式须先读取正式关系并提供依赖投影；未提供时保留完整配置。原文件不变；投影不能用作整份文件的保存载荷。\n@param tableName 配置中的模型表键；不接受正式注册名替代或首表回退。\n@param inherited 旧关系的完整端点及值函数模型引用；空集合表示已确认无旧关系，省略表示尚未确认。原生配置忽略此参数。\n@returns 不可变运行配置；不会读取模型、查询业务数据或写入文件。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "inherited",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly ScenarioRelationDependency[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ScenarioViewConfig",
+                "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+              }
+            },
+            {
+              "name": "selectViewValidationScope",
+              "jsdoc": "为视图变更或新增模型绑定提取字段校验范围，包含级联与辅助查找的双向依赖，不读取未改动的模型关系。\n@param previous 同空间原文件配置；已有模型不得删除或改绑，已有字段、关系和布局等结构必须保持不变。\n@returns 无变更返回null；否则返回只用于校验并释放的配置，不得保存或作为整个空间的运行定义。\n@throws 场景或非视图结构变化、相关查找引用无法定位时拒绝使用此入口。",
+              "parameters": [
+                {
+                  "name": "previous",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectCascadeValidationScope",
+              "jsdoc": "级联定义增改只校验其模型/视图字段与相连级联、辅助查找；未改模型关系不触发旧格式转换。\n@param previous 同空间原配置；只允许viewCascades变化，其他配置必须保持一致。\n@returns 无变化或纯删除返回null；其余返回仅供校验的依赖投影，不能作为保存载荷或完整运行定义。\n@throws 跨空间或混入模型、视图、关系等其他结构变化时拒绝。",
+              "parameters": [
+                {
+                  "name": "previous",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getLayoutNodeKey",
+              "jsdoc": "布局节点的正式身份：数据库模型用modelId，文件模型用绑定定义视图的空间/表复合主键。\n@param tableName pagedata中的原生DataTable键。\n@returns 可与DataView.getPkKey核对的节点键，不为文件资源生成后端模型ID。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "selectRelationValidationScope",
+              "jsdoc": "为原生关系增改提取父子及值函数明确引用的模型；已完整解析来源的首次转换校验全部转换结果。\n@param previous 同空间的原文件；只允许关系变化、首次schemaVersion升级及对应待配置连线的消耗。\n@returns 仅删除或无变化返回null；局部配置只保留模型字段和临时默认视图，不得保存或作为整个空间的运行定义。\n@throws 非关系结构变化、待配置连线端点不匹配或显式引用模型缺失时拒绝。",
+              "parameters": [
+                {
+                  "name": "previous",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectTableValidationScope",
+              "jsdoc": "原生绑定新增及稳定模型字段修改按模型全部视图、关系、级联、辅助过滤依赖校验；纯解除绑定核定配置引用。\n@param previous 同空间原配置；原生绑定或文件模型的纯删除只核配置引用。同ID注册名及视图变更不强制转换未改旧关系。正式身份/资源换绑、旧格式结构变化及混合删除仍按各自边界校验。\n@returns 仅供校验的配置；无变更返回null，不作为持久化内容。",
+              "parameters": [
+                {
+                  "name": "previous",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "selectDefinitionValidationScope",
+              "jsdoc": "为多个定义资源的联合提交选取实际模型依赖，保留相关模型的全部视图、关系、级联和双向辅助查找。\n@param previous 同空间原文件；原生v2可联合新增模型、解除无引用绑定及修改稳定模型的字段、请求、视图、关系、级联和布局。正式身份/资源换绑、旧格式与根级策略变更仍校验完整配置。\n@returns 仅供校验的配置；只有布局/请求变化、无引用绑定解除或纯删除关系和级联时返回null。不得用投影覆盖完整文件。\n@throws 空间身份变化、实际依赖或辅助查找无法定位时拒绝。",
+              "parameters": [
+                {
+                  "name": "previous",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resolveResourceRelations",
+              "jsdoc": "原生配置直接提供完整关系（包括空集合）；旧格式才合并当次来源，来源引用须唯一匹配ID及端点。不修改输入或旧库记录。",
+              "parameters": [
+                {
+                  "name": "inherited",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataResourceRelation[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataResourceRelation"
+                }
+              }
+            },
+            {
+              "name": "resolveResourceRelationEndpoints",
+              "jsdoc": "解析目录所需的关系端点，复用完整关系的来源扩展和冲突规则；不读取或改写字段、旧记录。\n@param inherited 已核定正式身份并映射为绑定表名的旧关系端点；原生v2忽略此输入。\n@returns 独立的端点投影；不包含过滤表达式，不可作为运行关系或保存定义使用。",
+              "parameters": [
+                {
+                  "name": "inherited",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly ScenarioRelationEndpoint[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "ScenarioRelationEndpoint",
+                  "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                }
               }
             }
           ]

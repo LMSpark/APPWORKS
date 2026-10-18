@@ -721,6 +721,24 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "SparkNodeTree",
+      "properties": {
+        "root": {
+          "$ref": "spark-node.ts.json#/$defs/SparkNode"
+        },
+        "version": {
+          "type": "number"
+        },
+        "canUndo": {
+          "type": "boolean"
+        },
+        "canRedo": {
+          "type": "boolean"
+        },
+        "historyCursor": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -2037,6 +2055,38 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "root",
+              "jsdoc": "当前实例持有的最新组件实例根节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "version",
+              "jsdoc": "当前版本号（单调递增）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canUndo",
+              "jsdoc": "是否可撤销。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canRedo",
+              "jsdoc": "是否可重做。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "historyCursor",
+              "jsdoc": "当前历史游标位置（供 EditTransaction 记录）。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "fromJson",

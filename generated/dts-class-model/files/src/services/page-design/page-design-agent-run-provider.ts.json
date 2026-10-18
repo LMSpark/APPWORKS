@@ -44,7 +44,9 @@
       "type": "object",
       "title": "CreatePageDesignDeliveryPortOptions",
       "properties": {
-        "mode": true,
+        "mode": {
+          "$ref": "../ai/ai-delivery-port.ts.json#/$defs/AiDeliveryMode"
+        },
         "shouldSave": {
           "enum": [
             false,
@@ -57,7 +59,9 @@
             "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
           }
         },
-        "allowedOperations": true
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        }
       },
       "required": [
         "mode",
@@ -76,7 +80,9 @@
             "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
           }
         },
-        "allowedOperations": true
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        }
       },
       "additionalProperties": false
     },
@@ -91,7 +97,9 @@
             "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
           }
         },
-        "allowedOperations": true,
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        },
         "autoSave": {
           "enum": [
             false,
@@ -105,7 +113,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T21:11:38.604Z",
+  "generatedAt": "2026-10-15T12:40:41.462Z",
   "models": {
     "PageDesignDeliveryContext": {
       "name": "PageDesignDeliveryContext",

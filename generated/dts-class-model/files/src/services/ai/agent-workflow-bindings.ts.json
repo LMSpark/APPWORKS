@@ -21,10 +21,21 @@
       "type": "object",
       "title": "ActivatePageDesignAgentWorkflowOptions",
       "properties": {
+        "getPageDesignEditor": {
+          "type": "object",
+          "title": "(context: { moduleInstanceId: string; }) => ProjectWorkspace"
+        },
+        "knowledge": {
+          "$ref": "../../../packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeProvider"
+        },
         "host": {
           "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHost"
         }
       },
+      "required": [
+        "getPageDesignEditor",
+        "host"
+      ],
       "additionalProperties": false
     },
     "ActivateProjectPlanningAgentWorkflowOptions": {
@@ -32,10 +43,21 @@
       "type": "object",
       "title": "ActivateProjectPlanningAgentWorkflowOptions",
       "properties": {
+        "getProjectPlanningEditor": {
+          "type": "object",
+          "title": "(context: { moduleInstanceId: string; }) => ProjectWorkspace"
+        },
+        "knowledge": {
+          "$ref": "../../../packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeProvider"
+        },
         "host": {
           "$ref": "../../../packages/spark-ai/src/agent/business/host/ai-host.ts.json#/$defs/AiAgentHost"
         }
       },
+      "required": [
+        "getProjectPlanningEditor",
+        "host"
+      ],
       "additionalProperties": false
     },
     "CreateAppAgentWorkflowRuntimeBindingsOptions": {
@@ -43,8 +65,12 @@
       "type": "object",
       "title": "CreateAppAgentWorkflowRuntimeBindingsOptions",
       "properties": {
-        "pageDesign": true,
-        "projectPlanning": true
+        "pageDesign": {
+          "$ref": "../page-design/page-design-agent-workflow-binding.ts.json#/$defs/PageDesignAgentWorkflowBindingOptions"
+        },
+        "projectPlanning": {
+          "$ref": "../project-planning/project-planning-agent-workflow-binding.ts.json#/$defs/ProjectPlanningAgentWorkflowBindingOptions"
+        }
       },
       "additionalProperties": false
     }

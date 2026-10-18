@@ -1,0 +1,662 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/lowcode-data-space-source-input-edit",
+    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/lowcode-data-space-source-input-edit",
+    "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-source-input-edit\n职责：编排正式来源入参ValueFun编辑与原生批次提交，未知结果通过显式查询核验。\n边界：不存数据副本，不改参数声明；原 DataSet 负责权限、delta、签名和传输，未知提交只核验。\nAI用途：原生设计页维护接口/逻辑视图入参时使用，保留旧原文并显式选择空间参数引用。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceSourceInputEdit"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceSourceInputEdit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceSourceInputEdit",
+      "properties": {
+        "viewId": {
+          "enum": [
+            "default",
+            "sourceInputFields"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "fieldId": {
+              "type": "string"
+            },
+            "lifecycle": {
+              "type": "object",
+              "additionalProperties": false
+            },
+            "viewId": {
+              "enum": [
+                "default",
+                "sourceInputFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readParameters.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readParameters.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "unknown",
+                "idle",
+                "pending",
+                "readback",
+                "unsubmitted"
+              ]
+            },
+            "pending": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "status",
+            "pending"
+          ],
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "value": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "inputParams": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "parameterWarning": {
+              "type": "string"
+            },
+            "writable": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "name",
+            "value",
+            "inputParams",
+            "parameterWarning",
+            "writable"
+          ],
+          "additionalProperties": false
+        },
+        "method.validateValue.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.validateValue.return": true,
+        "method.stage.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stage.return": true,
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.belongsTo.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "viewId": {
+              "enum": [
+                "default",
+                "sourceInputFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.belongsTo.return": {
+          "type": "boolean"
+        },
+        "method.assertWorkspaceChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertWorkspaceChanges.return": true,
+        "method.prepareSave.params": {
+          "type": "object",
+          "properties": {
+            "owners": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/LowcodeDataSpaceSourceInputEdit"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareSave.return": {
+          "$ref": "save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionSavePart"
+        },
+        "method.reload.params": {
+          "type": "object",
+          "properties": {
+            "discardPending": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.reload.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.reloadBatch.params": {
+          "type": "object",
+          "properties": {
+            "owners": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/LowcodeDataSpaceSourceInputEdit"
+              }
+            },
+            "discardPending": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.reloadBatch.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.prepareReloadBatch.params": {
+          "type": "object",
+          "properties": {
+            "owners": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/LowcodeDataSpaceSourceInputEdit"
+              }
+            },
+            "discardPending": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareReloadBatch.return": {
+          "type": "object",
+          "title": "() => Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T06:39:54.309Z",
+  "models": {
+    "LowcodeDataSpaceSourceInputEdit": {
+      "name": "LowcodeDataSpaceSourceInputEdit",
+      "jsdoc": "单条来源入参的编辑流程；数据和授权始终留在正式元数据视图。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获正式目标与查询上下文；onDispatch 使此前装配的目标定义失效，不代替数据库保存。",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string, fieldId: string, lifecycle: Readonly<{\n        assertCurrent(): void;\n        onDispatch(): void;\n        assertEditable?(): void;\n        refreshDirectory?(): Promise<void>;\n    }>, \n    /** 正式入参字段的查询视图；目录单行入口与模型工作区保持独立查询基线。 */\n    viewId?: 'default' | 'sourceInputFields')",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "fieldId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "lifecycle",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        assertCurrent(): void;\n        onDispatch(): void;\n        assertEditable?(): void;\n        refreshDirectory?(): Promise<void>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "viewId",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "default"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "sourceInputFields"
+                  }
+                ]
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "viewId",
+              "jsdoc": "正式入参字段的查询视图；目录单行入口与模型工作区保持独立查询基线。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readParameters",
+              "jsdoc": "读取同一元数据空间中已保存的参数声明；来源替换与已有入参编辑共用。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "unknown",
+                  "name": "{\n        value: string;\n        label: string;\n    }"
+                }
+              }
+            },
+            {
+              "name": "getState",
+              "jsdoc": "状态不含独立草稿；非 idle 状态必须先核验，不能重新发送保存。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        status: \"unknown\" | \"idle\" | \"pending\" | \"readback\" | \"unsubmitted\";\n        pending: boolean;\n    }"
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "读取当前可见的编辑值与参数候选；声明异常只关闭参数引用，不阻止独立常量维护。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        name: string;\n        value: string | null | undefined;\n        inputParams: {\n            value: string;\n            label: string;\n        }[];\n        parameterWarning: string;\n        writable: boolean;\n    }"
+              }
+            },
+            {
+              "name": "validateValue",
+              "jsdoc": "校验明确选择的来源取值；不转换已有SystemData，不执行值函数。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "stage",
+              "jsdoc": "经显式选择更新原 ValueFun 编辑覆盖；不会转换未编辑的旧 SystemData。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "只放弃未派发的编辑；不能取消已经提交或结果未知的请求。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "原单行入口复用同一批次流程，不额外维护保存通道。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "belongsTo",
+              "jsdoc": "供模型工作区定位已有流程；不返回记录内容或权限。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "sourceInputFields"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "assertWorkspaceChanges",
+              "jsdoc": "同一模型结构命令可保留来源入参草稿；只允许已定义的空间参数/常量修改，未决结果须先核验。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "prepareSave",
+              "jsdoc": "提取原来源入参保存阶段，完整预检后与模型/字段共用一次DataSet提交。",
+              "parameters": [
+                {
+                  "name": "owners",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly LowcodeDataSpaceSourceInputEdit[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSpaceDefinitionSavePart",
+                  "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+                }
+              }
+            },
+            {
+              "name": "reload",
+              "jsdoc": "显式处理当前行并回读；未知提交不会重放。",
+              "parameters": [
+                {
+                  "name": "discardPending",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "reloadBatch",
+              "jsdoc": "批次核验保留范围外草稿；只能显式放弃本批差异，不能隐式回滚正式结果。",
+              "parameters": [
+                {
+                  "name": "owners",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly LowcodeDataSpaceSourceInputEdit[]"
+                  }
+                },
+                {
+                  "name": "discardPending",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareReloadBatch",
+              "jsdoc": "同步放弃本次来源入参差异，返回只读核验；联合操作先准备全部目标，核验不能取消准备后的新编辑。",
+              "parameters": [
+                {
+                  "name": "owners",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly LowcodeDataSpaceSourceInputEdit[]"
+                  }
+                },
+                {
+                  "name": "discardPending",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "reference",
+                        "name": "Promise",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

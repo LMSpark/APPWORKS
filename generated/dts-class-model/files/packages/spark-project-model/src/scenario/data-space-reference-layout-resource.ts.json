@@ -1,0 +1,343 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:scenario/data-space-reference-layout-resource",
+    "sourcePath": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
+    "sourceFile": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "scenario/data-space-reference-layout-resource",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/data-space-reference-layout-resource\n职责：把旧SysForm布局文件作为独立只读资源交给原生DataView。\n边界：不创建表、不持久化旧图，不把旧图混入原生pagedata布局。\nAI用途：按正式元空间声明查询参考布局；布局转换及原生保存由对应配置资源承接。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceReferenceLayoutResource"
+    ]
+  },
+  "$defs": {
+    "Executor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Executor",
+      "properties": {
+        "localAggregates": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "invalidateQueryCache": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "releaseQueryCache": {
+          "type": "object",
+          "title": "(page: object) => void"
+        },
+        "queryColumns": {
+          "type": "object",
+          "title": "(view: DataView) => readonly DataColumn[]"
+        },
+        "executeQuery": {
+          "type": "object",
+          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; ... 11 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+        },
+        "save": {
+          "type": "object",
+          "title": "(command: Readonly<{ changes: readonly Readonly<{ identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>; tableConfig?: Pick<TableMetadata, \"api\" | \"crudConfig\">; context: Readonly<...>; changes: Readonly<...>; }>[]; }>) => Promise<Readonly<...."
+        },
+        "hasUnconfirmedSave": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; total: number; ... 10 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
+        },
+        "source": {
+          "$ref": "../../../spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
+        }
+      },
+      "required": [
+        "executeQuery"
+      ],
+      "additionalProperties": false
+    },
+    "ReferenceLayoutOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReferenceLayoutOptions",
+      "properties": {
+        "metadataScenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "dataSpaceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        }
+      }
+    },
+    "DataSpaceReferenceLayoutResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceReferenceLayoutResource",
+      "properties": {
+        "tableName": true,
+        "resourceId": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/ReferenceLayoutOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryParameters.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.queryParameters.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Pick<DataColumn, 'name' | 'type' | 'label' | 'required'>"
+          }
+        },
+        "method.executeQuery.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "params": {
+              "$ref": "../../../spark-data/src/types.ts.json#/$defs/QueryParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeQuery.return": {
+          "type": "object",
+          "title": "Promise<Awaited<ReturnType<Executor['executeQuery']>>>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-13T15:59:13.722Z",
+  "models": {
+    "Executor": {
+      "name": "Executor",
+      "jsdoc": "复用原生DataView查询owner协议，不另造结果或查询状态合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<DataView['bindQueryExecutor']>[0]",
+        "members": {}
+      }
+    },
+    "ReferenceLayoutOptions": {
+      "name": "ReferenceLayoutOptions",
+      "jsdoc": "已授权的旧文件读取适配；404由原存储owner转为null，其他失败必须抛出。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 承载只读资源的元数据空间身份。 */\n    metadataScenarioId: string;\n    /** 每次异步读取前后核对当前应用与会话。 */\n    assertCurrent(): void;\n    /** 只按目标空间ID读取其旧布局原文，不允许调用方传入任意路径。 */\n    read(dataSpaceId: string): Promise<string | null>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 承载只读资源的元数据空间身份。 */\n    metadataScenarioId: string;\n    /** 每次异步读取前后核对当前应用与会话。 */\n    assertCurrent(): void;\n    /** 只按目标空间ID读取其旧布局原文，不允许调用方传入任意路径。 */\n    read(dataSpaceId: string): Promise<string | null>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "metadataScenarioId",
+              "jsdoc": "承载只读资源的元数据空间身份。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "每次异步读取前后核对当前应用与会话。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "只按目标空间ID读取其旧布局原文，不允许调用方传入任意路径。",
+              "parameters": [
+                {
+                  "name": "dataSpaceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceReferenceLayoutResource": {
+      "name": "DataSpaceReferenceLayoutResource",
+      "jsdoc": "旧图的独立只读查询owner；无save或来源采用能力。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定实际应用存储及元空间身份；声明本身不执行I/O。",
+          "signatureText": "constructor(options: ReferenceLayoutOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "ReferenceLayoutOptions",
+                "sourcePath": "packages/spark-project-model/src/scenario/data-space-reference-layout-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "正式元空间中的资源模型名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "jsdoc": "旧SysForm文件身份，与pagedata:layout分别查询、分别解释。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "queryParameters",
+              "jsdoc": "与其他文件资源一样显式提供目标输入，不用消费方场景身份猜测目标。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Pick",
+                  "typeArguments": [
+                    {
+                      "type": "reference",
+                      "name": "DataColumn"
+                    },
+                    {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "literal",
+                          "value": "name"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "type"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "label"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "required"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "executeQuery",
+              "jsdoc": "读取单个目标原文，缺文件返回content:null；过滤/排序/投影仍由统一本地查询能力执行。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Awaited",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ReturnType",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "Executor['executeQuery']"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -357,8 +357,8 @@
         },
         "kind": {
           "enum": [
-            "unknown",
             "message",
+            "unknown",
             "functionCall"
           ]
         },

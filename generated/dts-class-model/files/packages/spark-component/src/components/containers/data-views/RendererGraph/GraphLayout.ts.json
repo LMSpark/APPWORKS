@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphLayout",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphLayout.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphLayout.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererGraph/GraphLayout",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphLayout\n职责：为标准关系图计算确定性的有向层次坐标。\n边界：只消费已校验的节点身份和边，不读取数据、推导关系或保存布局。\nAI用途：缺失布局时生成可预览的全模型位置，持久化交回所属业务owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "GraphLayout"
+    ],
+    "componentName": "RendererGraph",
+    "componentType": "r-graph",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "GraphKey": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "GraphKey",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "GraphEdge": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphEdge",
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/GraphKey"
+        },
+        "target": {
+          "$ref": "#/$defs/GraphKey"
+        }
+      },
+      "required": [
+        "source",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "GraphPosition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphPosition",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/GraphKey"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "x",
+        "y"
+      ],
+      "additionalProperties": false
+    },
+    "GraphLayout": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphLayout",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.grid.params": {
+          "type": "object",
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/GraphPosition"
+              }
+            },
+            "width": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.grid.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphPosition"
+          }
+        },
+        "method.positions.params": {
+          "type": "object",
+          "properties": {
+            "keys": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/GraphKey"
+              }
+            },
+            "edges": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/GraphEdge"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.positions.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphPosition"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-11T23:12:01.629Z",
+  "models": {
+    "GraphKey": {
+      "name": "GraphKey",
+      "jsdoc": "节点的原始主键，保留字符串或数字类型。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "string | number",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "string"
+          },
+          {
+            "kind": "union",
+            "typeText": "number"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "GraphEdge": {
+      "name": "GraphEdge",
+      "jsdoc": "已由调用方核对身份和读取权限的有向边。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 父节点主键，必须在节点集合中。 */\n    source: GraphKey;\n    /** 子节点主键，必须在节点集合中。 */\n    target: GraphKey;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 父节点主键，必须在节点集合中。 */\n    source: GraphKey;\n    /** 子节点主键，必须在节点集合中。 */\n    target: GraphKey;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "jsdoc": "父节点主键，必须在节点集合中。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "jsdoc": "子节点主键，必须在节点集合中。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "GraphPosition": {
+      "name": "GraphPosition",
+      "jsdoc": "生成的节点中心坐标；由调用方预览并决定是否保存。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 对应输入集合中的原始节点主键。 */\n    id: GraphKey;\n    /** 中心横坐标，按关系层次排列。 */\n    x: number;\n    /** 中心纵坐标，同层按输入顺序排列。 */\n    y: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 对应输入集合中的原始节点主键。 */\n    id: GraphKey;\n    /** 中心横坐标，按关系层次排列。 */\n    x: number;\n    /** 中心纵坐标，同层按输入顺序排列。 */\n    y: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "对应输入集合中的原始节点主键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "x",
+              "jsdoc": "中心横坐标，按关系层次排列。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "jsdoc": "中心纵坐标，同层按输入顺序排列。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "GraphLayout": {
+      "name": "GraphLayout",
+      "jsdoc": "标准232×120节点的层次排列；同层保持输入顺序，环内节点按每四个一层回退。",
+      "declarationKind": "class",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "标准232×120节点的层次排列；同层保持输入顺序，环内节点按每四个一层回退。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "grid",
+              "jsdoc": "按当前横坐标、纵坐标稳定排序后网格对齐；宽度为画布像素，坐标仍为节点中心。不改变关系或输入节点。",
+              "parameters": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly GraphPosition[]"
+                  }
+                },
+                {
+                  "name": "width",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly GraphPosition[]"
+              }
+            },
+            {
+              "name": "positions",
+              "jsdoc": "坐标为节点中心；无效、重复身份及失效端点拒绝生成，调用方先核数据权限。",
+              "parameters": [
+                {
+                  "name": "keys",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly GraphKey[]"
+                  }
+                },
+                {
+                  "name": "edges",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly GraphEdge[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly GraphPosition[]"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

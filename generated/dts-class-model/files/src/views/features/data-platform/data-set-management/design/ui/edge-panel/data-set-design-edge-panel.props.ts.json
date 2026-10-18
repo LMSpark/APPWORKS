@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props\n职责：连接原生关系编辑器与当前元数据会话。\n边界：接收定义行身份，不接收独立关系真源或保存实现。\nAI用途：在模型关系节点复用原DataSet和场景文件owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceRelationEditorProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceRelationEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRelationEditorProps",
+      "properties": {
+        "session": {
+          "$ref": "../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+        },
+        "rowKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "revision": {
+          "type": "number"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "session",
+        "rowKey",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-09T23:49:06.239Z",
+  "models": {
+    "DataSpaceRelationEditorProps": {
+      "name": "DataSpaceRelationEditorProps",
+      "jsdoc": "本次页面调用的关系编辑上下文。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "data-set-design-edge-panel"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 持有元数据定义与共享文件的原会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 元数据关系定义行主键；未选中时提供新增入口。 */\n    rowKey: string | number | undefined;\n    /** 页面重绘修订，不参与持久化。 */\n    revision: number;\n    /** 页面占用锁，不作为业务数据授权。 */\n    disabled?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "jsdoc": "持有元数据定义与共享文件的原会话。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rowKey",
+              "jsdoc": "元数据关系定义行主键；未选中时提供新增入口。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revision",
+              "jsdoc": "页面重绘修订，不参与持久化。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "页面占用锁，不作为业务数据授权。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

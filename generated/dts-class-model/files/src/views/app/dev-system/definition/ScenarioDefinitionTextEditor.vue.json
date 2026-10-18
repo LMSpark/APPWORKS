@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/app/dev-system/definition/ScenarioDefinitionTextEditor",
+    "sourcePath": "src/views/app/dev-system/definition/ScenarioDefinitionTextEditor.vue",
+    "sourceFile": "src/views/app/dev-system/definition/ScenarioDefinitionTextEditor.vue",
+    "packageName": "app",
+    "modulePath": "views/app/dev-system/definition/ScenarioDefinitionTextEditor",
+    "jsdoc": "@module app:views/app/dev-system/definition/ScenarioDefinitionTextEditor\n职责：完整定义的窄文本交互，绑定同一ScenarioDefinitionDocument中的五类正式定义DataView。\n边界：仅保留输入尚未通过校验的编辑缓冲；有效文本从原视图投影，写回、撤销及身份检查归定义文档，不执行IO或保存。\nAI用途：DevSystem复杂配置文本编辑；不是可绑定任意字段的通用标准组件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-15T11:03:35.802Z",
+  "models": {}
+}

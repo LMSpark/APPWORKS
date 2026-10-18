@@ -273,6 +273,10 @@
               "type": "object",
               "title": "import(\"vue\").Ref<boolean, boolean>"
             },
+            "allSaving": {
+              "type": "object",
+              "title": "import(\"vue\").Ref<boolean, boolean>"
+            },
             "projectRevision": {
               "type": "object",
               "title": "import(\"vue\").Ref<number, number>"
@@ -281,11 +285,11 @@
               "type": "object",
               "title": "import(\"vue\").Ref<string | null, string | null>"
             },
-            "scenarioViewFile": {
+            "scenarioDefinitionDocument": {
               "type": "object",
-              "title": "import(\"vue\").ShallowRef<import(\"@spark-appworks/spark-project-model\").ScenarioViewFile | null, import(\"@spark-appworks/spark-project-model\").ScenarioViewFile | null>"
+              "title": "import(\"vue\").ShallowRef<import(\"@spark-appworks/spark-project-model\").ScenarioDefinitionDocument | null, import(\"@spark-appworks/spark-project-model\").ScenarioDefinitionDocument | null>"
             },
-            "scenarioViewRevision": {
+            "scenarioDefinitionRevision": {
               "type": "object",
               "title": "import(\"vue\").Ref<number, number>"
             },
@@ -299,7 +303,7 @@
             },
             "writeScenarioViewText": {
               "type": "object",
-              "title": "(text: string) => void"
+              "title": "(text: string) => Promise<void>"
             },
             "saveScenarioViewText": {
               "type": "object",
@@ -307,11 +311,11 @@
             },
             "listScenarioVersions": {
               "type": "object",
-              "title": "() => Promise<import(\"@spark-appworks/spark-project-model\").PageToolFileVersionSummary[]>"
+              "title": "() => ReturnType<import(\"@spark-appworks/spark-data\").DataView[\"listSourceVersions\"]>"
             },
             "previewScenarioVersion": {
               "type": "object",
-              "title": "(version: number) => Promise<string>"
+              "title": "(version: string | number) => Promise<string>"
             },
             "createScenarioVersion": {
               "type": "object",
@@ -319,7 +323,7 @@
             },
             "restoreScenarioVersion": {
               "type": "object",
-              "title": "(version: number, previewText: string) => Promise<void>"
+              "title": "(version: string | number, previewText: string) => Promise<void>"
             },
             "pageDataDirty": {
               "type": "object",
@@ -534,10 +538,11 @@
             "pageFileNames",
             "activePageId",
             "pageIoBusy",
+            "allSaving",
             "projectRevision",
             "pageDataError",
-            "scenarioViewFile",
-            "scenarioViewRevision",
+            "scenarioDefinitionDocument",
+            "scenarioDefinitionRevision",
             "loadSelectedScenarioViews",
             "createSelectedScenarioViews",
             "writeScenarioViewText",

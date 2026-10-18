@@ -1,0 +1,411 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/field-output/lowcode-data-space-field-output",
+    "sourcePath": "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/field-output/lowcode-data-space-field-output",
+    "jsdoc": "@module app:lowcode/data-space/model-source/field-output/lowcode-data-space-field-output\n职责：检查正式模型列与输出变更对当前空间配置的影响。\n边界：不保存、不迁移引用；数据库字段名与前端输出名分别检查。\nAI用途：字段提交前定位阻断引用，避免将别名误当来源字段重命名。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceFieldOutput"
+    ]
+  },
+  "$defs": {
+    "FormalModel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalModel",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalField"
+          }
+        },
+        "raw": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceFieldOutput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceFieldOutput",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validateAdditions.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "model": {
+                  "$ref": "#/$defs/FormalModel"
+                },
+                "changes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "original": {
+                        "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+                      },
+                      "patch": {
+                        "type": "object",
+                        "title": "Record<string, unknown>"
+                      },
+                      "creating": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "original",
+                      "patch"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "config": {
+                  "anyOf": [
+                    {
+                      "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "metadata": {
+                  "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+                },
+                "targetId": {
+                  "type": "string"
+                },
+                "fieldView": {
+                  "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                }
+              },
+              "required": [
+                "model",
+                "changes",
+                "config",
+                "metadata",
+                "targetId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateAdditions.return": true,
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "model": {
+                  "$ref": "#/$defs/FormalModel"
+                },
+                "original": {
+                  "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+                },
+                "patch": {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                "primaryKeyName": {
+                  "type": "string"
+                },
+                "operation": {
+                  "enum": [
+                    "update",
+                    "remove"
+                  ]
+                },
+                "definitionViews": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                  }
+                },
+                "fieldView": {
+                  "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                },
+                "changes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "original": {
+                        "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+                      },
+                      "patch": {
+                        "type": "object",
+                        "title": "Record<string, unknown>"
+                      }
+                    },
+                    "required": [
+                      "original",
+                      "patch"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "config": {
+                  "anyOf": [
+                    {
+                      "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "metadata": {
+                  "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+                },
+                "targetId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "model",
+                "original",
+                "patch",
+                "config",
+                "metadata",
+                "targetId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": true,
+        "method.validateReferences.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "model": {
+                  "$ref": "#/$defs/FormalModel"
+                },
+                "original": {
+                  "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+                },
+                "patch": {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                "operation": {
+                  "enum": [
+                    "update",
+                    "remove"
+                  ]
+                },
+                "config": {
+                  "anyOf": [
+                    {
+                      "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "metadata": {
+                  "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+                },
+                "targetId": {
+                  "type": "string"
+                },
+                "definitionViews": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                  }
+                },
+                "definitionChanges": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../removal/lowcode-data-space-field-remove-references.ts.json#/$defs/FieldReferenceUpdate"
+                  }
+                }
+              },
+              "required": [
+                "model",
+                "original",
+                "patch",
+                "config",
+                "metadata",
+                "targetId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateReferences.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T12:43:31.833Z",
+  "models": {
+    "FormalModel": {
+      "name": "FormalModel",
+      "jsdoc": "正式读取的模型定义，包含来源主键及完整字段输出合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeDataSpaceFieldOutput": {
+      "name": "LowcodeDataSpaceFieldOutput",
+      "jsdoc": "单次检查，不持有另一份元数据或权限。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "单次检查，不持有另一份元数据或权限。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "validateAdditions",
+              "jsdoc": "新增与旧字段修改共用最终模型投影；新增没有正式行修改权限，不能伪装成已有字段。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        model: FormalModel;\n        changes: ReadonlyArray<{\n            original: DataRow;\n            patch: Readonly<Record<string, unknown>>;\n            creating?: boolean;\n        }>;\n        config: ScenarioViewConfig | null;\n        metadata: DataSet;\n        targetId: string;\n        fieldView?: DataView;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validate",
+              "jsdoc": "按同批最终配置校验完整列唯一性，逐个原字段检查引用；operation省略时按修改检查，remove也覆盖未输出的来源字段。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        model: FormalModel;\n        original: DataRow;\n        patch: Readonly<Record<string, unknown>>;\n        /** 同批模型声明；省略仍按原正式主键保护，不能单独改变字段标记。 */\n        primaryKeyName?: string;\n        operation?: 'update' | 'remove';\n        /** 实际读取的模型、字段、旧关系视图；不隐式要求全目录预载。 */\n        definitionViews?: ReadonlyArray<DataView | undefined>;\n        /** 本次字段编辑的正式查询视图，用于对照原始定义及同批草稿。 */\n        fieldView?: DataView;\n        changes?: ReadonlyArray<{\n            original: DataRow;\n            patch: Readonly<Record<string, unknown>>;\n        }>;\n        config: ScenarioViewConfig | null;\n        metadata: DataSet;\n        targetId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validateReferences",
+              "jsdoc": "分别核对模型列与输出引用；结构批次须先自行校验最终字段集合、主键和名称，不能以此替代定义校验。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        model: FormalModel;\n        original: DataRow;\n        patch: Readonly<Record<string, unknown>>;\n        operation?: 'update' | 'remove';\n        config: ScenarioViewConfig | null;\n        metadata: DataSet;\n        targetId: string;\n        /** 已完成范围与权限检查的命令视图，顺序为模型、字段、旧关系。 */\n        definitionViews?: ReadonlyArray<DataView | undefined>;\n        /** 同一正式批次已解析的引用变更，仅用于确认对应数据库依赖已一起处理。 */\n        definitionChanges?: readonly FieldReferenceUpdate[];\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

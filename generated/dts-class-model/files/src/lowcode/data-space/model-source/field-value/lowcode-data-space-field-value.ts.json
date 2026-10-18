@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/field-value/lowcode-data-space-field-value",
+    "sourcePath": "src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/field-value/lowcode-data-space-field-value",
+    "jsdoc": "@module app:lowcode/data-space/model-source/field-value/lowcode-data-space-field-value\n职责：从正式元数据视图提供字段值函数引用目录并校验显式修改。\n边界：不执行值函数、不持有草稿、不保存；字段取正式Name，GetRefData输出引用取数据库来源名。\nAI用途：字段编辑复用原查询权限和函数合同，未知函数不被误当成后端不支持。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceFieldValue"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceFieldValue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceFieldValue",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "viewId": {
+              "enum": [
+                "default",
+                "modelFields"
+              ]
+            },
+            "usage": {
+              "enum": [
+                "field-output",
+                "operation-input"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readAncestorModelIds.params": {
+          "type": "object",
+          "properties": {
+            "definition": {
+              "anyOf": [
+                {
+                  "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+                },
+                {
+                  "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readAncestorModelIds.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.readInputParameters.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readInputParameters.return": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "object",
+              "title": "NonNullable<DataViewFilterFunctionContext['inputParams']>"
+            },
+            "warning": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "options",
+            "warning"
+          ],
+          "additionalProperties": false
+        },
+        "method.readQueryParameters.params": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "mapped",
+                "direct"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readQueryParameters.return": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "$ref": "../../../../../packages/spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+            },
+            "warning": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "schema",
+            "warning"
+          ],
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "readDefinition": {
+              "type": "object",
+              "title": "() => DataSet | ScenarioViewConfig | null"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "../../../../../packages/spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+            },
+            "warning": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "context",
+            "warning"
+          ],
+          "additionalProperties": false
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T02:24:22.565Z",
+  "models": {
+    "LowcodeDataSpaceFieldValue": {
+      "name": "LowcodeDataSpaceFieldValue",
+      "jsdoc": "按当前可读定义构建目录，不缓存查询结果或权限。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "元数据实例、目标空间及正式模型ID；modelFields消费本模型工作区。字段输出引用数据库资源，operation-input保留操作映射的模型引用合同。",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string, modelId: string, viewId?: 'default' | 'modelFields', usage?: 'field-output' | 'operation-input')",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "modelId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "viewId",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "default"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "modelFields"
+                  }
+                ]
+              },
+              "flags": {
+                "isOptional": true
+              }
+            },
+            {
+              "name": "usage",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "field-output"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "operation-input"
+                  }
+                ]
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "readAncestorModelIds",
+              "jsdoc": "从目标配置或已装配关系取得上游正式模型ID；旧配置读取元数据视图中的关系端点，不装配无关字段。\n@param definition 已校验的场景配置或已装配定义，身份必须是本次被设计空间；不查询，不执行过滤或推导级联。\n@returns 去重、排序且不包含当前模型的正式ID；尚未绑定进目标配置的模型没有上游。",
+              "parameters": [
+                {
+                  "name": "definition",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSet"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "ScenarioViewConfig"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "readInputParameters",
+              "jsdoc": "只读已保存的空间参数目录；不受同一模型的过滤草稿影响，失权或非法声明返回诊断及空目录。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        options: NonNullable<DataViewFilterFunctionContext['inputParams']>;\n        warning: string;\n    }"
+              }
+            },
+            {
+              "name": "readQueryParameters",
+              "jsdoc": "读取调用值编辑所用参数目录；mapped使用空间声明，direct使用已读取的当前模型来源参数。\n@param mode 视图的来源参数模式；不是上游模型字段目录，也不修改来源取值映射。\n@returns 固定对象成员Schema与不可用诊断；Schema只提供名称、描述和类型提示，不填默认值或强制转换。",
+              "parameters": [
+                {
+                  "name": "mode",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "mapped"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "direct"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        schema: JsonSchemaObject;\n        warning: string;\n    }"
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "不可确认的目录返回诊断，独立常量和原文仍可维护；不查询或保存数据。\n@param readDefinition 会话提供目标文件配置或有效运行定义；旧配置的上游通过已加载且可读的元关系端点投影解析，不装配完整目标。\n@returns 本模型、可确认上游及空间参数目录，和不可用部分的诊断。可读模型/资源先提供名称，字段未就绪或不可读时留空；确认引用仍须核正式字段，候选不是后端函数执行保证。",
+              "parameters": [
+                {
+                  "name": "readDefinition",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "union",
+                            "types": [
+                              {
+                                "type": "reference",
+                                "name": "DataSet"
+                              },
+                              {
+                                "type": "reference",
+                                "name": "ScenarioViewConfig"
+                              },
+                              {
+                                "type": "literal",
+                                "value": null
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        context: DataViewFilterFunctionContext;\n        warning: string;\n    }"
+              }
+            },
+            {
+              "name": "validate",
+              "jsdoc": "校验结构及已有函数目录内的引用；不将编辑目录作为服务端函数白名单。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

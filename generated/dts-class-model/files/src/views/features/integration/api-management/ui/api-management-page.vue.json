@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/integration/api-management/ui/api-management-page",
+    "sourcePath": "src/views/features/integration/api-management/ui/api-management-page.vue",
+    "sourceFile": "src/views/features/integration/api-management/ui/api-management-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/integration/api-management/ui/api-management-page",
+    "jsdoc": "@module app:views/features/integration/api-management/ui/api-management-page\n职责：外部服务商目录与基础定义维护，保留原导航和业务路径。\n边界：标准组件直接绑定DataView；不混入接口运行数据，不复制行或权限，不发送HTTP。\nAI用途：专题目录使用正式导航场景，选中主键作为独立定义视图输入。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-10T19:15:07.476Z",
+  "models": {}
+}

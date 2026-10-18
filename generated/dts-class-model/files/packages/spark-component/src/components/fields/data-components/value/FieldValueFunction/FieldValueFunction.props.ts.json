@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/value/FieldValueFunction/FieldValueFunction.props",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/value/FieldValueFunction/FieldValueFunction.props.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/value/FieldValueFunction/FieldValueFunction.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/value/FieldValueFunction/FieldValueFunction.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/value/FieldValueFunction/FieldValueFunction.props\n职责：声明绑定字符串字段的值函数编辑合同。\n边界：只编辑定义，不执行函数或保存；候选由完整视图键定位。\nAI用途：在表单、表格或详情中以同一字段子组件维护值函数。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RValueFunctionProps"
+    ],
+    "componentName": "FieldValueFunction",
+    "componentType": "r-value-function",
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {
+    "RValueFunctionProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RValueFunctionProps",
+      "properties": {
+        "functionContext": {
+          "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+        },
+        "publicParameterDataViewKey": {
+          "type": "string"
+        },
+        "inputParameterDataViewKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.cellReadonly.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellReadonly.return": {
+          "type": "boolean"
+        },
+        "method.onDialogVisibleChange.params": {
+          "type": "object",
+          "properties": {
+            "visible": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onDialogVisibleChange.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-12T09:59:26.633Z",
+  "models": {
+    "RValueFunctionProps": {
+      "name": "RValueFunctionProps",
+      "jsdoc": "r-value-function读写原DataView的JSON字符串字段，旧文本在确认编辑前保持原样。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FieldValueFunction",
+        "type": "r-value-function",
+        "level": "field-level",
+        "layer": "data-field",
+        "directory": "fields/data-components"
+      },
+      "typeAlias": {
+        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<string> & {\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费已保存输入定义的valueField/labelField及读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkFieldSemanticProps<string>",
+            "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费已保存输入定义的valueField/labelField及读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "functionContext",
+              "jsdoc": "函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publicParameterDataViewKey",
+              "jsdoc": "GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParameterDataViewKey",
+              "jsdoc": "GetInputParam/GetObjectArray候选所在完整视图键；消费已保存输入定义的valueField/labelField及读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "cellReadonly",
+              "jsdoc": "表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "onDialogVisibleChange",
+              "jsdoc": "弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。",
+              "parameters": [
+                {
+                  "name": "visible",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

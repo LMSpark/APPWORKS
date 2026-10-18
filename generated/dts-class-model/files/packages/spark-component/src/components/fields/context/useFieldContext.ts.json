@@ -19,8 +19,27 @@
       "type": "object",
       "title": "FieldContextProps",
       "properties": {
+        "bindingError": {
+          "type": "string"
+        },
         "type": {
           "type": "string"
+        },
+        "editOnDblclick": {
+          "type": "boolean"
+        },
+        "editingContextRow": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isCurrentFieldEditable": {
+          "type": "boolean"
         },
         "displayLabel": {
           "type": "string"
@@ -30,6 +49,15 @@
         },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "type": "boolean"
+        },
+        "header": {
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "type": "boolean"
@@ -94,6 +122,8 @@
       },
       "required": [
         "type",
+        "editingContextRow",
+        "isCurrentFieldEditable",
         "displayLabel",
         "fieldName",
         "width",
@@ -137,6 +167,18 @@
       "type": "object",
       "title": "FieldPermissionForContext",
       "properties": {
+        "bindingError": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "contextData": {
+          "type": "object",
+          "title": "ComputedRef<DataRow | null>"
+        },
+        "isCurrentFieldEditable": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
         "fieldName": {
           "type": "object",
           "title": "ComputedRef<string>"
@@ -163,6 +205,8 @@
         }
       },
       "required": [
+        "contextData",
+        "isCurrentFieldEditable",
         "fieldName",
         "displayLabel",
         "isCurrentFieldHidden",
@@ -209,8 +253,26 @@
         "children": {
           "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
         },
+        "header": {
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
         },
         "resizable": {
           "enum": [
@@ -258,19 +320,43 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T12:24:44.091Z",
+  "generatedAt": "2026-10-18T16:46:39.880Z",
   "models": {
     "FieldContextProps": {
       "name": "FieldContextProps",
       "jsdoc": "Field Context Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 类型标识。 */\n    type: string;\n    /** display Label 字段。 */\n    displayLabel: string;\n    /** 绑定字段名。 */\n    fieldName: string;\n    /** width 字段。 */\n    width: number | undefined;\n    /** resizable 字段。 */\n    resizable?: boolean;\n    /** title Align 字段。 */\n    titleAlign?: 'left' | 'center' | 'right';\n    /** value Align 字段。 */\n    valueAlign?: 'left' | 'center' | 'right';\n    /** header Cell Class Name 名称。 */\n    headerCellClassName?: string;\n    /** cell Class Name 名称。 */\n    cellClassName?: string;\n    /** title Class Name 名称。 */\n    titleClassName?: string;\n    /** value Class Name 名称。 */\n    valueClassName?: string;\n    /** sortable 字段。 */\n    sortable: boolean | 'custom';\n    /** merged Children 字段。 */\n    mergedChildren: SparkNode[];\n    /** 是否 is Current Field Hidden。 */\n    isCurrentFieldHidden: boolean;\n    /** 是否 should Render Current Field。 */\n    shouldRenderCurrentField: boolean;\n    /** current Display Value 字段。 */\n    currentDisplayValue: string;\n    /** 是否 is Table Cell Hidden。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** get Table Cell Display Value 回调。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** validation Rules 字段。 */\n    validationRules: FormItemRule[];\n}",
+        "declarationTypeText": "{\n    /** 数据绑定的配置诊断，独立于值和权限呈现。 */\n    bindingError?: string;\n    /** 类型标识。 */\n    type: string;\n    /** 表格单元格是否允许双击进入字段控件。 */\n    editOnDblclick?: boolean;\n    /** 字段绑定当前原始行；用于核对单元格身份，不复制编辑覆盖。 */\n    editingContextRow: DataRow | null;\n    /** 当前字段经权限和交互锁定后是否可编辑。 */\n    isCurrentFieldEditable: boolean;\n    /** display Label 字段。 */\n    displayLabel: string;\n    /** 绑定字段名。 */\n    fieldName: string;\n    /** width 字段。 */\n    width: number | undefined;\n    /** 表格字段的最小宽度，由标准字段属性显式传递；未配置时由表格分配。 */\n    minWidth?: number;\n    /** 表格单元格溢出提示，仅消费权限处理后的显示内容。 */\n    showOverflowTooltip?: boolean;\n    /** 标题下的标准组件区域，由所属组件提供自己的数据绑定。 */\n    header?: SparkNode;\n    /** resizable 字段。 */\n    resizable?: boolean;\n    /** title Align 字段。 */\n    titleAlign?: 'left' | 'center' | 'right';\n    /** value Align 字段。 */\n    valueAlign?: 'left' | 'center' | 'right';\n    /** header Cell Class Name 名称。 */\n    headerCellClassName?: string;\n    /** cell Class Name 名称。 */\n    cellClassName?: string;\n    /** title Class Name 名称。 */\n    titleClassName?: string;\n    /** value Class Name 名称。 */\n    valueClassName?: string;\n    /** sortable 字段。 */\n    sortable: boolean | 'custom';\n    /** merged Children 字段。 */\n    mergedChildren: SparkNode[];\n    /** 是否 is Current Field Hidden。 */\n    isCurrentFieldHidden: boolean;\n    /** 是否 should Render Current Field。 */\n    shouldRenderCurrentField: boolean;\n    /** current Display Value 字段。 */\n    currentDisplayValue: string;\n    /** 是否 is Table Cell Hidden。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** get Table Cell Display Value 回调。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** validation Rules 字段。 */\n    validationRules: FormItemRule[];\n}",
         "members": {
           "attributes": [
             {
+              "name": "bindingError",
+              "jsdoc": "数据绑定的配置诊断，独立于值和权限呈现。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "type",
               "jsdoc": "类型标识。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "editOnDblclick",
+              "jsdoc": "表格单元格是否允许双击进入字段控件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editingContextRow",
+              "jsdoc": "字段绑定当前原始行；用于核对单元格身份，不复制编辑覆盖。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isCurrentFieldEditable",
+              "jsdoc": "当前字段经权限和交互锁定后是否可编辑。",
               "readable": true,
               "writable": true
             },
@@ -291,6 +377,24 @@
               "jsdoc": "width 字段。",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "minWidth",
+              "jsdoc": "表格字段的最小宽度，由标准字段属性显式传递；未配置时由表格分配。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "jsdoc": "表格单元格溢出提示，仅消费权限处理后的显示内容。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "jsdoc": "标题下的标准组件区域，由所属组件提供自己的数据绑定。",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "resizable",
@@ -415,9 +519,27 @@
       "jsdoc": "Field Permission For Context 的运行上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 绑定字段名。 */\n    fieldName: ComputedRef<string>;\n    /** display Label 字段。 */\n    displayLabel: ComputedRef<string>;\n    /** 是否 is Current Field Hidden。 */\n    isCurrentFieldHidden: ComputedRef<boolean>;\n    /** 是否 should Render Current Field。 */\n    shouldRenderCurrentField: ComputedRef<boolean>;\n    /** current Display Value 字段。 */\n    currentDisplayValue: ComputedRef<string>;\n    /** 是否 is Table Cell Hidden。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** get Table Cell Display Value 回调。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** validation Rules 字段。 */\n    validationRules: ComputedRef<FormItemRule[]>;\n}",
+        "declarationTypeText": "{\n    /** 停算配置的只读诊断，不改变字段值可见性。 */\n    bindingError?: ComputedRef<string | undefined>;\n    /** 原字段绑定的行上下文；不复制运行数据。 */\n    contextData: ComputedRef<DataRow | null>;\n    /** 原查询许可与界面限制共同确定的可编辑性。 */\n    isCurrentFieldEditable: ComputedRef<boolean>;\n    /** 绑定字段名。 */\n    fieldName: ComputedRef<string>;\n    /** display Label 字段。 */\n    displayLabel: ComputedRef<string>;\n    /** 是否 is Current Field Hidden。 */\n    isCurrentFieldHidden: ComputedRef<boolean>;\n    /** 是否 should Render Current Field。 */\n    shouldRenderCurrentField: ComputedRef<boolean>;\n    /** current Display Value 字段。 */\n    currentDisplayValue: ComputedRef<string>;\n    /** 是否 is Table Cell Hidden。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** get Table Cell Display Value 回调。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** validation Rules 字段。 */\n    validationRules: ComputedRef<FormItemRule[]>;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "bindingError",
+              "jsdoc": "停算配置的只读诊断，不改变字段值可见性。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextData",
+              "jsdoc": "原字段绑定的行上下文；不复制运行数据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "isCurrentFieldEditable",
+              "jsdoc": "原查询许可与界面限制共同确定的可编辑性。",
+              "readable": true,
+              "writable": true
+            },
             {
               "name": "fieldName",
               "jsdoc": "绑定字段名。",
@@ -499,7 +621,7 @@
       "jsdoc": "Field Context Input Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>> & {\n    /** 类型标识。 */\n    type: string;\n}",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>> & {\n    /** 类型标识。 */\n    type: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -508,7 +630,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
+            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>>",
             "targetName": "FieldComposableProps"
           },
           {

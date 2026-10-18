@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:strategies/cascade/query-cascade-inputs",
+    "sourcePath": "packages/spark-data/src/strategies/cascade/query-cascade-inputs.ts",
+    "sourceFile": "packages/spark-data/src/strategies/cascade/query-cascade-inputs.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "strategies/cascade/query-cascade-inputs",
+    "jsdoc": "@module @spark-appworks/spark-data:strategies/cascade/query-cascade-inputs\n职责：查询级联输入的形状校验、原生值解析和原子配置应用。\n边界：复用值绑定及DataViewQuery，不发送请求，不持有权限或页面草稿。\nAI用途：通过viewCascades.inputBindings配置多父值查询，不在业务页拼查询参数。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataViewQueryCascadeInputs"
+    ]
+  },
+  "$defs": {
+    "InputValue": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InputValue",
+      "properties": {
+        "target": {
+          "enum": [
+            "pageSize",
+            "queryContext",
+            "queryConfig.outputType",
+            "queryConfig.allPages",
+            "queryConfig.maxRows",
+            "queryConfig.tree.keyField",
+            "queryConfig.tree.parentField",
+            "queryConfig.tree.nodeId",
+            "queryConfig.tree.hasChildrenField",
+            "queryConfig.tree.mode"
+          ]
+        },
+        "value": true
+      },
+      "required": [
+        "target",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewQueryCascadeInputs": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQueryCascadeInputs",
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.parseWhen.params": {
+          "type": "object",
+          "properties": {
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.parseWhen.return": {
+          "type": "object",
+          "title": "NonNullable<DataViewQueryCascade['when']>"
+        },
+        "method.enabled.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../dataset.ts.json#/$defs/DataSet"
+            },
+            "cascade": {
+              "$ref": "../../types.ts.json#/$defs/DataViewQueryCascade"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.enabled.return": {
+          "type": "boolean"
+        },
+        "method.parseFilters.params": {
+          "type": "object",
+          "properties": {
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.parseFilters.return": true,
+        "method.parse.params": {
+          "type": "object",
+          "properties": {
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.parse.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../types.ts.json#/$defs/DataViewCascadeInputBinding"
+          }
+        },
+        "method.validateAll.params": {
+          "type": "object",
+          "properties": {
+            "cascades": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateAll.return": true,
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../dataset.ts.json#/$defs/DataSet"
+            },
+            "cascade": {
+              "$ref": "../../types.ts.json#/$defs/DataViewQueryCascade"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InputValue"
+          }
+        },
+        "method.apply.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../data-view.ts.json#/$defs/DataView"
+            },
+            "inputs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/InputValue"
+              }
+            },
+            "contextDefaults": {
+              "$ref": "../../types.ts.json#/$defs/DataViewQueryContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.apply.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-10T10:46:35.803Z",
+  "models": {
+    "InputValue": {
+      "name": "InputValue",
+      "jsdoc": "一次解析后的查询输入快照；只在级联执行期间使用，不写入pagedata。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 受输入绑定合同约束的目标属性。 */\n    target: DataViewCascadeInputBinding['target'];\n    /** 经值权限与显式解码后的原生值；undefined表示撤销该属性。 */\n    value: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 受输入绑定合同约束的目标属性。 */\n    target: DataViewCascadeInputBinding['target'];\n    /** 经值权限与显式解码后的原生值；undefined表示撤销该属性。 */\n    value: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "target",
+              "jsdoc": "受输入绑定合同约束的目标属性。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "经值权限与显式解码后的原生值；undefined表示撤销该属性。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewQueryCascadeInputs": {
+      "name": "DataViewQueryCascadeInputs",
+      "jsdoc": "配置文件、DataSet及请求执行共用的查询输入合同。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "配置文件、DataSet及请求执行共用的查询输入合同。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "targets",
+              "jsdoc": "查询参数绑定的完整目标目录；配置编辑器与解析器共用，不接受权限或任意对象路径。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "parseWhen",
+              "jsdoc": "校验可选启用条件；条件读取仍经过统一值与数据权限边界。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "NonNullable",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "DataViewQueryCascade['when']"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "enabled",
+              "jsdoc": "判断父值条件；不满足或尚未就绪时不查询子视图。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet",
+                    "sourcePath": "packages/spark-data/src/dataset.ts"
+                  }
+                },
+                {
+                  "name": "cascade",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryCascade",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "parseFilters",
+              "jsdoc": "查询过滤绑定由文件解析与运行装配共用，不接受未实现的操作符。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "DataViewQueryCascade['filterBindings']"
+              }
+            },
+            {
+              "name": "parse",
+              "jsdoc": "校验形状、唯一目标和条件；无输入绑定时返回空集合。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataViewCascadeInputBinding[]"
+              }
+            },
+            {
+              "name": "validateAll",
+              "jsdoc": "同一子视图的同一输入只能有一个定义来源，禁止顺序覆盖。",
+              "parameters": [
+                {
+                  "name": "cascades",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly unknown[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "只读取统一值边界；条件关闭时不读取已失效的选项值。null表示父输入尚未就绪。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet",
+                    "sourcePath": "packages/spark-data/src/dataset.ts"
+                  }
+                },
+                {
+                  "name": "cascade",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryCascade",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly InputValue[]"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "apply",
+              "jsdoc": "全部输入校验通过后才修改活动配置；未绑定配置保留，禁用属性删除。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "inputs",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly InputValue[]"
+                  }
+                },
+                {
+                  "name": "contextDefaults",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryContext",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

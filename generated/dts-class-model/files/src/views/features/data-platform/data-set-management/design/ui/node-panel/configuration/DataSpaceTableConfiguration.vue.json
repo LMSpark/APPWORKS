@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration\n职责：通过标准组件维护DataTable的字段计算定义或API及crudConfig，复用同一绑定与保存链。\n边界：配置属于绑定定义DataView；查询、编辑、取消、保存由SPARK data承担。\nAI用途：模型数据处理工作区，保留旧模型目标原值，不将目标名转换为URL。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T14:31:04.991Z",
+  "models": {}
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting",
+    "sourcePath": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting\n职责：维护字典方案的名称、编码类型及六项字段标题。\n边界：标准表单绑定正式定义DataView，只保存设计配置，不提供业务条目编辑器。\nAI用途：实现专题方案设计页时保留元数据空间和已保存方案的独立消费边界。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-10T16:56:11.063Z",
+  "models": {}
+}

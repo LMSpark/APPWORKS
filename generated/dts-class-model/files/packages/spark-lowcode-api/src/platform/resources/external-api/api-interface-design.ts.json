@@ -1,0 +1,448 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/external-api/api-interface-design",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-interface-design.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/external-api/api-interface-design.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/external-api/api-interface-design",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/external-api/api-interface-design\n职责：接口方案及输入、头部定义的身份、独立保存和引用校验。\n边界：复用DataView草稿/权限和DataSet提交，不发起外部调用。\nAI用途：原接口设计页绑定这些视图；testvalue在独立数据维护页处理。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApiInterfaceDesign"
+    ]
+  },
+  "$defs": {
+    "InterfaceDesignInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InterfaceDesignInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "context": {
+          "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "providerId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "context",
+        "providerId"
+      ],
+      "additionalProperties": false
+    },
+    "ApiInterfaceDesign": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiInterfaceDesign",
+      "properties": {
+        "interfaces": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "parameters": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "headers": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "outputs": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "provider": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "accounts": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "publicParameters": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "inputReferences": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "pending": {
+          "type": "boolean"
+        },
+        "requiresVerification": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/InterfaceDesignInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {
+            "discard": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.select.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.select.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.addInterface.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.addInterface.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.add.params": {
+          "type": "object",
+          "properties": {
+            "section": {
+              "enum": [
+                "parameters",
+                "headers"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.add.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.removeHeader.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.removeHeader.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "section": {
+              "enum": [
+                "definition",
+                "parameters",
+                "headers"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-10T19:34:08.295Z",
+  "models": {
+    "InterfaceDesignInput": {
+      "name": "InterfaceDesignInput",
+      "jsdoc": "方案装配入口；两个空间保留正式身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 接口正式空间。 */\n    dataSet: DataSet;\n    /** 服务商与账号身份所在的配置空间，不查询凭据。 */\n    context: DataSet;\n    /** 被维护接口的共同服务商主键。 */\n    providerId: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "接口正式空间。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "context",
+              "jsdoc": "服务商与账号身份所在的配置空间，不查询凭据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "providerId",
+              "jsdoc": "被维护接口的共同服务商主键。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ApiInterfaceDesign": {
+      "name": "ApiInterfaceDesign",
+      "jsdoc": "接口方案领域；仅维护设计定义。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定两个正式数据空间及固定服务商范围；构造不读取数据。",
+          "signatureText": "constructor(input: InterfaceDesignInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "InterfaceDesignInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-interface-design.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "interfaces",
+              "jsdoc": "接口列表及当前定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parameters",
+              "jsdoc": "输入定义，不含测试值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "headers",
+              "jsdoc": "接口请求头定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputs",
+              "jsdoc": "正式输出字段；当前元模型写入合同未齐，仅供查看。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "provider",
+              "jsdoc": "服务商身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "accounts",
+              "jsdoc": "同服务商账号身份候选。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "publicParameters",
+              "jsdoc": "已保存公共参数引用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputReferences",
+              "jsdoc": "已保存输入引用，与定义草稿分开。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "jsdoc": "草稿、在途操作或未知回执要求保留实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresVerification",
+              "jsdoc": "未知回执须显式重读核验。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "jsdoc": "读取服务商方案；discard明确丢弃本领域草稿并核验。",
+              "parameters": [
+                {
+                  "name": "discard",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "select",
+              "jsdoc": "拒绝未处理草稿后切换；子定义范围由原生值级联确定。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "addInterface",
+              "jsdoc": "新建本地接口；主定义先保存，才能新增持久子定义。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "add",
+              "jsdoc": "新增固定归属的输入或头部定义。",
+              "parameters": [
+                {
+                  "name": "section",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "parameters"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "headers"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeHeader",
+              "jsdoc": "头部按当次删除许可暂存删除，交由原生保存复核。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "只保存选定定义域；函数引用核已保存定义，旧字段保留，未知回执不重放。",
+              "parameters": [
+                {
+                  "name": "section",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "definition"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "parameters"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "headers"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "明确取消本领域草稿，不修改正式记录。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

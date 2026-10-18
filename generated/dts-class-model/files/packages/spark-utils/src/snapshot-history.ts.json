@@ -18,6 +18,28 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "SnapshotHistory",
+      "properties": {
+        "canUndo": {
+          "type": "boolean"
+        },
+        "canRedo": {
+          "type": "boolean"
+        },
+        "cursor": {
+          "type": "number"
+        },
+        "current": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "T"
+        },
+        "length": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -96,6 +118,36 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "canUndo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canRedo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cursor",
+              "jsdoc": "当前游标位置（0-based）。-1 表示空。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "jsdoc": "当前游标指向的快照；空时返回 null。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "length",
+              "jsdoc": "快照总数。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "push",

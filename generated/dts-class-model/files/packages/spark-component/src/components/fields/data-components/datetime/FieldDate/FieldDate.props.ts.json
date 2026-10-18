@@ -25,9 +25,9 @@
       "title": "DatePickerType",
       "enum": [
         "date",
-        "datetime",
         "month",
         "week",
+        "datetime",
         "year",
         "dates",
         "datetimerange",
@@ -52,12 +52,48 @@
         },
         "permissionDeniedMode": {
           "enum": [
-            "hide",
-            "disable"
+            "disable",
+            "hide"
           ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
         },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -133,6 +169,12 @@
             true
           ]
         },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "placeholder": {
           "type": "string"
         },
@@ -191,9 +233,9 @@
         "dateType": {
           "enum": [
             "date",
-            "datetime",
             "month",
             "week",
+            "datetime",
             "year",
             "dates",
             "datetimerange",

@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/overlay/RendererDialog/FullscreenDialog.props",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/overlay/RendererDialog/FullscreenDialog.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/overlay/RendererDialog/FullscreenDialog.props\n职责：声明弹窗全屏行为。边界：纯窗口状态，不改变绑定数据、编辑或保存。\nAI用途：标准弹窗与过滤专题共用的显示合同。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DialogFullscreenOptions",
+      "FullscreenDialogProps"
+    ],
+    "componentName": "RendererDialog",
+    "componentType": "r-dialog",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "DialogFullscreenOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DialogFullscreenOptions",
+      "properties": {
+        "fullscreen": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fullscreenable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "autoFullscreenBelow": {
+          "type": "number"
+        },
+        "resetFullscreenOnClose": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "FullscreenDialogProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FullscreenDialogProps",
+      "properties": {
+        "fullscreen": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fullscreenable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "autoFullscreenBelow": {
+          "type": "number"
+        },
+        "resetFullscreenOnClose": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "modelValue": {
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "top": {
+          "type": "string"
+        },
+        "appendToBody": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.beforeClose.params": {
+          "type": "object",
+          "properties": {
+            "done": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.beforeClose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-12T07:59:27.495Z",
+  "models": {
+    "DialogFullscreenOptions": {
+      "name": "DialogFullscreenOptions",
+      "jsdoc": "全屏只改变显示尺寸；窄屏强制全屏时保留手动状态，恢复宽屏后继续使用手动状态。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FullscreenDialog",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 手动全屏状态；省略为false，切换通过update:fullscreen通知调用方。 */\n    fullscreen?: boolean;\n    /** 是否显示手动全屏入口；标准r-dialog默认false，过滤专题启用。 */\n    fullscreenable?: boolean;\n    /** 视口宽度小于等于此像素值时自动全屏；省略或非正数不启用。 */\n    autoFullscreenBelow?: number;\n    /** 关闭时复位手动全屏；不重置窗口中的业务草稿。默认false。 */\n    resetFullscreenOnClose?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "fullscreen",
+              "jsdoc": "手动全屏状态；省略为false，切换通过update:fullscreen通知调用方。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fullscreenable",
+              "jsdoc": "是否显示手动全屏入口；标准r-dialog默认false，过滤专题启用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoFullscreenBelow",
+              "jsdoc": "视口宽度小于等于此像素值时自动全屏；省略或非正数不启用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resetFullscreenOnClose",
+              "jsdoc": "关闭时复位手动全屏；不重置窗口中的业务草稿。默认false。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FullscreenDialogProps": {
+      "name": "FullscreenDialogProps",
+      "jsdoc": "内部弹窗外观输入；正式业务组件的数据上下文由r-dialog等外层组件提供。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "FullscreenDialog",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "DialogFullscreenOptions & {\n    /** 显隐由调用方控制；关闭时发出update:modelValue，不隐式处置业务数据。 */\n    modelValue?: boolean;\n    /** 默认标题；调用方可用header插槽替换标题区域。 */\n    title?: string;\n    /** 常规宽度；省略或undefined沿用底层默认值，全屏时忽略。 */\n    width?: string | number | undefined;\n    /** 常规顶部间距；省略或undefined沿用底层默认值，全屏时归零。 */\n    top?: string | undefined;\n    /** 挂到文档body以支持嵌套窗口，不改变Vue上下文继承。 */\n    appendToBody?: boolean;\n    /** 原调用方的关闭守卫；只有调用done后才能关闭，窗口尺寸切换不触发它。 */\n    beforeClose?: (done: () => void) => void;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DialogFullscreenOptions",
+            "targetName": "DialogFullscreenOptions"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 显隐由调用方控制；关闭时发出update:modelValue，不隐式处置业务数据。 */\n    modelValue?: boolean;\n    /** 默认标题；调用方可用header插槽替换标题区域。 */\n    title?: string;\n    /** 常规宽度；省略或undefined沿用底层默认值，全屏时忽略。 */\n    width?: string | number | undefined;\n    /** 常规顶部间距；省略或undefined沿用底层默认值，全屏时归零。 */\n    top?: string | undefined;\n    /** 挂到文档body以支持嵌套窗口，不改变Vue上下文继承。 */\n    appendToBody?: boolean;\n    /** 原调用方的关闭守卫；只有调用done后才能关闭，窗口尺寸切换不触发它。 */\n    beforeClose?: (done: () => void) => void;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelValue",
+              "jsdoc": "显隐由调用方控制；关闭时发出update:modelValue，不隐式处置业务数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "默认标题；调用方可用header插槽替换标题区域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "width",
+              "jsdoc": "常规宽度；省略或undefined沿用底层默认值，全屏时忽略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "top",
+              "jsdoc": "常规顶部间距；省略或undefined沿用底层默认值，全屏时归零。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "appendToBody",
+              "jsdoc": "挂到文档body以支持嵌套窗口，不改变Vue上下文继承。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "beforeClose",
+              "jsdoc": "原调用方的关闭守卫；只有调用done后才能关闭，窗口尺寸切换不触发它。",
+              "parameters": [
+                {
+                  "name": "done",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

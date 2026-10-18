@@ -64,6 +64,27 @@
       "type": "object",
       "title": "RendererTableApi",
       "$defs": {
+        "method.getValue.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getValue.return": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          }
+        },
         "method.getRows.params": {
           "type": "object",
           "properties": {},
@@ -317,7 +338,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:30:26.800Z",
+  "generatedAt": "2026-10-10T10:39:42.936Z",
   "models": {
     "ElementPlusTableSortOrder": {
       "name": "ElementPlusTableSortOrder",
@@ -388,7 +409,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "BaseContainerApi & {\n    /** 获取当前表格绑定的全部行数据。 */\n    getRows(): DataRow[];\n    /** 获取当前多选选中的行集合。 */\n    getSelectedRows(): DataRow[];\n    /** 重新加载表格数据（触发 DataView 刷新）。 */\n    query(): Promise<void>;\n    /** 加载嵌套树形数据的根层或指定根节点子树。 */\n    loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit?: number): Promise<CrudResult<NestedTreeNode[]> | null>;\n    /** 懒加载指定父节点的直接子节点。 */\n    loadTreeChildren(parentId: string | number | null, limit?: number): Promise<DataRow[]>;\n    /** 加载从根到指定节点的完整路径。 */\n    loadTreePath(id: string | number): Promise<RendererTreePath | null>;\n    /** 展开树到指定节点并设为当前行。 */\n    expandToNode(key: string | number): Promise<void>;\n    /** 移动树节点到新的父节点下，可选指定插入位置。 */\n    moveNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>;\n    /** 在嵌套树中按关键字搜索节点。 */\n    searchTreeNested(keyword: string, limit?: number): Promise<NestedTreeSearchResult[]>;\n    /** 设置多选选中行（写入 DataView selection）。 */\n    setSelectedRows(rows: DataRow[]): void;\n    /** 按主键 id 列表设置多选选中行，返回成功匹配数量。 */\n    setSelectedRowsById(ids: Array<string | number>): number;\n    /** 清空 DataView 层的多选状态。 */\n    clearSelectedRows(): void;\n    /** 清空 Element Plus 表格 UI 层的多选高亮。 */\n    clearUiSelection(): void;\n    /** 切换指定行在 UI 层的选中状态。 */\n    toggleUiRowSelection(row: DataRow, selected?: boolean): void;\n    /** 重新计算表格列宽与布局。 */\n    doLayout(): void;\n    /** 获取底层 Element Plus 表格组件实例。 */\n    getNativeTable(): unknown;\n}",
+        "declarationTypeText": "BaseContainerApi & {\n    /** 列表组件的原生选择值数组，直接消费绑定DataView；单选也返回数组，空选择为[]。不使用当前行或返回显示文本，不序列化成字符串。 */\n    getValue(): Array<string | number | boolean>;\n    /** 获取当前表格绑定的全部行数据。 */\n    getRows(): DataRow[];\n    /** 获取当前多选选中的行集合。 */\n    getSelectedRows(): DataRow[];\n    /** 重新加载表格数据（触发 DataView 刷新）。 */\n    query(): Promise<void>;\n    /** 加载嵌套树形数据的根层或指定根节点子树。 */\n    loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit?: number): Promise<CrudResult<NestedTreeNode[]> | null>;\n    /** 懒加载指定父节点的直接子节点。 */\n    loadTreeChildren(parentId: string | number | null, limit?: number): Promise<DataRow[]>;\n    /** 加载从根到指定节点的完整路径。 */\n    loadTreePath(id: string | number): Promise<RendererTreePath | null>;\n    /** 展开树到指定节点并设为当前行。 */\n    expandToNode(key: string | number): Promise<void>;\n    /** 移动树节点到新的父节点下，可选指定插入位置。 */\n    moveNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>;\n    /** 在嵌套树中按关键字搜索节点。 */\n    searchTreeNested(keyword: string, limit?: number): Promise<NestedTreeSearchResult[]>;\n    /** 设置多选选中行（写入 DataView selection）。 */\n    setSelectedRows(rows: DataRow[]): void;\n    /** 按主键 id 列表设置多选选中行，返回成功匹配数量。 */\n    setSelectedRowsById(ids: Array<string | number>): number;\n    /** 清空 DataView 层的多选状态。 */\n    clearSelectedRows(): void;\n    /** 清空 Element Plus 表格 UI 层的多选高亮。 */\n    clearUiSelection(): void;\n    /** 切换指定行在 UI 层的选中状态。 */\n    toggleUiRowSelection(row: DataRow, selected?: boolean): void;\n    /** 重新计算表格列宽与布局。 */\n    doLayout(): void;\n    /** 获取底层 Element Plus 表格组件实例。 */\n    getNativeTable(): unknown;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -397,11 +418,36 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 获取当前表格绑定的全部行数据。 */\n    getRows(): DataRow[];\n    /** 获取当前多选选中的行集合。 */\n    getSelectedRows(): DataRow[];\n    /** 重新加载表格数据（触发 DataView 刷新）。 */\n    query(): Promise<void>;\n    /** 加载嵌套树形数据的根层或指定根节点子树。 */\n    loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit?: number): Promise<CrudResult<NestedTreeNode[]> | null>;\n    /** 懒加载指定父节点的直接子节点。 */\n    loadTreeChildren(parentId: string | number | null, limit?: number): Promise<DataRow[]>;\n    /** 加载从根到指定节点的完整路径。 */\n    loadTreePath(id: string | number): Promise<RendererTreePath | null>;\n    /** 展开树到指定节点并设为当前行。 */\n    expandToNode(key: string | number): Promise<void>;\n    /** 移动树节点到新的父节点下，可选指定插入位置。 */\n    moveNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>;\n    /** 在嵌套树中按关键字搜索节点。 */\n    searchTreeNested(keyword: string, limit?: number): Promise<NestedTreeSearchResult[]>;\n    /** 设置多选选中行（写入 DataView selection）。 */\n    setSelectedRows(rows: DataRow[]): void;\n    /** 按主键 id 列表设置多选选中行，返回成功匹配数量。 */\n    setSelectedRowsById(ids: Array<string | number>): number;\n    /** 清空 DataView 层的多选状态。 */\n    clearSelectedRows(): void;\n    /** 清空 Element Plus 表格 UI 层的多选高亮。 */\n    clearUiSelection(): void;\n    /** 切换指定行在 UI 层的选中状态。 */\n    toggleUiRowSelection(row: DataRow, selected?: boolean): void;\n    /** 重新计算表格列宽与布局。 */\n    doLayout(): void;\n    /** 获取底层 Element Plus 表格组件实例。 */\n    getNativeTable(): unknown;\n}"
+            "typeText": "{\n    /** 列表组件的原生选择值数组，直接消费绑定DataView；单选也返回数组，空选择为[]。不使用当前行或返回显示文本，不序列化成字符串。 */\n    getValue(): Array<string | number | boolean>;\n    /** 获取当前表格绑定的全部行数据。 */\n    getRows(): DataRow[];\n    /** 获取当前多选选中的行集合。 */\n    getSelectedRows(): DataRow[];\n    /** 重新加载表格数据（触发 DataView 刷新）。 */\n    query(): Promise<void>;\n    /** 加载嵌套树形数据的根层或指定根节点子树。 */\n    loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit?: number): Promise<CrudResult<NestedTreeNode[]> | null>;\n    /** 懒加载指定父节点的直接子节点。 */\n    loadTreeChildren(parentId: string | number | null, limit?: number): Promise<DataRow[]>;\n    /** 加载从根到指定节点的完整路径。 */\n    loadTreePath(id: string | number): Promise<RendererTreePath | null>;\n    /** 展开树到指定节点并设为当前行。 */\n    expandToNode(key: string | number): Promise<void>;\n    /** 移动树节点到新的父节点下，可选指定插入位置。 */\n    moveNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>;\n    /** 在嵌套树中按关键字搜索节点。 */\n    searchTreeNested(keyword: string, limit?: number): Promise<NestedTreeSearchResult[]>;\n    /** 设置多选选中行（写入 DataView selection）。 */\n    setSelectedRows(rows: DataRow[]): void;\n    /** 按主键 id 列表设置多选选中行，返回成功匹配数量。 */\n    setSelectedRowsById(ids: Array<string | number>): number;\n    /** 清空 DataView 层的多选状态。 */\n    clearSelectedRows(): void;\n    /** 清空 Element Plus 表格 UI 层的多选高亮。 */\n    clearUiSelection(): void;\n    /** 切换指定行在 UI 层的选中状态。 */\n    toggleUiRowSelection(row: DataRow, selected?: boolean): void;\n    /** 重新计算表格列宽与布局。 */\n    doLayout(): void;\n    /** 获取底层 Element Plus 表格组件实例。 */\n    getNativeTable(): unknown;\n}"
           }
         ],
         "members": {
           "methods": [
+            {
+              "name": "getValue",
+              "jsdoc": "列表组件的原生选择值数组，直接消费绑定DataView；单选也返回数组，空选择为[]。不使用当前行或返回显示文本，不序列化成字符串。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "union",
+                  "types": [
+                    {
+                      "type": "intrinsic",
+                      "name": "string"
+                    },
+                    {
+                      "type": "intrinsic",
+                      "name": "number"
+                    },
+                    {
+                      "type": "intrinsic",
+                      "name": "boolean"
+                    }
+                  ]
+                }
+              }
+            },
             {
               "name": "getRows",
               "jsdoc": "获取当前表格绑定的全部行数据。",

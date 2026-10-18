@@ -63,6 +63,12 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "DataSpaceQueryTable",
+      "properties": {
+        "identity": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -98,7 +104,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T16:19:00.655Z",
+  "generatedAt": "2026-10-14T20:34:23.239Z",
   "models": {
     "DataSpaceQuerySnapshot": {
       "name": "DataSpaceQuerySnapshot",
@@ -169,6 +175,13 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "applyResult",
@@ -189,6 +202,7 @@
             },
             {
               "name": "buildRequest",
+              "jsdoc": "查询当前正式模型；Join叶节点显式发送ChildTables空集合，不从模型关系推导SQL子表。",
               "parameters": [
                 {
                   "name": "input",

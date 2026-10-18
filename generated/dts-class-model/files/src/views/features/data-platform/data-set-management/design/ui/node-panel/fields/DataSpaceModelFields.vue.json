@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields\n职责：在模型工作区打开正式字段命名视图，表格与表单消费同一查询和编辑状态。\n边界：原会话查询/保存，不复制目录行或权限，不维护第二份草稿。\nAI用途：统一模型字段列表、输出及字段规则编辑、批量保存和核验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T03:54:55.343Z",
+  "models": {}
+}

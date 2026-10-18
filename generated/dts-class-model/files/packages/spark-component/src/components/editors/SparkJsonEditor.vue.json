@@ -112,7 +112,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-06-11T12:38:13.519Z",
+  "generatedAt": "2026-10-18T15:19:44.403Z",
   "models": {
     "SparkJsonEditorMode": {
       "name": "SparkJsonEditorMode",

@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/external-api/api-provider-design",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-provider-design.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/external-api/api-provider-design.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/external-api/api-provider-design",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/external-api/api-provider-design\n职责：外部服务商基础定义的业务校验与维护流程。\n边界：消费正式DataView的编辑和权限，通过DataSet保存；不发HTTP、不持有行副本、不执行外部接口。\nAI用途：标准表单绑定definition，目录和接口调用不参与基础定义提交。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApiProviderDesign"
+    ]
+  },
+  "$defs": {
+    "ApiProviderDesignInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiProviderDesignInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "providerId": {
+          "type": "string"
+        },
+        "create": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "dataSet",
+        "providerId"
+      ],
+      "additionalProperties": false
+    },
+    "ApiProviderDesign": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiProviderDesign",
+      "properties": {
+        "definition": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "pending": {
+          "type": "boolean"
+        },
+        "requiresVerification": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ApiProviderDesignInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {
+            "discard": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-10T17:57:12.895Z",
+  "models": {
+    "ApiProviderDesignInput": {
+      "name": "ApiProviderDesignInput",
+      "jsdoc": "基础设计实例只接受已装配空间及一个确定的服务商身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式服务商模型及定义视图所在的运行空间。 */\n    dataSet: DataSet;\n    /** 本次唯一服务商rowid；新建也先核查询授权与身份冲突。 */\n    providerId: string;\n    /** 显式新建，不能将已有记录当作新增草稿。 */\n    create?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式服务商模型及定义视图所在的运行空间。 */\n    dataSet: DataSet;\n    /** 本次唯一服务商rowid；新建也先核查询授权与身份冲突。 */\n    providerId: string;\n    /** 显式新建，不能将已有记录当作新增草稿。 */\n    create?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "正式服务商模型及定义视图所在的运行空间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "providerId",
+              "jsdoc": "本次唯一服务商rowid；新建也先核查询授权与身份冲突。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "create",
+              "jsdoc": "显式新建，不能将已有记录当作新增草稿。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ApiProviderDesign": {
+      "name": "ApiProviderDesign",
+      "jsdoc": "基础信息独立提交，回执未知后必须回原身份重读，不能自动重放。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "限定定义视图的正式查询范围，过滤/重查始终消费同一providerId。",
+          "signatureText": "constructor(input: ApiProviderDesignInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "ApiProviderDesignInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/external-api/api-provider-design.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "definition",
+              "jsdoc": "标准表单绑定的定义视图，Name与BaseURL的唯一编辑真源。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "jsdoc": "本地草稿、在途提交或待核回执均须阻止误关。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiresVerification",
+              "jsdoc": "保存回执不确定时仅允许显式重读，不允许再次提交。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "jsdoc": "首次读取或显式放弃草稿后重读；新建先取得正式空查询的新增授权。",
+              "parameters": [
+                {
+                  "name": "discard",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "只保存本次服务商的基础定义字段；校验失败保留草稿，已发请求失败须重读。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "明确取消本地编辑；未知回执和在途请求不能被当作取消服务器写入。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.props",
+    "jsdoc": "app 的 views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.props 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceTableConfigurationProps（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceTableConfigurationProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceTableConfigurationProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceTableConfigurationProps",
+      "properties": {
+        "session": {
+          "type": "object",
+          "title": "import(\"../../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design\").LowcodeDataSpaceDesignSession"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "fieldIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "revision": {
+          "type": "number"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "workspaceActions": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "section": {
+          "enum": [
+            "columns",
+            "requests"
+          ]
+        }
+      },
+      "required": [
+        "session",
+        "modelId",
+        "fieldIds",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-14T19:29:07.588Z",
+  "models": {
+    "DataSpaceTableConfigurationProps": {
+      "name": "DataSpaceTableConfigurationProps",
+      "jsdoc": "同一模型绑定定义的编辑区；两种呈现复用DataView查询、草稿及保存。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceTableConfiguration"
+      },
+      "typeAlias": {
+        "declarationTypeText": "DataSpaceModelFieldsProps & {\n    /** 默认requests编辑api/crudConfig，columns编辑本地字段定义。实例生命周期内不切换。 */\n    section?: 'requests' | 'columns';\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSpaceModelFieldsProps",
+            "targetName": "DataSpaceModelFieldsProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 默认requests编辑api/crudConfig，columns编辑本地字段定义。实例生命周期内不切换。 */\n    section?: 'requests' | 'columns';\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "section",
+              "jsdoc": "默认requests编辑api/crudConfig，columns编辑本地字段定义。实例生命周期内不切换。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

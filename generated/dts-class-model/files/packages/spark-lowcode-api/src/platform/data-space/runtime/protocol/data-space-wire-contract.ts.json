@@ -173,13 +173,32 @@
                   "type": "string"
                 },
                 "Operator": {
-                  "$ref": "../../../../contracts/lowcode-wire-query.ts.json#/$defs/WireFilterOperator"
+                  "enum": [
+                    "contains",
+                    "in",
+                    "equal",
+                    "notequal",
+                    "greaterthan",
+                    "greaterthanorequal",
+                    "lessthan",
+                    "lessthanorequal",
+                    "isnull",
+                    "isnotnull",
+                    "nolike",
+                    "startswith",
+                    "nostartswith",
+                    "endswith",
+                    "notendswith",
+                    "notin",
+                    "isempty",
+                    "isnotempty"
+                  ]
                 },
                 "Value": {
                   "type": "null"
                 },
                 "ValueFun": {
-                  "$ref": "#/$defs/DataSpaceValueFunction"
+                  "$ref": "../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterValueFunction"
                 }
               },
               "required": [
@@ -203,7 +222,7 @@
                 "Filters": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/$defs/DataSpaceWireFilter"
+                    "$ref": "../../../../../../spark-data/src/query/filter/data-view-filter-codec.ts.json#/$defs/DataViewFilterWire"
                   }
                 }
               },
@@ -277,13 +296,32 @@
               "type": "string"
             },
             "Operator": {
-              "$ref": "../../../../contracts/lowcode-wire-query.ts.json#/$defs/WireFilterOperator"
+              "enum": [
+                "contains",
+                "in",
+                "equal",
+                "notequal",
+                "greaterthan",
+                "greaterthanorequal",
+                "lessthan",
+                "lessthanorequal",
+                "isnull",
+                "isnotnull",
+                "nolike",
+                "startswith",
+                "nostartswith",
+                "endswith",
+                "notendswith",
+                "notin",
+                "isempty",
+                "isnotempty"
+              ]
             },
             "Value": {
               "type": "null"
             },
             "ValueFun": {
-              "$ref": "#/$defs/DataSpaceValueFunction"
+              "$ref": "../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterValueFunction"
             }
           },
           "required": [
@@ -307,7 +345,7 @@
             "Filters": {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/DataSpaceWireFilter"
+                "$ref": "../../../../../../spark-data/src/query/filter/data-view-filter-codec.ts.json#/$defs/DataViewFilterWire"
               }
             }
           },
@@ -384,7 +422,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-08T16:19:00.645Z",
+  "generatedAt": "2026-10-14T20:34:23.238Z",
   "models": {
     "DataSpaceValueFunction": {
       "name": "DataSpaceValueFunction",
@@ -655,17 +693,12 @@
       "jsdoc": "协议条件使用 ValueFun 且 Value 固定为 null；组以 Filters 递归组合。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    Type: 'cond';\n    Field: string;\n    Operator: WireFilterOperator;\n    Value: null;\n    ValueFun: DataSpaceValueFunction;\n}> | Readonly<{\n    Type: 'and' | 'or';\n    Filters: readonly DataSpaceWireFilter[];\n}>",
+        "declarationTypeText": "DataViewFilterWire",
         "declarationRelations": [
           {
-            "kind": "union",
-            "typeText": "Readonly<{\n    Type: 'cond';\n    Field: string;\n    Operator: WireFilterOperator;\n    Value: null;\n    ValueFun: DataSpaceValueFunction;\n}>",
-            "targetName": "Readonly"
-          },
-          {
-            "kind": "union",
-            "typeText": "Readonly<{\n    Type: 'and' | 'or';\n    Filters: readonly DataSpaceWireFilter[];\n}>",
-            "targetName": "Readonly"
+            "kind": "alias",
+            "typeText": "DataViewFilterWire",
+            "targetName": "DataViewFilterWire"
           }
         ],
         "members": {}

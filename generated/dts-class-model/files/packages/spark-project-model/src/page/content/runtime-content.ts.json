@@ -33,9 +33,9 @@
         },
         "status": {
           "enum": [
-            "unknown",
             "idle",
-            "pending"
+            "pending",
+            "unknown"
           ]
         },
         "submitted": {
@@ -113,6 +113,25 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "PageContentRuntime",
+      "properties": {
+        "baseline": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "draft": {
+          "type": "string"
+        },
+        "status": true,
+        "revision": {
+          "type": "number"
+        },
+        "isDirty": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -364,6 +383,33 @@
           "parameters": []
         },
         "members": {
+          "attributes": [
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draft",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "status",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDirty",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "snapshot",

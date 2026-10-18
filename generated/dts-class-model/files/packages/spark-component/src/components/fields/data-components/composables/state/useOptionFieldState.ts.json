@@ -22,6 +22,9 @@
       "type": "object",
       "title": "OptionFieldStateProps",
       "properties": {
+        "header": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+        },
         "label": {
           "type": "string"
         },
@@ -31,8 +34,59 @@
             true
           ]
         },
+        "placeholder": {
+          "type": "string"
+        },
+        "clearable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
         },
         "resizable": {
           "enum": [
@@ -73,11 +127,14 @@
             "custom"
           ]
         },
-        "field": {
-          "type": "string"
-        },
         "optionLabelField": {
           "type": "string"
+        },
+        "optionLabelFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "optionValueField": {
           "type": "string"
@@ -94,28 +151,16 @@
         "optionDataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -130,15 +175,6 @@
         "onChange": {
           "type": "object",
           "title": "(...args: unknown[]) => void | Promise<void>"
-        },
-        "clearable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "placeholder": {
-          "type": "string"
         },
         "dataSource": {
           "type": "object",
@@ -240,7 +276,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T20:15:05.643Z",
+  "generatedAt": "2026-10-10T11:03:19.955Z",
   "models": {
     "OptionFieldStateProps": {
       "name": "OptionFieldStateProps",

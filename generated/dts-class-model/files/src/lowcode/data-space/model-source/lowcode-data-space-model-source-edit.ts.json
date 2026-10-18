@@ -1,0 +1,1421 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-source-edit",
+    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-source-edit",
+    "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-model-source-edit\n职责：预览来源替换或当前来源字段同步，保留同名定义及派生字段配置。\n边界：正式记录归原DataView；删除须检查引用，来源合同变化须明确确认并校验最终模型。\nAI用途：沿原元数据视图的权限、批量保存和回读处理来源变更及未知结果。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SourceContractChange",
+      "SourceContractPlan",
+      "LowcodeDataSpaceModelSourceEdit"
+    ]
+  },
+  "$defs": {
+    "Reader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Reader",
+      "properties": {
+        "query": {
+          "type": "object",
+          "title": "(input: PageDataSpaceModelSourceQuery, dataSet: DataSet) => Promise<Readonly<{ rows: readonly PageDataSpaceModelSource[]; total: number; }>>"
+        },
+        "prepare": {
+          "type": "object",
+          "title": "(source: PageDataSpaceModelSource, dataSet: DataSet) => Promise<PageDataSpaceModelSourcePrepared>"
+        }
+      },
+      "required": [
+        "query",
+        "prepare"
+      ],
+      "additionalProperties": false
+    },
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "source": {
+          "type": "object",
+          "title": "PageDataSpaceModelSource"
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "type": "string"
+            },
+            "MetaName": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "DbId": {
+              "type": "string"
+            },
+            "DbName": {
+              "type": "string"
+            },
+            "JoinType": {
+              "type": "string"
+            },
+            "ForeignKeyFields": {
+              "type": "string"
+            },
+            "JoinFilter": {
+              "type": "string"
+            },
+            "PId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Type",
+            "MetaName",
+            "description",
+            "DbId",
+            "DbName",
+            "JoinType",
+            "ForeignKeyFields",
+            "JoinFilter",
+            "PId"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceField"
+          }
+        }
+      },
+      "required": [
+        "source",
+        "model",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "SourceContractChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SourceContractChange",
+      "properties": {
+        "after": {
+          "type": "object",
+          "title": "ReturnType<typeof DataSpaceDesignApi.projectModel>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.previous.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.previous.return": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "ReturnType<typeof DataSpaceDesignApi.projectModel>"
+        }
+      }
+    },
+    "SourceContractPlan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SourceContractPlan",
+      "properties": {
+        "viewChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tableName": {
+                "type": "string"
+              },
+              "viewId": {
+                "type": "string"
+              },
+              "fieldId": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tableName",
+              "viewId",
+              "fieldId",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.check.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.check.return": true,
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.complete.params": {
+          "type": "object",
+          "properties": {
+            "reconcile": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.complete.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "Preview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Preview",
+      "properties": {
+        "operation": {
+          "enum": [
+            "replace",
+            "synchronize"
+          ]
+        },
+        "removals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "removalChoices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "removed": {
+                "enum": [
+                  false,
+                  true
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "removed"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "inputChoices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceName": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "sourceName",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "inputParams": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "parameterWarning": {
+          "type": "string"
+        },
+        "contractChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              },
+              "accepted": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "patch": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "before",
+              "after",
+              "accepted",
+              "patch"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "viewChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tableName": {
+                "type": "string"
+              },
+              "viewId": {
+                "type": "string"
+              },
+              "fieldId": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tableName",
+              "viewId",
+              "fieldId",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "prepared": {
+          "$ref": "#/$defs/Prepared"
+        },
+        "differences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "result": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "problems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fieldChoices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "outputName": {
+                "type": "string"
+              },
+              "sourceName": {
+                "type": "string"
+              },
+              "candidates": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "outputName",
+              "sourceName",
+              "candidates"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceName": {
+                "type": "string"
+              },
+              "included": {
+                "enum": [
+                  false,
+                  true
+                ]
+              }
+            },
+            "required": [
+              "sourceName",
+              "included"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "relationChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "modelChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "property",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "expressionChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "property": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "property",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "fieldExpressionChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "operation",
+        "removals",
+        "removalChoices",
+        "inputChoices",
+        "inputParams",
+        "parameterWarning",
+        "contractChanges",
+        "viewChanges",
+        "name",
+        "prepared",
+        "differences",
+        "problems",
+        "fieldChoices",
+        "additions",
+        "relationChanges",
+        "modelChanges",
+        "expressionChanges",
+        "fieldExpressionChanges"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceModelSourceEdit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelSourceEdit",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "modelId": {
+                  "type": "string"
+                },
+                "sources": {
+                  "$ref": "#/$defs/Reader"
+                }
+              },
+              "required": [
+                "modelId",
+                "sources"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.confirmFieldContract.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "fieldId": {
+                  "type": "string"
+                },
+                "accepted": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "fieldId",
+                "accepted"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.confirmFieldContract.return": true,
+        "method.previewBoundSource.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.previewBoundSource.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.mapField.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "fieldId": {
+                  "type": "string"
+                },
+                "sourceName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "fieldId",
+                "sourceName"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.mapField.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.includeField.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "sourceName": {
+                  "type": "string"
+                },
+                "included": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "sourceName",
+                "included"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.includeField.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.removeField.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "fieldId": {
+                  "type": "string"
+                },
+                "removed": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "fieldId",
+                "removed"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeField.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.configureInput.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "sourceName": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sourceName",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.configureInput.return": true,
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "unknown",
+                "idle",
+                "ready",
+                "configuration",
+                "readback",
+                "unsubmitted",
+                "previewing",
+                "saving",
+                "different"
+              ]
+            },
+            "pending": {
+              "type": "boolean"
+            },
+            "preview": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Preview"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "verification": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "table": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "result": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "table",
+                  "id",
+                  "result"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "status",
+            "pending",
+            "preview",
+            "verification"
+          ],
+          "additionalProperties": false
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {
+            "source": true
+          },
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>"
+        },
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T13:05:50.010Z",
+  "models": {
+    "Reader": {
+      "name": "Reader",
+      "jsdoc": "与新增模型共享的正式来源能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<ConstructorParameters<typeof LowcodeDataSpaceModelCreate>[2]>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<ConstructorParameters<typeof LowcodeDataSpaceModelCreate>[2]>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "精确读取后的来源配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<Reader['prepare']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<Reader['prepare']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SourceContractChange": {
+      "name": "SourceContractChange",
+      "jsdoc": "同一正式模型在来源变更前后的投影；只描述定义，不携带运行行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 仅固定投影迁移及删除检查需要原合同；纯来源修复不要求旧来源先可装配。无数据字段时返回null。 */\n    previous(): ReturnType<typeof DataSpaceDesignApi.projectModel> | null;\n    /** 来源变更候选模型，字段沿用正式ID，只包含预览中的合同变化。 */\n    after: ReturnType<typeof DataSpaceDesignApi.projectModel>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 仅固定投影迁移及删除检查需要原合同；纯来源修复不要求旧来源先可装配。无数据字段时返回null。 */\n    previous(): ReturnType<typeof DataSpaceDesignApi.projectModel> | null;\n    /** 来源变更候选模型，字段沿用正式ID，只包含预览中的合同变化。 */\n    after: ReturnType<typeof DataSpaceDesignApi.projectModel>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "after",
+              "jsdoc": "来源变更候选模型，字段沿用正式ID，只包含预览中的合同变化。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "previous",
+              "jsdoc": "仅固定投影迁移及删除检查需要原合同；纯来源修复不要求旧来源先可装配。无数据字段时返回null。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ReturnType",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "typeof DataSpaceDesignApi.projectModel"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SourceContractPlan": {
+      "name": "SourceContractPlan",
+      "jsdoc": "数据库确认后接续原定义DataView的文件迁移，不另开文件写入通道。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 用户确认时可见的命名视图字段差异。 */\n    viewChanges: Array<{\n        tableName: string;\n        viewId: string;\n        fieldId: string;\n        before: string;\n        after: string;\n    }>;\n    /** 应用与派发期间核对本地文件基线及其他定义操作。 */\n    check(): void;\n    /** 数据库派发前核对远端文件基线。 */\n    assertCurrent(): Promise<void>;\n    /** 数据库已确认后保存或核验文件；不会重放数据库写入。 */\n    complete(reconcile: boolean): Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 用户确认时可见的命名视图字段差异。 */\n    viewChanges: Array<{\n        tableName: string;\n        viewId: string;\n        fieldId: string;\n        before: string;\n        after: string;\n    }>;\n    /** 应用与派发期间核对本地文件基线及其他定义操作。 */\n    check(): void;\n    /** 数据库派发前核对远端文件基线。 */\n    assertCurrent(): Promise<void>;\n    /** 数据库已确认后保存或核验文件；不会重放数据库写入。 */\n    complete(reconcile: boolean): Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "viewChanges",
+              "jsdoc": "用户确认时可见的命名视图字段差异。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "check",
+              "jsdoc": "应用与派发期间核对本地文件基线及其他定义操作。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "数据库派发前核对远端文件基线。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "complete",
+              "jsdoc": "数据库已确认后保存或核验文件；不会重放数据库写入。",
+              "parameters": [
+                {
+                  "name": "reconcile",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Preview": {
+      "name": "Preview",
+      "jsdoc": "来源替换的预览；正式记录仍归原DataView。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 同步保持已绑定来源；替换允许显式选择另一个来源。 */\n    operation: 'replace' | 'synchronize';\n    /** 同步已消失的字段或替换时明确选中的字段；保存前核验命令依赖。 */\n    removals: Array<{\n        id: string;\n        name: string;\n        type: string;\n    }>;\n    /** 来源已消失的普通字段可以显式选择移除，主键须同时校验候选合同。 */\n    removalChoices: Array<{\n        id: string;\n        name: string;\n        removed: boolean;\n    }>;\n    /** 新来源参数的明确取值；未配置时不得提交替换或同步。 */\n    inputChoices: Array<{\n        sourceName: string;\n        value: string;\n    }>;\n    /** 当前已保存的空间参数目录；不可读时常量仍可编辑。 */\n    inputParams: Array<{\n        value: string;\n        label: string;\n    }>;\n    /** 参数声明不可用的原因；不猜测引用。 */\n    parameterWarning: string;\n    /** 已有字段的类型/主键差异；只有明确确认才进入原视图变更。 */\n    contractChanges: Array<{\n        id: string;\n        name: string;\n        before: string;\n        after: string;\n        accepted: boolean;\n        patch: Record<string, unknown>;\n    }>;\n    /** 与本次来源合同一起确认、在数据库回读后提交的命名视图变化。 */\n    viewChanges: SourceContractPlan['viewChanges'];\n    /** 保持不变的模型注册名。 */\n    name: string;\n    /** 精确重读得到的来源。 */\n    prepared: Prepared;\n    /** 逐字段兼容性结果，不包含运行行或权限凭据。 */\n    differences: Array<{\n        name: string;\n        result: string;\n    }>;\n    /** 须先处理的迁移或诊断项。 */\n    problems: string[];\n    /** 原字段到同用途来源字段的显式选择；数据字段的合同差异另行确认。 */\n    fieldChoices: Array<{\n        id: string;\n        name: string;\n        outputName: string;\n        sourceName: string;\n        candidates: string[];\n    }>;\n    /** 尚未绑定的数据字段，可显式引入为输出列。 */\n    additions: Array<{\n        sourceName: string;\n        included: boolean;\n    }>;\n    /** 原始关系表达式与按本次字段映射生成的提交值；只在确认时写入。 */\n    relationChanges: Array<{\n        id: string;\n        before: string;\n        after: string;\n    }>;\n    /** 模型自身来源字段引用的原值和显式映射结果；输出名称不参与迁移。 */\n    modelChanges: Array<{\n        property: string;\n        before: string;\n        after: string;\n    }>;\n    /** 自身和依赖模型Filter字段引用变更；后端Join配置不参与本轮迁移。 */\n    expressionChanges: ReturnType<typeof LowcodeDataSpaceModelMigration.prepare>;\n    /** 本模型字段ValueFun中的明确来源引用变更；不修改输出名称。 */\n    fieldExpressionChanges: ReturnType<typeof LowcodeDataSpaceFieldMigration.prepare>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "operation",
+              "jsdoc": "同步保持已绑定来源；替换允许显式选择另一个来源。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removals",
+              "jsdoc": "同步已消失的字段或替换时明确选中的字段；保存前核验命令依赖。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removalChoices",
+              "jsdoc": "来源已消失的普通字段可以显式选择移除，主键须同时校验候选合同。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputChoices",
+              "jsdoc": "新来源参数的明确取值；未配置时不得提交替换或同步。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputParams",
+              "jsdoc": "当前已保存的空间参数目录；不可读时常量仍可编辑。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parameterWarning",
+              "jsdoc": "参数声明不可用的原因；不猜测引用。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contractChanges",
+              "jsdoc": "已有字段的类型/主键差异；只有明确确认才进入原视图变更。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewChanges",
+              "jsdoc": "与本次来源合同一起确认、在数据库回读后提交的命名视图变化。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "jsdoc": "保持不变的模型注册名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "prepared",
+              "jsdoc": "精确重读得到的来源。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "differences",
+              "jsdoc": "逐字段兼容性结果，不包含运行行或权限凭据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "problems",
+              "jsdoc": "须先处理的迁移或诊断项。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldChoices",
+              "jsdoc": "原字段到同用途来源字段的显式选择；数据字段的合同差异另行确认。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "additions",
+              "jsdoc": "尚未绑定的数据字段，可显式引入为输出列。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "relationChanges",
+              "jsdoc": "原始关系表达式与按本次字段映射生成的提交值；只在确认时写入。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelChanges",
+              "jsdoc": "模型自身来源字段引用的原值和显式映射结果；输出名称不参与迁移。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expressionChanges",
+              "jsdoc": "自身和依赖模型Filter字段引用变更；后端Join配置不参与本轮迁移。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldExpressionChanges",
+              "jsdoc": "本模型字段ValueFun中的明确来源引用变更；不修改输出名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelSourceEdit": {
+      "name": "LowcodeDataSpaceModelSourceEdit",
+      "jsdoc": "同一模型的来源替换流程；不提供破坏字段合同的快捷覆盖。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获目标；同步与替换均从C派生独立命名查询视图，生命周期归设计会话。",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string, options: Readonly<{\n        modelId: string;\n        sources: Reader;\n        validateConfiguration(): Promise<() => void>;\n        validateTransition?(model: Prepared['model']): Promise<() => void>;\n        prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n        validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n        assertCurrent(): void;\n        onDispatch(): void;\n        completed(): void;\n    }>)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        modelId: string;\n        sources: Reader;\n        validateConfiguration(): Promise<() => void>;\n        validateTransition?(model: Prepared['model']): Promise<() => void>;\n        prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n        validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n        assertCurrent(): void;\n        onDispatch(): void;\n        completed(): void;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "confirmFieldContract",
+              "jsdoc": "确认已有字段的来源合同差异；取消或重新预览会清除确认，不改正式行。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        fieldId: string;\n        accepted: boolean;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "previewBoundSource",
+              "jsdoc": "精确定位当前绑定来源，以独立所属字段视图预览增删；不修改正式记录或已有草稿。\n@throws 来源身份缺失、重名、权限不足或读取期间定义变化时拒绝，不按名称回退其他数据库/提供方。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "mapField",
+              "jsdoc": "显式映射同用途来源，保留记录和输出名；等待视图合同预览，类型/主键差异另行确认。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        fieldId: string;\n        sourceName: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "includeField",
+              "jsdoc": "显式引入尚未绑定的来源字段，等待候选模型/视图合同预览；不自动新增入参。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        sourceName: string;\n        included: boolean;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeField",
+              "jsdoc": "显式移除来源已不存在的普通定义，等待候选合同预览；删除仍经原引用检查与DataSet提交。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        fieldId: string;\n        removed: boolean;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "configureInput",
+              "jsdoc": "新来源参数必须明确配置，使用已有来源入参合同，不自动迁移旧值。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        sourceName: string;\n        value: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getState",
+              "jsdoc": "返回不含正式记录/授权的候选及流程状态，供预览与关闭保护。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        status: \"unknown\" | \"idle\" | \"ready\" | \"configuration\" | \"readback\" | \"unsubmitted\" | \"previewing\" | \"saving\" | \"different\";\n        pending: boolean;\n        preview: Preview | null;\n        verification: {\n            table: string;\n            id: string;\n            result: string;\n        }[];\n    }"
+              }
+            },
+            {
+              "name": "preview",
+              "jsdoc": "比较完整原元数据与候选来源，尚不改变记录。",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "unknown",
+                    "name": "Parameters<Reader['prepare']>[0]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "放弃尚未派发的来源选择。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "重新核对来源、映射及权限，提交原元数据视图的明确delta；各表分别核验结果。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "jsdoc": "仅放弃本操作未改变的delta并核验正式结果；不会重放写入。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        confirmed: boolean;\n        modelId: string | null;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "jsdoc": "显式采用刚回读的正式状态；不补写，也不宣称原替换已成功。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

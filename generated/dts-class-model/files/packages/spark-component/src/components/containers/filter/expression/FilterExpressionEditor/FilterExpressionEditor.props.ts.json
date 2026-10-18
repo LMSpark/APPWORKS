@@ -23,15 +23,42 @@
       "type": "object",
       "title": "FilterExpressionEditorProps",
       "properties": {
-        "modelValue": {
+        "display": {
+          "enum": [
+            "dialog",
+            "inline"
+          ]
+        },
+        "displayMode": {
+          "enum": [
+            "box",
+            "inline"
+          ]
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "clearable": {
+          "type": "boolean"
+        },
+        "dialogWidth": {
           "anyOf": [
             {
-              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+              "type": "string"
             },
             {
-              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+              "type": "number"
             }
           ]
+        },
+        "autoFullscreenBelow": {
+          "type": "number"
+        },
+        "modelValue": {
+          "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
         },
         "columns": {
           "type": "array",
@@ -49,10 +76,10 @@
           "type": "number"
         },
         "disabled": {
-          "enum": [
-            false,
-            true
-          ]
+          "type": "boolean"
+        },
+        "readonly": {
+          "type": "boolean"
         },
         "applyError": {
           "type": [
@@ -64,7 +91,19 @@
       "required": [
         "columns"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.onEditingChange.params": {
+          "type": "object",
+          "properties": {
+            "editing": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onEditingChange.return": true
+      }
     },
     "FilterExpressionEditorCondition": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -193,6 +232,10 @@
       "type": "object",
       "title": "FilterExpressionEditorDraft",
       "properties": {
+        "operatorLabels": {
+          "type": "object",
+          "title": "Record<Data.DataViewFilterOperator, string>"
+        },
         "root": {
           "$ref": "#/$defs/FilterExpressionEditorGroup"
         }
@@ -207,6 +250,45 @@
             }
           },
           "additionalProperties": false
+        },
+        "method.summarize.params": {
+          "type": "object",
+          "properties": {
+            "tree": {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+              }
+            },
+            "context": {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+            },
+            "root": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.summarize.return": {
+          "type": "string"
+        },
+        "method.summarizeValue.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+            },
+            "context": {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.summarizeValue.return": {
+          "type": "string"
         },
         "method.fields.params": {
           "type": "object",
@@ -223,7 +305,15 @@
         "method.fields.return": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterField"
+            "allOf": [
+              {
+                "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterField"
+              },
+              {
+                "type": "object",
+                "title": "Pick<Data.DataColumn, 'label'>"
+              }
+            ]
           }
         },
         "method.addCondition.params": {
@@ -286,19 +376,61 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T21:12:20.469Z",
+  "generatedAt": "2026-10-12T12:21:50.598Z",
   "models": {
     "FilterExpressionEditorProps": {
       "name": "FilterExpressionEditorProps",
-      "jsdoc": "完整过滤编辑输入；字段与函数上下文用于校验，应用错误由父级查询 owner 回传。",
+      "jsdoc": "完整过滤编辑输入；默认递归条件树，辅助JSON树/文本复用仓内编辑器并编辑同一表达式。字段与函数上下文用于校验，应用错误由父级查询 owner 回传。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "FilterExpressionEditor"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    modelValue?: Data.DataViewFilterTree | undefined;\n    columns: readonly Data.DataColumn[];\n    functionContext?: Data.DataViewFilterFunctionContext;\n    maxDepth?: number;\n    maxRules?: number;\n    disabled?: boolean;\n    applyError?: string | null | undefined;\n}",
+        "declarationTypeText": "{\n    /** 默认dialog；inline直接显示条件树，取消恢复已应用条件，不创建第二套过滤逻辑。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口的摘要样式；box为输入框，inline为参考页的行内文本链接。与display编辑模式不同。 */\n    displayMode?: 'box' | 'inline';\n    /** 空条件入口提示；省略或undefined为“空”，显式空字符串保留。 */\n    placeholder?: string | undefined;\n    /** 条件编辑窗口标题；省略或undefined为“过滤设置”，不改变过滤定义。 */\n    title?: string | undefined;\n    /** 是否显示快捷清空入口；默认true，false不禁止通过条件树编辑得到空条件，也不改变数据权限。 */\n    clearable?: boolean | undefined;\n    /** 常规窗口宽度；默认980px，数值按像素处理，字符串接受CSS宽度；全屏时忽略。 */\n    dialogWidth?: string | number | undefined;\n    /** 视口宽度小于等于该像素值时自动全屏；默认900，0或负数禁用；仅作用于过滤窗口。 */\n    autoFullscreenBelow?: number | undefined;\n    /** 未应用草稿或编辑弹窗存在时为true；接受应用、取消及释放后为false，不表示已保存。 */\n    onEditingChange?: (editing: boolean) => void;\n    modelValue?: Data.DataViewFilterTree | undefined;\n    /** 字段名称是条件身份，label用于显示；排除isComputed框架列及computeExpression本地计算列，树和JSON应用共用此查询字段目录。type选择常量输入类型。 */\n    columns: readonly Data.DataColumn[];\n    functionContext?: Data.DataViewFilterFunctionContext;\n    maxDepth?: number;\n    maxRules?: number;\n    disabled?: boolean;\n    /** 可浏览完整条件树和JSON，但不得修改、清空或应用；不会通知存在待提交编辑。disabled仍禁止打开。 */\n    readonly?: boolean;\n    applyError?: string | null | undefined;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "display",
+              "jsdoc": "默认dialog；inline直接显示条件树，取消恢复已应用条件，不创建第二套过滤逻辑。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayMode",
+              "jsdoc": "弹窗入口的摘要样式；box为输入框，inline为参考页的行内文本链接。与display编辑模式不同。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "placeholder",
+              "jsdoc": "空条件入口提示；省略或undefined为“空”，显式空字符串保留。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "条件编辑窗口标题；省略或undefined为“过滤设置”，不改变过滤定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearable",
+              "jsdoc": "是否显示快捷清空入口；默认true，false不禁止通过条件树编辑得到空条件，也不改变数据权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dialogWidth",
+              "jsdoc": "常规窗口宽度；默认980px，数值按像素处理，字符串接受CSS宽度；全屏时忽略。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoFullscreenBelow",
+              "jsdoc": "视口宽度小于等于该像素值时自动全屏；默认900，0或负数禁用；仅作用于过滤窗口。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "modelValue",
               "readable": true,
@@ -306,6 +438,7 @@
             },
             {
               "name": "columns",
+              "jsdoc": "字段名称是条件身份，label用于显示；排除isComputed框架列及computeExpression本地计算列，树和JSON应用共用此查询字段目录。type选择常量输入类型。",
               "readable": true,
               "writable": true
             },
@@ -330,9 +463,34 @@
               "writable": false
             },
             {
+              "name": "readonly",
+              "jsdoc": "可浏览完整条件树和JSON，但不得修改、清空或应用；不会通知存在待提交编辑。disabled仍禁止打开。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "applyError",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onEditingChange",
+              "jsdoc": "未应用草稿或编辑弹窗存在时为true；接受应用、取消及释放后为false，不表示已保存。",
+              "parameters": [
+                {
+                  "name": "editing",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -493,6 +651,12 @@
         "members": {
           "attributes": [
             {
+              "name": "operatorLabels",
+              "jsdoc": "条件摘要与条件行共用同一运算符文案。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "root",
               "readable": true,
               "writable": false
@@ -500,7 +664,85 @@
           ],
           "methods": [
             {
+              "name": "summarize",
+              "jsdoc": "参考组件的递归摘要；括号保留组关系，字段标题不替换字段身份，不执行表达式。",
+              "parameters": [
+                {
+                  "name": "tree",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Data.DataViewFilterTree"
+                    }
+                  }
+                },
+                {
+                  "name": "columns",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly Data.DataColumn[]"
+                  }
+                },
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "Data.DataViewFilterFunctionContext"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "root",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "summarizeValue",
+              "jsdoc": "条件行与摘要共用函数说明，密码成员始终不进入显示文本。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Data.DataViewFilterJsonValue"
+                    }
+                  }
+                },
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "Data.DataViewFilterFunctionContext"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
               "name": "fields",
+              "jsdoc": "查询条件只选择来源字段；框架标识与读取后计算的值不作为查询输入，旧条件保留原文并由校验诊断。",
               "parameters": [
                 {
                   "name": "columns",
@@ -511,8 +753,30 @@
                 }
               ],
               "type": {
-                "type": "unknown",
-                "name": "readonly Data.DataViewFilterField[]"
+                "type": "array",
+                "elementType": {
+                  "type": "intersection",
+                  "types": [
+                    {
+                      "type": "reference",
+                      "name": "Data.DataViewFilterField"
+                    },
+                    {
+                      "type": "reference",
+                      "name": "Pick",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "Data.DataColumn"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "label"
+                        }
+                      ]
+                    }
+                  ]
+                }
               }
             },
             {

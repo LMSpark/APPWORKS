@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props\n职责：定义统一模型字段工作区的目标与生命周期输入。\n边界：只传会话及身份，不传字段行或权限副本。\nAI用途：模型字段与共用字段规则绑定同一modelFields命名视图。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceModelFieldsProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceModelFieldsProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceModelFieldsProps",
+      "properties": {
+        "session": {
+          "$ref": "../../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "fieldIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "revision": {
+          "type": "number"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "workspaceActions": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "session",
+        "modelId",
+        "fieldIds",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-12T02:31:31.156Z",
+  "models": {
+    "DataSpaceModelFieldsProps": {
+      "name": "DataSpaceModelFieldsProps",
+      "jsdoc": "统一模型字段工作区参数。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceModelFields"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前设计会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 当前目标空间内的正式模型ID。 */\n    modelId: string;\n    /** 目录增删字段后重新读取，身份列表不替代绑定视图的数据。 */\n    fieldIds: readonly string[];\n    /** 当前会话修订，用于刷新字段操作状态。 */\n    revision: number;\n    /** 其他定义操作对本工作区的交互限制。 */\n    disabled?: boolean;\n    /** 使用模型窗口顶部保存；字段属性与当前模型记录的修改同批提交。 */\n    workspaceActions?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "jsdoc": "当前设计会话。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "当前目标空间内的正式模型ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldIds",
+              "jsdoc": "目录增删字段后重新读取，身份列表不替代绑定视图的数据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revision",
+              "jsdoc": "当前会话修订，用于刷新字段操作状态。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "其他定义操作对本工作区的交互限制。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workspaceActions",
+              "jsdoc": "使用模型窗口顶部保存；字段属性与当前模型记录的修改同批提交。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

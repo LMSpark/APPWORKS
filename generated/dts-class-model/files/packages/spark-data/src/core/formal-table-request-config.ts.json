@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:core/formal-table-request-config",
+    "sourcePath": "packages/spark-data/src/core/formal-table-request-config.ts",
+    "sourceFile": "packages/spark-data/src/core/formal-table-request-config.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "core/formal-table-request-config",
+    "jsdoc": "@module @spark-appworks/spark-data:core/formal-table-request-config\n职责：正式模型表请求配置的唯一解析与快照合同，供文件校验和运行请求共同使用。\n边界：纯数据校验，不持 HTTP、平台默认端点、作用域或权限；不限制通用 CRUD 配置。\nAI用途：确认正式 api/crudConfig 的允许项及凭据覆盖限制。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FormalTableRequestConfig"
+    ]
+  },
+  "$defs": {
+    "FormalTableRequestInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalTableRequestInput",
+      "properties": {
+        "api": true,
+        "crudConfig": true
+      },
+      "additionalProperties": false
+    },
+    "FormalTableRequestEndpoints": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalTableRequestEndpoints",
+      "properties": {
+        "delete": {
+          "$ref": "../types.ts.json#/$defs/HttpEndpoint"
+        },
+        "create": {
+          "$ref": "../types.ts.json#/$defs/HttpEndpoint"
+        },
+        "update": {
+          "$ref": "../types.ts.json#/$defs/HttpEndpoint"
+        },
+        "list": {
+          "$ref": "../types.ts.json#/$defs/HttpEndpoint"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormalTableRequestConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FormalTableRequestConfig",
+      "properties": {
+        "endpoints": {
+          "$ref": "#/$defs/FormalTableRequestEndpoints"
+        },
+        "timeout": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.parse.params": {
+          "type": "object",
+          "properties": {
+            "table": {
+              "$ref": "#/$defs/FormalTableRequestInput"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.parse.return": {
+          "$ref": "#/$defs/FormalTableRequestConfig"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-09T02:59:15.314Z",
+  "models": {
+    "FormalTableRequestInput": {
+      "name": "FormalTableRequestInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    api?: unknown;\n    crudConfig?: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    api?: unknown;\n    crudConfig?: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "api",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "crudConfig",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FormalTableRequestEndpoints": {
+      "name": "FormalTableRequestEndpoints",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Partial<Record<'list' | 'create' | 'update' | 'delete', HttpEndpoint>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Partial<Record<'list' | 'create' | 'update' | 'delete', HttpEndpoint>>",
+            "targetName": "Partial"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FormalTableRequestConfig": {
+      "name": "FormalTableRequestConfig",
+      "jsdoc": "捕获并规范化正式表的端点与策略；不修改调用者的配置。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "endpoints",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timeout",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "parse",
+              "jsdoc": "文件和运行边界共用校验；path 仅补充诊断，不改变允许的配置。",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "type": "reference",
+                    "name": "FormalTableRequestInput",
+                    "sourcePath": "packages/spark-data/src/core/formal-table-request-config.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "FormalTableRequestConfig",
+                "sourcePath": "packages/spark-data/src/core/formal-table-request-config.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -22,8 +22,44 @@
         "label": {
           "type": "string"
         },
+        "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "field": {
           "type": "string"
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
         },
         "modelValue": true,
         "value": true
@@ -35,6 +71,10 @@
       "type": "object",
       "title": "UseFieldPermissionOptions",
       "properties": {
+        "binding": {
+          "type": "object",
+          "title": "ReturnType<typeof useActiveFieldRow>"
+        },
         "props": {
           "$ref": "#/$defs/FieldPermissionProps"
         },
@@ -88,18 +128,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T20:10:09.465Z",
+  "generatedAt": "2026-10-16T07:15:01.364Z",
   "models": {
     "FieldPermissionProps": {
       "name": "FieldPermissionProps",
       "jsdoc": "Field Permission Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'label' | 'modelValue' | 'value'>, 'modelValue' | 'value'>> & {\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n}",
+        "declarationTypeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'label' | 'modelValue' | 'value' | 'readonly' | 'editOnDblclick'>, 'modelValue' | 'value'>> & {\n    /** model Value 字段。 */\n    modelValue?: TValue | undefined;\n    /** 当前值。 */\n    value?: TValue | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'label' | 'modelValue' | 'value'>, 'modelValue' | 'value'>>",
+            "typeText": "FieldComposableProps<Omit<Pick<SparkFieldSemanticProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'label' | 'modelValue' | 'value' | 'readonly' | 'editOnDblclick'>, 'modelValue' | 'value'>>",
             "targetName": "FieldComposableProps"
           },
           {
@@ -130,9 +170,15 @@
       "jsdoc": "Use Field Permission Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 组件属性集合。 */\n    props: FieldPermissionProps<TValue>;\n    /** 类型标识。 */\n    type: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown) => string;\n    /**\n     * 运行时类型校正函数。\n     *\n     * `sourceFieldValue` 从行数据中读取的原始值类型不可控（DataSet 行数据是 `unknown`），\n     * 此函数在赋给 `fieldValue` 之前统一做类型校正，避免非预期类型（如 boolean false）\n     * 流入 el-input / el-input-number 等的 :model-value，从而消除 Vue runtime prop 警告。\n     *\n     * 注意：仅对来自行数据的值应用；`props.modelValue` 显式传入时直接使用（调用方负责类型正确性）。\n     */\n    coerce: (rawValue: unknown) => TValue;\n    /** 控件值写入数据字段前的显式格式转换，仍经过当前字段权限。 */\n    toSourceValue?: (value: TValue) => unknown;\n}",
+        "declarationTypeText": "{\n    /** 选项字段共享的值绑定上下文。 */\n    binding?: ReturnType<typeof useActiveFieldRow>;\n    /** 组件属性集合。 */\n    props: FieldPermissionProps<TValue>;\n    /** 类型标识。 */\n    type: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown) => string;\n    /**\n     * 运行时类型校正函数。\n     *\n     * `sourceFieldValue` 从行数据中读取的原始值类型不可控（DataSet 行数据是 `unknown`），\n     * 此函数在赋给 `fieldValue` 之前统一做类型校正，避免非预期类型（如 boolean false）\n     * 流入 el-input / el-input-number 等的 :model-value，从而消除 Vue runtime prop 警告。\n     *\n     * 注意：仅对来自行数据的值应用；`props.modelValue` 显式传入时直接使用（调用方负责类型正确性）。\n     */\n    coerce: (rawValue: unknown) => TValue;\n    /** 控件值写入数据字段前的显式格式转换，仍经过当前字段权限。 */\n    toSourceValue?: (value: TValue) => unknown;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "binding",
+              "jsdoc": "选项字段共享的值绑定上下文。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "props",
               "jsdoc": "组件属性集合。",

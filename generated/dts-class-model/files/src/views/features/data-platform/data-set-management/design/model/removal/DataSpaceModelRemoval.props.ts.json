@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.props",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.props\n职责：限定删除组件的元数据会话与正式模型身份。\n边界：不传递独立数据或保存通道。\nAI用途：模型删除确认、取消和未决结果核验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceModelRemovalProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceModelRemovalProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceModelRemovalProps",
+      "properties": {
+        "session": {
+          "$ref": "../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "number"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "session",
+        "modelId",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-09T23:49:06.233Z",
+  "models": {
+    "DataSpaceModelRemovalProps": {
+      "name": "DataSpaceModelRemovalProps",
+      "jsdoc": "模型删除入口的实例范围。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceModelRemoval"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 原元数据会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 当前正式模型主键。 */\n    modelId: string;\n    /** 数据和权限更新后的渲染修订。 */\n    revision: number;\n    /** 其他操作期间禁止开始删除。 */\n    disabled?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "jsdoc": "原元数据会话。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "当前正式模型主键。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revision",
+              "jsdoc": "数据和权限更新后的渲染修订。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "其他操作期间禁止开始删除。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

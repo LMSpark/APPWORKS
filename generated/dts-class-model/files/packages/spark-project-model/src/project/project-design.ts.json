@@ -37,6 +37,75 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "ProjectBlueprintDesign",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "projectType": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "homeNodeId": {
+          "type": "string"
+        },
+        "homeNode": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rootNode": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "projectInfo": {
+          "$ref": "project-types.ts.json#/$defs/ProjectInfo"
+        },
+        "blueprintTree": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "pages": {
+          "type": "object",
+          "title": "Iterable<PageTool>"
+        },
+        "flatRows": {
+          "type": "array",
+          "items": {
+            "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+          }
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -333,6 +402,88 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tenantId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "homeNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "homeNode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootNode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createdAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "updatedAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectInfo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintTree",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pages",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flatRows",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "getChildNodes",

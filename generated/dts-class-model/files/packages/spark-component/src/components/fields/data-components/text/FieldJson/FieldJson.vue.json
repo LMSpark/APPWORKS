@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/FieldJson",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/text/FieldJson/FieldJson",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/text/FieldJson/FieldJson\n职责：将本仓JSON编辑器接入标准字段上下文、权限与写回链。\n边界：绑定切换和失权后旧事件不得写回，不执行规则或发保存请求。\nAI用途：通过r-json维护JSON配置字段，不在业务页面手传值或另建草稿。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "FieldJson",
+    "componentType": "r-json",
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T15:53:20.173Z",
+  "models": {}
+}

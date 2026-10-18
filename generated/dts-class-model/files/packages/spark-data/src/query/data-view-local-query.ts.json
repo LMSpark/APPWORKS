@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/data-view-local-query",
+    "sourcePath": "packages/spark-data/src/query/data-view-local-query.ts",
+    "sourceFile": "packages/spark-data/src/query/data-view-local-query.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/data-view-local-query",
+    "jsdoc": "@module @spark-appworks/spark-data:query/data-view-local-query\n职责：在资源已读取的记录上执行同一DataView过滤、排序、分页和输出投影。\n边界：不读取来源，不维护编辑态，不决定读写授权。\nAI用途：数组及文件资源适配器共享查询算法，业务页面不实现另一套查询。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewLocalQuery"
+    ]
+  },
+  "$defs": {
+    "DataViewLocalQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewLocalQuery",
+      "properties": {
+        "outputTypes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.select.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../types.ts.json#/$defs/DataRow"
+                  }
+                },
+                "fields": {
+                  "type": "object",
+                  "title": "ReadonlySet<string>"
+                },
+                "primaryKeys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "params": {
+                  "$ref": "../types.ts.json#/$defs/QueryParams"
+                }
+              },
+              "required": [
+                "rows",
+                "fields",
+                "primaryKeys",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.select.return": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataRow"
+              }
+            },
+            "total": {
+              "type": "number"
+            },
+            "output": {
+              "type": "object",
+              "title": "ReadonlySet<string>"
+            }
+          },
+          "required": [
+            "rows",
+            "total",
+            "output"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-14T20:34:23.234Z",
+  "models": {
+    "DataViewLocalQuery": {
+      "name": "DataViewLocalQuery",
+      "jsdoc": "已加载资源的查询执行器；结果仍由DataView接纳，行值保持原生类型。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "已加载资源的查询执行器；结果仍由DataView接纳，行值保持原生类型。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "outputTypes",
+              "jsdoc": "本地已读取集合支持的输出模式；SelfRefData读取完整集合，不执行服务器节点查询。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "select",
+              "jsdoc": "使用视图请求快照查询完整来源；主键始终保留，总数在分页之前计算。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        rows: readonly DataRow[];\n        fields: ReadonlySet<string>;\n        primaryKeys: readonly string[];\n        params: QueryParams;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        rows: DataRow[];\n        total: number;\n        output: ReadonlySet<string>;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

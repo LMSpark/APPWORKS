@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval\n职责：使用标准弹窗与按钮预览、取消和暂存计算字段删除。\n边界：不直接查询、授权或保存；提交和未决结果核验由原字段工作区承接。\nAI用途：确认后返回原工作区统一保存，不另建删除提交或恢复入口。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T04:21:10.892Z",
+  "models": {}
+}

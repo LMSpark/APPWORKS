@@ -20,6 +20,15 @@
         "labelField": {
           "type": "string"
         },
+        "labelFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "valueField": {
+          "type": "string"
+        },
         "childrenField": {
           "type": "string"
         },
@@ -37,28 +46,43 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-08T20:17:10.401Z",
+  "generatedAt": "2026-10-13T02:42:36.264Z",
   "models": {
     "OptionSourceOptions": {
       "name": "OptionSourceOptions",
-      "jsdoc": "",
+      "jsdoc": "选项视图的输出字段及已核验的临时级联结果；不承载业务查询或权限副本。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    labelField: string;\n    childrenField: string;\n    rows?: readonly DataRow[];\n}",
+        "declarationTypeText": "{\n    /** 选项显示字段；不可读时整项不进入候选集。 */\n    labelField: string;\n    /** 显式的标题回退字段；按各字段当次权限读取。 */\n    labelFields?: readonly string[];\n    /** 显式值字段；省略时复用视图的valueField或主键。 */\n    valueField?: string;\n    /** 嵌套选项的子节点字段。 */\n    childrenField: string;\n    /** loadOptionRows已核验的本次级联结果，省略时读取正式视图。 */\n    rows?: readonly DataRow[];\n}",
         "members": {
           "attributes": [
             {
               "name": "labelField",
+              "jsdoc": "选项显示字段；不可读时整项不进入候选集。",
               "readable": true,
               "writable": true
             },
             {
+              "name": "labelFields",
+              "jsdoc": "显式的标题回退字段；按各字段当次权限读取。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueField",
+              "jsdoc": "显式值字段；省略时复用视图的valueField或主键。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "childrenField",
+              "jsdoc": "嵌套选项的子节点字段。",
               "readable": true,
               "writable": true
             },
             {
               "name": "rows",
+              "jsdoc": "loadOptionRows已核验的本次级联结果，省略时读取正式视图。",
               "readable": true,
               "writable": false
             }

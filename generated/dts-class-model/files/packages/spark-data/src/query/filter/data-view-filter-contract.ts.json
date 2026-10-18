@@ -219,10 +219,10 @@
           "enum": [
             "number",
             "boolean",
-            "date",
-            "datetime",
             "select",
-            "text"
+            "date",
+            "text",
+            "datetime"
           ]
         },
         "operators": {
@@ -349,10 +349,18 @@
           }
         }
       },
-      "required": [
-        "name"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.loadFields.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadFields.return": {
+          "type": "object",
+          "title": "Promise<readonly DataViewFilterFunctionTableField[]>"
+        }
+      }
     },
     "DataViewFilterFlowNodeOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -417,12 +425,6 @@
           }
         },
         "apiAccounts": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/DataViewFilterValueOption"
-          }
-        },
-        "roleClassItems": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/DataViewFilterValueOption"
@@ -579,7 +581,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T23:49:17.790Z",
+  "generatedAt": "2026-10-12T20:45:22.177Z",
   "models": {
     "DataViewFilterOperator": {
       "name": "DataViewFilterOperator",
@@ -924,11 +926,11 @@
       "jsdoc": "值函数编辑器的表与字段目录，不代表查询结果或物理表绑定。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    name: string;\n    label?: string;\n    fields?: readonly DataViewFilterFunctionTableField[];\n}>",
+        "declarationTypeText": "Readonly<{\n    name: string;\n    label?: string;\n    fields?: readonly DataViewFilterFunctionTableField[];\n    /**\n     * 字段未提供时，独立编辑器按所选模型或表达式显式引用调用此目录读取器。\n     * 显式空 fields 表示已加载的空目录，不再调用；读取失败保留原草稿。\n     * 读取器由正式数据 owner 提供并核对身份/数据权限；不查询业务行、不执行值函数，不能序列化进过滤树。\n     */\n    loadFields?: () => Promise<readonly DataViewFilterFunctionTableField[]>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    name: string;\n    label?: string;\n    fields?: readonly DataViewFilterFunctionTableField[];\n}>",
+            "typeText": "Readonly<{\n    name: string;\n    label?: string;\n    fields?: readonly DataViewFilterFunctionTableField[];\n    /**\n     * 字段未提供时，独立编辑器按所选模型或表达式显式引用调用此目录读取器。\n     * 显式空 fields 表示已加载的空目录，不再调用；读取失败保留原草稿。\n     * 读取器由正式数据 owner 提供并核对身份/数据权限；不查询业务行、不执行值函数，不能序列化进过滤树。\n     */\n    loadFields?: () => Promise<readonly DataViewFilterFunctionTableField[]>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -948,6 +950,23 @@
               "name": "fields",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadFields",
+              "jsdoc": "字段未提供时，独立编辑器按所选模型或表达式显式引用调用此目录读取器。\n显式空 fields 表示已加载的空目录，不再调用；读取失败保留原草稿。\n读取器由正式数据 owner 提供并核对身份/数据权限；不查询业务行、不执行值函数，不能序列化进过滤树。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly DataViewFilterFunctionTableField[]"
+                  }
+                ]
+              }
             }
           ]
         }
@@ -997,11 +1016,11 @@
       "jsdoc": "值函数编辑目录与扩展定义；不作为后端函数白名单。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    tables?: readonly DataViewFilterFunctionTable[];\n    relatedFields?: readonly DataViewFilterValueOption[];\n    systemParams?: readonly DataViewFilterValueOption[];\n    groupValueTypes?: readonly DataViewFilterValueOption[];\n    apiPublicParams?: readonly DataViewFilterValueOption[];\n    inputParams?: readonly DataViewFilterValueOption[];\n    apiAccounts?: readonly DataViewFilterValueOption[];\n    roleClassItems?: readonly DataViewFilterValueOption[];\n    capabilities?: readonly DataViewFilterFunctionCapability[];\n    flowModelOptions?: readonly DataViewFilterValueOption[];\n    flowNodeOptionsByModelId?: DataViewFilterFlowNodeOptions;\n    definitions?: readonly DataViewFilterFunctionDefinition[];\n}>",
+        "declarationTypeText": "Readonly<{\n    tables?: readonly DataViewFilterFunctionTable[];\n    relatedFields?: readonly DataViewFilterValueOption[];\n    systemParams?: readonly DataViewFilterValueOption[];\n    groupValueTypes?: readonly DataViewFilterValueOption[];\n    apiPublicParams?: readonly DataViewFilterValueOption[];\n    inputParams?: readonly DataViewFilterValueOption[];\n    apiAccounts?: readonly DataViewFilterValueOption[];\n    capabilities?: readonly DataViewFilterFunctionCapability[];\n    flowModelOptions?: readonly DataViewFilterValueOption[];\n    flowNodeOptionsByModelId?: DataViewFilterFlowNodeOptions;\n    definitions?: readonly DataViewFilterFunctionDefinition[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    tables?: readonly DataViewFilterFunctionTable[];\n    relatedFields?: readonly DataViewFilterValueOption[];\n    systemParams?: readonly DataViewFilterValueOption[];\n    groupValueTypes?: readonly DataViewFilterValueOption[];\n    apiPublicParams?: readonly DataViewFilterValueOption[];\n    inputParams?: readonly DataViewFilterValueOption[];\n    apiAccounts?: readonly DataViewFilterValueOption[];\n    roleClassItems?: readonly DataViewFilterValueOption[];\n    capabilities?: readonly DataViewFilterFunctionCapability[];\n    flowModelOptions?: readonly DataViewFilterValueOption[];\n    flowNodeOptionsByModelId?: DataViewFilterFlowNodeOptions;\n    definitions?: readonly DataViewFilterFunctionDefinition[];\n}>",
+            "typeText": "Readonly<{\n    tables?: readonly DataViewFilterFunctionTable[];\n    relatedFields?: readonly DataViewFilterValueOption[];\n    systemParams?: readonly DataViewFilterValueOption[];\n    groupValueTypes?: readonly DataViewFilterValueOption[];\n    apiPublicParams?: readonly DataViewFilterValueOption[];\n    inputParams?: readonly DataViewFilterValueOption[];\n    apiAccounts?: readonly DataViewFilterValueOption[];\n    capabilities?: readonly DataViewFilterFunctionCapability[];\n    flowModelOptions?: readonly DataViewFilterValueOption[];\n    flowNodeOptionsByModelId?: DataViewFilterFlowNodeOptions;\n    definitions?: readonly DataViewFilterFunctionDefinition[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1039,11 +1058,6 @@
             },
             {
               "name": "apiAccounts",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "roleClassItems",
               "readable": true,
               "writable": false
             },

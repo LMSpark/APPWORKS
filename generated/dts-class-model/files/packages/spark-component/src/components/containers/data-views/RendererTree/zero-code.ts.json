@@ -352,7 +352,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T11:35:59.403Z",
+  "generatedAt": "2026-10-09T22:50:53.757Z",
   "models": {
     "RendererTreeNode": {
       "name": "RendererTreeNode",
@@ -833,7 +833,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 树节点交互回调；可通过 control.cancel() 接管默认选中、展开等行为。 */\n    (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent, control: TreeEventControl): void | Promise<void>;\n}",
+        "declarationTypeText": "{\n    /** 树节点交互回调；设置 control.cancel = true 阻止组件默认行为。 */\n    (data: RendererTreeNode, node: ElTreeNode, component: ElTreeComponent, control: TreeEventControl): void | Promise<void>;\n}",
         "members": {}
       }
     },

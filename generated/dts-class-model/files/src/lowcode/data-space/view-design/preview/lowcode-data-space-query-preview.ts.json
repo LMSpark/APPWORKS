@@ -1,0 +1,452 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/view-design/preview/lowcode-data-space-query-preview",
+    "sourcePath": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
+    "sourceFile": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/view-design/preview/lowcode-data-space-query-preview",
+    "jsdoc": "@module app:lowcode/data-space/view-design/preview/lowcode-data-space-query-preview\n职责：持有查询预览的独立PageRuntime，查询实际命名DataView并管理释放。\n边界：不复制正式数据或权限，不保存配置；原DataView执行过滤、依赖与分页。\nAI用途：原生设计页将标准组件绑定到runtime和dataViewKey，关闭时dispose。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceQueryPreview"
+    ]
+  },
+  "$defs": {
+    "DataSpacePreviewQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpacePreviewQuery",
+      "properties": {
+        "context": {
+          "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataViewQueryContext"
+        },
+        "pageSize": {
+          "type": "number"
+        },
+        "queryConfig": {
+          "type": "object",
+          "properties": {
+            "tree": {
+              "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "outputType": {
+              "type": "string"
+            },
+            "allPages": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "maxRows": {
+              "type": "number"
+            },
+            "sourceInputMode": {
+              "enum": [
+                "mapped",
+                "direct"
+              ]
+            },
+            "cacheType": {
+              "enum": [
+                "page",
+                "none",
+                "browser"
+              ]
+            },
+            "autoQuery": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "filterLookups": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataViewFilterLookupConfig"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "context"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceQueryPreview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceQueryPreview",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "disposed": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "modelName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            },
+            "lifecycle": {
+              "type": "object",
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onDispose.params": {
+          "type": "object",
+          "properties": {
+            "listener": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onDispose.return": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "method.bindInputs.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "bindings": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataViewCascadeInputBinding"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindInputs.return": true,
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataSpacePreviewQuery"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.snapshot.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.snapshot.return": {
+          "type": "object",
+          "properties": {
+            "total": {
+              "type": "number"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "import(\"@spark-appworks/spark-data\").DataRow"
+              }
+            }
+          },
+          "required": [
+            "total",
+            "fields",
+            "rows"
+          ],
+          "additionalProperties": false
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T13:20:42.315Z",
+  "models": {
+    "DataSpacePreviewQuery": {
+      "name": "DataSpacePreviewQuery",
+      "jsdoc": "一次预览调用的参数值；不修改参数声明或场景文件。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: ViewMetadata['queryConfig'];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: ViewMetadata['queryConfig'];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "context",
+              "jsdoc": "本次调用参数值，按原类型叠加视图配置参数。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "jsdoc": "显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryConfig",
+              "jsdoc": "替换本预览视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceQueryPreview": {
+      "name": "LowcodeDataSpaceQueryPreview",
+      "jsdoc": "查询实例只供预览呈现；保留原查询的数据权限，释放后不得继续使用。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "接管已装配的独立DataSet；文件通知或调用方关闭时释放。",
+          "signatureText": "constructor(dataSet: DataSet, modelName: string, viewId: string, lifecycle: Readonly<{\n        assertCurrent(): void;\n        subscribe(listener: () => void): () => void;\n    }>)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "modelName",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "viewId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "lifecycle",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        assertCurrent(): void;\n        subscribe(listener: () => void): () => void;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "jsdoc": "仅本预览持有的运行实例，供标准子组件解析完整绑定。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "目标空间ID@正式模型注册名@命名视图ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "jsdoc": "已装配的实际命名视图，不是结果快照或另一份本地行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disposed",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onDispose",
+              "jsdoc": "订阅本次预览的释放，供宿主撤下旧结果与操作；不订阅业务数据。\n@param listener 运行实例释放后同步调用一次；已经释放时立即调用。\n@returns 取消订阅函数；宿主卸载时调用，不影响预览本身。",
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "bindInputs",
+              "jsdoc": "将参数表绑定为查询级联输入；依赖视图只失效待用，结果视图自动重查。",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "bindings",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataViewCascadeInputBinding[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "已绑定输入的重试入口；查询配置、依赖和数据权限均由DataView执行。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "query",
+              "jsdoc": "按本次JSON参数查询；保留类型、视图默认参数、依赖过滤和分页，不写回设计配置。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpacePreviewQuery",
+                    "sourcePath": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "snapshot",
+              "jsdoc": "为现有四文件预览提供可显示快照；不输出隐藏字段或原始脱敏值。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        total: number;\n        fields: string[];\n        rows: import(\"@spark-appworks/spark-data\").DataRow[];\n    }"
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放预览及其运行数据；取消不改动元数据和场景文件。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

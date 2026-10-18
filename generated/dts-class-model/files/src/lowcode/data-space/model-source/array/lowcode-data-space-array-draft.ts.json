@@ -1,0 +1,493 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/array/lowcode-data-space-array-draft",
+    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/array/lowcode-data-space-array-draft",
+    "jsdoc": "@module app:lowcode/data-space/model-source/array/lowcode-data-space-array-draft\n职责：数组的局部定义输入、表头确认与JSON成员迁移。\n边界：未确认输入绑定元空间内临时DataView；正式新增或变更分别交回所属定义owner。\nAI用途：新建数组及已有数组表头输入；已有正式字段引用由ArrayEdit提交前核验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ArrayDefinition",
+      "LowcodeDataSpaceArrayDraft"
+    ]
+  },
+  "$defs": {
+    "Header": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Header",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "primary": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "label",
+        "order",
+        "primary"
+      ],
+      "additionalProperties": false
+    },
+    "ArrayDefinition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ArrayDefinition",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "items": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Header"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "items",
+        "headers"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceArrayDraft": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceArrayDraft",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "key": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "initial": {
+              "$ref": "#/$defs/ArrayDefinition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.headers.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.headers.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Header"
+          }
+        },
+        "method.beginHeaders.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beginHeaders.return": true,
+        "method.cancelHeaders.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancelHeaders.return": true,
+        "method.applyHeaders.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.applyHeaders.return": true,
+        "method.definition.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.definition.return": {
+          "$ref": "#/$defs/ArrayDefinition"
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ArrayDefinition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "object",
+              "properties": {
+                "Type": {
+                  "type": "string"
+                },
+                "MetaName": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "string"
+                },
+                "PrimaryKeyFields": {
+                  "type": "string"
+                },
+                "DbId": {
+                  "type": "string"
+                },
+                "DbName": {
+                  "type": "string"
+                },
+                "JoinType": {
+                  "type": "string"
+                },
+                "ForeignKeyFields": {
+                  "type": "string"
+                },
+                "JoinFilter": {
+                  "type": "string"
+                },
+                "PId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "Type",
+                "MetaName",
+                "description",
+                "items",
+                "PrimaryKeyFields",
+                "DbId",
+                "DbName",
+                "JoinType",
+                "ForeignKeyFields",
+                "JoinFilter",
+                "PId"
+              ],
+              "additionalProperties": false
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "Name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "FieldType": {
+                    "type": "string"
+                  },
+                  "IsPKey": {
+                    "type": "number"
+                  },
+                  "IsOutput": {
+                    "type": "number"
+                  },
+                  "AsName": {
+                    "type": "string"
+                  },
+                  "ValueFun": {
+                    "type": "string"
+                  },
+                  "Expression": {
+                    "type": "string"
+                  },
+                  "allowAIAdd": {
+                    "type": "number"
+                  },
+                  "OrderType": {
+                    "type": "string"
+                  },
+                  "Order": {
+                    "type": "number"
+                  },
+                  "Group": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "Name",
+                  "description",
+                  "FieldType",
+                  "IsPKey",
+                  "IsOutput",
+                  "AsName",
+                  "ValueFun",
+                  "Expression",
+                  "allowAIAdd",
+                  "OrderType",
+                  "Order",
+                  "Group"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "model",
+            "fields"
+          ],
+          "additionalProperties": false
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-11T01:54:43.340Z",
+  "models": {
+    "Header": {
+      "name": "Header",
+      "jsdoc": "表头稳定身份：已有定义保留正式字段ID，新定义使用局部身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 局部表头身份，用于同时改名/排序时追踪JSON成员。 */\n    id: string;\n    /** 字段名称。 */\n    name: string;\n    /** 字段标题。 */\n    label: string;\n    /** 表头顺序。 */\n    order: number;\n    /** 是否选作运行主键。 */\n    primary: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "局部表头身份，用于同时改名/排序时追踪JSON成员。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "jsdoc": "字段名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "label",
+              "jsdoc": "字段标题。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "order",
+              "jsdoc": "表头顺序。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "primary",
+              "jsdoc": "是否选作运行主键。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ArrayDefinition": {
+      "name": "ArrayDefinition",
+      "jsdoc": "已确认的数组输入；不携带后端权限或自行指定新增记录ID。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 新模型注册名。 */\n    name: string;\n    /** 新模型描述。 */\n    description: string;\n    /** 对象数组JSON原文。 */\n    items: string;\n    /** 已确认字段定义。 */\n    headers: readonly Header[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "新模型注册名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "description",
+              "jsdoc": "新模型描述。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "items",
+              "jsdoc": "对象数组JSON原文。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "headers",
+              "jsdoc": "已确认字段定义。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceArrayDraft": {
+      "name": "LowcodeDataSpaceArrayDraft",
+      "jsdoc": "本次窗口的唯一局部输入视图；行编辑与取消复用DataView及标准JSON字段。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "只建立未确认输入，不新增正式模型或字段。",
+          "signatureText": "constructor(dataSet: DataSet, initial?: ArrayDefinition)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "initial",
+              "type": {
+                "type": "reference",
+                "name": "ArrayDefinition",
+                "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "标准表单、数组数据及表头组件绑定的输入视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "key",
+              "jsdoc": "同一元空间内的完整绑定身份。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "headers",
+              "jsdoc": "已确认表头，供页面生成字段子组件。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Header",
+                  "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts"
+                }
+              }
+            },
+            {
+              "name": "beginHeaders",
+              "jsdoc": "打开表头窗口；单独的编辑值只在确认时替换数组定义。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancelHeaders",
+              "jsdoc": "放弃未确认表头，原数组数据与表头不变。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "applyHeaders",
+              "jsdoc": "同时处理全部表头改名/删列，防止交换名称时覆盖原值；未知成员保持。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "definition",
+              "jsdoc": "校验当前已确认定义；未确认表头不参与正式提交。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ArrayDefinition",
+                "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts"
+              }
+            },
+            {
+              "name": "prepare",
+              "jsdoc": "纯定义转正式新增字段；入口再次校验，不能借结构化参数绕过UI校验。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ArrayDefinition",
+                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        model: {\n            Type: string;\n            MetaName: string;\n            description: string;\n            items: string;\n            PrimaryKeyFields: string;\n            DbId: string;\n            DbName: string;\n            JoinType: string;\n            ForeignKeyFields: string;\n            JoinFilter: string;\n            PId: string;\n        };\n        fields: {\n            type: string;\n            Name: string;\n            description: string;\n            FieldType: string;\n            IsPKey: number;\n            IsOutput: number;\n            AsName: string;\n            ValueFun: string;\n            Expression: string;\n            allowAIAdd: number;\n            OrderType: string;\n            Order: number;\n            Group: number;\n        }[];\n    }"
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "仅释放本次局部输入；不影响正式视图或未决新增记录。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

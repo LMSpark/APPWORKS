@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayHeaders",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayHeaders.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayHeaders.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayHeaders",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayHeaders\n职责：原生数组表头窗口的标准组件编排，新建与已有数组共用。\n边界：只编辑传入定义视图，正式模型与字段提交由既有owner负责。\nAI用途：字段名、标题、排序与主键的确认和取消。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T17:25:05.035Z",
+  "models": {}
+}

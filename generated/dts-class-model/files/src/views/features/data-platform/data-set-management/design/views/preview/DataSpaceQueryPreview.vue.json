@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview\n职责：以标准组件绑定独立预览DataView，输入调用参数、查询并呈现原数据权限。\n边界：运行数据不进入元数据或文件草稿；关闭释放实例，失败不呈现旧结果。\nAI用途：正式模型及命名视图的原生查询预览，数据交互使用PageRuntime和spark-data API。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T16:46:39.883Z",
+  "models": {}
+}

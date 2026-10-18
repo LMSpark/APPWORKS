@@ -1,0 +1,342 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/removal/lowcode-data-space-field-remove",
+    "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/removal/lowcode-data-space-field-remove",
+    "jsdoc": "@module app:lowcode/data-space/model-source/removal/lowcode-data-space-field-remove\n职责：计算字段定义的删除预览、原批次提交及精确回读。\n边界：不删除物理字段或自动改写引用；数据权限、暂存及写入归原DataView/DataSet。\nAI用途：确认和取消删除，未决结果只核验，不重复提交。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceFieldRemove"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceFieldRemove": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceFieldRemove",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "fieldId": {
+              "type": "string"
+            },
+            "lifecycle": {
+              "type": "object",
+              "additionalProperties": false
+            },
+            "fieldViewId": {
+              "enum": [
+                "default",
+                "modelFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "unknown",
+                "staged",
+                "idle",
+                "ready",
+                "readback",
+                "previewing",
+                "saving",
+                "different"
+              ]
+            },
+            "pending": {
+              "type": "boolean"
+            },
+            "verification": {
+              "type": "string"
+            },
+            "dataViewKey": {
+              "type": "string"
+            },
+            "preview": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "modelId": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "outputName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "modelId",
+                "name",
+                "outputName"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "status",
+            "pending",
+            "verification",
+            "dataViewKey",
+            "preview"
+          ],
+          "additionalProperties": false
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.stage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stage.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.prepareSave.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.prepareSave.return": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionSavePart"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-17T10:15:30.819Z",
+  "models": {
+    "LowcodeDataSpaceFieldRemove": {
+      "name": "LowcodeDataSpaceFieldRemove",
+      "jsdoc": "单个正式计算字段的删除流程，保留行消失后的核验状态。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获元数据查询；依赖与文件一致性由当前设计会话校验。",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string, fieldId: string, lifecycle: Readonly<{\n        assertCurrent(): void;\n        onDispatch(): void;\n        validate(row: DataRow, views: readonly DataView[]): Promise<() => void>;\n        fieldWorkspaces?(modelId: string): ReadonlyArray<Readonly<{\n            view: DataView;\n            ids: readonly string[];\n            allowPending?: boolean;\n        }>>;\n    }>, fieldViewId?: 'default' | 'modelFields')",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "fieldId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "lifecycle",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        assertCurrent(): void;\n        onDispatch(): void;\n        validate(row: DataRow, views: readonly DataView[]): Promise<() => void>;\n        fieldWorkspaces?(modelId: string): ReadonlyArray<Readonly<{\n            view: DataView;\n            ids: readonly string[];\n            allowPending?: boolean;\n        }>>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "fieldViewId",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "default"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "modelFields"
+                  }
+                ]
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "getState",
+              "jsdoc": "删除目标和确认状态；不暴露原授权凭据。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        status: \"unknown\" | \"staged\" | \"idle\" | \"ready\" | \"readback\" | \"previewing\" | \"saving\" | \"different\";\n        pending: boolean;\n        verification: string;\n        dataViewKey: string;\n        preview: {\n            id: string;\n            modelId: string;\n            name: string;\n            outputName: string;\n        } | null;\n    }"
+              }
+            },
+            {
+              "name": "preview",
+              "jsdoc": "只检查计算字段、所属模型和依赖，预览不产生删除草稿。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "取消预览或还原原视图待删除记录；已发出的删除不提供本地回滚。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "stage",
+              "jsdoc": "确认删除只暂存原绑定视图，顶部保存统一提交。删除取代本行尚未应用的编辑。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareSave",
+              "jsdoc": "将原视图待删除记录加入同一模型保存阶段；不创建第二份删除数据。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceDefinitionSavePart",
+                "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "独立调用同样使用统一定义批次；页面确认只stage，模型保存组合prepareSave。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "jsdoc": "只读核验；空结果不替代缺失的删除回执。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "jsdoc": "显式采用刚核验的正式状态；不宣称原删除成功，也不补删。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

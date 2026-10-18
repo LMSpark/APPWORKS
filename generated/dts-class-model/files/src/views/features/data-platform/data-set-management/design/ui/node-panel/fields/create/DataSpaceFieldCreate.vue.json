@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate\n职责：标准组件绑定计算字段输入视图，调用原新增流程。\n边界：不查询、不授权、不保存文件，不复制创建草稿。\nAI用途：计算字段新增、取消及未知结果核验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-15T03:40:09.709Z",
+  "models": {}
+}

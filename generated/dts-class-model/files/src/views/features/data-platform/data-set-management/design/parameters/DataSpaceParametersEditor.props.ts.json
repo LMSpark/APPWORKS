@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+    "jsdoc": "app 的 views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 模块。\n导出 DtsTypeDeclarationModel symbol: DataSpaceParametersEditorProps（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "DataSpaceParametersEditorProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceParametersEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceParametersEditorProps",
+      "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "disabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onEditingChange.params": {
+          "type": "object",
+          "properties": {
+            "editing": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onEditingChange.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-15T04:37:20.220Z",
+  "models": {
+    "DataSpaceParametersEditorProps": {
+      "name": "DataSpaceParametersEditorProps",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceParametersEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原inputParams记录所属视图；标准JSON字段直接编辑currentRow.inputParams。 */\n    dataViewKey: string;\n    disabled?: boolean;\n    /** 尚有未确认行草稿时阻止外层保存；外层取消可销毁该编辑器。 */\n    onEditingChange?: (editing: boolean) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原inputParams记录所属视图；标准JSON字段直接编辑currentRow.inputParams。 */\n    dataViewKey: string;\n    disabled?: boolean;\n    /** 尚有未确认行草稿时阻止外层保存；外层取消可销毁该编辑器。 */\n    onEditingChange?: (editing: boolean) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "jsdoc": "原inputParams记录所属视图；标准JSON字段直接编辑currentRow.inputParams。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onEditingChange",
+              "jsdoc": "尚有未确认行草稿时阻止外层保存；外层取消可销毁该编辑器。",
+              "parameters": [
+                {
+                  "name": "editing",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

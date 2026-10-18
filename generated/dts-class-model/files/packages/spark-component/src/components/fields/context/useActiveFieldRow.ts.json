@@ -7,11 +7,72 @@
     "sourceFile": "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "components/fields/context/useActiveFieldRow",
-    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useActiveFieldRow\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/useActiveFieldRow 的模块能力，围绕 模块入口、副作用注册或内部组合逻辑 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/useActiveFieldRow 的声明、导出和使用边界时，从本模块开始。",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useActiveFieldRow\n职责：解析字段值绑定，保持视图、数据成员、行指针和编辑覆盖一致。\n边界：复用PageRuntime和DataView，不查询、不保存，不以父上下文替代失效的显式绑定。\nAI用途：标准字段取值、权限及选项级联共用此上下文。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": []
+    "symbols": [
+      "FieldValueBindingProps"
+    ]
   },
-  "$defs": {},
-  "generatedAt": "2026-06-11T12:38:13.527Z",
-  "models": {}
+  "$defs": {
+    "FieldValueBindingProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldValueBindingProps",
+      "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-16T07:15:01.363Z",
+  "models": {
+    "FieldValueBindingProps": {
+      "name": "FieldValueBindingProps",
+      "jsdoc": "字段值绑定属性；与选项来源绑定分别解析。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'dataViewKey' | 'dataMember' | 'dataField' | 'field' | 'editOnDblclick'>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'dataViewKey' | 'dataMember' | 'dataField' | 'field' | 'editOnDblclick'>>",
+            "targetName": "FieldComposableProps"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
 }

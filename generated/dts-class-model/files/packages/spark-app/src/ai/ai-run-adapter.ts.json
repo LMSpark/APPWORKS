@@ -252,10 +252,7 @@
         },
         "agUiEvents": {
           "type": "array",
-          "items": {
-            "type": "object",
-            "title": "AGUIEvent"
-          }
+          "items": true
         },
         "timeline": {
           "type": "array",

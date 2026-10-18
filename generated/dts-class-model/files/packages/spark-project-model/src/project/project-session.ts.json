@@ -103,6 +103,28 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "ProjectSession",
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/ProjectSessionState"
+        },
+        "blueprintDraft": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraft"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isBlueprintEditing": {
+          "type": "boolean"
+        },
+        "blueprintDirty": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -332,6 +354,28 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintDraft",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isBlueprintEditing",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintDirty",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "setBlueprintDraft",

@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props\n职责：连接正式字段配置编辑器与当前元数据会话。\n边界：只传当前会话和字段身份，不传数据或权限副本。\nAI用途：在已确认所属模型的字段节点挂载编辑器。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceFieldEditorProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceFieldEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFieldEditorProps",
+      "properties": {
+        "session": {
+          "$ref": "../../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+        },
+        "fieldId": {
+          "type": "string"
+        },
+        "fieldIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "viewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        },
+        "revision": {
+          "type": "number"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "workspaceModelId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "session",
+        "fieldId",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-10T23:40:44.219Z",
+  "models": {
+    "DataSpaceFieldEditorProps": {
+      "name": "DataSpaceFieldEditorProps",
+      "jsdoc": "正式字段配置编辑器的当前调用范围。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceFieldEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前目标空间的元数据会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** Base_DataModel_Field的正式主键；批量空模型传空串，仅保留模型级入口，不创建字段编辑流程。 */\n    fieldId: string;\n    /** 批量模式下同一模型的正式字段主键；草稿仍在原DataView。 */\n    fieldIds?: readonly string[] | undefined;\n    /** 元模型列表与表单共同绑定modelFields；独立字段入口使用default。 */\n    viewId?: 'default' | 'modelFields';\n    /** 原生视图事件触发的呈现修订。 */\n    revision: number;\n    /** 页面操作只收紧交互，不授予数据权限。 */\n    disabled?: boolean;\n    /** 模型窗口合并保存时的模型ID；省略时只维护当前字段批次。 */\n    workspaceModelId?: string | undefined;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "jsdoc": "当前目标空间的元数据会话。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldId",
+              "jsdoc": "Base_DataModel_Field的正式主键；批量空模型传空串，仅保留模型级入口，不创建字段编辑流程。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldIds",
+              "jsdoc": "批量模式下同一模型的正式字段主键；草稿仍在原DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "jsdoc": "元模型列表与表单共同绑定modelFields；独立字段入口使用default。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "jsdoc": "原生视图事件触发的呈现修订。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "页面操作只收紧交互，不授予数据权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workspaceModelId",
+              "jsdoc": "模型窗口合并保存时的模型ID；省略时只维护当前字段批次。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

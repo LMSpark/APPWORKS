@@ -164,11 +164,11 @@
               "type": "object",
               "title": "((index: number) => string | number | SparkNode | undefined) & ((index: number) => SparkNode | undefined)"
             },
-            "__@iterator@158691": {
+            "__@iterator@194633": {
               "type": "object",
               "title": "(() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>)"
             },
-            "__@unscopables@158693": {
+            "__@unscopables@194635": {
               "type": "object",
               "properties": {
                 "length": {
@@ -369,13 +369,13 @@
                     true
                   ]
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "enum": [
                     false,
                     true
                   ]
                 },
-                "__@unscopables@158693": {
+                "__@unscopables@194635": {
                   "enum": [
                     false,
                     true
@@ -419,15 +419,15 @@
             "flatMap",
             "flat",
             "at",
-            "__@iterator@158691",
-            "__@unscopables@158693"
+            "__@iterator@194633",
+            "__@unscopables@194635"
           ],
           "additionalProperties": false
         },
         "permissionDeniedMode": {
           "enum": [
-            "hide",
-            "disable"
+            "disable",
+            "hide"
           ]
         },
         "class": {
@@ -435,6 +435,18 @@
         },
         "dataViewKey": {
           "type": "string"
+        },
+        "autoQuery": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "expressionDisplay": {
+          "enum": [
+            "dialog",
+            "inline"
+          ]
         },
         "filterFunctionContext": {
           "$ref": "../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
@@ -498,11 +510,11 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T05:52:54.283Z",
+  "generatedAt": "2026-10-11T06:11:50.996Z",
   "models": {
     "RFilterProps": {
       "name": "RFilterProps",
-      "jsdoc": "`r-filter` / `RendererFilter` 完整属性定义。\nSSOT 设计：r-filter 通过 `dataViewKey` 自治绑定 DataView，\n自己维护 filterModel / DataViewFilterTree / DataView.setFilter 同步。\n父容器（r-table 等）不再注入桥接字段；嵌入 r-table 时可省略 dataViewKey，\n由 r-table 提供的 DATA_SOURCE 能力向下注入。",
+      "jsdoc": "`r-filter` / `RendererFilter` 完整属性定义。\n容器统一过滤入口：通过 `dataViewKey` 绑定 DataView，未指定时继承父级 DATA_SOURCE。\n完整表达式编辑器使用 DataViewFilterTree / DataView.executeFilter；\n可选的常用筛选子组件通过同一 useFilterPanel / DataView.setFilter 同步。\n过滤属于绑定视图，表格、树、列表共享视图时消费同一结果；容器不另建过滤或查询逻辑。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "RendererFilter",
@@ -512,7 +524,7 @@
         "directory": "containers/zones"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 默认筛选项节点列表（首选入口）。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由父容器（r-table 等）直接读取并应用到自身包裹层（如 `:filter-class`），\n     * RendererFilter.vue 本身不消费此字段。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
+        "declarationTypeText": "SparkNodeProps & {\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与常用筛选时机。 */\n    autoQuery?: boolean | undefined;\n    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器，取消恢复已应用条件，应用仍走DataView过滤链。 */\n    expressionDisplay?: 'dialog' | 'inline';\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -521,7 +533,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 默认筛选项节点列表（首选入口）。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由父容器（r-table 等）直接读取并应用到自身包裹层（如 `:filter-class`），\n     * RendererFilter.vue 本身不消费此字段。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}"
+            "typeText": "{\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与常用筛选时机。 */\n    autoQuery?: boolean | undefined;\n    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器，取消恢复已应用条件，应用仍走DataView过滤链。 */\n    expressionDisplay?: 'dialog' | 'inline';\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}"
           }
         ],
         "members": {
@@ -540,19 +552,31 @@
             },
             {
               "name": "children",
-              "jsdoc": "默认筛选项节点列表（首选入口）。",
+              "jsdoc": "常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。",
               "readable": true,
               "writable": false
             },
             {
               "name": "class",
-              "jsdoc": "筛选区附加 CSS class。\n@remarks 由父容器（r-table 等）直接读取并应用到自身包裹层（如 `:filter-class`），\nRendererFilter.vue 本身不消费此字段。",
+              "jsdoc": "筛选区附加 CSS class。\n@remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。",
               "readable": true,
               "writable": false
             },
             {
               "name": "dataViewKey",
               "jsdoc": "DataView 定位键（dataViewKey）。\n@remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "autoQuery",
+              "jsdoc": "输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与常用筛选时机。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expressionDisplay",
+              "jsdoc": "完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器，取消恢复已应用条件，应用仍走DataView过滤链。",
               "readable": true,
               "writable": false
             },

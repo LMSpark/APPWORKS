@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/integration/api-management/ui/api-config-page.props",
+    "sourcePath": "src/views/features/integration/api-management/ui/api-config-page.props.ts",
+    "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/integration/api-management/ui/api-config-page.props",
+    "jsdoc": "@module app:views/features/integration/api-management/ui/api-config-page.props\n职责：声明服务商请求方案设计页的目标身份输入。\n边界：只接收服务商rowid，配置空间由宿主封装，不接收行副本或权限。\nAI用途：从服务商目录打开原路径配置页时传递同一正式身份。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApiConfigPageProps"
+    ]
+  },
+  "$defs": {
+    "ApiConfigPageProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiConfigPageProps",
+      "properties": {
+        "providerId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "providerId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-10T18:48:09.944Z",
+  "models": {
+    "ApiConfigPageProps": {
+      "name": "ApiConfigPageProps",
+      "jsdoc": "服务商请求方案设计页只接受一个服务商身份。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "api-config-page"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式服务商rowid，切换后独立装配DataSet和全部视图。 */\n    providerId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式服务商rowid，切换后独立装配DataSet和全部视图。 */\n    providerId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "providerId",
+              "jsdoc": "正式服务商rowid，切换后独立装配DataSet和全部视图。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

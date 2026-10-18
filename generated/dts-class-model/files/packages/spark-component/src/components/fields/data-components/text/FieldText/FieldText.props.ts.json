@@ -24,99 +24,63 @@
       "type": "object",
       "title": "RTextProps",
       "properties": {
-        "type": {
-          "type": "string"
+        "filterAlternatives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "operator": {
+                "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+              }
+            },
+            "required": [
+              "field",
+              "operator"
+            ],
+            "additionalProperties": false
+          }
         },
-        "id": {
-          "type": "string"
+        "showCellControl": {
+          "type": "boolean"
         },
-        "children": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "permissionDeniedMode": {
-          "enum": [
-            "hide",
-            "disable"
-          ]
-        },
-        "width": {
+        "maxlength": {
           "type": "number"
         },
-        "resizable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "clearable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "modelValue": {
+        "emptyText": {
           "type": "string"
-        },
-        "value": {
-          "type": "string"
-        },
-        "field": {
-          "type": "string"
-        },
-        "label": {
-          "type": "string"
-        },
-        "readonly": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "placeholder": {
-          "type": "string"
-        },
-        "onChange": {
-          "type": "object",
-          "title": "(...args: unknown[]) => void | Promise<void>"
-        },
-        "titleAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "valueAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "headerCellClassName": {
-          "type": "string"
-        },
-        "cellClassName": {
-          "type": "string"
-        },
-        "titleClassName": {
-          "type": "string"
-        },
-        "valueClassName": {
-          "type": "string"
-        },
-        "sortable": {
-          "enum": [
-            false,
-            true,
-            "custom"
-          ]
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.displayFormatter.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.displayFormatter.return": {
+          "type": "string"
+        },
+        "method.cellReadonly.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellReadonly.return": {
+          "type": "boolean"
+        }
+      }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.154Z",
+  "generatedAt": "2026-10-13T02:15:23.504Z",
   "models": {
     "RTextProps": {
       "name": "RTextProps",
@@ -130,7 +94,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<string>",
+        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<string> & {\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -141,9 +105,82 @@
             "kind": "intersection",
             "typeText": "SparkFieldSemanticProps<string>",
             "targetName": "SparkFieldSemanticProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n}"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "filterAlternatives",
+              "jsdoc": "常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showCellControl",
+              "jsdoc": "表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxlength",
+              "jsdoc": "表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "displayFormatter",
+              "jsdoc": "只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "cellReadonly",
+              "jsdoc": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
       }
     }
   }

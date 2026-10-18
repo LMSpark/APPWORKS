@@ -24,6 +24,109 @@
         },
         "session": {
           "$ref": "project-session.ts.json#/$defs/ProjectSession"
+        },
+        "hasLoadedBlueprint": {
+          "type": "boolean"
+        },
+        "family": {
+          "const": "project"
+        },
+        "revision": {
+          "type": "number"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "projectType": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "homeNodeId": {
+          "type": "string"
+        },
+        "homeNode": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rootNode": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "projectInfo": {
+          "$ref": "project-types.ts.json#/$defs/ProjectInfo"
+        },
+        "blueprintTree": {
+          "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+        },
+        "blueprintDraft": {
+          "anyOf": [
+            {
+              "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraft"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isBlueprintEditing": {
+          "type": "boolean"
+        },
+        "blueprintDirty": {
+          "type": "boolean"
+        },
+        "flatRows": {
+          "type": "array",
+          "items": {
+            "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintNode"
+          }
+        },
+        "activePage": {
+          "anyOf": [
+            {
+              "$ref": "../page/page-tool.ts.json#/$defs/PageTool"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false,
@@ -651,6 +754,130 @@
             {
               "name": "session",
               "jsdoc": "session 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasLoadedBlueprint",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "family",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectId",
+              "jsdoc": "项目唯一标识，与租户内存储锚点一致。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tenantId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "icon",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "homeNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "homeNode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rootNode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "order",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createdAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "updatedAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectInfo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintTree",
+              "jsdoc": "项目蓝图根 DTO，含子节点树与输出布局元数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintDraft",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isBlueprintEditing",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blueprintDirty",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flatRows",
+              "jsdoc": "项目蓝图扁平节点列表，按遍历顺序排列。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "activePage",
+              "jsdoc": "当前活动配置页；需先 openPageDesign(pageId) 才有值。",
               "readable": true,
               "writable": false
             }

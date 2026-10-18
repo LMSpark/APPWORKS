@@ -22,6 +22,12 @@
         },
         "options": {
           "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+        },
+        "sourceInputMode": {
+          "enum": [
+            "mapped",
+            "direct"
+          ]
         }
       },
       "required": [
@@ -31,18 +37,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-08T16:25:09.874Z",
+  "generatedAt": "2026-10-18T16:24:50.479Z",
   "models": {
     "DataSpaceViewQueryCommand": {
       "name": "DataSpaceViewQueryCommand",
       "jsdoc": "从视图绑定和参数捕获的场景模型身份与查询选项快照。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    options: DataSpaceQueryOptions;\n}>",
+        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    options: DataSpaceQueryOptions;\n    /** 已校验的前端来源入参模式，不属于GetData协议。 */\n    sourceInputMode?: QueryParams['sourceInputMode'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    options: DataSpaceQueryOptions;\n}>",
+            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    options: DataSpaceQueryOptions;\n    /** 已校验的前端来源入参模式，不属于GetData协议。 */\n    sourceInputMode?: QueryParams['sourceInputMode'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -55,6 +61,12 @@
             },
             {
               "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceInputMode",
+              "jsdoc": "已校验的前端来源入参模式，不属于GetData协议。",
               "readable": true,
               "writable": false
             }

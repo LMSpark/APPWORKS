@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/workbench/data-space-workbench",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/workbench/data-space-workbench.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/workbench/data-space-workbench.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/workbench/data-space-workbench",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/workbench/data-space-workbench\n职责：将已授权的空间定义投影为工作台概览，供标准字段绑定。\n边界：仅包含派生摘要；原模型和字段仍由正式元数据视图持有，不提交此视图。\nAI用途：恢复参考设计器的主业务模型、模型数量、关系数量和来源摘要。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceWorkbench"
+    ]
+  },
+  "$defs": {
+    "DataSpaceWorkbench": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceWorkbench",
+      "properties": {
+        "sourcePresentation": {
+          "type": "object",
+          "title": "NonNullable<RGraphProps['nodeCaptionOptions']>"
+        },
+        "view": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.unplacedNamedFields.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.unplacedNamedFields.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "view": {
+                "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              "recordIndex": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "view",
+              "recordIndex"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T11:53:03.677Z",
+  "models": {
+    "DataSpaceWorkbench": {
+      "name": "DataSpaceWorkbench",
+      "jsdoc": "数据空间设计的只读工作台投影，生命周期随元数据DataSet结束。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "在当前元数据空间创建独立摘要视图，目标ID只用于核对正式查询范围。",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "sourcePresentation",
+              "jsdoc": "参考页来源显示语义；画布与概览共用，不修改正式模型Type或资源适配合同。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "jsdoc": "标准组件绑定此命名视图，禁止当成正式配置保存。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "unplacedNamedFields",
+              "jsdoc": "从已加载的命名视图定位未归属字段；保留原视图权限，不补查全目录或复制记录。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "unknown",
+                  "name": "{\n        view: DataView;\n        recordIndex: number;\n    }"
+                }
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "仅从完整的当前查询刷新；隐藏字段不参与分组或主业务判定，不读取编辑覆盖。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

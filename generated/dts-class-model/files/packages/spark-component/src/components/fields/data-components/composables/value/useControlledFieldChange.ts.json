@@ -48,6 +48,15 @@
       },
       "additionalProperties": false,
       "$defs": {
+        "method.captureWriteGuard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureWriteGuard.return": {
+          "type": "object",
+          "title": "() => boolean"
+        },
         "method.getValue.params": {
           "type": "object",
           "properties": {},
@@ -100,7 +109,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.186Z",
+  "generatedAt": "2026-10-10T11:03:19.955Z",
   "models": {
     "FieldValueUpdateEmitter": {
       "name": "FieldValueUpdateEmitter",
@@ -149,7 +158,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** get Value 回调。 */\n    getValue: () => TValue;\n    /** emit Update 回调。 */\n    emitUpdate: (value: TValue) => void;\n    /** sync Value 回调。 */\n    syncValue: (value: TValue) => void;\n    /** after Default 回调。 */\n    afterDefault?: (nextValue: TValue, previousValue: TValue) => void | Promise<void>;\n    /** handler Source 字段。 */\n    handlerSource?: Readonly<Record<string, unknown>>;\n}",
+        "declarationTypeText": "{\n    /** 等待业务回调后，核对视图、行指针与字段是否仍属于本次交互。 */\n    captureWriteGuard?: () => () => boolean;\n    /** get Value 回调。 */\n    getValue: () => TValue;\n    /** emit Update 回调。 */\n    emitUpdate: (value: TValue) => void;\n    /** sync Value 回调。 */\n    syncValue: (value: TValue) => void;\n    /** after Default 回调。 */\n    afterDefault?: (nextValue: TValue, previousValue: TValue) => void | Promise<void>;\n    /** handler Source 字段。 */\n    handlerSource?: Readonly<Record<string, unknown>>;\n}",
         "members": {
           "attributes": [
             {
@@ -160,6 +169,25 @@
             }
           ],
           "methods": [
+            {
+              "name": "captureWriteGuard",
+              "jsdoc": "等待业务回调后，核对视图、行指针与字段是否仍属于本次交互。",
+              "parameters": [],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
             {
               "name": "getValue",
               "jsdoc": "get Value 回调。",

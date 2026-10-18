@@ -46,8 +46,16 @@
         "planningPath": {
           "type": "string"
         },
-        "mode": true,
-        "allowedOperations": true,
+        "mode": {
+          "enum": [
+            "create",
+            "update",
+            "fix"
+          ]
+        },
+        "allowedOperations": {
+          "$ref": "page-design-gates.ts.json#/$defs/PageDesignAllowedOperations"
+        },
         "preserveExistingInteractions": {
           "enum": [
             false,
@@ -121,7 +129,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T03:12:55.170Z",
+  "generatedAt": "2026-10-15T10:19:34.330Z",
   "models": {
     "PageDesignRunInput": {
       "name": "PageDesignRunInput",

@@ -1,0 +1,353 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references",
+    "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references",
+    "jsdoc": "@module app:lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references\n职责：按正式字段身份检查删除依赖或生成明确改名的结构化引用变更。\n边界：只返回定义差异，不执行函数或保存，不把常量文本当依赖。\nAI用途：字段删除保护和数组表头同时改名复用同一引用解析。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "FieldReferenceUpdate",
+      "FieldRename",
+      "LowcodeDataSpaceFieldRemoveReferences"
+    ]
+  },
+  "$defs": {
+    "FieldReferenceChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldReferenceChange",
+      "properties": {
+        "operation": {
+          "enum": [
+            "remove",
+            "rename"
+          ]
+        },
+        "primaryKeyReplacement": {
+          "type": "string"
+        },
+        "fieldView": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false
+    },
+    "FieldReferenceUpdate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldReferenceUpdate",
+      "properties": {
+        "table": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "property": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        },
+        "after": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "table",
+        "id",
+        "property",
+        "before",
+        "after"
+      ],
+      "additionalProperties": false
+    },
+    "FieldRename": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldRename",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceFieldRemoveReferences": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceFieldRemoveReferences",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            },
+            "field": {
+              "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            "change": {
+              "$ref": "#/$defs/FieldReferenceChange"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": true,
+        "method.prepareRenames.params": {
+          "type": "object",
+          "properties": {
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "mappings": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FieldRename"
+              }
+            },
+            "primaryReplacement": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareRenames.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldReferenceUpdate"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-14T23:01:33.259Z",
+  "models": {
+    "FieldReferenceChange": {
+      "name": "FieldReferenceChange",
+      "jsdoc": "字段结构变更的明确上下文；不会自动修改任何引用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 删除或改名；省略时检查删除。 */\n    operation?: 'remove' | 'rename';\n    /** 结构命令已校验最终模型并在同一批次提交的主键声明；普通字段删除不得提供。 */\n    primaryKeyReplacement?: string;\n    /** 当前字段工作区；校验最终编辑值及待新增记录，不复制或提交。 */\n    fieldView?: DataView;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "operation",
+              "jsdoc": "删除或改名；省略时检查删除。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryKeyReplacement",
+              "jsdoc": "结构命令已校验最终模型并在同一批次提交的主键声明；普通字段删除不得提供。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldView",
+              "jsdoc": "当前字段工作区；校验最终编辑值及待新增记录，不复制或提交。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FieldReferenceUpdate": {
+      "name": "FieldReferenceUpdate",
+      "jsdoc": "原数据库定义的一项结构化引用变更，由原DataView核权和提交。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 元数据表名称。 */\n    table: string;\n    /** 原记录主键。 */\n    id: string;\n    /** 修改的定义属性。 */\n    property: string;\n    /** 原文本。 */\n    before: string;\n    /** 仅改写明确引用后的文本。 */\n    after: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "table",
+              "jsdoc": "元数据表名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "jsdoc": "原记录主键。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "property",
+              "jsdoc": "修改的定义属性。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "before",
+              "jsdoc": "原文本。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "after",
+              "jsdoc": "仅改写明确引用后的文本。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldRename": {
+      "name": "FieldRename",
+      "jsdoc": "同一模型内按稳定字段身份指定的新名称。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 原正式字段rowid。 */\n    id: string;\n    /** 最终正式字段名称。 */\n    name: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "原正式字段rowid。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "jsdoc": "最终正式字段名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceFieldRemoveReferences": {
+      "name": "LowcodeDataSpaceFieldRemoveReferences",
+      "jsdoc": "只检查当前空间可读定义；不透明或歧义引用必须先处理。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "只检查当前空间可读定义；不透明或歧义引用必须先处理。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "validate",
+              "jsdoc": "核对模型过滤、树字段、值函数及关系；rename同时检查自身取值。dataModel输出GetRefData引用物理表列，元字段删除/改名保留其原文；种类不可读拒绝推断。",
+              "parameters": [
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "optional",
+                      "elementType": {
+                        "type": "reference",
+                        "name": "DataView"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                },
+                {
+                  "name": "change",
+                  "type": {
+                    "type": "reference",
+                    "name": "FieldReferenceChange",
+                    "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "prepareRenames",
+              "jsdoc": "同时解析所有字段改名；名称交换不会串行替换，未变属性及常量原样保留。",
+              "parameters": [
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "optional",
+                      "elementType": {
+                        "type": "reference",
+                        "name": "DataView"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "mappings",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly FieldRename[]"
+                  }
+                },
+                {
+                  "name": "primaryReplacement",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "FieldReferenceUpdate",
+                  "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

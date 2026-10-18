@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/data-view-array-query",
+    "sourcePath": "packages/spark-data/src/query/data-view-array-query.ts",
+    "sourceFile": "packages/spark-data/src/query/data-view-array-query.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/data-view-array-query",
+    "jsdoc": "@module @spark-appworks/spark-data:query/data-view-array-query\n职责：把已获准读取的静态对象数组接入DataView的只读查询合同。\n边界：调用方负责来源读取与执行域；本类不授予数据库写权限、不保存原定义。\nAI用途：正式数组来源复用过滤表达式、视图分页排序、绑定和选中，不在页面另写查询。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewArrayQuery"
+    ]
+  },
+  "$defs": {
+    "QueryResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "QueryResult",
+      "properties": {
+        "undefinedChanges": {
+          "const": "clear"
+        },
+        "countReported": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "resultPrimaryKey": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../data-view.ts.json#/$defs/DataViewQueryRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "assertIdentity": {
+          "type": "object",
+          "title": "(identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>) => void"
+        },
+        "rowKey": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => unknown"
+        },
+        "prepareNewRow": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => Record<string, unknown>"
+        },
+        "isFieldReadOnly": {
+          "type": "object",
+          "title": "(field: string) => boolean"
+        },
+        "fieldAccess": {
+          "type": "object",
+          "title": "(rowKey: unknown, field: string) => Readonly<{ read: \"invisible\" | \"masked\" | \"visible\"; write: \"denied\" | \"allowed\"; component: \"hidden\" | \"readonly\" | \"editable\"; required: boolean; writeMode: \"required\" | \"editable\" | \"readonly\"; }>"
+        },
+        "readFieldAccess": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>, field: string) => \"masked\" | \"invisible\" | \"visible\""
+        },
+        "addActionState": {
+          "type": "object",
+          "title": "(available?: boolean) => DataViewActionState"
+        },
+        "editActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "deleteActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "createChildActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "viewActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        }
+      },
+      "required": [
+        "rows",
+        "total",
+        "assertIdentity",
+        "rowKey",
+        "fieldAccess",
+        "readFieldAccess",
+        "addActionState",
+        "editActionState",
+        "deleteActionState",
+        "createChildActionState",
+        "viewActionState"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewArrayQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewArrayQuery",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../types.ts.json#/$defs/DataRow"
+              }
+            },
+            "guard": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryColumns.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryColumns.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "method.executeQuery.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "params": {
+              "$ref": "../types.ts.json#/$defs/QueryParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeQuery.return": {
+          "type": "object",
+          "title": "Promise<QueryResult>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T13:22:29.861Z",
+  "models": {
+    "QueryResult": {
+      "name": "QueryResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewArrayQuery": {
+      "name": "DataViewArrayQuery",
+      "jsdoc": "数组定义的只读查询快照；每个命名视图独立分页、过滤和选择。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "调用方须先核定来源可读性和输出投影；guard在查询和消费结果时持续核生命周期。",
+          "signatureText": "constructor(view: DataView, rows: readonly DataRow[], guard: () => void)",
+          "parameters": [
+            {
+              "name": "view",
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "rows",
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataRow[]"
+              }
+            },
+            {
+              "name": "guard",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "queryColumns",
+              "jsdoc": "复用本查询来源已核定的字段集合；不把完整模型列或后续输出投影当作新来源合同。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataColumn[]"
+              }
+            },
+            {
+              "name": "executeQuery",
+              "jsdoc": "同一查询配置反复消费完整原数组；结果只读，编辑正式items须回到定义的原查询。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "QueryResult",
+                    "sourcePath": "packages/spark-data/src/query/data-view-array-query.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

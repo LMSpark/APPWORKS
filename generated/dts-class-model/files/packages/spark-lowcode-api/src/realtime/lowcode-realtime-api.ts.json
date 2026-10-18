@@ -18,6 +18,8 @@
       "LowcodeAgentToolAppendInput",
       "LowcodeAgentEvent",
       "LowcodeSystemDownload",
+      "LowcodeNotificationMessageType",
+      "LowcodeNotificationMessage",
       "LowcodeRealtimeSubscription",
       "LowcodeRealtimeConnectOptions",
       "LowcodeAiChatInput",
@@ -301,6 +303,47 @@
       ],
       "additionalProperties": false
     },
+    "LowcodeNotificationMessageType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "LowcodeNotificationMessageType",
+      "enum": [
+        "SYSTEM_NOTIFICATION",
+        "TIP",
+        "SYSTEM_ERROR",
+        "USER_MESSAGE"
+      ]
+    },
+    "LowcodeNotificationMessage": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeNotificationMessage",
+      "properties": {
+        "messageType": {
+          "$ref": "#/$defs/LowcodeNotificationMessageType"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "number"
+        },
+        "messageId": {
+          "type": "string"
+        },
+        "messageLogId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "messageType",
+        "title",
+        "content"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeRealtimeSubscription": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -463,6 +506,50 @@
             }
           ]
         },
+        "method.decodeNotification.params": {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/LowcodeRealtimeEvent"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.decodeNotification.return": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LowcodeNotificationMessage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.fetchOfflineMessages.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.fetchOfflineMessages.return": {
+          "type": "object",
+          "title": "Promise<readonly LowcodeNotificationMessage[]>"
+        },
+        "method.confirmMessages.params": {
+          "type": "object",
+          "properties": {
+            "messageLogIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.confirmMessages.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
         "method.connect.params": {
           "type": "object",
           "properties": {
@@ -478,7 +565,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T07:32:18.105Z",
+  "generatedAt": "2026-10-17T09:25:27.235Z",
   "models": {
     "LowcodeRealtimeEvent": {
       "name": "LowcodeRealtimeEvent",
@@ -782,6 +869,64 @@
         }
       }
     },
+    "LowcodeNotificationMessageType": {
+      "name": "LowcodeNotificationMessageType",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(typeof LOWCODE_NOTIFICATION_MESSAGE_TYPES)[number]",
+        "members": {}
+      }
+    },
+    "LowcodeNotificationMessage": {
+      "name": "LowcodeNotificationMessage",
+      "jsdoc": "后端 JsonSseMessage 的通知投影。messageId 是消息 rowId（实时帧键名 rowId，离线联表结果键名 rowid），仅持久化类型在发送前补齐；\nmessageLogId 只出现在离线查询结果中，confirmMessages 只接受它。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    messageType: LowcodeNotificationMessageType;\n    title: string;\n    content: string;\n    createdAt?: number;\n    messageId?: string;\n    messageLogId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    messageType: LowcodeNotificationMessageType;\n    title: string;\n    content: string;\n    createdAt?: number;\n    messageId?: string;\n    messageLogId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "messageType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createdAt",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "messageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "messageLogId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeRealtimeSubscription": {
       "name": "LowcodeRealtimeSubscription",
       "jsdoc": "SSE 订阅句柄；close 触发 AbortController，closed 在流结束或中断后 resolve。",
@@ -1065,6 +1210,72 @@
                   {
                     "type": "literal",
                     "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "decodeNotification",
+              "jsdoc": "解码通知类 SSE 帧；后端不设 SSE 事件名，按 data.messageType 识别，非通知类型返回 null。",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeRealtimeEvent",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeNotificationMessage",
+                    "sourcePath": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "fetchOfflineMessages",
+              "jsdoc": "拉取当前会话用户未确认的离线消息；POST /api/message/offlineMessages。只含后端持久化的消息类型。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly LowcodeNotificationMessage[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "confirmMessages",
+              "jsdoc": "确认离线消息已读；POST /api/message/confirmMessages，参数是发送日志 ID 而非消息 rowId，返回后端确认数量文案。",
+              "parameters": [
+                {
+                  "name": "messageLogIds",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
                   }
                 ]
               }

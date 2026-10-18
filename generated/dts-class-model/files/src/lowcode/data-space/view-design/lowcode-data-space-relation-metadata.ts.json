@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/view-design/lowcode-data-space-relation-metadata",
+    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-relation-metadata.ts",
+    "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-relation-metadata.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/view-design/lowcode-data-space-relation-metadata",
+    "jsdoc": "@module app:lowcode/data-space/view-design/lowcode-data-space-relation-metadata\n职责：接入元数据空间的原生关系定义视图和只读画布端点。\n边界：旧关系只作为导入来源；编辑和保存完整本仓结构，不反向改写旧数据库记录。\nAI用途：通过DataResourceRelationDefinition绑定编辑DataResourceRelation。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceRelationMetadata"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceRelationMetadata": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceRelationMetadata",
+      "properties": {
+        "tableName": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "resource": {
+              "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-definition-resource.ts.json#/$defs/ScenarioDefinitionResource"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertClean.return": true,
+        "method.resetGraph.params": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "anyOf": [
+                {
+                  "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-file.ts.json#/$defs/ScenarioViewFile"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "endpoints": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Pick<DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable'>"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resetGraph.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.reset.params": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "anyOf": [
+                {
+                  "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-file.ts.json#/$defs/ScenarioViewFile"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "resolved": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataResourceRelation"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.reset.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-17T17:14:09.679Z",
+  "models": {
+    "LowcodeDataSpaceRelationMetadata": {
+      "name": "LowcodeDataSpaceRelationMetadata",
+      "jsdoc": "接入原生关系定义视图；导入来源不限制原生关系结构编辑。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "使用正式元数据DataSet的定义视图，编辑与保存由原生数据链承接。",
+          "signatureText": "constructor(dataSet: DataSet, resource: ScenarioDefinitionResource)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "resource",
+              "type": {
+                "type": "reference",
+                "name": "ScenarioDefinitionResource"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "元数据表的稳定名称，不是后端注册模型。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertClean",
+              "jsdoc": "拒绝工作区刷新覆盖尚未保存的关系编辑。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "resetGraph",
+              "jsdoc": "投影只读画布端点，不补造过滤表达式，也不改变完整关系编辑基线。\n@param file 当前正式文件owner；null清除失效显示。\n@param endpoints 已按文件及正式模型身份核定的关系端点；行键与完整关系定义一致。",
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ScenarioViewFile"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "endpoints",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Pick",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "DataResourceRelation"
+                        },
+                        {
+                          "type": "union",
+                          "types": [
+                            {
+                              "type": "literal",
+                              "value": "relationId"
+                            },
+                            {
+                              "type": "literal",
+                              "value": "sourceRelationId"
+                            },
+                            {
+                              "type": "literal",
+                              "value": "parentTable"
+                            },
+                            {
+                              "type": "literal",
+                              "value": "childTable"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "reset",
+              "jsdoc": "从同一文件与当次装配关系重建；未解析的文件来源引用仍保留，允许显式修复。",
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ScenarioViewFile"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "resolved",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataResourceRelation[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

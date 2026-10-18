@@ -46,6 +46,12 @@
         "toolbar": {
           "$ref": "../../action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
+        "toolbarPlacement": {
+          "enum": [
+            "outside",
+            "header"
+          ]
+        },
         "modelValue": {
           "anyOf": [
             {
@@ -93,7 +99,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.113Z",
+  "generatedAt": "2026-10-10T23:01:16.794Z",
   "models": {
     "TabsClickEvent": {
       "name": "TabsClickEvent",
@@ -132,16 +138,16 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 当前激活标签页 */\n    modelValue?: string | number;\n    /** 标签页切换回调（activeName 变更） */\n    onTabChange?: (name: string | number) => void;\n    /** 标签页点击回调 */\n    onTabClick?: (pane: TabsClickEvent, event: Event) => void;\n}",
+        "declarationTypeText": "LayoutDataContextProps & {\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 工具栏位于标签头同一行或容器外侧；默认outside沿toolbar.position布局，header在窄屏自动换行。 */\n    toolbarPlacement?: 'outside' | 'header';\n    /** 当前激活标签页 */\n    modelValue?: string | number;\n    /** 标签页切换回调（activeName 变更） */\n    onTabChange?: (name: string | number) => void;\n    /** 标签页点击回调 */\n    onTabClick?: (pane: TabsClickEvent, event: Event) => void;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "SparkNodeProps",
-            "targetName": "SparkNodeProps"
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 当前激活标签页 */\n    modelValue?: string | number;\n    /** 标签页切换回调（activeName 变更） */\n    onTabChange?: (name: string | number) => void;\n    /** 标签页点击回调 */\n    onTabClick?: (pane: TabsClickEvent, event: Event) => void;\n}"
+            "typeText": "{\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 工具栏位于标签头同一行或容器外侧；默认outside沿toolbar.position布局，header在窄屏自动换行。 */\n    toolbarPlacement?: 'outside' | 'header';\n    /** 当前激活标签页 */\n    modelValue?: string | number;\n    /** 标签页切换回调（activeName 变更） */\n    onTabChange?: (name: string | number) => void;\n    /** 标签页点击回调 */\n    onTabClick?: (pane: TabsClickEvent, event: Event) => void;\n}"
           }
         ],
         "members": {
@@ -149,6 +155,12 @@
             {
               "name": "toolbar",
               "jsdoc": "结构化工具栏",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "toolbarPlacement",
+              "jsdoc": "工具栏位于标签头同一行或容器外侧；默认outside沿toolbar.position布局，header在窄屏自动换行。",
               "readable": true,
               "writable": false
             },

@@ -12,23 +12,6 @@
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-08T10:01:36.048Z",
-  "models": {
-    "BoundDataSpaceDesignReader": {
-      "name": "BoundDataSpaceDesignReader",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>",
-            "targetName": "ReturnType"
-          }
-        ],
-        "members": {}
-      }
-    }
-  }
+  "generatedAt": "2026-10-18T14:03:57.271Z",
+  "models": {}
 }

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor\n职责：通过原元数据表维护值级联和查询级联，保存后由原运行链装配。\n边界：不从模型关系推导级联；复用正式配置校验、文件保存和未知结果核验。\nAI用途：为数据空间层次页面提供级联增改删、取消与重开闭环。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-15T15:35:53.022Z",
+  "models": {}
+}

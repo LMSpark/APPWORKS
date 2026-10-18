@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/overlay/RendererDialog/FullscreenDialog",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.vue",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/overlay/RendererDialog/FullscreenDialog",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/overlay/RendererDialog/FullscreenDialog\n职责：承接参考FullscreenDialog的手动/窄屏全屏和关闭复位。\n边界：内部窗口控件；不创建数据上下文、过滤草稿或保存通道。\nAI用途：由标准r-dialog与专题弹窗复用，不在业务页复制尺寸逻辑。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "RendererDialog",
+    "componentType": "r-dialog",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-12T07:54:20.408Z",
+  "models": {}
+}

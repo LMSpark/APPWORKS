@@ -1,0 +1,349 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references",
+    "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts",
+    "sourceFile": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references",
+    "jsdoc": "@module app:lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references\n职责：从元数据空间当前编辑覆盖检查参数引用及命名视图配置来源。\n边界：不查询、不保存、不改写引用；声明存在不等于调用时提供值。\nAI用途：识别声明改名/删除的配置影响，并明确不可读或未装配造成的检查缺口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "InputParameterInspection",
+      "LowcodeDataSpaceInputParameterReferences"
+    ]
+  },
+  "$defs": {
+    "ParameterReferenceContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ParameterReferenceContext",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "configured": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "tableName",
+        "viewId",
+        "configured"
+      ],
+      "additionalProperties": false
+    },
+    "ParameterReference": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ParameterReference",
+      "properties": {
+        "kind": {
+          "enum": [
+            "source-input",
+            "view-filter",
+            "model-relation"
+          ]
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "recordId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "parameterName": {
+          "type": "string"
+        },
+        "declared": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "removedByEdit": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "contexts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParameterReferenceContext"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "modelId",
+        "recordId",
+        "path",
+        "parameterName",
+        "declared",
+        "removedByEdit",
+        "contexts"
+      ],
+      "additionalProperties": false
+    },
+    "InputParameterInspection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InputParameterInspection",
+      "properties": {
+        "complete": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParameterReference"
+          }
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "complete",
+        "references",
+        "issues"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceInputParameterReferences": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceInputParameterReferences",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.inspect.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "anyOf": [
+                {
+                  "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.inspect.return": {
+          "$ref": "#/$defs/InputParameterInspection"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-11T16:08:04.408Z",
+  "models": {
+    "ParameterReferenceContext": {
+      "name": "ParameterReferenceContext",
+      "jsdoc": "一个命名视图是否在配置中显式提供该参数；不暴露参数值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 场景文件中的表键，不作为模型注册名。 */\n    tableName: string;\n    /** 同模型内的命名视图。 */\n    viewId: string;\n    /** 配置含该参数的有效JSON值；调用方仍可能覆盖它。 */\n    configured: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "场景文件中的表键，不作为模型注册名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewId",
+              "jsdoc": "同模型内的命名视图。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "configured",
+              "jsdoc": "配置含该参数的有效JSON值；调用方仍可能覆盖它。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ParameterReference": {
+      "name": "ParameterReference",
+      "jsdoc": "一个配置中的参数引用，不推断未来运行是否失败。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 引用所属配置域。 */\n    kind: 'source-input' | 'view-filter' | 'model-relation';\n    /** 正式模型ID；不以表别名或来源名称猜测。 */\n    modelId: string;\n    /** 来源字段记录ID或本地定义行的稳定键。 */\n    recordId: string;\n    /** 配置内的准确属性位置。 */\n    path: string;\n    /** 取值函数使用的参数名，保留实际拼写。 */\n    parameterName: string;\n    /** 当前声明编辑结果包含该名称。 */\n    declared: boolean;\n    /** 原查询声明包含该名称，而当前编辑覆盖不再包含。 */\n    removedByEdit: boolean;\n    /** 各命名视图分别判断；空数组表示尚无已知视图。 */\n    contexts: ParameterReferenceContext[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "引用所属配置域。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "正式模型ID；不以表别名或来源名称猜测。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "recordId",
+              "jsdoc": "来源字段记录ID或本地定义行的稳定键。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "path",
+              "jsdoc": "配置内的准确属性位置。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parameterName",
+              "jsdoc": "取值函数使用的参数名，保留实际拼写。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "declared",
+              "jsdoc": "当前声明编辑结果包含该名称。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removedByEdit",
+              "jsdoc": "原查询声明包含该名称，而当前编辑覆盖不再包含。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contexts",
+              "jsdoc": "各命名视图分别判断；空数组表示尚无已知视图。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "InputParameterInspection": {
+      "name": "InputParameterInspection",
+      "jsdoc": "完整性只描述本次读取覆盖，不代表配置均可执行或未来调用一定有值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 所需记录可读、完整且可解析；旧格式须完整投影来源，原生关系只核当前定义。 */\n    complete: boolean;\n    /** 来源入参、视图过滤和已装配关系中的引用。 */\n    references: ParameterReference[];\n    /** 不完整原因，不含隐藏字段或损坏原文。 */\n    issues: string[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "complete",
+              "jsdoc": "所需记录可读、完整且可解析；旧格式须完整投影来源，原生关系只核当前定义。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "references",
+              "jsdoc": "来源入参、视图过滤和已装配关系中的引用。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "issues",
+              "jsdoc": "不完整原因，不含隐藏字段或损坏原文。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceInputParameterReferences": {
+      "name": "LowcodeDataSpaceInputParameterReferences",
+      "jsdoc": "从正式元表和文件定义元表检查当前编辑状态；不持有另一份配置。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "绑定元数据运行实例及被设计目标，不替换元空间身份。",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "inspect",
+              "jsdoc": "检查当前元数据及编辑覆盖；每次重算，参数值不会进入返回结果。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ScenarioViewConfig"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "InputParameterInspection",
+                "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

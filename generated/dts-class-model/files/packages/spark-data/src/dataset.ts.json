@@ -122,11 +122,8 @@
                 "$ref": "types.ts.json#/$defs/ViewChangeHandlers"
               },
               "unsubs": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "title": "() => void"
-                }
+                "type": "object",
+                "title": "Map<DataView, Array<() => void>>"
               }
             },
             "required": [
@@ -152,11 +149,8 @@
                 "title": "(payload: {\n            tableName: string;\n            viewId: string;\n            error?: Error;\n        }) => void"
               },
               "unsubs": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "title": "() => void"
-                }
+                "type": "object",
+                "title": "Map<DataView, Array<() => void>>"
               }
             },
             "required": [
@@ -166,6 +160,9 @@
             ],
             "additionalProperties": false
           }
+        },
+        "destroyed": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -278,6 +275,16 @@
           "additionalProperties": false
         },
         "method._subscribeNewView.return": true,
+        "method._unsubscribeView.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method._unsubscribeView.return": true,
         "method.triggerAutoLoad.params": {
           "type": "object",
           "properties": {},
@@ -738,7 +745,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T20:15:52.029Z",
+  "generatedAt": "2026-10-15T12:35:55.494Z",
   "models": {
     "DataSetConfig": {
       "name": "DataSetConfig",
@@ -871,7 +878,7 @@
             },
             {
               "name": "schemaVersion",
-              "jsdoc": "Schema 格式版本（默认 1）",
+              "jsdoc": "Schema 格式版本（默认 2），与数据集快照版本分别维护。",
               "readable": true,
               "writable": true
             },
@@ -883,7 +890,7 @@
             },
             {
               "name": "version",
-              "jsdoc": "业务数据版本号（乐观锁）",
+              "jsdoc": "数据集快照版本；commitSnapshot/restoreSnapshot 维护，不是后端数据写入的乐观锁。",
               "readable": true,
               "writable": true
             },
@@ -934,6 +941,12 @@
               "jsdoc": "活跃的 on('loadSuccess'|'loadError') 订阅追踪。\n@internal",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "destroyed",
+              "jsdoc": "数据集是否已被销毁",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
@@ -1109,6 +1122,24 @@
             {
               "name": "_subscribeNewView",
               "jsdoc": "将动态创建的视图注册到所有活跃订阅中。\n由 DataTable.getOrCreateView() 在创建新视图时调用。\n@internal",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "_unsubscribeView",
+              "jsdoc": "@internal 视图销毁时立即释放其订阅闭包，保留其他视图的原订阅。",
               "parameters": [
                 {
                   "name": "view",
@@ -1793,7 +1824,7 @@
             },
             {
               "name": "saveChanges",
-              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更。\n默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n场景视图通过同一查询 owner 一次保存；本地 CRUD 视图按资源关系顺序提交。",
+              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更。\n默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n场景视图先捕获请求配置与变更，再按原查询 owner 串行分组保存；各来源独立确认，不提供跨来源事务。\n中途抛错时已确认视图保留接纳结果，未确认视图保留变更，不返回汇总成功结果；本地 CRUD 视图按资源关系顺序提交。\n来源明确持有未知提交时，本轮仅核验所选视图的原捕获，不应用新编辑或派发其他视图；剩余修改须随后显式保存。",
               "parameters": [
                 {
                   "name": "options",

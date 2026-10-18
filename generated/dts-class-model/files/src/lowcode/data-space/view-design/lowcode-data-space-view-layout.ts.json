@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/view-design/lowcode-data-space-view-layout",
+    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-layout.ts",
+    "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-layout.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/view-design/lowcode-data-space-view-layout",
+    "jsdoc": "app 的 lowcode/data-space/view-design/lowcode-data-space-view-layout 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceViewLayout（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDataSpaceViewLayout"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceViewLayout": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceViewLayout",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.positions.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.positions.return": {
+          "type": "object",
+          "title": "Record<string, {\n        x: number;\n        y: number;\n    }>"
+        },
+        "method.assertModels.params": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "config": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "models": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "files": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertModels.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-13T15:07:35.255Z",
+  "models": {
+    "LowcodeDataSpaceViewLayout": {
+      "name": "LowcodeDataSpaceViewLayout",
+      "jsdoc": "只转换节点坐标；旧图的边路径及扩展仍由原文件保留。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "只转换节点坐标；旧图的边路径及扩展仍由原文件保留。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "positions",
+              "jsdoc": "读取旧图的节点坐标；身份归属由调用方当前正式模型查询校验，不把边转为原生关系。",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "unknown",
+                    "name": "{\n        x: number;\n        y: number;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertModels",
+              "jsdoc": "校验本次布局改动引用的正式模型，消费已加载查询，不补查字段或目标空间数据。",
+              "parameters": [
+                {
+                  "name": "base",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "models",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataView"
+                    }
+                  }
+                },
+                {
+                  "name": "files",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

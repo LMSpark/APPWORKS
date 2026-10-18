@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/lowcode-data-space-filter-migration",
+    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/lowcode-data-space-filter-migration",
+    "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-filter-migration\n职责：在正式wire过滤树上迁移已解析的字段和值函数引用。\n边界：不决定引用归属，不遍历常量内部对象，不重新投影未知扩展。\nAI用途：模型和关系共用无损遍历，各自提供上下文解析。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceFilterMigration"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceFilterMigration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceFilterMigration",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.rewrite.params": {
+          "type": "object",
+          "properties": {
+            "before": {
+              "type": "string"
+            },
+            "field": {
+              "type": "object",
+              "title": "(value: unknown) => string"
+            },
+            "valueFunction": {
+              "type": "object",
+              "title": "(value: Record<string, unknown>) => Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rewrite.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-09T12:50:16.579Z",
+  "models": {
+    "LowcodeDataSpaceFilterMigration": {
+      "name": "LowcodeDataSpaceFilterMigration",
+      "jsdoc": "过滤原文变换；解析前后都使用正式合同，没有变更时逐字保留。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "过滤原文变换；解析前后都使用正式合同，没有变更时逐字保留。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "rewrite",
+              "jsdoc": "仅遍历过滤组和条件，字段/值函数命名空间由调用方处理。",
+              "parameters": [
+                {
+                  "name": "before",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "value",
+                              "type": {
+                                "type": "intrinsic",
+                                "name": "unknown"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "string"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "valueFunction",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "value",
+                              "type": {
+                                "type": "reference",
+                                "name": "Record",
+                                "typeArguments": [
+                                  {
+                                    "type": "intrinsic",
+                                    "name": "string"
+                                  },
+                                  {
+                                    "type": "intrinsic",
+                                    "name": "unknown"
+                                  }
+                                ]
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "reference",
+                            "name": "Record",
+                            "typeArguments": [
+                              {
+                                "type": "intrinsic",
+                                "name": "string"
+                              },
+                              {
+                                "type": "intrinsic",
+                                "name": "unknown"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

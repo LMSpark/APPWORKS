@@ -1,0 +1,627 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/data-view-source",
+    "sourcePath": "packages/spark-data/src/query/data-view-source.ts",
+    "sourceFile": "packages/spark-data/src/query/data-view-source.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/data-view-source",
+    "jsdoc": "@module @spark-appworks/spark-data:query/data-view-source\n职责：统一显式资源来源的预览、采用和原生修改取消保护。\n边界：不读取具体存储，不维护行草稿，不将来源采用当作保存或事务。\nAI用途：扩展资源来源适配时复用DataView入口及同源修改保护，不在页面复制取消守卫。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewSourceSnapshot",
+      "DataViewSourceAdoptOptions",
+      "DataViewSourceVersion",
+      "DataViewSourceAdapter",
+      "DataViewSource"
+    ]
+  },
+  "$defs": {
+    "DataViewSourceSnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSourceSnapshot",
+      "properties": {
+        "version": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "content": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewSourceAdoptOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSourceAdoptOptions",
+      "properties": {
+        "discardViews": {
+          "type": "array",
+          "items": {
+            "$ref": "../data-view.ts.json#/$defs/DataView"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataViewSourceVersion": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSourceVersion",
+      "properties": {
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": [
+            "null",
+            "number"
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "label",
+        "lastModified"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewSourceAdapter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSourceAdapter",
+      "properties": {
+        "history": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.views.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.views.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<DataViewSourceSnapshot>"
+        },
+        "method.adopt.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "snapshot": {
+              "$ref": "#/$defs/DataViewSourceSnapshot"
+            },
+            "hooks": {
+              "type": "object",
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adopt.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "DataViewSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSource",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "adapter": {
+              "$ref": "#/$defs/DataViewSourceAdapter"
+            },
+            "assertIdentity": {
+              "type": "object",
+              "title": "(view: DataView) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<DataViewSourceSnapshot>"
+        },
+        "method.listVersions.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listVersions.return": {
+          "type": "object",
+          "title": "Promise<readonly DataViewSourceVersion[]>"
+        },
+        "method.previewVersion.params": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewVersion.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.createVersion.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.createVersion.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.adopt.params": {
+          "type": "object",
+          "properties": {
+            "snapshot": {
+              "$ref": "#/$defs/DataViewSourceSnapshot"
+            },
+            "options": {
+              "$ref": "#/$defs/DataViewSourceAdoptOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adopt.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-15T10:33:47.196Z",
+  "models": {
+    "DataViewSourceSnapshot": {
+      "name": "DataViewSourceSnapshot",
+      "jsdoc": "来源预览；只承载存储原文和本地基线版本，不是业务行或权限凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 资源本地基线版本；null表示资源尚不存在。由资源适配解释并再次核对。 */\n    version: string | number | null;\n    /** 已展示的远端原文；null表示远端不存在，不能解释为空集合。 */\n    content: string | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 资源本地基线版本；null表示资源尚不存在。由资源适配解释并再次核对。 */\n    version: string | number | null;\n    /** 已展示的远端原文；null表示远端不存在，不能解释为空集合。 */\n    content: string | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "jsdoc": "资源本地基线版本；null表示资源尚不存在。由资源适配解释并再次核对。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "content",
+              "jsdoc": "已展示的远端原文；null表示远端不存在，不能解释为空集合。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewSourceAdoptOptions": {
+      "name": "DataViewSourceAdoptOptions",
+      "jsdoc": "显式采用来源时允许取消的原生视图修改。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 仅限同源视图；未列出的视图有修改时拒绝采用。省略时不允许取消任何修改。 */\n    discardViews?: readonly DataView[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 仅限同源视图；未列出的视图有修改时拒绝采用。省略时不允许取消任何修改。 */\n    discardViews?: readonly DataView[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "discardViews",
+              "jsdoc": "仅限同源视图；未列出的视图有修改时拒绝采用。省略时不允许取消任何修改。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewSourceVersion": {
+      "name": "DataViewSourceVersion",
+      "jsdoc": "来源存储的已保存版本；身份由适配器解释，与DataSet.version及当前查询代次分开。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原存储中的版本身份。 */ version: string | number;\n    /** 供用户选择的版本名称。 */ label: string;\n    /** 存储返回的毫秒时间戳；未知时为null。 */ lastModified: number | null;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原存储中的版本身份。 */ version: string | number;\n    /** 供用户选择的版本名称。 */ label: string;\n    /** 存储返回的毫秒时间戳；未知时为null。 */ lastModified: number | null;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "version",
+              "jsdoc": "原存储中的版本身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "供用户选择的版本名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lastModified",
+              "jsdoc": "存储返回的毫秒时间戳；未知时为null。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewSourceAdapter": {
+      "name": "DataViewSourceAdapter",
+      "jsdoc": "查询执行器可选的来源适配；具体存储保留冲突、作用域及未知结果核验责任。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: Readonly<{\n        /** 异步校验后检查调用方仍有效；不得将此检查替代存储冲突核验。 */\n        assertCurrent(): void;\n        /** 存储确认可同步应用后调用一次：检查并取消明确允许放弃的原生修改。 */\n        beforeApply(): void;\n    }>): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 为干净已保存的来源创建快照；每次异步边界、写入前及回读后核对hooks。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<void>;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: Readonly<{\n        /** 异步校验后检查调用方仍有效；不得将此检查替代存储冲突核验。 */\n        assertCurrent(): void;\n        /** 存储确认可同步应用后调用一次：检查并取消明确允许放弃的原生修改。 */\n        beforeApply(): void;\n    }>): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 为干净已保存的来源创建快照；每次异步边界、写入前及回读后核对hooks。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<void>;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "history",
+              "jsdoc": "可选来源历史；不接纳历史内容、不保存或恢复DataView行。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "views",
+              "jsdoc": "当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataView[]"
+              }
+            },
+            {
+              "name": "preview",
+              "jsdoc": "读取远端而不改变任何本地基线、查询结果或草稿。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewSourceSnapshot",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "adopt",
+              "jsdoc": "再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "snapshot",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewSourceSnapshot",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                  }
+                },
+                {
+                  "name": "hooks",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        /** 异步校验后检查调用方仍有效；不得将此检查替代存储冲突核验。 */\n        assertCurrent(): void;\n        /** 存储确认可同步应用后调用一次：检查并取消明确允许放弃的原生修改。 */\n        beforeApply(): void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataViewSource": {
+      "name": "DataViewSource",
+      "jsdoc": "内部执行器：只保护DataView生命周期，来源I/O留给绑定的适配器。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "由DataView以当前实例、唯一查询来源适配和原生身份校验创建，不由业务页面独立构造。",
+          "signatureText": "constructor(view: DataView, adapter: DataViewSourceAdapter, assertIdentity: (view: DataView) => void)",
+          "parameters": [
+            {
+              "name": "view",
+              "type": {
+                "type": "reference",
+                "name": "DataView",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "adapter",
+              "type": {
+                "type": "reference",
+                "name": "DataViewSourceAdapter",
+                "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+              }
+            },
+            {
+              "name": "assertIdentity",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [
+                        {
+                          "name": "view",
+                          "type": {
+                            "type": "reference",
+                            "name": "DataView",
+                            "sourcePath": "packages/spark-data/src/data-view.ts"
+                          }
+                        }
+                      ],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "preview",
+              "jsdoc": "读取来源并核对前后绑定身份，不接纳结果或修改视图。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewSourceSnapshot",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listVersions",
+              "jsdoc": "列出真实来源历史，不改变当前查询、编辑或已确认基线。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly DataViewSourceVersion[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewVersion",
+              "jsdoc": "读取指定来源版本；历史内容不能直接作为当前来源采用或查询回执。",
+              "parameters": [
+                {
+                  "name": "version",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "createVersion",
+              "jsdoc": "仅同源全部视图干净且在整个操作期间未变化时，允许存储适配创建来源快照。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "adopt",
+              "jsdoc": "在来源再次核验成功后取消明确批准的修改；异步编辑、未决请求和其他草稿拒绝采用。",
+              "parameters": [
+                {
+                  "name": "snapshot",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewSourceSnapshot",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewSourceAdoptOptions",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

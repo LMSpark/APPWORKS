@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props\n职责：声明计算字段创建组件的会话、所属模型和刷新修订输入。\n边界：只约束组件接入参数，不查询元数据、不提供持久化或授予权限。\nAI用途：将创建入口绑定到当前设计会话，交互锁定只收紧操作。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceFieldCreateProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceFieldCreateProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFieldCreateProps",
+      "properties": {
+        "session": {
+          "$ref": "../../../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "number"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "workspaceActions": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "session",
+        "modelId",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-10T23:29:14.392Z",
+  "models": {
+    "DataSpaceFieldCreateProps": {
+      "name": "DataSpaceFieldCreateProps",
+      "jsdoc": "计算字段新建的会话、所属模型和页面交互边界。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceFieldCreate"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前元数据空间会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 目标空间内的正式模型记录ID。 */\n    modelId: string;\n    /** 原DataView事件推进的呈现修订。 */\n    revision: number;\n    /** 只收紧交互，不授予新增权限。 */\n    disabled?: boolean;\n    /** 在元模型紧凑工作区显示原操作入口，保留同一绑定和编辑实例。 */\n    workspaceActions?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "jsdoc": "当前元数据空间会话。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "目标空间内的正式模型记录ID。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revision",
+              "jsdoc": "原DataView事件推进的呈现修订。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "只收紧交互，不授予新增权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workspaceActions",
+              "jsdoc": "在元模型紧凑工作区显示原操作入口，保留同一绑定和编辑实例。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

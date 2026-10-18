@@ -66,6 +66,18 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.editorContext.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.editorContext.return": {
+          "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+        },
         "method.parse.params": {
           "type": "object",
           "properties": {
@@ -116,6 +128,43 @@
         "method.serialize.return": {
           "type": "string"
         },
+        "method.referencedTableNames.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.referencedTableNames.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.loadEditorContext.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadEditorContext.return": {
+          "type": "object",
+          "title": "Promise<DataViewFilterFunctionContext>"
+        },
+        "method.bindInputParams.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindInputParams.return": {
+          "$ref": "#/$defs/DataViewFilter"
+        },
         "method.validate.params": {
           "type": "object",
           "properties": {
@@ -134,7 +183,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T20:59:40.838Z",
+  "generatedAt": "2026-10-15T03:48:07.257Z",
   "models": {
     "DataViewFilterParseResult": {
       "name": "DataViewFilterParseResult",
@@ -169,6 +218,28 @@
         },
         "members": {
           "methods": [
+            {
+              "name": "editorContext",
+              "jsdoc": "为定义编辑器合并内置系统参数与调用方候选，复用同一值函数目录。\n同名内置参数保留标准定义；显式函数覆盖（包括禁用声明）保留给下游，重复装配不扩大候选范围。\n@param context 调用方的模型、字段、参数及扩展函数上下文。\n@returns 保留扩展能力和候选的编辑上下文，不执行值函数或授予数据权限。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilterFunctionContext",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+              }
+            },
             {
               "name": "parse",
               "parameters": [
@@ -237,6 +308,74 @@
               "type": {
                 "type": "intrinsic",
                 "name": "string"
+              }
+            },
+            {
+              "name": "referencedTableNames",
+              "jsdoc": "返回值函数显式引用的模型名称，去重保序；仅识别正式表参数，不递归猜测常量或未知扩展。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "readonly string[]"
+              }
+            },
+            {
+              "name": "loadEditorContext",
+              "jsdoc": "为当前过滤树读取显式引用模型的字段编辑目录，保留全部模型候选。\n未提供字段且声明 loadFields 的模型才读取；同次每个模型只读一次，不修改输入上下文。\n@param context 正式数据 owner 提供的可读模型及字段目录。\n@returns 补齐所需字段的编辑上下文；失败拒绝，不缓存空目录。调用方仍须核对编辑身份并执行 validate。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "bindInputParams",
+              "jsdoc": "Bind only explicit input-parameter values; preserve constants and other function execution domains.",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilter",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
               }
             },
             {

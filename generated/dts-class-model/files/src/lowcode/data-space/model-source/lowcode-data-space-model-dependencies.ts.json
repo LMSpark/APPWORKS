@@ -1,0 +1,433 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-dependencies",
+    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-dependencies",
+    "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-model-dependencies\n职责：为模型/字段结构命令读取明确的依赖，保留C的正式查询、权限及提交责任方。\n边界：不预载字段default，不复制行；只读取显式依赖，具体命令负责引用改写与变更清单。\nAI用途：结构命令的预览、派发前检查和回读共用同一组DataView。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceModelDependencies"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceModelDependencies": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelDependencies",
+      "properties": {
+        "views": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "operation": true,
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "editing": {
+              "type": "object",
+              "properties": {
+                "view": {
+                  "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                },
+                "id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "view",
+                "id"
+              ],
+              "additionalProperties": false
+            },
+            "fieldEditing": {
+              "type": "object",
+              "properties": {
+                "view": {
+                  "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                },
+                "ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "allowPending": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "view",
+                "ids"
+              ],
+              "additionalProperties": false
+            },
+            "fieldWorkspaces": {
+              "type": "object",
+              "title": "() => ReadonlyArray<Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertOwner.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertOwner.return": true,
+        "method.assertSiblingsClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertSiblingsClean.return": true,
+        "method.load.params": {
+          "type": "object",
+          "properties": {
+            "refresh": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.assertFieldScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertFieldScope.return": true,
+        "method.invalidate.params": {
+          "type": "object",
+          "properties": {
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "table": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "table",
+                  "id"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "retained": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.invalidate.return": true,
+        "method.release.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.release.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-14T20:48:11.118Z",
+  "models": {
+    "LowcodeDataSpaceModelDependencies": {
+      "name": "LowcodeDataSpaceModelDependencies",
+      "jsdoc": "当前空间模型结构命令的按需依赖；生命周期归元数据DataSet。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "从C派生命令视图；editing指定须保留的本模型编辑行，依赖使用独立模型查询。",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string, modelId: string, operation: 'rename' | 'remove' | 'sourceRemoval' | `fieldRemove:${string}` | `fieldOutput:${string}` | `array:${string}`, assertCurrent: () => void, editing?: Readonly<{\n        view: DataView;\n        id: string;\n    }> | undefined, fieldEditing?: Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }> | undefined, fieldWorkspaces?: (() => ReadonlyArray<Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>>) | undefined)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "modelId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "operation",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "rename"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "remove"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "sourceRemoval"
+                  },
+                  {
+                    "type": "unknown",
+                    "name": "`fieldRemove:${string}`"
+                  },
+                  {
+                    "type": "unknown",
+                    "name": "`fieldOutput:${string}`"
+                  },
+                  {
+                    "type": "unknown",
+                    "name": "`array:${string}`"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "editing",
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        view: DataView;\n        id: string;\n    }"
+                    }
+                  ]
+                }
+              },
+              "flags": {
+                "isOptional": true
+              }
+            },
+            {
+              "name": "fieldEditing",
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }"
+                    }
+                  ]
+                }
+              },
+              "flags": {
+                "isOptional": true
+              }
+            },
+            {
+              "name": "fieldWorkspaces",
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reflection",
+                  "declaration": {
+                    "signatures": [
+                      {
+                        "parameters": [],
+                        "type": {
+                          "type": "array",
+                          "elementType": {
+                            "type": "reference",
+                            "name": "Readonly",
+                            "typeArguments": [
+                              {
+                                "type": "unknown",
+                                "name": "{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "views",
+              "jsdoc": "模型目录、所属字段及旧关系；均为正式数据视图。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertOwner",
+              "jsdoc": "检查原实例与输入身份，不从其他同名表或空间兜底。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertSiblingsClean",
+              "jsdoc": "兄弟视图不能持有未决编辑或请求；命令不覆盖其他消费者的工作。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "load",
+              "jsdoc": "首次读命令范围；重核与回读刷新模型目录，并保留原范围以核验已删除/改写的引用。",
+              "parameters": [
+                {
+                  "name": "refresh",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertFieldScope",
+              "jsdoc": "字段只来自这次显式读取的所属模型。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "invalidate",
+              "jsdoc": "变更使受影响的已加载消费者失效；retained仅包含调用方已经正式回读的视图，不回填数组。",
+              "parameters": [
+                {
+                  "name": "changes",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "unknown",
+                      "name": "{\n        table: string;\n        id: string;\n    }"
+                    }
+                  }
+                },
+                {
+                  "name": "retained",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataView[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "release",
+              "jsdoc": "释放已无草稿的命令查询；不影响C原有命名视图。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

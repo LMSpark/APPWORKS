@@ -9,9 +9,7 @@
     "modulePath": "components/containers/runtime/container-form-detail",
     "jsdoc": "@module @spark-appworks/spark-component:components/containers/runtime/container-form-detail\n职责：提供 container form detail 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": [
-      "FormDetailContainerConsumerProps"
-    ]
+    "symbols": []
   },
   "$defs": {
     "FormDetailContainerProps": {
@@ -25,13 +23,11 @@
         "id": {
           "type": "string"
         },
-        "props": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": true
-        },
         "children": {
           "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "gridMinWidth": {
+          "type": "string"
         },
         "dataViewKey": {
           "type": "string"
@@ -39,28 +35,16 @@
         "contextDataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -71,9 +55,6 @@
         },
         "dataSource": {
           "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
-        },
-        "toolbar": {
-          "$ref": "../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
         },
         "autoColumns": {
           "enum": [
@@ -99,217 +80,60 @@
         }
       },
       "required": [
-        "type",
-        "dataViewKey",
-        "contextDataMember",
-        "contextDataField",
-        "autoColumns",
-        "gridColumns",
-        "gridGap",
-        "gridAutoRows"
-      ],
-      "additionalProperties": false
-    },
-    "FormDetailContainerConsumerProps": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FormDetailContainerConsumerProps",
-      "properties": {
-        "type": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "toolbar": {
-          "$ref": "../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"
-        },
-        "children": {
-          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "dataSource": {
-          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
-        },
-        "dataViewKey": {
-          "type": "string"
-        },
-        "contextDataMember": {
-          "enum": [
-            "page",
-            "currentRow",
-            "selectedRows",
-            "requestState",
-            "columns",
-            "rows",
-            "rows",
-            "columns",
-            "currentRow",
-            "selectedRows",
-            "aggregateResult",
-            "selectionAggregateResult",
-            "total",
-            "page",
-            "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
-            "mutating",
-            "loadingError",
-            "mutatingError"
-          ]
-        },
-        "contextDataField": {
-          "type": "string"
-        },
-        "autoColumns": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "gridColumns": {
-          "type": "number"
-        },
-        "gridGap": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "number"
-            }
-          ]
-        },
-        "gridAutoRows": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "type",
-        "dataViewKey",
-        "contextDataMember",
-        "contextDataField",
-        "autoColumns",
-        "gridColumns",
-        "gridGap",
-        "gridAutoRows"
+        "type"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:26.822Z",
+  "generatedAt": "2026-10-16T05:14:03.117Z",
   "models": {
     "FormDetailContainerProps": {
       "name": "FormDetailContainerProps",
       "jsdoc": "容器内部完整属性形状（包括私有布局字段）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "SparkNode & {\n    /** DataView 定位键。 */\n    dataViewKey: string | undefined;\n    /** context Data Member 字段。 */\n    contextDataMember: DataMember | `${DataMember}` | undefined;\n    /** context Data Field 字段。 */\n    contextDataField: string | undefined;\n    /** data Source 字段。 */\n    dataSource?: DataView;\n    /** toolbar 字段。 */\n    toolbar?: RToolbarProps;\n    /** auto Columns 字段。 */\n    autoColumns: boolean | undefined;\n    /** grid Columns 字段。 */\n    gridColumns: number | undefined;\n    /** grid Gap 字段。 */\n    gridGap: number | string | undefined;\n    /** grid Auto Rows 字段。 */\n    gridAutoRows: string | undefined;\n}",
-        "declarationRelations": [
-          {
-            "kind": "intersection",
-            "typeText": "SparkNode",
-            "targetName": "SparkNode"
-          },
-          {
-            "kind": "intersection",
-            "typeText": "{\n    /** DataView 定位键。 */\n    dataViewKey: string | undefined;\n    /** context Data Member 字段。 */\n    contextDataMember: DataMember | `${DataMember}` | undefined;\n    /** context Data Field 字段。 */\n    contextDataField: string | undefined;\n    /** data Source 字段。 */\n    dataSource?: DataView;\n    /** toolbar 字段。 */\n    toolbar?: RToolbarProps;\n    /** auto Columns 字段。 */\n    autoColumns: boolean | undefined;\n    /** grid Columns 字段。 */\n    gridColumns: number | undefined;\n    /** grid Gap 字段。 */\n    gridGap: number | string | undefined;\n    /** grid Auto Rows 字段。 */\n    gridAutoRows: string | undefined;\n}"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "dataViewKey",
-              "jsdoc": "DataView 定位键。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "contextDataMember",
-              "jsdoc": "context Data Member 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "contextDataField",
-              "jsdoc": "context Data Field 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "dataSource",
-              "jsdoc": "data Source 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "toolbar",
-              "jsdoc": "toolbar 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "autoColumns",
-              "jsdoc": "auto Columns 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "gridColumns",
-              "jsdoc": "grid Columns 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "gridGap",
-              "jsdoc": "grid Gap 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "gridAutoRows",
-              "jsdoc": "grid Auto Rows 字段。",
-              "readable": true,
-              "writable": true
-            }
-          ]
-        }
-      }
-    },
-    "FormDetailContainerConsumerProps": {
-      "name": "FormDetailContainerConsumerProps",
-      "jsdoc": "r-form / r-detail 消费 `useFormDetailContainer` 时的最小输入形状。\n目的：统一两侧组件的入参组装，避免在消费端重复展开同一批可选字段。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 类型标识。 */\n    type: SparkNode['type'];\n    /** 唯一标识。 */\n    id?: SparkNode['id'];\n    /** toolbar 字段。 */\n    toolbar?: RToolbarProps;\n    /** 子节点集合。 */\n    children?: SparkNode['children'];\n    /** data Source 字段。 */\n    dataSource?: DataView;\n    /** DataView 定位键。 */\n    dataViewKey: string | undefined;\n    /** context Data Member 字段。 */\n    contextDataMember: DataMember | `${DataMember}` | undefined;\n    /** context Data Field 字段。 */\n    contextDataField: string | undefined;\n    /** auto Columns 字段。 */\n    autoColumns: boolean | undefined;\n    /** grid Columns 字段。 */\n    gridColumns: number | undefined;\n    /** grid Gap 字段。 */\n    gridGap: number | string | undefined;\n    /** grid Auto Rows 字段。 */\n    gridAutoRows: string | undefined;\n}",
+        "declarationTypeText": "{\n    /** 已由标准组件默认值确定的组件类型。 */\n    type: string;\n    /** 运行时props允许未传入的可选项显式为undefined。 */\n    id?: string | undefined;\n    /** 同一响应式props上的子组件配置。 */\n    children?: SparkNode['children'] | undefined;\n    /** 表单自适应项宽；详情未声明时保留原固定栅格。 */\n    gridMinWidth?: string | undefined;\n    /** DataView 定位键。 */\n    dataViewKey?: string | undefined;\n    /** context Data Member 字段。 */\n    contextDataMember?: DataMember | `${DataMember}` | undefined;\n    /** context Data Field 字段。 */\n    contextDataField?: string | undefined;\n    /** data Source 字段。 */\n    dataSource?: DataView | undefined;\n    /** auto Columns 字段。 */\n    autoColumns?: boolean | undefined;\n    /** grid Columns 字段。 */\n    gridColumns?: number | undefined;\n    /** grid Gap 字段。 */\n    gridGap?: number | string | undefined;\n    /** grid Auto Rows 字段。 */\n    gridAutoRows?: string | undefined;\n}",
         "members": {
           "attributes": [
             {
               "name": "type",
-              "jsdoc": "类型标识。",
+              "jsdoc": "已由标准组件默认值确定的组件类型。",
               "readable": true,
               "writable": true
             },
             {
               "name": "id",
-              "jsdoc": "唯一标识。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "toolbar",
-              "jsdoc": "toolbar 字段。",
+              "jsdoc": "运行时props允许未传入的可选项显式为undefined。",
               "readable": true,
               "writable": false
             },
             {
               "name": "children",
-              "jsdoc": "子节点集合。",
+              "jsdoc": "同一响应式props上的子组件配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gridMinWidth",
+              "jsdoc": "表单自适应项宽；详情未声明时保留原固定栅格。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextDataMember",
+              "jsdoc": "context Data Member 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextDataField",
+              "jsdoc": "context Data Field 字段。",
               "readable": true,
               "writable": false
             },
@@ -320,46 +144,28 @@
               "writable": false
             },
             {
-              "name": "dataViewKey",
-              "jsdoc": "DataView 定位键。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "contextDataMember",
-              "jsdoc": "context Data Member 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "contextDataField",
-              "jsdoc": "context Data Field 字段。",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "autoColumns",
               "jsdoc": "auto Columns 字段。",
               "readable": true,
-              "writable": true
+              "writable": false
             },
             {
               "name": "gridColumns",
               "jsdoc": "grid Columns 字段。",
               "readable": true,
-              "writable": true
+              "writable": false
             },
             {
               "name": "gridGap",
               "jsdoc": "grid Gap 字段。",
               "readable": true,
-              "writable": true
+              "writable": false
             },
             {
               "name": "gridAutoRows",
               "jsdoc": "grid Auto Rows 字段。",
               "readable": true,
-              "writable": true
+              "writable": false
             }
           ]
         }

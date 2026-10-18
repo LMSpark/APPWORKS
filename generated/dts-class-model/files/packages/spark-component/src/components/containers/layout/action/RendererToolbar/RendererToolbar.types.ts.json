@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.types.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "components/containers/layout/action/RendererToolbar/RendererToolbar.types",
-    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/action/RendererToolbar/RendererToolbar.types\n职责：集中定义 RendererToolbar（r-toolbar）内部共享的类型契约，描述渲染器状态、事件载荷和运行时数据形态。\n边界：只提供 container/layout-container 的类型层语义，不创建组件实例、不执行 IO，也不承载具体 UI 渲染。\nAI用途：需要判断 renderer toolbar 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/action/RendererToolbar/RendererToolbar.types\n职责：定义所有容器 toolbar 和表格/树/列表 actions 共用的标准工具栏属性。\n边界：只提供 container/layout-container 的类型层语义，不创建组件实例、不执行 IO，也不承载具体 UI 渲染。\nAI用途：需要判断 renderer toolbar 的状态结构、事件参数或 zero-code API 形状时，用本模块作为类型入口。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "InlineAlign",
@@ -57,13 +57,13 @@
         },
         "permissionDeniedMode": {
           "enum": [
-            "hide",
-            "disable"
+            "disable",
+            "hide"
           ]
         },
         "dataSource": {
           "type": "object",
-          "title": "import(\"@spark-appworks/spark-data\").DataView"
+          "title": "import(\"../../../../../../../spark-data/src\").DataView"
         },
         "dataViewKey": {
           "type": "string"
@@ -71,28 +71,16 @@
         "dataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -128,6 +116,12 @@
             "right",
             "top",
             "bottom"
+          ]
+        },
+        "wrap": {
+          "enum": [
+            false,
+            true
           ]
         },
         "class": {
@@ -173,7 +167,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.132Z",
+  "generatedAt": "2026-10-18T02:46:31.758Z",
   "models": {
     "InlineAlign": {
       "name": "InlineAlign",
@@ -245,7 +239,7 @@
     },
     "RToolbarProps": {
       "name": "RToolbarProps",
-      "jsdoc": "`RendererToolbar` Vue 组件公开属性。",
+      "jsdoc": "`RendererToolbar` 公开合同。容器工具栏及行/节点/列表项动作均复用它，\n由 children 和 tail.children 编排标准子组件，不另建操作列或按钮数组合同。\n未显式绑定时继承父 DataView 和行上下文；dataViewKey/dataMember/dataField 沿标准数据绑定解析。\n容器负责区域位置，RendererToolbar 负责子组件渲染、尾区、间距和 beforeRender。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "RendererToolbar",
@@ -255,7 +249,7 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkTableModelProps & {\n    /** 尾部动作区（通常放次要按钮） */\n    tail?: RTailProps;\n    /** 工具栏停靠位置 */\n    position?: ToolbarPosition;\n    /** 工具栏附加 class */\n    class?: string;\n    /** 主区内元素间距 */\n    gap?: number | string;\n    /** 主区与尾区间距 */\n    zoneGap?: number | string;\n    /** 交叉轴对齐 */\n    align?: InlineAlign;\n    /** 主轴分布 */\n    justify?: InlineJustify;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkTableModelProps & {\n    /** 尾部动作区（通常放次要按钮） */\n    tail?: RTailProps;\n    /** 工具栏停靠位置；行/列表项 actions 由父容器限定为左或右，默认右侧。\n     * @default \"top\"\n     */\n    position?: ToolbarPosition;\n    /** 主区、尾区及其子组件均按可用宽度换行，尾区保持末端对齐；默认false保持两区单行。窄工作区可显式启用。\n     * @default false\n     */\n    wrap?: boolean;\n    /** 工具栏附加 class */\n    class?: string;\n    /** 子组件间距；数字为像素，字符串为 CSS 长度。\n     * @default 8\n     */\n    gap?: number | string;\n    /** 主区与尾区间距；数字为像素，字符串为 CSS 长度。\n     * @default 12\n     */\n    zoneGap?: number | string;\n    /** 交叉轴对齐，使用 InlineAlign 枚举。\n     * @default \"center\"\n     */\n    align?: InlineAlign;\n    /** 主轴分布，使用 InlineJustify 枚举；尾区固定靠末端。\n     * @default \"start\"\n     */\n    justify?: InlineJustify;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -269,7 +263,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 尾部动作区（通常放次要按钮） */\n    tail?: RTailProps;\n    /** 工具栏停靠位置 */\n    position?: ToolbarPosition;\n    /** 工具栏附加 class */\n    class?: string;\n    /** 主区内元素间距 */\n    gap?: number | string;\n    /** 主区与尾区间距 */\n    zoneGap?: number | string;\n    /** 交叉轴对齐 */\n    align?: InlineAlign;\n    /** 主轴分布 */\n    justify?: InlineJustify;\n}"
+            "typeText": "{\n    /** 尾部动作区（通常放次要按钮） */\n    tail?: RTailProps;\n    /** 工具栏停靠位置；行/列表项 actions 由父容器限定为左或右，默认右侧。\n     * @default \"top\"\n     */\n    position?: ToolbarPosition;\n    /** 主区、尾区及其子组件均按可用宽度换行，尾区保持末端对齐；默认false保持两区单行。窄工作区可显式启用。\n     * @default false\n     */\n    wrap?: boolean;\n    /** 工具栏附加 class */\n    class?: string;\n    /** 子组件间距；数字为像素，字符串为 CSS 长度。\n     * @default 8\n     */\n    gap?: number | string;\n    /** 主区与尾区间距；数字为像素，字符串为 CSS 长度。\n     * @default 12\n     */\n    zoneGap?: number | string;\n    /** 交叉轴对齐，使用 InlineAlign 枚举。\n     * @default \"center\"\n     */\n    align?: InlineAlign;\n    /** 主轴分布，使用 InlineJustify 枚举；尾区固定靠末端。\n     * @default \"start\"\n     */\n    justify?: InlineJustify;\n}"
           }
         ],
         "members": {
@@ -282,7 +276,13 @@
             },
             {
               "name": "position",
-              "jsdoc": "工具栏停靠位置",
+              "jsdoc": "工具栏停靠位置；行/列表项 actions 由父容器限定为左或右，默认右侧。\n@default \"top\"",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "wrap",
+              "jsdoc": "主区、尾区及其子组件均按可用宽度换行，尾区保持末端对齐；默认false保持两区单行。窄工作区可显式启用。\n@default false",
               "readable": true,
               "writable": false
             },
@@ -294,25 +294,25 @@
             },
             {
               "name": "gap",
-              "jsdoc": "主区内元素间距",
+              "jsdoc": "子组件间距；数字为像素，字符串为 CSS 长度。\n@default 8",
               "readable": true,
               "writable": false
             },
             {
               "name": "zoneGap",
-              "jsdoc": "主区与尾区间距",
+              "jsdoc": "主区与尾区间距；数字为像素，字符串为 CSS 长度。\n@default 12",
               "readable": true,
               "writable": false
             },
             {
               "name": "align",
-              "jsdoc": "交叉轴对齐",
+              "jsdoc": "交叉轴对齐，使用 InlineAlign 枚举。\n@default \"center\"",
               "readable": true,
               "writable": false
             },
             {
               "name": "justify",
-              "jsdoc": "主轴分布",
+              "jsdoc": "主轴分布，使用 InlineJustify 枚举；尾区固定靠末端。\n@default \"start\"",
               "readable": true,
               "writable": false
             }

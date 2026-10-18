@@ -21,10 +21,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "LowcodeNavigationTargetKind",
       "enum": [
-        "route",
         "cfg",
         "empty",
         "external",
+        "route",
         "vue"
       ]
     },

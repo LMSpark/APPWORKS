@@ -35,8 +35,8 @@
         },
         "permissionDeniedMode": {
           "enum": [
-            "hide",
-            "disable"
+            "disable",
+            "hide"
           ]
         },
         "dataSource": {
@@ -48,28 +48,16 @@
         "dataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -130,28 +118,16 @@
         "contextDataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -189,7 +165,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:26.796Z",
+  "generatedAt": "2026-10-10T08:23:40.021Z",
   "models": {
     "RDetailProps": {
       "name": "RDetailProps",
@@ -203,7 +179,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {\n    /** 显式收窄为详情容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 没有显式 children 时，是否从 DataView.columns 自动生成字段。默认 true。 */\n    autoColumns?: boolean;\n    /** 标题对齐 */\n    titleAlign?: 'left' | 'center' | 'right';\n    /** 值对齐 */\n    valueAlign?: 'left' | 'center' | 'right';\n    /** 透传给详情根节点的显式属性 */\n    detailProps?: Record<string, unknown>;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {\n    /** 显式收窄为详情容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。子组件依据详情父容器只读展示；显式children优先，它不是独立列配置。 */\n    autoColumns?: boolean;\n    /** 标题对齐 */\n    titleAlign?: 'left' | 'center' | 'right';\n    /** 值对齐 */\n    valueAlign?: 'left' | 'center' | 'right';\n    /** 透传给详情根节点的显式属性 */\n    detailProps?: Record<string, unknown>;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -222,7 +198,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 显式收窄为详情容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 没有显式 children 时，是否从 DataView.columns 自动生成字段。默认 true。 */\n    autoColumns?: boolean;\n    /** 标题对齐 */\n    titleAlign?: 'left' | 'center' | 'right';\n    /** 值对齐 */\n    valueAlign?: 'left' | 'center' | 'right';\n    /** 透传给详情根节点的显式属性 */\n    detailProps?: Record<string, unknown>;\n}"
+            "typeText": "{\n    /** 显式收窄为详情容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。子组件依据详情父容器只读展示；显式children优先，它不是独立列配置。 */\n    autoColumns?: boolean;\n    /** 标题对齐 */\n    titleAlign?: 'left' | 'center' | 'right';\n    /** 值对齐 */\n    valueAlign?: 'left' | 'center' | 'right';\n    /** 透传给详情根节点的显式属性 */\n    detailProps?: Record<string, unknown>;\n}"
           }
         ],
         "members": {
@@ -241,7 +217,7 @@
             },
             {
               "name": "contextDataMember",
-              "jsdoc": "上下文 DataView 成员，默认 currentRow。",
+              "jsdoc": "上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。",
               "readable": true,
               "writable": false
             },
@@ -253,7 +229,7 @@
             },
             {
               "name": "autoColumns",
-              "jsdoc": "没有显式 children 时，是否从 DataView.columns 自动生成字段。默认 true。",
+              "jsdoc": "无显式children时，从DataView字段元信息生成标准子组件，默认true。子组件依据详情父容器只读展示；显式children优先，它不是独立列配置。",
               "readable": true,
               "writable": false
             },

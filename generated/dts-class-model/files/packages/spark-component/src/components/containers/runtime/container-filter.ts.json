@@ -125,6 +125,33 @@
       "type": "object",
       "title": "UseFilterPanelOptions",
       "properties": {
+        "autoQuery": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "title": "ComputedRef<boolean>"
+            },
+            {
+              "type": "object",
+              "title": "Ref<boolean, boolean>"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").ShallowRef<boolean, boolean>"
+            },
+            {
+              "type": "object",
+              "title": "import(\"vue\").WritableComputedRef<boolean, boolean>"
+            },
+            {
+              "type": "object",
+              "title": "() => boolean"
+            }
+          ]
+        },
         "filterChildren": {
           "type": "object",
           "title": "MaybeRefOrGetter<SparkNode[]>"
@@ -200,7 +227,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T05:59:53.316Z",
+  "generatedAt": "2026-10-13T02:28:56.174Z",
   "models": {
     "ErrorLoggerLike": {
       "name": "ErrorLoggerLike",
@@ -368,9 +395,15 @@
       "jsdoc": "Use Filter Panel Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 过滤器子节点列表（响应式）。 */\n    filterChildren: MaybeRefOrGetter<SparkNode[]>;\n    /** 目标 DataView（响应式）。 */\n    dataView: MaybeRefOrGetter<FilterPanelDataView | null>;\n    /** 错误日志接口。 */\n    logger: ErrorLoggerLike;\n}",
+        "declarationTypeText": "{\n    /** false时保留筛选草稿，查询按钮才应用；缺省立即。 */\n    autoQuery?: MaybeRefOrGetter<boolean>;\n    /** 过滤器子节点列表（响应式）。 */\n    filterChildren: MaybeRefOrGetter<SparkNode[]>;\n    /** 目标 DataView（响应式）。 */\n    dataView: MaybeRefOrGetter<FilterPanelDataView | null>;\n    /** 错误日志接口。 */\n    logger: ErrorLoggerLike;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "autoQuery",
+              "jsdoc": "false时保留筛选草稿，查询按钮才应用；缺省立即。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "filterChildren",
               "jsdoc": "过滤器子节点列表（响应式）。",

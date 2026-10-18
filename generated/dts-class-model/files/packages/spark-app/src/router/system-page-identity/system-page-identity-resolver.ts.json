@@ -123,6 +123,13 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "SystemPageIdentityResolver",
+      "properties": {
+        "revision": {
+          "type": "object",
+          "title": "Ref<number>"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -190,6 +197,12 @@
           "additionalProperties": false
         },
         "method.closeInstance.return": true,
+        "method.assertClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertClean.return": true,
         "method.resetInstances.params": {
           "type": "object",
           "properties": {},
@@ -256,7 +269,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T11:18:06.481Z",
+  "generatedAt": "2026-10-09T09:18:00.627Z",
   "models": {
     "SystemPageIdentityScope": {
       "name": "SystemPageIdentityScope",
@@ -419,6 +432,13 @@
           "parameters": []
         },
         "members": {
+          "attributes": [
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "forRouter",
@@ -504,6 +524,15 @@
                   }
                 }
               ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertClean",
+              "jsdoc": "主动切换应用前检查所有系统页的原owner状态；不影响强制失效。",
+              "parameters": [],
               "type": {
                 "type": "intrinsic",
                 "name": "void"

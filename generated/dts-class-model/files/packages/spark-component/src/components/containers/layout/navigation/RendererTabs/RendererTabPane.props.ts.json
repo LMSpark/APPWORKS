@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/layout/navigation/RendererTabs/RendererTabPane.props",
+    "sourcePath": "packages/spark-component/src/components/containers/layout/navigation/RendererTabs/RendererTabPane.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/layout/navigation/RendererTabs/RendererTabPane.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/layout/navigation/RendererTabs/RendererTabPane.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/layout/navigation/RendererTabs/RendererTabPane.props\n职责：声明标准标签页面板的身份、布局和数据上下文。\n边界：配置 children 按网格跨度排列，原生默认 slot 作为完整内容区；数据交互由绑定的 DataView 承接。\nAI用途：从 r-tab-pane 查询面板属性，沿 LayoutDataContextProps 查询标准数据绑定。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RTabPaneProps"
+    ],
+    "componentName": "RendererTabPane",
+    "componentType": "r-tab-pane",
+    "componentLevel": "container",
+    "componentLayer": "layout-container",
+    "componentDirectory": "containers/layout"
+  },
+  "$defs": {
+    "RTabPaneProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RTabPaneProps",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "children": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+        },
+        "permissionDeniedMode": {
+          "enum": [
+            "disable",
+            "hide"
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "lazy": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "closable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "bodyClass": {
+          "type": "string"
+        },
+        "gridColumns": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "gridAutoRows": {
+          "type": "string"
+        },
+        "gridGap": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "index": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "index"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-10T00:09:03.582Z",
+  "models": {
+    "RTabPaneProps": {
+      "name": "RTabPaneProps",
+      "jsdoc": "r-tabs 内的独立面板；无显式数据绑定时继承父布局的视图和行上下文。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererTabPane",
+        "type": "r-tab-pane",
+        "level": "container",
+        "layer": "layout-container",
+        "directory": "containers/layout"
+      },
+      "typeAlias": {
+        "declarationTypeText": "LayoutDataContextProps & {\n    /** 标签页唯一标识。 */\n    name?: string | number;\n    /** 标签页标题。 */\n    label?: string;\n    /** 禁用标签切换。 */\n    disabled?: boolean;\n    /** 首次激活时才挂载内容，之后保留编辑状态。 */\n    lazy?: boolean;\n    /** 是否允许关闭。 */\n    closable?: boolean;\n    /** 内容区附加 class。 */\n    bodyClass?: string;\n    /** 配置 children 的 CSS Grid 列数；原生 slot 始终占完整行。 */\n    gridColumns?: number | string;\n    /** 网格自动行高。 */\n    gridAutoRows?: string;\n    /** 网格间距。 */\n    gridGap?: number | string;\n    /** 在父容器中的位置，用于未命名标签的默认身份。 */\n    index: number;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 标签页唯一标识。 */\n    name?: string | number;\n    /** 标签页标题。 */\n    label?: string;\n    /** 禁用标签切换。 */\n    disabled?: boolean;\n    /** 首次激活时才挂载内容，之后保留编辑状态。 */\n    lazy?: boolean;\n    /** 是否允许关闭。 */\n    closable?: boolean;\n    /** 内容区附加 class。 */\n    bodyClass?: string;\n    /** 配置 children 的 CSS Grid 列数；原生 slot 始终占完整行。 */\n    gridColumns?: number | string;\n    /** 网格自动行高。 */\n    gridAutoRows?: string;\n    /** 网格间距。 */\n    gridGap?: number | string;\n    /** 在父容器中的位置，用于未命名标签的默认身份。 */\n    index: number;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "标签页唯一标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "标签页标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "禁用标签切换。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lazy",
+              "jsdoc": "首次激活时才挂载内容，之后保留编辑状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "closable",
+              "jsdoc": "是否允许关闭。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bodyClass",
+              "jsdoc": "内容区附加 class。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gridColumns",
+              "jsdoc": "配置 children 的 CSS Grid 列数；原生 slot 始终占完整行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gridAutoRows",
+              "jsdoc": "网格自动行高。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "gridGap",
+              "jsdoc": "网格间距。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "在父容器中的位置，用于未命名标签的默认身份。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -23,8 +23,44 @@
         "label": {
           "type": "string"
         },
+        "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "field": {
           "type": "string"
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
         },
         "modelValue": true,
         "value": true,
@@ -34,8 +70,20 @@
         "children": {
           "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
         },
+        "header": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
         },
         "resizable": {
           "enum": [
@@ -133,11 +181,22 @@
         "method.coerce.return": {
           "type": "object",
           "title": "TValue"
-        }
+        },
+        "method.toSourceValue.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "object",
+              "title": "TValue"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.toSourceValue.return": true
       }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.187Z",
+  "generatedAt": "2026-10-18T16:46:39.880Z",
   "models": {
     "BasicFieldProps": {
       "name": "BasicFieldProps",
@@ -149,7 +208,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "FieldPermissionProps<TValue> & FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
+        "declarationTypeText": "FieldPermissionProps<TValue> & FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -163,7 +222,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
+            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>>",
             "targetName": "FieldComposableProps"
           }
         ],
@@ -180,7 +239,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 组件属性集合。 */\n    props: BasicFieldProps<TValue>;\n    /** field Type 字段。 */\n    fieldType: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** emit Update 回调。 */\n    emitUpdate: (value: TValue) => void;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown) => string;\n    /** coerce 回调。 */\n    coerce: (rawValue: unknown) => TValue;\n}",
+        "declarationTypeText": "{\n    /** 组件属性集合。 */\n    props: BasicFieldProps<TValue>;\n    /** field Type 字段。 */\n    fieldType: string;\n    /** fallback Value 字段。 */\n    fallbackValue: TValue;\n    /** emit Update 回调。 */\n    emitUpdate: (value: TValue) => void;\n    /** format Display 回调。 */\n    formatDisplay?: (value: unknown) => string;\n    /** coerce 回调。 */\n    coerce: (rawValue: unknown) => TValue;\n    /** Explicit conversion at the field write boundary; editing and permissions remain with the same DataView. */\n    toSourceValue?: (value: TValue) => unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -254,6 +313,24 @@
                 "type": "reference",
                 "name": "TValue",
                 "refersToTypeParameter": true
+              }
+            },
+            {
+              "name": "toSourceValue",
+              "jsdoc": "Explicit conversion at the field write boundary; editing and permissions remain with the same DataView.",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "reference",
+                    "name": "TValue",
+                    "refersToTypeParameter": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
               }
             }
           ]

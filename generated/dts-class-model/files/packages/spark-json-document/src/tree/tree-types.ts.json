@@ -165,6 +165,18 @@
             false,
             true
           ]
+        },
+        "childAddable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "siblingAddable": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [
@@ -179,7 +191,9 @@
         "childCount",
         "keyEditable",
         "typeEditable",
-        "deletable"
+        "deletable",
+        "childAddable",
+        "siblingAddable"
       ],
       "additionalProperties": false
     },
@@ -215,7 +229,7 @@
           "type": "object",
           "title": "() => MapIterator<JsonTreeNode>"
         },
-        "__@iterator@158691": {
+        "__@iterator@194633": {
           "type": "object",
           "title": "() => MapIterator<[string, JsonTreeNode]>"
         }
@@ -228,7 +242,7 @@
         "entries",
         "keys",
         "values",
-        "__@iterator@158691"
+        "__@iterator@194633"
       ],
       "additionalProperties": false
     },
@@ -288,6 +302,10 @@
             "canEditType": {
               "type": "object",
               "title": "(path: JsonPath) => boolean"
+            },
+            "canAddChild": {
+              "type": "object",
+              "title": "(parentPath: JsonPath) => boolean"
             },
             "suggestChildKey": {
               "type": "object",
@@ -355,6 +373,10 @@
             "canEditType": {
               "type": "object",
               "title": "(path: JsonPath) => boolean"
+            },
+            "canAddChild": {
+              "type": "object",
+              "title": "(parentPath: JsonPath) => boolean"
             },
             "suggestChildKey": {
               "type": "object",
@@ -439,6 +461,19 @@
           "additionalProperties": false
         },
         "method.canEditType.return": {
+          "type": "boolean"
+        },
+        "method.canAddChild.params": {
+          "type": "object",
+          "properties": {
+            "parentPath": {
+              "type": "object",
+              "title": "JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canAddChild.return": {
           "type": "boolean"
         },
         "method.suggestChildKey.params": {
@@ -605,7 +640,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T11:35:34.100Z",
+  "generatedAt": "2026-10-18T15:48:12.544Z",
   "models": {
     "JsonNodeType": {
       "name": "JsonNodeType",
@@ -695,7 +730,7 @@
       "jsdoc": "Tree Display Node 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "JsonTreeNode & {\n    /** 嵌套深度（根 = 0） */\n    readonly depth: number;\n    /** 从根到此节点的路径 */\n    readonly path: JsonPath;\n    /** 直接子节点数量 */\n    readonly childCount: number;\n    /** 键是否可重命名 */\n    readonly keyEditable: boolean;\n    /** 类型是否可切换 */\n    readonly typeEditable: boolean;\n    /** 是否可删除 */\n    readonly deletable: boolean;\n}",
+        "declarationTypeText": "JsonTreeNode & {\n    /** 嵌套深度（根 = 0） */\n    readonly depth: number;\n    /** 从根到此节点的路径 */\n    readonly path: JsonPath;\n    /** 直接子节点数量 */\n    readonly childCount: number;\n    /** 键是否可重命名 */\n    readonly keyEditable: boolean;\n    /** 类型是否可切换 */\n    readonly typeEditable: boolean;\n    /** 是否可删除 */\n    readonly deletable: boolean;\n    /** 是否可在此容器内新增子项；由节点类型和新增策略共同确定。 */\n    readonly childAddable: boolean;\n    /** 是否可新增同级项；核对实际父容器的新增策略，根节点为false。 */\n    readonly siblingAddable: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -704,7 +739,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 嵌套深度（根 = 0） */\n    readonly depth: number;\n    /** 从根到此节点的路径 */\n    readonly path: JsonPath;\n    /** 直接子节点数量 */\n    readonly childCount: number;\n    /** 键是否可重命名 */\n    readonly keyEditable: boolean;\n    /** 类型是否可切换 */\n    readonly typeEditable: boolean;\n    /** 是否可删除 */\n    readonly deletable: boolean;\n}"
+            "typeText": "{\n    /** 嵌套深度（根 = 0） */\n    readonly depth: number;\n    /** 从根到此节点的路径 */\n    readonly path: JsonPath;\n    /** 直接子节点数量 */\n    readonly childCount: number;\n    /** 键是否可重命名 */\n    readonly keyEditable: boolean;\n    /** 类型是否可切换 */\n    readonly typeEditable: boolean;\n    /** 是否可删除 */\n    readonly deletable: boolean;\n    /** 是否可在此容器内新增子项；由节点类型和新增策略共同确定。 */\n    readonly childAddable: boolean;\n    /** 是否可新增同级项；核对实际父容器的新增策略，根节点为false。 */\n    readonly siblingAddable: boolean;\n}"
           }
         ],
         "members": {
@@ -742,6 +777,18 @@
             {
               "name": "deletable",
               "jsdoc": "是否可删除",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childAddable",
+              "jsdoc": "是否可在此容器内新增子项；由节点类型和新增策略共同确定。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "siblingAddable",
+              "jsdoc": "是否可新增同级项；核对实际父容器的新增策略，根节点为false。",
               "readable": true,
               "writable": false
             }
@@ -886,7 +933,7 @@
       "jsdoc": "Json Tree Policy 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 根节点显示标签。默认 '$' */\n    rootLabel?: string;\n    /** 该路径是否受保护（不可删除）。默认全部可删除 */\n    isProtected?(path: JsonPath): boolean;\n    /** 该路径的键是否可重命名。默认：对象属性可改，数组索引不可改 */\n    canEditKey?(path: JsonPath): boolean;\n    /** 该路径的类型是否可切换。默认：除根节点外均可 */\n    canEditType?(path: JsonPath): boolean;\n    /** 为目标对象建议新子键名 */\n    suggestChildKey?(target: JsonObject, parentPath: JsonPath): string;\n    /** 为数组添加子项时的默认值 */\n    createDefaultArrayItem?(parentPath: JsonPath): JsonValue;\n    /** 为对象添加子项时的默认值 */\n    createDefaultObjectValue?(parentPath: JsonPath, key: string): JsonValue;\n    /** 返回该路径的可选值列表（用于下拉选择，优先级低于 Schema enum） */\n    getValueOptions?(path: JsonPath): string[] | undefined;\n    /** 返回该路径的带标签下拉选项。优先级最高：getValueLabels > Schema enum > getValueOptions */\n    getValueLabels?(path: JsonPath): Array<{\n        label: string;\n        value: string;\n    }> | undefined;\n    /** 值变更后需要自动填充到文档的补丁。返回的条目中已有的键不会被覆盖 */\n    getAutoPopulate?(changedPath: JsonPath, newValue: JsonValue): AutoPopulateEntry[] | undefined;\n}",
+        "declarationTypeText": "{\n    /** 根节点显示标签。默认 '$' */\n    rootLabel?: string;\n    /** 该路径是否受保护（不可删除）。默认全部可删除 */\n    isProtected?(path: JsonPath): boolean;\n    /** 该路径的键是否可重命名。默认：对象属性可改，数组索引不可改 */\n    canEditKey?(path: JsonPath): boolean;\n    /** 该路径的类型是否可切换。默认：除根节点外均可 */\n    canEditType?(path: JsonPath): boolean;\n    /** 是否允许向此路径的容器新增子项。默认允许；新增同级项使用父容器路径。与不可删除的isProtected独立，不限制已有子项的值或类型。 */\n    canAddChild?(parentPath: JsonPath): boolean;\n    /** 为目标对象建议新子键名 */\n    suggestChildKey?(target: JsonObject, parentPath: JsonPath): string;\n    /** 为数组添加子项时的默认值 */\n    createDefaultArrayItem?(parentPath: JsonPath): JsonValue;\n    /** 为对象添加子项时的默认值 */\n    createDefaultObjectValue?(parentPath: JsonPath, key: string): JsonValue;\n    /** 返回该路径的可选值列表（用于下拉选择，优先级低于 Schema enum） */\n    getValueOptions?(path: JsonPath): string[] | undefined;\n    /** 返回该路径的带标签下拉选项。优先级最高：getValueLabels > Schema enum > getValueOptions */\n    getValueLabels?(path: JsonPath): Array<{\n        label: string;\n        value: string;\n    }> | undefined;\n    /** 值变更后需要自动填充到文档的补丁。返回的条目中已有的键不会被覆盖 */\n    getAutoPopulate?(changedPath: JsonPath, newValue: JsonValue): AutoPopulateEntry[] | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -939,6 +986,24 @@
               "parameters": [
                 {
                   "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath",
+                    "sourcePath": "packages/spark-json-document/src/core.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canAddChild",
+              "jsdoc": "是否允许向此路径的容器新增子项。默认允许；新增同级项使用父容器路径。与不可删除的isProtected独立，不限制已有子项的值或类型。",
+              "parameters": [
+                {
+                  "name": "parentPath",
                   "type": {
                     "type": "reference",
                     "name": "JsonPath",

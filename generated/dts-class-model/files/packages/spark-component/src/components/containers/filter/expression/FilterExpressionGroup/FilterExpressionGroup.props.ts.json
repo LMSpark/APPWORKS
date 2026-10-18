@@ -28,8 +28,40 @@
         "fields": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterField"
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "number",
+                  "boolean",
+                  "select",
+                  "date",
+                  "text",
+                  "datetime"
+                ]
+              },
+              "operators": {
+                "type": "array",
+                "items": {
+                  "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                }
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
           }
+        },
+        "functionContext": {
+          "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
         },
         "depth": {
           "type": "number"
@@ -41,6 +73,12 @@
           "type": "number"
         },
         "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "removable": {
           "enum": [
             false,
             true
@@ -58,7 +96,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T21:12:20.471Z",
+  "generatedAt": "2026-10-12T06:58:58.014Z",
   "models": {
     "FilterExpressionGroupProps": {
       "name": "FilterExpressionGroupProps",
@@ -68,7 +106,7 @@
         "name": "FilterExpressionGroup"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    group: FilterExpressionEditorGroup;\n    draft: FilterExpressionEditorDraft;\n    fields: readonly DataViewFilterField[];\n    depth: number;\n    maxDepth: number;\n    maxRules: number;\n    disabled?: boolean;\n}",
+        "declarationTypeText": "{\n    group: FilterExpressionEditorGroup;\n    draft: FilterExpressionEditorDraft;\n    fields: ReadonlyArray<DataViewFilterField & Pick<DataColumn, 'label'>>;\n    /** 同一过滤编辑上下文，用于函数摘要；编辑及执行权限仍由原责任方核验。 */\n    functionContext?: DataViewFilterFunctionContext;\n    depth: number;\n    maxDepth: number;\n    maxRules: number;\n    disabled?: boolean;\n    /** 嵌套分组在自身工具栏提供删除入口；根组不删除，清空由完整编辑器处理。 */\n    removable?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -87,6 +125,12 @@
               "writable": true
             },
             {
+              "name": "functionContext",
+              "jsdoc": "同一过滤编辑上下文，用于函数摘要；编辑及执行权限仍由原责任方核验。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "depth",
               "readable": true,
               "writable": true
@@ -103,6 +147,12 @@
             },
             {
               "name": "disabled",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "removable",
+              "jsdoc": "嵌套分组在自身工具栏提供删除入口；根组不删除，清空由完整编辑器处理。",
               "readable": true,
               "writable": false
             }

@@ -7,162 +7,227 @@
     "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
     "packageName": "app",
     "modulePath": "lowcode/data-space/lowcode-data-space-catalog",
-    "jsdoc": "app 的 lowcode/data-space/lowcode-data-space-catalog 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceCatalogRow, LowcodeDataSpaceCatalogResult, LowcodeDataSpaceCatalog（共 3 个 symbol）。",
+    "jsdoc": "app 的 lowcode/data-space/lowcode-data-space-catalog 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceCatalog（共 1 个 symbol）。",
     "jsdocSource": "inferred",
     "symbols": [
-      "LowcodeDataSpaceCatalogRow",
-      "LowcodeDataSpaceCatalogResult",
       "LowcodeDataSpaceCatalog"
     ]
   },
   "$defs": {
-    "CatalogField": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "CatalogField",
-      "enum": [
-        "description",
-        "rowid",
-        "Name",
-        "Type",
-        "sysid",
-        "createuser",
-        "createtime"
-      ]
-    },
-    "LowcodeDataSpaceApplicationOption": {
+    "LowcodeDataSpaceCatalog": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "LowcodeDataSpaceApplicationOption",
+      "title": "LowcodeDataSpaceCatalog",
       "properties": {
-        "value": {
-          "type": "string"
+        "dataSet": {
+          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
-        "label": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "value",
-        "label"
-      ],
-      "additionalProperties": false
-    },
-    "LowcodeDataSpaceCatalogRow": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "LowcodeDataSpaceCatalogRow",
-      "properties": {
-        "description": {
-          "type": "string"
+        "view": {
+          "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
-        "rowid": {
-          "type": "string"
+        "apps": {
+          "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
-        "Name": {
-          "type": "string"
+        "users": {
+          "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
-        "Type": {
-          "type": "string"
+        "editing": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "mode": {
+              "enum": [
+                "add",
+                "edit"
+              ]
+            },
+            "status": {
+              "enum": [
+                "unknown",
+                "editing",
+                "readback",
+                "saving"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "mode",
+            "status"
+          ],
+          "additionalProperties": false
         },
-        "sysid": {
-          "type": "string"
-        },
-        "createuser": {
-          "type": "string"
-        },
-        "createtime": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "description",
-        "rowid",
-        "Name",
-        "Type",
-        "sysid",
-        "createuser",
-        "createtime"
-      ],
-      "additionalProperties": false
-    },
-    "LowcodeDataSpaceCatalogResult": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "LowcodeDataSpaceCatalogResult",
-      "properties": {
-        "rows": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/LowcodeDataSpaceCatalogRow"
-          }
-        },
-        "total": {
-          "type": "number"
+        "bindings": {
+          "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "unresolvedCreatorCount": {
           "type": "number"
         }
       },
-      "required": [
-        "rows",
-        "total",
-        "unresolvedCreatorCount"
-      ],
-      "additionalProperties": false
-    },
-    "LowcodeDataSpaceCatalogQuery": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "LowcodeDataSpaceCatalogQuery",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "sysid": {
-          "type": "string"
-        },
-        "page": {
-          "type": "number"
-        },
-        "pageSize": {
-          "type": "number"
-        }
-      },
-      "additionalProperties": false
-    },
-    "LowcodeDataSpaceCatalog": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "LowcodeDataSpaceCatalog",
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
-          "type": "object",
-          "properties": {
-            "scenarioId": true
-          },
-          "additionalProperties": false
-        },
-        "method.query.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "#/$defs/LowcodeDataSpaceCatalogQuery"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.query.return": {
-          "type": "object",
-          "title": "Promise<LowcodeDataSpaceCatalogResult>"
-        },
-        "method.applications.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.applications.return": {
+        "method.load.params": {
           "type": "object",
-          "title": "Promise<readonly LowcodeDataSpaceApplicationOption[]>"
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "scenarioId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "projectId",
+                "scenarioId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDataSpaceCatalog>"
+        },
+        "method.initialize.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.initialize.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.canCreate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.canCreate.return": {
+          "type": "boolean"
+        },
+        "method.canEdit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.canEdit.return": {
+          "type": "boolean"
+        },
+        "method.beginCreate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beginCreate.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.beginEdit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beginEdit.return": true,
+        "method.cancelEdit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancelEdit.return": true,
+        "method.saveEdit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveEdit.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.reloadEdit.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reloadEdit.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.closeBindings.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.closeBindings.return": true,
+        "method.queryBindings.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.queryBindings.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.bindingPath.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.bindingPath.return": {
+          "type": "string"
+        },
+        "method.readApiInfo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readApiInfo.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.creatorLabel.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.creatorLabel.return": {
+          "type": "string"
+        },
+        "method.applicationLabel.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.applicationLabel.return": {
+          "type": "string"
+        },
+        "method.designTarget.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.designTarget.return": {
+          "type": "string"
         },
         "method.isCurrent.params": {
           "type": "object",
@@ -171,88 +236,58 @@
         },
         "method.isCurrent.return": {
           "type": "boolean"
-        }
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
       }
     }
   },
-  "generatedAt": "2026-10-07T10:25:53.418Z",
+  "generatedAt": "2026-10-15T04:21:36.880Z",
   "models": {
-    "CatalogField": {
-      "name": "CatalogField",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "typeof catalogFields[number]",
-        "members": {}
-      }
-    },
-    "LowcodeDataSpaceApplicationOption": {
-      "name": "LowcodeDataSpaceApplicationOption",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    value: string;\n    label: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    value: string;\n    label: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
+    "LowcodeDataSpaceCatalog": {
+      "name": "LowcodeDataSpaceCatalog",
+      "jsdoc": "正式目录DataSet的业务协调；查询、选择、过滤、分页和权限由原生DataView承载。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
         "members": {
           "attributes": [
             {
-              "name": "value",
+              "name": "dataSet",
               "readable": true,
               "writable": false
             },
             {
-              "name": "label",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "LowcodeDataSpaceCatalogRow": {
-      "name": "LowcodeDataSpaceCatalogRow",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<Record<CatalogField, string>>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<Record<CatalogField, string>>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "LowcodeDataSpaceCatalogResult": {
-      "name": "LowcodeDataSpaceCatalogResult",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    rows: readonly LowcodeDataSpaceCatalogRow[];\n    total: number;\n    unresolvedCreatorCount: number;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    rows: readonly LowcodeDataSpaceCatalogRow[];\n    total: number;\n    unresolvedCreatorCount: number;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "rows",
+              "name": "view",
               "readable": true,
               "writable": false
             },
             {
-              "name": "total",
+              "name": "apps",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "users",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editing",
+              "jsdoc": "弹窗只持有操作身份；全部字段草稿仍在目录DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bindings",
+              "jsdoc": "绑定结果视图与祖先目录分别持有原查询结果，不构造页面数据数组。",
               "readable": true,
               "writable": false
             },
@@ -261,80 +296,23 @@
               "readable": true,
               "writable": false
             }
-          ]
-        }
-      }
-    },
-    "LowcodeDataSpaceCatalogQuery": {
-      "name": "LowcodeDataSpaceCatalogQuery",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    name?: string;\n    sysid?: string;\n    page?: number;\n    pageSize?: number;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    name?: string;\n    sysid?: string;\n    page?: number;\n    pageSize?: number;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "name",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "sysid",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "page",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "pageSize",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "LowcodeDataSpaceCatalog": {
-      "name": "LowcodeDataSpaceCatalog",
-      "jsdoc": "Read-only owner for the formal Base_DataSet catalog and its original query permissions.",
-      "declarationKind": "class",
-      "classDecl": {
-        "constructorMeta": {
-          "signatureText": "constructor(scenarioId: unknown)",
-          "parameters": [
-            {
-              "name": "scenarioId",
-              "type": {
-                "type": "intrinsic",
-                "name": "unknown"
-              }
-            }
-          ]
-        },
-        "members": {
+          ],
           "methods": [
             {
-              "name": "query",
+              "name": "load",
+              "jsdoc": "只读正式场景文件和模型装配；不以URL业务参数或打包配置代替导航的场景身份。",
               "parameters": [
                 {
-                  "name": "input",
+                  "name": "command",
                   "type": {
                     "type": "reference",
-                    "name": "LowcodeDataSpaceCatalogQuery",
-                    "sourcePath": "src/lowcode/data-space/lowcode-data-space-catalog.ts"
-                  },
-                  "flags": {
-                    "isOptional": true
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        projectId: string;\n        scenarioId: string;\n    }"
+                      }
+                    ]
                   }
                 }
               ],
@@ -344,24 +322,215 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "LowcodeDataSpaceCatalogResult",
+                    "name": "LowcodeDataSpaceCatalog",
                     "sourcePath": "src/lowcode/data-space/lowcode-data-space-catalog.ts"
                   }
                 ]
               }
             },
             {
-              "name": "applications",
+              "name": "initialize",
               "parameters": [],
               "type": {
                 "type": "reference",
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "unknown",
-                    "name": "readonly LowcodeDataSpaceApplicationOption[]"
+                    "type": "intrinsic",
+                    "name": "void"
                   }
                 ]
+              }
+            },
+            {
+              "name": "canCreate",
+              "jsdoc": "新增继续消费正式查询的表级授权，不能由页面身份放行。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "canEdit",
+              "jsdoc": "编辑只维护名称和描述，至少一个字段可写才提供入口。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "beginCreate",
+              "jsdoc": "新增行由原查询准备正式主键；临时空字段只在编辑域，保存时校验。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "beginEdit",
+              "jsdoc": "在当前正式行打开编辑，不复制modelValue或另建表单数据。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancelEdit",
+              "jsdoc": "取消只丢弃本条未提交修改；未确认保存不能伪装成服务器回滚。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "saveEdit",
+              "jsdoc": "仅保存当前空间记录；DataSet处理编辑覆盖、权限、批次及真实回执。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "reloadEdit",
+              "jsdoc": "用户明确放弃本地状态后只重查，不重放未知写入，也不宣称原保存成功。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "closeBindings",
+              "jsdoc": "关闭或切换目标使在途绑定查询失效并释放两个派生视图。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "queryBindings",
+              "jsdoc": "查询当前行所属应用的导航绑定和完整祖先，保留原视图范围过滤。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "bindingPath",
+              "jsdoc": "从原祖先视图呈现完整路径；缺节点或循环不能伪装成完整路径。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "readApiInfo",
+              "jsdoc": "复用设计器的正式模型资料生成链，始终释放临时设计会话。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "creatorLabel",
+              "jsdoc": "只用于已通过源字段权限检查的显示；原创建人字段和用户目录记录不改写。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "applicationLabel",
+              "jsdoc": "应用名称同样消费选项视图的字段权限；不可读的目录不泄露原关联标识。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "designTarget",
+              "jsdoc": "导航只接受本次成功查询的可读正式行身份，不接受旧选择或外部拼造的行。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
               }
             },
             {
@@ -370,6 +539,14 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             }
           ]

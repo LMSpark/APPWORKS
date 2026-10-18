@@ -12,7 +12,6 @@
     "symbols": [
       "PermissionFeatureTag",
       "PermissionDataObjectPolicy",
-      "PermissionGrantSubjectKind",
       "PermissionGrantOrganizationScope",
       "PermissionObjectGrant",
       "PermissionDesignSnapshot",
@@ -121,16 +120,6 @@
       ],
       "additionalProperties": false
     },
-    "PermissionGrantSubjectKind": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "PermissionGrantSubjectKind",
-      "enum": [
-        "user",
-        "position",
-        "role",
-        "unresolved"
-      ]
-    },
     "PermissionGrantOrganizationScope": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "PermissionGrantOrganizationScope",
@@ -198,9 +187,6 @@
             "type": "string"
           }
         },
-        "subjectKind": {
-          "$ref": "#/$defs/PermissionGrantSubjectKind"
-        },
         "subjectIds": {
           "type": "array",
           "items": {
@@ -230,7 +216,6 @@
         "grantId",
         "pageId",
         "featureTagIds",
-        "subjectKind",
         "subjectIds",
         "organizationScope",
         "businessId",
@@ -323,7 +308,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T07:32:15.055Z",
+  "generatedAt": "2026-10-09T03:45:22.149Z",
   "models": {
     "PermissionFeatureTag": {
       "name": "PermissionFeatureTag",
@@ -453,33 +438,6 @@
         }
       }
     },
-    "PermissionGrantSubjectKind": {
-      "name": "PermissionGrantSubjectKind",
-      "jsdoc": "授权主体类型；granttype 0/1/2 映射 role/position/user，其余为 unresolved。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'role' | 'position' | 'user' | 'unresolved'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'role'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'position'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'user'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'unresolved'"
-          }
-        ],
-        "members": {}
-      }
-    },
     "PermissionGrantOrganizationScope": {
       "name": "PermissionGrantOrganizationScope",
       "jsdoc": "组织范围；fixed-organization 或 business-field-organization 二选一，否则 unscoped。",
@@ -508,14 +466,14 @@
     },
     "PermissionObjectGrant": {
       "name": "PermissionObjectGrant",
-      "jsdoc": "页面对象授权；对应 FunctionNodeAuth。",
+      "jsdoc": "服务端对象授权配置；对应 FunctionNodeAuth，不派生前端角色或运行权限。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    grantId: string;\n    pageId: string;\n    featureTagIds: readonly string[];\n    subjectKind: PermissionGrantSubjectKind;\n    subjectIds: readonly string[];\n    organizationScope: PermissionGrantOrganizationScope;\n    businessId: string;\n    enabled: boolean;\n    rawGrantType: number | null;\n}>",
+        "declarationTypeText": "Readonly<{\n    grantId: string;\n    pageId: string;\n    featureTagIds: readonly string[];\n    subjectIds: readonly string[];\n    organizationScope: PermissionGrantOrganizationScope;\n    businessId: string;\n    enabled: boolean;\n    /** 服务端 granttype 的数值；无效输入为 null，未识别码保留并记入 diagnostics。 */\n    rawGrantType: number | null;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    grantId: string;\n    pageId: string;\n    featureTagIds: readonly string[];\n    subjectKind: PermissionGrantSubjectKind;\n    subjectIds: readonly string[];\n    organizationScope: PermissionGrantOrganizationScope;\n    businessId: string;\n    enabled: boolean;\n    rawGrantType: number | null;\n}>",
+            "typeText": "Readonly<{\n    grantId: string;\n    pageId: string;\n    featureTagIds: readonly string[];\n    subjectIds: readonly string[];\n    organizationScope: PermissionGrantOrganizationScope;\n    businessId: string;\n    enabled: boolean;\n    /** 服务端 granttype 的数值；无效输入为 null，未识别码保留并记入 diagnostics。 */\n    rawGrantType: number | null;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -533,11 +491,6 @@
             },
             {
               "name": "featureTagIds",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "subjectKind",
               "readable": true,
               "writable": false
             },
@@ -563,6 +516,7 @@
             },
             {
               "name": "rawGrantType",
+              "jsdoc": "服务端 granttype 的数值；无效输入为 null，未识别码保留并记入 diagnostics。",
               "readable": true,
               "writable": false
             }

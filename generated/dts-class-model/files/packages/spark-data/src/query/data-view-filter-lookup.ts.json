@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/data-view-filter-lookup",
+    "sourcePath": "packages/spark-data/src/query/data-view-filter-lookup.ts",
+    "sourceFile": "packages/spark-data/src/query/data-view-filter-lookup.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/data-view-filter-lookup",
+    "jsdoc": "@module @spark-appworks/spark-data:query/data-view-filter-lookup\n职责：按视图配置将文本筛选转换为辅助视图的正式值集合过滤。\n边界：复用queryOptionRows的完整查询与权限，不持有缓存、选中集合或HTTP入口。\nAI用途：姓名等辅助字段筛选配置在queryConfig.filterLookups，页面只消费标准过滤API。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataViewFilterLookup"
+    ]
+  },
+  "$defs": {
+    "DataViewFilterLookup": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterLookup",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.parse.params": {
+          "type": "object",
+          "properties": {
+            "input": true,
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.parse.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataViewFilterLookupConfig"
+          }
+        },
+        "method.resolve.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "filter": {
+              "$ref": "filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolve.return": {
+          "type": "object",
+          "title": "Promise<DataViewFilterTree | undefined>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-10T16:35:22.215Z",
+  "models": {
+    "DataViewFilterLookup": {
+      "name": "DataViewFilterLookup",
+      "jsdoc": "一级辅助筛选的定义校验与执行；保留原条件树和AND/OR语义。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "一级辅助筛选的定义校验与执行；保留原条件树和AND/OR语义。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "parse",
+              "jsdoc": "捕获不可变配置，拒绝重复目标、未知属性及非完整绑定。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly Lookup[]"
+              }
+            },
+            {
+              "name": "resolve",
+              "jsdoc": "完整查询辅助值后替换contains叶节点；失败拒绝目标请求，空值集保持恒假。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "filter",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataViewFilterTree",
+                      "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataViewFilterTree",
+                      "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

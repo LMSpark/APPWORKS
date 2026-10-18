@@ -20,10 +20,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "PrimaryKeyStrategy",
       "enum": [
-        "custom",
+        "auto-increment",
         "uuid",
         "timestamp",
-        "auto-increment"
+        "custom"
       ]
     },
     "PrimaryKeyGeneratorConfig": {

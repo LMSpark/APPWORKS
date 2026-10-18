@@ -26,33 +26,6 @@
         "bottom"
       ]
     },
-    "ToolbarLike": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ToolbarLike",
-      "properties": {
-        "children": {
-          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "position": {
-          "type": "string"
-        },
-        "class": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          ]
-        }
-      },
-      "additionalProperties": false
-    },
     "UseContainerToolbarOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -60,7 +33,7 @@
       "properties": {
         "toolbarNode": {
           "type": "object",
-          "title": "MaybeRefOrGetter<ToolbarLike | null | undefined>"
+          "title": "MaybeRefOrGetter<RToolbarProps | null | undefined>"
         },
         "defaultClass": {
           "type": "string"
@@ -84,6 +57,10 @@
       "type": "object",
       "title": "ContainerToolbarState",
       "properties": {
+        "toolbarConfig": {
+          "type": "object",
+          "title": "ComputedRef<SparkNode | undefined>"
+        },
         "visibleToolbarConfigs": {
           "type": "object",
           "title": "ComputedRef<SparkNode[]>"
@@ -102,6 +79,7 @@
         }
       },
       "required": [
+        "toolbarConfig",
         "visibleToolbarConfigs",
         "toolbarPositionValue",
         "toolbarClassValue",
@@ -161,7 +139,7 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T11:48:18.819Z",
+  "generatedAt": "2026-10-10T04:41:59.641Z",
   "models": {
     "ToolbarPosition": {
       "name": "ToolbarPosition",
@@ -190,47 +168,17 @@
         "members": {}
       }
     },
-    "ToolbarLike": {
-      "name": "ToolbarLike",
-      "jsdoc": "工具栏节点所需的最小属性形状（与 RToolbarProps 结构对齐）。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 子节点集合。 */\n    children?: SparkNodeChildren;\n    /** position 字段。 */\n    position?: string;\n    /** class 字段。 */\n    class?: string | string[];\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "children",
-              "jsdoc": "子节点集合。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "position",
-              "jsdoc": "position 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "class",
-              "jsdoc": "class 字段。",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "UseContainerToolbarOptions": {
       "name": "UseContainerToolbarOptions",
       "jsdoc": "Use Container Toolbar Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** toolbar SparkNode（响应式 getter 或 ref）。 */\n    toolbarNode: MaybeRefOrGetter<ToolbarLike | null | undefined>;\n    /**\n     * class 回退值（toolbar.class 未设置时使用）。\n     * @default 'renderer-toolbar-default'\n     */\n    defaultClass?: string;\n    /**\n     * position 回退值（toolbar.position 未设置或无效时使用）。\n     * @default 'top'\n     */\n    defaultPosition?: ToolbarPosition;\n}",
+        "declarationTypeText": "{\n    /** 标准工具栏完整属性；不能只传 children 而丢失尾区、绑定或布局。 */\n    toolbarNode: MaybeRefOrGetter<RToolbarProps | null | undefined>;\n    /**\n     * class 回退值（toolbar.class 未设置时使用）。\n     * @default 'renderer-toolbar-default'\n     */\n    defaultClass?: string;\n    /**\n     * position 回退值（toolbar.position 未设置或无效时使用）。\n     * @default 'top'\n     */\n    defaultPosition?: ToolbarPosition;\n}",
         "members": {
           "attributes": [
             {
               "name": "toolbarNode",
-              "jsdoc": "toolbar SparkNode（响应式 getter 或 ref）。",
+              "jsdoc": "标准工具栏完整属性；不能只传 children 而丢失尾区、绑定或布局。",
               "readable": true,
               "writable": true
             },
@@ -255,12 +203,18 @@
       "jsdoc": "`useContainerToolbar` 返回状态。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前可见的工具栏子节点列表。 */\n    visibleToolbarConfigs: ComputedRef<SparkNode[]>;\n    /** 工具栏位置（经过合法性校验后的值）。 */\n    toolbarPositionValue: ComputedRef<ToolbarPosition>;\n    /** 工具栏 CSS class（来自节点属性或回退值）。 */\n    toolbarClassValue: ComputedRef<string>;\n    /** 工具栏是否可见（至少有一个子节点时为 true）。 */\n    showToolbar: ComputedRef<boolean>;\n}",
+        "declarationTypeText": "{\n    /** 标准 r-toolbar 节点，完整保留 RToolbarProps；无主区和尾区子组件时不渲染。 */\n    toolbarConfig: ComputedRef<SparkNode | undefined>;\n    /** 主区结构子节点；编辑区复用位置解析时使用，工具栏应直接渲染 toolbarConfig。 */\n    visibleToolbarConfigs: ComputedRef<SparkNode[]>;\n    /** 工具栏位置（经过合法性校验后的值）。 */\n    toolbarPositionValue: ComputedRef<ToolbarPosition>;\n    /** 工具栏 CSS class（来自节点属性或回退值）。 */\n    toolbarClassValue: ComputedRef<string>;\n    /** 主区或尾区至少配置一个结构子节点；具体子组件可见性由标准工具栏处理。 */\n    showToolbar: ComputedRef<boolean>;\n}",
         "members": {
           "attributes": [
             {
+              "name": "toolbarConfig",
+              "jsdoc": "标准 r-toolbar 节点，完整保留 RToolbarProps；无主区和尾区子组件时不渲染。",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "visibleToolbarConfigs",
-              "jsdoc": "当前可见的工具栏子节点列表。",
+              "jsdoc": "主区结构子节点；编辑区复用位置解析时使用，工具栏应直接渲染 toolbarConfig。",
               "readable": true,
               "writable": true
             },
@@ -278,7 +232,7 @@
             },
             {
               "name": "showToolbar",
-              "jsdoc": "工具栏是否可见（至少有一个子节点时为 true）。",
+              "jsdoc": "主区或尾区至少配置一个结构子节点；具体子组件可见性由标准工具栏处理。",
               "readable": true,
               "writable": true
             }

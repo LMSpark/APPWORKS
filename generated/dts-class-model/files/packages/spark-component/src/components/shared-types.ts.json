@@ -78,8 +78,8 @@
         },
         "permissionDeniedMode": {
           "enum": [
-            "hide",
-            "disable"
+            "disable",
+            "hide"
           ]
         }
       },
@@ -111,28 +111,16 @@
         "dataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -152,8 +140,24 @@
       "type": "object",
       "title": "SparkFieldSemanticProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": true,
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "type": "boolean"
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "type": "boolean"
@@ -176,6 +180,9 @@
           "type": "string"
         },
         "readonly": {
+          "type": "boolean"
+        },
+        "editOnDblclick": {
           "type": "boolean"
         },
         "placeholder": {
@@ -274,8 +281,44 @@
       "type": "object",
       "title": "SparkMultilineFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -298,6 +341,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -379,8 +428,44 @@
       "type": "object",
       "title": "SparkMaxNumericFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -403,6 +488,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -459,8 +550,44 @@
       "type": "object",
       "title": "SparkBoundedFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -483,6 +610,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -542,8 +675,44 @@
       "type": "object",
       "title": "SparkRangeNumericFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -566,6 +735,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -628,8 +803,44 @@
       "type": "object",
       "title": "SparkFileFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -652,6 +863,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -728,8 +945,44 @@
       "type": "object",
       "title": "SparkUploadFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -752,6 +1005,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -820,8 +1079,44 @@
       "type": "object",
       "title": "SparkFilePickerFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -844,6 +1139,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -918,8 +1219,44 @@
       "type": "object",
       "title": "SparkTemporalPickerProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -942,6 +1279,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -1018,8 +1361,44 @@
       "type": "object",
       "title": "SparkRangeTemporalFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -1042,6 +1421,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -1147,8 +1532,44 @@
       "type": "object",
       "title": "SparkOptionFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -1171,6 +1592,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -1238,31 +1665,25 @@
         "optionDataViewKey": {
           "type": "string"
         },
+        "optionLabelFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "optionDataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1307,8 +1728,44 @@
       "type": "object",
       "title": "SparkButtonOptionFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -1331,6 +1788,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -1398,31 +1861,25 @@
         "optionDataViewKey": {
           "type": "string"
         },
+        "optionLabelFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "optionDataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1473,8 +1930,44 @@
       "type": "object",
       "title": "SparkHierarchicalOptionFieldProps",
       "properties": {
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "resizable": {
           "enum": [
@@ -1497,6 +1990,12 @@
           "type": "string"
         },
         "readonly": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editOnDblclick": {
           "enum": [
             false,
             true
@@ -1564,31 +2063,25 @@
         "optionDataViewKey": {
           "type": "string"
         },
+        "optionLabelFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "optionDataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1731,28 +2224,16 @@
         "dataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1836,28 +2317,16 @@
         "dataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1913,28 +2382,16 @@
         "dataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -2050,7 +2507,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-08-10T11:14:49.037Z",
+  "generatedAt": "2026-10-18T16:46:39.879Z",
   "models": {
     "ValueRef": {
       "name": "ValueRef",
@@ -2177,12 +2634,48 @@
       "jsdoc": "字段语义层（无根）。\n只描述 field 组件自己的值/标签/占位等编辑语义，\n不引入 `SparkNodeProps`，以便具体组件能够显式挂在根层上而不形成重复继承。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /**\n     * 字段宽度。\n     *\n     * 主要用于输入类、选择类、文件类字段的控件宽度控制。\n     * 这里统一约定为数值宽度，由具体组件决定如何映射到样式层。\n     */\n    width?: number;\n    /**\n     * 表格列是否允许拖动列宽。\n     *\n     * 字段作为 r-table 列渲染时映射到 `el-table-column` 的 `resizable`。\n     */\n    resizable?: boolean;\n    /**\n     * 是否允许清空当前值。\n     *\n     * 适用于输入类、选择类、时间类、文件类等可回到“空值”状态的字段。\n     * 具体组件可按自身能力决定是否真正消费该配置。\n     */\n    clearable?: boolean;\n    /**\n     * 直接传入的受控字段值。\n     *\n     * 对应 Vue v-model 标准命名，支持 `v-model=\"xxx\"` 写法。\n     */\n    modelValue?: TValue;\n    /**\n     * 跨框架配置模型值。\n     *\n     * 页面配置可继续使用 `value` 表达字段当前值；Vue 渲染适配层会在下发组件前映射为 `modelValue`。\n     */\n    value?: TValue;\n    /**\n     * 字段绑定名。\n     *\n     * 常见语义是从当前上下文数据中读取 `currentRow[field]`，\n     * 也可作为表单写回、明细展示、列渲染时的字段定位键。\n     */\n    field?: string;\n    /**\n     * 展示标签。\n     * 常用于表单项标题、详情项名称、字段说明等“人类可读”的字段名展示。\n     */\n    label?: string;\n    /**\n     * 只读状态。\n     *\n     * 表示组件仍可见、通常仍参与布局，但不允许用户修改值；\n     * 它与完全禁用或隐藏是不同层级的语义。\n     */\n    readonly?: boolean;\n    /**\n     * 占位文案。\n     * 当组件无值且支持 placeholder 时，用来提示用户预期输入或显示内容格式。\n     */\n    placeholder?: string;\n    /**\n     * 字段值变更回调。\n     *\n     * 统一由字段控制层透传给事件分发器，替代隐式监听提取。\n     */\n    onChange?: (...args: unknown[]) => void | Promise<void>;\n    /**\n     * 表头/详情标题对齐方向。\n     * 用于表格表头及详情项标题的水平对齐控制。\n     */\n    titleAlign?: 'left' | 'center' | 'right';\n    /**\n     * 值区对齐方向。\n     * 用于表格单元格及详情项值区的水平对齐控制。\n     */\n    valueAlign?: 'left' | 'center' | 'right';\n    /**\n     * 表格表头单元格 CSS 类名。\n     * 直接映射到 `el-table-column` 的 `label-class-name`。\n     */\n    headerCellClassName?: string;\n    /**\n     * 表格单元格 CSS 类名。\n     * 直接映射到 `el-table-column` 的 `class-name`。\n     */\n    cellClassName?: string;\n    /**\n     * 详情/表单标题 CSS 类名。\n     */\n    titleClassName?: string;\n    /**\n     * 详情/表格值区 CSS 类名。\n     */\n    valueClassName?: string;\n    /**\n     * 是否允许排序。\n     * - true: 前端排序\n     * - 'custom': 服务端排序\n     * - false: 禁用排序\n     */\n    sortable?: boolean | 'custom';\n}",
+        "declarationTypeText": "{\n    /** 值所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。 */\n    dataViewKey?: string;\n    /** 值的数据成员，默认currentRow。currentRow/value的字段可按数据权限编辑，其余成员只读。 */\n    dataMember?: DataMember | `${DataMember}`;\n    /** 数据成员的字段；优先于field。字段编辑必须定位实际列，选项来源仍由optionDataViewKey或字段级联定义。 */\n    dataField?: string;\n    /**\n     * 字段宽度。\n     *\n     * 主要用于输入类、选择类、文件类字段的控件宽度控制。\n     * 这里统一约定为数值宽度，由具体组件决定如何映射到样式层。\n     */\n    width?: number;\n    /** 表格父容器中字段的最小宽度（像素）；未指定固定width时参与剩余空间分配，其他宿主不改变布局。 */\n    minWidth?: number;\n    /** 表格单元格文本溢出时省略并显示提示；默认关闭，提示使用经数据权限处理的渲染文本，其他宿主不受影响。 */\n    showOverflowTooltip?: boolean;\n    /** 表格字段标题下的标准组件区域；用于表头筛选等交互，子组件遵循自身数据绑定与权限。与children分组字段分别配置，不定义另一套列或查询。 */\n    header?: SparkNode;\n    /**\n     * 表格列是否允许拖动列宽。\n     *\n     * 字段作为 r-table 列渲染时映射到 `el-table-column` 的 `resizable`。\n     */\n    resizable?: boolean;\n    /**\n     * 是否允许清空当前值。\n     *\n     * 适用于输入类、选择类、时间类、文件类等可回到“空值”状态的字段。\n     * 具体组件可按自身能力决定是否真正消费该配置。\n     */\n    clearable?: boolean;\n    /**\n     * 直接传入的受控字段值。\n     *\n     * 对应 Vue v-model 标准命名，支持 `v-model=\"xxx\"` 写法。\n     */\n    modelValue?: TValue;\n    /**\n     * 跨框架配置模型值。\n     *\n     * 页面配置可继续使用 `value` 表达字段当前值；Vue 渲染适配层会在下发组件前映射为 `modelValue`。\n     */\n    value?: TValue;\n    /**\n     * 字段绑定名。\n     *\n     * 常见语义是从当前上下文数据中读取 `currentRow[field]`，\n     * 也可作为表单写回、明细展示、列渲染时的字段定位键。\n     */\n    field?: string;\n    /**\n     * 展示标签。\n     * 常用于表单项标题、详情项名称、字段说明等“人类可读”的字段名展示。\n     */\n    label?: string;\n    /**\n     * 只读状态。\n     *\n     * 表示组件仍可见、通常仍参与布局，但不允许用户修改值；\n     * 它与完全禁用或隐藏是不同层级的语义。\n     */\n    readonly?: boolean;\n    /**\n     * 表格中双击当前字段进入原标准控件编辑，缺省false；非表格宿主不受影响。\n     * 使用所属DataView已被表格接受的当前行，不继承外层窗口的行；仍消费字段权限及编辑覆盖。\n     * 失焦/Enter结束单元格输入但不保存或放弃草稿；切换行、视图或失去写权限时退出。\n     */\n    editOnDblclick?: boolean;\n    /**\n     * 占位文案。\n     * 当组件无值且支持 placeholder 时，用来提示用户预期输入或显示内容格式。\n     */\n    placeholder?: string;\n    /**\n     * 字段值变更回调。\n     *\n     * 统一由字段控制层透传给事件分发器，替代隐式监听提取。\n     */\n    onChange?: (...args: unknown[]) => void | Promise<void>;\n    /**\n     * 表头/详情标题对齐方向。\n     * 用于表格表头及详情项标题的水平对齐控制。\n     */\n    titleAlign?: 'left' | 'center' | 'right';\n    /**\n     * 值区对齐方向。\n     * 用于表格单元格及详情项值区的水平对齐控制。\n     */\n    valueAlign?: 'left' | 'center' | 'right';\n    /**\n     * 表格表头单元格 CSS 类名。\n     * 直接映射到 `el-table-column` 的 `label-class-name`。\n     */\n    headerCellClassName?: string;\n    /**\n     * 表格单元格 CSS 类名。\n     * 直接映射到 `el-table-column` 的 `class-name`。\n     */\n    cellClassName?: string;\n    /**\n     * 详情/表单标题 CSS 类名。\n     */\n    titleClassName?: string;\n    /**\n     * 详情/表格值区 CSS 类名。\n     */\n    valueClassName?: string;\n    /**\n     * 是否允许排序。\n     * - true: 前端排序\n     * - 'custom': 服务端排序\n     * - false: 禁用排序\n     */\n    sortable?: boolean | 'custom';\n}",
         "members": {
           "attributes": [
             {
+              "name": "dataViewKey",
+              "jsdoc": "值所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataMember",
+              "jsdoc": "值的数据成员，默认currentRow。currentRow/value的字段可按数据权限编辑，其余成员只读。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataField",
+              "jsdoc": "数据成员的字段；优先于field。字段编辑必须定位实际列，选项来源仍由optionDataViewKey或字段级联定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "width",
               "jsdoc": "字段宽度。\n主要用于输入类、选择类、文件类字段的控件宽度控制。\n这里统一约定为数值宽度，由具体组件决定如何映射到样式层。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "minWidth",
+              "jsdoc": "表格父容器中字段的最小宽度（像素）；未指定固定width时参与剩余空间分配，其他宿主不改变布局。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "jsdoc": "表格单元格文本溢出时省略并显示提示；默认关闭，提示使用经数据权限处理的渲染文本，其他宿主不受影响。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "jsdoc": "表格字段标题下的标准组件区域；用于表头筛选等交互，子组件遵循自身数据绑定与权限。与children分组字段分别配置，不定义另一套列或查询。",
               "readable": true,
               "writable": false
             },
@@ -2225,6 +2718,12 @@
             {
               "name": "readonly",
               "jsdoc": "只读状态。\n表示组件仍可见、通常仍参与布局，但不允许用户修改值；\n它与完全禁用或隐藏是不同层级的语义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "jsdoc": "表格中双击当前字段进入原标准控件编辑，缺省false；非表格宿主不受影响。\n使用所属DataView已被表格接受的当前行，不继承外层窗口的行；仍消费字段权限及编辑覆盖。\n失焦/Enter结束单元格输入但不保存或放弃草稿；切换行、视图或失去写权限时退出。",
               "readable": true,
               "writable": false
             },
@@ -2779,7 +3278,7 @@
       "jsdoc": "带选项字段属性（第三层）：\n为具备 field 语义的“选项类字段组件”统一收口静态选项、动态选项解析和常见行为开关。\n适用范围：\n- select / multi-select / radio / checkbox-group\n- cascader / tree-select / transfer\n- entity-picker / icon-picker 等基于候选项选择值的字段组件\n说明：\n- `options / optionLabelField / optionValueField / optionDisabledField / optionChildrenField` 继承自 `SparkOptionSourceProps`\n- `options` 表示本地静态候选项入口；若组件同时提供 `optionDataViewKey`，运行时通常先解析动态数据源，再在缺失时回退到本地 `options`\n- `optionDataViewKey` 负责指向动态选项数据源，而不是选项对象内部的主键字段\n- 某些组件可通过为 `SparkOptionFieldProps<TValue, TOption>` 传入更具体的 `TOption` 收窄本地 `options` 类型，无需在组件 props 中重复声明 `options`\n- 如果某组件只有“候选项结构”语义，而没有 field/value/placeholder 等字段语义，可直接复用 `SparkOptionSourceProps`",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "SparkFieldSemanticProps<TValue> & SparkOptionSourceProps<TOption> & {\n    /**\n       * @internal 运行时数据线，由框架注入，不属于页面配置。\n       *\n       * 作用：\n       * - 为字段组件提供当前 DataView 上下文\n       * - 让组件可以结合 `optionDataViewKey` 等配置解析出真实选项列表\n       */\n    dataSource?: DataView;\n    /**\n     * 选项 DataView 定位键。\n     *\n     * 通常指向某个 DataView，例如 `Categories@default`，\n     * 组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。\n     */\n    optionDataViewKey?: string;\n    /** 选项来源 DataView 成员，默认 rows。 */\n    optionDataMember?: DataMember | `${DataMember}`;\n    /** 选项来源成员内部字段或路径。 */\n    optionDataField?: string;\n    /**\n     * 值分隔符。\n     *\n     * 当组件处于多选语义，但主字段 `field` 选择以单个字符串而不是数组形式持久化时，\n     * 使用该分隔符把多个候选值序列化到主字段中。\n     *\n     * 示例：\n     * - 当前选中值为 `[101, 102]`\n     * - `valueSeparator` 为 `,`\n     * - 最终写入 `field` 为 `101,102`\n     */\n    valueSeparator?: string;\n    /**\n     * 主值持久化模式。\n     *\n     * 用于声明当前选项字段把选中结果写回 `field` 时，应保留数组，\n     * 还是按 `valueSeparator` 序列化成单个字符串。\n     */\n    valueMode?: SparkOptionValueMode;\n    /**\n     * 文本分隔符。\n     *\n     * 当组件把候选项文本额外写入 `textStorageField`，且当前选择包含多个候选项时，\n     * 使用该分隔符拼接展示文本。\n     */\n    textSeparator?: string;\n    /**\n     * 文本储存字段。\n     *\n     * 主字段 `field` 仍负责持久化候选值；`textStorageField` 仅用于额外保存候选项文本，\n     * 例如把选中的 ID 存到 `userIds`，同时把姓名串存到 `userNames`。\n     */\n    textStorageField?: string;\n    /**\n     * 是否允许在候选项中搜索。\n     * 一般用于候选集较大、需要关键字过滤的组件。\n     */\n    filterable?: boolean;\n    /**\n     * 是否启用多选模式。\n     * 开启后，组件的值语义通常从单值切换为数组值。\n     */\n    multiple?: boolean;\n}",
+        "declarationTypeText": "SparkFieldSemanticProps<TValue> & SparkOptionSourceProps<TOption> & {\n    /**\n       * @internal 运行时数据线，由框架注入，不属于页面配置。\n       *\n       * 作用：\n       * - 为字段组件提供当前 DataView 上下文\n       * - 让组件可以结合 `optionDataViewKey` 等配置解析出真实选项列表\n       */\n    dataSource?: DataView;\n    /**\n     * 选项 DataView 定位键。\n     *\n     * 通常指向某个 DataView，例如 `Categories@default`，\n     * 组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。\n     */\n    optionDataViewKey?: string;\n    /** 直接绑定DataView.rows时按顺序读取候选标题；空值继续，脱敏立即显示掩码，不可读字段跳过，全部为空时使用可读选项值。省略沿用optionLabelField；不用于级联临时结果或其他数据成员。 */\n    optionLabelFields?: string[];\n    /** 选项来源 DataView 成员，默认 rows。 */\n    optionDataMember?: DataMember | `${DataMember}`;\n    /** 选项来源成员内部字段或路径。 */\n    optionDataField?: string;\n    /**\n     * 值分隔符。\n     *\n     * 当组件处于多选语义，但主字段 `field` 选择以单个字符串而不是数组形式持久化时，\n     * 使用该分隔符把多个候选值序列化到主字段中。\n     *\n     * 示例：\n     * - 当前选中值为 `[101, 102]`\n     * - `valueSeparator` 为 `,`\n     * - 最终写入 `field` 为 `101,102`\n     */\n    valueSeparator?: string;\n    /**\n     * 主值持久化模式。\n     *\n     * 用于声明当前选项字段把选中结果写回 `field` 时，应保留数组，\n     * 还是按 `valueSeparator` 序列化成单个字符串。\n     */\n    valueMode?: SparkOptionValueMode;\n    /**\n     * 文本分隔符。\n     *\n     * 当组件把候选项文本额外写入 `textStorageField`，且当前选择包含多个候选项时，\n     * 使用该分隔符拼接展示文本。\n     */\n    textSeparator?: string;\n    /**\n     * 文本储存字段。\n     *\n     * 主字段 `field` 仍负责持久化候选值；`textStorageField` 仅用于额外保存候选项文本，\n     * 例如把选中的 ID 存到 `userIds`，同时把姓名串存到 `userNames`。\n     */\n    textStorageField?: string;\n    /**\n     * 是否允许在候选项中搜索。\n     * 一般用于候选集较大、需要关键字过滤的组件。\n     */\n    filterable?: boolean;\n    /**\n     * 是否启用多选模式。\n     * 开启后，组件的值语义通常从单值切换为数组值。\n     */\n    multiple?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -2793,7 +3292,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /**\n       * @internal 运行时数据线，由框架注入，不属于页面配置。\n       *\n       * 作用：\n       * - 为字段组件提供当前 DataView 上下文\n       * - 让组件可以结合 `optionDataViewKey` 等配置解析出真实选项列表\n       */\n    dataSource?: DataView;\n    /**\n     * 选项 DataView 定位键。\n     *\n     * 通常指向某个 DataView，例如 `Categories@default`，\n     * 组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。\n     */\n    optionDataViewKey?: string;\n    /** 选项来源 DataView 成员，默认 rows。 */\n    optionDataMember?: DataMember | `${DataMember}`;\n    /** 选项来源成员内部字段或路径。 */\n    optionDataField?: string;\n    /**\n     * 值分隔符。\n     *\n     * 当组件处于多选语义，但主字段 `field` 选择以单个字符串而不是数组形式持久化时，\n     * 使用该分隔符把多个候选值序列化到主字段中。\n     *\n     * 示例：\n     * - 当前选中值为 `[101, 102]`\n     * - `valueSeparator` 为 `,`\n     * - 最终写入 `field` 为 `101,102`\n     */\n    valueSeparator?: string;\n    /**\n     * 主值持久化模式。\n     *\n     * 用于声明当前选项字段把选中结果写回 `field` 时，应保留数组，\n     * 还是按 `valueSeparator` 序列化成单个字符串。\n     */\n    valueMode?: SparkOptionValueMode;\n    /**\n     * 文本分隔符。\n     *\n     * 当组件把候选项文本额外写入 `textStorageField`，且当前选择包含多个候选项时，\n     * 使用该分隔符拼接展示文本。\n     */\n    textSeparator?: string;\n    /**\n     * 文本储存字段。\n     *\n     * 主字段 `field` 仍负责持久化候选值；`textStorageField` 仅用于额外保存候选项文本，\n     * 例如把选中的 ID 存到 `userIds`，同时把姓名串存到 `userNames`。\n     */\n    textStorageField?: string;\n    /**\n     * 是否允许在候选项中搜索。\n     * 一般用于候选集较大、需要关键字过滤的组件。\n     */\n    filterable?: boolean;\n    /**\n     * 是否启用多选模式。\n     * 开启后，组件的值语义通常从单值切换为数组值。\n     */\n    multiple?: boolean;\n}"
+            "typeText": "{\n    /**\n       * @internal 运行时数据线，由框架注入，不属于页面配置。\n       *\n       * 作用：\n       * - 为字段组件提供当前 DataView 上下文\n       * - 让组件可以结合 `optionDataViewKey` 等配置解析出真实选项列表\n       */\n    dataSource?: DataView;\n    /**\n     * 选项 DataView 定位键。\n     *\n     * 通常指向某个 DataView，例如 `Categories@default`，\n     * 组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。\n     */\n    optionDataViewKey?: string;\n    /** 直接绑定DataView.rows时按顺序读取候选标题；空值继续，脱敏立即显示掩码，不可读字段跳过，全部为空时使用可读选项值。省略沿用optionLabelField；不用于级联临时结果或其他数据成员。 */\n    optionLabelFields?: string[];\n    /** 选项来源 DataView 成员，默认 rows。 */\n    optionDataMember?: DataMember | `${DataMember}`;\n    /** 选项来源成员内部字段或路径。 */\n    optionDataField?: string;\n    /**\n     * 值分隔符。\n     *\n     * 当组件处于多选语义，但主字段 `field` 选择以单个字符串而不是数组形式持久化时，\n     * 使用该分隔符把多个候选值序列化到主字段中。\n     *\n     * 示例：\n     * - 当前选中值为 `[101, 102]`\n     * - `valueSeparator` 为 `,`\n     * - 最终写入 `field` 为 `101,102`\n     */\n    valueSeparator?: string;\n    /**\n     * 主值持久化模式。\n     *\n     * 用于声明当前选项字段把选中结果写回 `field` 时，应保留数组，\n     * 还是按 `valueSeparator` 序列化成单个字符串。\n     */\n    valueMode?: SparkOptionValueMode;\n    /**\n     * 文本分隔符。\n     *\n     * 当组件把候选项文本额外写入 `textStorageField`，且当前选择包含多个候选项时，\n     * 使用该分隔符拼接展示文本。\n     */\n    textSeparator?: string;\n    /**\n     * 文本储存字段。\n     *\n     * 主字段 `field` 仍负责持久化候选值；`textStorageField` 仅用于额外保存候选项文本，\n     * 例如把选中的 ID 存到 `userIds`，同时把姓名串存到 `userNames`。\n     */\n    textStorageField?: string;\n    /**\n     * 是否允许在候选项中搜索。\n     * 一般用于候选集较大、需要关键字过滤的组件。\n     */\n    filterable?: boolean;\n    /**\n     * 是否启用多选模式。\n     * 开启后，组件的值语义通常从单值切换为数组值。\n     */\n    multiple?: boolean;\n}"
           }
         ],
         "members": {
@@ -2807,6 +3306,12 @@
             {
               "name": "optionDataViewKey",
               "jsdoc": "选项 DataView 定位键。\n通常指向某个 DataView，例如 `Categories@default`，\n组件可据此从运行时数据中动态生成候选项，而不是写死静态枚举。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionLabelFields",
+              "jsdoc": "直接绑定DataView.rows时按顺序读取候选标题；空值继续，脱敏立即显示掩码，不可读字段跳过，全部为空时使用可读选项值。省略沿用optionLabelField；不用于级联临时结果或其他数据成员。",
               "readable": true,
               "writable": false
             },
@@ -3035,7 +3540,7 @@
       "jsdoc": "表级模型属性（第五层）：\n用于 DataView 驱动的数据容器，描述它们和页面数据空间的连接点。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /**\n     * @internal 运行时数据线，由框架注入，不属于页面配置。\n     *\n     * 它代表当前容器实际绑定到的 DataView。\n     */\n    dataSource?: DataView;\n    /**\n     * DataView 定位键。\n     * 固定格式为 `table@viewId` 或 `#scope@table@viewId`，用于把表级容器绑定到页面 DataSet 的某个视图。\n     */\n    dataViewKey?: string;\n    /** DataView 成员枚举值，用于读取 DataView 输出成员。 */\n    dataMember?: DataMember | `${DataMember}`;\n    /** DataView 成员内部业务字段或点路径。 */\n    dataField?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
+        "declarationTypeText": "{\n    /**\n     * @internal 运行时数据线，由框架注入，不属于页面配置。\n     *\n     * 它代表当前容器实际绑定到的 DataView。\n     */\n    dataSource?: DataView;\n    /**\n     * DataView 定位键。\n     * 完整格式为 `scenarioId@modelName@viewId`（数据空间ID@模型名称@视图名称），由本次 PageRuntime 校验身份并解析。\n     * `modelName@viewId` 仅在运行实例明确主场景时使用；已有 `#scenarioId@modelName@viewId` 保留读取兼容，新配置不生成前导 #。\n     */\n    dataViewKey?: string;\n    /** DataView 成员枚举值，用于读取 DataView 输出成员。 */\n    dataMember?: DataMember | `${DataMember}`;\n    /** DataView 成员内部业务字段或点路径。 */\n    dataField?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -3046,7 +3551,7 @@
             },
             {
               "name": "dataViewKey",
-              "jsdoc": "DataView 定位键。\n固定格式为 `table@viewId` 或 `#scope@table@viewId`，用于把表级容器绑定到页面 DataSet 的某个视图。",
+              "jsdoc": "DataView 定位键。\n完整格式为 `scenarioId@modelName@viewId`（数据空间ID@模型名称@视图名称），由本次 PageRuntime 校验身份并解析。\n`modelName@viewId` 仅在运行实例明确主场景时使用；已有 `#scenarioId@modelName@viewId` 保留读取兼容，新配置不生成前导 #。",
               "readable": true,
               "writable": false
             },

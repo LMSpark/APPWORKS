@@ -73,12 +73,26 @@
           "type": "string"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.onScopeChange.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onScopeChange.return": true
+      }
     },
     "LowcodeSessionStore": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "LowcodeSessionStore",
+      "properties": {
+        "revision": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -135,7 +149,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T05:13:17.295Z",
+  "generatedAt": "2026-10-15T05:49:40.713Z",
   "models": {
     "LowcodeSessionStorage": {
       "name": "LowcodeSessionStorage",
@@ -225,11 +239,11 @@
       "jsdoc": "会话 store 配置；未提供 storage 时仅内存持有，刷新页面后丢失。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    sessionKey?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 执行身份变化时清理其运行资源；刷新同身份令牌不触发。 */\n    onScopeChange?: () => void;\n    storage?: LowcodeSessionStorage;\n    sessionKey?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    storage?: LowcodeSessionStorage;\n    sessionKey?: string;\n}>",
+            "typeText": "Readonly<{\n    /** 执行身份变化时清理其运行资源；刷新同身份令牌不触发。 */\n    onScopeChange?: () => void;\n    storage?: LowcodeSessionStorage;\n    sessionKey?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -244,6 +258,17 @@
               "name": "sessionKey",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onScopeChange",
+              "jsdoc": "执行身份变化时清理其运行资源；刷新同身份令牌不触发。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -271,6 +296,13 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "get",

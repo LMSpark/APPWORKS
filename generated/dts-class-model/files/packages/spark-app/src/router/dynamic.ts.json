@@ -29,12 +29,19 @@
         },
         "componentName": {
           "type": "string"
+        },
+        "isDirty": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [
         "view",
         "instanceId",
-        "componentName"
+        "componentName",
+        "isDirty"
       ],
       "additionalProperties": false
     },
@@ -110,6 +117,13 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "DynamicRouter",
+      "properties": {
+        "systemPageRevision": {
+          "type": "object",
+          "title": "Ref<number>"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -300,18 +314,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T11:18:15.004Z",
+  "generatedAt": "2026-10-09T09:18:00.629Z",
   "models": {
     "SystemPageInstanceView": {
       "name": "SystemPageInstanceView",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Pick<SystemPageInstance, 'instanceId' | 'componentName' | 'view'>",
+        "declarationTypeText": "Pick<SystemPageInstance, 'instanceId' | 'componentName' | 'view' | 'isDirty'>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Pick<SystemPageInstance, 'instanceId' | 'componentName' | 'view'>",
+            "typeText": "Pick<SystemPageInstance, 'instanceId' | 'componentName' | 'view' | 'isDirty'>",
             "targetName": "Pick"
           }
         ],
@@ -442,6 +456,13 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "systemPageRevision",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "getPageRuntime",

@@ -14,6 +14,7 @@
       "DataSpaceRequestScope",
       "DataSpaceQueryPage",
       "DataSpaceQueryTree",
+      "DataSpaceQueryInput",
       "DataSpaceQueryOptions"
     ]
   },
@@ -283,7 +284,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-08T16:19:00.641Z",
+  "generatedAt": "2026-10-14T20:34:23.237Z",
   "models": {
     "DataSpaceQueryIdentity": {
       "name": "DataSpaceQueryIdentity",
@@ -374,46 +375,18 @@
     },
     "DataSpaceQueryTree": {
       "name": "DataSpaceQueryTree",
-      "jsdoc": "显式树查询的键、父键和目标节点；字段由正式模型查询边界解析。",
+      "jsdoc": "复用DataView正式查询参数中的树结构；保留API公开名称，不另定义字段副本。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    keyField: string;\n    parentField: string;\n    nodeId: string;\n    hasChildrenField?: string;\n    mode?: 'child' | 'parent';\n}>",
+        "declarationTypeText": "NonNullable<QueryParams['tree']>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    keyField: string;\n    parentField: string;\n    nodeId: string;\n    hasChildrenField?: string;\n    mode?: 'child' | 'parent';\n}>",
-            "targetName": "Readonly"
+            "typeText": "NonNullable<QueryParams['tree']>",
+            "targetName": "NonNullable"
           }
         ],
-        "members": {
-          "attributes": [
-            {
-              "name": "keyField",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "parentField",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "nodeId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "hasChildrenField",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "mode",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
+        "members": {}
       }
     },
     "DataSpaceQueryValueFunction": {
@@ -442,7 +415,7 @@
     },
     "DataSpaceQueryField": {
       "name": "DataSpaceQueryField",
-      "jsdoc": "查询字段投影；绑定正式模型的视图不得重定义其表达式或输出别名。",
+      "jsdoc": "查询字段投影；正式视图可声明安全聚合和分组，不重定义模型表达式或输出别名。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    name: string;\n    alias?: string | null;\n    group?: number;\n    isOutput?: boolean;\n    expression?: string | null;\n    order?: number;\n    orderType?: OrderType | null;\n    valueFun?: DataSpaceQueryValueFunction | null;\n}>",

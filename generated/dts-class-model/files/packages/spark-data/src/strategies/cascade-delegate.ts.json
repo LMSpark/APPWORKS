@@ -28,6 +28,14 @@
           },
           "additionalProperties": false
         },
+        "method.applyInputs.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.applyInputs.return": {
+          "type": "boolean"
+        },
         "method.setupCascade.params": {
           "type": "object",
           "properties": {},
@@ -49,7 +57,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T19:33:02.828Z",
+  "generatedAt": "2026-10-10T12:48:14.740Z",
   "models": {
     "CascadeDelegate": {
       "name": "CascadeDelegate",
@@ -71,6 +79,15 @@
         },
         "members": {
           "methods": [
+            {
+              "name": "applyInputs",
+              "jsdoc": "查询编排在父值就绪后应用同一组输入；翻页等不重复覆盖未变化的输入。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
             {
               "name": "setupCascade",
               "parameters": [],

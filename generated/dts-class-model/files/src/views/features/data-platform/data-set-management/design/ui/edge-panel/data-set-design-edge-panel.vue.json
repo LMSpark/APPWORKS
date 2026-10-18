@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel\n职责：维护原生关系完整过滤表达式和值函数，通过关系元数据表保存并重开。\n边界：旧关系在导入边界转换；数据逻辑由spark-data承载，持久化归原会话。\nAI用途：为层次设计页提供关系增改删、取消和未知提交核验入口。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-15T15:36:36.362Z",
+  "models": {}
+}

@@ -27,6 +27,18 @@
             "script.js",
             "style.css"
           ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "isDirty": {
+          "type": "boolean"
+        },
+        "canUndo": {
+          "type": "boolean"
+        },
+        "canRedo": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false,
@@ -48,6 +60,14 @@
             }
           },
           "additionalProperties": false
+        },
+        "method.getSavedText.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getSavedText.return": {
+          "type": "string"
         },
         "method.getText.params": {
           "type": "object",
@@ -106,7 +126,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T20:49:03.385Z",
+  "generatedAt": "2026-10-15T12:22:16.919Z",
   "models": {
     "PageTextFile": {
       "name": "PageTextFile",
@@ -163,9 +183,38 @@
               "name": "fileName",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDirty",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canUndo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canRedo",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
+            {
+              "name": "getSavedText",
+              "jsdoc": "已确认保存基线；用于原工作文件提交的未知结果核验，不包含当前编辑。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
             {
               "name": "getText",
               "jsdoc": "get Text 文本。",

@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references",
+    "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references",
+    "jsdoc": "@module app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references\n职责：按正式注册名生成本空间定义的精确改名清单。\n边界：模型ID、来源、内部表键、常量和参数名不改；不透明引用不做文本替换。\nAI用途：改名前预览、权限核对及逐项回读共用同一变更集合。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ModelNameChange",
+      "LowcodeDataSpaceModelRenameReferences"
+    ]
+  },
+  "$defs": {
+    "ModelNameChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelNameChange",
+      "properties": {
+        "table": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "property": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        },
+        "after": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "table",
+        "id",
+        "property",
+        "before",
+        "after"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceModelRenameReferences": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelRenameReferences",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "nextName": {
+              "type": "string"
+            },
+            "previousName": {
+              "type": "string"
+            },
+            "projected": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ModelNameChange"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ModelNameChange"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-13T06:06:29.496Z",
+  "models": {
+    "ModelNameChange": {
+      "name": "ModelNameChange",
+      "jsdoc": "一项原记录字段的准确变更，不携带权限凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原元数据表。 */\n    table: string;\n    /** 正式记录主键。 */\n    id: string;\n    /** 待更新属性。 */\n    property: string;\n    /** 可读原值。 */\n    before: string;\n    /** 待提交值。 */\n    after: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原元数据表。 */\n    table: string;\n    /** 正式记录主键。 */\n    id: string;\n    /** 待更新属性。 */\n    property: string;\n    /** 可读原值。 */\n    before: string;\n    /** 待提交值。 */\n    after: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "table",
+              "jsdoc": "原元数据表。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "id",
+              "jsdoc": "正式记录主键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "property",
+              "jsdoc": "待更新属性。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "before",
+              "jsdoc": "可读原值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "jsdoc": "待提交值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelRenameReferences": {
+      "name": "LowcodeDataSpaceModelRenameReferences",
+      "jsdoc": "结构化引用解析只在当前正式元数据范围内运行。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "结构化引用解析只在当前正式元数据范围内运行。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "prepare",
+              "jsdoc": "返回Name及实际引用变更；previousName仅供回读，projected为同批已明确的字段改名候选，不持有运行草稿。",
+              "parameters": [
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataView[]"
+                  }
+                },
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nextName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "previousName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "projected",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly ModelNameChange[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "ModelNameChange",
+                  "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

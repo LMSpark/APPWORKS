@@ -1,0 +1,350 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-request-config",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/protocol/data-space-request-config",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-request-config\n职责：捕获表级查询与提交端点及运行策略。\n边界：配置解析复用 FormalTableRequestConfig；平台默认端点、批次与 scope 仍归本 owner。\nAI用途：确认正式查询保存使用相同配置，且配置不能替代身份和数据权限。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataSpaceRequestConfig"
+    ]
+  },
+  "$defs": {
+    "DataSpaceRequestConfigChanges": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestConfigChanges",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": true
+        },
+        "changed": {
+          "type": "array",
+          "items": true
+        },
+        "deleted": {
+          "type": "array",
+          "items": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRequestTableConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestTableConfig",
+      "properties": {
+        "api": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/CrudApi"
+            }
+          ]
+        },
+        "crudConfig": {
+          "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/CrudOperationConfig"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataSpaceRequestConfigInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestConfigInput",
+      "properties": {
+        "tableConfig": {
+          "$ref": "#/$defs/DataSpaceRequestTableConfig"
+        },
+        "changes": {
+          "$ref": "#/$defs/DataSpaceRequestConfigChanges"
+        }
+      },
+      "required": [
+        "changes"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceRequestConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceRequestConfig",
+      "properties": {
+        "endpoint": {
+          "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/HttpEndpoint"
+        },
+        "timeout": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "table": {
+              "$ref": "../../../../../../spark-data/src/data-table.ts.json#/$defs/DataTable"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": true,
+        "method.resolveQuery.params": {
+          "type": "object",
+          "properties": {
+            "table": {
+              "$ref": "#/$defs/DataSpaceRequestTableConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveQuery.return": {
+          "$ref": "#/$defs/DataSpaceRequestConfig"
+        },
+        "method.resolveSave.params": {
+          "type": "object",
+          "properties": {
+            "inputs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceRequestConfigInput"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveSave.return": {
+          "$ref": "#/$defs/DataSpaceRequestConfig"
+        },
+        "method.mergeHeaders.params": {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "type": "object",
+              "title": "Record<string, string>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.mergeHeaders.return": {
+          "type": "object",
+          "title": "Record<string, string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-09T02:57:36.170Z",
+  "models": {
+    "DataSpaceRequestConfigChanges": {
+      "name": "DataSpaceRequestConfigChanges",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    added?: readonly unknown[];\n    changed?: readonly unknown[];\n    deleted?: readonly unknown[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    added?: readonly unknown[];\n    changed?: readonly unknown[];\n    deleted?: readonly unknown[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "added",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRequestTableConfig": {
+      "name": "DataSpaceRequestTableConfig",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<TableMetadata, 'api' | 'crudConfig'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<TableMetadata, 'api' | 'crudConfig'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSpaceRequestConfigInput": {
+      "name": "DataSpaceRequestConfigInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    tableConfig?: DataSpaceRequestTableConfig;\n    changes: DataSpaceRequestConfigChanges;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    tableConfig?: DataSpaceRequestTableConfig;\n    changes: DataSpaceRequestConfigChanges;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableConfig",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceRequestConfig": {
+      "name": "DataSpaceRequestConfig",
+      "jsdoc": "表级端点与策略的捕获值；查询、保存继续使用正式 owner 的协议、身份及权限。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "endpoint",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "timeout",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "validate",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataTable"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "resolveQuery",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRequestTableConfig",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestConfig",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts"
+              }
+            },
+            {
+              "name": "resolveSave",
+              "parameters": [
+                {
+                  "name": "inputs",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceRequestConfigInput[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestConfig",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts"
+              }
+            },
+            {
+              "name": "mergeHeaders",
+              "parameters": [
+                {
+                  "name": "scope",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

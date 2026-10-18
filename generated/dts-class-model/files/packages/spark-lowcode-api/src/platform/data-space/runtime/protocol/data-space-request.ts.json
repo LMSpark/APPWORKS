@@ -46,6 +46,9 @@
         "options": {
           "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
         },
+        "config": {
+          "$ref": "data-space-request-config.ts.json#/$defs/DataSpaceRequestConfig"
+        },
         "signal": {
           "type": "object",
           "title": "AbortSignal"
@@ -118,7 +121,7 @@
           }
         },
         "config": {
-          "$ref": "../save/data-space-save-config.ts.json#/$defs/DataSpaceSaveConfig"
+          "$ref": "data-space-request-config.ts.json#/$defs/DataSpaceRequestConfig"
         },
         "signal": {
           "type": "object",
@@ -193,7 +196,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T15:02:44.335Z",
+  "generatedAt": "2026-10-11T00:07:00.493Z",
   "models": {
     "DataSpaceRequestOptions": {
       "name": "DataSpaceRequestOptions",
@@ -235,11 +238,11 @@
       "jsdoc": "模型查询表、执行选项与可选取消信号的请求命令。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    signal?: AbortSignal;\n}>",
+        "declarationTypeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    signal?: AbortSignal;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    signal?: AbortSignal;\n}>",
+            "typeText": "Readonly<{\n    table: DataSpaceQueryTable;\n    options: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    signal?: AbortSignal;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -252,6 +255,11 @@
             },
             {
               "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "config",
               "readable": true,
               "writable": false
             },
@@ -303,11 +311,11 @@
       "jsdoc": "同场景且模型不重复的批量保存目标；无实际变更不能提交。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    changes: readonly DataSpaceRequestSaveChange[];\n    config?: DataSpaceSaveConfig;\n    signal?: AbortSignal;\n}>",
+        "declarationTypeText": "Readonly<{\n    changes: readonly DataSpaceRequestSaveChange[];\n    config?: DataSpaceRequestConfig;\n    signal?: AbortSignal;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    changes: readonly DataSpaceRequestSaveChange[];\n    config?: DataSpaceSaveConfig;\n    signal?: AbortSignal;\n}>",
+            "typeText": "Readonly<{\n    changes: readonly DataSpaceRequestSaveChange[];\n    config?: DataSpaceRequestConfig;\n    signal?: AbortSignal;\n}>",
             "targetName": "Readonly"
           }
         ],

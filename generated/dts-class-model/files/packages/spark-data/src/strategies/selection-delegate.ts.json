@@ -18,6 +18,27 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "SelectionDelegate",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "label": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -233,11 +254,32 @@
         },
         "method.cleanupInvalidSelections.return": {
           "type": "boolean"
+        },
+        "method.getValues.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getValues.return": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          }
         }
       }
     }
   },
-  "generatedAt": "2026-10-08T18:34:23.826Z",
+  "generatedAt": "2026-10-18T05:13:24.012Z",
   "models": {
     "EmitCurrentRowChangedFn": {
       "name": "EmitCurrentRowChangedFn",
@@ -293,6 +335,26 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "选中行的序列化字符串（供表单 v-model / API 传值使用）。\n读取：按 valueField → 主键值 → 分隔符拼接。\n写入：按分隔符拆分 token → 匹配行 → setSelectedRowsById。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "labels",
+              "jsdoc": "选中行的显示标签数组（供渲染 tag 使用）。\n有 labelField 时取对应字段值；否则回退到主键字符串。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "当前行的显示标签（供单选 tag / 面包屑使用）。\n有 labelField 时取 currentRow[labelField]；否则回退到主键字符串；无当前行返回 null。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "applyAutoFirst",
@@ -305,7 +367,7 @@
             },
             {
               "name": "setCurrentRow",
-              "jsdoc": "设置当前行（通过行对象）\n内部提取 PK 后委托给 {@link _setCurrentId}。\n外部 UI 层推荐使用 {@link setCurrentRowById}。",
+              "jsdoc": "设置当前行（通过行对象）\n有主键时提取 PK；无主键时仅接受本次 rows 中的原始对象作为只读指针。\n单选模式同步选择集合；无主键选择以显式valueField取值，跨查询不得复用，也不产生写入身份。",
               "parameters": [
                 {
                   "name": "row",
@@ -586,6 +648,31 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            },
+            {
+              "name": "getValues",
+              "jsdoc": "列表的原生值，不序列化字符串；无主键结果只使用显式值字段，不推断rowid或写入身份。",
+              "parameters": [],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "union",
+                  "types": [
+                    {
+                      "type": "intrinsic",
+                      "name": "string"
+                    },
+                    {
+                      "type": "intrinsic",
+                      "name": "number"
+                    },
+                    {
+                      "type": "intrinsic",
+                      "name": "boolean"
+                    }
+                  ]
+                }
               }
             }
           ]

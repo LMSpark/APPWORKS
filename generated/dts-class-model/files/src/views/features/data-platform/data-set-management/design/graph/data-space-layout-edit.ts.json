@@ -1,0 +1,888 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/graph/data-space-layout-edit",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/graph/data-space-layout-edit",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/graph/data-space-layout-edit\n职责：通过正式布局资源DataView编辑画布布局，由同一DataSet提交变更。\n边界：节点/连线视图只读投影；唯一编辑态在DataSpaceLayoutDefinition，文件IO由存储适配承接。\nAI用途：模型拖动、取消、保存与冲突恢复，不要求表/视图绑定，不写数据库或旧图文件。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceLayoutEdit"
+    ]
+  },
+  "$defs": {
+    "DataSpaceLayoutPosition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceLayoutPosition",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "x",
+        "y"
+      ],
+      "additionalProperties": false
+    },
+    "RebuildPreview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RebuildPreview",
+      "properties": {
+        "positions": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "modelCount": {
+          "type": "number"
+        },
+        "relationCount": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "positions",
+        "modelCount",
+        "relationCount"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceLayoutEdit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceLayoutEdit",
+      "properties": {
+        "nodes": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "edges": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "rebuildEdges": {
+          "$ref": "../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "rebuild": {
+          "$ref": "#/$defs/RebuildPreview"
+        },
+        "pending": {
+          "type": "boolean"
+        },
+        "staged": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "$ref": "../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.initialize.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.initialize.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.prepareRebuild.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.prepareRebuild.return": {
+          "type": "object",
+          "title": "Promise<RebuildPreview>"
+        },
+        "method.cancelRebuild.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancelRebuild.return": true,
+        "method.confirmRebuild.params": {
+          "type": "object",
+          "properties": {
+            "preview": {
+              "$ref": "#/$defs/RebuildPreview"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.confirmRebuild.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.fileModels.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.fileModels.return": {
+          "type": "object",
+          "title": "ReadonlyMap<string, string>"
+        },
+        "method.connection.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.connection.return": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "target": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        "method.connect.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "target": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.connect.return": {
+          "type": "string"
+        },
+        "method.removeEdge.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeEdge.return": true,
+        "method.state.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.state.return": {
+          "type": "object",
+          "properties": {
+            "positions": {
+              "type": "object",
+              "title": "Record<string, {\n            x: number;\n            y: number;\n        }>"
+            },
+            "draggableKeys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "editable": {
+              "type": "boolean"
+            },
+            "rebuildAvailable": {
+              "type": "boolean"
+            },
+            "pending": {
+              "type": "boolean"
+            },
+            "staged": {
+              "type": "boolean"
+            },
+            "status": {
+              "enum": [
+                "unknown",
+                "idle",
+                "pending"
+              ]
+            },
+            "error": {
+              "type": "string"
+            },
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "positions",
+            "draggableKeys",
+            "editable",
+            "rebuildAvailable",
+            "pending",
+            "staged",
+            "status",
+            "error",
+            "messages"
+          ],
+          "additionalProperties": false
+        },
+        "method.move.params": {
+          "type": "object",
+          "properties": {
+            "position": {
+              "$ref": "#/$defs/DataSpaceLayoutPosition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.move.return": true,
+        "method.arrange.params": {
+          "type": "object",
+          "properties": {
+            "positions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceLayoutPosition"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.arrange.return": true,
+        "method.addNode.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.addNode.return": {
+          "type": "string"
+        },
+        "method.removeNode.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeNode.return": true,
+        "method.bindCreatedNode.params": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindCreatedNode.return": true,
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<'confirmed' | 'not-applied'>"
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        revision: number;\n        text: string | null;\n    }>>"
+        },
+        "method.adopt.params": {
+          "type": "object",
+          "properties": {
+            "preview": {
+              "type": "object",
+              "properties": {
+                "revision": {
+                  "type": "number"
+                },
+                "text": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              },
+              "required": [
+                "revision",
+                "text"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.adopt.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-15T15:42:36.615Z",
+  "models": {
+    "DataSpaceLayoutPosition": {
+      "name": "DataSpaceLayoutPosition",
+      "jsdoc": "用户拖动一个正式模型后的画布中心坐标。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前节点DataView中的模型主键。 */\n    id: string | number;\n    /** 画布中心横坐标，须为有限数值。 */\n    x: number;\n    /** 画布中心纵坐标，须为有限数值。 */\n    y: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前节点DataView中的模型主键。 */\n    id: string | number;\n    /** 画布中心横坐标，须为有限数值。 */\n    x: number;\n    /** 画布中心纵坐标，须为有限数值。 */\n    y: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "当前节点DataView中的模型主键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "x",
+              "jsdoc": "画布中心横坐标，须为有限数值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "jsdoc": "画布中心纵坐标，须为有限数值。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "RebuildPreview": {
+      "name": "RebuildPreview",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    positions: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    modelCount: number;\n    relationCount: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    positions: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    modelCount: number;\n    relationCount: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "positions",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelCount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relationCount",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceLayoutEdit": {
+      "name": "DataSpaceLayoutEdit",
+      "jsdoc": "布局是场景文件配置，模型DataView只提供当前可读身份，不以模型写权限代替文件保存合同。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "取得正式布局资源；仅画布的只读形状投影保留在本次运行实例。",
+          "signatureText": "constructor(session: LowcodeDataSpaceDesignSession)",
+          "parameters": [
+            {
+              "name": "session",
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceDesignSession"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "nodes",
+              "jsdoc": "未配置节点的本次局部视图；标题与坐标属于布局，不是正式模型记录。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edges",
+              "jsdoc": "未配置连线的布局视图；source/target为节点身份，parentTable/childTable只作画布映射键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rebuildEdges",
+              "jsdoc": "重建预览的只读关系投影；不参与关系配置或布局保存。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rebuild",
+              "jsdoc": "准备与确认之间的只读预览；不算已修改文件或数据库。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "jsdoc": "本地坐标或本操作已暂存文件未结束；供页面关闭与切换保护。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "staged",
+              "jsdoc": "已暂存文件须显式核验/采用远端，不能冒充取消了服务端写入。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "initialize",
+              "jsdoc": "打开时只读参考坐标；已有原生布局优先，不产生迁移草稿或持久化。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareRebuild",
+              "jsdoc": "重读正式定义并确认远端基线后生成只读全模型预览；不暂存文件。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "RebuildPreview",
+                    "sourcePath": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancelRebuild",
+              "jsdoc": "取消只读预览，不改变已保存或本地的布局坐标。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "confirmRebuild",
+              "jsdoc": "确认前重新核对正式定义和共享文件；仅坐标进入已有布局暂存/保存/核验链。",
+              "parameters": [
+                {
+                  "name": "preview",
+                  "type": {
+                    "type": "reference",
+                    "name": "RebuildPreview",
+                    "sourcePath": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "fileModels",
+              "jsdoc": "文件节点身份直接来自正式C的命名视图，不创建后端模型ID。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReadonlyMap",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "connection",
+              "jsdoc": "仅读取当前临时连线的明确节点身份。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        source: string;\n        target: string;\n    }"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "connect",
+              "jsdoc": "连线只保存用户的布局意图；不创建模型关系、条件或输入级联。重复手势复用原边。",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "removeEdge",
+              "jsdoc": "删除尚未成为正式关系的边；可由取消布局恢复。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "state",
+              "jsdoc": "读取受控坐标和显式拖动范围；错误时保留本地草稿供取消或恢复。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        positions: Record<string, {\n            x: number;\n            y: number;\n        }>;\n        draggableKeys: string[];\n        editable: boolean;\n        rebuildAvailable: boolean;\n        pending: boolean;\n        staged: boolean;\n        status: \"unknown\" | \"idle\" | \"pending\";\n        error: string;\n        messages: string[];\n    }"
+              }
+            },
+            {
+              "name": "move",
+              "jsdoc": "只接受当前布局可编辑节点；拖动不会写入任何持久来源。",
+              "parameters": [
+                {
+                  "name": "position",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceLayoutPosition",
+                    "sourcePath": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "arrange",
+              "jsdoc": "整批预检后写入原布局视图草稿；不读取字段目录、不保存文件，取消与保存沿原链。",
+              "parameters": [
+                {
+                  "name": "positions",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceLayoutPosition[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "addNode",
+              "jsdoc": "新增纯布局节点；在选择来源并确认前不创建模型、字段或运行DataTable。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "removeNode",
+              "jsdoc": "只移除未配置的布局节点；正式模型删除不经过此入口。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "bindCreatedNode",
+              "jsdoc": "正式新增已回读后替换布局身份并保留位置；文件保存失败保留坐标草稿，不重放数据库新增。",
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "放弃尚未进入文件owner的坐标草稿。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "仅合入改动坐标；原文件owner负责并发检查、回执和精确回读。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "jsdoc": "沿原DataSet核验已派发提交；未应用时不自动重放。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "confirmed"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "not-applied"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "preview",
+              "jsdoc": "展示远端原文及当前草稿版本；缺文件与空文件不混同。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        revision: number;\n        text: string | null;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "adopt",
+              "jsdoc": "用户明确采用刚预览的共享文件；由owner再次核对远端与版本。",
+              "parameters": [
+                {
+                  "name": "preview",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        revision: number;\n        text: string | null;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放本实例局部表，不改变正式元数据或文件保存状态。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

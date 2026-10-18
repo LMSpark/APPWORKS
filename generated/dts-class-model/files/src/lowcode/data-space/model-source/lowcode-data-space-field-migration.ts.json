@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/lowcode-data-space-field-migration",
+    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/lowcode-data-space-field-migration",
+    "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-field-migration\n职责：按原正式字段身份迁移字段ValueFun中的本模型来源引用。\n边界：不解释SQL限定名、输出别名或不透明表达式，不执行值函数。\nAI用途：来源替换预览与保存共用的字段定义变换；写入仍归元数据DataView。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceFieldMigration"
+    ]
+  },
+  "$defs": {
+    "MetadataRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MetadataRow",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "FieldMapping": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldMapping",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "sourceName"
+      ],
+      "additionalProperties": false
+    },
+    "FieldMigrationInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldMigrationInput",
+      "properties": {
+        "modelId": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MetadataRow"
+          }
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MetadataRow"
+          }
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldMapping"
+          }
+        }
+      },
+      "required": [
+        "modelId",
+        "fields",
+        "models",
+        "mappings"
+      ],
+      "additionalProperties": false
+    },
+    "FieldValueChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldValueChange",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        },
+        "after": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "before",
+        "after"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceFieldMigration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceFieldMigration",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/FieldMigrationInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldValueChange"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-13T03:07:11.543Z",
+  "models": {
+    "MetadataRow": {
+      "name": "MetadataRow",
+      "jsdoc": "当次元数据查询的可读模型或字段定义，不携带写入能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FieldMapping": {
+      "name": "FieldMapping",
+      "jsdoc": "来源替换已确认的同合同字段映射。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原来源字段名称。 */\n    name: string;\n    /** 新来源字段名称。 */\n    sourceName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原来源字段名称。 */\n    name: string;\n    /** 新来源字段名称。 */\n    sourceName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "原来源字段名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceName",
+              "jsdoc": "新来源字段名称。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FieldMigrationInput": {
+      "name": "FieldMigrationInput",
+      "jsdoc": "保持正式字段ID和输出合同的迁移输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次替换来源的模型ID。 */\n    modelId: string;\n    /** 本模型的完整所属字段；其他模型字段不参与本地来源引用迁移。 */\n    fields: readonly MetadataRow[];\n    /** 通过正式模型ID核对字段执行所属的来源类型。 */\n    models: readonly MetadataRow[];\n    /** 只应用于modelId的原字段名称映射。 */\n    mappings: readonly FieldMapping[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次替换来源的模型ID。 */\n    modelId: string;\n    /** 本模型的完整所属字段；其他模型字段不参与本地来源引用迁移。 */\n    fields: readonly MetadataRow[];\n    /** 通过正式模型ID核对字段执行所属的来源类型。 */\n    models: readonly MetadataRow[];\n    /** 只应用于modelId的原字段名称映射。 */\n    mappings: readonly FieldMapping[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelId",
+              "jsdoc": "本次替换来源的模型ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "本模型的完整所属字段；其他模型字段不参与本地来源引用迁移。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "jsdoc": "通过正式模型ID核对字段执行所属的来源类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mappings",
+              "jsdoc": "只应用于modelId的原字段名称映射。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "FieldValueChange": {
+      "name": "FieldValueChange",
+      "jsdoc": "供预览、原字段提交及精确回读使用的ValueFun变更。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式字段记录ID。 */\n    id: string;\n    /** 持有取值定义的原字段名称。 */\n    name: string;\n    /** 原数据库文本；不变化时不产生变更。 */\n    before: string;\n    /** 只替换明确Field属性的拟保存文本。 */\n    after: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式字段记录ID。 */\n    id: string;\n    /** 持有取值定义的原字段名称。 */\n    name: string;\n    /** 原数据库文本；不变化时不产生变更。 */\n    before: string;\n    /** 只替换明确Field属性的拟保存文本。 */\n    after: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "正式字段记录ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "持有取值定义的原字段名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "before",
+              "jsdoc": "原数据库文本；不变化时不产生变更。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "jsdoc": "只替换明确Field属性的拟保存文本。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceFieldMigration": {
+      "name": "LowcodeDataSpaceFieldMigration",
+      "jsdoc": "区分来源字段引用、独立取值和尚无迁移合同的定义。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "区分来源字段引用、独立取值和尚无迁移合同的定义。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "prepare",
+              "jsdoc": "从原字段集合同时生成变更；常量内部及参数名称不参与字段替换。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "FieldMigrationInput",
+                    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "FieldValueChange",
+                  "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

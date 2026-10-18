@@ -1,0 +1,701 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/model/source/data-space-source-controls",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/model/source/data-space-source-controls",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/model/source/data-space-source-controls\n职责：配置来源筛选到正式候选视图的多父值级联，以及迁移选择的绑定。\n边界：候选查询由DataView执行；原owner负责精确预览、差异和保存，不复制候选结果。\nAI用途：来源组件的绑定、候选级联及生命周期释放。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceSourceControls"
+    ]
+  },
+  "$defs": {
+    "SourceState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SourceState",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "idle",
+                "unsubmitted",
+                "unknown",
+                "readback",
+                "ready",
+                "saving",
+                "previewing",
+                "different"
+              ]
+            },
+            "pending": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "preview": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "title": "Candidate"
+            },
+            "nameError": {
+              "type": "string"
+            },
+            "verification": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "table": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "result": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "table",
+                  "id",
+                  "result"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "status",
+            "pending",
+            "preview",
+            "nameError",
+            "verification"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "idle",
+                "unsubmitted",
+                "unknown",
+                "readback",
+                "ready",
+                "saving",
+                "previewing",
+                "different",
+                "configuration"
+              ]
+            },
+            "pending": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "preview": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "title": "Preview"
+            },
+            "verification": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "table": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "result": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "table",
+                  "id",
+                  "result"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "status",
+            "pending",
+            "preview",
+            "verification"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ControlChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ControlChange",
+      "properties": {
+        "kind": {
+          "enum": [
+            "name",
+            "search",
+            "result",
+            "parameter",
+            "mapping",
+            "addition",
+            "removal",
+            "contract"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "value": true
+      },
+      "required": [
+        "kind",
+        "id",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceSourceControls": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSourceControls",
+      "properties": {
+        "search": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "registration": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fields": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "differences": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "modelChanges": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "viewChanges": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "inputParameters": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "results": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "specification": {
+          "type": "object",
+          "properties": {
+            "metaName": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "dbid": {
+              "type": "string"
+            },
+            "databaseName": {
+              "type": "string"
+            },
+            "providerId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "metaName",
+            "label",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "canSelect": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "changed": {
+              "type": "object",
+              "title": "(change: ControlChange) => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setOpen.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setOpen.return": true,
+        "method.selected.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.selected.return": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "object",
+              "title": "import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceType"
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "dbid": {
+              "type": "string"
+            },
+            "databaseName": {
+              "type": "string"
+            },
+            "providerId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "name",
+            "description",
+            "dbid",
+            "databaseName",
+            "providerId"
+          ],
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "string"
+        },
+        "method.key.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.key.return": {
+          "type": "string"
+        },
+        "method.choice.params": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "mapping",
+                "addition",
+                "removal",
+                "parameter",
+                "contract"
+              ]
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.choice.return": {
+          "$ref": "../../../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "method.sync.params": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SourceState"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "force": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sync.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-14T22:41:20.375Z",
+  "models": {
+    "SourceState": {
+      "name": "SourceState",
+      "jsdoc": "原操作owner提供的展示状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<LowcodeDataSpaceModelCreate['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<LowcodeDataSpaceModelCreate['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ControlChange": {
+      "name": "ControlChange",
+      "jsdoc": "组件输入事件；不携带正式权限或保存指令。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 搜索输入、首次注册名、已有字段映射或新增输出选择。 */\n    kind: 'search' | 'result' | 'name' | 'mapping' | 'addition' | 'removal' | 'parameter' | 'contract';\n    /** 搜索行标识、原字段记录ID或新增来源字段名。 */\n    id: string;\n    /** 原生绑定值；搜索事件不携带值，由搜索视图统一读取。 */\n    value: unknown;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "搜索输入、首次注册名、已有字段映射或新增输出选择。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "jsdoc": "搜索行标识、原字段记录ID或新增来源字段名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
+              "jsdoc": "原生绑定值；搜索事件不携带值，由搜索视图统一读取。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSourceControls": {
+      "name": "DataSpaceSourceControls",
+      "jsdoc": "同一元数据DataSet内的临时组件视图，不进入场景配置或正式提交。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "建立输入视图，所有外部副作用由调用方原owner处理。",
+          "signatureText": "constructor(dataSet: DataSet, changed: (change: ControlChange) => void)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "changed",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [
+                        {
+                          "name": "change",
+                          "type": {
+                            "type": "reference",
+                            "name": "ControlChange",
+                            "sourcePath": "src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts"
+                          }
+                        }
+                      ],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "search",
+              "jsdoc": "来源类型、名称、说明和库名筛选的唯一输入视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "registration",
+              "jsdoc": "首次创建的注册名输入，候选及校验仍由ModelCreate持有。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "原owner精确预览提供的字段展示投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "differences",
+              "jsdoc": "来源替换的字段差异，仅作原owner结果展示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelChanges",
+              "jsdoc": "来源替换的模型引用改动，仅作原owner结果展示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewChanges",
+              "jsdoc": "同一来源合同所需的命名视图投影变更，仅展示已核验的迁移计划。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputParameters",
+              "jsdoc": "已保存空间参数的候选投影；标准值函数字段按完整视图键读取。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "results",
+              "jsdoc": "当前类型只定位所属正式模型的独立候选视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "specification",
+              "jsdoc": "当前类型的字段映射只供标准子组件绑定。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canSelect",
+              "jsdoc": "只有本次查询存在唯一可读选择值才可确认。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "setOpen",
+              "jsdoc": "弹窗开关也是父输入，关闭使查询和旧选择失效。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "selected",
+              "jsdoc": "消费列表选择值，随后仍由业务owner精确读取。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        type: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceType;\n        id: string;\n        name: string;\n        description: string;\n        dbid: string;\n        databaseName: string;\n        providerId: string;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "读取搜索输入；空值只在调用正式查询时按原合同处理。",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "key",
+              "jsdoc": "组件只通过同一元数据空间的完整命名视图键消费这些局部输入/展示视图。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "choice",
+              "jsdoc": "按稳定的操作身份定位已有选择视图，不在渲染时新建资源。",
+              "parameters": [
+                {
+                  "name": "kind",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "mapping"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "addition"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "removal"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "parameter"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "contract"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataView"
+              }
+            },
+            {
+              "name": "sync",
+              "jsdoc": "仅投影原owner接受的精确预览；正式来源候选直接由查询视图持有。",
+              "parameters": [
+                {
+                  "name": "state",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "SourceState",
+                        "sourcePath": "src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "force",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "卸载释放本实例输入、候选命名视图和级联，保留正式模型及原视图。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

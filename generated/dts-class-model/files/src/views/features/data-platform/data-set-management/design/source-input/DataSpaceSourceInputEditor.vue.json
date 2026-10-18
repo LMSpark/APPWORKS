@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/source-input/DataSpaceSourceInputEditor",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/source-input/DataSpaceSourceInputEditor.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/source-input/DataSpaceSourceInputEditor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/source-input/DataSpaceSourceInputEditor",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/source-input/DataSpaceSourceInputEditor\n职责：在当前来源参数节点维护ValueFun，展示保存、取消和未知结果的核验入口。\n边界：标准值函数字段绑定元数据视图，不复制数据草稿或执行独立查询；只提交当前参数。\nAI用途：为原生数据空间页接入显式GetInputParam迁移和JSON常量配置，保留原文和生命周期保护。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T01:10:34.476Z",
+  "models": {}
+}

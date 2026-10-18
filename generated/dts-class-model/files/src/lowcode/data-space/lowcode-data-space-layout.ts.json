@@ -12,39 +12,6 @@
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-08T02:53:13.838Z",
-  "models": {
-    "PageDataSpaceLayoutReader": {
-      "name": "PageDataSpaceLayoutReader",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceLayout']>['createReader']>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceLayout']>['createReader']>",
-            "targetName": "ReturnType"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "PageDataSpaceLayoutWriter": {
-      "name": "PageDataSpaceLayoutWriter",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "ReturnType<NonNullable<NonNullable<PageRuntimeServicesCapability['dataSpaceLayout']>['createWriter']>>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "ReturnType<NonNullable<NonNullable<PageRuntimeServicesCapability['dataSpaceLayout']>['createWriter']>>",
-            "targetName": "ReturnType"
-          }
-        ],
-        "members": {}
-      }
-    }
-  }
+  "generatedAt": "2026-10-13T21:23:19.777Z",
+  "models": {}
 }

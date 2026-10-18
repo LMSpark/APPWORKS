@@ -35,8 +35,8 @@
         },
         "permissionDeniedMode": {
           "enum": [
-            "hide",
-            "disable"
+            "disable",
+            "hide"
           ]
         },
         "dataSource": {
@@ -48,28 +48,16 @@
         "dataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -187,7 +175,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-07T02:30:26.798Z",
+  "generatedAt": "2026-10-10T13:41:18.158Z",
   "models": {
     "RListProps": {
       "name": "RListProps",
@@ -201,7 +189,7 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {\n    /** 显式收窄为列表容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化列表项动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 列数 */\n    columns?: number;\n    /** 最小项宽度 */\n    minItemWidth?: string;\n    /** 行唯一键字段 */\n    rowKey?: string;\n    /** 空数据提示文案 */\n    emptyText?: string;\n    /** 列表项 CSS 类名 */\n    itemClass?: string;\n    /** 列表项行内样式 */\n    itemStyle?: CSSProperties;\n    /** 使用卡片包裹 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 项跨列数 */\n    itemColSpan?: number;\n    /** 项跨行数 */\n    itemRowSpan?: number;\n    /** 列表项点击回调 */\n    onItemClick?: RowClickHandler;\n    /** 透传给列表根节点的显式属性 */\n    listProps?: Record<string, unknown>;\n    /** 是否显示分页器。默认 true。 */\n    showPagination?: boolean;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {\n    /** 显式收窄为列表容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化列表项动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 列数 */\n    columns?: number;\n    /** 最小项宽度 */\n    minItemWidth?: string;\n    /** 行唯一键字段 */\n    rowKey?: string;\n    /** 空数据提示文案 */\n    emptyText?: string;\n    /** 列表项 CSS 类名 */\n    itemClass?: string;\n    /** 列表项行内样式 */\n    itemStyle?: CSSProperties;\n    /** 使用卡片包裹 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 项跨列数 */\n    itemColSpan?: number;\n    /** 项跨行数 */\n    itemRowSpan?: number;\n    /** 列表项点击回调 */\n    onItemClick?: RowClickHandler;\n    /** 透传给列表根节点的显式属性 */\n    listProps?: Record<string, unknown>;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */\n    showPagination?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -220,7 +208,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 显式收窄为列表容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化列表项动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 列数 */\n    columns?: number;\n    /** 最小项宽度 */\n    minItemWidth?: string;\n    /** 行唯一键字段 */\n    rowKey?: string;\n    /** 空数据提示文案 */\n    emptyText?: string;\n    /** 列表项 CSS 类名 */\n    itemClass?: string;\n    /** 列表项行内样式 */\n    itemStyle?: CSSProperties;\n    /** 使用卡片包裹 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 项跨列数 */\n    itemColSpan?: number;\n    /** 项跨行数 */\n    itemRowSpan?: number;\n    /** 列表项点击回调 */\n    onItemClick?: RowClickHandler;\n    /** 透传给列表根节点的显式属性 */\n    listProps?: Record<string, unknown>;\n    /** 是否显示分页器。默认 true。 */\n    showPagination?: boolean;\n}"
+            "typeText": "{\n    /** 显式收窄为列表容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 结构化列表项动作（toolbar 结构） */\n    actions?: RToolbarProps;\n    /** 列数 */\n    columns?: number;\n    /** 最小项宽度 */\n    minItemWidth?: string;\n    /** 行唯一键字段 */\n    rowKey?: string;\n    /** 空数据提示文案 */\n    emptyText?: string;\n    /** 列表项 CSS 类名 */\n    itemClass?: string;\n    /** 列表项行内样式 */\n    itemStyle?: CSSProperties;\n    /** 使用卡片包裹 */\n    useCard?: boolean;\n    /** 卡片阴影模式 */\n    cardShadow?: 'always' | 'hover' | 'never';\n    /** 项跨列数 */\n    itemColSpan?: number;\n    /** 项跨行数 */\n    itemRowSpan?: number;\n    /** 列表项点击回调 */\n    onItemClick?: RowClickHandler;\n    /** 透传给列表根节点的显式属性 */\n    listProps?: Record<string, unknown>;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。 */\n    showPagination?: boolean;\n}"
           }
         ],
         "members": {
@@ -317,7 +305,7 @@
             },
             {
               "name": "showPagination",
-              "jsdoc": "是否显示分页器。默认 true。",
+              "jsdoc": "是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。",
               "readable": true,
               "writable": false
             }

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor\n职责：通过同一字段DataView维护模型的类型、输出、值函数、说明、排序、分组、脱敏及AI操作配置。\n边界：组件绑定原生编辑覆盖，引用检查、提交和核验交原会话。\nAI用途：数据空间设计的字段配置入口，保留数据权限、取消与待核验保护。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T04:32:27.925Z",
+  "models": {}
+}

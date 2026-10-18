@@ -69,6 +69,9 @@
             },
             "options": {
               "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+            },
+            "config": {
+              "$ref": "../protocol/data-space-request-config.ts.json#/$defs/DataSpaceRequestConfig"
             }
           },
           "additionalProperties": false
@@ -80,7 +83,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T20:52:04.613Z",
+  "generatedAt": "2026-10-10T14:19:50.386Z",
   "models": {
     "DataSpaceQueryResourceOptions": {
       "name": "DataSpaceQueryResourceOptions",
@@ -171,6 +174,17 @@
                     "type": "reference",
                     "name": "DataSpaceQueryOptions",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceRequestConfig",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts"
                   },
                   "flags": {
                     "isOptional": true

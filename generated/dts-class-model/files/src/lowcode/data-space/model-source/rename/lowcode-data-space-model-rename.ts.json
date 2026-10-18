@@ -1,0 +1,479 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename",
+    "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/rename/lowcode-data-space-model-rename",
+    "jsdoc": "@module app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename\n职责：预览并提交模型注册名及本空间结构化引用，接续原场景配置保存。\n边界：原DataView承担权限与批量保存；未知回执只回读，不重放数据库写入。\nAI用途：模型节点的改名输入、预览、提交、取消和恢复流程。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ModelRenameFilePlan",
+      "LowcodeDataSpaceModelRename"
+    ]
+  },
+  "$defs": {
+    "ModelRenameFilePlan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRenameFilePlan",
+      "properties": {
+        "tables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "lowcode-data-space-model-rename-references.ts.json#/$defs/ModelNameChange"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.complete.params": {
+          "type": "object",
+          "properties": {
+            "reconcile": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.complete.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "LowcodeDataSpaceModelRename": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelRename",
+      "properties": {
+        "input": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "changesView": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "lifecycle": {
+              "type": "object",
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": [
+                "unknown",
+                "idle",
+                "ready",
+                "configuration",
+                "readback",
+                "previewing",
+                "saving",
+                "different"
+              ]
+            },
+            "pending": {
+              "type": "boolean"
+            },
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "table": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "property": {
+                    "type": "string"
+                  },
+                  "before": {
+                    "type": "string"
+                  },
+                  "after": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "table",
+                  "id",
+                  "property",
+                  "before",
+                  "after"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "tables": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "verification": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "table": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "property": {
+                    "type": "string"
+                  },
+                  "result": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "table",
+                  "id",
+                  "property",
+                  "result"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "status",
+            "pending",
+            "changes",
+            "tables",
+            "tools",
+            "verification"
+          ],
+          "additionalProperties": false
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": true,
+        "method.release.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.release.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-13T06:06:29.495Z",
+  "models": {
+    "ModelRenameFilePlan": {
+      "name": "ModelRenameFilePlan",
+      "jsdoc": "原场景文件owner提供的绑定变更计划，不提供第二条文件写入通道。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 被变更的内部表键，仅用于预览。 */\n    tables: string[];\n    /** 当前蓝图读取到的工具清单及准确静态引用。 */\n    tools: string[];\n    /** 原工具文件中的完整绑定变更。 */\n    references: ModelNameChange[];\n    /** 派发数据库写入前重核文件基线。 */\n    assertCurrent(): Promise<void>;\n    /** 正式数据库结果一致后保存或核验同一配置。 */\n    complete(reconcile: boolean): Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 被变更的内部表键，仅用于预览。 */\n    tables: string[];\n    /** 当前蓝图读取到的工具清单及准确静态引用。 */\n    tools: string[];\n    /** 原工具文件中的完整绑定变更。 */\n    references: ModelNameChange[];\n    /** 派发数据库写入前重核文件基线。 */\n    assertCurrent(): Promise<void>;\n    /** 正式数据库结果一致后保存或核验同一配置。 */\n    complete(reconcile: boolean): Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tables",
+              "jsdoc": "被变更的内部表键，仅用于预览。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tools",
+              "jsdoc": "当前蓝图读取到的工具清单及准确静态引用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "references",
+              "jsdoc": "原工具文件中的完整绑定变更。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "派发数据库写入前重核文件基线。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "complete",
+              "jsdoc": "正式数据库结果一致后保存或核验同一配置。",
+              "parameters": [
+                {
+                  "name": "reconcile",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelRename": {
+      "name": "LowcodeDataSpaceModelRename",
+      "jsdoc": "一个正式模型的注册名操作；输入和预览均由同一元数据DataSet提供视图。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获正式视图和作用域；文件及生命周期归原设计会话。",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string, modelId: string, lifecycle: Readonly<{\n        assertCurrent(): void;\n        onDispatch(): void;\n        completed(): void;\n        prepareFile(oldName: string, nextName: string): Promise<ModelRenameFilePlan>;\n    }>)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "targetId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "modelId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "lifecycle",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        assertCurrent(): void;\n        onDispatch(): void;\n        completed(): void;\n        prepareFile(oldName: string, nextName: string): Promise<ModelRenameFilePlan>;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "input",
+              "jsdoc": "标准字段绑定的局部输入视图；不持久化为正式元数据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changesView",
+              "jsdoc": "标准列表绑定的只读变更投影。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getState",
+              "jsdoc": "显示操作状态及可读变更，数据权限仍由正式视图核定。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        status: \"unknown\" | \"idle\" | \"ready\" | \"configuration\" | \"readback\" | \"previewing\" | \"saving\" | \"different\";\n        pending: boolean;\n        changes: Readonly<{\n            table: string;\n            id: string;\n            property: string;\n            before: string;\n            after: string;\n        }>[];\n        tables: string[];\n        tools: string[];\n        verification: {\n            table: string;\n            id: string;\n            property: string;\n            result: string;\n        }[];\n    }"
+              }
+            },
+            {
+              "name": "preview",
+              "jsdoc": "在没有正式写入的情况下，检查新名称、权限、引用和场景文件基线。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "只提交预览列出的原记录；数据库与场景文件分别确认，不假设跨来源事务。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "jsdoc": "未知回执只丢弃本操作未被外部修改的本地delta并回读；一致后接续文件保存。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "仅取消未派发的输入与预览，不撤销服务端请求。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "jsdoc": "采用刚回读的正式结果结束未完成操作；不补写引用、不宣称改名成功。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "release",
+              "jsdoc": "仅释放无草稿、无未决提交的局部视图；正式元数据和场景配置保留。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

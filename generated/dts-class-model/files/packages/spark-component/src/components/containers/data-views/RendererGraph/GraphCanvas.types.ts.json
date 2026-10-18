@@ -1,0 +1,426 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphCanvas.types",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphCanvas.types.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphCanvas.types.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererGraph/GraphCanvas.types",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphCanvas.types\n职责：声明标准关系图内部的绘制投影。\n边界：只含经权限检查后的文字、身份与坐标；没有业务查询或保存能力。\nAI用途：业务页绑定RGraphProps，内部画布不作为业务数据入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "GraphCanvasPoint",
+      "GraphCanvasNode",
+      "GraphCanvasEdge",
+      "GraphCanvasProps"
+    ],
+    "componentName": "RendererGraph",
+    "componentType": "r-graph",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "GraphCanvasPoint": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphCanvasPoint",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "additionalProperties": false
+    },
+    "GraphCanvasNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphCanvasNode",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "caption": {
+          "type": "string"
+        },
+        "badge": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "tone": {
+              "enum": [
+                "info",
+                "warning",
+                "success",
+                "danger",
+                "primary"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "tone"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "x",
+        "y",
+        "title",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "GraphCanvasEdge": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphCanvasEdge",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "pointsList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphCanvasPoint"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "GraphCanvasProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphCanvasProps",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphCanvasNode"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphCanvasEdge"
+          }
+        },
+        "connectable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "connectableIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "contextKey": {
+          "type": "string"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "selectedId": {
+          "type": "string"
+        },
+        "draggableIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "viewportControls": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-10T22:34:24.140Z",
+  "models": {
+    "GraphCanvasPoint": {
+      "name": "GraphCanvasPoint",
+      "jsdoc": "画布中的坐标点，单位为像素。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 水平坐标。 */\n    x: number;\n    /** 垂直坐标。 */\n    y: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 水平坐标。 */\n    x: number;\n    /** 垂直坐标。 */\n    y: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "x",
+              "jsdoc": "水平坐标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "jsdoc": "垂直坐标。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "GraphCanvasNode": {
+      "name": "GraphCanvasNode",
+      "jsdoc": "已完成身份及字段权限检查的节点投影。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前图内唯一的绘图身份，与业务主键通过上层映射关联。 */\n    id: string;\n    /** 节点中心的水平坐标。 */\n    x: number;\n    /** 节点中心的垂直坐标。 */\n    y: number;\n    /** 可读的标题文本；上层已处理隐藏和脱敏。 */\n    title: string;\n    /** 可读的说明文本；不传未授权的原始行。 */\n    description: string;\n    /** 经权限检查的类别文字。 */\n    caption?: string;\n    /** 经可读字段规则匹配得到的徽标。 */\n    badge?: Readonly<{\n        /** 徽标文字。 */\n        label: string;\n        /** 标准语义色。 */\n        tone: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前图内唯一的绘图身份，与业务主键通过上层映射关联。 */\n    id: string;\n    /** 节点中心的水平坐标。 */\n    x: number;\n    /** 节点中心的垂直坐标。 */\n    y: number;\n    /** 可读的标题文本；上层已处理隐藏和脱敏。 */\n    title: string;\n    /** 可读的说明文本；不传未授权的原始行。 */\n    description: string;\n    /** 经权限检查的类别文字。 */\n    caption?: string;\n    /** 经可读字段规则匹配得到的徽标。 */\n    badge?: Readonly<{\n        /** 徽标文字。 */\n        label: string;\n        /** 标准语义色。 */\n        tone: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "当前图内唯一的绘图身份，与业务主键通过上层映射关联。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "x",
+              "jsdoc": "节点中心的水平坐标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "y",
+              "jsdoc": "节点中心的垂直坐标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "可读的标题文本；上层已处理隐藏和脱敏。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "可读的说明文本；不传未授权的原始行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "caption",
+              "jsdoc": "经权限检查的类别文字。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "badge",
+              "jsdoc": "经可读字段规则匹配得到的徽标。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "GraphCanvasEdge": {
+      "name": "GraphCanvasEdge",
+      "jsdoc": "指向图内节点身份的关系绘制投影。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "当前图内唯一的关系绘图身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "起点节点绘图身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "jsdoc": "终点节点绘图身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pointsList",
+              "jsdoc": "显式折线路径；缺省时由画布计算连线。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "GraphCanvasProps": {
+      "name": "GraphCanvasProps",
+      "jsdoc": "内部纯绘图合同；业务页通过RendererGraph绑定DataView。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodes",
+              "jsdoc": "已授权的节点绘制投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "edges",
+              "jsdoc": "已授权且端点可解析的关系投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "connectable",
+              "jsdoc": "是否允许拉出新连线；默认允许，标准查看图显式关闭。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "connectableIds",
+              "jsdoc": "可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextKey",
+              "jsdoc": "调用方提供的投影版本，事件原样返回以拒绝过期交互。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "停用全部选择、拖动和连线交互。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "selectedId",
+              "jsdoc": "外部选中的节点或关系绘图身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "draggableIds",
+              "jsdoc": "可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewportControls",
+              "jsdoc": "是否显示只操作视口的缩放与适应控件，默认true。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

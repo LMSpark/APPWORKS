@@ -35,9 +35,7 @@
         "pageService": {
           "type": "object",
           "title": "PageServiceCapability"
-        },
-        "dataSpaceLayout": true,
-        "dataSpaceDesign": true
+        }
       },
       "required": [
         "pageRuntime",
@@ -81,14 +79,14 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T07:59:56.753Z",
+  "generatedAt": "2026-10-13T21:23:19.773Z",
   "models": {
     "PageContextDeps": {
       "name": "PageContextDeps",
       "jsdoc": "buildPageContext 所需的依赖引用",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前页面调用及其场景数据 owner。 */\n    pageRuntime: PageRuntime;\n    signal: AbortSignal;\n    /** page Route 字段。 */\n    pageRoute: PageRoute;\n    /** page Container 字段。 */\n    pageContainer: Ref<HTMLElement | null>;\n    /** page Service 字段。 */\n    pageService: PageServiceCapability;\n    dataSpaceLayout?: PageRuntimeServicesCapability['dataSpaceLayout'];\n    dataSpaceDesign?: PageRuntimeServicesCapability['dataSpaceDesign'];\n    /** 页面级组件注册中心 getter（可选） */\n    getComponentRegistry?: () => PageComponentRegistry | null;\n    /** 构建时捕获当前调用的模块上下文快照。 */\n    getModuleContext?: () => ContextSnapshot | null;\n}",
+        "declarationTypeText": "{\n    /** 当前页面调用及其场景数据 owner。 */\n    pageRuntime: PageRuntime;\n    signal: AbortSignal;\n    /** page Route 字段。 */\n    pageRoute: PageRoute;\n    /** page Container 字段。 */\n    pageContainer: Ref<HTMLElement | null>;\n    /** page Service 字段。 */\n    pageService: PageServiceCapability;\n    /** 页面级组件注册中心 getter（可选） */\n    getComponentRegistry?: () => PageComponentRegistry | null;\n    /** 构建时捕获当前调用的模块上下文快照。 */\n    getModuleContext?: () => ContextSnapshot | null;\n}",
         "members": {
           "attributes": [
             {
@@ -119,16 +117,6 @@
               "jsdoc": "page Service 字段。",
               "readable": true,
               "writable": true
-            },
-            {
-              "name": "dataSpaceLayout",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "dataSpaceDesign",
-              "readable": true,
-              "writable": false
             }
           ],
           "methods": [

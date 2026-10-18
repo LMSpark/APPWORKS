@@ -219,7 +219,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -274,7 +274,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@158691"
+                "__@iterator@194633"
               ],
               "additionalProperties": false
             },
@@ -504,7 +504,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -559,7 +559,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@158691"
+                "__@iterator@194633"
               ],
               "additionalProperties": false
             },
@@ -845,7 +845,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@158691": {
+                    "__@iterator@194633": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -900,7 +900,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@158691"
+                    "__@iterator@194633"
                   ],
                   "additionalProperties": false
                 },
@@ -908,16 +908,10 @@
                   "const": "enum"
                 },
                 {
-                  "const": "float"
+                  "const": "decimal"
                 },
                 {
                   "const": "date"
-                },
-                {
-                  "const": "datetime"
-                },
-                {
-                  "const": "decimal"
                 },
                 {
                   "const": "text"
@@ -932,10 +926,16 @@
                   "const": "bool"
                 },
                 {
+                  "const": "float"
+                },
+                {
                   "const": "double"
                 },
                 {
                   "const": "varchar"
+                },
+                {
+                  "const": "datetime"
                 }
               ]
             },
@@ -1250,7 +1250,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1305,7 +1305,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@158691"
+                "__@iterator@194633"
               ],
               "additionalProperties": false
             },
@@ -1538,7 +1538,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1593,7 +1593,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@158691"
+                "__@iterator@194633"
               ],
               "additionalProperties": false
             },
@@ -1943,7 +1943,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@158691": {
+                    "__@iterator@194633": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -1998,7 +1998,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@158691"
+                    "__@iterator@194633"
                   ],
                   "additionalProperties": false
                 },
@@ -2006,16 +2006,10 @@
                   "const": "enum"
                 },
                 {
-                  "const": "float"
+                  "const": "decimal"
                 },
                 {
                   "const": "date"
-                },
-                {
-                  "const": "datetime"
-                },
-                {
-                  "const": "decimal"
                 },
                 {
                   "const": "text"
@@ -2030,10 +2024,16 @@
                   "const": "bool"
                 },
                 {
+                  "const": "float"
+                },
+                {
                   "const": "double"
                 },
                 {
                   "const": "varchar"
+                },
+                {
+                  "const": "datetime"
                 }
               ]
             },
@@ -2374,7 +2374,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2429,7 +2429,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@158691"
+                "__@iterator@194633"
               ],
               "additionalProperties": false
             },
@@ -2662,7 +2662,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2717,7 +2717,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@158691"
+                "__@iterator@194633"
               ],
               "additionalProperties": false
             },
@@ -2814,6 +2814,9 @@
         "updates": {
           "type": "object",
           "properties": {
+            "onRequestComplete": {
+              "type": "string"
+            },
             "tableName": {
               "type": "string"
             },
@@ -2828,6 +2831,58 @@
             },
             "queryContext": {
               "$ref": "types.ts.json#/$defs/DataViewQueryContext"
+            },
+            "queryConfig": {
+              "type": "object",
+              "properties": {
+                "tree": {
+                  "$ref": "../../spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "outputType": {
+                  "type": "string"
+                },
+                "allPages": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "maxRows": {
+                  "type": "number"
+                },
+                "sourceInputMode": {
+                  "enum": [
+                    "mapped",
+                    "direct"
+                  ]
+                },
+                "cacheType": {
+                  "enum": [
+                    "page",
+                    "none",
+                    "browser"
+                  ]
+                },
+                "autoQuery": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "filterLookups": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "types.ts.json#/$defs/DataViewFilterLookupConfig"
+                  }
+                }
+              },
+              "additionalProperties": false
             },
             "rows": {
               "type": "array",
@@ -3000,12 +3055,12 @@
           "properties": {
             "type": {
               "enum": [
-                "join",
                 "sum",
                 "count",
                 "avg",
                 "min",
-                "max"
+                "max",
+                "join"
               ]
             },
             "field": {
@@ -3386,6 +3441,44 @@
                         "$ref": "types.ts.json#/$defs/DataViewCascadeFilterBinding"
                       }
                     },
+                    "inputBindings": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "types.ts.json#/$defs/DataViewCascadeInputBinding"
+                      }
+                    },
+                    "when": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "equals": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "field",
+                          "equals"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
                     "autoLoad": {
                       "enum": [
                         false,
@@ -3587,6 +3680,44 @@
                         "$ref": "types.ts.json#/$defs/DataViewCascadeFilterBinding"
                       }
                     },
+                    "inputBindings": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "types.ts.json#/$defs/DataViewCascadeInputBinding"
+                      }
+                    },
+                    "when": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "equals": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "field",
+                          "equals"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
                     "autoLoad": {
                       "enum": [
                         false,
@@ -3767,6 +3898,30 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "DataSetCrudTool",
+      "properties": {
+        "dataSet": {
+          "$ref": "dataset.ts.json#/$defs/DataSet"
+        },
+        "dataSetName": {
+          "type": "string"
+        },
+        "canUndo": {
+          "type": "boolean"
+        },
+        "canRedo": {
+          "type": "boolean"
+        },
+        "historyCursor": {
+          "type": "number"
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "$ref": "data-table.ts.json#/$defs/DataTable"
+          }
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -4489,7 +4644,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T19:28:48.777Z",
+  "generatedAt": "2026-10-10T09:59:07.505Z",
   "models": {
     "DataSetCrudToolCreateTableOptions": {
       "name": "DataSetCrudToolCreateTableOptions",
@@ -5432,6 +5587,41 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "当前工具类持有的 DataSet 实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSetName",
+              "jsdoc": "返回当前工具类绑定的 DataSet 名称。\n@returns DataSet 名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canUndo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canRedo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "historyCursor",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tables",
+              "jsdoc": "当前 DataSet 中的全部数据表。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "fromDataSet",

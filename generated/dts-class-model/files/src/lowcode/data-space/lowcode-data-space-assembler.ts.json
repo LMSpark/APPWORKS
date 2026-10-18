@@ -56,6 +56,12 @@
         },
         "raw": {
           "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
         }
       },
       "required": [
@@ -111,6 +117,14 @@
           "type": "array",
           "items": {
             "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRelation"
+          }
+        },
+        "fileExecutors": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "Executor"
           }
         }
       },
@@ -175,7 +189,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T15:02:44.320Z",
+  "generatedAt": "2026-10-18T12:18:49.492Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -227,11 +241,11 @@
       "jsdoc": "装配输入：同场景视图配置与后端正式模型、关系，不从物理资源猜定义。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n}>",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -254,6 +268,12 @@
             },
             {
               "name": "relations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileExecutors",
+              "jsdoc": "显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。",
               "readable": true,
               "writable": false
             }
@@ -292,7 +312,7 @@
     },
     "LowcodeDataSpaceAssembler": {
       "name": "LowcodeDataSpaceAssembler",
-      "jsdoc": "正式模型负责字段定义；场景文件只配置稳定表名和视图。",
+      "jsdoc": "后端模型提供正式字段，显式文件表使用配置列及注入的资源owner；两者装配到同一DataSet。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {

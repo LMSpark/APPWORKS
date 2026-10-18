@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/view-design/lowcode-data-space-view-metadata",
+    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-metadata.ts",
+    "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-metadata.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/view-design/lowcode-data-space-view-metadata",
+    "jsdoc": "app 的 lowcode/data-space/view-design/lowcode-data-space-view-metadata 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceViewMetadata（共 1 个 symbol）。",
+    "jsdocSource": "inferred",
+    "symbols": [
+      "LowcodeDataSpaceViewMetadata"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceViewMetadata": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceViewMetadata",
+      "properties": {
+        "tableName": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setFieldOptions.params": {
+          "type": "object",
+          "properties": {
+            "definition": {
+              "anyOf": [
+                {
+                  "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setFieldOptions.return": true,
+        "method.setViewFieldOptions.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            },
+            "catalog": {
+              "$ref": "lowcode-data-space-view-fields.ts.json#/$defs/LowcodeDataSpaceViewFieldCatalog"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setViewFieldOptions.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.assertClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertClean.return": true,
+        "method.assertViewsClean.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertViewsClean.return": true,
+        "method.reset.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reset.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-17T17:14:09.680Z",
+  "models": {
+    "LowcodeDataSpaceViewMetadata": {
+      "name": "LowcodeDataSpaceViewMetadata",
+      "jsdoc": "定义视图及字段候选的业务接线；变更状态只由原DataView持有。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "使用所属元数据DataSet的文件定义视图，并接入可重建的字段候选。",
+          "signatureText": "constructor(dataSet: DataSet)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "setFieldOptions",
+              "jsdoc": "Rebuild disposable candidates from the native definition; never persist them as target model data.",
+              "parameters": [
+                {
+                  "name": "definition",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSet"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "setViewFieldOptions",
+              "jsdoc": "刷新所选视图的临时字段候选及已注册的字段级联，不修改其他视图定义或编辑。\n@param tableName 当前配置中的模型表键。\n@param viewId 所属模型的命名视图。\n@param catalog 原生视图投影的字段和实际主键；主键及计算字段不可作为写入目标。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "catalog",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceViewFieldCatalog",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertClean",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertViewsClean",
+              "jsdoc": "绑定删除命令允许继续合并绑定变更，但不能覆盖视图属性编辑。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reset",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

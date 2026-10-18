@@ -7,13 +7,12 @@
     "sourceFile": "src/services/sse-events.ts",
     "packageName": "app",
     "modulePath": "services/sse-events",
-    "jsdoc": "@module app:services/sse-events\n职责：提供应用运行时 service 层的 sse events 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 公共 SSE 事件总线。\n本文件只维护 lowcode `/api/sse/connect` 的单例连接、普通业务事件与 v4 SparkEnvelope 分流，以及按事件名分发。\n页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。",
+    "jsdoc": "@module app:services/sse-events\n职责：提供应用运行时 service 层的 sse events 能力，连接项目模型、AI Host、租户上下文或页面设计流程。\n边界：负责 src 应用侧编排，不修改底层包协议，也不绕过已注册的 capability/data 管线。\nAI用途：排查应用侧服务如何调用 spark-ai 或项目模型时，用本模块确认运行时接线。\n\nAPP 公共 SSE 事件总线。\n本文件只维护 lowcode `/api/sse/connect` 的单例连接、普通业务事件与 v4 SparkEnvelope 分流，以及按事件名分发。\n后端推送帧不带 SSE 事件名；通知类消息按 messageType 先行分流，其余按 envelope 名或 title 路由。\n页面配置、数据任务、通知和 lowcode Agent turn 等业务动作在各自订阅方处理。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "FileChangeEvent",
       "DataBatchJobEvent",
-      "DataChangeEvent",
-      "ServerNotificationEvent"
+      "DataChangeEvent"
     ]
   },
   "$defs": {
@@ -113,46 +112,9 @@
         "timestamp"
       ],
       "additionalProperties": false
-    },
-    "ServerNotificationEvent": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ServerNotificationEvent",
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "message": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "number"
-        },
-        "notificationId": {
-          "type": "string"
-        },
-        "level": {
-          "type": "string"
-        },
-        "category": {
-          "type": "string"
-        },
-        "source": {
-          "type": "string"
-        },
-        "actionUrl": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "title",
-        "message",
-        "timestamp"
-      ],
-      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-05T10:07:52.917Z",
+  "generatedAt": "2026-10-17T08:20:00.801Z",
   "models": {
     "FileChangeEvent": {
       "name": "FileChangeEvent",
@@ -291,66 +253,6 @@
             {
               "name": "jobId",
               "jsdoc": "job Id 标识。",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "ServerNotificationEvent": {
-      "name": "ServerNotificationEvent",
-      "jsdoc": "Server Notification Event 的事件载荷。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "{\n    /** 显示标题。 */\n    title: string;\n    /** 用户可读消息。 */\n    message: string;\n    /** 事件时间戳。 */\n    timestamp: number;\n    /** notification Id 标识。 */\n    notificationId?: string;\n    /** level 字段。 */\n    level?: string;\n    /** category 字段。 */\n    category?: string;\n    /** 来源对象。 */\n    source?: string;\n    /** action Url 地址。 */\n    actionUrl?: string;\n}",
-        "members": {
-          "attributes": [
-            {
-              "name": "title",
-              "jsdoc": "显示标题。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "message",
-              "jsdoc": "用户可读消息。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "timestamp",
-              "jsdoc": "事件时间戳。",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "notificationId",
-              "jsdoc": "notification Id 标识。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "level",
-              "jsdoc": "level 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "category",
-              "jsdoc": "category 字段。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "source",
-              "jsdoc": "来源对象。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "actionUrl",
-              "jsdoc": "action Url 地址。",
               "readable": true,
               "writable": false
             }

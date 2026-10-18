@@ -255,6 +255,27 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "DataSpaceQueryContext",
+      "properties": {
+        "resultPrimaryKey": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "countReported": {
+          "type": "boolean"
+        },
+        "allowAdd": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -271,6 +292,15 @@
             "model": {
               "type": "object",
               "title": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "aggregateResult": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -392,6 +422,18 @@
         "method.fieldAccess.return": {
           "$ref": "../protocol/data-space-permission.ts.json#/$defs/DataSpaceFieldAccess"
         },
+        "method.isFieldReadOnly.params": {
+          "type": "object",
+          "properties": {
+            "fieldName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isFieldReadOnly.return": {
+          "type": "boolean"
+        },
         "method.readFieldAccess.params": {
           "type": "object",
           "properties": {
@@ -459,7 +501,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T06:53:58.978Z",
+  "generatedAt": "2026-10-12T23:26:25.456Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -741,6 +783,34 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "resultPrimaryKey",
+              "jsdoc": "本次结果行的稳定身份；汇总结果为空，不改变来源模型的正式主键，不将汇总行作为CRUD原行基线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "total",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "countReported",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowAdd",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "bindFormalModel",
@@ -762,6 +832,22 @@
                         ]
                       }
                     ]
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        aggregateResult?: boolean;\n    }"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],
@@ -989,6 +1075,23 @@
                 "type": "reference",
                 "name": "DataSpaceFieldAccess",
                 "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts"
+              }
+            },
+            {
+              "name": "isFieldReadOnly",
+              "jsdoc": "正式模型的值函数输出不可作为写入字段；使用输出别名匹配，新增与既有行共享此结构约束。\n这不是数据授权：false不授予写权限，读取与必填仍消费原查询结果；Expression脱敏规则不构成只读依据。",
+              "parameters": [
+                {
+                  "name": "fieldName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
               }
             },
             {

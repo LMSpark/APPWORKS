@@ -23,28 +23,16 @@
         "dataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -76,7 +64,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T20:17:53.700Z",
+  "generatedAt": "2026-10-16T05:14:03.119Z",
   "models": {
     "DisplayDataProps": {
       "name": "DisplayDataProps",

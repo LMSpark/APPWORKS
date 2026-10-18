@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-source-input",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/query/data-space-source-input",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-source-input\n职责：将正式来源入参映射应用到一次已捕获的业务输入。\n边界：只执行明确的输入引用和JSON常量，不模拟服务端系统值或身份。\nAI用途：保留输入类型、映射优先级和同次取值快照，拒绝无执行合同的函数。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceSourceInputBinding",
+      "DataSpaceSourceInput"
+    ]
+  },
+  "$defs": {
+    "DataSpaceSourceInputBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSourceInputBinding",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "valueFunction": {
+          "$ref": "../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterValueFunction"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceSourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSourceInput",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resolve.params": {
+          "type": "object",
+          "properties": {
+            "bindings": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceSourceInputBinding"
+              }
+            },
+            "inputs": {
+              "type": "array",
+              "items": {
+                "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryInput"
+              }
+            },
+            "mode": {
+              "enum": [
+                "mapped",
+                "direct"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolve.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryInput"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-11T07:06:59.546Z",
+  "models": {
+    "DataSpaceSourceInputBinding": {
+      "name": "DataSpaceSourceInputBinding",
+      "jsdoc": "数据库输入字段记录的消费定义；缺少valueFunction表示尚未完成配置，不等同同名透传。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** Base_DataModel_Field 正式记录身份，用于诊断和精确回读。 */\n    id: string;\n    /** 来源接收的参数名称，不是空间调用参数名称。 */\n    name: string;\n    /** 原记录取值函数；未配置与不支持的函数均不隐式透传。 */\n    valueFunction?: DataViewFilterValueFunction;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** Base_DataModel_Field 正式记录身份，用于诊断和精确回读。 */\n    id: string;\n    /** 来源接收的参数名称，不是空间调用参数名称。 */\n    name: string;\n    /** 原记录取值函数；未配置与不支持的函数均不隐式透传。 */\n    valueFunction?: DataViewFilterValueFunction;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "Base_DataModel_Field 正式记录身份，用于诊断和精确回读。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "来源接收的参数名称，不是空间调用参数名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFunction",
+              "jsdoc": "原记录取值函数；未配置与不支持的函数均不隐式透传。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceSourceInput": {
+      "name": "DataSpaceSourceInput",
+      "jsdoc": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "resolve",
+              "jsdoc": "mapped从原输入快照求值并覆盖同名出站参数；direct须按正式来源名完整提供值，不执行保存的取值函数。返回独立JSON值。",
+              "parameters": [
+                {
+                  "name": "bindings",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceSourceInputBinding[]"
+                  }
+                },
+                {
+                  "name": "inputs",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "unknown",
+                      "name": "readonly DataSpaceQueryInput[]"
+                    }
+                  }
+                },
+                {
+                  "name": "mode",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "mapped"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "direct"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataSpaceQueryInput[]"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

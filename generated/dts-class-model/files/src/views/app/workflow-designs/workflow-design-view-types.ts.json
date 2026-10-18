@@ -132,7 +132,13 @@
             "child"
           ]
         },
-        "graphView": true,
+        "graphView": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "WorkflowDesignGraphView"
+        },
         "collapsed": {
           "enum": [
             false,
@@ -212,10 +218,14 @@
         "lineKey": {
           "type": "string"
         },
-        "lineType": true,
+        "lineType": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineType"
+        },
         "controlPoints": {
           "type": "array",
-          "items": true
+          "items": {
+            "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineControlPoint"
+          }
         },
         "runtimeStatus": {
           "$ref": "#/$defs/WorkflowLineRuntimeStatus"
@@ -235,8 +245,8 @@
       "enum": [
         "completed",
         "failed",
-        "running",
         "idle",
+        "running",
         "skipped"
       ]
     },
@@ -338,14 +348,18 @@
         "index": {
           "type": "number"
         },
-        "graph": true,
+        "graph": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignGraph"
+        },
         "startClientX": {
           "type": "number"
         },
         "startClientY": {
           "type": "number"
         },
-        "startPoint": true
+        "startPoint": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineControlPoint"
+        }
       },
       "required": [
         "lineKey",
@@ -379,7 +393,9 @@
             }
           ]
         },
-        "graphView": true
+        "graphView": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignGraphView"
+        }
       },
       "required": [
         "event",
@@ -832,12 +848,6 @@
               "type": "object",
               "title": "ClassValue"
             },
-            "role": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
             "onError": {
               "type": "object",
               "title": "(payload: Event) => void"
@@ -859,12 +869,21 @@
                 "until-found"
               ]
             },
-            "typeof": {
+            "title": {
+              "type": "string"
+            },
+            "resource": {
+              "type": "string"
+            },
+            "placeholder": {
               "type": "string"
             },
             "onChange": {
               "type": "object",
               "title": "(payload: Event) => void"
+            },
+            "role": {
+              "type": "string"
             },
             "onProgress": {
               "type": "object",
@@ -874,16 +893,9 @@
               "type": "object",
               "title": "(payload: UIEvent) => void"
             },
-            "placeholder": {
-              "type": "string"
-            },
             "onInvalid": {
               "type": "object",
               "title": "(payload: Event) => void"
-            },
-            "onInput": {
-              "type": "object",
-              "title": "(payload: InputEvent) => void"
             },
             "onFullscreenchange": {
               "type": "object",
@@ -1012,6 +1024,10 @@
             "onGotpointercapture": {
               "type": "object",
               "title": "(payload: PointerEvent) => void"
+            },
+            "onInput": {
+              "type": "object",
+              "title": "(payload: InputEvent) => void"
             },
             "onKeypress": {
               "type": "object",
@@ -1201,7 +1217,7 @@
               "type": "object",
               "title": "(payload: WheelEvent) => void"
             },
-            "resource": {
+            "property": {
               "type": "string"
             },
             "onDragexit": {
@@ -1235,22 +1251,22 @@
               "enum": [
                 "done",
                 "search",
-                "send",
                 "next",
+                "previous",
                 "enter",
                 "go",
-                "previous"
+                "send"
               ]
             },
             "enterKeyHint": {
               "enum": [
                 "done",
                 "search",
-                "send",
                 "next",
+                "previous",
                 "enter",
                 "go",
-                "previous"
+                "send"
               ]
             },
             "inert": {
@@ -1301,7 +1317,7 @@
             "prefix": {
               "type": "string"
             },
-            "property": {
+            "typeof": {
               "type": "string"
             },
             "vocab": {
@@ -1358,12 +1374,12 @@
             "inputmode": {
               "enum": [
                 "none",
-                "email",
-                "url",
                 "decimal",
+                "email",
                 "search",
                 "tel",
                 "text",
+                "url",
                 "numeric"
               ]
             },
@@ -1450,12 +1466,12 @@
                 false,
                 true,
                 "page",
-                "date",
                 "true",
                 "false",
+                "date",
                 "time",
-                "location",
-                "step"
+                "step",
+                "location"
               ]
             },
             "aria-describedby": {
@@ -1512,9 +1528,9 @@
                 "false",
                 "dialog",
                 "menu",
-                "grid",
                 "tree",
-                "listbox"
+                "listbox",
+                "grid"
               ]
             },
             "aria-hidden": {
@@ -1793,9 +1809,15 @@
       "type": "object",
       "title": "LineEndpointPatchValidationCommand",
       "properties": {
-        "line": true,
-        "from": true,
-        "to": true,
+        "line": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineView"
+        },
+        "from": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineEndpoint"
+        },
+        "to": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignLineEndpoint"
+        },
         "options": {
           "type": "object",
           "properties": {
@@ -1825,7 +1847,9 @@
         "graphKey": {
           "type": "string"
         },
-        "nodeKind": true,
+        "nodeKind": {
+          "$ref": "../../../services/workflow-designs.ts.json#/$defs/WorkflowDesignNodeCreateKind"
+        },
         "id": {
           "type": "string"
         },
@@ -2097,6 +2121,61 @@
       "required": [
         "label",
         "value"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowRuntimeBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowRuntimeBinding",
+      "properties": {
+        "registration": {
+          "$ref": "../../../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeRuntimeRegistration"
+        },
+        "inputContract": {
+          "$ref": "../../../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeInputContract"
+        },
+        "systemPrompt": {
+          "$ref": "../../../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeSystemPrompt"
+        },
+        "modelProjectionRef": {
+          "$ref": "../../../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeModelProjectionRef"
+        },
+        "executableRef": {
+          "$ref": "../../../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeExecutableRef"
+        },
+        "resolveInstance": {
+          "$ref": "../../../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeResolveInstance"
+        },
+        "toolLoopNudge": {
+          "$ref": "../../../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeToolLoopNudge"
+        },
+        "beforeFunctionCall": {
+          "$ref": "../../../../packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json#/$defs/AgentWorkflowNodeBeforeFunctionCall"
+        },
+        "executionToolNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "planWithoutToolMarkers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "agentCompleteMethodName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "registration",
+        "inputContract",
+        "systemPrompt",
+        "modelProjectionRef",
+        "executableRef",
+        "resolveInstance"
       ],
       "additionalProperties": false
     }

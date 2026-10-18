@@ -75,6 +75,12 @@
         },
         "style": {
           "$ref": "content/text-file.ts.json#/$defs/PageTextFile"
+        },
+        "isLoaded": {
+          "type": "boolean"
+        },
+        "nodeTree": {
+          "$ref": "../../../spark-data/src/node-tree/spark-node-tree.ts.json#/$defs/SparkNodeTree"
         }
       },
       "additionalProperties": false,
@@ -136,6 +142,18 @@
           "additionalProperties": false
         },
         "method.getFileText.return": {
+          "type": "string"
+        },
+        "method.getSavedFileText.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "page-file.ts.json#/$defs/PageToolFileName"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getSavedFileText.return": {
           "type": "string"
         },
         "method.setFileText.params": {
@@ -251,7 +269,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-06T20:49:03.262Z",
+  "generatedAt": "2026-10-15T12:22:16.922Z",
   "models": {
     "PageToolOptions": {
       "name": "PageToolOptions",
@@ -342,6 +360,16 @@
               "name": "style",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "isLoaded",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeTree",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
@@ -413,6 +441,24 @@
             },
             {
               "name": "getFileText",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "getSavedFileText",
+              "jsdoc": "指定工具文件的已确认基线，不读取远端或改变当前编辑。",
               "parameters": [
                 {
                   "name": "name",

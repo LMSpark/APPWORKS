@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.props",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.props\n职责：连接数据级联配置与当前元数据会话。\n边界：接收元数据行身份，复用原文件保存与校验责任方。\nAI用途：在层次页面维护两种原生级联。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceCascadeEditorProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceCascadeEditorProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceCascadeEditorProps",
+      "properties": {
+        "session": {
+          "$ref": "../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+        },
+        "rowKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "revision": {
+          "type": "number"
+        },
+        "disabled": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "session",
+        "rowKey",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-09T23:49:06.236Z",
+  "models": {
+    "DataSpaceCascadeEditorProps": {
+      "name": "DataSpaceCascadeEditorProps",
+      "jsdoc": "数据级联编辑器的当前调用上下文。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "DataSpaceCascadeEditor"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 元数据及场景文件的原会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 原生级联定义行主键；无值时编辑集合。 */\n    rowKey: string | number | undefined;\n    /** 页面刷新信号。 */\n    revision: number;\n    /** 页面占用锁，不扩大数据权限。 */\n    disabled?: boolean;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "session",
+              "jsdoc": "元数据及场景文件的原会话。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rowKey",
+              "jsdoc": "原生级联定义行主键；无值时编辑集合。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "revision",
+              "jsdoc": "页面刷新信号。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "页面占用锁，不扩大数据权限。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

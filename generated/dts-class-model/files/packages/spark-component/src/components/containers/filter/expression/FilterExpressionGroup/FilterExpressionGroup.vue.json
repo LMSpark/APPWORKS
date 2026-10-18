@@ -7,11 +7,11 @@
     "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.vue",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup",
-    "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup\n职责：递归编辑分组、条件和显式常量。边界：原样保留未知运算符和无效草稿，最终校验归编辑器；AI用途：可用此组件理解条件树交互。",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup\n职责：按参考FilterGroupEditor呈现分组、类型常量及值函数。边界：保留无效原文，不查询或持久化；校验归DataViewFilter。AI用途：通过字段元信息生成有类型的条件树编辑交互。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-06T21:12:20.472Z",
+  "generatedAt": "2026-10-12T07:36:39.959Z",
   "models": {}
 }

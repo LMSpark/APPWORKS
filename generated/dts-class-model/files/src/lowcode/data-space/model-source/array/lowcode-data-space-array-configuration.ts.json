@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/array/lowcode-data-space-array-configuration",
+    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-configuration.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/array/lowcode-data-space-array-configuration",
+    "jsdoc": "@module app:lowcode/data-space/model-source/array/lowcode-data-space-array-configuration\n职责：按正式字段身份同时迁移数组模型在场景配置中的输出引用。\n边界：只变换定义，不保存；常量、显式别名和内部表键保持，不猜测表达式。\nAI用途：数组表头保存复用原场景文件owner，名称交换不串行替换。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceArrayConfiguration"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceArrayConfiguration": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceArrayConfiguration",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.names.params": {
+          "type": "object",
+          "properties": {
+            "change": {
+              "$ref": "lowcode-data-space-array-edit.ts.json#/$defs/ArrayDefinitionChange"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.names.return": {
+          "type": "object",
+          "title": "ReadonlyMap<string, string>"
+        },
+        "method.rewrite.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            "change": {
+              "$ref": "lowcode-data-space-array-edit.ts.json#/$defs/ArrayDefinitionChange"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.rewrite.return": {
+          "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-12T00:33:43.013Z",
+  "models": {
+    "LowcodeDataSpaceArrayConfiguration": {
+      "name": "LowcodeDataSpaceArrayConfiguration",
+      "jsdoc": "一次已确认表头变更的场景投影；不持有运行状态或数据权限。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "一次已确认表头变更的场景投影；不持有运行状态或数据权限。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "names",
+              "jsdoc": "将原输出名映射到相同正式字段的最终输出名；显式别名未变时不迁移。",
+              "parameters": [
+                {
+                  "name": "change",
+                  "type": {
+                    "type": "reference",
+                    "name": "ArrayDefinitionChange",
+                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReadonlyMap",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "rewrite",
+              "jsdoc": "对原文件一次性生成候选，不对已迁移文件重新执行名称交换。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig"
+                  }
+                },
+                {
+                  "name": "change",
+                  "type": {
+                    "type": "reference",
+                    "name": "ArrayDefinitionChange",
+                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ScenarioViewConfig"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/integration/api-management/ui/api-interface-list-page.props",
+    "sourcePath": "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts",
+    "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/integration/api-management/ui/api-interface-list-page.props",
+    "jsdoc": "@module app:views/features/integration/api-management/ui/api-interface-list-page.props\n职责：声明原接口设计页的目标身份。\n边界：不传业务数组或凭据；正式空间由组合根装配。\nAI用途：目录选中的服务商主键作为独立方案窗口输入。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApiInterfaceListPageProps"
+    ]
+  },
+  "$defs": {
+    "ApiInterfaceListPageProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiInterfaceListPageProps",
+      "properties": {
+        "providerId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "providerId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-10T19:15:07.475Z",
+  "models": {
+    "ApiInterfaceListPageProps": {
+      "name": "ApiInterfaceListPageProps",
+      "jsdoc": "@module app:views/features/integration/api-management/ui/api-interface-list-page.props\n职责：声明原接口设计页的目标身份。\n边界：不传业务数组或凭据；正式空间由组合根装配。\nAI用途：目录选中的服务商主键作为独立方案窗口输入。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "api-interface-list-page"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 正式服务商主键。 */\n    providerId: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "providerId",
+              "jsdoc": "正式服务商主键。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

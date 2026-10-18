@@ -17,10 +17,18 @@
       "type": "object",
       "title": "TableMetadataLike",
       "properties": {
-        "columns": {
-          "type": "array",
-          "items": {
-            "$ref": "types.ts.json#/$defs/DataColumn"
+        "views": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "$ref": "types.ts.json#/$defs/ViewMetadata"
+            }
+          },
+          "required": [
+            "default"
+          ],
+          "additionalProperties": {
+            "$ref": "types.ts.json#/$defs/ViewMetadata"
           }
         },
         "resourceType": {
@@ -223,7 +231,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -278,7 +286,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@158691"
+                "__@iterator@194633"
               ],
               "additionalProperties": false
             },
@@ -508,7 +516,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -563,7 +571,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@158691"
+                "__@iterator@194633"
               ],
               "additionalProperties": false
             },
@@ -577,6 +585,12 @@
               "const": "reference"
             }
           ]
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataColumn"
+          }
         },
         "api": {
           "anyOf": [
@@ -594,32 +608,18 @@
         "crudConfig": {
           "$ref": "types.ts.json#/$defs/CrudOperationConfig"
         },
-        "views": {
-          "type": "object",
-          "properties": {
-            "default": {
-              "$ref": "types.ts.json#/$defs/ViewMetadata"
-            }
-          },
-          "required": [
-            "default"
-          ],
-          "additionalProperties": {
-            "$ref": "types.ts.json#/$defs/ViewMetadata"
-          }
-        },
         "tableName": {
           "type": "string"
         }
       },
       "required": [
-        "columns",
-        "views"
+        "views",
+        "columns"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-05T19:49:37.394Z",
+  "generatedAt": "2026-10-11T08:46:53.335Z",
   "models": {
     "TableMetadataLike": {
       "name": "TableMetadataLike",

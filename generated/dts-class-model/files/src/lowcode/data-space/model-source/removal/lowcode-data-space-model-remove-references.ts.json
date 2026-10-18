@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references",
+    "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references",
+    "jsdoc": "@module app:lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references\n职责：阻止删除仍被本空间结构化配置引用的模型。\n边界：不改写引用，不把常量文本解释为引用；不透明表达式明确要求先处理。\nAI用途：删除前检查正式模型、字段和存活关系的调用依赖。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceModelRemoveReferences"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceModelRemoveReferences": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelRemoveReferences",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "modelName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-12T11:49:20.873Z",
+  "models": {
+    "LowcodeDataSpaceModelRemoveReferences": {
+      "name": "LowcodeDataSpaceModelRemoveReferences",
+      "jsdoc": "只消费当前元数据视图的可读定义，不建立引用或权限缓存。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "只消费当前元数据视图的可读定义，不建立引用或权限缓存。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "validate",
+              "jsdoc": "检查注册模型引用；dataModel输出GetRefData引用物理资源，不随元模型删除。字段种类须可读，其他未知语义阻止自动删除，原定义不改动。",
+              "parameters": [
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataView[]"
+                  }
+                },
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "modelName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

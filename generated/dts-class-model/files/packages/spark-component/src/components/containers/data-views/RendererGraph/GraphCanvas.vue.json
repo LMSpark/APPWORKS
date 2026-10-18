@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphCanvas",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphCanvas.vue",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphCanvas.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererGraph/GraphCanvas",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphCanvas\n职责：绘制授权后的节点、连线和布局，发送带版本的交互事件。\n边界：内部绘图实现，不读取DataSet、不执行保存或推导数据权限。\nAI用途：业务页使用RendererGraph绑定视图，此组件仅用于数据容器内部。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "RendererGraph",
+    "componentType": "r-graph",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "MovedEdge": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "MovedEdge",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "pointsList": {
+          "type": "array",
+          "items": {
+            "$ref": "GraphCanvas.types.ts.json#/$defs/GraphCanvasPoint"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "pointsList"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-13T23:37:14.981Z",
+  "models": {
+    "MovedEdge": {
+      "name": "MovedEdge",
+      "jsdoc": "节点拖动时同步移动的连线路径。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 当前图内的关系绘图身份。 */\n    id: string;\n    /** 更新后的折线路径，保留固定端点。 */\n    pointsList: GraphCanvasPoint[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "当前图内的关系绘图身份。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pointsList",
+              "jsdoc": "更新后的折线路径，保留固定端点。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

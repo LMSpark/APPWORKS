@@ -14,6 +14,139 @@
     ]
   },
   "$defs": {
+    "PageDataSpaceModelSourceQuery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSourceQuery",
+      "properties": {
+        "type": {
+          "$ref": "lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceType"
+        },
+        "keyword": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "page": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "PageDataSpaceModelSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSource",
+      "properties": {
+        "type": {
+          "$ref": "lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceType"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "dbid": {
+          "type": "string"
+        },
+        "databaseName": {
+          "type": "string"
+        },
+        "providerId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "name",
+        "description",
+        "dbid",
+        "databaseName",
+        "providerId"
+      ],
+      "additionalProperties": false
+    },
+    "PageDataSpaceModelSourcePrepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceModelSourcePrepared",
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/PageDataSpaceModelSource"
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "type": "string"
+            },
+            "MetaName": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "DbId": {
+              "type": "string"
+            },
+            "DbName": {
+              "type": "string"
+            },
+            "JoinType": {
+              "type": "string"
+            },
+            "ForeignKeyFields": {
+              "type": "string"
+            },
+            "JoinFilter": {
+              "type": "string"
+            },
+            "PId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Type",
+            "MetaName",
+            "description",
+            "DbId",
+            "DbName",
+            "JoinType",
+            "ForeignKeyFields",
+            "JoinFilter",
+            "PId"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceField"
+          }
+        }
+      },
+      "required": [
+        "source",
+        "model",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeDataSpaceModelSourceReader": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -28,8 +161,10 @@
           "type": "object",
           "properties": {
             "input": {
-              "type": "object",
-              "title": "PageDataSpaceModelSourceQuery"
+              "$ref": "#/$defs/PageDataSpaceModelSourceQuery"
+            },
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -42,8 +177,10 @@
           "type": "object",
           "properties": {
             "source": {
-              "type": "object",
-              "title": "PageDataSpaceModelSource"
+              "$ref": "#/$defs/PageDataSpaceModelSource"
+            },
+            "dataSet": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -55,24 +192,8 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T05:58:55.168Z",
+  "generatedAt": "2026-10-13T21:27:32.528Z",
   "models": {
-    "PageDataSpaceModelSourceReader": {
-      "name": "PageDataSpaceModelSourceReader",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "NonNullable<ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>['modelSources']>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "NonNullable<ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>['modelSources']>",
-            "targetName": "NonNullable"
-          }
-        ],
-        "members": {}
-      }
-    },
     "PageDataSpaceModelSourceQuery": {
       "name": "PageDataSpaceModelSourceQuery",
       "jsdoc": "",
@@ -109,7 +230,7 @@
     },
     "LowcodeDataSpaceModelSourceReader": {
       "name": "LowcodeDataSpaceModelSourceReader",
-      "jsdoc": "Fixed six-source reader bound to the current application query scope.",
+      "jsdoc": "六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -134,6 +255,13 @@
                     "type": "reference",
                     "name": "PageDataSpaceModelSourceQuery",
                     "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                  }
+                },
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
                   }
                 }
               ],
@@ -163,6 +291,13 @@
                     "type": "reference",
                     "name": "PageDataSpaceModelSource",
                     "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                  }
+                },
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
                   }
                 }
               ],

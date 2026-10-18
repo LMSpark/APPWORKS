@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace",
+    "sourcePath": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
+    "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace\n职责：字典设计与数据页面的实例生命周期及标准组件上下文。\n边界：不持有行副本，不选择保存范围；页面调用不同领域命令。\nAI用途：复用正式DataSet、PageRuntime和草稿保护，保持两类页面独立。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "DictionaryPageInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DictionaryPageInput",
+      "properties": {
+        "dictionaryId": {
+          "type": "object",
+          "title": "MaybeRefOrGetter<string | undefined>"
+        },
+        "create": {
+          "type": "boolean"
+        },
+        "pageId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.onPending.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onPending.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-10T17:31:42.287Z",
+  "models": {
+    "DictionaryPageInput": {
+      "name": "DictionaryPageInput",
+      "jsdoc": "独立字典页面的实例输入，不包含角色或业务行数据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式字典身份；响应式变化时释放原实例再装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式字典身份；响应式变化时释放原实例再装配。 */\n    dictionaryId: MaybeRefOrGetter<string | undefined>;\n    /** 仅设计页可新建定义；数据页必须消费已保存方案。 */\n    create?: boolean;\n    /** 当前页面运行实例的标识。 */\n    pageId: string;\n    /** 宿主关闭保护所需的未提交状态，不提供行副本。 */\n    onPending?: (value: boolean) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dictionaryId",
+              "jsdoc": "正式字典身份；响应式变化时释放原实例再装配。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "create",
+              "jsdoc": "仅设计页可新建定义；数据页必须消费已保存方案。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "jsdoc": "当前页面运行实例的标识。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onPending",
+              "jsdoc": "宿主关闭保护所需的未提交状态，不提供行副本。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

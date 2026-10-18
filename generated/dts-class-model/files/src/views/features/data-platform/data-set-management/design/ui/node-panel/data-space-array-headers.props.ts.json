@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/data-space-array-headers.props",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-space-array-headers.props.ts",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-space-array-headers.props.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/data-space-array-headers.props",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/data-space-array-headers.props\n职责：数组表头窄编辑窗口的输入与确认合同。\n边界：标准组件绑定输入视图；正式持久化由父级定义owner处理。\nAI用途：新建和已有数组共用表头窗口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceArrayHeadersProps"
+    ]
+  },
+  "$defs": {
+    "DataSpaceArrayHeadersProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceArrayHeadersProps",
+      "properties": {
+        "draft": {
+          "$ref": "../../../../../../../lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts.json#/$defs/LowcodeDataSpaceArrayDraft"
+        }
+      },
+      "required": [
+        "draft"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.onConfirm.params": {
+          "type": "object",
+          "properties": {
+            "definition": {
+              "$ref": "../../../../../../../lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts.json#/$defs/ArrayDefinition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onConfirm.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T17:25:05.033Z",
+  "models": {
+    "DataSpaceArrayHeadersProps": {
+      "name": "DataSpaceArrayHeadersProps",
+      "jsdoc": "一次未确认的表头编辑；关闭由调用方释放输入视图。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "data-space-array-headers"
+      },
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 表头组件绑定的唯一局部输入视图。 */\n    draft: LowcodeDataSpaceArrayDraft;\n    /** 确认后交回所属定义；抛错时窗口保留可修复的输入。 */\n    onConfirm?: (definition: ArrayDefinition) => void | Promise<void>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "draft",
+              "jsdoc": "表头组件绑定的唯一局部输入视图。",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "onConfirm",
+              "jsdoc": "确认后交回所属定义；抛错时窗口保留可修复的输入。",
+              "parameters": [
+                {
+                  "name": "definition",
+                  "type": {
+                    "type": "reference",
+                    "name": "ArrayDefinition"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -33,8 +33,30 @@
         },
         "permissionDeniedMode": {
           "enum": [
-            "hide",
-            "disable"
+            "disable",
+            "hide"
+          ]
+        },
+        "bindingError": {
+          "type": "string"
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "editingContextRow": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataRow"
+        },
+        "isCurrentFieldEditable": {
+          "enum": [
+            false,
+            true
           ]
         },
         "error": {
@@ -84,6 +106,15 @@
               "type": "number"
             }
           ]
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "header": {
+          "$ref": "../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         },
         "fixed": {
           "enum": [
@@ -172,7 +203,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-08T20:15:05.649Z",
+  "generatedAt": "2026-10-18T16:46:39.882Z",
   "models": {
     "Props": {
       "name": "Props",
@@ -186,7 +217,7 @@
         "directory": "fields/non-data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    error?: string | undefined;\n    /** 显示标签 */\n    displayLabel?: string | undefined;\n    /** 字段绑定名 */\n    fieldName?: string | undefined;\n    /** 列宽 */\n    width?: string | number | undefined;\n    /** 表格列是否允许拖动列宽 */\n    resizable?: boolean | undefined;\n    /** 表格列排序能力 */\n    sortable?: boolean | 'custom' | undefined;\n    /** 表格字段是否可参与过滤区生成；由上层容器消费，此处仅声明避免 fallthrough warning */\n    filterable?: boolean | undefined;\n    /** 最小列宽 */\n    minWidth?: string | number | undefined;\n    /** 固定列方向 */\n    fixed?: boolean | 'left' | 'right' | undefined;\n    /** 列对齐 */\n    align?: 'left' | 'center' | 'right' | undefined;\n    /** 表头对齐 */\n    headerAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 子组件配置 */\n    mergedChildren?: SparkNode[] | undefined;\n    /** 当前字段是否隐藏 */\n    isCurrentFieldHidden?: boolean | undefined;\n    /** 当前宿主下字段是否应渲染 */\n    shouldRenderCurrentField?: boolean | undefined;\n    /** 当前显示值 */\n    currentDisplayValue?: string | undefined;\n    /** 表格行级隐藏判断 */\n    isTableCellHidden?: ((row: DataRow) => boolean) | undefined;\n    /** 表格行级显示值获取 */\n    getTableCellDisplayValue?: ((row: DataRow) => string) | undefined;\n    /** 表单验证规则 */\n    validationRules?: FormItemRule[] | undefined;\n    /** 标题对齐（table/detail） */\n    titleAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 值对齐（table/detail） */\n    valueAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 表头 class（table） */\n    headerCellClassName?: string | undefined;\n    /** 单元格 class（table） */\n    cellClassName?: string | undefined;\n    /** 标题 class（detail） */\n    titleClassName?: string | undefined;\n    /** 值 class（detail/table value） */\n    valueClassName?: string | undefined;\n}",
+        "declarationTypeText": "SparkNodeProps & {\n    /** 原数据绑定的配置诊断；独立呈现，不放宽字段权限或生成字段值。 */\n    bindingError?: string | undefined;\n    /** 表格双击编辑使用字段本身的form槽，不建立第二份值。 */\n    editOnDblclick?: boolean | undefined;\n    /** 原绑定当前行，与表格事件已确认的行一致时才允许进入输入。 */\n    editingContextRow?: DataRow | null | undefined;\n    /** 字段消费正式权限与宿主锁定后的可写性。 */\n    isCurrentFieldEditable?: boolean | undefined;\n    error?: string | undefined;\n    /** 显示标签 */\n    displayLabel?: string | undefined;\n    /** 字段绑定名 */\n    fieldName?: string | undefined;\n    /** 列宽 */\n    width?: string | number | undefined;\n    /** 表格列是否允许拖动列宽 */\n    resizable?: boolean | undefined;\n    /** 表格列排序能力 */\n    sortable?: boolean | 'custom' | undefined;\n    /** 表格字段是否可参与过滤区生成；由上层容器消费，此处仅声明避免 fallthrough warning */\n    filterable?: boolean | undefined;\n    /** 最小列宽 */\n    minWidth?: string | number | undefined;\n    /** 省略溢出文本并提示已渲染的权限过滤内容。 */\n    showOverflowTooltip?: boolean | undefined;\n    /** 表头标准组件区域，复用组件绑定与权限。 */\n    header?: SparkNode | undefined;\n    /** 固定列方向 */\n    fixed?: boolean | 'left' | 'right' | undefined;\n    /** 列对齐 */\n    align?: 'left' | 'center' | 'right' | undefined;\n    /** 表头对齐 */\n    headerAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 子组件配置 */\n    mergedChildren?: SparkNode[] | undefined;\n    /** 当前字段是否隐藏 */\n    isCurrentFieldHidden?: boolean | undefined;\n    /** 当前宿主下字段是否应渲染 */\n    shouldRenderCurrentField?: boolean | undefined;\n    /** 当前显示值 */\n    currentDisplayValue?: string | undefined;\n    /** 表格行级隐藏判断 */\n    isTableCellHidden?: ((row: DataRow) => boolean) | undefined;\n    /** 表格行级显示值获取 */\n    getTableCellDisplayValue?: ((row: DataRow) => string) | undefined;\n    /** 表单验证规则 */\n    validationRules?: FormItemRule[] | undefined;\n    /** 标题对齐（table/detail） */\n    titleAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 值对齐（table/detail） */\n    valueAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 表头 class（table） */\n    headerCellClassName?: string | undefined;\n    /** 单元格 class（table） */\n    cellClassName?: string | undefined;\n    /** 标题 class（detail） */\n    titleClassName?: string | undefined;\n    /** 值 class（detail/table value） */\n    valueClassName?: string | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -195,11 +226,35 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    error?: string | undefined;\n    /** 显示标签 */\n    displayLabel?: string | undefined;\n    /** 字段绑定名 */\n    fieldName?: string | undefined;\n    /** 列宽 */\n    width?: string | number | undefined;\n    /** 表格列是否允许拖动列宽 */\n    resizable?: boolean | undefined;\n    /** 表格列排序能力 */\n    sortable?: boolean | 'custom' | undefined;\n    /** 表格字段是否可参与过滤区生成；由上层容器消费，此处仅声明避免 fallthrough warning */\n    filterable?: boolean | undefined;\n    /** 最小列宽 */\n    minWidth?: string | number | undefined;\n    /** 固定列方向 */\n    fixed?: boolean | 'left' | 'right' | undefined;\n    /** 列对齐 */\n    align?: 'left' | 'center' | 'right' | undefined;\n    /** 表头对齐 */\n    headerAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 子组件配置 */\n    mergedChildren?: SparkNode[] | undefined;\n    /** 当前字段是否隐藏 */\n    isCurrentFieldHidden?: boolean | undefined;\n    /** 当前宿主下字段是否应渲染 */\n    shouldRenderCurrentField?: boolean | undefined;\n    /** 当前显示值 */\n    currentDisplayValue?: string | undefined;\n    /** 表格行级隐藏判断 */\n    isTableCellHidden?: ((row: DataRow) => boolean) | undefined;\n    /** 表格行级显示值获取 */\n    getTableCellDisplayValue?: ((row: DataRow) => string) | undefined;\n    /** 表单验证规则 */\n    validationRules?: FormItemRule[] | undefined;\n    /** 标题对齐（table/detail） */\n    titleAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 值对齐（table/detail） */\n    valueAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 表头 class（table） */\n    headerCellClassName?: string | undefined;\n    /** 单元格 class（table） */\n    cellClassName?: string | undefined;\n    /** 标题 class（detail） */\n    titleClassName?: string | undefined;\n    /** 值 class（detail/table value） */\n    valueClassName?: string | undefined;\n}"
+            "typeText": "{\n    /** 原数据绑定的配置诊断；独立呈现，不放宽字段权限或生成字段值。 */\n    bindingError?: string | undefined;\n    /** 表格双击编辑使用字段本身的form槽，不建立第二份值。 */\n    editOnDblclick?: boolean | undefined;\n    /** 原绑定当前行，与表格事件已确认的行一致时才允许进入输入。 */\n    editingContextRow?: DataRow | null | undefined;\n    /** 字段消费正式权限与宿主锁定后的可写性。 */\n    isCurrentFieldEditable?: boolean | undefined;\n    error?: string | undefined;\n    /** 显示标签 */\n    displayLabel?: string | undefined;\n    /** 字段绑定名 */\n    fieldName?: string | undefined;\n    /** 列宽 */\n    width?: string | number | undefined;\n    /** 表格列是否允许拖动列宽 */\n    resizable?: boolean | undefined;\n    /** 表格列排序能力 */\n    sortable?: boolean | 'custom' | undefined;\n    /** 表格字段是否可参与过滤区生成；由上层容器消费，此处仅声明避免 fallthrough warning */\n    filterable?: boolean | undefined;\n    /** 最小列宽 */\n    minWidth?: string | number | undefined;\n    /** 省略溢出文本并提示已渲染的权限过滤内容。 */\n    showOverflowTooltip?: boolean | undefined;\n    /** 表头标准组件区域，复用组件绑定与权限。 */\n    header?: SparkNode | undefined;\n    /** 固定列方向 */\n    fixed?: boolean | 'left' | 'right' | undefined;\n    /** 列对齐 */\n    align?: 'left' | 'center' | 'right' | undefined;\n    /** 表头对齐 */\n    headerAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 子组件配置 */\n    mergedChildren?: SparkNode[] | undefined;\n    /** 当前字段是否隐藏 */\n    isCurrentFieldHidden?: boolean | undefined;\n    /** 当前宿主下字段是否应渲染 */\n    shouldRenderCurrentField?: boolean | undefined;\n    /** 当前显示值 */\n    currentDisplayValue?: string | undefined;\n    /** 表格行级隐藏判断 */\n    isTableCellHidden?: ((row: DataRow) => boolean) | undefined;\n    /** 表格行级显示值获取 */\n    getTableCellDisplayValue?: ((row: DataRow) => string) | undefined;\n    /** 表单验证规则 */\n    validationRules?: FormItemRule[] | undefined;\n    /** 标题对齐（table/detail） */\n    titleAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 值对齐（table/detail） */\n    valueAlign?: 'left' | 'center' | 'right' | undefined;\n    /** 表头 class（table） */\n    headerCellClassName?: string | undefined;\n    /** 单元格 class（table） */\n    cellClassName?: string | undefined;\n    /** 标题 class（detail） */\n    titleClassName?: string | undefined;\n    /** 值 class（detail/table value） */\n    valueClassName?: string | undefined;\n}"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "bindingError",
+              "jsdoc": "原数据绑定的配置诊断；独立呈现，不放宽字段权限或生成字段值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editOnDblclick",
+              "jsdoc": "表格双击编辑使用字段本身的form槽，不建立第二份值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editingContextRow",
+              "jsdoc": "原绑定当前行，与表格事件已确认的行一致时才允许进入输入。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isCurrentFieldEditable",
+              "jsdoc": "字段消费正式权限与宿主锁定后的可写性。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "error",
               "readable": true,
@@ -244,6 +299,18 @@
             {
               "name": "minWidth",
               "jsdoc": "最小列宽",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showOverflowTooltip",
+              "jsdoc": "省略溢出文本并提示已渲染的权限过滤内容。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "header",
+              "jsdoc": "表头标准组件区域，复用组件绑定与权限。",
               "readable": true,
               "writable": false
             },

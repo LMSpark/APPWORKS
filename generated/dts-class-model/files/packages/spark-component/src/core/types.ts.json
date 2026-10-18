@@ -263,7 +263,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@158691": {
+                "__@iterator@194633": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -318,18 +318,18 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@158691"
+                "__@iterator@194633"
               ],
               "additionalProperties": false
-            },
-            {
-              "const": "date"
             },
             {
               "const": "select"
             },
             {
               "const": "checkbox"
+            },
+            {
+              "const": "date"
             },
             {
               "const": "radio"

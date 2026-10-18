@@ -1,0 +1,386 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-input-parameters",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/design/data-space-input-parameters",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-input-parameters\n职责：解释数据库 inputParams 声明并校验编辑结果。\n边界：保留旧项与未知属性，不管理调用值、权限或持久化。\nAI用途：复用声明编辑合同，避免页面与设计会话各自规范化。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "InputParameterRowAdapter",
+      "DataSpaceInputParameters"
+    ]
+  },
+  "$defs": {
+    "InputParameterRowAdapter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InputParameterRowAdapter",
+      "$defs": {
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "original": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "original": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        },
+        "method.canEdit.params": {
+          "type": "object",
+          "properties": {
+            "original": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.canEdit.return": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DataSpaceInputParameters": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceInputParameters",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.rowAdapter.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.rowAdapter.return": {
+          "$ref": "#/$defs/InputParameterRowAdapter"
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "value": true,
+            "editable": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "value": true,
+            "original": true
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Record<string, unknown>"
+              }
+            },
+            "changed": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "items",
+            "changed"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-15T04:45:43.484Z",
+  "models": {
+    "InputParameterRowAdapter": {
+      "name": "InputParameterRowAdapter",
+      "jsdoc": "声明行的纯编辑适配；所有写入仍由绑定字段及原DataSet承接。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    read: (original: Readonly<Record<string, unknown>>) => Record<string, unknown>;\n    write: (value: Readonly<Record<string, unknown>>, original: Readonly<Record<string, unknown>> | undefined) => Record<string, unknown>;\n    canEdit: (original: Readonly<Record<string, unknown>> | undefined) => boolean;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "parameters": [
+                {
+                  "name": "original",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "write",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "original",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "Record",
+                          "typeArguments": [
+                            {
+                              "type": "intrinsic",
+                              "name": "string"
+                            },
+                            {
+                              "type": "intrinsic",
+                              "name": "unknown"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "canEdit",
+              "parameters": [
+                {
+                  "name": "original",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "Record",
+                          "typeArguments": [
+                            {
+                              "type": "intrinsic",
+                              "name": "string"
+                            },
+                            {
+                              "type": "intrinsic",
+                              "name": "unknown"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceInputParameters": {
+      "name": "DataSpaceInputParameters",
+      "jsdoc": "空间参数声明的纯数据规则，由设计门面和元数据消费者复用。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "空间参数声明的纯数据规则，由设计门面和元数据消费者复用。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "rowAdapter",
+              "jsdoc": "旧字段仅作读取兼容；确认时只合并实际修改的成员，不改未编辑项或旧ID属性。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "InputParameterRowAdapter",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts"
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "读取声明副本；editable 校验旧编辑器已有的对象、身份及字段类型边界，不补默认值。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "editable",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Record",
+                  "typeArguments": [
+                    {
+                      "type": "intrinsic",
+                      "name": "string"
+                    },
+                    {
+                      "type": "intrinsic",
+                      "name": "unknown"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "prepare",
+              "jsdoc": "校验拟保存声明；只规范化改动项，无语义变化时返回原声明副本，调用方保留原始字节。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "original",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        items: Array<Record<string, unknown>>;\n        changed: boolean;\n    }"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -74,6 +74,9 @@
         "crudConfig": {
           "$ref": "types.ts.json#/$defs/CrudOperationConfig"
         },
+        "crudService": {
+          "$ref": "strategies/crud-service.ts.json#/$defs/CrudService"
+        },
         "validator": {
           "$ref": "validation/validation.ts.json#/$defs/DataValidator"
         },
@@ -86,6 +89,12 @@
         "views": {
           "type": "object",
           "title": "Record<string, DataView>"
+        },
+        "viewList": {
+          "type": "array",
+          "items": {
+            "$ref": "data-view.ts.json#/$defs/DataView"
+          }
         }
       },
       "required": [
@@ -428,6 +437,12 @@
               "writable": false
             },
             {
+              "name": "crudService",
+              "jsdoc": "获取或创建 CrudService（懒初始化，配置变更时自动清除缓存）\nCrudService 属于模型层（DataTable），多个 DataView 共享同一实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "validator",
               "jsdoc": "数据校验器（基于列定义创建）",
               "readable": true,
@@ -444,6 +459,12 @@
               "jsdoc": "视图集合（包含 'default'）",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "viewList",
+              "jsdoc": "当前表的全部视图实例。",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [

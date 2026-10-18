@@ -55,6 +55,12 @@
         },
         "raw": {
           "$ref": "../../../../packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
         }
       },
       "required": [
@@ -71,6 +77,115 @@
       ],
       "additionalProperties": false
     },
+    "PageDataSpaceViewState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewState",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "config": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "persisted": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "dirty": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "revision": {
+          "type": "number"
+        },
+        "saveStatus": {
+          "enum": [
+            "idle",
+            "pending",
+            "unknown"
+          ]
+        },
+        "submittedText": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "scenarioId",
+        "text",
+        "config",
+        "persisted",
+        "dirty",
+        "revision",
+        "saveStatus",
+        "submittedText"
+      ],
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewModelInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewModelInput",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "modelId",
+        "modelName"
+      ],
+      "additionalProperties": false
+    },
+    "PageDataSpaceViewSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PageDataSpaceViewSelection",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "tableName",
+        "modelId",
+        "modelName",
+        "viewId"
+      ],
+      "additionalProperties": false
+    },
     "ViewDesignOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -78,7 +193,8 @@
       "properties": {
         "workspace": {
           "$ref": "../../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
-        }
+        },
+        "modelSources": true
       },
       "additionalProperties": false,
       "$defs": {
@@ -86,8 +202,10 @@
           "type": "object",
           "properties": {
             "input": {
-              "type": "object",
-              "title": "PageDataSpaceViewModelInput"
+              "$ref": "#/$defs/PageDataSpaceViewModelInput"
+            },
+            "metadata": {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -102,8 +220,15 @@
             "scenarioId": {
               "type": "string"
             },
-            "file": {
-              "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-file.ts.json#/$defs/ScenarioViewFile"
+            "config": {
+              "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            "fileExecutors": {
+              "type": "object",
+              "title": "Record<string, Parameters<DataView['bindQueryExecutor']>[0]>"
+            },
+            "modelScope": {
+              "type": "string"
             }
           },
           "additionalProperties": false
@@ -117,6 +242,10 @@
           "properties": {
             "targetId": {
               "type": "string"
+            },
+            "fileExecutors": {
+              "type": "object",
+              "title": "Record<string, Parameters<DataView['bindQueryExecutor']>[0]>"
             }
           },
           "additionalProperties": false
@@ -124,6 +253,19 @@
         "method.loadMetadata.return": {
           "type": "object",
           "title": "Promise<DataSet>"
+        },
+        "method.readLegacyLayout.params": {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readLegacyLayout.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
         },
         "method.assertScope.params": {
           "type": "object",
@@ -137,40 +279,160 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "SessionSelection",
-      "properties": {},
-      "additionalProperties": true
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "viewId",
+        "modelId",
+        "modelName"
+      ],
+      "additionalProperties": false
     },
-    "SessionStage": {
+    "NativeViewSelection": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "SessionStage",
-      "properties": {},
-      "additionalProperties": true
+      "title": "NativeViewSelection",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SessionSelection"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            },
+            "fileResourceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tableName",
+            "viewId",
+            "fileResourceId"
+          ],
+          "additionalProperties": false
+        }
+      ]
     },
     "SessionAdopt": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "SessionAdopt",
-      "properties": {},
-      "additionalProperties": true
-    },
-    "SessionDefinitionStage": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "SessionDefinitionStage",
       "properties": {
-        "expectedText": {
-          "type": "string"
+        "expectedRevision": {
+          "type": "number"
         },
-        "text": {
-          "type": "string"
+        "previewText": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "discardViews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tableName": {
+                "type": "string"
+              },
+              "viewId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tableName",
+              "viewId"
+            ],
+            "additionalProperties": false
+          }
         }
       },
       "required": [
-        "expectedText",
-        "text"
+        "expectedRevision",
+        "previewText"
       ],
       "additionalProperties": false
+    },
+    "SessionLoadOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SessionLoadOptions",
+      "properties": {
+        "deferDefinition": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SessionBindingRemoval": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SessionBindingRemoval",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "modelName": {
+              "type": "string"
+            },
+            "expectedText": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tableName",
+            "modelId",
+            "modelName",
+            "expectedText"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "resourceId": {
+              "type": "string"
+            },
+            "expectedText": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tableName",
+            "resourceId",
+            "expectedText"
+          ],
+          "additionalProperties": false
+        }
+      ]
     },
     "LowcodeDataSpaceDesignSession": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -182,6 +444,51 @@
         },
         "metadataDataSet": {
           "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "viewState": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PageDataSpaceViewState"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "relationDefinitionsReady": {
+          "type": "boolean"
+        },
+        "definitionStatus": {
+          "enum": [
+            "absent",
+            "unloaded",
+            "loading",
+            "ready",
+            "failed"
+          ]
+        },
+        "definitionDataSet": {
+          "anyOf": [
+            {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "definitionError": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Error"
+        },
+        "definitionDiagnostics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false,
@@ -200,75 +507,598 @@
             },
             "options": {
               "$ref": "#/$defs/ViewDesignOptions"
+            },
+            "definitionResource": {
+              "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-definition-resource.ts.json#/$defs/ScenarioDefinitionResource"
             }
           },
           "additionalProperties": false
         },
-        "method.refresh.params": {
+        "method.loadRelationFields.params": {
+          "type": "object",
+          "properties": {
+            "rowKey": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadRelationFields.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        columns: readonly DataColumn[];\n        context: DataViewFilterFunctionContext;\n    }>>"
+        },
+        "method.getViewFields.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/NativeViewSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getViewFields.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "method.getViewOutputProjection.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/NativeViewSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getViewOutputProjection.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataViewFieldProjection"
+          }
+        },
+        "method.loadViewFilterContext.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/NativeViewSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadViewFilterContext.return": {
+          "type": "object",
+          "title": "Promise<DataViewFilterFunctionContext>"
+        },
+        "method.loadPreviewFilterContext.params": {
+          "type": "object",
+          "properties": {
+            "preview": {
+              "$ref": "preview/lowcode-data-space-query-preview.ts.json#/$defs/LowcodeDataSpaceQueryPreview"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadPreviewFilterContext.return": {
+          "type": "object",
+          "title": "Promise<DataViewFilterFunctionContext>"
+        },
+        "method.loadCascadeFields.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadCascadeFields.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadViewFields.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/NativeViewSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadViewFields.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadMetadataViews.params": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "Base_DataModel_Field",
+                  "Base_DataModel_Relation"
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadMetadataViews.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadRelationDefinitions.params": {
           "type": "object",
           "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadRelationDefinitions.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadGraphRelations.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadGraphRelations.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.stageInputParameters.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "expectedValue": true,
+                "value": true
+              },
+              "required": [
+                "expectedValue",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stageInputParameters.return": true,
+        "method.getInputParameters.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getInputParameters.return": {
+          "$ref": "../input-parameters/lowcode-data-space-input-parameter-edit.ts.json#/$defs/LowcodeDataSpaceInputParameterEdit"
+        },
+        "method.getSourceInput.params": {
+          "type": "object",
+          "properties": {
+            "fieldId": {
+              "type": "string"
+            },
+            "viewId": {
+              "enum": [
+                "default",
+                "sourceInputFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getSourceInput.return": {
+          "$ref": "../model-source/lowcode-data-space-source-input-edit.ts.json#/$defs/LowcodeDataSpaceSourceInputEdit"
+        },
+        "method.loadSourceInputFields.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadSourceInputFields.return": {
+          "type": "object",
+          "title": "Promise<DataView>"
+        },
+        "method.getModelSourceInputs.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getModelSourceInputs.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../model-source/lowcode-data-space-source-input-edit.ts.json#/$defs/LowcodeDataSpaceSourceInputEdit"
+          }
+        },
+        "method.hasPendingSourceInputs.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasPendingSourceInputs.return": {
+          "type": "boolean"
+        },
+        "method.loadModelInputFields.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadModelInputFields.return": {
+          "type": "object",
+          "title": "Promise<DataView>"
+        },
+        "method.loadModelFields.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadModelFields.return": {
+          "type": "object",
+          "title": "Promise<DataView>"
+        },
+        "method.getFieldEdit.params": {
+          "type": "object",
+          "properties": {
+            "fieldId": {
+              "type": "string"
+            },
+            "viewId": {
+              "enum": [
+                "default",
+                "modelFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getFieldEdit.return": {
+          "$ref": "../model-source/lowcode-data-space-field-edit.ts.json#/$defs/LowcodeDataSpaceFieldEdit"
+        },
+        "method.getFieldCreate.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "viewId": {
+              "enum": [
+                "default",
+                "modelFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getFieldCreate.return": {
+          "$ref": "../model-source/field-create/lowcode-data-space-field-create.ts.json#/$defs/LowcodeDataSpaceFieldCreate"
+        },
+        "method.releaseFieldCreate.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "viewId": {
+              "enum": [
+                "default",
+                "modelFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releaseFieldCreate.return": true,
+        "method.getUnresolvedFieldIds.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "viewId": {
+              "enum": [
+                "default",
+                "modelFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getUnresolvedFieldIds.return": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method.hasPendingFieldEdits.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasPendingFieldEdits.return": {
+          "type": "boolean"
+        },
+        "method.getModelFieldRemovals.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getModelFieldRemovals.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../model-source/removal/lowcode-data-space-field-remove.ts.json#/$defs/LowcodeDataSpaceFieldRemove"
+          }
+        },
+        "method.getFieldRemove.params": {
+          "type": "object",
+          "properties": {
+            "fieldId": {
+              "type": "string"
+            },
+            "fieldViewId": {
+              "enum": [
+                "default",
+                "modelFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getFieldRemove.return": {
+          "$ref": "../model-source/removal/lowcode-data-space-field-remove.ts.json#/$defs/LowcodeDataSpaceFieldRemove"
+        },
+        "method.getModelEdit.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getModelEdit.return": {
+          "$ref": "../model-source/lowcode-data-space-model-edit.ts.json#/$defs/LowcodeDataSpaceModelEdit"
+        },
+        "method.getArrayEdit.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "fieldViewId": {
+              "enum": [
+                "default",
+                "modelFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getArrayEdit.return": {
+          "$ref": "../model-source/array/lowcode-data-space-array-edit.ts.json#/$defs/LowcodeDataSpaceArrayEdit"
+        },
+        "method.releaseArrayEdit.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "fieldViewId": {
+              "enum": [
+                "default",
+                "modelFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releaseArrayEdit.return": true,
+        "method.hasPendingModelEdits.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasPendingModelEdits.return": {
+          "type": "boolean"
+        },
+        "method.getModelRename.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getModelRename.return": {
+          "$ref": "../model-source/rename/lowcode-data-space-model-rename.ts.json#/$defs/LowcodeDataSpaceModelRename"
+        },
+        "method.releaseModelRename.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releaseModelRename.return": true,
+        "method.getModelRemove.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getModelRemove.return": {
+          "$ref": "../model-source/removal/lowcode-data-space-model-remove.ts.json#/$defs/LowcodeDataSpaceModelRemove"
+        },
+        "method.hasPendingModelRemovals.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasPendingModelRemovals.return": {
+          "type": "boolean"
+        },
+        "method.getModelCreate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getModelCreate.return": {
+          "$ref": "../model-source/lowcode-data-space-model-create.ts.json#/$defs/LowcodeDataSpaceModelCreate"
+        },
+        "method.hasPendingModelCreate.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasPendingModelCreate.return": {
+          "type": "boolean"
+        },
+        "method.getModelSourceEdit.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getModelSourceEdit.return": {
+          "$ref": "../model-source/lowcode-data-space-model-source-edit.ts.json#/$defs/LowcodeDataSpaceModelSourceEdit"
+        },
+        "method.hasPendingModelSourceEdits.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasPendingModelSourceEdits.return": {
+          "type": "boolean"
+        },
+        "method.readApiInfo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readApiInfo.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.inspectInputParameters.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.inspectInputParameters.return": {
+          "$ref": "../input-parameters/lowcode-data-space-input-parameter-references.ts.json#/$defs/InputParameterInspection"
+        },
+        "method.openPreview.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/NativeViewSelection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openPreview.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDataSpaceQueryPreview>"
+        },
+        "method.openModelPreview.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "Pick<SessionSelection, 'modelId' | 'modelName'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.openModelPreview.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDataSpaceQueryPreview>"
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/SessionLoadOptions"
+            }
+          },
           "additionalProperties": false
         },
         "method.refresh.return": {
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.createView.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "#/$defs/SessionSelection"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.createView.return": {
-          "type": "object",
-          "title": "Promise<PageDataSpaceViewState>"
-        },
-        "method.stageView.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "#/$defs/SessionStage"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.stageView.return": {
-          "type": "object",
-          "title": "Promise<PageDataSpaceViewState>"
-        },
-        "method.stageDefinition.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "#/$defs/SessionDefinitionStage"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.stageDefinition.return": {
-          "type": "object",
-          "title": "Promise<PageDataSpaceViewState>"
-        },
-        "method.saveViews.params": {
+        "method.loadDefinition.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.saveViews.return": {
+        "method.loadDefinition.return": {
           "type": "object",
-          "title": "Promise<PageDataSpaceViewState>"
+          "title": "Promise<void>"
         },
-        "method.verifyViews.params": {
+        "method.readReferenceLayout.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.verifyViews.return": {
+        "method.readReferenceLayout.return": {
           "type": "object",
-          "title": "Promise<Readonly<{\n        outcome: 'confirmed' | 'not-applied';\n        state: PageDataSpaceViewState;\n    }>>"
+          "title": "Promise<string | null>"
+        },
+        "method.removeModelBinding.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SessionBindingRemoval"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeModelBinding.return": {
+          "type": "object",
+          "title": "Promise<PageDataSpaceViewState>"
         },
         "method.previewRemoteViews.params": {
           "type": "object",
@@ -319,6 +1149,9 @@
           "properties": {
             "targetId": {
               "type": "string"
+            },
+            "options": {
+              "$ref": "#/$defs/SessionLoadOptions"
             }
           },
           "additionalProperties": false
@@ -327,144 +1160,81 @@
           "type": "object",
           "title": "Promise<LowcodeDataSpaceDesignSession>"
         },
-        "method.open.params": {
-          "type": "object",
-          "properties": {
-            "scenarioId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.open.return": {
-          "type": "object",
-          "title": "Promise<{\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n        dirtySource: ScenarioViewFile;\n    }>"
-        },
-        "method.readModel.params": {
+        "method.openPreview.params": {
           "type": "object",
           "properties": {
             "input": {
-              "type": "object",
-              "title": "PageDataSpaceViewModelInput"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.readModel.return": {
-          "type": "object",
-          "title": "Promise<{\n        id: string;\n        name: string;\n        fields: {\n            name: string;\n            label: string;\n        }[];\n    }>"
-        },
-        "method.create.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "type": "object",
-              "title": "PageDataSpaceViewSelection"
+              "allOf": [
+                {
+                  "$ref": "#/$defs/NativeViewSelection"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "scenarioId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "scenarioId"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
             },
             "assertCurrent": {
               "type": "object",
               "title": "() => void"
+            },
+            "subscribe": {
+              "type": "object",
+              "title": "(listener: () => void) => () => void"
             }
           },
           "additionalProperties": false
         },
-        "method.create.return": {
+        "method.openPreview.return": {
           "type": "object",
-          "title": "Promise<{\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n        dirtySource: ScenarioViewFile;\n    }>"
+          "title": "Promise<LowcodeDataSpaceQueryPreview>"
         },
-        "method.stage.params": {
+        "method.openModelPreview.params": {
           "type": "object",
           "properties": {
             "input": {
-              "type": "object",
-              "title": "PageDataSpaceViewStage"
+              "$ref": "#/$defs/PageDataSpaceViewModelInput"
             },
             "assertCurrent": {
               "type": "object",
               "title": "() => void"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.stage.return": {
-          "type": "object",
-          "title": "Promise<PageDataSpaceViewState>"
-        },
-        "method.save.params": {
-          "type": "object",
-          "properties": {
-            "scenarioId": {
-              "type": "string"
             },
-            "assertCurrent": {
+            "subscribe": {
               "type": "object",
-              "title": "() => void"
+              "title": "(listener: () => void) => () => void"
             }
           },
           "additionalProperties": false
         },
-        "method.save.return": {
+        "method.openModelPreview.return": {
           "type": "object",
-          "title": "Promise<PageDataSpaceViewState>"
-        },
-        "method.verify.params": {
-          "type": "object",
-          "properties": {
-            "scenarioId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.verify.return": {
-          "type": "object",
-          "title": "Promise<{\n        outcome: \"confirmed\" | \"not-applied\";\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n    }>"
-        },
-        "method.previewRemote.params": {
-          "type": "object",
-          "properties": {
-            "scenarioId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.previewRemote.return": {
-          "type": "object",
-          "title": "Promise<string | null>"
-        },
-        "method.adopt.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "type": "object",
-              "title": "PageDataSpaceViewAdopt"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.adopt.return": {
-          "type": "object",
-          "title": "Promise<PageDataSpaceViewState | null>"
+          "title": "Promise<LowcodeDataSpaceQueryPreview>"
         },
         "method.preview.params": {
           "type": "object",
           "properties": {
             "input": {
-              "type": "object",
-              "title": "PageDataSpaceViewSelection"
+              "$ref": "#/$defs/PageDataSpaceViewSelection"
             }
           },
           "additionalProperties": false
         },
         "method.preview.return": {
           "type": "object",
-          "title": "Promise<{\n        total: number;\n        fields: string[];\n        rows: Record<string, unknown>[];\n    }>"
+          "title": "Promise<{\n        total: number;\n        fields: string[];\n        rows: DataRow[];\n    }>"
         }
       }
     }
   },
-  "generatedAt": "2026-10-08T16:57:14.281Z",
+  "generatedAt": "2026-10-18T14:11:05.508Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -482,20 +1252,63 @@
         "members": {}
       }
     },
-    "PageDataSpaceViewDesignReader": {
-      "name": "PageDataSpaceViewDesignReader",
+    "PageDataSpaceViewState": {
+      "name": "PageDataSpaceViewState",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "NonNullable<ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>['viewDesign']>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    text: string;\n    config: Readonly<Record<string, unknown>>;\n    persisted: boolean;\n    dirty: boolean;\n    revision: number;\n    saveStatus: 'idle' | 'pending' | 'unknown';\n    submittedText: string | null;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "NonNullable<ReturnType<NonNullable<PageRuntimeServicesCapability['dataSpaceDesign']>['createReader']>['viewDesign']>",
-            "targetName": "NonNullable"
+            "typeText": "Readonly<{\n    scenarioId: string;\n    text: string;\n    config: Readonly<Record<string, unknown>>;\n    persisted: boolean;\n    dirty: boolean;\n    revision: number;\n    saveStatus: 'idle' | 'pending' | 'unknown';\n    submittedText: string | null;\n}>",
+            "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "persisted",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dirty",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "revision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "saveStatus",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submittedText",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "PageDataSpaceViewModelInput": {
@@ -503,8 +1316,33 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Parameters<PageDataSpaceViewDesignReader['readModel']>[0]",
-        "members": {}
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    modelId: string;\n    modelName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    modelId: string;\n    modelName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "PageDataSpaceViewSelection": {
@@ -512,42 +1350,43 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Parameters<PageDataSpaceViewDesignReader['preview']>[0]",
-        "members": {}
-      }
-    },
-    "PageDataSpaceViewStage": {
-      "name": "PageDataSpaceViewStage",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Parameters<PageDataSpaceViewDesignReader['stage']>[0]",
-        "members": {}
-      }
-    },
-    "PageDataSpaceViewState": {
-      "name": "PageDataSpaceViewState",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Awaited<ReturnType<PageDataSpaceViewDesignReader['save']>>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    tableName: string;\n    modelId: string;\n    modelName: string;\n    viewId: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Awaited<ReturnType<PageDataSpaceViewDesignReader['save']>>",
-            "targetName": "Awaited"
+            "typeText": "Readonly<{\n    scenarioId: string;\n    tableName: string;\n    modelId: string;\n    modelName: string;\n    viewId: string;\n}>",
+            "targetName": "Readonly"
           }
         ],
-        "members": {}
-      }
-    },
-    "PageDataSpaceViewAdopt": {
-      "name": "PageDataSpaceViewAdopt",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Parameters<PageDataSpaceViewDesignReader['adopt']>[0]",
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "ViewDesignOptions": {
@@ -555,11 +1394,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput): Promise<FormalModel>;\n    assemble(scenarioId: string, file: ScenarioViewFile): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string): Promise<DataSet>;\n    assertScope(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * @param scenarioId 运行空间身份，必须与config一致。\n     * @param config 已校验的场景配置；预览只消费，不写回范围投影。\n     * @param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n     * @param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n     * @returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(scenarioId: string, config: ScenarioViewConfig, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>, modelScope?: string): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ConstructorParameters<typeof LowcodeDataSpaceModelCreate>[2];\n    assertScope(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput): Promise<FormalModel>;\n    assemble(scenarioId: string, file: ScenarioViewFile): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string): Promise<DataSet>;\n    assertScope(): void;\n}>",
+            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * @param scenarioId 运行空间身份，必须与config一致。\n     * @param config 已校验的场景配置；预览只消费，不写回范围投影。\n     * @param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n     * @param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n     * @returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(scenarioId: string, config: ScenarioViewConfig, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>, modelScope?: string): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ConstructorParameters<typeof LowcodeDataSpaceModelCreate>[2];\n    assertScope(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -567,6 +1406,12 @@
           "attributes": [
             {
               "name": "workspace",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelSources",
+              "jsdoc": "当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。",
               "readable": true,
               "writable": false
             }
@@ -581,6 +1426,13 @@
                     "type": "reference",
                     "name": "PageDataSpaceViewModelInput",
                     "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                },
+                {
+                  "name": "metadata",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
                   }
                 }
               ],
@@ -598,6 +1450,7 @@
             },
             {
               "name": "assemble",
+              "jsdoc": "装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n@param scenarioId 运行空间身份，必须与config一致。\n@param config 已校验的场景配置；预览只消费，不写回范围投影。\n@param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n@param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n@returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。",
               "parameters": [
                 {
                   "name": "scenarioId",
@@ -607,10 +1460,46 @@
                   }
                 },
                 {
-                  "name": "file",
+                  "name": "config",
                   "type": {
                     "type": "reference",
-                    "name": "ScenarioViewFile"
+                    "name": "ScenarioViewConfig"
+                  }
+                },
+                {
+                  "name": "fileExecutors",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "unknown",
+                            "name": "Parameters<DataView['bindQueryExecutor']>[0]"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "modelScope",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],
@@ -635,6 +1524,32 @@
                     "type": "intrinsic",
                     "name": "string"
                   }
+                },
+                {
+                  "name": "fileExecutors",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "unknown",
+                            "name": "Parameters<DataView['bindQueryExecutor']>[0]"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
                 }
               ],
               "type": {
@@ -644,6 +1559,37 @@
                   {
                     "type": "reference",
                     "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readLegacyLayout",
+              "parameters": [
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
                   }
                 ]
               }
@@ -676,17 +1622,22 @@
         "members": {}
       }
     },
-    "SessionStage": {
-      "name": "SessionStage",
-      "jsdoc": "",
+    "NativeViewSelection": {
+      "name": "NativeViewSelection",
+      "jsdoc": "选定模型下的命名视图；数据库使用正式模型身份，文件使用原生表键与资源身份，二者不可混用。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Omit<PageDataSpaceViewStage, 'scenarioId'>",
+        "declarationTypeText": "SessionSelection | Readonly<{\n    tableName: string;\n    viewId: string;\n    fileResourceId: string;\n}>",
         "declarationRelations": [
           {
-            "kind": "alias",
-            "typeText": "Omit<PageDataSpaceViewStage, 'scenarioId'>",
-            "targetName": "Omit"
+            "kind": "union",
+            "typeText": "SessionSelection",
+            "targetName": "SessionSelection"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    tableName: string;\n    viewId: string;\n    fileResourceId: string;\n}>",
+            "targetName": "Readonly"
           }
         ],
         "members": {}
@@ -697,27 +1648,71 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Omit<PageDataSpaceViewAdopt, 'scenarioId'>",
+        "declarationTypeText": "Readonly<{\n    expectedRevision: number;\n    previewText: string | null;\n    /** 仅在远端核对成功后允许取消的文件定义视图；未列出的脏视图保持并阻止接纳。 */\n    discardViews?: ReadonlyArray<Pick<DataView, 'tableName' | 'viewId'>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Omit<PageDataSpaceViewAdopt, 'scenarioId'>",
-            "targetName": "Omit"
+            "typeText": "Readonly<{\n    expectedRevision: number;\n    previewText: string | null;\n    /** 仅在远端核对成功后允许取消的文件定义视图；未列出的脏视图保持并阻止接纳。 */\n    discardViews?: ReadonlyArray<Pick<DataView, 'tableName' | 'viewId'>>;\n}>",
+            "targetName": "Readonly"
           }
         ],
-        "members": {}
+        "members": {
+          "attributes": [
+            {
+              "name": "expectedRevision",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previewText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "discardViews",
+              "jsdoc": "仅在远端核对成功后允许取消的文件定义视图；未列出的脏视图保持并阻止接纳。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
-    "SessionDefinitionStage": {
-      "name": "SessionDefinitionStage",
-      "jsdoc": "",
+    "SessionLoadOptions": {
+      "name": "SessionLoadOptions",
+      "jsdoc": "当前会话的加载阶段；省略时完成目标定义装配后交付。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    expectedText: string;\n    text: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    expectedText: string;\n    text: string;\n}>",
+            "typeText": "Readonly<{\n    /** 先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。 */\n    deferDefinition?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "deferDefinition",
+              "jsdoc": "先交付元数据概览，目标定义由同一会话的loadDefinition按需装配。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SessionBindingRemoval": {
+      "name": "SessionBindingRemoval",
+      "jsdoc": "精确解除当前场景文件中的数据库或文件模型绑定；不删除来源资源的内容。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Pick<SessionSelection, 'tableName'> & (Pick<SessionSelection, 'modelId' | 'modelName'> | {\n    /** 文件资源的正式标识；与数据库modelId/modelName互斥，由当前查询配置核定。 */\n    resourceId: string;\n}) & {\n    /** 预览确认时的完整文件原文；与当前草稿不同则拒绝解除。 */\n    expectedText: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Pick<SessionSelection, 'tableName'> & (Pick<SessionSelection, 'modelId' | 'modelName'> | {\n    /** 文件资源的正式标识；与数据库modelId/modelName互斥，由当前查询配置核定。 */\n    resourceId: string;\n}) & {\n    /** 预览确认时的完整文件原文；与当前草稿不同则拒绝解除。 */\n    expectedText: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -725,11 +1720,7 @@
           "attributes": [
             {
               "name": "expectedText",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "text",
+              "jsdoc": "预览确认时的完整文件原文；与当前草稿不同则拒绝解除。",
               "readable": true,
               "writable": false
             }
@@ -743,7 +1734,7 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(targetId: string, metadataDataSet: DataSet, design: LowcodeDataSpaceViewDesign, options: ViewDesignOptions)",
+          "signatureText": "constructor(targetId: string, metadataDataSet: DataSet, design: LowcodeDataSpaceViewDesign, options: ViewDesignOptions, definitionResource: ScenarioDefinitionResource)",
           "parameters": [
             {
               "name": "targetId",
@@ -774,6 +1765,13 @@
                 "name": "ViewDesignOptions",
                 "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
               }
+            },
+            {
+              "name": "definitionResource",
+              "type": {
+                "type": "reference",
+                "name": "ScenarioDefinitionResource"
+              }
             }
           ]
         },
@@ -788,11 +1786,275 @@
               "name": "metadataDataSet",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "viewState",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relationDefinitionsReady",
+              "jsdoc": "当前文件的关系定义已可交给默认DataView编辑；不代表整个目标DataSet已经装配。\n原生文件直接就绪，旧格式须有完整投影或同文件/代次/正式来源的成功转换记录。\n@returns 关系工作区是否就绪；源查询或身份不再成立时拒绝复用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definitionStatus",
+              "jsdoc": "当前文件投影的读取状态；保存后的unloaded不是装配失败，也不允许继续消费旧投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definitionDataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definitionError",
+              "jsdoc": "Assembly failure leaves metadata and the file editable; it never represents a valid empty definition.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definitionDiagnostics",
+              "jsdoc": "当次装配未能转换的来源诊断；原始元数据保留，不能把运行子集当完整定义。",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
             {
-              "name": "refresh",
+              "name": "loadRelationFields",
+              "jsdoc": "为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。\n@param rowKey 当前元数据DataView中关系定义的主键；不接受另一空间或无读取许可的行。\n@returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。\n@throws 模型/关系身份、字段读取权限、文件或会话发生变化时拒绝旧目录。",
+              "parameters": [
+                {
+                  "name": "rowKey",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        columns: readonly DataColumn[];\n        context: DataViewFilterFunctionContext;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getViewFields",
+              "jsdoc": "Read the selected view's disposable field catalog; null means it has not been loaded for this identity/configuration.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "NativeViewSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly DataColumn[]"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getViewOutputProjection",
+              "jsdoc": "当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。\n@param input 精确模型与命名视图身份。\n@returns 目录尚未加载或文件资源返回null；用户显式初始化后才由原定义DataView记录变更。\n@throws 目标、模型、视图或会话身份失效时拒绝读取。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "NativeViewSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly DataViewFieldProjection[]"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadViewFilterContext",
+              "jsdoc": "读取命名视图值函数的本模型、正式上游及关联字段目录，沿参考节点请求设置的语义提供候选。\n@param input 当前空间中的精确模型绑定和视图；旧格式仅补读关系端点，原生格式直接使用文件关系。\n@returns 模型名称为正式modelName，字段为本仓正式输出；与视图字段目录共用按模型读取，不装配完整目标或执行函数。\n@throws 文件、正式模型、视图身份、可读权限或会话变化时拒绝过期目录；不改变原过滤定义。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "NativeViewSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadPreviewFilterContext",
+              "jsdoc": "为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。\n@param preview 本空间仍有效的模型或命名视图预览；当前字段复用原DataView查询来源合同。\n@returns 正式模型名称及字段目录；仅补读尚未缓存的上游模型，不装配目标或修改预览与持久定义。\n@throws 预览关闭、模型/文件/会话身份变化或上游字段不可读取时拒绝过期目录。",
+              "parameters": [
+                {
+                  "name": "preview",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceQueryPreview",
+                    "sourcePath": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewFilterFunctionContext"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadCascadeFields",
+              "jsdoc": "为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。\n@param tableName 当前文件内的模型表键；正式模型身份从已核定绑定读取，不接受模型名或首表回退。\n@param viewId 所属模型的命名视图；输出投影和主键/计算字段只读约束沿原生视图合同。\n@returns 候选DataView已刷新；不装配整个目标、不查询业务行、不修改定义或持久化。\n@throws 不可读身份、失效作用域或读取期间的绑定/投影变化拒绝发布候选。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadViewFields",
+              "jsdoc": "Read only the selected formal model and project its named-view fields without assembling the target DataSet.\n@param input Exact table binding, model identity and view name in the current metadata definition view.\n@returns Populates the existing field-option DataView; no business query, definition edit or persistence occurs.\n@throws Missing/read-restricted identity, changed file/scope or obsolete request prevents publication.",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "NativeViewSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadMetadataViews",
+              "jsdoc": "工作区按需读取字段或来源关系，复用正式 DataView；不是保存前的全量检查。",
+              "parameters": [
+                {
+                  "name": "names",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "literal",
+                          "value": "Base_DataModel_Field"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "Base_DataModel_Relation"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadRelationDefinitions",
+              "jsdoc": "读取完整旧关系并按端点/值函数依赖转换；不装配目标业务视图、不查询业务行或写旧库。\n不完整来源和转换诊断不能升级为原生定义；文件自身坏引用保留供显式修复。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -806,108 +2068,801 @@
               }
             },
             {
-              "name": "createView",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "SessionSelection",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "PageDataSpaceViewState",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "stageView",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "SessionStage",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "PageDataSpaceViewState",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "stageDefinition",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "SessionDefinitionStage",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "PageDataSpaceViewState",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "saveViews",
+              "name": "loadGraphRelations",
+              "jsdoc": "读取画布关系端点，保持完整运行定义未装配；标准画布绑定关系表的只读graph视图。\n@returns 完成后graph只包含当前文件及可确认正式模型的端点；不会读取字段、查询业务行或保存。\n@throws 元关系/模型权限与范围不符、文件改变或本次会话失效时拒绝显示旧端点。",
               "parameters": [],
               "type": {
                 "type": "reference",
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "reference",
-                    "name": "PageDataSpaceViewState",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                    "type": "intrinsic",
+                    "name": "void"
                   }
                 ]
               }
             },
             {
-              "name": "verifyViews",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
+              "name": "stageInputParameters",
+              "jsdoc": "校验目标空间的参数声明并写入原元数据视图编辑态；不提交数据库或修改引用。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
                     "type": "reference",
                     "name": "Readonly",
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        outcome: 'confirmed' | 'not-applied';\n        state: PageDataSpaceViewState;\n    }"
+                        "name": "{\n        expectedValue: unknown;\n        value: unknown;\n    }"
                       }
                     ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getInputParameters",
+              "jsdoc": "取得当前元数据视图的声明编辑编排；草稿、查询及保存仍归原生 DataSet。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceInputParameterEdit",
+                "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit.ts"
+              }
+            },
+            {
+              "name": "getSourceInput",
+              "jsdoc": "维护正式来源入参的ValueFun；同一字段复用流程状态，提交即使旧目标投影失效。",
+              "parameters": [
+                {
+                  "name": "fieldId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "sourceInputFields"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceSourceInputEdit",
+                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts"
+              }
+            },
+            {
+              "name": "loadSourceInputFields",
+              "jsdoc": "读取当前模型的正式来源入参；过滤及查询选项来自pagedata，不替换目录视图。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getModelSourceInputs",
+              "jsdoc": "取得模型工作区的原入参owner；保留未决行身份，回读缺行仍能从原批次核验。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "LowcodeDataSpaceSourceInputEdit",
+                  "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts"
+                }
+              }
+            },
+            {
+              "name": "hasPendingSourceInputs",
+              "jsdoc": "供宿主释放检查；包含没有本地delta但仍待核验的来源入参提交。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "loadModelInputFields",
+              "jsdoc": "查询请求设置右侧的上游模型字段；原生关系仅决定模型集合，不执行关系过滤或推导输入级联。\n@param modelId 当前正式模型ID；端点经目标配置的modelBinding解析，不用物理来源名猜测。\n@returns 元字段表的modelInputFields视图，范围过滤保留在pagedata及queryContext中。\n原生v2直接读取文件关系；旧格式只读取关系目录并映射端点，不装配完整目标。\n@throws 关系定义、正式身份、查询范围或本次会话失效时明确报错，不把未知关系当作空结果。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadModelFields",
+              "jsdoc": "加载统一模型工作区的正式字段视图和已配置的脱敏规则候选；全空间目录仍保留在default。\n@param modelId 当前被设计空间内唯一、可读的模型ID。\n@returns 由metadataDataSet持有的命名视图，表格和编辑器共同消费。\n@throws 有字段草稿、未决请求或返回范围失配时拒绝切换，不复制旧权限或数据。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getFieldEdit",
+              "jsdoc": "取得正式字段配置流程；字段草稿及权限属于指定查询视图。\n@param fieldId 正式字段ID。\n@param viewId 独立字段入口用default；统一模型列工作区用modelFields，不回退查询身份。",
+              "parameters": [
+                {
+                  "name": "fieldId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "modelFields"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceFieldEdit",
+                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts"
+              }
+            },
+            {
+              "name": "getFieldCreate",
+              "jsdoc": "同一模型只保留一个创建流程；输入视图不保存为正式元模型。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "modelFields"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceFieldCreate",
+                "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create.ts"
+              }
+            },
+            {
+              "name": "releaseFieldCreate",
+              "jsdoc": "离开字段新增工作区时释放空的输入视图；草稿及未决提交保留给原会话核验。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "modelFields"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getUnresolvedFieldIds",
+              "jsdoc": "含没有本地delta但仍待核验的字段提交，供页面关闭及切换保护。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "modelFields"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "hasPendingFieldEdits",
+              "jsdoc": "原字段视图中的新增也算待提交，即使尚未打开单行编辑器。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getModelFieldRemovals",
+              "jsdoc": "当前模型原绑定视图的待删除或未决流程；记录数据仍仅在DataView。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "LowcodeDataSpaceFieldRemove",
+                  "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts"
+                }
+              }
+            },
+            {
+              "name": "getFieldRemove",
+              "jsdoc": "计算字段删除复用原DataView；恢复入口不依赖待删行仍存在。",
+              "parameters": [
+                {
+                  "name": "fieldId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fieldViewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "modelFields"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceFieldRemove",
+                "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts"
+              }
+            },
+            {
+              "name": "getModelEdit",
+              "jsdoc": "维护正式模型的查询配置；模型身份和来源替换不在此入口改动。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceModelEdit",
+                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-edit.ts"
+              }
+            },
+            {
+              "name": "getArrayEdit",
+              "jsdoc": "已有数组共用原定义批次；工作区显式绑定modelFields，独立完整目录调用使用default。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fieldViewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "modelFields"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceArrayEdit",
+                "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts"
+              }
+            },
+            {
+              "name": "releaseArrayEdit",
+              "jsdoc": "关闭无草稿数组窗口时释放流程身份；未决提交保留供核验。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fieldViewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "modelFields"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "hasPendingModelEdits",
+              "jsdoc": "保留没有本地delta但仍待核验的模型提交，供页面关闭保护。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getModelRename",
+              "jsdoc": "维护注册名及本空间明确引用，原正式模型ID、来源和内部表键保持不变。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceModelRename",
+                "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts"
+              }
+            },
+            {
+              "name": "releaseModelRename",
+              "jsdoc": "离开模型节点时释放空的改名输入；未决操作继续由会话保留。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "getModelRemove",
+              "jsdoc": "删除当前模型及其正式从属定义，复用原元数据视图和文件依赖检查。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceModelRemove",
+                "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts"
+              }
+            },
+            {
+              "name": "hasPendingModelRemovals",
+              "jsdoc": "含预览和未决删除，避免模型行消失后丢失核验入口。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getModelCreate",
+              "jsdoc": "同一会话复用新模型创建状态；新增记录仍归原模型和字段视图。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceModelCreate",
+                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create.ts"
+              }
+            },
+            {
+              "name": "hasPendingModelCreate",
+              "jsdoc": "包括预览和没有本地delta的未决新增，避免关闭时丢失核验入口。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getModelSourceEdit",
+              "jsdoc": "保留字段合同的来源替换或当前来源同步；共用正式来源读取与原DataView保存。",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "LowcodeDataSpaceModelSourceEdit",
+                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts"
+              }
+            },
+            {
+              "name": "hasPendingModelSourceEdits",
+              "jsdoc": "包含来源预览和未决提交，避免释放时丢失核验入口。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "readApiInfo",
+              "jsdoc": "复制当前空间的模型调用资料和命名视图键；正式主键由原读取owner确认，不输出业务行或授权凭据。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "inspectInputParameters",
+              "jsdoc": "检查当前声明编辑对参数引用的影响；不推断未来调用值，不保存或改写定义。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "InputParameterInspection",
+                "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts"
+              }
+            },
+            {
+              "name": "openPreview",
+              "jsdoc": "按已保存配置及所选模型范围重新装配命名预览；无需旧设计投影，仍拒绝未决元数据/文件草稿及过期身份。不查询或修改元数据视图中的业务行。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "NativeViewSelection",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceQueryPreview",
+                    "sourcePath": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openModelPreview",
+              "jsdoc": "按正式模型及已保存初值创建预览DataView；请求调整留在预览实例，不保存模型请求草稿。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Pick",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "SessionSelection",
+                        "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                      },
+                      {
+                        "type": "union",
+                        "types": [
+                          {
+                            "type": "literal",
+                            "value": "modelId"
+                          },
+                          {
+                            "type": "literal",
+                            "value": "modelName"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceQueryPreview",
+                    "sourcePath": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "重读文件定义；延迟模式先交付元数据，画布读取端点，完整编辑工作区再调用loadDefinition。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "SessionLoadOptions",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadDefinition",
+              "jsdoc": "装配当前文件的目标结构；同代次在途调用合并，成功复用，失败可重试，不查询业务行或保存。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readReferenceLayout",
+              "jsdoc": "通过元空间正式只读视图查询参考布局；未加载与缺文件不同，读取期间定义变化则拒绝使用结果。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeModelBinding",
+              "jsdoc": "将精确模型绑定及所属配置的删除记入原生DataView；提交和取消仍由DataSet/DataView执行。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SessionBindingRemoval",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "PageDataSpaceViewState",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
                   }
                 ]
               }
@@ -937,6 +2892,7 @@
             },
             {
               "name": "adoptViews",
+              "jsdoc": "接纳已展示且再次核对的远端文件，刷新定义编辑视图与画布端点；完整运行定义仍按工作区需要装配。",
               "parameters": [
                 {
                   "name": "input",
@@ -998,23 +2954,28 @@
             }
           ]
         },
-        "declarationRelations": [
-          {
-            "kind": "implements",
-            "typeText": "PageDataSpaceViewDesignReader",
-            "targetName": "PageDataSpaceViewDesignReader"
-          }
-        ],
         "members": {
           "methods": [
             {
               "name": "openDesignSession",
+              "jsdoc": "打开正式元数据与文件定义；deferDefinition由分层页面使用，目标装配仍由同一会话承接。",
               "parameters": [
                 {
                   "name": "targetId",
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "SessionLoadOptions",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],
@@ -1031,13 +2992,92 @@
               }
             },
             {
-              "name": "open",
+              "name": "openPreview",
+              "jsdoc": "装配可供标准组件绑定的独立预览实例；调用方关闭时必须dispose。\n@param subscribe 调用方定义/会话失效订阅；与文件订阅共同释放已绑定的DataView，预览关闭时解除。",
               "parameters": [
                 {
-                  "name": "scenarioId",
+                  "name": "input",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "NativeViewSelection",
+                        "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                      },
+                      {
+                        "type": "unknown",
+                        "name": "{\n        scenarioId: string;\n    }"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "subscribe",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "listener",
+                              "type": {
+                                "type": "reflection",
+                                "declaration": {
+                                  "signatures": [
+                                    {
+                                      "parameters": [],
+                                      "type": {
+                                        "type": "intrinsic",
+                                        "name": "void"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "reflection",
+                            "declaration": {
+                              "signatures": [
+                                {
+                                  "parameters": [],
+                                  "type": {
+                                    "type": "intrinsic",
+                                    "name": "void"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],
@@ -1046,14 +3086,16 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "unknown",
-                    "name": "{\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n        dirtySource: ScenarioViewFile;\n    }"
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceQueryPreview",
+                    "sourcePath": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts"
                   }
                 ]
               }
             },
             {
-              "name": "readModel",
+              "name": "openModelPreview",
+              "jsdoc": "独立装配正式模型的临时默认视图；不注册场景文件，不叠加已有命名视图规则。",
               "parameters": [
                 {
                   "name": "input",
@@ -1062,29 +3104,6 @@
                     "name": "PageDataSpaceViewModelInput",
                     "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
                   }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "unknown",
-                    "name": "{\n        id: string;\n        name: string;\n        fields: {\n            name: string;\n            label: string;\n        }[];\n    }"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "create",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageDataSpaceViewSelection",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
                 },
                 {
                   "name": "assertCurrent",
@@ -1105,41 +3124,46 @@
                   "flags": {
                     "isOptional": true
                   }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "unknown",
-                    "name": "{\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n        dirtySource: ScenarioViewFile;\n    }"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "stage",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageDataSpaceViewStage",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
                 },
                 {
-                  "name": "assertCurrent",
+                  "name": "subscribe",
                   "type": {
                     "type": "reflection",
                     "declaration": {
                       "signatures": [
                         {
-                          "parameters": [],
+                          "parameters": [
+                            {
+                              "name": "listener",
+                              "type": {
+                                "type": "reflection",
+                                "declaration": {
+                                  "signatures": [
+                                    {
+                                      "parameters": [],
+                                      "type": {
+                                        "type": "intrinsic",
+                                        "name": "void"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ],
                           "type": {
-                            "type": "intrinsic",
-                            "name": "void"
+                            "type": "reflection",
+                            "declaration": {
+                              "signatures": [
+                                {
+                                  "parameters": [],
+                                  "type": {
+                                    "type": "intrinsic",
+                                    "name": "void"
+                                  }
+                                }
+                              ]
+                            }
                           }
                         }
                       ]
@@ -1156,137 +3180,8 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "PageDataSpaceViewState",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "save",
-              "parameters": [
-                {
-                  "name": "scenarioId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "assertCurrent",
-                  "type": {
-                    "type": "reflection",
-                    "declaration": {
-                      "signatures": [
-                        {
-                          "parameters": [],
-                          "type": {
-                            "type": "intrinsic",
-                            "name": "void"
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "PageDataSpaceViewState",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "verify",
-              "parameters": [
-                {
-                  "name": "scenarioId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "unknown",
-                    "name": "{\n        outcome: \"confirmed\" | \"not-applied\";\n        state: Readonly<{\n            scenarioId: string;\n            text: string;\n            config: Readonly<Record<string, unknown>>;\n            persisted: boolean;\n            dirty: boolean;\n            revision: number;\n            saveStatus: \"idle\" | \"pending\" | \"unknown\";\n            submittedText: string | null;\n        }>;\n    }"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "previewRemote",
-              "parameters": [
-                {
-                  "name": "scenarioId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "intrinsic",
-                        "name": "string"
-                      },
-                      {
-                        "type": "literal",
-                        "value": null
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "name": "adopt",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "PageDataSpaceViewAdopt",
-                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "reference",
-                        "name": "PageDataSpaceViewState",
-                        "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-                      },
-                      {
-                        "type": "literal",
-                        "value": null
-                      }
-                    ]
+                    "name": "LowcodeDataSpaceQueryPreview",
+                    "sourcePath": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts"
                   }
                 ]
               }
@@ -1309,7 +3204,7 @@
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "{\n        total: number;\n        fields: string[];\n        rows: Record<string, unknown>[];\n    }"
+                    "name": "{\n        total: number;\n        fields: string[];\n        rows: DataRow[];\n    }"
                   }
                 ]
               }

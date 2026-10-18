@@ -1,0 +1,961 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:scenario/scenario-definition-resource",
+    "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts",
+    "sourceFile": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "scenario/scenario-definition-resource",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-definition-resource\n职责：把场景文件中的视图、模型关系及级联定义接入SPARK data查询和保存协议。\n边界：不创建DataTable、不维护编辑副本；只转换原DataView捕获的变更并返回存储回执。\nAI用途：由正式元数据空间装配文件资源，组件和业务只调用DataView/DataSet。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ScenarioDefinitionResource"
+    ]
+  },
+  "$defs": {
+    "Executor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Executor",
+      "properties": {
+        "localAggregates": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "invalidateQueryCache": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "releaseQueryCache": {
+          "type": "object",
+          "title": "(page: object) => void"
+        },
+        "queryColumns": {
+          "type": "object",
+          "title": "(view: DataView) => readonly DataColumn[]"
+        },
+        "executeQuery": {
+          "type": "object",
+          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; ... 11 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+        },
+        "save": {
+          "type": "object",
+          "title": "(command: Readonly<{ changes: readonly Readonly<{ identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>; tableConfig?: Pick<TableMetadata, \"api\" | \"crudConfig\">; context: Readonly<...>; changes: Readonly<...>; }>[]; }>) => Promise<Readonly<...."
+        },
+        "hasUnconfirmedSave": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; total: number; ... 10 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
+        },
+        "source": {
+          "$ref": "../../../spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
+        }
+      },
+      "required": [
+        "executeQuery"
+      ],
+      "additionalProperties": false
+    },
+    "Source": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Source",
+      "properties": {
+        "views": {
+          "type": "object",
+          "title": "(view: DataView) => readonly DataView[]"
+        },
+        "preview": {
+          "type": "object",
+          "title": "(view: DataView) => Promise<DataViewSourceSnapshot>"
+        },
+        "adopt": {
+          "type": "object",
+          "title": "(view: DataView, snapshot: DataViewSourceSnapshot, hooks: Readonly<{ assertCurrent(): void; beforeApply(): void; }>) => Promise<void>"
+        },
+        "history": {
+          "$ref": "#/$defs/History"
+        }
+      },
+      "required": [
+        "views",
+        "preview",
+        "adopt"
+      ],
+      "additionalProperties": false
+    },
+    "History": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "History",
+      "properties": {
+        "list": {
+          "type": "object",
+          "title": "(view: DataView) => Promise<readonly DataViewSourceVersion[]>"
+        },
+        "preview": {
+          "type": "object",
+          "title": "(view: DataView, version: string | number) => Promise<string>"
+        },
+        "create": {
+          "type": "object",
+          "title": "(view: DataView, hooks: Readonly<{ assertCurrent(): void; }>) => Promise<void>"
+        }
+      },
+      "required": [
+        "list",
+        "preview",
+        "create"
+      ],
+      "additionalProperties": false
+    },
+    "Result": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Result",
+      "properties": {
+        "undefinedChanges": {
+          "const": "clear"
+        },
+        "countReported": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "resultPrimaryKey": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataViewQueryRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "assertIdentity": {
+          "type": "object",
+          "title": "(identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>) => void"
+        },
+        "rowKey": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => unknown"
+        },
+        "prepareNewRow": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => Record<string, unknown>"
+        },
+        "isFieldReadOnly": {
+          "type": "object",
+          "title": "(field: string) => boolean"
+        },
+        "fieldAccess": {
+          "type": "object",
+          "title": "(rowKey: unknown, field: string) => Readonly<{ read: \"invisible\" | \"masked\" | \"visible\"; write: \"denied\" | \"allowed\"; component: \"hidden\" | \"readonly\" | \"editable\"; required: boolean; writeMode: \"required\" | \"editable\" | \"readonly\"; }>"
+        },
+        "readFieldAccess": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>, field: string) => \"masked\" | \"invisible\" | \"visible\""
+        },
+        "addActionState": {
+          "type": "object",
+          "title": "(available?: boolean) => DataViewActionState"
+        },
+        "editActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "deleteActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "createChildActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "viewActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        }
+      },
+      "required": [
+        "rows",
+        "total",
+        "assertIdentity",
+        "rowKey",
+        "fieldAccess",
+        "readFieldAccess",
+        "addActionState",
+        "editActionState",
+        "deleteActionState",
+        "createChildActionState",
+        "viewActionState"
+      ],
+      "additionalProperties": false
+    },
+    "SaveCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveCommand",
+      "properties": {
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataViewQuerySaveChange"
+          }
+        }
+      },
+      "required": [
+        "changes"
+      ],
+      "additionalProperties": false
+    },
+    "Receipt": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Receipt",
+      "properties": {
+        "metaName": {
+          "type": "string"
+        },
+        "added": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataViewQueryRow"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataViewQueryRow"
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataViewQueryRow"
+          }
+        },
+        "changedFields": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "context": {
+          "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataViewQueryResult"
+        }
+      },
+      "required": [
+        "metaName",
+        "added",
+        "changed",
+        "deleted",
+        "changedFields",
+        "context"
+      ],
+      "additionalProperties": false
+    },
+    "DefinitionResourceOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DefinitionResourceOptions",
+      "properties": {
+        "workspace": {
+          "$ref": "../project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+        },
+        "metadataScenarioId": {
+          "type": "string"
+        },
+        "targetScenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "next": {
+              "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            "previous": {
+              "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            "resources": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "ScenarioDefinitionResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioDefinitionResource",
+      "properties": {
+        "source": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Source"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "history": {
+                  "$ref": "#/$defs/History"
+                }
+              },
+              "required": [
+                "history"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "executors": {
+          "type": "object",
+          "title": "Record<string, Executor>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/DefinitionResourceOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryParameters.params": {
+          "type": "object",
+          "properties": {
+            "resourceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryParameters.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Pick<DataColumn, 'name' | 'type' | 'label' | 'required'>"
+          }
+        },
+        "method.hasUnconfirmedSave.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/Result"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasUnconfirmedSave.return": {
+          "type": "boolean"
+        },
+        "method.ownsCreatedFile.params": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "anyOf": [
+                {
+                  "$ref": "scenario-view-file.ts.json#/$defs/ScenarioViewFile"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ownsCreatedFile.return": {
+          "type": "boolean"
+        },
+        "method.forQueries.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "object",
+              "title": "Omit<DefinitionResourceOptions, 'targetScenarioId'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.forQueries.return": {
+          "$ref": "#/$defs/Executor"
+        },
+        "method.useResolvedRelations.params": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "anyOf": [
+                {
+                  "$ref": "scenario-view-file.ts.json#/$defs/ScenarioViewFile"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "relations": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataResourceRelation"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.useResolvedRelations.return": true,
+        "method.useRelationEndpoints.params": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "$ref": "scenario-view-file.ts.json#/$defs/ScenarioViewFile"
+            },
+            "endpoints": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Pick<DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable'>"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.useRelationEndpoints.return": true,
+        "method.executeQuery.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "params": {
+              "$ref": "../../../spark-data/src/types.ts.json#/$defs/QueryParams"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeQuery.return": {
+          "type": "object",
+          "title": "Promise<Result>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "#/$defs/SaveCommand"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<Receipt[]>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-15T12:28:06.116Z",
+  "models": {
+    "Executor": {
+      "name": "Executor",
+      "jsdoc": "原生DataView查询与保存适配协议，不另定义业务提交接口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<DataView['bindQueryExecutor']>[0]",
+        "members": {}
+      }
+    },
+    "Source": {
+      "name": "Source",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<Executor['source']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<Executor['source']>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "History": {
+      "name": "History",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<Source['history']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<Source['history']>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Result": {
+      "name": "Result",
+      "jsdoc": "由原生DataView接纳的查询结果与受保护身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<Executor['executeQuery']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<Executor['executeQuery']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SaveCommand": {
+      "name": "SaveCommand",
+      "jsdoc": "DataSet捕获并交给原查询owner的变更批次。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<NonNullable<Executor['save']>>[0]",
+        "members": {}
+      }
+    },
+    "Receipt": {
+      "name": "Receipt",
+      "jsdoc": "原查询基线及确已持久的新增、修改、删除回执。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<NonNullable<Executor['save']>>>[number]",
+        "members": {}
+      }
+    },
+    "DefinitionResourceOptions": {
+      "name": "DefinitionResourceOptions",
+      "jsdoc": "装配时注入的存储与语义校验；没有页面状态或后端虚构模型身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 实际文件存储及冲突、回读、未知提交核验责任方。 */\n    workspace: ProjectWorkspace;\n    /** 描述定义资源的元数据空间C身份，不随目标T变化。 */\n    metadataScenarioId: string;\n    /** 本次被设计空间T，与查询输入dataSpaceId一致。 */\n    targetScenarioId: string;\n    /** 每次异步读取或提交前后核对应用、会话和存储作用域。 */\n    assertCurrent(): void;\n    /** 只校验本次改变的定义及其显式依赖，不读取目标空间的业务数据。 */\n    validate(next: ScenarioViewConfig, previous: ScenarioViewConfig, resources: readonly string[]): Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 实际文件存储及冲突、回读、未知提交核验责任方。 */\n    workspace: ProjectWorkspace;\n    /** 描述定义资源的元数据空间C身份，不随目标T变化。 */\n    metadataScenarioId: string;\n    /** 本次被设计空间T，与查询输入dataSpaceId一致。 */\n    targetScenarioId: string;\n    /** 每次异步读取或提交前后核对应用、会话和存储作用域。 */\n    assertCurrent(): void;\n    /** 只校验本次改变的定义及其显式依赖，不读取目标空间的业务数据。 */\n    validate(next: ScenarioViewConfig, previous: ScenarioViewConfig, resources: readonly string[]): Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workspace",
+              "jsdoc": "实际文件存储及冲突、回读、未知提交核验责任方。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metadataScenarioId",
+              "jsdoc": "描述定义资源的元数据空间C身份，不随目标T变化。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetScenarioId",
+              "jsdoc": "本次被设计空间T，与查询输入dataSpaceId一致。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "每次异步读取或提交前后核对应用、会话和存储作用域。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validate",
+              "jsdoc": "只校验本次改变的定义及其显式依赖，不读取目标空间的业务数据。",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                },
+                {
+                  "name": "previous",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                },
+                {
+                  "name": "resources",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ScenarioDefinitionResource": {
+      "name": "ScenarioDefinitionResource",
+      "jsdoc": "同一文件的多个语义资源共用此适配器；数据操作与变更状态统一由SPARK data持有。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "按实际元空间、目标空间及已授权存储创建资源适配；不会创建表或读取业务行。",
+          "signatureText": "constructor(options: DefinitionResourceOptions)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "DefinitionResourceOptions",
+                "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "jsdoc": "同一文件的来源适配；业务通过DataView预览/采用，文件owner只在资源内部执行存储核对。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "executors",
+              "jsdoc": "按正式配置表名提供同一个查询保存适配；声明本身不会创建表或授予数据库权限。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "queryParameters",
+              "jsdoc": "已注册定义资源的调用参数；dataSpaceId定位被查询文件，不改变消费它的DataSet身份。",
+              "parameters": [
+                {
+                  "name": "resourceId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Pick",
+                  "typeArguments": [
+                    {
+                      "type": "reference",
+                      "name": "DataColumn"
+                    },
+                    {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "literal",
+                          "value": "name"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "type"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "label"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "required"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "jsdoc": "仅来源仍持有的原上下文需要核验；普通校验失败不进入未知恢复轮。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "Result",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "ownsCreatedFile",
+              "jsdoc": "供宿主接纳本次原生提交首次创建的文件身份，不接纳其他入口的替换。",
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ScenarioViewFile",
+                        "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "forQueries",
+              "jsdoc": "通用页面按查询参数定位目标空间；同一提交不可混入不同目标的文件。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "Omit",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DefinitionResourceOptions",
+                        "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "targetScenarioId"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Executor",
+                "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts"
+              }
+            },
+            {
+              "name": "useResolvedRelations",
+              "jsdoc": "资源装配器交付已完整解析的旧关系来源；只读来源不是编辑状态，原数据库记录不回写。",
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ScenarioViewFile",
+                        "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "relations",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "unknown",
+                      "name": "readonly DataResourceRelation[]"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "useRelationEndpoints",
+              "jsdoc": "关系来源装配器交付只读端点；graph视图同样通过查询协议接纳，不能用replaceRows绕过数据链。",
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewFile",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-file.ts"
+                  }
+                },
+                {
+                  "name": "endpoints",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Pick",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "DataResourceRelation"
+                        },
+                        {
+                          "type": "union",
+                          "types": [
+                            {
+                              "type": "literal",
+                              "value": "relationId"
+                            },
+                            {
+                              "type": "literal",
+                              "value": "sourceRelationId"
+                            },
+                            {
+                              "type": "literal",
+                              "value": "parentTable"
+                            },
+                            {
+                              "type": "literal",
+                              "value": "childTable"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "executeQuery",
+              "jsdoc": "查询记录来自目标文件；查询配置、结果接纳和编辑生命周期仍由原DataView执行。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "QueryParams"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Result",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "仅接收DataView私有查询上下文和已捕获变更；文件IO不暴露为业务保存入口。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "SaveCommand",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Receipt",
+                      "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

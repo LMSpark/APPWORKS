@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor\n职责：在所属正式模型下呈现命名视图配置，通过绑定的DataView编辑和取消，通过DataSet提交变更。\n边界：通过原生DataView编辑定义和所属模型绑定，存储由数据层适配，不读取业务行或另建权限和保存通道。\nAI用途：将模型和选定视图接入原生数据空间页面时使用；复杂配置通过绑定原定义视图的标准r-json和过滤编辑器维护。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T14:59:00.558Z",
+  "models": {}
+}

@@ -101,30 +101,6 @@
             {
               "type": "object",
               "title": "Pick<PageRuntime, 'getDataSet' | 'resolveView'>"
-            },
-            {
-              "$ref": "app-services.ts.json#/$defs/PageDataSpaceLayoutReader"
-            },
-            {
-              "$ref": "app-services.ts.json#/$defs/PageDataSpaceLayoutWriter"
-            },
-            {
-              "$ref": "app-services.ts.json#/$defs/PageDataSpaceLayoutContent"
-            },
-            {
-              "$ref": "app-services.ts.json#/$defs/PageLocalDraftAccess"
-            },
-            {
-              "type": "object",
-              "additionalProperties": false
-            },
-            {
-              "type": "object",
-              "additionalProperties": false
-            },
-            {
-              "type": "object",
-              "additionalProperties": false
             }
           ]
         },
@@ -269,7 +245,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T07:35:50.689Z",
+  "generatedAt": "2026-10-13T21:23:19.774Z",
   "models": {
     "PageRoute": {
       "name": "PageRoute",
@@ -324,7 +300,7 @@
       "jsdoc": "业务脚本沙箱上下文 — 完整 API 契约。\n此接口是 `script.js` 可访问的所有变量的类型声明。\n脚本在 `with (__ctx)` 沙箱内执行，所有变量均通过此接口注入。\n**稳定 API（核心框架契约）**：\n- `$route` — 路由快照（只读，不依赖 Vue Router）\n- `$el` — 当前页面容器元素\n- `$query` / `$queryAll` — DOM 查询（谨慎使用）\n- `$page.resolveView(binding).requestData()` — 刷新明确绑定的视图\n- `$page` — UI 交互服务（消息 / 确认 / 导航）\n**渲染层附加（非核心契约，实现层注入）**：\n- `$page.getDataSet(scenarioId)` — 指定场景 DataSet\n- 数据权限由实际原查询上下文经 DataView 集中消费\n- `SparkData` — SPARK 数据工具命名空间（在 ScriptContext 外单独注入）\n- `h` — Vue 渲染函数（仅供 Render* 渲染函数，非业务逻辑）\n@example ```js\n// script.js（沙箱内所有变量直接可用，无需 this.xxx）\n// 读取路由参数\nconst id = $route.params.id\n// UI 交互（框架无关）\nawait $page.showConfirm('是否确认提交？')\n$page.showMessage('保存成功', 'success')\n$page.navigate('/orders')\n```",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /**\n     * 页面级组件访问 API。\n     *\n     * 可用于按组件 id / type 获取实例快照与容器组件暴露的包装 API。\n     */\n    $components: PageComponentAccessInScript;\n    /**\n     * 当前路由快照（底层 Vue Router 实现，只读，framework-agnostic）。\n     * 创建页面调用时冻结的路由快照，接口类型不依赖 Vue Router。\n     */\n    $route: PageRoute;\n    /** 当前页面容器 DOM 元素（可用于 focus、scroll 等操作） */\n    $el: () => HTMLElement | null;\n    /** 通过 CSS 选择器查询页面内单个元素 */\n    $query: (selector: string) => HTMLElement | null;\n    /** 通过 CSS 选择器查询页面内所有匹配元素 */\n    $queryAll: (selector: string) => NodeListOf<Element>;\n    /**\n     * UI 交互服务（框架无关，替代 ElMessage / ElMessageBox）。\n     *\n     * ✅ 推荐：所有消息提示、确认框、输入框、导航均通过此接口调用。\n     *\n     * 类型直接来自 page-config 的 runtime service contract，渲染层注入对应实现。\n     */\n    $page: PageServiceCapability & Pick<PageRuntime, 'getDataSet' | 'resolveView'> & PageDataSpaceLayoutReader & PageDataSpaceLayoutWriter & PageDataSpaceLayoutContent & PageLocalDraftAccess & Readonly<{\n        readDataSpaceRelationDependencyOptions(): ReturnType<PageDataSpaceDesignReader['readRelationDependencyOptions']>;\n    }> & Readonly<{\n        readDataSpaceModelSources(input: Parameters<NonNullable<PageDataSpaceDesignReader['modelSources']>['query']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['modelSources']>['query']>;\n        prepareDataSpaceModelSource(source: Parameters<NonNullable<PageDataSpaceDesignReader['modelSources']>['prepare']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['modelSources']>['prepare']>;\n    }> & Readonly<{\n        openDataSpaceViews(scenarioId: string): Promise<Awaited<ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['open']>>['state']>;\n        createDataSpaceViews(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['create']>[0]): Promise<Awaited<ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['create']>>['state']>;\n        readDataSpaceViewModel(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['readModel']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['readModel']>;\n        stageDataSpaceView(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['stage']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['stage']>;\n        saveDataSpaceViews(scenarioId: string): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['save']>;\n        verifyDataSpaceViews(scenarioId: string): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['verify']>;\n        previewDataSpaceViewsRemote(scenarioId: string): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['previewRemote']>;\n        adoptDataSpaceViews(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['adopt']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['adopt']>;\n        previewDataSpaceView(input: Parameters<NonNullable<PageDataSpaceDesignReader['viewDesign']>['preview']>[0]): ReturnType<NonNullable<PageDataSpaceDesignReader['viewDesign']>['preview']>;\n    }>;\n    /**\n     * 脚本日志接口（已桥接到框架 Logger 传输链）。\n     *\n     * 在 script.js 中调用 `console.log/info/warn/error/debug`，\n     * 会同时进入浏览器控制台与统一日志采集（AI 面板可见）。\n     */\n    console: Pick<Console, 'log' | 'info' | 'warn' | 'error' | 'debug'>;\n    /**\n     * 模块级上下文（导航系统注入，当前模块无上下文时为 `null`）。\n     *\n     * 提供当前模块选择器的选中值和可选项，脚本可据此实现按项目/租户/环境加载数据等逻辑。\n     *\n     * @example\n     * ```js\n     * // script.js\n     * const projectId = $moduleContext?.selected\n     * if (projectId) {\n     *   view?.loadFromServer({ projectId })\n     * }\n     * ```\n     */\n    $moduleContext: ContextSnapshot | null;\n}",
+        "declarationTypeText": "{\n    /**\n     * 页面级组件访问 API。\n     *\n     * 可用于按组件 id / type 获取实例快照与容器组件暴露的包装 API。\n     */\n    $components: PageComponentAccessInScript;\n    /**\n     * 当前路由快照（底层 Vue Router 实现，只读，framework-agnostic）。\n     * 创建页面调用时冻结的路由快照，接口类型不依赖 Vue Router。\n     */\n    $route: PageRoute;\n    /** 当前页面容器 DOM 元素（可用于 focus、scroll 等操作） */\n    $el: () => HTMLElement | null;\n    /** 通过 CSS 选择器查询页面内单个元素 */\n    $query: (selector: string) => HTMLElement | null;\n    /** 通过 CSS 选择器查询页面内所有匹配元素 */\n    $queryAll: (selector: string) => NodeListOf<Element>;\n    /**\n     * UI 交互服务（框架无关，替代 ElMessage / ElMessageBox）。\n     *\n     * ✅ 推荐：所有消息提示、确认框、输入框、导航均通过此接口调用。\n     *\n     * 类型直接来自 page-config 的 runtime service contract，渲染层注入对应实现。\n     */\n    $page: PageServiceCapability & Pick<PageRuntime, 'getDataSet' | 'resolveView'>;\n    /**\n     * 脚本日志接口（已桥接到框架 Logger 传输链）。\n     *\n     * 在 script.js 中调用 `console.log/info/warn/error/debug`，\n     * 会同时进入浏览器控制台与统一日志采集（AI 面板可见）。\n     */\n    console: Pick<Console, 'log' | 'info' | 'warn' | 'error' | 'debug'>;\n    /**\n     * 模块级上下文（导航系统注入，当前模块无上下文时为 `null`）。\n     *\n     * 提供当前模块选择器的选中值和可选项，脚本可据此实现按项目/租户/环境加载数据等逻辑。\n     *\n     * @example\n     * ```js\n     * // script.js\n     * const projectId = $moduleContext?.selected\n     * if (projectId) {\n     *   view?.loadFromServer({ projectId })\n     * }\n     * ```\n     */\n    $moduleContext: ContextSnapshot | null;\n}",
         "members": {
           "attributes": [
             {

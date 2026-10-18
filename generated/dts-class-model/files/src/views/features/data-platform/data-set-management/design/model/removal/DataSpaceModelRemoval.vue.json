@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval\n职责：展示精确删除清单、显式确认和未决结果。\n边界：复用原DataView权限及会话操作，不直接请求或在挂载时查询。\nAI用途：行已消失时仍保留核验入口，不把取消当作撤销已派发删除。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-11T15:32:34.405Z",
+  "models": {}
+}

@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:scenario/scenario-definition-document",
+    "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-document.ts",
+    "sourceFile": "packages/spark-project-model/src/scenario/scenario-definition-document.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "scenario/scenario-definition-document",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-definition-document\n职责：把完整配置文本及撤销命令映射为正式定义DataView中的变更。\n边界：有效数据只在DataView；来源原文只作不可变根配置基线，历史只作撤销记录，不执行文件IO或保存。\nAI用途：复杂配置编辑与历史恢复复用定义资源映射，提交仍调用同一个DataSet。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ScenarioDefinitionDocument"
+    ]
+  },
+  "$defs": {
+    "ScenarioDefinitionDocument": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioDefinitionDocument",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "viewSelectors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tableName": {
+                "type": "string"
+              },
+              "viewId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tableName",
+              "viewId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "isDirty": {
+          "type": "boolean"
+        },
+        "isPersisted": {
+          "type": "boolean"
+        },
+        "canUndo": {
+          "type": "boolean"
+        },
+        "canRedo": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<ScenarioDefinitionDocument>"
+        },
+        "method.getText.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getText.return": {
+          "type": "string"
+        },
+        "method.setText.params": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setText.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.undo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.undo.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.redo.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.redo.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-15T12:26:33.718Z",
+  "models": {
+    "ScenarioDefinitionDocument": {
+      "name": "ScenarioDefinitionDocument",
+      "jsdoc": "完整定义文档的交互命令；不持有另一份可编辑文本、行集合或保存通道。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewSelectors",
+              "jsdoc": "当前文档实际消费的原定义视图；保存只捕获其本次变更。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isDirty",
+              "jsdoc": "只从原DataView读取编辑/待提交状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "isPersisted",
+              "jsdoc": "来源存在或本次定义提交已收到真实成功回执；新增草稿不冒充已保存文件。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canUndo",
+              "jsdoc": "外部编辑后旧撤销历史不再适用，不能覆盖另一消费者的变更。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canRedo",
+              "jsdoc": "外部编辑后旧重做历史不再适用。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "open",
+              "jsdoc": "显式打开完整配置工作区：查询五类定义，不查询目标业务行或尚未消费的字段目录。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioDefinitionDocument",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-document.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getText",
+              "jsdoc": "文本是当前DataView有效行与未修改根配置的只读投影，不是保存真源。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "setText",
+              "jsdoc": "验证完整文本后，仅把实际定义差异写入原DataView；根级格式、版本和提交策略不能由文本绕过领域命令。",
+              "parameters": [
+                {
+                  "name": "text",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "undo",
+              "jsdoc": "撤销本交互历史；实际值恢复到原DataView，不回滚服务器。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "redo",
+              "jsdoc": "重做本交互历史；仍只记录原DataView变更，不保存。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放文档监听与撤销历史；共享DataSet及其真实修改继续由工作区持有。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

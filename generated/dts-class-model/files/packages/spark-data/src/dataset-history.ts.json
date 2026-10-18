@@ -222,14 +222,14 @@
       "type": "object",
       "title": "DataSetCommitSnapshotOptions",
       "properties": {
-        "timestamp": {
-          "type": "number"
-        },
         "label": {
           "type": "string"
         },
         "summary": {
           "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
         },
         "dataSetName": {
           "type": "string"

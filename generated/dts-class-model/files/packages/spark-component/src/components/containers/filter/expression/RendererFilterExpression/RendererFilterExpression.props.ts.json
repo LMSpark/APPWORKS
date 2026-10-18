@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props",
+    "sourcePath": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props\n职责：声明标准过滤定义编辑组件。边界：编辑绑定字段，不执行该过滤或保存文件。AI用途：生成数据空间定义编辑页面。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "RFilterExpressionProps"
+    ]
+  },
+  "$defs": {
+    "RFilterExpressionProps": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RFilterExpressionProps",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "format": {
+          "enum": [
+            "tree",
+            "spark-json"
+          ]
+        },
+        "display": {
+          "enum": [
+            "dialog",
+            "inline"
+          ]
+        },
+        "displayMode": {
+          "enum": [
+            "box",
+            "inline"
+          ]
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "functionContext": {
+          "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+        },
+        "maxDepth": {
+          "type": "number"
+        },
+        "maxRules": {
+          "type": "number"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "readonly": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "field",
+        "columns"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.onEditingChange.params": {
+          "type": "object",
+          "properties": {
+            "editing": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onEditingChange.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-12T11:20:04.526Z",
+  "models": {
+    "RFilterExpressionProps": {
+      "name": "RFilterExpressionProps",
+      "jsdoc": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererFilterExpression"
+      },
+      "typeAlias": {
+        "declarationTypeText": "LayoutDataContextProps & Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow'> & {\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、应用接受、换绑定、失权及释放后通知false。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow'>",
+            "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、应用接受、换绑定、失权及释放后通知false。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "field",
+              "jsdoc": "存放过滤定义的字段；与过滤树内部的条件字段不同。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "format",
+              "jsdoc": "tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "display",
+              "jsdoc": "默认dialog；inline在绑定位置编辑，应用才写回原DataView。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "displayMode",
+              "jsdoc": "弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "jsdoc": "过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "functionContext",
+              "jsdoc": "可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxDepth",
+              "jsdoc": "最大嵌套层数；省略沿用公共编辑器默认值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRules",
+              "jsdoc": "最大条件数；省略沿用公共编辑器默认值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "业务锁定只收紧原字段的数据权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readonly",
+              "jsdoc": "只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "onEditingChange",
+              "jsdoc": "存在未应用草稿或编辑弹窗时通知true；取消、应用接受、换绑定、失权及释放后通知false。",
+              "parameters": [
+                {
+                  "name": "editing",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

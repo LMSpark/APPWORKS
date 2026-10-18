@@ -22,8 +22,29 @@
       "type": "object",
       "title": "ProjectPlanningAiRunOptions",
       "properties": {
+        "requirementOverride": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "scopeNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "includeEmptyRequirement": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "saveBlueprintAfterRun": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false
@@ -50,8 +71,29 @@
       "type": "object",
       "title": "ProjectPlanningAiRunCommand",
       "properties": {
+        "requirementOverride": {
+          "type": "string"
+        },
+        "planningAttachmentRef": {
+          "type": "string"
+        },
+        "scopeNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "includeEmptyRequirement": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "saveBlueprintAfterRun": {
-          "type": "boolean"
+          "enum": [
+            false,
+            true
+          ]
         },
         "editor": {
           "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
@@ -80,6 +122,9 @@
           "type": "string"
         }
       },
+      "required": [
+        "editor"
+      ],
       "additionalProperties": false
     },
     "ProjectPlanningAiRunResult": {
@@ -93,7 +138,9 @@
             true
           ]
         },
-        "input": true,
+        "input": {
+          "$ref": "project-planning-agent-workflow-binding.ts.json#/$defs/ProjectPlanningAgentInput"
+        },
         "blueprintDirty": {
           "enum": [
             false,

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+    "sourcePath": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page\n职责：保留原生导航URL的字典方案目录，提供设计入口及独立数据页导航。\n边界：列表绑定正式DataView，选中值来自视图；不复制行数组，不合并设计与数据编辑。\nAI用途：恢复专题目录时复用正式数据空间和标准组件，分别组织设计和用户数据流程。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-10T17:42:30.208Z",
+  "models": {}
+}

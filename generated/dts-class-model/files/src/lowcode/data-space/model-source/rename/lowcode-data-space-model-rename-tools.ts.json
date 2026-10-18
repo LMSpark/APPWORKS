@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools",
+    "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools",
+    "jsdoc": "@module app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools\n职责：经正式工具资源视图核查静态绑定，由DataSet保存改名差异。\n边界：不改导航、不改脚本，不将未挂载工具或原生Vue视为已扫描。\nAI用途：模型注册名变更的工具引用预览及分步恢复。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceModelRenameTools"
+    ]
+  },
+  "$defs": {
+    "LowcodeDataSpaceModelRenameTools": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelRenameTools",
+      "properties": {
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "lowcode-data-space-model-rename-references.ts.json#/$defs/ModelNameChange"
+          }
+        },
+        "pageIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "before": {
+              "type": "string"
+            },
+            "after": {
+              "type": "string"
+            },
+            "assertLive": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "fieldNames": {
+              "type": "object",
+              "title": "ReadonlyMap<string, string>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDataSpaceModelRenameTools>"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.complete.params": {
+          "type": "object",
+          "properties": {
+            "reconcile": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.complete.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-13T19:55:37.684Z",
+  "models": {
+    "LowcodeDataSpaceModelRenameTools": {
+      "name": "LowcodeDataSpaceModelRenameTools",
+      "jsdoc": "本次改名的工具工作文件计划；只保存正式声明的静态完整绑定。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "固定空间、新旧注册名及同时变化的输出名；字段映射不用于字符串全局替换。",
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "changes",
+              "jsdoc": "已确认的静态属性变更，供原预览DataView显示。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageIds",
+              "jsdoc": "本次完整读取的蓝图工具身份，不代表整个服务端工具库。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "prepare",
+              "jsdoc": "从正式远端蓝图读取去重工具及规则/脚本；任何读取失败或未解析旧名脚本均拒绝预览。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "before",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "after",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertLive",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "fieldNames",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadonlyMap",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceModelRenameTools",
+                    "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "数据库派发前核对完整清单及读取基线，不覆盖本地工具草稿。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "complete",
+              "jsdoc": "数据库确认后逐工具核验及保存；丢回执按目标原文确认，已完成文件不重写。",
+              "parameters": [
+                {
+                  "name": "reconcile",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

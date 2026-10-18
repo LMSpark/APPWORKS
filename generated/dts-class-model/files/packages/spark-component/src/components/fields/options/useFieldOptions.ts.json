@@ -50,15 +50,45 @@
       "type": "object",
       "title": "FieldOptionProps",
       "properties": {
-        "options": {
-          "type": "array",
-          "items": true
+        "dataViewKey": {
+          "type": "string"
+        },
+        "dataMember": {
+          "enum": [
+            "page",
+            "rows",
+            "total",
+            "requestState",
+            "value",
+            "columns",
+            "currentRow",
+            "selectedRows",
+            "aggregateResult",
+            "selectionAggregateResult",
+            "pageSize",
+            "mutating",
+            "loadingError",
+            "mutatingError"
+          ]
+        },
+        "dataField": {
+          "type": "string"
         },
         "field": {
           "type": "string"
         },
+        "options": {
+          "type": "array",
+          "items": true
+        },
         "optionLabelField": {
           "type": "string"
+        },
+        "optionLabelFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "optionValueField": {
           "type": "string"
@@ -75,28 +105,16 @@
         "optionDataMember": {
           "enum": [
             "page",
-            "currentRow",
-            "selectedRows",
+            "rows",
+            "total",
             "requestState",
-            "columns",
-            "rows",
-            "rows",
+            "value",
             "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
-            "total",
-            "page",
             "pageSize",
-            "requestState",
-            "mutating",
-            "loadingError",
-            "mutatingError",
-            "pageSize",
-            "total",
-            "aggregateResult",
-            "selectionAggregateResult",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -296,7 +314,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T20:23:58.962Z",
+  "generatedAt": "2026-10-13T02:15:23.517Z",
   "models": {
     "FieldTransferOption": {
       "name": "FieldTransferOption",
@@ -333,11 +351,11 @@
       "jsdoc": "Field Option Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'options' | 'optionLabelField' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator'>> & {\n    multiple?: boolean | undefined;\n}",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator'>> & {\n    multiple?: boolean | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'options' | 'optionLabelField' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator'>>",
+            "typeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator'>>",
             "targetName": "FieldComposableProps"
           },
           {

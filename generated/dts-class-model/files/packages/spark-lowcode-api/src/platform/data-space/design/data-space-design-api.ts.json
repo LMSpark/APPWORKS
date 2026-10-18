@@ -7,123 +7,13 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/design/data-space-design-api",
-    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-design-api\n职责：读取场景正式模型与关系，并保留目录设计审计及 mutation 命令准备入口。\n边界：正式读取复用 runtime query 与请求 scope；不以物理目录替代运行模型，不执行设计写入。\nAI用途：装配场景视图或创建草稿时核对真实模型 Name、输出字段和关系归属。",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/design/data-space-design-api\n职责：读取场景正式模型与关系，提供元数据的纯解析和投影。\n边界：活动设计读取使用原元数据DataView，初始化读取复用runtime query；不执行设计写入。\nAI用途：装配场景视图或创建草稿时核对真实模型 Name、输出字段和关系归属。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "DataSpaceInputParameter",
-      "DataSpaceDesignSnapshot",
-      "DataSpaceDesignReadInput",
       "DataSpaceDesignApi"
     ]
   },
   "$defs": {
-    "DataSpaceInputParameter": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DataSpaceInputParameter",
-      "properties": {
-        "parameterId": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "business": {
-          "enum": [
-            false,
-            true
-          ]
-        }
-      },
-      "required": [
-        "parameterId",
-        "name",
-        "description",
-        "business"
-      ],
-      "additionalProperties": false
-    },
-    "DataSpaceDesignSnapshot": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DataSpaceDesignSnapshot",
-      "properties": {
-        "dataSpaceId": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "inputParameters": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/DataSpaceInputParameter"
-          }
-        },
-        "resources": {
-          "type": "array",
-          "items": {
-            "$ref": "../data-space.ts.json#/$defs/DataSpaceResourceReference"
-          }
-        },
-        "models": {
-          "type": "array",
-          "items": {
-            "$ref": "../data-space.ts.json#/$defs/DataSpaceFrontendModel"
-          }
-        },
-        "relations": {
-          "type": "array",
-          "items": {
-            "$ref": "../data-space.ts.json#/$defs/LowcodeModelRelationRecord"
-          }
-        }
-      },
-      "required": [
-        "dataSpaceId",
-        "name",
-        "description",
-        "inputParameters",
-        "resources",
-        "models",
-        "relations"
-      ],
-      "additionalProperties": false
-    },
-    "DataSpaceDesignReadInput": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "DataSpaceDesignReadInput",
-      "properties": {
-        "dataSpaceId": {
-          "type": "string"
-        },
-        "catalogFormKeys": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          ]
-        }
-      },
-      "required": [
-        "dataSpaceId",
-        "catalogFormKeys"
-      ],
-      "additionalProperties": false
-    },
     "DataSpaceFormalRow": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -263,6 +153,12 @@
         },
         "raw": {
           "$ref": "#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "../runtime/query/data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
         }
       },
       "required": [
@@ -316,6 +212,35 @@
       "required": [
         "designScenarioId",
         "dataSpaceId"
+      ],
+      "additionalProperties": false
+    },
+    "DataSpaceFormalBatchReadInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceFormalBatchReadInput",
+      "properties": {
+        "designScenarioId": {
+          "type": "string"
+        },
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "metaNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "designScenarioId",
+        "dataSpaceId",
+        "metaNames"
       ],
       "additionalProperties": false
     },
@@ -424,6 +349,78 @@
           },
           "additionalProperties": false
         },
+        "method.readInputParameters.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "value": true,
+                "editable": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readInputParameters.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        "method.prepareInputParameters.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "value": true,
+                "original": true
+              },
+              "required": [
+                "value",
+                "original"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareInputParameters.return": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Record<string, unknown>"
+              }
+            },
+            "changed": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "items",
+            "changed"
+          ],
+          "additionalProperties": false
+        },
+        "method.inputParameterRowAdapter.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.inputParameterRowAdapter.return": {
+          "$ref": "data-space-input-parameters.ts.json#/$defs/InputParameterRowAdapter"
+        },
         "method.parseFilter.params": {
           "type": "object",
           "properties": {
@@ -481,11 +478,63 @@
             "$ref": "#/$defs/DataSpaceFormalField"
           }
         },
-        "method.resolveTableResource.params": {
+        "method.resolveFields.params": {
           "type": "object",
           "properties": {
             "model": {
               "$ref": "#/$defs/DataSpaceFormalModel"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveFields.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceFormalField"
+          }
+        },
+        "method.createFieldProjection.params": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "$ref": "#/$defs/DataSpaceFormalModel"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createFieldProjection.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataViewFieldProjection"
+          }
+        },
+        "method.projectModel.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "#/$defs/DataSpaceFormalRow"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceFormalRow"
+              }
+            },
+            "sourcePrimaryKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.projectModel.return": {
+          "$ref": "#/$defs/DataSpaceFormalModel"
+        },
+        "method.resolveTableResource.params": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "object",
+              "title": "Pick<DataSpaceFormalModel, 'sourceType' | 'sourceName'>"
             }
           },
           "additionalProperties": false
@@ -524,6 +573,9 @@
           "properties": {
             "input": {
               "$ref": "#/$defs/DataSpaceFormalReadInput"
+            },
+            "metadata": {
+              "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -531,6 +583,37 @@
         "method.readModel.return": {
           "type": "object",
           "title": "Promise<DataSpaceFormalModel>"
+        },
+        "method.readModelBatch.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataSpaceFormalBatchReadInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModelBatch.return": {
+          "type": "object",
+          "title": "Promise<readonly DataSpaceFormalModel[]>"
+        },
+        "method.decodeRelations.params": {
+          "type": "object",
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceFormalRow"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.decodeRelations.return": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceFormalRelation"
+          }
         },
         "method.readRelations.params": {
           "type": "object",
@@ -553,159 +636,12 @@
         "method.readRelationDependencyOptions.return": {
           "type": "object",
           "title": "Promise<ReadonlyArray<Readonly<{\n        label: string;\n        value: string;\n    }>>>"
-        },
-        "method.read.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "#/$defs/DataSpaceDesignReadInput"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.read.return": {
-          "type": "object",
-          "title": "Promise<DataSpaceDesignSnapshot>"
-        },
-        "method.prepareMutation.params": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "$ref": "data-space-design-mutation.ts.json#/$defs/DataSpaceDesignMutationInput"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.prepareMutation.return": {
-          "$ref": "data-space-design-mutation.ts.json#/$defs/DataSpaceDesignMutationCommand"
         }
       }
     }
   },
-  "generatedAt": "2026-10-08T14:23:16.900Z",
+  "generatedAt": "2026-10-18T14:03:57.271Z",
   "models": {
-    "DataSpaceInputParameter": {
-      "name": "DataSpaceInputParameter",
-      "jsdoc": "数据空间入参定义；inputParams JSON 解析失败会 fail-fast。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    parameterId: string;\n    name: string;\n    description: string;\n    business: boolean;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    parameterId: string;\n    name: string;\n    description: string;\n    business: boolean;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "parameterId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "name",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "description",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "business",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "DataSpaceDesignSnapshot": {
-      "name": "DataSpaceDesignSnapshot",
-      "jsdoc": "数据空间设计态完整快照；作为 mutation 写前镜像（preimage）与读回验收基准。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n    description: string;\n    inputParameters: readonly DataSpaceInputParameter[];\n    resources: readonly DataSpaceResourceReference[];\n    models: readonly DataSpaceFrontendModel[];\n    relations: readonly LowcodeModelRelationRecord[];\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    dataSpaceId: string;\n    name: string;\n    description: string;\n    inputParameters: readonly DataSpaceInputParameter[];\n    resources: readonly DataSpaceResourceReference[];\n    models: readonly DataSpaceFrontendModel[];\n    relations: readonly LowcodeModelRelationRecord[];\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "dataSpaceId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "name",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "description",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "inputParameters",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "resources",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "models",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "relations",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
-    "DataSpaceDesignReadInput": {
-      "name": "DataSpaceDesignReadInput",
-      "jsdoc": "设计态读取输入；catalogFormKeys 用于解析 table/view 资源的稳定目录身份。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    catalogFormKeys: string | readonly string[];\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    dataSpaceId: string;\n    catalogFormKeys: string | readonly string[];\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "dataSpaceId",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "catalogFormKeys",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "DataSpaceFormalRow": {
       "name": "DataSpaceFormalRow",
       "jsdoc": "正式元数据查询的消费行；保留字段原值，不包含可由调用方替换的查询凭据。",
@@ -768,7 +704,7 @@
     },
     "DataSpaceFormalField": {
       "name": "DataSpaceFormalField",
-      "jsdoc": "name 是正式字段 Name，canonicalName 是输出别名；type 是原 FieldType，未知时保持空值。",
+      "jsdoc": "name 是正式字段 Name，canonicalName 是输出别名；type 是原 FieldType，未知时保持空值。\ncomputed 仅表示 ValueFun 派生输出；Expression 是脱敏规则ID，原值保留在raw，不产生计算或写入权限。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    id: string;\n    modelId: string;\n    name: string;\n    canonicalName: string;\n    type: string;\n    primaryKey: boolean;\n    description: string;\n    output: boolean;\n    computed: boolean;\n    order: number;\n    orderType: string;\n    raw: DataSpaceFormalRow;\n}>",
@@ -850,11 +786,11 @@
       "jsdoc": "正式模型输出合同；来源名与查询模型 Name 分离，primaryKey 空字符串表示无键只读。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    id: string;\n    metaName: string;\n    name: string;\n    sourceName: string;\n    sourceId: string;\n    sourceType: string;\n    primaryKey: string;\n    businessMain: boolean;\n    fields: readonly DataSpaceFormalField[];\n    raw: DataSpaceFormalRow;\n}>",
+        "declarationTypeText": "Readonly<{\n    id: string;\n    metaName: string;\n    name: string;\n    sourceName: string;\n    sourceId: string;\n    sourceType: string;\n    primaryKey: string;\n    businessMain: boolean;\n    fields: readonly DataSpaceFormalField[];\n    raw: DataSpaceFormalRow;\n    /** 接口/逻辑视图的正式输入映射，与输出字段分开；缺省表示没有配置记录。 */\n    sourceInputBindings?: readonly DataSpaceSourceInputBinding[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    id: string;\n    metaName: string;\n    name: string;\n    sourceName: string;\n    sourceId: string;\n    sourceType: string;\n    primaryKey: string;\n    businessMain: boolean;\n    fields: readonly DataSpaceFormalField[];\n    raw: DataSpaceFormalRow;\n}>",
+            "typeText": "Readonly<{\n    id: string;\n    metaName: string;\n    name: string;\n    sourceName: string;\n    sourceId: string;\n    sourceType: string;\n    primaryKey: string;\n    businessMain: boolean;\n    fields: readonly DataSpaceFormalField[];\n    raw: DataSpaceFormalRow;\n    /** 接口/逻辑视图的正式输入映射，与输出字段分开；缺省表示没有配置记录。 */\n    sourceInputBindings?: readonly DataSpaceSourceInputBinding[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -909,6 +845,12 @@
               "name": "raw",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "sourceInputBindings",
+              "jsdoc": "接口/逻辑视图的正式输入映射，与输出字段分开；缺省表示没有配置记录。",
+              "readable": true,
+              "writable": false
             }
           ]
         }
@@ -957,6 +899,36 @@
           }
         ],
         "members": {}
+      }
+    },
+    "DataSpaceFormalBatchReadInput": {
+      "name": "DataSpaceFormalBatchReadInput",
+      "jsdoc": "同一空间中明确命名的正式模型集合；空集合不查询，返回顺序按名称排序。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataSpaceFormalScenarioReadInput & Readonly<{\n    /** 已绑定模型的注册Name集合，去重后查询，不按来源名或表别名匹配。 */\n    metaNames: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataSpaceFormalScenarioReadInput",
+            "targetName": "DataSpaceFormalScenarioReadInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 已绑定模型的注册Name集合，去重后查询，不按来源名或表别名匹配。 */\n    metaNames: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "metaNames",
+              "jsdoc": "已绑定模型的注册Name集合，去重后查询，不按来源名或表别名匹配。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "DataSpaceFormalSpaceDefinition": {
@@ -1059,11 +1031,11 @@
     },
     "DataSpaceDesignApi": {
       "name": "DataSpaceDesignApi",
-      "jsdoc": "数据空间设计态门面；只读拉取与 mutation 命令 prepare，不执行线上写入。",
+      "jsdoc": "正式元数据读取与纯解析门面；设计编辑、取消及提交由绑定的DataView/DataSet承接。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "绑定宿主请求与共享运行 owner；正式读取校验 scope，设计 mutation 仅准备命令。",
+          "jsdoc": "绑定宿主请求与共享运行 owner；正式读取校验 scope，不建立第二套设计写入口。",
           "signatureText": "constructor(options: DataSpaceDesignApiOptions)",
           "parameters": [
             {
@@ -1078,6 +1050,75 @@
         },
         "members": {
           "methods": [
+            {
+              "name": "readInputParameters",
+              "jsdoc": "读取空间声明原文的副本；editable 校验编辑结构，不解析调用值或系统值。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        value: unknown;\n        editable?: boolean;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Record",
+                  "typeArguments": [
+                    {
+                      "type": "intrinsic",
+                      "name": "string"
+                    },
+                    {
+                      "type": "intrinsic",
+                      "name": "unknown"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "prepareInputParameters",
+              "jsdoc": "对原声明校验拟保存内容；changed=false 时保留原文，不自动迁移引用或派发保存。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        value: unknown;\n        original: unknown;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        items: Array<Record<string, unknown>>;\n        changed: boolean;\n    }"
+              }
+            },
+            {
+              "name": "inputParameterRowAdapter",
+              "jsdoc": "参数对象数组的纯行编辑兼容；标准组件绑定原inputParams，适配不执行查询或保存。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "InputParameterRowAdapter",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts"
+              }
+            },
             {
               "name": "parseFilter",
               "jsdoc": "Decodes the stored SPARK wire filter for structured model metadata editing.",
@@ -1183,8 +1224,8 @@
               }
             },
             {
-              "name": "resolveTableResource",
-              "jsdoc": "正式来源名与原标签构成原生表资源语义，不替代查询模型绑定或来源调度身份。",
+              "name": "resolveFields",
+              "jsdoc": "完整模型字段归属DataTable.columns；输出开关不删除模型结构，等价重复只合并投影、不改正式记录。",
               "parameters": [
                 {
                   "name": "model",
@@ -1192,6 +1233,97 @@
                     "type": "reference",
                     "name": "DataSpaceFormalModel",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataSpaceFormalField[]"
+              }
+            },
+            {
+              "name": "createFieldProjection",
+              "jsdoc": "从正式模型派生原生字段投影；不持久化、不复制字段真源，也不授予读取或写入权限。\n@param model 已读取的正式定义；包括非输出字段，防止全不输出时空投影退回全列。\n@returns 可用于缺省DataView的独立投影；显式视图配置保持优先，查询覆盖值不改模型定义。",
+              "parameters": [
+                {
+                  "name": "model",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceFormalModel",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataViewFieldProjection"
+                }
+              }
+            },
+            {
+              "name": "projectModel",
+              "jsdoc": "将已读取的正式元记录投影为模型；与readModel使用同一主键及输出验证。\n@param row 正式模型记录或显式拟保存的定义，不代表已获得查询权限。\n@param fields 所属模型的完整dataModel字段记录，不包含来源入参。\n@param sourcePrimaryKey 数据库表须使用正式来源目录确认的字段名，其他来源为空。\n@returns 校验后的定义投影；不读取、不保存，也不授予数据权限。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceFormalRow",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                },
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceFormalRow[]"
+                  }
+                },
+                {
+                  "name": "sourcePrimaryKey",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceFormalModel",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+              }
+            },
+            {
+              "name": "resolveTableResource",
+              "jsdoc": "正式来源名与原标签构成原生表资源语义，不替代查询模型绑定或来源调度身份。",
+              "parameters": [
+                {
+                  "name": "model",
+                  "type": {
+                    "type": "reference",
+                    "name": "Pick",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataSpaceFormalModel",
+                        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                      },
+                      {
+                        "type": "union",
+                        "types": [
+                          {
+                            "type": "literal",
+                            "value": "sourceType"
+                          },
+                          {
+                            "type": "literal",
+                            "value": "sourceName"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 }
               ],
@@ -1252,7 +1384,7 @@
             },
             {
               "name": "readModel",
-              "jsdoc": "仅读取明确选择的正式模型；完整字段与来源主键验证通过后交付，不查询全物理目录。",
+              "jsdoc": "仅读取明确选择的正式模型；完整字段与来源主键验证通过后交付，不查询全物理目录。\n@param input 元空间身份、目标空间及正式模型名；调用方守卫拒绝过期结果。\n@param metadata 活动设计必须提供当前元数据DataSet；复用其查询视图并在读取后释放，不覆盖工作区草稿。仅装配前引导可省略。",
               "parameters": [
                 {
                   "name": "input",
@@ -1260,6 +1392,16 @@
                     "type": "reference",
                     "name": "DataSpaceFormalReadInput",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                },
+                {
+                  "name": "metadata",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],
@@ -1273,6 +1415,47 @@
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "readModelBatch",
+              "jsdoc": "批量读取一个空间的指定模型及完整字段；来源按数据库/表名精确集合读取，共用主键校验，不缓存完成结果。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceFormalBatchReadInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceFormalModel[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "decodeRelations",
+              "jsdoc": "将正式关系行解码为来源合同；HTTP读取和元空间DataView消费共用此映射。\n@param rows 已由调用方核定归属、完整性和数据权限的正式行；不执行查询或推导前端级联。\n@returns 保留来源身份、资源端点、完整过滤及删除配置的只读关系。",
+              "parameters": [
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceFormalRow[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataSpaceFormalRelation[]"
               }
             },
             {
@@ -1321,48 +1504,6 @@
                     }
                   }
                 ]
-              }
-            },
-            {
-              "name": "read",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "DataSpaceDesignReadInput",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "DataSpaceDesignSnapshot",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "prepareMutation",
-              "parameters": [
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "DataSpaceDesignMutationInput",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "DataSpaceDesignMutationCommand",
-                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-mutation.ts"
               }
             }
           ]

@@ -20,6 +20,10 @@
       "type": "object",
       "title": "FieldContextStateLike",
       "properties": {
+        "isCurrentFieldEditable": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
         "fieldName": {
           "type": "object",
           "title": "ComputedRef<string>"
@@ -46,6 +50,7 @@
         }
       },
       "required": [
+        "isCurrentFieldEditable",
         "fieldName",
         "displayLabel",
         "isCurrentFieldHidden",
@@ -86,6 +91,10 @@
       "type": "object",
       "title": "ControlledFieldStateLike",
       "properties": {
+        "isCurrentFieldEditable": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
         "fieldName": {
           "type": "object",
           "title": "ComputedRef<string>"
@@ -115,14 +124,8 @@
           "title": "ComputedRef<TValue>"
         },
         "contextData": {
-          "anyOf": [
-            {
-              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "object",
+          "title": "ComputedRef<DataRow | null>"
         },
         "dataSource": true,
         "currentRow": {
@@ -131,6 +134,7 @@
         }
       },
       "required": [
+        "isCurrentFieldEditable",
         "fieldName",
         "displayLabel",
         "isCurrentFieldHidden",
@@ -154,7 +158,16 @@
           },
           "additionalProperties": false
         },
-        "method.syncValue.return": true
+        "method.syncValue.return": true,
+        "method.captureWriteGuard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureWriteGuard.return": {
+          "type": "object",
+          "title": "() => boolean"
+        }
       }
     },
     "FieldControlProps": {
@@ -168,8 +181,26 @@
         "children": {
           "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
         },
+        "header": {
+          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+        },
+        "editOnDblclick": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "width": {
           "type": "number"
+        },
+        "minWidth": {
+          "type": "number"
+        },
+        "showOverflowTooltip": {
+          "enum": [
+            false,
+            true
+          ]
         },
         "resizable": {
           "enum": [
@@ -253,7 +284,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.189Z",
+  "generatedAt": "2026-10-18T16:46:39.882Z",
   "models": {
     "FieldContextStateLike": {
       "name": "FieldContextStateLike",
@@ -265,9 +296,15 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 字段绑定的数据列名。 */\n    fieldName: ComputedRef<string>;\n    /** 字段显示标题，通常来自列标题或组件 title。 */\n    displayLabel: ComputedRef<string>;\n    /** 当前字段在当前上下文下是否隐藏。 */\n    isCurrentFieldHidden: ComputedRef<boolean>;\n    /** 当前字段是否应该渲染；隐藏和权限判断后的最终结果。 */\n    shouldRenderCurrentField: ComputedRef<boolean>;\n    /** 当前字段的展示文本。 */\n    currentDisplayValue: ComputedRef<string>;\n    /** 指定表格行中的该字段单元格是否隐藏。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** 指定表格行中的该字段单元格展示文本。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** 当前字段的表单校验规则。 */\n    validationRules: ComputedRef<FormItemRule[]>;\n}",
+        "declarationTypeText": "{\n    /** 权限及宿主交互锁定后的写入可用性。 */\n    isCurrentFieldEditable: ComputedRef<boolean>;\n    /** 字段绑定的数据列名。 */\n    fieldName: ComputedRef<string>;\n    /** 字段显示标题，通常来自列标题或组件 title。 */\n    displayLabel: ComputedRef<string>;\n    /** 当前字段在当前上下文下是否隐藏。 */\n    isCurrentFieldHidden: ComputedRef<boolean>;\n    /** 当前字段是否应该渲染；隐藏和权限判断后的最终结果。 */\n    shouldRenderCurrentField: ComputedRef<boolean>;\n    /** 当前字段的展示文本。 */\n    currentDisplayValue: ComputedRef<string>;\n    /** 指定表格行中的该字段单元格是否隐藏。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** 指定表格行中的该字段单元格展示文本。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** 当前字段的表单校验规则。 */\n    validationRules: ComputedRef<FormItemRule[]>;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "isCurrentFieldEditable",
+              "jsdoc": "权限及宿主交互锁定后的写入可用性。",
+              "readable": true,
+              "writable": true
+            },
             {
               "name": "fieldName",
               "jsdoc": "字段绑定的数据列名。",
@@ -354,7 +391,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "FieldContextStateLike & {\n    /** 当前字段值，已经按字段组件类型收窄。 */\n    fieldValue: ComputedRef<TValue>;\n    /** 当前字段所在的上下文数据行。 */\n    contextData: DataRow | null;\n    /** 当前字段所在的数据源，可以是 DataView 或外部传入对象。 */\n    dataSource: unknown;\n    /** 当前 DataView 当前行。 */\n    currentRow: ComputedRef<DataRow | null>;\n    /** 将控件值同步回字段状态。 */\n    syncValue: (value: TValue) => void;\n}",
+        "declarationTypeText": "FieldContextStateLike & {\n    /** 当前字段值，已经按字段组件类型收窄。 */\n    fieldValue: ComputedRef<TValue>;\n    /** 当前字段所在的上下文数据行。 */\n    contextData: ComputedRef<DataRow | null>;\n    /** 当前字段所在的数据源，可以是 DataView 或外部传入对象。 */\n    dataSource: unknown;\n    /** 当前 DataView 当前行。 */\n    currentRow: ComputedRef<DataRow | null>;\n    /** 将控件值同步回字段状态。 */\n    syncValue: (value: TValue) => void;\n    /** 捕获本次交互的绑定身份和有效性。 */\n    captureWriteGuard: () => () => boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -363,7 +400,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 当前字段值，已经按字段组件类型收窄。 */\n    fieldValue: ComputedRef<TValue>;\n    /** 当前字段所在的上下文数据行。 */\n    contextData: DataRow | null;\n    /** 当前字段所在的数据源，可以是 DataView 或外部传入对象。 */\n    dataSource: unknown;\n    /** 当前 DataView 当前行。 */\n    currentRow: ComputedRef<DataRow | null>;\n    /** 将控件值同步回字段状态。 */\n    syncValue: (value: TValue) => void;\n}"
+            "typeText": "{\n    /** 当前字段值，已经按字段组件类型收窄。 */\n    fieldValue: ComputedRef<TValue>;\n    /** 当前字段所在的上下文数据行。 */\n    contextData: ComputedRef<DataRow | null>;\n    /** 当前字段所在的数据源，可以是 DataView 或外部传入对象。 */\n    dataSource: unknown;\n    /** 当前 DataView 当前行。 */\n    currentRow: ComputedRef<DataRow | null>;\n    /** 将控件值同步回字段状态。 */\n    syncValue: (value: TValue) => void;\n    /** 捕获本次交互的绑定身份和有效性。 */\n    captureWriteGuard: () => () => boolean;\n}"
           }
         ],
         "members": {
@@ -411,6 +448,25 @@
                 "type": "intrinsic",
                 "name": "void"
               }
+            },
+            {
+              "name": "captureWriteGuard",
+              "jsdoc": "捕获本次交互的绑定身份和有效性。",
+              "parameters": [],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           ]
         }
@@ -426,7 +482,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -435,7 +491,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable'>>",
+            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>>",
             "targetName": "FieldComposableProps"
           }
         ],

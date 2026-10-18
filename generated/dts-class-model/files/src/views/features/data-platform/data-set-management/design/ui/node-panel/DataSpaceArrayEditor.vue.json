@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor\n职责：恢复数组数据维护入口，标准JSON行组件绑定正式模型items。\n边界：正式字段定义提供子组件，编辑与提交沿原模型DataView和保存owner；不转换其他来源，不自动猜表头。\nAI用途：元模型工作区的数组编辑弹窗、取消和未知提交核验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T17:25:05.031Z",
+  "models": {}
+}

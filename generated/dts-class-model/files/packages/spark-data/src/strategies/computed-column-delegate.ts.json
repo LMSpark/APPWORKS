@@ -25,6 +25,23 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "ComputedColumnDelegate",
+      "properties": {
+        "aggregateError": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Error"
+        },
+        "names": {
+          "type": "object",
+          "title": "ReadonlySet<string>"
+        },
+        "context": {
+          "$ref": "#/$defs/ComputedColumnContext"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -34,6 +51,22 @@
             }
           },
           "additionalProperties": false
+        },
+        "method.aggregateFieldError.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.aggregateFieldError.return": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Error"
         },
         "method.isConfigured.params": {
           "type": "object",
@@ -146,7 +179,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T11:05:45.299Z",
+  "generatedAt": "2026-10-16T05:11:15.286Z",
   "models": {
     "ComputedColumnContext": {
       "name": "ComputedColumnContext",
@@ -177,7 +210,53 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "aggregateError",
+              "jsdoc": "原解析器在实际调用聚合时记录诊断；不把公式中的字符串文本误判为聚合执行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "names",
+              "jsdoc": "已注册的计算列名集合（CrudDelegate 用于提交前剥离）。缓存，变更时失效。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "context",
+              "jsdoc": "获取当前上下文（只读）。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
+            {
+              "name": "aggregateFieldError",
+              "jsdoc": "只报告跨行聚合执行边界，不把一般表达式错误或权限拒绝变为可读结果。",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "Error"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
             {
               "name": "isConfigured",
               "parameters": [

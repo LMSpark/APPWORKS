@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel\n职责：按正式字段权限维护当前模型的描述、主键、业务标志和来源输入映射；请求方案由所属DataView维护。\n边界：复用元数据会话、DataView编辑和保存；注册名使用独立预览/保存流程，不作为普通字段直接提交。\nAI用途：模型节点的配置编辑、取消、保存回读与未知结果核验入口。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-18T07:40:18.186Z",
+  "models": {}
+}

@@ -1,0 +1,450 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-project-model:scenario/scenario-definition-records",
+    "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-records.ts",
+    "sourceFile": "packages/spark-project-model/src/scenario/scenario-definition-records.ts",
+    "packageName": "@spark-appworks/spark-project-model",
+    "modulePath": "scenario/scenario-definition-records",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-definition-records\n职责：在场景配置与定义资源记录之间转换语义，合并一次捕获后校验最终配置，不维护UI编辑态或执行存储。\n边界：数据库模型及字段仍只保存引用；旧关系须先显式转换。\nAI用途：文件资源通过DataView查询与提交时复用同一映射。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ScenarioDefinitionRecords"
+    ]
+  },
+  "$defs": {
+    "ScenarioDefinitionRecords": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioDefinitionRecords",
+      "properties": {
+        "resources": {
+          "type": "object",
+          "properties": {
+            "DataSpaceLayoutDefinition": {
+              "const": "pagedata:layout"
+            },
+            "DataTableBindingDefinition": {
+              "const": "pagedata:tables"
+            },
+            "DataViewDefinition": {
+              "const": "pagedata:views"
+            },
+            "DataResourceRelationDefinition": {
+              "const": "pagedata:resourceRelations"
+            },
+            "DataViewCascadeDefinition": {
+              "const": "pagedata:viewCascades"
+            }
+          },
+          "required": [
+            "DataSpaceLayoutDefinition",
+            "DataTableBindingDefinition",
+            "DataViewDefinition",
+            "DataResourceRelationDefinition",
+            "DataViewCascadeDefinition"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validationScope.params": {
+          "type": "object",
+          "properties": {
+            "next": {
+              "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            "previous": {
+              "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            "resources": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validationScope.return": {
+          "anyOf": [
+            {
+              "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            "resource": {
+              "type": "string"
+            },
+            "resolved": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataResourceRelation"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "method.readRows.params": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "type": "string"
+            },
+            "resolved": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataResourceRelation"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readRows.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "method.write.params": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            "resource": {
+              "type": "string"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
+              }
+            },
+            "legacyResolved": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.write.return": {
+          "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "method.applyRows.params": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "type": "string"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
+              }
+            },
+            "legacyResolved": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyRows.return": true,
+        "method.toConfig.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.toConfig.return": {
+          "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "method.json.params": {
+          "type": "object",
+          "properties": {
+            "value": true
+          },
+          "additionalProperties": false
+        },
+        "method.json.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-18T11:19:12.247Z",
+  "models": {
+    "ScenarioDefinitionRecords": {
+      "name": "ScenarioDefinitionRecords",
+      "jsdoc": "文件定义资源的稳定身份；不是后端注册模型，也不是运行DataView的身份。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "为一次保存捕获建立临时候选；不持有DataView草稿或文件owner。\n@param config 已校验的同空间提交基线，原配置保持不变。",
+          "signatureText": "constructor(config: ScenarioViewConfig)",
+          "parameters": [
+            {
+              "name": "config",
+              "type": {
+                "type": "reference",
+                "name": "ScenarioViewConfig",
+                "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resources",
+              "jsdoc": "正式C使用的资源标识；装配器按此表注入同一文件适配，不从URL推导文件路径。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "validationScope",
+              "jsdoc": "按已修改的定义域选取正式模型校验范围；不同存储接线复用同一规则。",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                },
+                {
+                  "name": "previous",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                },
+                {
+                  "name": "resources",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "由已校验配置投影定义记录；记录不包含目标空间的运行数据。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                },
+                {
+                  "name": "resource",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "resolved",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataResourceRelation[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow"
+                }
+              }
+            },
+            {
+              "name": "readRows",
+              "jsdoc": "投影本次捕获已经合并的定义，供资源适配继续核对查询基线与冲突；尚未完成最终配置校验。\n@param resource 正式定义资源标识。\n@param resolved 已经完整读取并显式转换的旧关系。\n@returns 与候选隔离的定义记录，不包含运行数据或编辑状态。",
+              "parameters": [
+                {
+                  "name": "resource",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "resolved",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataResourceRelation[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataRow"
+                }
+              }
+            },
+            {
+              "name": "write",
+              "jsdoc": "映射完整的已合并定义集合；合并、变更捕获和回执由DataView及资源适配负责。",
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+                  }
+                },
+                {
+                  "name": "resource",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataRow[]"
+                  }
+                },
+                {
+                  "name": "legacyResolved",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ScenarioViewConfig",
+                "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+              }
+            },
+            {
+              "name": "applyRows",
+              "jsdoc": "合并一个定义域的完整记录；仅供保存适配处理已捕获变更，最终必须调用toConfig校验。\n@param resource 正式定义资源标识；绑定先于其视图合并。\n@param rows 已按原查询基线完成冲突与字段写入检查的集合。\n@param legacyResolved 旧关系来源是否已经完整读取并显式转换，默认false。",
+              "parameters": [
+                {
+                  "name": "resource",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataRow[]"
+                  }
+                },
+                {
+                  "name": "legacyResolved",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "toConfig",
+              "jsdoc": "全部捕获合并后校验最终配置，并消耗与正式关系端点一致的待配置连线。\n@returns 同空间不可变配置；失败不修改原配置或持久存储。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ScenarioViewConfig",
+                "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
+              }
+            },
+            {
+              "name": "json",
+              "jsdoc": "拒绝不可持久化值，不能由JSON.stringify静默丢失函数或改写非有限数字。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

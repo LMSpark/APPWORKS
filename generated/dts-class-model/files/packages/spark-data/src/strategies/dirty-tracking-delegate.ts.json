@@ -92,6 +92,27 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "DirtyTrackingDelegate",
+      "properties": {
+        "dirtyRowIds": {
+          "type": "object",
+          "title": "ReadonlySet<string | number>"
+        },
+        "pendingCreateIds": {
+          "type": "object",
+          "title": "ReadonlySet<string | number>"
+        },
+        "pendingCreateRows": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataRow"
+          }
+        },
+        "pendingDeleteIds": {
+          "type": "object",
+          "title": "ReadonlySet<string | number>"
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -562,6 +583,32 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "dirtyRowIds",
+              "jsdoc": "全部 dirty-update 行主键（ReadonlySet）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pendingCreateIds",
+              "jsdoc": "待新增行主键（ReadonlySet——与 _createRows 同步，零分配）",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pendingCreateRows",
+              "jsdoc": "待新增行数组",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pendingDeleteIds",
+              "jsdoc": "待删除行主键（ReadonlySet）",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "trackCreate",

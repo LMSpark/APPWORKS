@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/filter/data-view-filter-codec",
+    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-codec.ts",
+    "sourceFile": "packages/spark-data/src/query/filter/data-view-filter-codec.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/filter/data-view-filter-codec",
+    "jsdoc": "@module @spark-appworks/spark-data:query/filter/data-view-filter-codec\n职责：转换公开过滤树与 SPARK 协议树。\n边界：完整校验全部子项与值函数，拒绝循环和残缺条件。\nAI用途：在 API 边界保留显式空值并转换运算符。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewFilterWire",
+      "DataViewFilterCodec"
+    ]
+  },
+  "$defs": {
+    "DataViewFilterWire": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewFilterWire",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "const": "cond"
+            },
+            "Field": {
+              "type": "string"
+            },
+            "Operator": {
+              "enum": [
+                "contains",
+                "in",
+                "equal",
+                "notequal",
+                "greaterthan",
+                "greaterthanorequal",
+                "lessthan",
+                "lessthanorequal",
+                "isnull",
+                "isnotnull",
+                "nolike",
+                "startswith",
+                "nostartswith",
+                "endswith",
+                "notendswith",
+                "notin",
+                "isempty",
+                "isnotempty"
+              ]
+            },
+            "Value": {
+              "type": "null"
+            },
+            "ValueFun": {
+              "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterValueFunction"
+            }
+          },
+          "required": [
+            "Type",
+            "Field",
+            "Operator",
+            "Value",
+            "ValueFun"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "enum": [
+                "and",
+                "or"
+              ]
+            },
+            "Filters": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewFilterWire"
+              }
+            }
+          },
+          "required": [
+            "Type",
+            "Filters"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "DataViewFilterCodec": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewFilterCodec",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.encode.params": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "$ref": "data-view-filter.ts.json#/$defs/DataViewFilter"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.encode.return": {
+          "$ref": "#/$defs/DataViewFilterWire"
+        },
+        "method.decode.params": {
+          "type": "object",
+          "properties": {
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.decode.return": {
+          "$ref": "data-view-filter.ts.json#/$defs/DataViewFilter"
+        },
+        "method.parseStored.params": {
+          "type": "object",
+          "properties": {
+            "serialized": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.parseStored.return": {
+          "$ref": "data-view-filter.ts.json#/$defs/DataViewFilter"
+        },
+        "method.serializeStored.params": {
+          "type": "object",
+          "properties": {
+            "filter": {
+              "$ref": "data-view-filter.ts.json#/$defs/DataViewFilter"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.serializeStored.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-10T06:45:12.870Z",
+  "models": {
+    "DataViewFilterWire": {
+      "name": "DataViewFilterWire",
+      "jsdoc": "SPARK保存和请求使用的过滤格式；由数据层统一转换。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Type: 'cond';\n    Field: string;\n    Operator: typeof wireOperators[keyof typeof wireOperators];\n    Value: null;\n    ValueFun: DataViewFilterValueFunction;\n}> | Readonly<{\n    Type: 'and' | 'or';\n    Filters: readonly DataViewFilterWire[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    Type: 'cond';\n    Field: string;\n    Operator: typeof wireOperators[keyof typeof wireOperators];\n    Value: null;\n    ValueFun: DataViewFilterValueFunction;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    Type: 'and' | 'or';\n    Filters: readonly DataViewFilterWire[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewFilterCodec": {
+      "name": "DataViewFilterCodec",
+      "jsdoc": "统一SPARK过滤定义与原生树的边界；不请求网络、不求值后端函数。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "统一SPARK过滤定义与原生树的边界；不请求网络、不求值后端函数。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "encode",
+              "jsdoc": "将已校验原生树编码为SPARK格式，保留值函数完整JSON载荷。",
+              "parameters": [
+                {
+                  "name": "filter",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewFilter",
+                    "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilterWire",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-codec.ts"
+              }
+            },
+            {
+              "name": "decode",
+              "jsdoc": "完整解码；任何坏节点都拒绝整树，不将失败当成清空。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilter",
+                "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
+              }
+            },
+            {
+              "name": "parseStored",
+              "jsdoc": "数据库过滤字段的读取边界；只有缺省或空白文本表示未配置。",
+              "parameters": [
+                {
+                  "name": "serialized",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "undefined"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataViewFilter",
+                  "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
+                }
+              }
+            },
+            {
+              "name": "serializeStored",
+              "jsdoc": "数据库过滤字段的保存边界；显式清空编码为空字符串。",
+              "parameters": [
+                {
+                  "name": "filter",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataViewFilter",
+                      "sourcePath": "packages/spark-data/src/query/filter/data-view-filter.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

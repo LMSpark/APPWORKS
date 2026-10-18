@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-project-model/src/project/project-workspace.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "project/project-workspace",
-    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-workspace\n职责：提供项目模型和页面配置域中的 project workspace 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：只描述配置和项目结构，不渲染 Vue 组件，也不直接操作 spark-data 运行态。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectWorkspace — 持有 ProjectBlueprint 并提交 IO（设计即编辑）。\n领域状态、事件与投影属于 ProjectBlueprint；谁 new 谁负责生命周期。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:project/project-workspace\n职责：提供项目模型和页面配置域中的 project workspace 能力，支撑 navigation、page content、project session 或远程 IO。\n边界：不渲染 Vue 组件；定义数据空间由宿主正式装配，业务运行数据不在工作区维护。\nAI用途：读取、生成或同步项目页面配置时，用本模块确认项目模型字段和 IO 边界。\n\nProjectWorkspace — 持有 ProjectBlueprint 并提交 IO（设计即编辑）。\n领域状态、事件与投影属于 ProjectBlueprint；谁 new 谁负责生命周期。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ProjectPageLoadOptions",
@@ -258,6 +258,10 @@
             },
             "text": {
               "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
             }
           },
           "additionalProperties": false
@@ -265,22 +269,6 @@
         "method.createVersion.return": {
           "type": "object",
           "title": "Promise<PageToolFileVersionSummary>"
-        },
-        "method.restoreVersion.params": {
-          "type": "object",
-          "properties": {
-            "scenarioId": {
-              "type": "string"
-            },
-            "version": {
-              "type": "number"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.restoreVersion.return": {
-          "type": "object",
-          "title": "Promise<void>"
         }
       }
     },
@@ -363,12 +351,21 @@
           ]
         }
       },
-      "required": [
-        "scenarioId",
-        "expectedRevision",
-        "previewText"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.beforeApply.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeApply.return": true
+      }
     },
     "ScenarioViewVersionCommand": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -385,28 +382,6 @@
       "required": [
         "scenarioId",
         "version"
-      ],
-      "additionalProperties": false
-    },
-    "ScenarioViewRestoreCommand": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ScenarioViewRestoreCommand",
-      "properties": {
-        "scenarioId": {
-          "type": "string"
-        },
-        "version": {
-          "type": "number"
-        },
-        "previewText": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "scenarioId",
-        "version",
-        "previewText"
       ],
       "additionalProperties": false
     },
@@ -436,7 +411,29 @@
         "pageFiles",
         "blueprint"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.scenarioDefinitions.params": {
+          "type": "object",
+          "properties": {
+            "workspace": {
+              "$ref": "#/$defs/ProjectWorkspace"
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.scenarioDefinitions.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        }
+      }
     },
     "ProjectWorkspace": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -445,6 +442,31 @@
       "properties": {
         "project": {
           "$ref": "project-blueprint.ts.json#/$defs/ProjectBlueprint"
+        },
+        "unconfirmedPageFiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pageId": {
+                "type": "string"
+              },
+              "fileName": {
+                "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
+              }
+            },
+            "required": [
+              "pageId",
+              "fileName"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dirtyScenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false,
@@ -458,6 +480,62 @@
           },
           "additionalProperties": false
         },
+        "method.getScenarioDefinitions.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.getScenarioDefinitions.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.loadScenarioDefinitions.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scenarioId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadScenarioDefinitions.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        },
+        "method.saveDirtyScenarioDefinitions.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.saveDirtyScenarioDefinitions.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true,
         "method.getScenarioViews.params": {
           "type": "object",
           "properties": {
@@ -594,19 +672,6 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.restoreScenarioVersion.params": {
-          "type": "object",
-          "properties": {
-            "command": {
-              "$ref": "#/$defs/ScenarioViewRestoreCommand"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.restoreScenarioVersion.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
         "method.getActivePageTool.params": {
           "type": "object",
           "properties": {},
@@ -637,6 +702,72 @@
         "method.loadPageTool.return": {
           "type": "object",
           "title": "Promise<PageTool>"
+        },
+        "method.previewBlueprintRemote.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.previewBlueprintRemote.return": {
+          "type": "object",
+          "title": "Promise<ProjectBlueprintTreeData>"
+        },
+        "method.previewPageFileRemote.params": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string"
+            },
+            "fileName": {
+              "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
+            },
+            "versionId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.previewPageFileRemote.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.savePageFileChange.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "object",
+              "properties": {
+                "pageId": {
+                  "type": "string"
+                },
+                "fileName": {
+                  "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
+                },
+                "expectedText": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "pageId",
+                "fileName",
+                "expectedText",
+                "text"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.savePageFileChange.return": {
+          "type": "object",
+          "title": "Promise<void>"
         },
         "method.loadBlueprint.params": {
           "type": "object",
@@ -1035,7 +1166,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T08:09:16.819Z",
+  "generatedAt": "2026-10-15T12:37:48.649Z",
   "models": {
     "ProjectPageLoadOptions": {
       "name": "ProjectPageLoadOptions",
@@ -1251,11 +1382,11 @@
       "jsdoc": "按不透明请求scope读写共享场景文件；null仅表示宿主已确认文件不存在。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    writeText?: (scenarioId: string, text: string) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string) => Promise<PageToolFileVersionSummary>;\n    restoreVersion?: (scenarioId: string, version: number) => Promise<void>;\n}>",
+        "declarationTypeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    writeText?: (scenarioId: string, text: string) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string, assertCurrent?: () => void) => Promise<PageToolFileVersionSummary>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    writeText?: (scenarioId: string, text: string) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string) => Promise<PageToolFileVersionSummary>;\n    restoreVersion?: (scenarioId: string, version: number) => Promise<void>;\n}>",
+            "typeText": "Readonly<{\n    readScope: () => string;\n    readText: (scenarioId: string) => Promise<string | null>;\n    writeText?: (scenarioId: string, text: string) => Promise<void>;\n    listVersions?: (scenarioId: string) => Promise<PageToolFileVersionSummary[]>;\n    readVersion?: (scenarioId: string, version: number) => Promise<string>;\n    createVersion?: (scenarioId: string, text: string, assertCurrent?: () => void) => Promise<PageToolFileVersionSummary>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1400,6 +1531,26 @@
                     "type": "intrinsic",
                     "name": "string"
                   }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
                 }
               ],
               "type": {
@@ -1410,35 +1561,6 @@
                     "type": "reference",
                     "name": "PageToolFileVersionSummary",
                     "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "restoreVersion",
-              "parameters": [
-                {
-                  "name": "scenarioId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "version",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "number"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
                   }
                 ]
               }
@@ -1551,14 +1673,14 @@
     },
     "ScenarioViewAdoptCommand": {
       "name": "ScenarioViewAdoptCommand",
-      "jsdoc": "",
+      "jsdoc": "接纳已展示的远端原文；异步读取前后核对调用方，失效时保留本地文件。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n    assertCurrent?: () => void;\n    /** 远端原文、格式、作用域与修订均确认后，紧邻替换同步执行；用于取消明确批准的原生视图修改。失败时不接纳远端。 */\n    beforeApply?: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    expectedRevision: number;\n    previewText: string | null;\n    assertCurrent?: () => void;\n    /** 远端原文、格式、作用域与修订均确认后，紧邻替换同步执行；用于取消明确批准的原生视图修改。失败时不接纳远端。 */\n    beforeApply?: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1578,6 +1700,25 @@
               "name": "previewText",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "beforeApply",
+              "jsdoc": "远端原文、格式、作用域与修订均确认后，紧邻替换同步执行；用于取消明确批准的原生视图修改。失败时不接纳远端。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -1612,41 +1753,12 @@
         }
       }
     },
-    "ScenarioViewRestoreCommand": {
-      "name": "ScenarioViewRestoreCommand",
-      "jsdoc": "用户预览并明确选择的恢复动作，执行前必须再次确认快照原文。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "ScenarioViewVersionCommand & Readonly<{\n    previewText: string;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "intersection",
-            "typeText": "ScenarioViewVersionCommand",
-            "targetName": "ScenarioViewVersionCommand"
-          },
-          {
-            "kind": "intersection",
-            "typeText": "Readonly<{\n    previewText: string;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "previewText",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "ProjectWorkspaceOptions": {
       "name": "ProjectWorkspaceOptions",
       "jsdoc": "Project Workspace Options 的调用配置。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n    /** 页面三文件语义网关。 */\n    pageFiles: ProjectPageFileGateway;\n    /** 项目蓝图语义网关。 */\n    blueprint: ProjectBlueprintGateway;\n    /** 跨项目引用语义网关。 */\n    projectReferences?: ProjectReferenceGateway;\n    /** 场景文件 IO 与不透明请求代次；缺少能力时明确拒绝，不回退页面文件。 */\n    scenarioViews?: ScenarioViewGateway;\n}",
+        "declarationTypeText": "{\n    /** project Id 标识。 */\n    projectId: string;\n    /** 页面三文件语义网关。 */\n    pageFiles: ProjectPageFileGateway;\n    /** 项目蓝图语义网关。 */\n    blueprint: ProjectBlueprintGateway;\n    /** 跨项目引用语义网关。 */\n    projectReferences?: ProjectReferenceGateway;\n    /** 场景文件 IO 与不透明请求代次；缺少能力时明确拒绝，不回退页面文件。 */\n    scenarioViews?: ScenarioViewGateway;\n    /** 按目标空间装配正式元数据DataSet；模型与资源身份由宿主核验，工作区不创建替代表。 */\n    scenarioDefinitions?: (workspace: ProjectWorkspace, scenarioId: string, assertCurrent: () => void) => Promise<DataSet>;\n}",
         "members": {
           "attributes": [
             {
@@ -1679,6 +1791,56 @@
               "readable": true,
               "writable": false
             }
+          ],
+          "methods": [
+            {
+              "name": "scenarioDefinitions",
+              "jsdoc": "按目标空间装配正式元数据DataSet；模型与资源身份由宿主核验，工作区不创建替代表。",
+              "parameters": [
+                {
+                  "name": "workspace",
+                  "type": {
+                    "type": "reference",
+                    "name": "ProjectWorkspace",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
+                  }
+                },
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            }
           ]
         }
       }
@@ -1709,9 +1871,100 @@
               "jsdoc": "project 字段。",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "unconfirmedPageFiles",
+              "jsdoc": "原工作文件提交尚未回读确认的目标；撤销本地文本不会把未知写入变成已取消。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dirtyScenarioIds",
+              "jsdoc": "写前比较与回读只能检测冲突；后端没有 CAS，不能承诺原子并发保护。",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
+            {
+              "name": "getScenarioDefinitions",
+              "jsdoc": "取得本工作区为目标空间持有的正式定义DataSet；编辑真源是其中的DataView。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadScenarioDefinitions",
+              "jsdoc": "按显式目标空间加载正式元数据DataSet，同工作区与请求代次复用同一实例。\n@param command scenarioId为被设计空间T；返回DataSet的身份是正式元数据空间C，二者不能互换。\n@returns 定义视图按消费需要loadFromServer，使用DataView编辑/取消及DataSet.saveChanges提交。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        scenarioId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveDirtyScenarioDefinitions",
+              "jsdoc": "保存工作区已经修改的正式元数据视图；不加载未读视图，不经文件owner另行提交。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "宿主释放工作区时销毁所属定义DataSet；在途结果不得重新注册，存储回执仍由原操作核验。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
             {
               "name": "getScenarioViews",
               "parameters": [
@@ -1973,30 +2226,6 @@
               }
             },
             {
-              "name": "restoreScenarioVersion",
-              "jsdoc": "按已预览快照显式恢复；dirty或等待期间的新编辑均不得被远端回执覆盖。",
-              "parameters": [
-                {
-                  "name": "command",
-                  "type": {
-                    "type": "reference",
-                    "name": "ScenarioViewRestoreCommand",
-                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
               "name": "getActivePageTool",
               "parameters": [],
               "type": {
@@ -2044,6 +2273,92 @@
                     "type": "reference",
                     "name": "PageTool",
                     "sourcePath": "packages/spark-project-model/src/page/page-tool.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewBlueprintRemote",
+              "jsdoc": "只读远端正式蓝图，不覆盖本地策划草稿或活动页。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData",
+                    "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "previewPageFileRemote",
+              "jsdoc": "读取工具原文；省略versionId为工作文件，显式发布指针沿原reader读取快照，不覆盖PageTool或工作缓存。",
+              "parameters": [
+                {
+                  "name": "pageId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fileName",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageToolFileName",
+                    "sourcePath": "packages/spark-project-model/src/page/page-file.ts"
+                  }
+                },
+                {
+                  "name": "versionId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "savePageFileChange",
+              "jsdoc": "按明确原文更新单个工具文件并精确回读；已是目标原文时只确认，不重放写入。无后端CAS，不能保证原子并发。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        /** 正式工具身份。 */ pageId: string;\n        /** 三文件中的目标文件。 */ fileName: PageToolFileName;\n        /** 调用方已预览的远端原文。 */ expectedText: string;\n        /** 本次提交的完整新原文。 */ text: string;\n        /** 每次异步边界核验调用身份及操作仍有效。 */ assertCurrent?: () => void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
                   }
                 ]
               }

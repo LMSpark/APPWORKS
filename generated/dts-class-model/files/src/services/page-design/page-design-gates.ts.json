@@ -203,18 +203,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T20:16:52.169Z",
+  "generatedAt": "2026-10-15T10:19:34.334Z",
   "models": {
     "PageDesignAllowedOperations": {
       "name": "PageDesignAllowedOperations",
       "jsdoc": "页面设计允许的操作域：每项 true=放行 / false=硬拦截 / undefined=不限制",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 是否允许读写节点树（editNodeTree / getNodeTree） */\n    nodeTree?: boolean;\n    /** 是否允许读写显式场景视图（loadScenarioViews / ScenarioViewFile.setText） */\n    dataSet?: boolean;\n    /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */\n    script?: boolean;\n    /** 是否允许读写样式（setFileText / getFileText / writePageFile） */\n    style?: boolean;\n    /** 是否允许读写项目蓝图（replaceBlueprintChildren / readBlueprintPlanningInputs） */\n    blueprint?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 是否允许读写节点树（editNodeTree / getNodeTree） */\n    nodeTree?: boolean;\n    /** 是否允许通过正式定义DataSet读写显式目标场景（loadScenarioDefinitions / DataView） */\n    dataSet?: boolean;\n    /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */\n    script?: boolean;\n    /** 是否允许读写样式（setFileText / getFileText / writePageFile） */\n    style?: boolean;\n    /** 是否允许读写项目蓝图（replaceBlueprintChildren / readBlueprintPlanningInputs） */\n    blueprint?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 是否允许读写节点树（editNodeTree / getNodeTree） */\n    nodeTree?: boolean;\n    /** 是否允许读写显式场景视图（loadScenarioViews / ScenarioViewFile.setText） */\n    dataSet?: boolean;\n    /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */\n    script?: boolean;\n    /** 是否允许读写样式（setFileText / getFileText / writePageFile） */\n    style?: boolean;\n    /** 是否允许读写项目蓝图（replaceBlueprintChildren / readBlueprintPlanningInputs） */\n    blueprint?: boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 是否允许读写节点树（editNodeTree / getNodeTree） */\n    nodeTree?: boolean;\n    /** 是否允许通过正式定义DataSet读写显式目标场景（loadScenarioDefinitions / DataView） */\n    dataSet?: boolean;\n    /** 是否允许读写脚本（setFileText / getFileText / writePageFile） */\n    script?: boolean;\n    /** 是否允许读写样式（setFileText / getFileText / writePageFile） */\n    style?: boolean;\n    /** 是否允许读写项目蓝图（replaceBlueprintChildren / readBlueprintPlanningInputs） */\n    blueprint?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -228,7 +228,7 @@
             },
             {
               "name": "dataSet",
-              "jsdoc": "是否允许读写显式场景视图（loadScenarioViews / ScenarioViewFile.setText）",
+              "jsdoc": "是否允许通过正式定义DataSet读写显式目标场景（loadScenarioDefinitions / DataView）",
               "readable": true,
               "writable": false
             },

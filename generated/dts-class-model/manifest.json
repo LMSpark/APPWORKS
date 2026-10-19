@@ -9651,6 +9651,7 @@
           "DataSetSaveChangesTransactionOptions",
           "DataSetSaveChangesConfig",
           "DataSetSaveChangesOptions",
+          "DataSetPhasedSaveResult",
           "DataSetSaveChangesViewResult",
           "DataSetSaveChangesResult",
           "CrudResult",
@@ -16177,6 +16178,10 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "DataSetMetadata": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "DataSetPhasedSaveResult": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },

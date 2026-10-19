@@ -1,0 +1,121 @@
+{
+  "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit.ts": {
+    "command-status": 3
+  },
+  "src/lowcode/data-space/lowcode-data-space-catalog.ts": {
+    "command-status": 2
+  },
+  "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts": {
+    "static-copy": 1
+  },
+  "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts": {
+    "command-status": 5
+  },
+  "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create.ts": {
+    "command-status": 4,
+    "json-baseline": 3,
+    "static-copy": 1
+  },
+  "src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts": {
+    "command-status": 4
+  },
+  "src/lowcode/data-space/model-source/lowcode-data-space-model-create.ts": {
+    "command-status": 5,
+    "json-baseline": 1
+  },
+  "src/lowcode/data-space/model-source/lowcode-data-space-model-edit.ts": {
+    "command-status": 3,
+    "json-baseline": 1
+  },
+  "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts": {
+    "command-status": 5,
+    "json-baseline": 1
+  },
+  "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts": {
+    "command-status": 4
+  },
+  "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts": {
+    "command-status": 5,
+    "json-baseline": 1
+  },
+  "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts": {
+    "command-status": 5,
+    "json-baseline": 1
+  },
+  "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts": {
+    "json-baseline": 1
+  },
+  "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts": {
+    "command-status": 6,
+    "json-baseline": 3,
+    "static-copy": 1
+  },
+  "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
+    "command-status": 6,
+    "json-baseline": 5
+  },
+  "src/lowcode/data-space/view-design/lowcode-data-space-view-metadata.ts": {
+    "static-copy": 1
+  },
+  "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
+    "command-status": 1,
+    "static-copy": 3
+  },
+  "src/views/features/data-platform/data-set-management/design/model/rename/DataSpaceModelRename.vue": {
+    "command-status": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/source-input/DataSpaceSourceInputEditor.vue": {
+    "command-status": 2
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.vue": {
+    "static-copy": 2
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.vue": {
+    "command-status": 1,
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
+    "command-status": 2,
+    "static-copy": 1,
+    "hand-passed-ids": 4
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue": {
+    "command-status": 1,
+    "static-copy": 2
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.vue": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue": {
+    "command-status": 7,
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue": {
+    "command-status": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue": {
+    "command-status": 8,
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue": {
+    "hand-passed-ids": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue": {
+    "static-copy": 2
+  },
+  "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue": {
+    "static-copy": 2
+  },
+  "src/views/features/data-platform/data-set-management/design/workbench/data-space-workbench.ts": {
+    "static-copy": 1
+  },
+  "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue": {
+    "command-status": 1
+  }
+}

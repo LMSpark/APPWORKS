@@ -870,8 +870,11 @@ export type DataViewCascadeFilterBinding = Readonly<{
 export type DataViewCascadeInputBinding = Readonly<{
   /** 省略时取父视图选中主键数组，字段值仍由统一值绑定解析。 */
   sourceField?: string
-  /** 查询配置的正式属性路径；不接受任意对象路径或权限属性。 */
-  target: 'queryContext' | 'pageSize' | 'queryConfig.outputType' | 'queryConfig.allPages' | 'queryConfig.maxRows'
+  /**
+   * 查询配置的正式属性路径；不接受任意对象路径或权限属性。
+   * `queryContext.<键名>`只写入该调用参数键并保留其他键（如宿主注入的dataSpaceId），撤销时删除该键；同一级联不得与整体queryContext混用。
+   */
+  target: 'queryContext' | `queryContext.${string}` | 'pageSize' | 'queryConfig.outputType' | 'queryConfig.allPages' | 'queryConfig.maxRows'
     | 'queryConfig.tree.keyField' | 'queryConfig.tree.parentField' | 'queryConfig.tree.nodeId'
     | 'queryConfig.tree.hasChildrenField' | 'queryConfig.tree.mode'
   /** 显式将JSON文本解码为调用参数对象；省略保留原生类型。 */
@@ -1437,6 +1440,16 @@ export type DataSetSaveChangesOptions = {
   mode?: DataSetSaveChangesMode
   /** 事务选项 */
   transaction?: DataSetSaveChangesTransactionOptions}
+
+/** DataSet.saveChangesInPhases 的结果；completedPhases 为已确认完成的连续阶段数。 */
+export type DataSetPhasedSaveResult = {
+  /** 全部阶段确认且无待提交变更 */
+  success: boolean
+  /** 自第一阶段起已确认完成的阶段数；失败或未确认时为停止阶段的下标 */
+  completedPhases: number
+  /** 本次实际执行的各阶段 saveChanges 回执 */
+  results: Array<CrudResult<DataSetSaveChangesResult>>
+}
 
 /** DataSet 级单视图保存结果 */
 export type DataSetSaveChangesViewResult = {

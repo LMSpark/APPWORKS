@@ -26,6 +26,14 @@ export class DataViewQueryCascadeInputs {
     'queryConfig.tree.keyField', 'queryConfig.tree.parentField', 'queryConfig.tree.nodeId',
     'queryConfig.tree.hasChildrenField', 'queryConfig.tree.mode',
   ])
+  /** 调用参数单键目标的键名；返回undefined表示不是单键目标。 */
+  static contextKey(target: string): string | undefined {
+    if (!target.startsWith('queryContext.')) return undefined
+    const key = target.slice('queryContext.'.length)
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/u.test(key)) throw new Error(`QUERY_CASCADE_INPUT: 调用参数键无效 ${target}`)
+    return key
+  }
+
   /** 校验可选启用条件；条件读取仍经过统一值与数据权限边界。 */
   static parseWhen(input: unknown): NonNullable<DataViewQueryCascade['when']> {
     if (input === undefined) return []
@@ -67,7 +75,8 @@ export class DataViewQueryCascadeInputs {
     const seen = new Set<string>()
     for (const binding of input) {
       if (!isRecord(binding) || Object.keys(binding).some(key => !['sourceField', 'target', 'format', 'omitEmpty', 'when'].includes(key))
-        || typeof binding['target'] !== 'string' || !this.targets.some(target => target === binding['target'])
+        || typeof binding['target'] !== 'string'
+        || (!this.targets.some(target => target === binding['target']) && this.contextKey(binding['target']) === undefined)
         || (binding['sourceField'] !== undefined && (typeof binding['sourceField'] !== 'string' || !binding['sourceField'].trim()))
         || (binding['format'] !== undefined && (binding['format'] !== 'json' || binding['target'] !== 'queryContext'))
         || (binding['omitEmpty'] !== undefined && typeof binding['omitEmpty'] !== 'boolean')) {
@@ -82,6 +91,9 @@ export class DataViewQueryCascadeInputs {
           || (typeof when['equals'] === 'number' && Number.isFinite(when['equals']))))) {
         throw new Error('QUERY_CASCADE_INPUT: when必须声明字段和值')
       }
+    }
+    if (seen.has('queryContext') && [...seen].some(target => this.contextKey(target) !== undefined)) {
+      throw new Error('QUERY_CASCADE_INPUT: 整体queryContext与单键目标不能混用')
     }
     return input as readonly DataViewCascadeInputBinding[]
   }
@@ -132,7 +144,13 @@ export class DataViewQueryCascadeInputs {
     const tree: Record<string, unknown> = {...view.queryConfig.tree}
     let hasTreeBinding = false, context = view.queryContext, pageSize = view.pageSize
     for (const input of inputs) {
-      if (input.target === 'queryContext') {
+      const contextKey = this.contextKey(input.target)
+      if (contextKey !== undefined) {
+        const next: Record<string, unknown> = {...context}
+        if (input.value === undefined) Reflect.deleteProperty(next, contextKey)
+        else next[contextKey] = input.value
+        context = next
+      } else if (input.target === 'queryContext') {
         if (input.value !== undefined && !isRecord(input.value)) throw new Error('QUERY_CASCADE_INPUT: queryContext必须是JSON对象')
         context = structuredClone({...contextDefaults, ...input.value})
       } else if (input.target === 'pageSize') {

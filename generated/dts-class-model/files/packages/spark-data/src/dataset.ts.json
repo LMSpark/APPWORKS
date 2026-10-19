@@ -711,6 +711,22 @@
           "type": "object",
           "title": "Promise<CrudResult<DataSetSaveChangesResult>>"
         },
+        "method.saveChangesInPhases.params": {
+          "type": "object",
+          "properties": {
+            "phases": {
+              "type": "array",
+              "items": {
+                "$ref": "types.ts.json#/$defs/DataSetSaveChangesOptions"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveChangesInPhases.return": {
+          "type": "object",
+          "title": "Promise<DataSetPhasedSaveResult>"
+        },
         "method.toJson.params": {
           "type": "object",
           "properties": {},
@@ -745,7 +761,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T12:35:55.494Z",
+  "generatedAt": "2026-10-19T01:54:37.089Z",
   "models": {
     "DataSetConfig": {
       "name": "DataSetConfig",
@@ -1853,6 +1869,30 @@
                         "sourcePath": "packages/spark-data/src/types.ts"
                       }
                     ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveChangesInPhases",
+              "jsdoc": "按阶段顺序提交跨来源变更（如先数据库正式记录、再文件引用）；不提供事务。\n每阶段必须显式列出视图；前一阶段的视图全部确认且无待提交变更后才进入下一阶段。\n失败或结果未确认时停止并返回已执行阶段的回执；再次调用从首个仍有未确认或待提交变更的阶段继续，\n未确认提交交原执行器核验，不重放已完成阶段。",
+              "parameters": [
+                {
+                  "name": "phases",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSetSaveChangesOptions[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetPhasedSaveResult",
+                    "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 ]
               }

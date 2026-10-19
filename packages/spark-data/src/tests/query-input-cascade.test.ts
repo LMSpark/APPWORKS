@@ -230,6 +230,26 @@ describe('query cascade configuration inputs', () => {
     expect(child.getEditingRow('one')?.['parent']).toBe('draft')
   })
 
+  it('merges single queryContext keys from parent values and keeps the other context keys', async () => {
+    const {ds, source, child} = fixture()
+    ds.addCascade({parentTable: 'Inputs', parentViewId: 'default', childTable: 'Result', childViewId: 'default', filterBindings: [],
+      inputBindings: [{sourceField: 'key', target: 'queryContext.modelId'}, {sourceField: 'node', target: 'queryContext.nodeRef', omitEmpty: true}]})
+    await child.refresh()
+    await vi.waitFor(() => expect(child.queryContext).toEqual({fixed: 1, modelId: 'id', nodeRef: 'root'}))
+    source.updateEditingValue('input', 'node', '')
+    await vi.waitFor(() => expect(child.queryContext).toEqual({fixed: 1, modelId: 'id'}))
+    source.updateEditingValue('input', 'key', 'M2')
+    await vi.waitFor(() => expect(child.queryContext).toEqual({fixed: 1, modelId: 'M2'}))
+  })
+
+  it('rejects invalid single-key targets and mixing them with the whole queryContext', () => {
+    const {ds} = fixture()
+    const base = {parentTable: 'Inputs', parentViewId: 'default', childTable: 'Result', childViewId: 'default', filterBindings: []}
+    expect(() => ds.addCascade({...base, inputBindings: [{sourceField: 'key', target: 'queryContext.a-b'}]})).toThrow('调用参数键无效')
+    expect(() => ds.addCascade({...base, inputBindings: [{sourceField: 'context', target: 'queryContext', format: 'json'},
+      {sourceField: 'key', target: 'queryContext.modelId'}]})).toThrow('不能混用')
+  })
+
   it('keeps inactive parent values, batches preparation to the latest inputs and releases subscriptions', async () => {
     const {ds, source, child, list} = fixture()
     ds.addCascade(cascade); await child.refresh()

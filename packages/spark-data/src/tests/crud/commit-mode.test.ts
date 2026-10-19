@@ -245,6 +245,31 @@ describe('commitMode=staged: dirty tracking lifecycle', () => {
     expect(view.rows.find(r => r['id'] === 2)?.['name']).toBe('Bob')
   })
 
+  it('DataSet.saveChangesInPhases stops before later phases on failure and resumes without replaying finished phases', async () => {
+    const { ds, orders, items } = createMasterDetailStagedDataSet()
+    const orderApi = setupMockApi(orders)
+    const itemApi = setupMockApi(items)
+    orderApi.update.mockResolvedValueOnce({ success: false, error: { message: 'db down' } } as never)
+    orders.updateEditingValue(1, 'name', 'Order Draft')
+    items.updateEditingValue(10, 'name', 'Item Draft')
+    const phases = [{ views: [{ tableName: orders.tableName, viewId: orders.viewId }] },
+      { views: [{ tableName: items.tableName, viewId: items.viewId }] }]
+
+    const first = await ds.saveChangesInPhases(phases)
+    expect(first).toMatchObject({ success: false, completedPhases: 0 })
+    expect(itemApi.update).not.toHaveBeenCalled()
+
+    const second = await ds.saveChangesInPhases(phases)
+    expect(second).toMatchObject({ success: true, completedPhases: 2 })
+    expect(orderApi.update).toHaveBeenCalledTimes(2)
+    expect(itemApi.update).toHaveBeenCalledTimes(1)
+
+    const third = await ds.saveChangesInPhases(phases)
+    expect(third).toMatchObject({ success: true, completedPhases: 2, results: [] })
+    expect(orderApi.update).toHaveBeenCalledTimes(2)
+    await expect(ds.saveChangesInPhases([{}])).rejects.toThrow('显式列出视图')
+  })
+
   it('DataSet.saveChanges applies editing rows and saves master table before detail table', async () => {
     const { ds, orders, items } = createMasterDetailStagedDataSet()
     const calls: string[] = []

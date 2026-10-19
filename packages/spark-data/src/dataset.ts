@@ -11,7 +11,7 @@ import type {
   DataSetContract, DataSetMetadata, TableMetadata, DataResourceRelation, DataResourceRelationInput, DataViewCascade,
   DataViewQueryCascade, DataViewCascadeSelector, DataViewFieldCascadeAddress, DataViewFieldCascadeState, DataRow, DataColumn,
   ColumnType, ViewChangeHandlers, CrudResult,
-  DataSetSaveChangesOptions, DataSetSaveChangesResult, DataSetSaveChangesViewResult,
+  DataSetSaveChangesOptions, DataSetSaveChangesResult, DataSetSaveChangesViewResult, DataSetPhasedSaveResult,
   DataSetSaveChangesConfig, DataSetTransactionOperation, DataSetTransactionRequest,
   DataSetTransactionResponse, HttpEndpoint,
 } from './types'
@@ -1544,6 +1544,32 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
         data: result,
       }
     })
+  }
+
+  /**
+   * 按阶段顺序提交跨来源变更（如先数据库正式记录、再文件引用）；不提供事务。
+   * 每阶段必须显式列出视图；前一阶段的视图全部确认且无待提交变更后才进入下一阶段。
+   * 失败或结果未确认时停止并返回已执行阶段的回执；再次调用从首个仍有未确认或待提交变更的阶段继续，
+   * 未确认提交交原执行器核验，不重放已完成阶段。
+   */
+  async saveChangesInPhases(phases: readonly DataSetSaveChangesOptions[]): Promise<DataSetPhasedSaveResult> {
+    if (phases.length === 0) throw new Error('DATA_SET_PHASED_SAVE: 至少需要一个阶段')
+    const results: Array<CrudResult<DataSetSaveChangesResult>> = []
+    for (const [index, phase] of phases.entries()) {
+      if (!phase.views?.length) throw new Error(`DATA_SET_PHASED_SAVE: 第 ${index + 1} 阶段必须显式列出视图`)
+      if (phase.mode === 'transaction') throw new Error('DATA_SET_PHASED_SAVE: 分阶段提交不提供事务')
+    }
+    for (const [index, phase] of phases.entries()) {
+      const targets = this.resolveSaveChangesTargets(phase)
+      const applyEditing = phase.applyEditingRows ?? true
+      const dirty = () => targets.some(target => target.view.hasUnconfirmedSave || hasPendingChanges(target.view, target.ids)
+        || (applyEditing && hasEditingChanges(target.view, target.ids)))
+      if (!dirty()) continue
+      const result = await this.saveChanges(phase)
+      results.push(result)
+      if (!result.success || dirty()) return {success: false, completedPhases: index, results}
+    }
+    return {success: true, completedPhases: phases.length, results}
   }
 
   private assertScenarioSaveTargets(

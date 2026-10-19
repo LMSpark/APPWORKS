@@ -159,6 +159,7 @@ export type {
   DataViewApplyEditingRowsResult,
   DataSetSaveChangesOptions,
   DataSetSaveChangesResult,
+  DataSetPhasedSaveResult,
   DataSetSaveChangesViewResult,
   DataSetSaveChangesViewSelector,
   DataSetSaveChangesMode,

@@ -74,6 +74,7 @@
       "DataSetSaveChangesTransactionOptions",
       "DataSetSaveChangesConfig",
       "DataSetSaveChangesOptions",
+      "DataSetPhasedSaveResult",
       "DataSetSaveChangesViewResult",
       "DataSetSaveChangesResult",
       "CrudResult",
@@ -391,7 +392,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@194633": {
+            "__@iterator@194668": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -446,7 +447,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@194633"
+            "__@iterator@194668"
           ],
           "additionalProperties": false
         },
@@ -870,7 +871,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@194633": {
+            "__@iterator@194668": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -925,7 +926,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@194633"
+            "__@iterator@194668"
           ],
           "additionalProperties": false
         },
@@ -1151,7 +1152,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@194633": {
+            "__@iterator@194668": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1206,7 +1207,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@194633"
+            "__@iterator@194668"
           ],
           "additionalProperties": false
         },
@@ -1444,7 +1445,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@194633": {
+                "__@iterator@194668": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1499,7 +1500,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@194633"
+                "__@iterator@194668"
               ],
               "additionalProperties": false
             },
@@ -1729,7 +1730,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@194633": {
+                "__@iterator@194668": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1784,7 +1785,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@194633"
+                "__@iterator@194668"
               ],
               "additionalProperties": false
             },
@@ -2720,7 +2721,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@194633": {
+                "__@iterator@194668": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2775,7 +2776,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@194633"
+                "__@iterator@194668"
               ],
               "additionalProperties": false
             },
@@ -3005,7 +3006,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@194633": {
+                "__@iterator@194668": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3060,7 +3061,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@194633"
+                "__@iterator@194668"
               ],
               "additionalProperties": false
             },
@@ -3871,20 +3872,7 @@
         "sourceField": {
           "type": "string"
         },
-        "target": {
-          "enum": [
-            "pageSize",
-            "queryContext",
-            "queryConfig.outputType",
-            "queryConfig.allPages",
-            "queryConfig.maxRows",
-            "queryConfig.tree.keyField",
-            "queryConfig.tree.parentField",
-            "queryConfig.tree.nodeId",
-            "queryConfig.tree.hasChildrenField",
-            "queryConfig.tree.mode"
-          ]
-        },
+        "target": true,
         "format": {
           "const": "json"
         },
@@ -5568,6 +5556,34 @@
       },
       "additionalProperties": false
     },
+    "DataSetPhasedSaveResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetPhasedSaveResult",
+      "properties": {
+        "success": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "completedPhases": {
+          "type": "number"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CrudResult"
+          }
+        }
+      },
+      "required": [
+        "success",
+        "completedPhases",
+        "results"
+      ],
+      "additionalProperties": false
+    },
     "DataSetSaveChangesViewResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -5970,7 +5986,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-16T04:55:20.436Z",
+  "generatedAt": "2026-10-19T01:54:37.091Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -7743,11 +7759,11 @@
       "jsdoc": "父视图原生值到子视图查询输入的映射；与过滤字段绑定共同参与一次级联。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 省略时取父视图选中主键数组，字段值仍由统一值绑定解析。 */\n    sourceField?: string;\n    /** 查询配置的正式属性路径；不接受任意对象路径或权限属性。 */\n    target: 'queryContext' | 'pageSize' | 'queryConfig.outputType' | 'queryConfig.allPages' | 'queryConfig.maxRows' | 'queryConfig.tree.keyField' | 'queryConfig.tree.parentField' | 'queryConfig.tree.nodeId' | 'queryConfig.tree.hasChildrenField' | 'queryConfig.tree.mode';\n    /** 显式将JSON文本解码为调用参数对象；省略保留原生类型。 */\n    format?: 'json';\n    /** 空字符串或null撤销此目标属性；不会拆分普通字符串。 */\n    omitEmpty?: boolean;\n    /** 同一父视图中控制该输入的字段值；不满足时撤销目标属性，保留父字段草稿。 */\n    when?: Readonly<{\n        field: string;\n        equals: string | number | boolean | null;\n    }>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 省略时取父视图选中主键数组，字段值仍由统一值绑定解析。 */\n    sourceField?: string;\n    /**\n     * 查询配置的正式属性路径；不接受任意对象路径或权限属性。\n     * `queryContext.<键名>`只写入该调用参数键并保留其他键（如宿主注入的dataSpaceId），撤销时删除该键；同一级联不得与整体queryContext混用。\n     */\n    target: 'queryContext' | `queryContext.${string}` | 'pageSize' | 'queryConfig.outputType' | 'queryConfig.allPages' | 'queryConfig.maxRows' | 'queryConfig.tree.keyField' | 'queryConfig.tree.parentField' | 'queryConfig.tree.nodeId' | 'queryConfig.tree.hasChildrenField' | 'queryConfig.tree.mode';\n    /** 显式将JSON文本解码为调用参数对象；省略保留原生类型。 */\n    format?: 'json';\n    /** 空字符串或null撤销此目标属性；不会拆分普通字符串。 */\n    omitEmpty?: boolean;\n    /** 同一父视图中控制该输入的字段值；不满足时撤销目标属性，保留父字段草稿。 */\n    when?: Readonly<{\n        field: string;\n        equals: string | number | boolean | null;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 省略时取父视图选中主键数组，字段值仍由统一值绑定解析。 */\n    sourceField?: string;\n    /** 查询配置的正式属性路径；不接受任意对象路径或权限属性。 */\n    target: 'queryContext' | 'pageSize' | 'queryConfig.outputType' | 'queryConfig.allPages' | 'queryConfig.maxRows' | 'queryConfig.tree.keyField' | 'queryConfig.tree.parentField' | 'queryConfig.tree.nodeId' | 'queryConfig.tree.hasChildrenField' | 'queryConfig.tree.mode';\n    /** 显式将JSON文本解码为调用参数对象；省略保留原生类型。 */\n    format?: 'json';\n    /** 空字符串或null撤销此目标属性；不会拆分普通字符串。 */\n    omitEmpty?: boolean;\n    /** 同一父视图中控制该输入的字段值；不满足时撤销目标属性，保留父字段草稿。 */\n    when?: Readonly<{\n        field: string;\n        equals: string | number | boolean | null;\n    }>;\n}>",
+            "typeText": "Readonly<{\n    /** 省略时取父视图选中主键数组，字段值仍由统一值绑定解析。 */\n    sourceField?: string;\n    /**\n     * 查询配置的正式属性路径；不接受任意对象路径或权限属性。\n     * `queryContext.<键名>`只写入该调用参数键并保留其他键（如宿主注入的dataSpaceId），撤销时删除该键；同一级联不得与整体queryContext混用。\n     */\n    target: 'queryContext' | `queryContext.${string}` | 'pageSize' | 'queryConfig.outputType' | 'queryConfig.allPages' | 'queryConfig.maxRows' | 'queryConfig.tree.keyField' | 'queryConfig.tree.parentField' | 'queryConfig.tree.nodeId' | 'queryConfig.tree.hasChildrenField' | 'queryConfig.tree.mode';\n    /** 显式将JSON文本解码为调用参数对象；省略保留原生类型。 */\n    format?: 'json';\n    /** 空字符串或null撤销此目标属性；不会拆分普通字符串。 */\n    omitEmpty?: boolean;\n    /** 同一父视图中控制该输入的字段值；不满足时撤销目标属性，保留父字段草稿。 */\n    when?: Readonly<{\n        field: string;\n        equals: string | number | boolean | null;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -7761,7 +7777,7 @@
             },
             {
               "name": "target",
-              "jsdoc": "查询配置的正式属性路径；不接受任意对象路径或权限属性。",
+              "jsdoc": "查询配置的正式属性路径；不接受任意对象路径或权限属性。\n`queryContext.<键名>`只写入该调用参数键并保留其他键（如宿主注入的dataSpaceId），撤销时删除该键；同一级联不得与整体queryContext混用。",
               "readable": true,
               "writable": false
             },
@@ -9944,6 +9960,36 @@
               "jsdoc": "事务选项",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetPhasedSaveResult": {
+      "name": "DataSetPhasedSaveResult",
+      "jsdoc": "DataSet.saveChangesInPhases 的结果；completedPhases 为已确认完成的连续阶段数。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 全部阶段确认且无待提交变更 */\n    success: boolean;\n    /** 自第一阶段起已确认完成的阶段数；失败或未确认时为停止阶段的下标 */\n    completedPhases: number;\n    /** 本次实际执行的各阶段 saveChanges 回执 */\n    results: Array<CrudResult<DataSetSaveChangesResult>>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "success",
+              "jsdoc": "全部阶段确认且无待提交变更",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "completedPhases",
+              "jsdoc": "自第一阶段起已确认完成的阶段数；失败或未确认时为停止阶段的下标",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "results",
+              "jsdoc": "本次实际执行的各阶段 saveChanges 回执",
+              "readable": true,
+              "writable": true
             }
           ]
         }

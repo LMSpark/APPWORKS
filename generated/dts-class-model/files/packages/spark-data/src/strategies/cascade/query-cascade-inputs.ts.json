@@ -19,20 +19,7 @@
       "type": "object",
       "title": "InputValue",
       "properties": {
-        "target": {
-          "enum": [
-            "pageSize",
-            "queryContext",
-            "queryConfig.outputType",
-            "queryConfig.allPages",
-            "queryConfig.maxRows",
-            "queryConfig.tree.keyField",
-            "queryConfig.tree.parentField",
-            "queryConfig.tree.nodeId",
-            "queryConfig.tree.hasChildrenField",
-            "queryConfig.tree.mode"
-          ]
-        },
+        "target": true,
         "value": true
       },
       "required": [
@@ -57,6 +44,18 @@
           "type": "object",
           "properties": {},
           "additionalProperties": false
+        },
+        "method.contextKey.params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.contextKey.return": {
+          "type": "string"
         },
         "method.parseWhen.params": {
           "type": "object",
@@ -156,7 +155,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-10T10:46:35.803Z",
+  "generatedAt": "2026-10-19T01:51:01.941Z",
   "models": {
     "InputValue": {
       "name": "InputValue",
@@ -209,6 +208,26 @@
             }
           ],
           "methods": [
+            {
+              "name": "contextKey",
+              "jsdoc": "调用参数单键目标的键名；返回undefined表示不是单键目标。",
+              "parameters": [
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "intrinsic",
+                  "name": "string"
+                }
+              }
+            },
             {
               "name": "parseWhen",
               "jsdoc": "校验可选启用条件；条件读取仍经过统一值与数据权限边界。",

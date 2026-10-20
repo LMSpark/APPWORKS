@@ -55,8 +55,16 @@ describe('database-server-view-ops', () => {
     expect(view.getSelectedValues()).toEqual([])
   })
 
-  it('rejects connection test until DataView command contract exists', async () => {
-    await expect(databaseServerTestConnection()).rejects.toThrow(/DataView/)
-    expect(http.requests.some(request => request.url === '/api/Db/testConnection')).toBe(false)
+  it('tests connection through the data layer with bound DataView editing context', async () => {
+    const ds = await LowcodeDatabaseServer.loadCatalog(DATABASE_SERVER_SCENARIO_ID)
+    sets.push(ds)
+    const view = requireDatabaseServerView(ds)
+    const edit = await databaseServerBeginCreate(view)
+    view.updateEditingValue(edit.id, 'ServerName', '主库')
+    view.updateEditingValue(edit.id, 'ip_address', '10.0.0.1')
+    view.updateEditingValue(edit.id, 'UserName', 'root')
+    view.updateEditingValue(edit.id, 'Password', 'secret')
+    await expect(databaseServerTestConnection(view, edit)).resolves.toBe(true)
+    expect(http.requests.some(request => request.url === '/api/Db/testConnection')).toBe(true)
   })
 })

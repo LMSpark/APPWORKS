@@ -10,7 +10,7 @@
 - **清点与台账**：`notes/research-data-space-i4-command-inventory.md`（11/11 已 session 化）；收敛实施见 Cursor plan `i4_command_class_convergence`（仓内 `notes/plan-data-space-i4-convergence.md` 已按 AGENTS 阶段 7 删除）。**P1b / `flowStatus` / `ModelEdit.save` 请求方案分区 / 预览链** 行为未改。
 - **回归（2026-10-20 收敛验收）**：`typecheck` + `verify:page-thin`；metadata+chain **107/107**；auth-nav data-space **798/798**；native 设计 **1584/1584**（`notes/evidence/data-space-config-storage/native-design-regression-i4-convergence.log`）；`generate:class-model-surface`（879 DTS，manifest 指向 `*-session.ts`）。**测试修补**：模型工作区 lazy 页签下 `field-removal` 页测 `page()` 需打开「3 字段呈现」/保存前回字段页签。`**-session.ts` ESLint 清零**；全仓 `pnpm run lint` 仍有存量项（非本次删类引入）。
 - **提交（2026-10-20）**：`5b09bab85` on `10-17`（含 I2 列表/P1b、I3 设计页签、`DataSpaceModelRequest`、I4 全量 session 化 + ClassModel/测试）；已 push `origin/10-17`。
-- **下一断点（整合计划）**：阶段 1 仍缺 `data-set-auth-page.vue`；阶段 2 **I5** **service-management** + **table-and-view 只读** 已落 features（见下两节）；四 dialog 与 DBMS 下线仍待。
+- **下一断点（整合计划）**：阶段 1 仍缺 `data-set-auth-page.vue`；阶段 2 **I5** 单链 hub + 连接测试 + 只读级联 vitest 已推进（见下节）；四 dialog UI 与实页 CRUD 证据仍待。
 
 ## 2026-10-20 I5 服务器管理首屏（service-management-page，`bbc254aba`）
 
@@ -30,7 +30,14 @@
 - **数据链**：`LowcodeDatabaseTableView.loadCatalog` 装配库/表/视图/字段 + query 级联（`dbid`、`tblid`）；字段视图分 `tableFields`/`viewFields`，只读，不经 `getDatabaseCatalog`。
 - **UI（工作区，未提交）**：四表及字段区均 **autoColumns**；已删 `dbFields`/`tableFields`/`viewFields`/`fieldColumns` 等页面列配置（违反「列只在 DataTable.columns」）。
 - **验证**：`tests/runtime/page/database/*` 8 项 + `typecheck`；夹具补齐查询 `lingma_sys_params.r/e` 以匹配正式权限消费。
-- **提交**：`bf66dd39e`（首切片）、`1295394af`（字段目录） on `10-17`；autoColumns 统一待提交。
+- **提交**：`bf66dd39e`（首切片）、`1295394af`（字段目录） on `10-17`；autoColumns 统一见 `1a5219e99`。
+
+## 2026-10-20 I5 架构收敛（hub / 连接测试 / DBMS 收窄，工作区）
+
+- **导航**：`/dbms`、`/DataBaseManage/DataBaseManage/index` → `database-management-hub.vue`（服务器 + 表和视图 tab）；`DBMS.vue` 仅 re-export hub，已移除 ~2.5k 行 `getDatabaseCatalog` 与页面 `/api/Db`。
+- **服务器**：`database-server-connection-test.ts` + 注册对话框「测试连接」；`fetchUnregisteredDatabaseNames` 供 2b 注册库 dialog（`database-catalog-unregistered-db.ts`）。
+- **验证**：`tests/runtime/page/database/*`（含 mount 级联、未登记库查询）；`vue-page-registry` 更新 hub source；实页 CRUD `livePilot: pending`（evidence 单独 commit）。
+- **文档**：`plan-database-management-i5-dialogs-slice.md`（2b/2c draft）；`plan-data-space-i4-input-parameters.md` 已删除（superseded）。
 
 ## 2026-10-19 I3 设计器页签拆分 + 请求方案分区（工作区已验证，待与 I2 同批提交）
 

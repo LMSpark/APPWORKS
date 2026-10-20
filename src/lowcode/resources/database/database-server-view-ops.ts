@@ -164,7 +164,4 @@ export async function databaseServerDeleteSelected(dataSet: DataSet, view: DataV
   await databaseServerRefresh(view)
 }
 
-/** 连接测试须由 DataView 正式命令承接；当前 spark-data 未暴露，禁止旁路 HTTP。 */
-export async function databaseServerTestConnection(): Promise<boolean> {
-  throw new Error('连接测试须经 DataView 资源命令合同；当前 spark-data 未接入，不能旁路后端')
-}
+export {databaseServerTestConnection} from './database-server-connection-test'

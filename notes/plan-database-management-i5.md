@@ -23,7 +23,7 @@
 1. **合同核对**：参考 `ServiceManager` / `Base_serverInfo` 字段；确认 FormKey=dataSpaceId 下 DataSet 能否装配服务器模型与视图（缺 pagedata 则按资源专题模板补场景配置，不页面手拼 CRUD）。
 2. **数据层**：`LowcodeDatabaseServer.loadCatalog` + `database-server-view-ops`（**非 owner**，只编排 DataView/DataSet）；**spark-data 唯一后端桥梁**；query/save owner 只在装配时 bind 到 DataView。
 3. **页面**：`src/views/features/data-platform/database-management/ui/service-management-page.vue`（+ 必要 props/composables 子目录）；布局对照参考 1:1，控件 spark-component；**DataSet 为读写唯一通道**。
-4. **导航**：`vue-pages.json` 仅改 `service-management-page` 的 `source`；`/dbms`、table-and-view 仍 DBMS。
+4. **导航**：hidden 两页 + `/dbms`、`/DataBaseManage/...` → `database-management-hub.vue`（组合壳）；`DBMS.vue` 仅 re-export。
 5. **测试**：registry + 服务器 CRUD/连接 vitest（HTTP 或 DataSet 夹具）；typecheck、page-thin。
 6. **后续**：table-and-view 四 dialog → 六页齐后删 DBMS。
 
@@ -67,18 +67,20 @@
 
 - **不必**为首屏新建 `config/pages/.../pagedata.json`（若导航 FormKey = 单 scenarioId）：采用 **字典式动态装配** — `readSpaceDefinition` + `readModel('Base_serverInfo')` + `ScenarioViewConfig` + `LowcodeDataSpaceAssembler` → DataSet。
 - **绑定**：`buildDataViewKey('Base_serverInfo', 'default', blueprintScenarioId)`；`PageRuntime.loadScenario` 返回上述 DataSet。
-- **分层**：**DataView** = 组件与数据交互层（`RendererTable`/`RendererForm`/字段子组件经 `dataViewKey`）；**DataSet** = 提交与关系；列表/CRUD 仅 `DataView` 编辑 + `dataSet.saveChanges()`。**连接测试**须纳入绑定视图的正式命令合同，当前未接入（UI 提示缺口，不 HTTP 旁路）。
+- **分层**：**DataView** = 组件与数据交互层（`RendererTable`/`RendererForm`/字段子组件经 `dataViewKey`）；**DataSet** = 提交与关系；列表/CRUD 仅 `DataView` 编辑 + `dataSet.saveChanges()`。**连接测试**经 `databaseServerTestConnection`（数据层）；正式 view command executor 可后续收敛。
 - **导航**：hidden「服务器管理」节点须带 **blueprintScenarioId**（= FormKey）；不复用 DBMS 多 scenario 合并。
 - 详见 [`notes/research-database-management-i5.md`](research-database-management-i5.md) § pagedata / DataSet 合同研读。
 
 ## 阶段 1 进度（2026-10-20）
 
 - [x] `service-management-page.vue` + `LowcodeDatabaseServer` + `database-server-view-ops`
-- [x] 导航 `source` 切换；registry + page-thin + 服务器 vitest（8 项 database/*）
+- [x] 导航 `source` 切换；registry + page-thin + 服务器 vitest（`tests/runtime/page/database/*` 11+ 项）
 - [x] **UI 列统一（2026-10-20）**：服务器 + 表和视图页去掉字段 `children` / 手写字段 filter；`RendererTable`/`RendererForm` 默认 autoColumns（列真源 DataTable.columns，行 DataView 查询）
-- [ ] 在线/实页：FormKey 下 CRUD + 重开回读
-- [ ] 连接测试：DataView 命令合同（缺口）
-- [ ] table-and-view 四 dialog；DBMS 删除/收窄
+- [ ] 在线/实页：FormKey 下 CRUD + 重开回读（证据 `livePilot: pending`，单独 evidence commit）
+- [x] 连接测试：`database-server-connection-test.ts` + 注册对话框「测试连接」；vitest 断言经数据层 `lowcodeHttp`
+- [x] 列表筛选：空 `filter` 占位，后续走 RendererFilter / queryConfig（无手写字段 children）
+- [ ] table-and-view 四 dialog UI（2b 数据层 `fetchUnregisteredDatabaseNames` 已落地；见 `plan-database-management-i5-dialogs-slice.md`）
+- [x] DBMS：`database-management-hub` + 薄 `DBMS.vue` re-export；移除 catalog 聚合读与页面 Db HTTP
 - [x] 服务器页 vitest 挂载（`service-management-page.test.ts` + 夹具复用）
 - [x] table-and-view **只读首切片**（`LowcodeDatabaseTableView` + `table-and-view-page.vue`；四 dialog 未做）
 
@@ -87,6 +89,11 @@
 - 研读：`research-database-management-i5-table-and-view.md`（五表、与 DBMS 差异、建议只读首切片）。
 - 编码门禁：单 FormKey 动态装配 ≥3 模型 + 级联；仍不调用 `getDatabaseCatalog`；路由切换前仍 `DBMS.vue` 直至整页等价。
 
+## 治理（迭代 4）
+
+- **证据**：`notes/evidence/**` 不与功能同 commit；摘要链台账，实页 JSON 单独提交。
+- **superseded**：`notes/plan-data-space-i4-input-parameters.md` 已删除（内容 superseded，见 I4 台账）。
+
 ## 待审核
 
-- 状态 **implementing**；首屏代码已落地，整页 1:1 与连接测试待后续项。
+- 状态 **implementing**；hub/连接测试/DBMS 收窄已落地；实页 CRUD 与四 dialog UI 仍待切片交付。

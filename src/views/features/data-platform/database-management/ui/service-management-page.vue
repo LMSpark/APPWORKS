@@ -11,7 +11,7 @@
     <template v-if="ready">
       <p v-if="listError" role="alert">{{ listError }}</p>
       <div :inert="busy || !!editing">
-        <RendererTable :data-view-key="catalogKey" :toolbar="toolbar"
+        <RendererTable :data-view-key="catalogKey" :toolbar="toolbar" :filter="{}"
           :stripe="true" :on-row-click="choose" :highlight-current-row="true" :show-data-view-meta="false" />
       </div>
       <RendererDialog v-if="editing" :model-value="true"
@@ -22,8 +22,8 @@
         <RendererForm :data-view-key="catalogKey" context-data-member="currentRow"
           :show-data-view-meta="false" :grid-columns="1"
           :form-props="{disabled: busy || editing.unconfirmed || editing.readbackFailed}" />
-        <p v-if="editing.mode === 'add'" role="status">连接测试须纳入绑定 DataView 的命令合同；当前未接入，保存前请自行核对连通性。</p>
         <template #footer>
+          <RendererButton v-if="!editing.unconfirmed && editing.mode === 'add'" label="测试连接" :disabled="busy" @click="testConnection" />
           <RendererButton v-if="!editing.unconfirmed" label="取消" :disabled="busy" @click="cancelEdit" />
           <RendererButton v-if="!editing.unconfirmed && !editing.readbackFailed" label="确定" :disabled="busy" @click="saveEdit" />
           <RendererButton v-if="editing.unconfirmed" label="核验保存结果" :disabled="busy" @click="saveEdit" />
@@ -62,6 +62,7 @@ import {
   databaseServerEditing,
   databaseServerSaveEdit,
   databaseServerSelectedId,
+  databaseServerTestConnection,
   requireDatabaseServerView,
   type DatabaseServerEditState,
 } from '@/lowcode/resources/database/database-server-view-ops'
@@ -135,6 +136,15 @@ async function saveEdit(): Promise<void> {
     if (!ds || !v || !current) return
     edit.value = await databaseServerSaveEdit(ds, v, current) ?? undefined
   }, '服务器已保存')
+}
+async function testConnection(): Promise<void> {
+  await act(async () => {
+    const v = view.value
+    const current = edit.value
+    if (!v || !current || current.mode !== 'add') return
+    const ok = await databaseServerTestConnection(v, current)
+    if (!ok) throw new Error('连接失败')
+  }, '连接成功')
 }
 function openDelete(): void {
   const v = view.value

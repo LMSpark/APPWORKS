@@ -144,7 +144,7 @@
       "title": "数据库管理",
       "icon": "DataBase",
       "scope": "app",
-      "source": "src/views/app/DBMS.vue",
+      "source": "src/views/features/data-platform/database-management/ui/database-management-hub.vue",
       "description": "多层级数据源元数据管理（服务器→数据库→表→关系）"
     },
     {
@@ -162,7 +162,7 @@
       "title": "数据库管理",
       "icon": "DataBase",
       "scope": "app",
-      "source": "src/views/app/DBMS.vue",
+      "source": "src/views/features/data-platform/database-management/ui/database-management-hub.vue",
       "description": "Metadata 项目的 lowcode 数据库管理入口",
       "hidden": true,
       "shellTool": false

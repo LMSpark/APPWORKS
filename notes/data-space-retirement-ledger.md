@@ -10,16 +10,24 @@
 - **清点与台账**：`notes/research-data-space-i4-command-inventory.md`（11/11 已 session 化）；收敛实施见 Cursor plan `i4_command_class_convergence`（仓内 `notes/plan-data-space-i4-convergence.md` 已按 AGENTS 阶段 7 删除）。**P1b / `flowStatus` / `ModelEdit.save` 请求方案分区 / 预览链** 行为未改。
 - **回归（2026-10-20 收敛验收）**：`typecheck` + `verify:page-thin`；metadata+chain **107/107**；auth-nav data-space **798/798**；native 设计 **1584/1584**（`notes/evidence/data-space-config-storage/native-design-regression-i4-convergence.log`）；`generate:class-model-surface`（879 DTS，manifest 指向 `*-session.ts`）。**测试修补**：模型工作区 lazy 页签下 `field-removal` 页测 `page()` 需打开「3 字段呈现」/保存前回字段页签。`**-session.ts` ESLint 清零**；全仓 `pnpm run lint` 仍有存量项（非本次删类引入）。
 - **提交（2026-10-20）**：`5b09bab85` on `10-17`（含 I2 列表/P1b、I3 设计页签、`DataSpaceModelRequest`、I4 全量 session 化 + ClassModel/测试）；已 push `origin/10-17`。
-- **下一断点（整合计划）**：阶段 1 仍缺 `data-set-auth-page.vue`；阶段 2 **I5** 首屏 **service-management-page** 已落 features + DataView 链（见下节），table-and-view 四页与 DBMS 下线仍待。
+- **下一断点（整合计划）**：阶段 1 仍缺 `data-set-auth-page.vue`；阶段 2 **I5** **service-management** + **table-and-view 只读** 已落 features（见下两节）；四 dialog 与 DBMS 下线仍待。
 
-## 2026-10-20 I5 服务器管理首屏（service-management-page，工作区未提交）
+## 2026-10-20 I5 服务器管理首屏（service-management-page，`bbc254aba`）
 
 - **导航**：`vue-pages.json` 将 hidden「服务器管理」`source` 指向 `src/views/features/data-platform/database-management/ui/service-management-page.vue`；`/dbms` 与 table-and-view 仍 `DBMS.vue`。
 - **数据链**：`LowcodeDatabaseServer.loadCatalog` 动态装配 `Base_serverInfo@default`；页面持有 DataView/DataSet，编排见 `database-server-view-ops`（非业务 owner）；CRUD 经 `saveChanges`。连接测试待 DataView 命令合同，UI 提示缺口。
 - **原则**：spark-data 唯一后端桥梁；DataView 为组件交互层；已删 `LowcodeDatabaseServerCatalog` 与 `LowcodeApi.databaseConnection`。
-- **验证（2026-10-20）**：根 `typecheck`；`vue-page-registry.test.ts` + `database-server-catalog.test.ts`（3 项）；`verify:page-thin`。实页/在线 CRUD 未验。
+- **验证（2026-10-20）**：根 `typecheck`；`tests/runtime/page/database/*`（5 项，含页面挂载）；`verify:page-thin`。实页/在线 CRUD 未验。
+- **提交**：`bbc254aba` on `10-17`，已 push `origin/10-17`。
 - **文档**：`notes/plan-database-management-i5.md`（implementing）、`notes/research-database-management-i5.md` §0 owner 替代；`test:foundation:run`（utils→json-document vitest 别名）。
-- **矩阵**：`plan-appworks-integration.md` 设计器行语义/合同/页面列仍标「部分」（I4 删类完成 ≠ 矩阵实页全绿 / I5 瘦身）。
+- **矩阵**：`plan-appworks-integration.md` service-management 行语义/合同/页面 **部分**。
+- **下一切片**：连接测试 DataView 命令；实页 CRUD；table-and-view 四 dialog。
+
+## 2026-10-20 I5 表和视图只读首切片（table-and-view-page，工作区）
+
+- **导航**：hidden「表和视图管理」`source` → `table-and-view-page.vue`；`/dbms` 与 `/DataBaseManage/.../index` 仍 `DBMS.vue`。
+- **数据链**：`LowcodeDatabaseTableView.loadCatalog` 装配 `_base_dbInfo` / `_Base_TblList` / `_Base_ViewList` + query 级联（`dbid`）；只读列表，不经 `getDatabaseCatalog`。
+- **验证**：`tests/runtime/page/database/*` 7 项 + `typecheck`（工作区）。
 
 ## 2026-10-19 I3 设计器页签拆分 + 请求方案分区（工作区已验证，待与 I2 同批提交）
 

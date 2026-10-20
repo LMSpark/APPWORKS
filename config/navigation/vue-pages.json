@@ -172,7 +172,7 @@
       "title": "表和视图管理",
       "icon": "Grid",
       "scope": "app",
-      "source": "src/views/app/DBMS.vue",
+      "source": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
       "description": "Metadata 项目的 lowcode 表和视图管理入口",
       "hidden": true,
       "shellTool": false

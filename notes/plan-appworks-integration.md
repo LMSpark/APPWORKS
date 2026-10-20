@@ -78,7 +78,7 @@
 | 1 | data-platform/data-set-management/ui/data-set-list-page.vue | 已同路径；对话框设计入口+删除+去短路径（工作区） | 通过 | 通过 | 通过 | 通过 | — |
 | 2 | data-platform/database-management/table-and-view/ui/add-table-dialog.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/database-management/table-and-view/ui/register-dialog.vue | 缺 | — | — | — | — | — |
-| 2 | data-platform/database-management/table-and-view/ui/table-and-view-page.vue | 换路径→app/DBMS.vue | — | — | — | — | — |
+| 2 | data-platform/database-management/table-and-view/ui/table-and-view-page.vue | features 只读库/表/视图（2026-10-20）；dialog/DBMS 下线待 | 部分 | 部分 | 部分 | — | — |
 | 2 | data-platform/database-management/table-and-view/ui/table-design-dialog.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/database-management/table-and-view/ui/view-design-dialog.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/database-management/ui/service-management-page.vue | features 路径+DataView CRUD（2026-10-20）；连接测试/1:1/实页待 | 部分 | 部分 | 部分 | — | — |

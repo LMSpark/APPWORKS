@@ -26,4 +26,5 @@ I4 §4.3 删类已交付（`5b09bab85`）；I5 不依赖 view-design session。�
 ## 下一动作
 
 - pagedata/DataSet 合同：**已补全** → [`research-database-management-i5.md`](research-database-management-i5.md) § pagedata / DataSet。
-- 计划：**`notes/plan-database-management-i5.md`**（draft，待「开工」）。
+- 计划：**`notes/plan-database-management-i5.md`**（implementing；首屏 `bbc254aba`）。
+- table-and-view 研读：**[`research-database-management-i5-table-and-view.md`](research-database-management-i5-table-and-view.md)**（draft）。

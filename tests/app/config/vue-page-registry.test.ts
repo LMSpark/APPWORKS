@@ -56,10 +56,9 @@ describe('Vue page registry', () => {
       .toBe(false)
     expect(getVuePageEntry('/features/data-platform/database-management/ui/service-management-page')?.source)
       .toBe('src/views/features/data-platform/database-management/ui/service-management-page.vue')
-    expect([
-      '/DataBaseManage/DataBaseManage/index',
-      '/features/data-platform/database-management/table-and-view/ui/table-and-view-page',
-    ].every(path => getVuePageEntry(path)?.source === 'src/views/app/DBMS.vue')).toBe(true)
+    expect(getVuePageEntry('/features/data-platform/database-management/table-and-view/ui/table-and-view-page')?.source)
+      .toBe('src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue')
+    expect(getVuePageEntry('/DataBaseManage/DataBaseManage/index')?.source).toBe('src/views/app/DBMS.vue')
     expect(getVuePageEntry('/features/application/application-manager/ui/application-manager-page')?.source)
       .toBe('src/views/tenant/AppList.vue')
   })

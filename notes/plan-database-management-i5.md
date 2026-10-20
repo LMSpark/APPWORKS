@@ -78,6 +78,13 @@
 - [ ] 在线/实页：FormKey 下 CRUD + 重开回读
 - [ ] 连接测试：DataView 命令合同（缺口）
 - [ ] table-and-view 四 dialog；DBMS 删除/收窄
+- [x] 服务器页 vitest 挂载（`service-management-page.test.ts` + 夹具复用）
+- [x] table-and-view **只读首切片**（`LowcodeDatabaseTableView` + `table-and-view-page.vue`；四 dialog 未做）
+
+## 阶段 2 启动（table-and-view，draft）
+
+- 研读：`research-database-management-i5-table-and-view.md`（五表、与 DBMS 差异、建议只读首切片）。
+- 编码门禁：单 FormKey 动态装配 ≥3 模型 + 级联；仍不调用 `getDatabaseCatalog`；路由切换前仍 `DBMS.vue` 直至整页等价。
 
 ## 待审核
 

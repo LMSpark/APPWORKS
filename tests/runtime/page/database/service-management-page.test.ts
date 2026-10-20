@@ -1,0 +1,74 @@
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+import {DataSet} from '@spark-appworks/spark-data'
+import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import ElementPlus from 'element-plus'
+import VXETable from 'vxe-table'
+import {registerAllRenderers, Spark} from '@spark-appworks/spark-component'
+import {createMemoryHistory, createRouter} from 'vue-router'
+import ServiceManagementPage from '@/views/features/data-platform/database-management/ui/service-management-page.vue'
+import {
+  DATABASE_SERVER_SCENARIO_ID,
+  DatabaseServerHttp,
+  bootstrapDatabaseServerRuntime,
+} from './database-server.fixture'
+
+const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
+let http: DatabaseServerHttp, runtime: DataSpaceRuntimeApi
+vi.mock('@/lowcode/lowcode-runtime', () => ({
+  get lowcodeHttp() {return http},
+  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
+}))
+
+const sets: DataSet[] = []
+const wrappers: VueWrapper[] = []
+const originalStubs = {...config.global.stubs}
+
+beforeEach(() => {
+  http = new DatabaseServerHttp()
+  runtime = bootstrapDatabaseServerRuntime(http, service)
+  registerAllRenderers()
+  const stubs = {...originalStubs}
+  for (const key of ['el-button', 'el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[key]
+  config.global.stubs = stubs
+  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+})
+
+afterEach(() => {
+  wrappers.splice(0).forEach(wrapper => wrapper.unmount())
+  sets.splice(0).forEach(dataSet => dataSet.destroy())
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
+  config.global.stubs = originalStubs
+})
+
+async function open(scenarioId: string): Promise<VueWrapper> {
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [{path: '/', component: ServiceManagementPage, meta: {blueprintScenarioId: scenarioId}}],
+  })
+  await router.push('/')
+  await router.isReady()
+  const wrapper = mount(ServiceManagementPage, {
+    attachTo: document.body,
+    global: {plugins: [router, ElementPlus, VXETable, Spark.createPlugin()]},
+  })
+  wrappers.push(wrapper)
+  await flushPromises()
+  await flushPromises()
+  return wrapper
+}
+
+describe('service-management-page', () => {
+  it('loads the server catalog when blueprintScenarioId is bound', async () => {
+    const wrapper = await open(DATABASE_SERVER_SCENARIO_ID)
+    expect(wrapper.text()).toContain('服务器管理')
+    expect(wrapper.text()).toContain('主库')
+    expect(http.requests.some(request => JSON.stringify(request.data).includes('Base_serverInfo'))).toBe(true)
+  })
+
+  it('reports missing navigation scenario identity before loading', async () => {
+    const wrapper = await open('')
+    expect(wrapper.text()).toContain('缺少导航绑定的数据空间ID')
+  })
+})

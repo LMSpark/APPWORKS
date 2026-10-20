@@ -20,11 +20,18 @@
 
 ## 技术方案（草案）
 
-1. 研读参考 inventory + 运行 API（夹具/在线）→ 每页输入输出与持久化边界。
-2. 选定 **第一个完整页面** 作为 I5 样板（见反向提问）。
-3. 按 AGENTS 0.2 路径对齐 features 目录；组件优先 spark-component；数据走正式 API 层，页面不散落 `/api/Db`（除非合同仅在 lowcodeHttp）。
-4. 首屏验收通过后，按 dialog 依赖顺序迁移其余 5 块；每步更新矩阵与 registry 测试。
-5. 全六页完成后删除 DBMS  monolith。
+1. **合同核对**：参考 `ServiceManager` / `Base_serverInfo` 字段；确认 FormKey=dataSpaceId 下 DataSet 能否装配服务器模型与视图（缺 pagedata 则按资源专题模板补场景配置，不页面手拼 CRUD）。
+2. **API 层**：`packages/spark-lowcode-api` 新增 `database-management/service`（或等价路径）— **仅** 封装 PageRuntime/DataSet/DataView 装配与 `saveChanges`；连接测试若不在 DataView 合同内，单独登记服务缺口，不伪造成功。
+3. **页面**：`src/views/features/data-platform/database-management/ui/service-management-page.vue`（+ 必要 props/composables 子目录）；布局对照参考 1:1，控件 spark-component；**DataSet 为读写唯一通道**。
+4. **导航**：`vue-pages.json` 仅改 `service-management-page` 的 `source`；`/dbms`、table-and-view 仍 DBMS。
+5. **测试**：registry + 服务器 CRUD/连接 vitest（HTTP 或 DataSet 夹具）；typecheck、page-thin。
+6. **后续**：table-and-view 四 dialog → 六页齐后删 DBMS。
+
+## 阶段 1 交付（首屏）
+
+- 输入：宿主/导航提供 **FormKey（= dataSpaceId）**。
+- 输出：服务器列表与 CRUD、连接测试结果可见；持久化经 **saveChanges** 精确回读。
+- 不含：DBMS 解块、表/视图设计 dialog、四文件化。
 
 ## 兼容性
 
@@ -33,10 +40,9 @@
 
 ## 验证计划
 
-- `pnpm run typecheck`
-- `pnpm run verify:page-thin`（新页 TS 收敛）
-- 新增/扩展 vitest：registry + 首屏业务夹具（对齐参考关键保存/取消用例）
-- 人工：隔离 T 下首屏完整操作与持久化回读（写能力启用后）
+- **硬门禁**：`pnpm run typecheck`；`pnpm run verify:page-thin`；`tests/app/config/vue-page-registry.test.ts`。
+- **业务**：新增 vitest（服务器列表/新增/编辑/删除/连接测试），断言经 **DataSet 唯一通道** 与回读；夹具与 `lowcode-catalog-api.test` 风格对齐。
+- **验收口径（用户 2026-10-20）**：读写只认 **DataSet**；在线隔离 T 作矩阵「实页」补验（首屏可不阻塞 vitest 绿，但须计划内列 T 项）。
 
 ## 风险项
 
@@ -46,6 +52,18 @@
 | 无 TableAndView API 封装 | 阶段 1 核后端 + 在 spark-lowcode-api 增门面，禁止页面直拼 |
 | 6 页一次过大 | 严格单页交付；DBMS 暂留至首屏等价 |
 
-## 阻塞
+## 已确认（2026-10-20）
 
-- **首屏交付范围**未确认（plan draft，待用户审核）。
+- **首屏交付**：参考 1:1 **service-management-page**（服务器 CRUD + 连接测试，恢复写能力；须逐项核 `/api/Db` 及目录表持久化合同）。
+- **写能力层（用户纠偏 2026-10-20）**：**必须全仓走 spark-data API**（DataSet/DataView 查询、编辑、`saveChanges`）；不以页面直调 `/api/Db` 为终态。若需跨包门面，仅作 spark-data 的薄封装，不第二套提交链。
+- ~~原草案：lowcodeHttp `/api/Db` 门面~~（已否决）。
+- **导航共存（首屏）**：仅 `service-management-page` → 新 Vue；`/dbms` 与 table-and-view 仍 `DBMS.vue`。
+- **列表读取**：`getDatabaseCatalog` 的 **servers** 切片 + 现有 FormKey 解析（与 DBMS 读链一致）；保存后同链回读验收。
+- **UI**：参考布局与文案 **1:1**，交互控件用 **spark-component** 等价实现。
+- **治理**：新页写操作仅经 **spark-data**；**DBMS.vue 内 mutation 仍 blocked**，直至后续 table-and-view 迁移时一并替换。
+- **场景身份**：**FormKey 即 dataSpace/scenarioId**；PageRuntime/DataSet 以当前导航/宿主传入的 FormKey 绑定，不另造第二身份。
+
+## 待审核
+
+- 状态 **draft** → 你回复「通过/开工」后改为 **approved** 再编码。
+- 实施前补充研读：FormKey 场景下 `Base_serverInfo` 的 DataTable/DataView 是否已有 pagedata 或须新建（记入 `notes/research-database-management-i5.md`）。

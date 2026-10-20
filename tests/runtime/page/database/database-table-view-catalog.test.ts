@@ -38,6 +38,7 @@ describe('LowcodeDatabaseTableView', () => {
     const dbView = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')
     const tableView = ds.getView(DATABASE_CATALOG_TABLE_MODEL, 'default')
     expect(dbView?.rows).toHaveLength(1)
+    expect(dbView?.columns.map(column => column.name)).toContain('Name')
     expect(tableView?.rows).toHaveLength(0)
     const dbRow = dbView!.rows[0]!
     dbView!.setSelectedRows([dbRow])
@@ -67,5 +68,7 @@ describe('LowcodeDatabaseTableView', () => {
     tableView.setSelectedRows([tableView.rows[0]!])
     await fieldView.refresh()
     expect(fieldView.rows.map(row => row['enname'])).toEqual(['Id', 'Name'])
+    expect(fieldView.columns.map(column => column.name)).toContain('enname')
+    expect(fieldView.columns.map(column => column.name)).toContain('DataTypeName')
   })
 })

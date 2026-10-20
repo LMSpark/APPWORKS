@@ -74,7 +74,8 @@
 ## 阶段 1 进度（2026-10-20）
 
 - [x] `service-management-page.vue` + `LowcodeDatabaseServer` + `database-server-view-ops`
-- [x] 导航 `source` 切换；registry + page-thin + 服务器 vitest（3）
+- [x] 导航 `source` 切换；registry + page-thin + 服务器 vitest（8 项 database/*）
+- [x] **UI 列统一（2026-10-20）**：服务器 + 表和视图页去掉字段 `children` / 手写字段 filter；`RendererTable`/`RendererForm` 默认 autoColumns（列真源 DataTable.columns，行 DataView 查询）
 - [ ] 在线/实页：FormKey 下 CRUD + 重开回读
 - [ ] 连接测试：DataView 命令合同（缺口）
 - [ ] table-and-view 四 dialog；DBMS 删除/收窄

@@ -47,10 +47,13 @@ function model(metaName: string, fields: readonly string[], primaryKey = 'rowid'
 }
 
 export const databaseTableViewModels = {
-  [DATABASE_CATALOG_DB_MODEL]: model(DATABASE_CATALOG_DB_MODEL, ['rowid', 'Name', 'ServerName', 'SchemaName', 'Remark']),
-  [DATABASE_CATALOG_TABLE_MODEL]: model(DATABASE_CATALOG_TABLE_MODEL, ['rowid', 'dbid', 'tblname', 'tbldesc', 'schemaName', 'status']),
-  [DATABASE_CATALOG_VIEW_MODEL]: model(DATABASE_CATALOG_VIEW_MODEL, ['rowid', 'dbid', 'vewname', 'vewdesc', 'SchemaName', 'status']),
-  [DATABASE_CATALOG_FIELD_MODEL]: model(DATABASE_CATALOG_FIELD_MODEL, ['rowid', 'tblid', 'enname', 'cnname', 'DataTypeName', 'DataLen', 'IsPKey', 'ordIdx']),
+  [DATABASE_CATALOG_DB_MODEL]: model(DATABASE_CATALOG_DB_MODEL, ['rowid', 'Id', 'serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'State', 'Remark']),
+  [DATABASE_CATALOG_TABLE_MODEL]: model(DATABASE_CATALOG_TABLE_MODEL, ['rowid', 'dbid', 'tblname', 'tbldesc', 'schemaName', 'status', 'object_id', 'multiTenancy']),
+  [DATABASE_CATALOG_VIEW_MODEL]: model(DATABASE_CATALOG_VIEW_MODEL, ['rowid', 'dbid', 'vewname', 'vewdesc', 'SchemaName', 'status', 'object_id']),
+  [DATABASE_CATALOG_FIELD_MODEL]: model(DATABASE_CATALOG_FIELD_MODEL, [
+    'rowid', 'tblid', 'tblname', 'enname', 'cnname', 'DataTypeName', 'DataType', 'DataLen',
+    'IsNill', 'IsPKey', 'IsUQ', 'IsSys', 'DefaultValue', 'Memo', 'ordIdx',
+  ]),
 } as const
 
 export class DatabaseTableViewHttp extends HttpClientBase {
@@ -78,8 +81,14 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       const filter = new DataViewFilterLocal(DataViewFilterCodec.decode(table.Filter))
       rows = rows.filter(row => filter.matches(row))
     }
+    const model = databaseTableViewModels[table.Name as keyof typeof databaseTableViewModels]
+    const fieldNames = model?.fields.map(field => field.name) ?? []
     return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: false, lingma_sys_key: 'table-key',
-      data: {Items: rows.map(row => ({...row, lingma_sys_key: 'row-key', lingma_sys_params: {r: [], e: [], h: [], m: [], d: false}})), Count: rows.length}}},
+      data: {Items: rows.map(row => ({
+        ...row,
+        lingma_sys_key: 'row-key',
+        lingma_sys_params: {r: fieldNames, e: fieldNames, h: [], m: [], d: false},
+      })), Count: rows.length}}},
       status: 200, statusText: 'OK', headers: {}}
   }
 }

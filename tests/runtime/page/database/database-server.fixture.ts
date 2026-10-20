@@ -36,6 +36,9 @@ export const databaseServerModel = {
   })),
 } satisfies Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 
+const databaseServerFieldNames = databaseServerModel.fields.map(field => field.name)
+const databaseServerReadableFields = databaseServerFieldNames.filter(name => name !== 'Password')
+
 export class DatabaseServerHttp extends HttpClientBase {
   requests: RequestConfig[] = []
   rows = [{rowid: 'S1', Type: 'MYSQL', ServerName: '主库', ip_address: '10.0.0.1', Port: '3306', description: ''}]
@@ -70,11 +73,20 @@ export class DatabaseServerHttp extends HttpClientBase {
     if (config.url !== '/api/DataOperation/GetData') {
       throw new Error(`unexpected request ${config.url ?? ''}`)
     }
-    const body = config.data as {Table: Array<{Name: string}>}
-    const name = body.Table[0]?.Name
-    if (name !== 'Base_serverInfo') throw new Error(`unexpected table ${name}`)
+    const table = (config.data as {Table: Array<{Name: string}>}).Table[0]!
+    if (table.Name !== 'Base_serverInfo') throw new Error(`unexpected table ${table.Name}`)
     return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: this.allowAdd, lingma_sys_key: 'table-key',
-      data: {Items: this.rows.map(row => ({...row, lingma_sys_key: 'row-key', lingma_sys_params: {r: [], e: [], h: [], m: [], d: false}})), Count: this.rows.length}}},
+      data: {Items: this.rows.map(row => ({
+        ...row,
+        lingma_sys_key: 'row-key',
+        lingma_sys_params: {
+          r: databaseServerReadableFields,
+          e: databaseServerReadableFields,
+          h: ['Password'],
+          m: [],
+          d: true,
+        },
+      })), Count: this.rows.length}}},
       status: 200, statusText: 'OK', headers: {}}
   }
 }

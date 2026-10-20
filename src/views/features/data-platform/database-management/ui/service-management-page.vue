@@ -1,6 +1,6 @@
 <!--
 @module app:views/features/data-platform/database-management/ui/service-management-page
-职责：服务器目录；组件绑定 DataView，编排只调用 spark-data（DataView/DataSet）。
+职责：服务器目录；字段元信息只在 Base_serverInfo 的 DataTable.columns，列表/表单由绑定 DataView 的 autoColumns 消费列链，编排只调用 spark-data。
 -->
 <template>
   <section class="database-server-page">
@@ -11,27 +11,17 @@
     <template v-if="ready">
       <p v-if="listError" role="alert">{{ listError }}</p>
       <div :inert="busy || !!editing">
-        <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :filter="filter"
-          :stripe="true" :on-row-click="choose" :highlight-current-row="true" />
+        <RendererTable :data-view-key="catalogKey" :toolbar="toolbar"
+          :stripe="true" :on-row-click="choose" :highlight-current-row="true" :show-data-view-meta="false" />
       </div>
       <RendererDialog v-if="editing" :model-value="true"
         :title="editing.mode === 'add' ? '注册服务器' : '编辑服务器'" :width="560" :close-disabled="busy" @update:model-value="cancelEdit">
         <p v-if="actionError" role="alert">{{ actionError }}</p>
         <p v-if="editing.unconfirmed" role="status">保存结果尚未确认。核验只确认原提交结果，不会再次写入。</p>
         <p v-else-if="editing.readbackFailed" role="status">已保存，但目录尚未重新读取成功，请重新读取。</p>
-        <RendererForm :data-view-key="catalogKey" context-data-member="currentRow" :auto-columns="false"
+        <RendererForm :data-view-key="catalogKey" context-data-member="currentRow"
           :show-data-view-meta="false" :grid-columns="1"
-          :form-props="{disabled: busy || editing.unconfirmed || editing.readbackFailed}">
-          <FieldSelect field="Type" label="数据库类型" :options="dbTypeOptions" />
-          <FieldText field="ServerName" label="服务器名称" :maxlength="100" />
-          <FieldText field="ip_address" label="主机地址" :maxlength="200" />
-          <FieldText field="Port" label="端口" :maxlength="10" />
-          <FieldTextarea field="description" label="描述" :maxlength="500" />
-          <template v-if="editing.mode === 'add'">
-            <FieldText field="UserName" label="用户名" :maxlength="100" />
-            <FieldText field="Password" label="密码" :maxlength="200" />
-          </template>
-        </RendererForm>
+          :form-props="{disabled: busy || editing.unconfirmed || editing.readbackFailed}" />
         <p v-if="editing.mode === 'add'" role="status">连接测试须纳入绑定 DataView 的命令合同；当前未接入，保存前请自行核对连通性。</p>
         <template #footer>
           <RendererButton v-if="!editing.unconfirmed" label="取消" :disabled="busy" @click="cancelEdit" />
@@ -56,10 +46,10 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
 import {useRoute} from 'vue-router'
-import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm, FieldText, FieldTextarea, FieldSelect,
-  useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm,
+  useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/lowcode-database-server'
 import {
   databaseServerBeginCreate,
@@ -86,7 +76,6 @@ const busy = ref(false), actionError = ref(''), message = ref(''), deleteOpen = 
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(DATABASE_SERVER_MODEL, 'default', scenarioId.value))
-const dbTypeOptions = [{value: 'MYSQL', label: 'MySQL'}, {value: 'SQLSERVER', label: 'SQL Server'}, {value: 'ORACLE', label: 'Oracle'}, {value: 'POSTGRESQL', label: 'PostgreSQL'}]
 const listError = computed(() => {revision.value; return view.value?.loadingError?.message ?? ''})
 const editing = computed(() => {revision.value; const v = view.value; return v ? databaseServerEditing(v, edit.value) : undefined})
 const toolbar = computed<RToolbarProps>(() => {
@@ -99,17 +88,6 @@ const toolbar = computed<RToolbarProps>(() => {
     {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
   ]}
 })
-const fields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'ServerName', label: '服务器名称', width: 200, readonly: true}},
-  {type: 'r-text', props: {field: 'Type', label: '类型', width: 120, readonly: true}},
-  {type: 'r-text', props: {field: 'ip_address', label: '主机', width: 180, readonly: true}},
-  {type: 'r-text', props: {field: 'Port', label: '端口', width: 90, readonly: true}},
-  {type: 'r-text', props: {field: 'description', label: '描述', width: 260, readonly: true}},
-])
-const filter = computed<RFilterProps>(() => ({autoFitMinWidth: '220px', children: [
-  {type: 'r-text', props: {field: 'ServerName', label: '服务器名称', placeholder: '按名称筛选'}},
-  {type: 'r-text', props: {field: 'ip_address', label: '主机', placeholder: '按主机筛选'}},
-]}))
 function choose(row: DataRow): void {
   if (busy.value || editing.value) return
   const v = view.value

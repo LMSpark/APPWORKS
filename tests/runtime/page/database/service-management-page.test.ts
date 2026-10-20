@@ -3,8 +3,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
-import VXETable from 'vxe-table'
-import {registerAllRenderers, Spark} from '@spark-appworks/spark-component'
+import {registerAllRenderers, RendererTable, Spark} from '@spark-appworks/spark-component'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ServiceManagementPage from '@/views/features/data-platform/database-management/ui/service-management-page.vue'
 import {
@@ -51,7 +50,7 @@ async function open(scenarioId: string): Promise<VueWrapper> {
   await router.isReady()
   const wrapper = mount(ServiceManagementPage, {
     attachTo: document.body,
-    global: {plugins: [router, ElementPlus, VXETable, Spark.createPlugin()]},
+    global: {plugins: [router, ElementPlus, Spark.createPlugin()]},
   })
   wrappers.push(wrapper)
   await flushPromises()
@@ -62,9 +61,14 @@ async function open(scenarioId: string): Promise<VueWrapper> {
 describe('service-management-page', () => {
   it('loads the server catalog when blueprintScenarioId is bound', async () => {
     const wrapper = await open(DATABASE_SERVER_SCENARIO_ID)
+    await flushPromises()
     expect(wrapper.text()).toContain('服务器管理')
-    expect(wrapper.text()).toContain('主库')
     expect(http.requests.some(request => JSON.stringify(request.data).includes('Base_serverInfo'))).toBe(true)
+    const table = wrapper.findComponent(RendererTable)
+    expect(table.exists()).toBe(true)
+    expect(table.findAll('.el-table__header-wrapper th').length).toBeGreaterThan(0)
+    expect(table.findAll('.el-table__body-wrapper tbody tr').length).toBeGreaterThan(0)
+    expect(table.findAll('.el-table__body-wrapper .cell').length).toBeGreaterThan(0)
   })
 
   it('reports missing navigation scenario identity before loading', async () => {

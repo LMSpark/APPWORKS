@@ -30,7 +30,7 @@
 
 ## 建议切片顺序
 
-1. **只读（已落地）**：`_base_dbInfo` + `_Base_TblList` + `_Base_ViewList` + `Base_TblField`（`tableFields`/`viewFields` 双命名视图，避免双父级联 AND）；库→对象→字段主从（无 dialog）。
+1. **只读（已落地）**：`_base_dbInfo` + `_Base_TblList` + `_Base_ViewList` + `Base_TblField`（`tableFields`/`viewFields` 双命名视图，避免双父级联 AND）；库→对象→字段主从（无 dialog）。**I5 数据库页 UI 列合同**：正式字段真源只在 **DataTable.columns**（`readModel` 经装配写入，不在页面再建“列/字段”配置）。**DataView.fieldProjection** 只管该视图的查询/显示投影，不是 DataTable 上的第二套字段定义。库/表/视图/字段及服务器管理的列表与编辑表单均不手写字段 `children`；`RendererTable`/`RendererForm` 默认 **autoColumns**，由绑定 DataView 消费列链。筛选区无常用项 children 时仅用绑定视图的表达式编辑器。
 2. **注册 dialog**：`register-dialog` 语义 + 未登记库 API（`/api/Db/getUnregisteredDb` 等须纳入 DataView 命令或 spark-data 合同，禁止页面 HTTP）。
 3. **add-table / table-design / view-design**：依赖 D5 字段设计与后端 write 合同。
 

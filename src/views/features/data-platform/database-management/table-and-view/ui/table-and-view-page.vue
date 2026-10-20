@@ -1,6 +1,6 @@
 <!--
 @module app:views/features/data-platform/database-management/table-and-view/ui/table-and-view-page
-职责：库/表/视图只读目录；组件绑定 DataView，只经 spark-data 查询。
+职责：库/表/视图/字段只读目录；字段元信息只在各模型 DataTable.columns，列表/表单由绑定 DataView 的 autoColumns 消费列链，不手写字段 children。
 -->
 <template>
   <section class="table-and-view-page">
@@ -12,26 +12,26 @@
       <div class="table-and-view-layout">
         <section class="table-and-view-databases">
           <h2>数据库</h2>
-          <RendererTable :data-view-key="dbKey" :children="dbFields" :toolbar="dbToolbar" :stripe="true"
-            :on-row-click="chooseDatabase" :highlight-current-row="true" :show-pagination="false" />
+          <RendererTable :data-view-key="dbKey" :toolbar="dbToolbar" :stripe="true"
+            :on-row-click="chooseDatabase" :highlight-current-row="true" :show-pagination="false" :show-data-view-meta="false" />
         </section>
         <section v-if="databaseSelected" class="table-and-view-main">
           <RendererTabs v-model="objectTab">
             <RendererTabPane name="tables" label="物理表" :index="0">
               <p v-if="tableListError" role="alert">{{ tableListError }}</p>
-              <RendererTable :data-view-key="tableKey" :children="tableFields" :toolbar="childToolbar" :stripe="true" :show-pagination="false"
+              <RendererTable :data-view-key="tableKey" :toolbar="childToolbar" :stripe="true" :show-pagination="false" :show-data-view-meta="false"
                 :on-row-click="chooseTable" :highlight-current-row="true" />
             </RendererTabPane>
             <RendererTabPane name="views" label="视图" :index="1" :lazy="true">
               <p v-if="viewListError" role="alert">{{ viewListError }}</p>
-              <RendererTable :data-view-key="viewKey" :children="viewFields" :toolbar="childToolbar" :stripe="true" :show-pagination="false"
+              <RendererTable :data-view-key="viewKey" :toolbar="childToolbar" :stripe="true" :show-pagination="false" :show-data-view-meta="false"
                 :on-row-click="chooseView" :highlight-current-row="true" />
             </RendererTabPane>
           </RendererTabs>
           <section v-if="resourceSelected" class="table-and-view-fields">
             <h2>字段</h2>
             <p v-if="fieldListError" role="alert">{{ fieldListError }}</p>
-            <RendererTable :data-view-key="fieldKey" :children="fieldColumns" :toolbar="childToolbar" :stripe="true" :show-pagination="false" />
+            <RendererTable :data-view-key="fieldKey" :toolbar="childToolbar" :stripe="true" :show-pagination="false" :show-data-view-meta="false" />
           </section>
           <p v-else class="table-and-view-hint">选择一张表或视图以查看字段目录。</p>
         </section>
@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
 import {useRoute} from 'vue-router'
-import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {
   PAGE_RUNTIME,
@@ -103,32 +103,6 @@ const resourceSelected = computed(() => {
 
 const dbToolbar = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {label: '刷新', action: 'refresh'}}]}))
 const childToolbar = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {label: '刷新', action: 'refresh'}}]}))
-
-const dbFields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'Name', label: '数据库名称', width: 180, readonly: true}},
-  {type: 'r-text', props: {field: 'ServerName', label: '服务器', width: 160, readonly: true}},
-  {type: 'r-text', props: {field: 'SchemaName', label: '架构', width: 120, readonly: true}},
-  {type: 'r-text', props: {field: 'Remark', label: '备注', width: 220, readonly: true}},
-])
-const tableFields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'tblname', label: '表名', width: 200, readonly: true}},
-  {type: 'r-text', props: {field: 'tbldesc', label: '说明', width: 240, readonly: true}},
-  {type: 'r-text', props: {field: 'schemaName', label: '架构', width: 120, readonly: true}},
-  {type: 'r-text', props: {field: 'status', label: '状态', width: 90, readonly: true}},
-])
-const viewFields = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'vewname', label: '视图名', width: 200, readonly: true}},
-  {type: 'r-text', props: {field: 'vewdesc', label: '说明', width: 240, readonly: true}},
-  {type: 'r-text', props: {field: 'SchemaName', label: '架构', width: 120, readonly: true}},
-  {type: 'r-text', props: {field: 'status', label: '状态', width: 90, readonly: true}},
-])
-const fieldColumns = computed<SparkNode[]>(() => [
-  {type: 'r-text', props: {field: 'enname', label: '字段名', width: 160, readonly: true}},
-  {type: 'r-text', props: {field: 'cnname', label: '标题', width: 160, readonly: true}},
-  {type: 'r-text', props: {field: 'DataTypeName', label: '类型', width: 120, readonly: true}},
-  {type: 'r-text', props: {field: 'DataLen', label: '长度', width: 80, readonly: true}},
-  {type: 'r-text', props: {field: 'IsPKey', label: '主键', width: 70, readonly: true}},
-])
 
 async function refreshChildren(): Promise<void> {
   const tables = tableView.value

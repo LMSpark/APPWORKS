@@ -17,7 +17,8 @@
 - **导航**：`vue-pages.json` 将 hidden「服务器管理」`source` 指向 `src/views/features/data-platform/database-management/ui/service-management-page.vue`；`/dbms` 与 table-and-view 仍 `DBMS.vue`。
 - **数据链**：`LowcodeDatabaseServer.loadCatalog` 动态装配 `Base_serverInfo@default`；页面持有 DataView/DataSet，编排见 `database-server-view-ops`（非业务 owner）；CRUD 经 `saveChanges`。连接测试待 DataView 命令合同，UI 提示缺口。
 - **原则**：spark-data 唯一后端桥梁；DataView 为组件交互层；已删 `LowcodeDatabaseServerCatalog` 与 `LowcodeApi.databaseConnection`。
-- **验证（2026-10-20）**：根 `typecheck`；`tests/runtime/page/database/*`（5 项，含页面挂载）；`verify:page-thin`。实页/在线 CRUD 未验。
+- **UI（工作区，未提交）**：列表/编辑表单去掉页面级字段 `children` 与 `:auto-columns="false"`；`RendererTable`/`RendererForm` 默认 **autoColumns**，列元信息只来自父 **DataTable.columns**，行数据经绑定 **DataView** 查询；筛选区手写字段 children 已删。
+- **验证（2026-10-20）**：根 `typecheck`；`tests/runtime/page/database/*`（8 项，含页面挂载）；`verify:page-thin`。实页/在线 CRUD 未验。
 - **提交**：`bbc254aba` on `10-17`，已 push `origin/10-17`。
 - **文档**：`notes/plan-database-management-i5.md`（implementing）、`notes/research-database-management-i5.md` §0 owner 替代；`test:foundation:run`（utils→json-document vitest 别名）。
 - **矩阵**：`plan-appworks-integration.md` service-management 行语义/合同/页面 **部分**。
@@ -27,8 +28,9 @@
 
 - **导航**：hidden「表和视图管理」`source` → `table-and-view-page.vue`；`/dbms` 与 `/DataBaseManage/.../index` 仍 `DBMS.vue`。
 - **数据链**：`LowcodeDatabaseTableView.loadCatalog` 装配库/表/视图/字段 + query 级联（`dbid`、`tblid`）；字段视图分 `tableFields`/`viewFields`，只读，不经 `getDatabaseCatalog`。
-- **验证**：`tests/runtime/page/database/*` 7 项 + `typecheck`；同提交含服务器页挂载 vitest 与夹具复用。
-- **提交**：`bf66dd39e` on `10-17`（与 `bbc254aba` 服务器首屏同分支）。
+- **UI（工作区，未提交）**：四表及字段区均 **autoColumns**；已删 `dbFields`/`tableFields`/`viewFields`/`fieldColumns` 等页面列配置（违反「列只在 DataTable.columns」）。
+- **验证**：`tests/runtime/page/database/*` 8 项 + `typecheck`；夹具补齐查询 `lingma_sys_params.r/e` 以匹配正式权限消费。
+- **提交**：`bf66dd39e`（首切片）、`1295394af`（字段目录） on `10-17`；autoColumns 统一待提交。
 
 ## 2026-10-19 I3 设计器页签拆分 + 请求方案分区（工作区已验证，待与 I2 同批提交）
 

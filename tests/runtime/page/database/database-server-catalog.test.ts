@@ -36,6 +36,7 @@ describe('LowcodeDatabaseServer', () => {
     sets.push(ds)
     const view = requireDatabaseServerView(ds)
     expect(view.rows).toHaveLength(1)
+    expect(view.columns.map(column => column.name)).toContain('ServerName')
     expect(view.commitMode).toBe('staged')
     expect(http.requests.some(request => JSON.stringify(request.data).includes('Base_serverInfo'))).toBe(true)
   })

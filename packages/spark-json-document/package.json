@@ -29,6 +29,8 @@
     "clean": "rimraf dist",
     "build": "pnpm run clean && vite build && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
     "lint:fix": "eslint \"src/**/*.ts\" --fix"
   },

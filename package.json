@@ -62,6 +62,7 @@
         "lint:fix:packages": "pnpm --filter 'packages/*' run lint:fix",
         "test:packages": "pnpm --filter 'packages/*' run test",
         "test:packages:run": "pnpm -r --filter=@spark-appworks/* run test:run",
+        "test:foundation:run": "pnpm --filter @spark-appworks/spark-utils run test:run && pnpm --filter @spark-appworks/spark-json-document run test:run",
         "typecheck:packages": "pnpm --filter 'packages/*' run typecheck"
     },
     "dependencies": {

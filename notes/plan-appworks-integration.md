@@ -81,7 +81,7 @@
 | 2 | data-platform/database-management/table-and-view/ui/table-and-view-page.vue | 换路径→app/DBMS.vue | — | — | — | — | — |
 | 2 | data-platform/database-management/table-and-view/ui/table-design-dialog.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/database-management/table-and-view/ui/view-design-dialog.vue | 缺 | — | — | — | — | — |
-| 2 | data-platform/database-management/ui/service-management-page.vue | 换路径→app/DBMS.vue | — | — | — | — | — |
+| 2 | data-platform/database-management/ui/service-management-page.vue | features 路径+DataView CRUD（2026-10-20）；连接测试/1:1/实页待 | 部分 | 部分 | 部分 | — | — |
 | 2 | data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-lookup-dialog.vue | 缺 | — | — | — | — | — |

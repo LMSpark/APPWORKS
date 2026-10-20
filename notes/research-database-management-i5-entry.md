@@ -23,7 +23,7 @@
 
 I4 §4.3 删类已交付（`5b09bab85`）；I5 不依赖 view-design session。阶段 1 仍开放 `data-set-auth-page.vue`（权限配置 UI，AGENTS 0.3 暂缓运行权限扩展）。
 
-## 下一动作（待用户定优先级）
+## 下一动作
 
-1. 开 `notes/plan-database-management-i5.md`（draft）+ 参考 inventory 逐页语义。
-2. 或先补阶段 1 `data-set-auth-page.vue`（`PermissionDesignApi` 已存在于 spark-lowcode-api）。
+- pagedata/DataSet 合同：**已补全** → [`research-database-management-i5.md`](research-database-management-i5.md) § pagedata / DataSet。
+- 计划：**`notes/plan-database-management-i5.md`**（draft，待「开工」）。

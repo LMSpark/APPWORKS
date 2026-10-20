@@ -152,7 +152,7 @@
       "title": "服务器管理",
       "icon": "DataBase",
       "scope": "app",
-      "source": "src/views/app/DBMS.vue",
+      "source": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
       "description": "Metadata 项目的 lowcode 数据库服务器管理入口",
       "hidden": true,
       "shellTool": false

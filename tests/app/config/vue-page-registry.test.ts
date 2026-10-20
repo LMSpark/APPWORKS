@@ -54,8 +54,9 @@ describe('Vue page registry', () => {
       .toBe('src/views/tenant/CacheManager.vue')
     expect(options.find(option => option.path === '/features/system/cache-management/ui/cache-management-page')?.shellTool)
       .toBe(false)
+    expect(getVuePageEntry('/features/data-platform/database-management/ui/service-management-page')?.source)
+      .toBe('src/views/features/data-platform/database-management/ui/service-management-page.vue')
     expect([
-      '/features/data-platform/database-management/ui/service-management-page',
       '/DataBaseManage/DataBaseManage/index',
       '/features/data-platform/database-management/table-and-view/ui/table-and-view-page',
     ].every(path => getVuePageEntry(path)?.source === 'src/views/app/DBMS.vue')).toBe(true)

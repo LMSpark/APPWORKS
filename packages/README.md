@@ -34,6 +34,16 @@
 - 平台数据定义 / 运行装配：`spark-lowcode-api` DataSpace + 宿主 `src/lowcode/data-space/*`（显式场景配置、正式模型与权限共同装配运行数据）。
 - 页面工具：`spark-project-model` 的 `PageTool` 仅有 rule.json / script.js / style.css；`ScenarioViewFile` 独立持有场景视图配置。`PageRuntime` 按每次调用装配数据，工具 ID、蓝图节点 ID 与场景 ID 分离。
 
+## 底座测试顺序
+
+Monorepo 中 `spark-json-document` 依赖 `spark-utils`。包内 vitest 与根 `vitest.config.ts` 均按 **utils → json-document** 解析源码 alias；快速门禁：
+
+```bash
+pnpm run test:foundation:run
+```
+
+等价于依次执行 `@spark-appworks/spark-utils` 与 `@spark-appworks/spark-json-document` 的 `test:run`。
+
 ## 维护约束
 
 - 新增工作区包时，必须同步更新这里和根 [../README.md](../README.md)。

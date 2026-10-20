@@ -1,4 +1,4 @@
-状态：draft
+状态：implementing
 
 ## 任务目标
 
@@ -21,7 +21,7 @@
 ## 技术方案（草案）
 
 1. **合同核对**：参考 `ServiceManager` / `Base_serverInfo` 字段；确认 FormKey=dataSpaceId 下 DataSet 能否装配服务器模型与视图（缺 pagedata 则按资源专题模板补场景配置，不页面手拼 CRUD）。
-2. **API 层**：`packages/spark-lowcode-api` 新增 `database-management/service`（或等价路径）— **仅** 封装 PageRuntime/DataSet/DataView 装配与 `saveChanges`；连接测试若不在 DataView 合同内，单独登记服务缺口，不伪造成功。
+2. **数据层**：`LowcodeDatabaseServer.loadCatalog` + `database-server-view-ops`（**非 owner**，只编排 DataView/DataSet）；**spark-data 唯一后端桥梁**；query/save owner 只在装配时 bind 到 DataView。
 3. **页面**：`src/views/features/data-platform/database-management/ui/service-management-page.vue`（+ 必要 props/composables 子目录）；布局对照参考 1:1，控件 spark-component；**DataSet 为读写唯一通道**。
 4. **导航**：`vue-pages.json` 仅改 `service-management-page` 的 `source`；`/dbms`、table-and-view 仍 DBMS。
 5. **测试**：registry + 服务器 CRUD/连接 vitest（HTTP 或 DataSet 夹具）；typecheck、page-thin。
@@ -58,12 +58,27 @@
 - **写能力层（用户纠偏 2026-10-20）**：**必须全仓走 spark-data API**（DataSet/DataView 查询、编辑、`saveChanges`）；不以页面直调 `/api/Db` 为终态。若需跨包门面，仅作 spark-data 的薄封装，不第二套提交链。
 - ~~原草案：lowcodeHttp `/api/Db` 门面~~（已否决）。
 - **导航共存（首屏）**：仅 `service-management-page` → 新 Vue；`/dbms` 与 table-and-view 仍 `DBMS.vue`。
-- **列表读取**：`getDatabaseCatalog` 的 **servers** 切片 + 现有 FormKey 解析（与 DBMS 读链一致）；保存后同链回读验收。
+- **列表读取（服务器页）**：`Base_serverInfo` **DataView** 查询（与保存同链）；**DBMS** 仍 `getDatabaseCatalog` 直至迁移删除。
 - **UI**：参考布局与文案 **1:1**，交互控件用 **spark-component** 等价实现。
 - **治理**：新页写操作仅经 **spark-data**；**DBMS.vue 内 mutation 仍 blocked**，直至后续 table-and-view 迁移时一并替换。
 - **场景身份**：**FormKey 即 dataSpace/scenarioId**；PageRuntime/DataSet 以当前导航/宿主传入的 FormKey 绑定，不另造第二身份。
 
+## pagedata / DataSet 结论（研读已写入 research）
+
+- **不必**为首屏新建 `config/pages/.../pagedata.json`（若导航 FormKey = 单 scenarioId）：采用 **字典式动态装配** — `readSpaceDefinition` + `readModel('Base_serverInfo')` + `ScenarioViewConfig` + `LowcodeDataSpaceAssembler` → DataSet。
+- **绑定**：`buildDataViewKey('Base_serverInfo', 'default', blueprintScenarioId)`；`PageRuntime.loadScenario` 返回上述 DataSet。
+- **分层**：**DataView** = 组件与数据交互层（`RendererTable`/`RendererForm`/字段子组件经 `dataViewKey`）；**DataSet** = 提交与关系；列表/CRUD 仅 `DataView` 编辑 + `dataSet.saveChanges()`。**连接测试**须纳入绑定视图的正式命令合同，当前未接入（UI 提示缺口，不 HTTP 旁路）。
+- **导航**：hidden「服务器管理」节点须带 **blueprintScenarioId**（= FormKey）；不复用 DBMS 多 scenario 合并。
+- 详见 [`notes/research-database-management-i5.md`](research-database-management-i5.md) § pagedata / DataSet 合同研读。
+
+## 阶段 1 进度（2026-10-20）
+
+- [x] `service-management-page.vue` + `LowcodeDatabaseServer` + `database-server-view-ops`
+- [x] 导航 `source` 切换；registry + page-thin + 服务器 vitest（3）
+- [ ] 在线/实页：FormKey 下 CRUD + 重开回读
+- [ ] 连接测试：DataView 命令合同（缺口）
+- [ ] table-and-view 四 dialog；DBMS 删除/收窄
+
 ## 待审核
 
-- 状态 **draft** → 你回复「通过/开工」后改为 **approved** 再编码。
-- 实施前补充研读：FormKey 场景下 `Base_serverInfo` 的 DataTable/DataView 是否已有 pagedata 或须新建（记入 `notes/research-database-management-i5.md`）。
+- 状态 **implementing**；首屏代码已落地，整页 1:1 与连接测试待后续项。

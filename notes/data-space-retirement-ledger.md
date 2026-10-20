@@ -35,7 +35,8 @@
 ## 2026-10-20 I5 架构收敛（hub / 连接测试 / DBMS 收窄，工作区）
 
 - **导航**：`/dbms`、`/DataBaseManage/DataBaseManage/index` → `database-management-hub.vue`（服务器 + 表和视图 tab）；`DBMS.vue` 仅 re-export hub，已移除 ~2.5k 行 `getDatabaseCatalog` 与页面 `/api/Db`。
-- **服务器**：`database-server-connection-test.ts` + 注册对话框「测试连接」；`fetchUnregisteredDatabaseNames` 供 2b 注册库 dialog（`database-catalog-unregistered-db.ts`）。
+- **服务器/目录**：CRUD 仅 `DataView` + `DataSet.saveChanges`；连接测试与未登记库名经 `database-spark-data-auxiliary` 辅助 DataView（file executor），页面只持有 DataSet。
+- **2b**：`register-database-dialog.vue` + `database-catalog-db-view-ops`（注册 `_base_dbInfo`）。
 - **验证**：`tests/runtime/page/database/*`（含 mount 级联、未登记库查询）；`vue-page-registry` 更新 hub source；实页 CRUD `livePilot: pending`（evidence 单独 commit）。
 - **文档**：`plan-database-management-i5-dialogs-slice.md`（2b/2c draft）；`plan-data-space-i4-input-parameters.md` 已删除（superseded）。
 

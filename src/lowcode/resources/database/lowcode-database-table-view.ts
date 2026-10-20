@@ -7,8 +7,11 @@ import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
+import {DATABASE_SERVER_MODEL} from './lowcode-database-server'
+import {installDatabaseCatalogAuxiliaryViews} from './database-spark-data-auxiliary'
 
 export const DATABASE_CATALOG_DB_MODEL = '_base_dbInfo'
+export {DATABASE_SERVER_MODEL as DATABASE_CATALOG_SERVER_MODEL}
 export const DATABASE_CATALOG_TABLE_MODEL = '_Base_TblList'
 export const DATABASE_CATALOG_VIEW_MODEL = '_Base_ViewList'
 export const DATABASE_CATALOG_FIELD_MODEL = 'Base_TblField'
@@ -16,6 +19,7 @@ export const DATABASE_CATALOG_FIELD_TABLE_VIEW = 'tableFields'
 export const DATABASE_CATALOG_FIELD_VIEW_VIEW = 'viewFields'
 
 const catalogModels = [
+  DATABASE_SERVER_MODEL,
   DATABASE_CATALOG_DB_MODEL,
   DATABASE_CATALOG_TABLE_MODEL,
   DATABASE_CATALOG_VIEW_MODEL,
@@ -53,6 +57,16 @@ export class LowcodeDatabaseTableView {
     }
     const fieldModel = byName.get(DATABASE_CATALOG_FIELD_MODEL)!
     const viewCascades = [
+      {
+        kind: 'query',
+        cascadeId: 'server-databases',
+        parentTable: DATABASE_SERVER_MODEL,
+        parentViewId: 'default',
+        childTable: DATABASE_CATALOG_DB_MODEL,
+        childViewId: 'default',
+        autoLoad: false,
+        filterBindings: [{targetField: 'serverId'}],
+      },
       {
         kind: 'query',
         cascadeId: 'db-tables',
@@ -115,10 +129,18 @@ export class LowcodeDatabaseTableView {
     }))
     const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations: []})
     try {
+      installDatabaseCatalogAuxiliaryViews(dataSet, lowcodeHttp, assertCurrent)
+      const serverView = dataSet.getView(DATABASE_SERVER_MODEL, 'default')
       const dbView = dataSet.getView(DATABASE_CATALOG_DB_MODEL, 'default')
-      if (!dbView) throw new Error('数据库目录视图缺失')
-      await dbView.refresh()
+      if (!serverView || !dbView) throw new Error('表和视图目录缺少服务器或数据库视图')
+      await serverView.refresh()
       assertCurrent()
+      if (serverView.loadingError) throw serverView.loadingError
+      if (serverView.rows.length > 0) {
+        serverView.setSelectedRows([serverView.rows[0]!])
+        await dbView.refresh()
+        assertCurrent()
+      }
       if (dbView.loadingError) throw dbView.loadingError
       return dataSet
     } catch (error) {

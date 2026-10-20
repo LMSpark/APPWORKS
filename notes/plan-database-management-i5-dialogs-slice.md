@@ -8,7 +8,8 @@ I5 迭代 2b–2c：表和视图写能力（注册物理库、建表、表/视�
 
 - **语义**：在已选服务器下查询物理库名 → 选择未登记库 → 写入 `_base_dbInfo`（与 DBMS `dlgDb` 对齐）。
 - **数据层（已落地）**：`fetchUnregisteredDatabaseNames(serverId)` → `/api/Db/getUnregisteredDb/{id}`（`database-catalog-unregistered-db.ts`）；vitest `database-catalog-unregistered-db.test.ts`。
-- **待做**：独立 DataSet/命令会话 + `register-database-dialog.vue`（autoColumns 表单）；保存经 `saveChanges`；**不在** table-and-view 页直调 HTTP。
+- [x] `register-database-dialog.vue` + `database-catalog-db-view-ops`（`_base_dbInfo` 经 `saveChanges`）
+- [x] 未登记库名经 `queryUnregisteredDatabaseNames(dataSet, serverId)`（辅助 file DataView.refresh，非页面 HTTP）
 
 ## 2c add-table / table-design / view-design
 

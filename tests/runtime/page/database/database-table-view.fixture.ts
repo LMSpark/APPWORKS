@@ -9,6 +9,7 @@ import {
   DATABASE_CATALOG_TABLE_MODEL,
   DATABASE_CATALOG_VIEW_MODEL,
 } from '@/lowcode/resources/database/lowcode-database-table-view'
+import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/lowcode-database-server'
 
 export const DATABASE_TABLE_VIEW_SCENARIO_ID = 'FORM-DB-TAV'
 
@@ -47,6 +48,7 @@ function model(metaName: string, fields: readonly string[], primaryKey = 'rowid'
 }
 
 export const databaseTableViewModels = {
+  [DATABASE_SERVER_MODEL]: model(DATABASE_SERVER_MODEL, ['rowid', 'Type', 'ServerName', 'ip_address', 'Port', 'description']),
   [DATABASE_CATALOG_DB_MODEL]: model(DATABASE_CATALOG_DB_MODEL, ['rowid', 'Id', 'serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'State', 'Remark']),
   [DATABASE_CATALOG_TABLE_MODEL]: model(DATABASE_CATALOG_TABLE_MODEL, ['rowid', 'dbid', 'tblname', 'tbldesc', 'schemaName', 'status', 'object_id', 'multiTenancy']),
   [DATABASE_CATALOG_VIEW_MODEL]: model(DATABASE_CATALOG_VIEW_MODEL, ['rowid', 'dbid', 'vewname', 'vewdesc', 'SchemaName', 'status', 'object_id']),
@@ -58,8 +60,10 @@ export const databaseTableViewModels = {
 
 export class DatabaseTableViewHttp extends HttpClientBase {
   requests: RequestConfig[] = []
+  unregisteredByServer: Record<string, string[]> = {}
   rows: Record<string, Array<Record<string, unknown>>> = {
-    [DATABASE_CATALOG_DB_MODEL]: [{rowid: 'DB1', Name: '业务库', ServerName: '主库', SchemaName: 'dbo', Remark: ''}],
+    [DATABASE_SERVER_MODEL]: [{rowid: 'S1', Type: 'MYSQL', ServerName: '主库', ip_address: '10.0.0.1', Port: '3306', description: ''}],
+    [DATABASE_CATALOG_DB_MODEL]: [{rowid: 'DB1', serverId: 'S1', Name: '业务库', ServerName: '主库', SchemaName: 'dbo', Remark: ''}],
     [DATABASE_CATALOG_TABLE_MODEL]: [
       {rowid: 'T1', dbid: 'DB1', tblname: 'Orders', tbldesc: '订单', schemaName: 'dbo', status: 1},
       {rowid: 'T2', dbid: 'DB2', tblname: 'Other', tbldesc: '', schemaName: 'dbo', status: 1},
@@ -74,6 +78,20 @@ export class DatabaseTableViewHttp extends HttpClientBase {
 
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
+    if (config.url?.startsWith('/api/Db/getUnregisteredDb/')) {
+      const serverId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredDb/'.length))
+      return {data: this.unregisteredByServer[serverId] ?? [], status: 200, statusText: 'OK', headers: {}}
+    }
+    if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+      const payload = config.data as Array<{CrudModel?: {Added?: Record<string, unknown>[]; Changed?: Record<string, unknown>[]; Deleted?: Record<string, unknown>[]}}>
+      const added = payload.flatMap(item => item.CrudModel?.Added ?? [])
+      for (const row of added) {
+        this.rows[DATABASE_CATALOG_DB_MODEL]!.push({
+          rowid: 'DB-NEW', serverId: 'S1', Name: '', SchemaName: 'dbo', ServerName: '主库', Type: 'MYSQL', State: '1', Remark: '', ...row,
+        })
+      }
+      return {data: {Code: 200, Result: {maplistadd: [{physical: added}]}}, status: 200, statusText: 'OK', headers: {}}
+    }
     if (config.url !== '/api/DataOperation/GetData') throw new Error(`unexpected request ${config.url ?? ''}`)
     const table = (config.data as {Table: Array<{Name: string; Filter?: unknown}>}).Table[0]!
     let rows = [...(this.rows[table.Name] ?? [])]
@@ -83,7 +101,8 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     }
     const model = databaseTableViewModels[table.Name as keyof typeof databaseTableViewModels]
     const fieldNames = model?.fields.map(field => field.name) ?? []
-    return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: false, lingma_sys_key: 'table-key',
+    const allowAdd = table.Name === DATABASE_CATALOG_DB_MODEL
+    return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd, lingma_sys_key: 'table-key',
       data: {Items: rows.map(row => ({
         ...row,
         lingma_sys_key: 'row-key',

@@ -7,6 +7,7 @@ import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
+import {installDatabaseServerAuxiliaryViews} from './database-spark-data-auxiliary'
 
 export const DATABASE_SERVER_MODEL = 'Base_serverInfo'
 
@@ -44,6 +45,7 @@ export class LowcodeDatabaseServer {
     }))
     const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models: [model], relations: []})
     try {
+      installDatabaseServerAuxiliaryViews(dataSet, lowcodeHttp, assertCurrent)
       const view = dataSet.getView(DATABASE_SERVER_MODEL, 'default')
       if (!view) throw new Error('服务器目录视图缺失')
       await view.refresh()

@@ -64,7 +64,7 @@ describe('database-server-view-ops', () => {
     view.updateEditingValue(edit.id, 'ip_address', '10.0.0.1')
     view.updateEditingValue(edit.id, 'UserName', 'root')
     view.updateEditingValue(edit.id, 'Password', 'secret')
-    await expect(databaseServerTestConnection(view, edit)).resolves.toBe(true)
+    await expect(databaseServerTestConnection(ds, view, edit)).resolves.toBe(true)
     expect(http.requests.some(request => request.url === '/api/Db/testConnection')).toBe(true)
   })
 })

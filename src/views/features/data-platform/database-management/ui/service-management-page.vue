@@ -142,7 +142,9 @@ async function testConnection(): Promise<void> {
     const v = view.value
     const current = edit.value
     if (!v || !current || current.mode !== 'add') return
-    const ok = await databaseServerTestConnection(v, current)
+    const ds = dataSet.value
+    if (!ds) return
+    const ok = await databaseServerTestConnection(ds, v, current)
     if (!ok) throw new Error('连接失败')
   }, '连接成功')
 }

@@ -3,7 +3,11 @@
  * 职责：服务器目录页的 DataView 编排（非 query/save owner；后端 owner 仅在装配时 bind 到 DataView）。
  */
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {DATABASE_SERVER_MODEL} from './lowcode-database-server'
+import {
+  DATABASE_CONNECTION_TEST_INPUT_TABLE,
+  DATABASE_CONNECTION_TEST_RESULT_TABLE,
+  DATABASE_SERVER_MODEL,
+} from './lowcode-database-server'
 
 const createFields = ['Type', 'ServerName', 'ip_address', 'Port', 'description', 'UserName', 'Password'] as const
 const editFields = ['Type', 'ServerName', 'ip_address', 'Port', 'description'] as const
@@ -164,4 +168,19 @@ export async function databaseServerDeleteSelected(dataSet: DataSet, view: DataV
   await databaseServerRefresh(view)
 }
 
-export {databaseServerTestConnection} from './database-server-connection-test'
+export async function databaseServerTestConnection(dataSet: DataSet, view: DataView, edit: DatabaseServerEditState): Promise<boolean> {
+  if (view.currentRow !== edit.row || !view.rows.includes(edit.row)) throw new Error('连接测试时编辑目标或查询已变化')
+  const value = view.getEditingRow(edit.id)
+  if (!value) throw new Error('连接测试缺少编辑中的服务器记录')
+  const inputRow = dataSet.getTable(DATABASE_CONNECTION_TEST_INPUT_TABLE)?.rows[0]
+  if (!inputRow) throw new Error('连接测试输入未就绪')
+  for (const field of ['Type', 'ServerName', 'ip_address', 'UserName', 'Password', 'Port'] as const) {
+    inputRow[field] = scalar(value[field])
+  }
+  if (edit.mode === 'add' && !scalar(value['UserName'])) throw new Error('注册前请填写用户名')
+  const resultView = dataSet.getView(DATABASE_CONNECTION_TEST_RESULT_TABLE, 'default')
+  if (!resultView) throw new Error('连接测试结果视图缺失')
+  await resultView.refresh()
+  if (resultView.loadingError) throw resultView.loadingError
+  return resultView.rows[0]?.['ok'] === 'true'
+}

@@ -77,13 +77,13 @@ import {
   DATABASE_CATALOG_FIELD_VIEW_VIEW,
   LowcodeDatabaseTableView,
 } from '@/lowcode/resources/database/lowcode-database-table-view'
-import {queryUnregisteredDatabaseNames} from '@/lowcode/resources/database/database-spark-data-auxiliary'
 import {
   databaseCatalogDbBeginCreate,
   databaseCatalogDbCancelEdit,
   databaseCatalogDbCanCreate,
   databaseCatalogDbEditing,
   databaseCatalogDbSaveEdit,
+  databaseCatalogQueryUnregisteredDbNames,
   databaseCatalogServerSelectedId,
   type DatabaseCatalogDbEditState,
 } from '@/lowcode/resources/database/database-catalog-db-view-ops'
@@ -209,7 +209,7 @@ async function loadUnregisteredNames(): Promise<void> {
     if (!id) throw new Error('请先选择服务器')
     const ds = dataSet.value
     if (!ds) return
-    const names = await queryUnregisteredDatabaseNames(ds, id)
+    const names = await databaseCatalogQueryUnregisteredDbNames(ds, id)
     unregisteredHint.value = names.length
       ? `未登记物理库（可填到「Name」）：${names.join('、')}`
       : '该服务器下没有未登记的物理库名'

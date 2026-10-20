@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDatabaseTableView} from '@/lowcode/resources/database/lowcode-database-table-view'
-import {queryUnregisteredDatabaseNames} from '@/lowcode/resources/database/database-spark-data-auxiliary'
+import {databaseCatalogQueryUnregisteredDbNames} from '@/lowcode/resources/database/database-catalog-db-view-ops'
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
   DatabaseTableViewHttp,
@@ -25,12 +25,12 @@ beforeEach(() => {
 
 afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.clearAllMocks()})
 
-describe('queryUnregisteredDatabaseNames', () => {
-  it('loads names through auxiliary DataView on the catalog DataSet', async () => {
+describe('databaseCatalogQueryUnregisteredDbNames', () => {
+  it('loads names through DataView.refresh on the catalog DataSet', async () => {
     http.unregisteredByServer = {S1: ['PhysA', 'PhysB']}
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
-    const names = await queryUnregisteredDatabaseNames(ds, 'S1')
+    const names = await databaseCatalogQueryUnregisteredDbNames(ds, 'S1')
     expect(names).toEqual(['PhysA', 'PhysB'])
     expect(http.requests.some(request => request.url === '/api/Db/getUnregisteredDb/S1')).toBe(true)
   })

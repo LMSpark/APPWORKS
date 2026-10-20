@@ -3,7 +3,11 @@
  * 职责：_base_dbInfo 注册/编辑编排（非 query/save owner）。
  */
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {DATABASE_CATALOG_DB_MODEL} from './lowcode-database-table-view'
+import {
+  DATABASE_CATALOG_COMMAND_INPUT_TABLE,
+  DATABASE_CATALOG_DB_MODEL,
+  DATABASE_UNREGISTERED_DB_NAMES_TABLE,
+} from './lowcode-database-table-view'
 import {DATABASE_SERVER_MODEL} from './lowcode-database-server'
 
 const createFields = ['serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'State', 'Remark'] as const
@@ -140,4 +144,15 @@ export async function databaseCatalogDbSaveEdit(
   if (!view.hasEditingChanges(edit.id)) return undefined
   await commit(dataSet, view, edit.id)
   return undefined
+}
+
+export async function databaseCatalogQueryUnregisteredDbNames(dataSet: DataSet, serverId: string): Promise<readonly string[]> {
+  const inputRow = dataSet.getTable(DATABASE_CATALOG_COMMAND_INPUT_TABLE)?.rows[0]
+  if (!inputRow) throw new Error('目录命令输入未就绪')
+  inputRow['serverId'] = serverId.trim()
+  const view = dataSet.getView(DATABASE_UNREGISTERED_DB_NAMES_TABLE, 'default')
+  if (!view) throw new Error('未登记库查询视图缺失')
+  await view.refresh()
+  if (view.loadingError) throw view.loadingError
+  return view.rows.map(row => scalar(row['name'])).filter(Boolean)
 }

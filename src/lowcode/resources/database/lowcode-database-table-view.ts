@@ -8,7 +8,10 @@ import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
 import {DATABASE_SERVER_MODEL} from './lowcode-database-server'
-import {installDatabaseCatalogAuxiliaryViews} from './database-spark-data-auxiliary'
+import {attachCatalogCommandViews} from './lowcode-database-dataset-extensions'
+
+export const DATABASE_CATALOG_COMMAND_INPUT_TABLE = 'DatabaseCatalogCommandInput'
+export const DATABASE_UNREGISTERED_DB_NAMES_TABLE = 'DatabaseUnregisteredNames'
 
 export const DATABASE_CATALOG_DB_MODEL = '_base_dbInfo'
 export {DATABASE_SERVER_MODEL as DATABASE_CATALOG_SERVER_MODEL}
@@ -129,7 +132,10 @@ export class LowcodeDatabaseTableView {
     }))
     const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations: []})
     try {
-      installDatabaseCatalogAuxiliaryViews(dataSet, lowcodeHttp, assertCurrent)
+      attachCatalogCommandViews(dataSet, lowcodeHttp, assertCurrent, {
+        commandInput: DATABASE_CATALOG_COMMAND_INPUT_TABLE,
+        unregisteredNames: DATABASE_UNREGISTERED_DB_NAMES_TABLE,
+      })
       const serverView = dataSet.getView(DATABASE_SERVER_MODEL, 'default')
       const dbView = dataSet.getView(DATABASE_CATALOG_DB_MODEL, 'default')
       if (!serverView || !dbView) throw new Error('表和视图目录缺少服务器或数据库视图')

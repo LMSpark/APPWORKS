@@ -23,11 +23,12 @@
 - **矩阵**：`plan-appworks-integration.md` service-management 行语义/合同/页面 **部分**。
 - **下一切片**：连接测试 DataView 命令；实页 CRUD；table-and-view 四 dialog。
 
-## 2026-10-20 I5 表和视图只读首切片（table-and-view-page，工作区）
+## 2026-10-20 I5 表和视图只读首切片（table-and-view-page，`bf66dd39e`）
 
 - **导航**：hidden「表和视图管理」`source` → `table-and-view-page.vue`；`/dbms` 与 `/DataBaseManage/.../index` 仍 `DBMS.vue`。
-- **数据链**：`LowcodeDatabaseTableView.loadCatalog` 装配 `_base_dbInfo` / `_Base_TblList` / `_Base_ViewList` + query 级联（`dbid`）；只读列表，不经 `getDatabaseCatalog`。
-- **验证**：`tests/runtime/page/database/*` 7 项 + `typecheck`（工作区）。
+- **数据链**：`LowcodeDatabaseTableView.loadCatalog` 装配库/表/视图/字段 + query 级联（`dbid`、`tblid`）；字段视图分 `tableFields`/`viewFields`，只读，不经 `getDatabaseCatalog`。
+- **验证**：`tests/runtime/page/database/*` 7 项 + `typecheck`；同提交含服务器页挂载 vitest 与夹具复用。
+- **提交**：`bf66dd39e` on `10-17`（与 `bbc254aba` 服务器首屏同分支）。
 
 ## 2026-10-19 I3 设计器页签拆分 + 请求方案分区（工作区已验证，待与 I2 同批提交）
 

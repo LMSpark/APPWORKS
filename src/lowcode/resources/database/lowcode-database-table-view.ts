@@ -11,8 +11,16 @@ import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-ass
 export const DATABASE_CATALOG_DB_MODEL = '_base_dbInfo'
 export const DATABASE_CATALOG_TABLE_MODEL = '_Base_TblList'
 export const DATABASE_CATALOG_VIEW_MODEL = '_Base_ViewList'
+export const DATABASE_CATALOG_FIELD_MODEL = 'Base_TblField'
+export const DATABASE_CATALOG_FIELD_TABLE_VIEW = 'tableFields'
+export const DATABASE_CATALOG_FIELD_VIEW_VIEW = 'viewFields'
 
-const catalogModels = [DATABASE_CATALOG_DB_MODEL, DATABASE_CATALOG_TABLE_MODEL, DATABASE_CATALOG_VIEW_MODEL] as const
+const catalogModels = [
+  DATABASE_CATALOG_DB_MODEL,
+  DATABASE_CATALOG_TABLE_MODEL,
+  DATABASE_CATALOG_VIEW_MODEL,
+  DATABASE_CATALOG_FIELD_MODEL,
+] as const
 
 function defaultView(model: Awaited<ReturnType<typeof lowcodeApi.dataSpace.design.readModel>>): Record<string, unknown> {
   return {
@@ -43,7 +51,7 @@ export class LowcodeDatabaseTableView {
     for (const name of catalogModels) {
       if (!byName.has(name)) throw new Error(`表和视图目录缺少正式模型: ${name}`)
     }
-    const dbModel = byName.get(DATABASE_CATALOG_DB_MODEL)!
+    const fieldModel = byName.get(DATABASE_CATALOG_FIELD_MODEL)!
     const viewCascades = [
       {
         kind: 'query',
@@ -65,11 +73,41 @@ export class LowcodeDatabaseTableView {
         autoLoad: false,
         filterBindings: [{targetField: 'dbid'}],
       },
+      {
+        kind: 'query',
+        cascadeId: 'table-fields',
+        parentTable: DATABASE_CATALOG_TABLE_MODEL,
+        parentViewId: 'default',
+        childTable: DATABASE_CATALOG_FIELD_MODEL,
+        childViewId: DATABASE_CATALOG_FIELD_TABLE_VIEW,
+        autoLoad: false,
+        filterBindings: [{targetField: 'tblid'}],
+      },
+      {
+        kind: 'query',
+        cascadeId: 'view-fields',
+        parentTable: DATABASE_CATALOG_VIEW_MODEL,
+        parentViewId: 'default',
+        childTable: DATABASE_CATALOG_FIELD_MODEL,
+        childViewId: DATABASE_CATALOG_FIELD_VIEW_VIEW,
+        autoLoad: false,
+        filterBindings: [{targetField: 'tblid'}],
+      },
     ]
+    const fieldSort = [{field: 'ordIdx', direction: 'asc'}, {field: fieldModel.primaryKey, direction: 'asc'}]
     const config = new ScenarioViewConfig(scenarioId, JSON.stringify({
       scenarioId,
       tables: Object.fromEntries(catalogModels.map(name => {
         const model = byName.get(name)!
+        if (name === DATABASE_CATALOG_FIELD_MODEL) {
+          const fieldView = defaultView(model)
+          fieldView['sortExpression'] = fieldSort
+          return [name, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {
+            default: {...fieldView},
+            [DATABASE_CATALOG_FIELD_TABLE_VIEW]: {...fieldView},
+            [DATABASE_CATALOG_FIELD_VIEW_VIEW]: {...fieldView},
+          }}]
+        }
         return [name, {modelBinding: {modelId: model.id, modelName: model.metaName}, views: {default: defaultView(model)}}]
       })),
       resourceRelations: [],

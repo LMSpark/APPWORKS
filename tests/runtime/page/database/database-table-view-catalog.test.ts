@@ -5,6 +5,8 @@ import {
   DATABASE_CATALOG_DB_MODEL,
   DATABASE_CATALOG_TABLE_MODEL,
   DATABASE_CATALOG_VIEW_MODEL,
+  DATABASE_CATALOG_FIELD_MODEL,
+  DATABASE_CATALOG_FIELD_TABLE_VIEW,
   LowcodeDatabaseTableView,
 } from '@/lowcode/resources/database/lowcode-database-table-view'
 import {
@@ -52,5 +54,18 @@ describe('LowcodeDatabaseTableView', () => {
     dbView.setSelectedRows([dbView.rows[0]!])
     await viewView.refresh()
     expect(viewView.rows.map(row => row['vewname'])).toEqual(['OrderView'])
+  })
+
+  it('loads field catalog for the selected table', async () => {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const dbView = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
+    const tableView = ds.getView(DATABASE_CATALOG_TABLE_MODEL, 'default')!
+    const fieldView = ds.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)!
+    dbView.setSelectedRows([dbView.rows[0]!])
+    await tableView.refresh()
+    tableView.setSelectedRows([tableView.rows[0]!])
+    await fieldView.refresh()
+    expect(fieldView.rows.map(row => row['enname'])).toEqual(['Id', 'Name'])
   })
 })

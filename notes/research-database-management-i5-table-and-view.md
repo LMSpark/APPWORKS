@@ -30,7 +30,7 @@
 
 ## 建议切片顺序
 
-1. **只读**：`_base_dbInfo` + `_Base_TblList` + `_Base_ViewList` 三视图装配 + 主从选择（无 dialog）。
+1. **只读（已落地）**：`_base_dbInfo` + `_Base_TblList` + `_Base_ViewList` + `Base_TblField`（`tableFields`/`viewFields` 双命名视图，避免双父级联 AND）；库→对象→字段主从（无 dialog）。
 2. **注册 dialog**：`register-dialog` 语义 + 未登记库 API（`/api/Db/getUnregisteredDb` 等须纳入 DataView 命令或 spark-data 合同，禁止页面 HTTP）。
 3. **add-table / table-design / view-design**：依赖 D5 字段设计与后端 write 合同。
 

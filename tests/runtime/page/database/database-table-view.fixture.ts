@@ -5,6 +5,7 @@ import {DataViewFilterLocal} from '../../../../packages/spark-data/src/query/fil
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {
   DATABASE_CATALOG_DB_MODEL,
+  DATABASE_CATALOG_FIELD_MODEL,
   DATABASE_CATALOG_TABLE_MODEL,
   DATABASE_CATALOG_VIEW_MODEL,
 } from '@/lowcode/resources/database/lowcode-database-table-view'
@@ -49,6 +50,7 @@ export const databaseTableViewModels = {
   [DATABASE_CATALOG_DB_MODEL]: model(DATABASE_CATALOG_DB_MODEL, ['rowid', 'Name', 'ServerName', 'SchemaName', 'Remark']),
   [DATABASE_CATALOG_TABLE_MODEL]: model(DATABASE_CATALOG_TABLE_MODEL, ['rowid', 'dbid', 'tblname', 'tbldesc', 'schemaName', 'status']),
   [DATABASE_CATALOG_VIEW_MODEL]: model(DATABASE_CATALOG_VIEW_MODEL, ['rowid', 'dbid', 'vewname', 'vewdesc', 'SchemaName', 'status']),
+  [DATABASE_CATALOG_FIELD_MODEL]: model(DATABASE_CATALOG_FIELD_MODEL, ['rowid', 'tblid', 'enname', 'cnname', 'DataTypeName', 'DataLen', 'IsPKey', 'ordIdx']),
 } as const
 
 export class DatabaseTableViewHttp extends HttpClientBase {
@@ -60,6 +62,11 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       {rowid: 'T2', dbid: 'DB2', tblname: 'Other', tbldesc: '', schemaName: 'dbo', status: 1},
     ],
     [DATABASE_CATALOG_VIEW_MODEL]: [{rowid: 'V1', dbid: 'DB1', vewname: 'OrderView', vewdesc: '', SchemaName: 'dbo', status: 1}],
+    [DATABASE_CATALOG_FIELD_MODEL]: [
+      {rowid: 'F1', tblid: 'T1', enname: 'Id', cnname: '编号', DataTypeName: 'int', DataLen: '4', IsPKey: 1, ordIdx: 1},
+      {rowid: 'F2', tblid: 'T1', enname: 'Name', cnname: '名称', DataTypeName: 'string', DataLen: '50', IsPKey: 0, ordIdx: 2},
+      {rowid: 'F3', tblid: 'V1', enname: 'Total', cnname: '合计', DataTypeName: 'decimal', DataLen: '18', IsPKey: 0, ordIdx: 1},
+    ],
   }
 
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
@@ -81,7 +88,7 @@ export function bootstrapDatabaseTableViewRuntime(http: DatabaseTableViewHttp, s
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP', 'x-FormKey': DATABASE_TABLE_VIEW_SCENARIO_ID}})
   service.readSpaceDefinition.mockResolvedValue({dataSpaceId: DATABASE_TABLE_VIEW_SCENARIO_ID, name: '数据库', raw: {}})
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
-    const found = databaseTableViewModels[metaName as keyof typeof databaseTableViewModels]
+    const found = (databaseTableViewModels as Record<string, Awaited<ReturnType<DataSpaceDesignApi['readModel']>>>)[metaName]
     if (!found) throw new Error(`unexpected model ${metaName}`)
     return Promise.resolve(found)
   })

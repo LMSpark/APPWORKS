@@ -1,0 +1,906 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/array/lowcode-data-space-array-session",
+    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/array/lowcode-data-space-array-session",
+    "jsdoc": "@module lowcode/data-space/model-source/array/lowcode-data-space-array-session\n职责：已有数组的名称、表头、数据成员及正式引用差异共同保存与核验（无独立命令类 FSM）。\n边界：原DataView持有正式数据与权限；局部表头只承载未确认输入，不重置已有字段属性。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ArrayFieldChange",
+      "ArrayDefinitionChange",
+      "ArrayEditStatus",
+      "ArraySessionLifecycle",
+      "ArraySessionFlow",
+      "ArraySessionHost",
+      "ArrayEditHandle"
+    ]
+  },
+  "$defs": {
+    "ArrayFieldChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ArrayFieldChange",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "original": {
+          "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "patch": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "id",
+        "original",
+        "patch"
+      ],
+      "additionalProperties": false
+    },
+    "ArrayDefinitionChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ArrayDefinitionChange",
+      "properties": {
+        "original": {
+          "type": "object",
+          "title": "FormalModel"
+        },
+        "candidate": {
+          "type": "object",
+          "title": "FormalModel"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ArrayFieldChange"
+          }
+        },
+        "removals": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "../rename/lowcode-data-space-model-rename-references.ts.json#/$defs/ModelNameChange"
+          }
+        }
+      },
+      "required": [
+        "original",
+        "candidate",
+        "changes",
+        "removals",
+        "references"
+      ],
+      "additionalProperties": false
+    },
+    "ArrayEditStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ArrayEditStatus",
+      "enum": [
+        "idle",
+        "unknown",
+        "readback",
+        "saving",
+        "different",
+        "configuration"
+      ]
+    },
+    "ArraySessionLifecycle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ArraySessionLifecycle",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onDispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDispatch.return": true,
+        "method.completed.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.completed.return": true,
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "change": {
+              "$ref": "#/$defs/ArrayDefinitionChange"
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": {
+          "type": "object",
+          "title": "Promise<() => void>"
+        },
+        "method.prepareRename.params": {
+          "type": "object",
+          "properties": {
+            "change": {
+              "$ref": "#/$defs/ArrayDefinitionChange"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareRename.return": {
+          "type": "object",
+          "title": "Promise<ModelRenameFilePlan>"
+        }
+      }
+    },
+    "ArraySessionFlow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ArraySessionFlow",
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/ArrayEditStatus"
+        },
+        "identity": {
+          "type": "string"
+        },
+        "renamedIdentity": {
+          "type": "string"
+        },
+        "rename": {
+          "type": "object",
+          "properties": {
+            "plan": {
+              "$ref": "../rename/lowcode-data-space-model-rename-session.ts.json#/$defs/ModelRenameFilePlan"
+            },
+            "before": {
+              "type": "string"
+            },
+            "after": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "plan",
+            "before",
+            "after"
+          ],
+          "additionalProperties": false
+        },
+        "baseline": {
+          "type": "string"
+        },
+        "fieldIds": {
+          "type": "object",
+          "title": "Set<string>"
+        },
+        "staged": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "view": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              "id": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              },
+              "values": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {},
+                "additionalProperties": true
+              },
+              "created": {
+                "const": true
+              }
+            },
+            "required": [
+              "view",
+              "id",
+              "after",
+              "values"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "confirmed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "verified": {
+          "type": "string"
+        },
+        "verification": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fieldRenames": {
+          "type": "array",
+          "items": {
+            "$ref": "../removal/lowcode-data-space-field-remove-references.ts.json#/$defs/FieldRename"
+          }
+        },
+        "referenceSnapshot": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "identity",
+        "renamedIdentity",
+        "rename",
+        "baseline",
+        "fieldIds",
+        "staged",
+        "confirmed",
+        "verified",
+        "verification",
+        "fieldRenames",
+        "referenceSnapshot"
+      ],
+      "additionalProperties": false
+    },
+    "ArraySessionHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ArraySessionHost",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "fieldViewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        },
+        "models": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "contexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ArraySessionLifecycle"
+        },
+        "dependencies": {
+          "$ref": "../lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
+        },
+        "flow": {
+          "$ref": "#/$defs/ArraySessionFlow"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "fieldViewId",
+        "models",
+        "fields",
+        "views",
+        "contexts",
+        "lifecycle",
+        "dependencies",
+        "flow"
+      ],
+      "additionalProperties": false
+    },
+    "ArrayEditHandle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ArrayEditHandle",
+      "$defs": {
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "title": "ReturnType<typeof arrayGetState>"
+        },
+        "method.headers.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.headers.return": {
+          "type": "object",
+          "title": "ReturnType<typeof arrayHeaders>"
+        },
+        "method.beginHeaders.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beginHeaders.return": {
+          "type": "object",
+          "title": "ReturnType<typeof arrayBeginHeaders>"
+        },
+        "method.applyHeaders.params": {
+          "type": "object",
+          "properties": {
+            "definition": {
+              "$ref": "lowcode-data-space-array-draft.ts.json#/$defs/ArrayDefinition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.applyHeaders.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": true,
+        "method.release.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.release.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-20T05:21:45.289Z",
+  "models": {
+    "ArrayFieldChange": {
+      "name": "ArrayFieldChange",
+      "jsdoc": "一条已有数组字段的差异；不改变其他属性或正式身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 原Base_DataModel_Field的rowid。 */\n    id: string;\n    /** 原视图持有的正式记录，仅用于校验。 */\n    original: DataRow;\n    /** 本次明确修改的属性和值。 */\n    patch: Record<string, unknown>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "原Base_DataModel_Field的rowid。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "original",
+              "jsdoc": "原视图持有的正式记录，仅用于校验。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "patch",
+              "jsdoc": "本次明确修改的属性和值。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ArrayDefinitionChange": {
+      "name": "ArrayDefinitionChange",
+      "jsdoc": "表头批次最终定义及差异，供会话核对配置依赖，不携带权限凭据。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 正式模型原定义。 */\n    original: ReturnType<typeof DataSpaceDesignApi.projectModel>;\n    /** 含本次新增、改名、删除和主键变更的最终定义。 */\n    candidate: ReturnType<typeof DataSpaceDesignApi.projectModel>;\n    /** 已有字段的实际差异。 */\n    changes: readonly ArrayFieldChange[];\n    /** 本次明确移除的正式字段。 */\n    removals: readonly DataRow[];\n    /** 同批模型/字段改名的结构化引用变更，由原引用责任方解析。 */\n    references: readonly ModelNameChange[];\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "original",
+              "jsdoc": "正式模型原定义。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "candidate",
+              "jsdoc": "含本次新增、改名、删除和主键变更的最终定义。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "changes",
+              "jsdoc": "已有字段的实际差异。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removals",
+              "jsdoc": "本次明确移除的正式字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "references",
+              "jsdoc": "同批模型/字段改名的结构化引用变更，由原引用责任方解析。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ArrayEditStatus": {
+      "name": "ArrayEditStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'saving' | 'unknown' | 'readback' | 'different' | 'configuration'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'saving'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'different'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'configuration'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ArraySessionLifecycle": {
+      "name": "ArraySessionLifecycle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n    validate(change: ArrayDefinitionChange, views: readonly DataView[]): Promise<() => void>;\n    prepareRename(change: ArrayDefinitionChange): Promise<ModelRenameFilePlan>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n    validate(change: ArrayDefinitionChange, views: readonly DataView[]): Promise<() => void>;\n    prepareRename(change: ArrayDefinitionChange): Promise<ModelRenameFilePlan>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDispatch",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "completed",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validate",
+              "parameters": [
+                {
+                  "name": "change",
+                  "type": {
+                    "type": "reference",
+                    "name": "ArrayDefinitionChange",
+                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts"
+                  }
+                },
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataView[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareRename",
+              "parameters": [
+                {
+                  "name": "change",
+                  "type": {
+                    "type": "reference",
+                    "name": "ArrayDefinitionChange",
+                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ModelRenameFilePlan",
+                    "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ArraySessionFlow": {
+      "name": "ArraySessionFlow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    status: ArrayEditStatus;\n    identity: string;\n    renamedIdentity: string | undefined;\n    rename: {\n        plan: ModelRenameFilePlan;\n        before: string;\n        after: string;\n    } | undefined;\n    baseline: string;\n    fieldIds: Set<string>;\n    staged: Array<{\n        view: DataView;\n        id: string;\n        after: string;\n        values: Record<string, unknown> | null;\n        created?: true;\n    }>;\n    confirmed: boolean;\n    verified: string;\n    verification: string[];\n    fieldRenames: FieldRename[];\n    referenceSnapshot: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "renamedIdentity",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "rename",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldIds",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "staged",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "confirmed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verified",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verification",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldRenames",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "referenceSnapshot",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ArraySessionHost": {
+      "name": "ArraySessionHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly modelId: string;\n    readonly fieldViewId: 'default' | 'modelFields';\n    readonly models: DataView;\n    readonly fields: DataView;\n    views: DataView[];\n    readonly contexts: string[];\n    readonly lifecycle: ArraySessionLifecycle;\n    dependencies: LowcodeDataSpaceModelDependencies | undefined;\n    flow: ArraySessionFlow;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldViewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contexts",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dependencies",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "flow",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ArrayEditHandle": {
+      "name": "ArrayEditHandle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof arrayGetState>;\n    headers(): ReturnType<typeof arrayHeaders>;\n    beginHeaders(): ReturnType<typeof arrayBeginHeaders>;\n    applyHeaders(definition: ArrayDefinition): Promise<void>;\n    discard(): void;\n    save(): Promise<void>;\n    verify(): Promise<boolean>;\n    acceptCurrent(): void;\n    release(): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "getState",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof arrayGetState"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "headers",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof arrayHeaders"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "beginHeaders",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof arrayBeginHeaders"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "applyHeaders",
+              "parameters": [
+                {
+                  "name": "definition",
+                  "type": {
+                    "type": "reference",
+                    "name": "ArrayDefinition",
+                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "release",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

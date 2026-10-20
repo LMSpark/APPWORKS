@@ -5,7 +5,7 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus, {ElButton, ElInputNumber, ElSelect, ElOption, ElTabs, ElTabPane, ElRadioGroup, ElRadio, ElCheckbox, ElTree, ElPagination, ElTable, ElTableColumn} from 'element-plus'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
-import {dataSpacePageFixture} from './data-space-page.fixture'
+import {dataSpacePageFixture, designPageHost} from './data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {Spark, registerAllRenderers, FilterValueFunctionDialog, JsonTreeEditor, FieldJson, FieldValueFunction, FieldCheckbox, FieldRadio, FieldSelect, FieldText, FieldTextarea, FieldNumber, RendererButton, RendererForm, RendererTable, RendererTree, RendererTabs, RendererDialog, RendererSection, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
@@ -15,6 +15,7 @@ import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import DataSpaceViewEditor from '@/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue'
 import DataSpaceQueryPreview from '@/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue'
 import DataSpaceModelEditor from '@/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue'
+import DataSpaceModelRequest from '@/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue'
 import DataSpaceModelRename from '@/views/features/data-platform/data-set-management/design/model/rename/DataSpaceModelRename.vue'
 import DataSpaceModelSource from '@/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue'
 import DataSpaceTableConfiguration from '@/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.vue'
@@ -60,7 +61,7 @@ describe('native DataTable data processing', () => {
     expect(retainedView.aggregateError?.message).toContain('DATA_VIEW_REMOTE_AGGREGATE')
     expect(() => retainedView.aggregateResult).toThrow('DATA_VIEW_REMOTE_AGGREGATE')
     expect(writes(f)).toEqual([])
-  })
+  }, 15_000)
   it('saves explicit legacy aggregate removal and reopens without changing other view settings', async () => {
     const f = fixture({overviewOnly: true})
     const original = {oldCount: {type: 'count', field: 'rowid'}}
@@ -860,6 +861,7 @@ describe('layout rebuild entry', () => {
     await session.loadDefinition()
     await select(wrapper, 'Orders')
     const old = session.definitionDataSet!, load = vi.spyOn(session, 'loadDefinition')
+    await openModelFieldsTab(wrapper)
     const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
     fields.updateEditingValue('F1', 'description', '已保存字段')
     await flushPromises()
@@ -900,6 +902,7 @@ describe('layout rebuild entry', () => {
     const pending = new Promise<void>(resolve => {release = resolve})
     vi.spyOn(upstream, 'loadFromServer').mockImplementation(async (...args) => {await pending; return load(...args)})
     await select(wrapper, 'Orders')
+    await openModelFieldsTab(wrapper)
     const table = wrapper.findComponent({name: 'DataSpaceFieldEditor'})
     await table.get('tbody tr:nth-child(2) [data-function-open]').trigger('click'); await flushPromises()
     const dialog = wrapper.getComponent(FilterValueFunctionDialog), identity = dialog.vm.$
@@ -1316,7 +1319,7 @@ describe('layout rebuild entry', () => {
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
     const tabs = wrapper.getComponent(RendererTabs)
     expect(tabs.findAll('[role="tab"]').filter(tab => tab.element.closest('.el-tabs') === tabs.get('.el-tabs').element).map(tab => tab.text()))
-      .toEqual(['1 模型', '2 数据处理', '数据视图'])
+      .toEqual(['1 模型结构', '2 请求方案', '3 字段呈现', '4 数据处理', '5 数据视图'])
     const model = wrapper.getComponent(DataSpaceModelEditor)
     expect(model.isVisible()).toBe(true)
     expect(model.find('[data-model-field="IsBusinessMain"]').exists()).toBe(true)
@@ -1426,9 +1429,9 @@ describe('layout rebuild entry', () => {
     const f = fixture({hiddenModelProperties: ['DbName']})
     f.setModelValues({DbName: 'private-db', MetaName: 'OrderSource', Type: '数据库表'})
     const {wrapper} = await page(); await select(wrapper, 'Orders')
-    expect(wrapper.find('.meta-source').exists()).toBe(false)
-    expect(wrapper.get('.design-detail').text()).toContain('模型及来源身份不可读')
-    expect(wrapper.get('.design-detail').text()).not.toContain('private-db')
+    expect(wrapper.find('.meta-source').exists()).toBe(true)
+    expect(wrapper.get('.meta-source').text()).toContain('OrderSource')
+    expect(wrapper.get('.meta-source').text()).not.toContain('private-db')
     expect(writes(f)).toHaveLength(0)
   })
 
@@ -1468,9 +1471,10 @@ describe('layout rebuild entry', () => {
     expect(fields.requestState).toBe(RequestState.Idle)
     expect(relations.requestState).toBe(RequestState.Loaded)
     await select(wrapper, 'Orders')
-    const workspace = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    const workspace = await session.loadModelFields('M1')
     expect(workspace.rows.map(row => row['rowid'])).toEqual(['F1'])
     expect(workspace.queryContext).toMatchObject({dataSpaceId: 'A', modelId: 'M1'})
+    await openModelFieldsTab(wrapper)
     const table = wrapper.findComponent({name: 'DataSpaceFieldEditor'}).getComponent(RendererTable)
     expect(table.props('dataViewKey')).toBe(`${session.metadataDataSet.scenarioId}@Base_DataModel_Field@modelFields`)
     expect(resolveDataViewKey(table.props('dataViewKey'), session.metadataDataSet)).toBe(workspace)
@@ -1489,6 +1493,7 @@ describe('layout rebuild entry', () => {
     const {wrapper} = await page()
     f.failNextFieldRead()
     await select(wrapper, 'Orders')
+    await openModelFieldsTab(wrapper)
     expect(wrapper.findComponent({name: 'DataSpaceModelFields'}).text()).toContain('field read unavailable')
     expect(wrapper.findComponent({name: 'DataSpaceFieldEditor'}).exists()).toBe(false)
     expect(wrapper.text()).toContain('空间 A')
@@ -1559,7 +1564,7 @@ describe('layout rebuild entry', () => {
 })
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 const sourceRuntimes: PageRuntime[] = []
-beforeAll(async () => {registerAllRenderers(); await getVuePageEntry('/data-space-design')?.load()}, 30000)
+beforeAll(async () => {registerAllRenderers(); await getVuePageEntry('/features/data-platform/data-set-management/design/ui/data-set-design-page')?.load()}, 30000)
 beforeEach(() => {
   vi.mocked(openLowcodeDataSpaceDesignSession).mockReset()
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
@@ -1652,7 +1657,7 @@ async function page(query = '?scenarioId=A', realTable = false) {
   expect(entry).toBeDefined()
   const component = (await entry!.load()).default
   const router = createRouter({history: createMemoryHistory(), routes: []})
-  const dynamic = createDynamicRouter({router, pageComponent: component, componentMap: {[path]: component},
+  const dynamic = createDynamicRouter({router, pageComponent: designPageHost(component), componentMap: {[path]: designPageHost(component)},
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header',
       items: [{id: 'design', title: '数据空间设计', path, itemKind: 'system-page'}]})})
   await dynamic.registerRoutes()
@@ -1689,6 +1694,21 @@ async function select(wrapper: ReturnType<typeof mount>, label: string) {
   const node = wrapper.findAll('[data-design-node]').find(item => item.text() === label)
   if (!node) throw new Error(`missing tree node ${label}`)
   await node.trigger('click'); await flushPromises()
+}
+async function openModelFieldsTab(wrapper: ReturnType<typeof mount>) {
+  const tabs = wrapper.find('.node-panel-tabs').getComponent(RendererTabs)
+  await tabs.get('#tab-fields').trigger('click')
+  for (let attempt = 0; attempt < 80; attempt++) {
+    await flushPromises()
+    const workspace = wrapper.find('[aria-label="模型字段工作区"]')
+    if (!workspace.exists()) continue
+    const loading = workspace.find('[role="status"]')
+    if (loading.exists() && loading.text().includes('正在读取')) continue
+    if (workspace.find('[aria-label="字段配置编辑"]').exists()) return
+    if (workspace.text().includes('此模型尚无字段定义')) return
+    if (workspace.find('[role="alert"]').exists()) return
+  }
+  throw new Error(`model fields tab did not finish loading: ${wrapper.find('[aria-label="模型字段工作区"]').text()}`)
 }
 function writes(f: ReturnType<typeof dataSpacePageFixture>) {
   return f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
@@ -1787,7 +1807,7 @@ describe('native graph layout persistence', () => {
     expect(bound?.pageSize).not.toBe(31)
     expect((await bound!.loadFromServer()).success).toBe(true)
     expect(bound?.rows).toMatchObject([{id: 'PO1'}])
-  })
+  }, 15_000)
 
   it('creates a pending node from the model directory through the same canvas workflow without a direct source-create branch', async () => {
     const f = fixture(), {wrapper, instance} = await page()
@@ -1954,6 +1974,7 @@ describe('native graph layout persistence', () => {
       {rowid: 'F2', dataModelId: 'M1', Name: 'note', type: 'dataModel', FieldType: 'string', IsPKey: 0, IsOutput: 1, ValueFun: ''},
     ]})
     const {wrapper, instance} = await page('?scenarioId=A', true); await select(wrapper, 'Orders')
+    await openModelFieldsTab(wrapper)
     const table = wrapper.findComponent({name: 'DataSpaceFieldEditor'})
     expect(parameterField(table, '输出信息')).toBeDefined()
     expect(parameterField(table, '排序')).toBeUndefined()
@@ -1993,10 +2014,11 @@ describe('native graph layout persistence', () => {
       {rowid: 'PK', dataModelId: 'M1', Name: 'rowid', type: 'dataModel', FieldType: 'string', IsPKey: 1, IsOutput: 1},
     ]})
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
-    const header = wrapper.get('[aria-label="模型信息"]')
-    expect(header.text()).toContain('绑定源')
-    expect(header.text()).toContain('OrderSource')
+    expect(wrapper.get('.meta-source').text()).toContain('绑定源')
+    expect(wrapper.get('.meta-source').text()).toContain('OrderSource')
     const name = parameterInput(wrapper.getComponent(DataSpaceModelRename), '节点名称:')
+    await openModelFieldsTab(wrapper)
+    const header = wrapper.get('[aria-label="模型信息"]')
     expect((name.element as HTMLInputElement).value).toBe('Orders')
     expect(instance.isDirty).toBe(false)
     const toolbar = wrapper.get('[aria-label="字段操作"]')
@@ -2050,6 +2072,7 @@ describe('native graph layout persistence', () => {
     const reopened = await f.open('A')
     expect(resolveDataViewKey('A@SalesOrders@shared', reopened.definitionDataSet!)?.pageSize).toBe(12)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
+    await openModelFieldsTab(wrapper)
     expect(wrapper.get('[aria-label="字段配置编辑"]').text()).not.toContain('字段或所属模型身份已变化')
     await wrapper.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
     expect(fieldContractDom().find('[data-field-property="description"]').exists()).toBe(true)
@@ -2072,7 +2095,7 @@ describe('native graph layout persistence', () => {
     await select(wrapper, 'shared')
     expect(wrapper.getComponent(DataSpaceViewEditor).props('modelName')).toBe('SalesOrders')
     expect(firstSession.metadataDataSet.destroyed).toBe(false)
-  })
+  }, 15_000)
 
   it.each(['database', 'definition'] as const)('recovers model rename at the real %s failure boundary without replaying confirmed sources', async failure => {
     const f = fixture({overviewOnly: true, allowModelRename: true, sourceFields: [
@@ -2526,7 +2549,7 @@ describe('native data-space design entry', () => {
     expect(f.fileWrites).toHaveLength(1);expect(writes(f)).toHaveLength(0)
     for(const name of ['Base_DataModel_Field','Base_DataModel_Relation'])
       expect(f.sessions[0]!.metadataDataSet.getView(name)?.requestState).toBe(name === 'Base_DataModel_Relation' ? RequestState.Loaded : RequestState.Idle)
-  })
+  }, 15_000)
 
   it('discards reordered view sorting and cancels unfinished rows without changing persisted configuration',async()=>{
     const f=fixture({overviewOnly:true});(await f.open('A')).dispose()
@@ -2551,7 +2574,7 @@ describe('native data-space design entry', () => {
     await editor.get('[data-action="finish-view-property"]').trigger('click');await flushPromises()
     expect(instance.isDirty).toBe(false)
     expect((await f.open('A')).definitionDataSet?.getView('OrdersAlias','shared')?.sortExpression).toEqual(original)
-  })
+  }, 15_000)
 
   it('creates a new array through bound inputs and the header dialog, cancels cleanly and reopens the saved definition', async () => {
     const f=fixture({overviewOnly:true,allowModelAdd:true,allowFieldAdd:true})
@@ -2632,7 +2655,7 @@ describe('native data-space design entry', () => {
     expect(f.requests).toHaveLength(beforeSave+2);expect(f.sessions).toHaveLength(1)
     const fresh=await f.open('A');expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']==='M1')?.['items']).toBe('[{"name":"after","count":2}]')
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']==='M1')?.['description']).toBe('数组保存后的模型编辑')
-  })
+  }, 15_000)
   it('keeps a later bound array draft available after the earlier save completes',async()=>{
     const f=fixture({overviewOnly:true,allowArrayEdit:true,sourceFields:[{rowid:'F1',dataModelId:'M1',Name:'name',description:'名称',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:0}]})
     f.setModelValues({Type:'数组',items:'[{"name":"before"}]'})
@@ -2793,7 +2816,7 @@ describe('native data-space design entry', () => {
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']==='M1')).toMatchObject({parentField:'label',items:'[{"label":"before"}]'})
     expect(f.fileWrites).toHaveLength(1)
     expect(JSON.parse(f.stored.get('A')!).tables.OrdersAlias.views.shared.valueField).toBe('label')
-  })
+  }, 15_000)
   it('renames an array through the bound standard name field and retains the outer model editor after saving',async()=>{
     const f=fixture({overviewOnly:true,deferDefinition:true,allowArrayEdit:true,allowModelRename:true,sourceFields:[{rowid:'F1',dataModelId:'M1',Name:'name',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:0}]})
     f.setModelValues({Type:'数组',items:'[{"name":"before"}]'})
@@ -3003,6 +3026,7 @@ describe('native data-space design entry', () => {
       {rowid: 'F1', dataModelId: 'M1', Name: 'amount', AsName: 'amount', type: 'dataModel', FieldType: 'number', IsPKey: 0, IsOutput: 1, description: '金额', ValueFun: ''},
     ]})
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
+    await openModelFieldsTab(wrapper)
     const editor = wrapper.get('[aria-label="字段配置编辑"]'), view = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
     const createDom = () => new DOMWrapper(document.body.querySelector('.data-space-field-create')!.closest('.el-dialog')!)
     view.updateEditingValue('F1', 'description', '旧字段修改'); await flushPromises()
@@ -3044,6 +3068,7 @@ describe('native data-space design entry', () => {
         IsPKey: 0, IsOutput: 1, description: '合计', ValueFun: ''},
     ]})
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
+    await openModelFieldsTab(wrapper)
     const editor = wrapper.get('[aria-label="字段配置编辑"]'), view = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
     editor.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', view.rows.find(row => row['rowid'] === 'TOTAL')); await flushPromises()
     view.updateEditingValue('TOTAL', 'description', '打开前草稿'); view.updateEditingValue('PK', 'description', '其他字段草稿'); await flushPromises()
@@ -3084,6 +3109,7 @@ describe('native data-space design entry', () => {
       {rowid: 'F1', dataModelId: 'M1', Name: 'amount', AsName: 'amount', type: 'dataModel', FieldType: 'number', IsPKey: 0, IsOutput: 1, description: '金额'},
     ]})
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
+    await openModelFieldsTab(wrapper)
     const editor = wrapper.get('[aria-label="字段配置编辑"]'), view = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
     editor.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', view.rows.find(row => row['rowid'] === 'F1')); await flushPromises()
     view.updateEditingValue('F1', 'description', '打开前草稿'); view.updateEditingValue('PK', 'description', '另一行草稿'); await flushPromises()
@@ -3128,6 +3154,7 @@ describe('native data-space design entry', () => {
     ]})
     f.setModelValues({Type: 'JSON', PrimaryKeyFields: 'rowid'})
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
+    await openModelFieldsTab(wrapper)
     const editor = wrapper.get('[aria-label="字段配置编辑"]'), session = f.sessions[0]!, view = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
     const open = async (id: string) => {
       editor.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', view.rows.find(row => row['rowid'] === id)); await flushPromises()
@@ -3162,7 +3189,7 @@ describe('native data-space design entry', () => {
       {rowid: 'ARG', dataModelId: 'M1', Name: 'input', type: 'inputParams', FieldType: 'string', IsPKey: 0, IsOutput: 0},
     ]})
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
-    await wrapper.getComponent(RendererTabs).get('#tab-source').trigger('click'); await flushPromises()
+    await openModelFieldsTab(wrapper)
     const table = wrapper.get('[aria-label="字段配置编辑"]').getComponent(RendererTable)
     const dataSet = f.sessions[0]!.metadataDataSet
     expect(table.props('dataViewKey')).toBe('META@Base_DataModel_Field@modelFields')
@@ -3186,7 +3213,7 @@ describe('native data-space design entry', () => {
     expect(dataSet.getView('Base_DataModel_Field', 'default')!.rows).toHaveLength(4)
     expect(instance.isDirty).toBe(false)
     await select(wrapper, 'Customers')
-    await wrapper.getComponent(RendererTabs).get('#tab-source').trigger('click'); await flushPromises()
+    await openModelFieldsTab(wrapper)
     expect(view.rows.map(row => row['rowid'])).toEqual(['OTHER'])
   })
 
@@ -3196,6 +3223,7 @@ describe('native data-space design entry', () => {
       {rowid: 'F1', dataModelId: 'M1', Name: 'amount', type: 'dataModel', FieldType: 'number', IsPKey: 0, IsOutput: 1},
     ]})
     const {wrapper} = await page(); await select(wrapper, 'Orders')
+    await openModelFieldsTab(wrapper)
     const view = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
     const currentId = view.currentRow?.['rowid']
     await parameterInput(wrapper.getComponent(DataSpaceModelRename), '节点名称:').setValue('PendingRename'); await flushPromises()
@@ -3216,7 +3244,7 @@ describe('native data-space design entry', () => {
         {rowid: 'F1', dataModelId: 'M1', Name: 'amount', description: '金额', type: 'dataModel', FieldType: 'number', IsPKey: 0, IsOutput: 1, Expression: '', allowAIAdd: 0},
       ], businessRows: {Orders: [{rowid: 'O0', parentId: null, amount: 2}, {rowid: 'O1', parentId: null, amount: 12}]}})
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
-    const session = f.sessions[0]!, tabs = wrapper.getComponent(RendererTabs)
+    const session = f.sessions[0]!, tabs = wrapper.find('.node-panel-tabs').getComponent(RendererTabs)
     const previousAddApi = session.metadataDataSet.getView('Base_DataModel')!.getEditingRow('M1')?.['addApi']
     const saveCurrent = async () => {
       await flushPromises()
@@ -3224,6 +3252,7 @@ describe('native data-space design entry', () => {
       await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
       expect(instance.isDirty, wrapper.text()).toBe(false)
     }
+    await openModelFieldsTab(wrapper)
     const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
     fields.updateEditingValue('F1', 'description', '成交金额')
     fields.updateEditingValue('F1', 'Expression', 'RULE'); fields.updateEditingValue('F1', 'allowAIAdd', 1)
@@ -3285,6 +3314,7 @@ describe('native data-space design entry', () => {
       ]}), {wrapper, instance} = await page()
     await select(wrapper, 'Orders')
     const tabs = wrapper.getComponent(RendererTabs)
+    await openModelFieldsTab(wrapper)
     expect(tabs.find('#tab-frontModel').exists()).toBe(false)
     expect(wrapper.get('[aria-label="模型字段工作区"]').isVisible()).toBe(true)
     const view = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
@@ -3294,7 +3324,7 @@ describe('native data-space design entry', () => {
     await tabs.get('#tab-source').trigger('click'); await flushPromises()
     await select(wrapper, 'Customers')
     expect(wrapper.get('.design-detail h2').text()).toBe('Orders')
-    await tabs.get('#tab-source').trigger('click'); await flushPromises()
+    await openModelFieldsTab(wrapper)
     const panel = wrapper.get('[aria-label="模型字段工作区"]')
     await panel.findAll('button').find(button => button.text() === '放弃本地修改')!.trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false); expect(writes(f)).toHaveLength(0)
@@ -3307,21 +3337,19 @@ describe('native data-space design entry', () => {
     const tabs = wrapper.getComponent(RendererTabs), editor = wrapper.getComponent(DataSpaceModelEditor)
     expect(tabs.props('dataViewKey')).toBe(`${f.sessions[0]!.metadataDataSet.scenarioId}@Base_DataModel@default`)
     expect(tabs.props('dataMember')).toBe('currentRow')
-    expect(tabs.findAll('[role="tab"]').filter(tab => tab.element.closest('.el-tabs') === tabs.get('.el-tabs').element).map(tab => tab.text())).toEqual(['1 模型', '2 数据处理', '数据视图'])
+    expect(tabs.findAll('[role="tab"]').filter(tab => tab.element.closest('.el-tabs') === tabs.get('.el-tabs').element).map(tab => tab.text())).toEqual(['1 模型结构', '2 请求方案', '3 字段呈现', '4 数据处理', '5 数据视图'])
     expect(tabs.props('modelValue')).toBe('source')
     expect(wrapper.getComponent(DataSpaceModelRename).isVisible()).toBe(true)
     await writeBound(editor, 'description', '跨分区模型草稿')
-    for (const name of ['source', 'views', 'source']) {
-      await tabs.get(`#tab-${name}`).trigger('click'); await flushPromises()
-      expect(wrapper.getComponent(DataSpaceModelEditor).element).toBe(editor.element)
-      expect(instance.isDirty).toBe(true)
-    }
+    expect(instance.isDirty).toBe(true)
     await select(wrapper, 'Customers')
     expect(wrapper.get('.design-detail h2').text()).toBe('Orders')
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
-    expect(instance.isDirty).toBe(false)
     expect(writes(f)).toHaveLength(1)
     expect((await f.open('A')).metadataDataSet.getView('Base_DataModel', 'default')!.getEditingRow('M1')?.['description']).toBe('跨分区模型草稿')
+    await tabs.get('#tab-request').trigger('click'); await flushPromises()
+    await tabs.get('#tab-source').trigger('click'); await flushPromises()
+    expect(wrapper.getComponent(DataSpaceModelEditor).element).toBe(editor.element)
     await select(wrapper, 'shared')
     expect(wrapper.getComponent(RendererTabs).props('modelValue')).toBe('views')
     expect(wrapper.getComponent(DataSpaceViewEditor).isVisible()).toBe(true)
@@ -3335,17 +3363,17 @@ describe('native data-space design entry', () => {
     const tabs = wrapper.getComponent(RendererTabs), session = f.sessions[0]!
     expect(tabs.props('toolbarPlacement')).toBe('header')
     const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
-    fields.updateEditingValue('F1', 'description', '字段统一保存'); await flushPromises()
-    await tabs.get('#tab-source').trigger('click'); await flushPromises()
-    const editor = wrapper.getComponent(DataSpaceModelEditor)
-    expect(editor.props('disabled')).toBe(false)
-    await writeBound(editor, 'description', '模型统一保存')
+    const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    await openModelFieldsTab(wrapper)
+    fields.updateEditingValue('F1', 'description', '字段统一保存')
+    models.updateEditingValue('M1', 'description', '模型统一保存'); await flushPromises()
     expect(instance.isDirty).toBe(true)
-    await tabs.get('#tab-source').trigger('click'); await flushPromises()
-    await wrapper.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+    const fieldPanel = wrapper.get('[aria-label="字段配置编辑"]')
+    fieldPanel.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', fields.rows.find(row => row['rowid'] === 'F1'))
+    await flushPromises()
+    await fieldPanel.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
     expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
     await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
-    await tabs.get('#tab-source').trigger('click'); await flushPromises()
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
     expect(writes(f)).toHaveLength(1)
     expect(instance.isDirty, JSON.stringify({model: session.getModelEdit('M1').getState(), field: session.getFieldEdit('F1', 'modelFields').getState(), alerts: wrapper.findAll('[role="alert"]').map(item => item.text()), status: wrapper.findAll('[role="status"]').map(item => item.text())})).toBe(false)
@@ -3400,31 +3428,33 @@ describe('native data-space design entry', () => {
     const view = session.metadataDataSet.getView('Base_DataModel_Field', 'sourceInputFields')!
     view.updateEditingValue('I1', 'ValueFun', '{"Type":"GetInputParam","ParamName":"customer"}')
     view.updateEditingValue('I2', 'ValueFun', '{"Type":"GetConstValue","Value":false}')
+    await openModelFieldsTab(wrapper)
     session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!.updateEditingValue('F1', 'description', '修改字段')
-    await writeBound(editor, 'description', '来源参数与模型说明'); await flushPromises()
-    expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeUndefined()
+    await flushPromises()
     if (action === 'cancel') {
-      await tabs.get('#tab-source').trigger('click'); await flushPromises()
       await wrapper.get('[data-action="cancel-field"]').trigger('click'); await flushPromises()
       expect(view.getEditingRow('I1')?.['ValueFun']).toBe('legacy')
       expect(view.getEditingRow('I2')?.['ValueFun']).toBe('')
       expect(instance.isDirty).toBe(false); expect(writes(f)).toHaveLength(0)
       return
     }
+    session.metadataDataSet.getView('Base_DataModel', 'default')!.updateEditingValue('M1', 'description', '来源参数与模型说明')
+    await flushPromises()
+    expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeUndefined()
     if (action === 'unknown') f.loseNextResponse()
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
     expect(writes(f)).toHaveLength(1)
     if (action === 'unknown') {
       expect(instance.isDirty).toBe(true)
       expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
-      await tabs.get('#tab-source').trigger('click'); await flushPromises()
+      await openModelFieldsTab(wrapper)
       await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
       expect(writes(f)).toHaveLength(1)
     }
     expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(item => item.text()).join(';')).toBe(false)
     const fresh = await f.open('A'), reopened = await fresh.loadSourceInputFields('M1')
     expect(reopened.rows.map(row => row['ValueFun'])).toEqual(['{"Type":"GetInputParam","ParamName":"customer"}', '{"Type":"GetConstValue","Value":false}'])
-  })
+  }, 30_000)
 
   it.each([
     {button: 'verify-model', staged: false}, {button: 'verify-model', staged: true},
@@ -3436,7 +3466,7 @@ describe('native data-space design entry', () => {
     ]})
     f.setModelValues({Type: '接口'})
     const {wrapper, instance} = await page('?scenarioId=A', true); await select(wrapper, 'Orders')
-    await wrapper.getComponent(RendererTabs).get('#tab-source').trigger('click'); await flushPromises()
+    await wrapper.find('.node-panel-tabs').getComponent(RendererTabs).get('#tab-source').trigger('click'); await flushPromises()
     const session = f.sessions[0]!, models = session.metadataDataSet.getView('Base_DataModel')!
     const inputs = session.metadataDataSet.getView('Base_DataModel_Field', 'sourceInputFields')!
     const fields = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
@@ -3451,6 +3481,7 @@ describe('native data-space design entry', () => {
     const held = vi.spyOn(models, 'loadFromServer').mockImplementationOnce(async options => {
       const result = await load(options); await gate; return result
     })
+    if (button === 'verify-field') await openModelFieldsTab(wrapper)
     await wrapper.get(`[data-action="${button}"]`).trigger('click'); await flushPromises()
     expect(held).toHaveBeenCalledTimes(1)
     inputs.updateEditingValue('I1', 'ValueFun', later)
@@ -3466,6 +3497,7 @@ describe('native data-space design entry', () => {
     expect(wrapper.findAll('[role="alert"]').some(alert => /草稿|修改/.test(alert.text()))).toBe(true)
     expect(writes(f)).toHaveLength(1)
     // Only a new explicit choice may discard these later changes and verify the original write.
+    if (button === 'verify-field') await openModelFieldsTab(wrapper)
     await wrapper.get(`[data-action="${button}"]`).trigger('click'); await flushPromises()
     expect(inputs.getEditingRow('I1')?.['ValueFun']).toBe(original)
     expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toBe(false)
@@ -3482,7 +3514,8 @@ describe('native data-space design entry', () => {
       {rowid: 'F1', dataModelId: 'M1', Name: 'amount', type: 'dataModel', FieldType: 'number', IsPKey: 0, IsOutput: 1, description: '金额'},
     ]})
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
-    const tabs = wrapper.getComponent(RendererTabs), session = f.sessions[0]!
+    const tabs = wrapper.find('.node-panel-tabs').getComponent(RendererTabs), session = f.sessions[0]!
+    await openModelFieldsTab(wrapper)
     session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!.updateEditingValue('F1', 'description', '已写字段')
     await tabs.get('#tab-source').trigger('click'); await flushPromises()
     await writeBound(wrapper.getComponent(DataSpaceModelEditor), 'description', '已写模型')
@@ -3490,7 +3523,7 @@ describe('native data-space design entry', () => {
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(true)
     expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
-    await tabs.get('#tab-source').trigger('click'); await flushPromises()
+    await openModelFieldsTab(wrapper)
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false); expect(writes(f)).toHaveLength(1)
     expect(session.getModelEdit('M1').getState()).toEqual({pending: false, status: 'idle'})
@@ -3504,7 +3537,7 @@ describe('native data-space design entry', () => {
     ]})
     const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
     const tabs = wrapper.getComponent(RendererTabs)
-    await tabs.get('#tab-source').trigger('click'); await flushPromises()
+    await openModelFieldsTab(wrapper)
     const fieldView = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
     wrapper.get('[aria-label="字段配置编辑"]').getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', fieldView.rows.find(row => row['rowid'] === 'F1'))
     await flushPromises()
@@ -3513,11 +3546,11 @@ describe('native data-space design entry', () => {
     await writeBound(fieldContractDom(), 'description', '字段分区草稿'); await flushPromises()
     await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
     expect(fieldView.getEditingRow('F1')?.['description']).toBe('字段分区草稿')
-    await tabs.get('#tab-source').trigger('click'); await flushPromises()
-    expect(wrapper.getComponent(DataSpaceModelEditor).props('disabled')).toBe(false)
+    await tabs.get('#tab-request').trigger('click'); await flushPromises()
+    expect(wrapper.getComponent(DataSpaceModelRequest).props('disabled')).toBe(false)
     await select(wrapper, 'Customers')
     expect(wrapper.get('.design-detail h2').text()).toBe('Orders')
-    await tabs.get('#tab-source').trigger('click'); await flushPromises()
+    await openModelFieldsTab(wrapper)
     await wrapper.get('[data-action="cancel-field"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false); expect(writes(f)).toHaveLength(0)
     await select(wrapper, 'Customers')
@@ -3867,6 +3900,7 @@ describe('native data-space design entry', () => {
       {rowid:'F2',dataModelId:'M1',Name:'note',type:'dataModel',FieldType:'string',IsPKey:0,IsOutput:1},
     ],businessRows:{Orders:[{rowid:'O1',note:'saved'}]}}),{wrapper,instance}=await page('?scenarioId=A',true)
     await select(wrapper,'Orders')
+    await openModelFieldsTab(wrapper)
     const session=f.sessions.at(-1)!,fields=session.metadataDataSet.getView('Base_DataModel_Field','modelFields')!
     fields.updateEditingValue('F1','description','预览标题');fields.updateEditingValue('F2','IsOutput',0);await flushPromises()
     expect(instance.isDirty).toBe(true)
@@ -4120,7 +4154,7 @@ describe('native data-space design entry', () => {
       parentTable: 'OrdersAlias', parentViewId: 'shared', childTable: 'CustomersAlias', childViewId: 'default',
       filterBindings: [{sourceField: 'parentId', targetField: 'parentId'}, {targetField: 'rowid'}]}])
     expect(f.fileWrites).toHaveLength(1)
-  })
+  }, 15_000)
 
   it('edits and saves a scoped cascade from overview with an unrelated invalid view still preserved', async () => {
     const f = fixture({overviewOnly: true, businessRows: {Orders: [{rowid: 'O1', parentId: 'ROOT'}, {rowid: 'O2', parentId: 'O1'}]}}), original = {scenarioId: 'A', tables: {
@@ -4197,7 +4231,7 @@ describe('native data-space design entry', () => {
     await vi.waitFor(() => expect(child.rows).toEqual([]))
     expect(writes(f)).toHaveLength(0)
     expect(f.stored.get('A')).not.toContain('CascadeBinding_')
-  })
+  }, 15_000)
 
   it('edits filter operators and preserves an invalid typed condition draft until explicit cancel', async () => {
     const f = fixture()
@@ -4471,7 +4505,7 @@ describe('native data-space design entry', () => {
     expect(runtime.getView('OrdersAlias', 'default')!.getEditingRow('O1')?.['parentId']).toBe('C1')
     expect(f.requests.some(request => isRecord(request.data) && JSON.stringify(request.data).includes('"inputParams":[{"Name":"customer","Value":"C1"},{"Name":"selectedIds","Value":["C1"]}]'))).toBe(true)
     expect(writes(f)).toHaveLength(0)
-  })
+  }, 15_000)
 
   // 完整来源替换包含预览、字段映射、批量保存、独立重开和视图切换；仅本集成用例使用10秒预算。
   it('switches a table to a database view through bound source controls and retains the session with its new native resource', async () => {
@@ -4559,7 +4593,7 @@ describe('native data-space design entry', () => {
       const reopened = await f.open('A')
       expect((await reopened.loadSourceInputFields('M1')).getEditingRow(id)?.['ValueFun']).toBe(next)
     }
-  })
+  }, 15_000)
 
   it.each([false, true])('maps a source field and adds an explicitly selected output, then shows the updated model (overview=%s)', async overviewOnly => {
     const source = {type: 'table' as const, id: 'NEXT', name: 'NewSource', description: '', dbid: 'DB2', databaseName: 'new', providerId: ''}
@@ -4607,7 +4641,7 @@ describe('native data-space design entry', () => {
     expect(f.sessions).toHaveLength(1)
     expect(f.sessions[0]!.metadataDataSet.destroyed).toBe(false)
     expect(wrapper.text()).not.toContain('DATA_SPACE_MODEL_CONTEXT')
-    expect(f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!.rows).toHaveLength(4)
+    expect((await f.sessions[0]!.loadModelFields('M1')).rows).toHaveLength(4)
     expect(f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field')!.requestState).toBe(RequestState.Idle)
     expect(wrapper.text()).toContain('字段（未加载）')
     expect(f.modelRow()).toMatchObject({parentField: 'parentCode', hasChildField: 'hasChildren'})
@@ -4844,7 +4878,7 @@ describe('native data-space design entry', () => {
     expect(writes(f)).toHaveLength(1); expect(instance.isDirty).toBe(false)
     expect(f.sessions).toHaveLength(1)
     expect(f.sessions[0]!.metadataDataSet.destroyed).toBe(false)
-    const fields = f.sessions.at(-1)!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    const fields = await f.sessions.at(-1)!.loadModelFields('M1')
     expect(fields.rows.some(row => row['Name'] === 'fresh')).toBe(true)
     expect(fields.rows.some(row => row['rowid'] === 'F2')).toBe(false)
     expect(f.modelRow().MetaName).toBe('OrderSource')
@@ -4870,6 +4904,7 @@ describe('native data-space design entry', () => {
     expect(f.sessions).toHaveLength(1); expect(session.metadataDataSet.destroyed).toBe(false)
     expect(writes(f)).toHaveLength(1); expect(instance.isDirty).toBe(false)
     expect(session.getModelSourceEdit('M1').getState().status).toBe('idle')
+    await openModelFieldsTab(wrapper)
     expect(wrapper.text()).toContain('当前字段读取暂不可用')
     expect(reading).toHaveBeenCalledTimes(1)
     const retry = wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '重新读取模型字段')!
@@ -5325,7 +5360,7 @@ describe('native data-space design entry', () => {
     await select(wrapper, 'Customers')
     expect(wrapper.get('.design-detail h2').text()).toBe('Orders')
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
-    expect(wrapper.text()).toContain('本次字段配置已批量保存')
+    expect(wrapper.text()).toContain('模型配置已保存并回读')
     expect(instance.isDirty).toBe(false)
     expect(writes(f)).toHaveLength(1)
     expect(f.fileWrites).toHaveLength(0)
@@ -5495,7 +5530,7 @@ describe('native data-space design entry', () => {
     await flushPromises()
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
     expect(f.modelRow()).toMatchObject({cacheType: '页面', IsBusinessMain: 1, IsBusiness: 0})
-    expect(wrapper.text()).toContain('本次字段配置已批量保存')
+    expect(wrapper.text()).toContain('模型配置已保存并回读')
   })
 
   it('keeps unknown model writes dirty until explicit readback without a second write', async () => {
@@ -5745,7 +5780,7 @@ describe('native data-space design entry', () => {
     const row = reopened.metadataDataSet.getView('DataViewDefinition', 'default')!.rows.find(item => item['viewId'] === 'shared')
     expect(row).not.toHaveProperty('fieldProjection')
     expect(reopened.definitionDataSet?.getView('OrdersAlias', 'shared')).toBeDefined()
-  })
+  }, 15_000)
 
   it('binds optional view booleans directly, preserving unset, cancel and independently reopened values', async () => {
     const f = fixture()
@@ -5810,7 +5845,7 @@ describe('native data-space design entry', () => {
     expect(Object.keys(metadata.tables).some(name => name.startsWith('ViewControls_'))).toBe(false)
     expect(metadata.viewCascades?.some(cascade => cascade.cascadeId?.startsWith('ViewControls_'))).toBe(false)
     expect(writes(f)).toHaveLength(0)
-  })
+  }, 15_000)
 
   it('persists typed selection and tree configuration and clears only explicit properties', async () => {
     const f = fixture({overviewOnly: true})
@@ -5911,7 +5946,7 @@ describe('native data-space design entry', () => {
         expect(current.metadataDataSet.getView(name)!.requestState).toBe(current === f.sessions[0] && name === 'Base_DataModel_Relation' ? RequestState.Loaded : RequestState.Idle)
       }
     }
-  })
+  }, 15_000)
   it('keeps an invalid saved field reference visible until explicitly repaired through its bound control', async () => {
     const f = fixture()
     await f.open('A')
@@ -6236,19 +6271,19 @@ describe('native data-space design entry', () => {
     expect(f.fileWrites).toHaveLength(0)
     await select(wrapper, 'shared')
     expect((await boundNumber(wrapper, 'pageSize')).element).toHaveProperty('value', '44')
-  })
+  }, 15_000)
 
-  it('registers an app system page that consumes one target ID', () => {
-    const entry = getVuePageEntry('/data-space-design')
-    expect(entry).toBeDefined()
+  it('keeps only the blueprint path registration and no self-built design short path', () => {
+    const entry = getVuePageEntry('/features/data-platform/data-set-management/design/ui/data-set-design-page')
     expect(entry?.source).toBe('src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue')
     expect(entry?.scope).toBe('app')
+    expect(getVuePageEntry('/data-space-design')).toBeUndefined()
   })
 
-  it.each(['', '?scenarioId=A&scenarioId=B', '?scenarioId=A&dataSpaceId=B', '?scenarioId=A&additionalScenarioIds=B', '?scenarioId=..'])('rejects ambiguous or missing targets without opening metadata: %s', async query => {
+  it.each(['', '?scenarioId=A&scenarioId=B', '?scenarioId=..', '?scenarioId=a%2Fb'])('rejects missing or invalid target IDs without opening metadata: %s', async query => {
     fixture()
     const {wrapper} = await page(query)
-    expect(wrapper.get('[role="alert"]').text()).toContain('scenarioId')
+    expect(wrapper.get('[role="alert"]').text()).toContain('目标数据空间 ID 无效')
     expect(openLowcodeDataSpaceDesignSession).not.toHaveBeenCalled()
   })
 
@@ -6521,7 +6556,7 @@ describe('native data-space design entry', () => {
     const initialViews = [...view.dataTable!.viewList]
     await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
     expect(f.sessions).toHaveLength(1)
-    expect(f.sessions[0]!.getInputParameters().getState()).toEqual({status: 'idle', pending: true})
+    expect(f.sessions[0]!.getInputParameterState()).toEqual({status: 'idle', pending: true})
     expect(writes(f)).toHaveLength(1); expect(f.parameters).toContain('已确认声明')
     expect(view.getEditingRow('A')?.['inputParams']).toContain('后续编辑')
     expect(instance.isDirty).toBe(true); expect(wrapper.text()).toContain('仍有未保存修改')

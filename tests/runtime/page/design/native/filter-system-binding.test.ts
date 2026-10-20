@@ -51,7 +51,7 @@ describe('system filter component formal persistence chain', () => {
     await apply(wrapper)
     expect(DataViewFilterCodec.parseStored(String(view.getEditingRow('M1')?.['Filter']))?.toJSON()).toEqual(predicate)
     const requestsBeforeSave = f.requests.length
-    await expect(session.getModelEdit('M1').save()).rejects.toThrow('模型配置不能修改身份、来源或其他字段')
+    await expect(session.getModelEdit('M1').save()).rejects.toThrow('不能修改模型请求属性，请使用「2 请求方案」页签')
     expect(f.requests).toHaveLength(requestsBeforeSave)
     expect(view.hasEditingChanges()).toBe(true)
     session.getModelEdit('M1').discard()

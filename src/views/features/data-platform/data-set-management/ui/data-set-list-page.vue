@@ -8,17 +8,17 @@
       <p v-if="listError" role="alert">{{ listError }}</p>
       <p v-if="appsError" role="alert">{{ appsError }} <RendererButton label="重试应用选项" @click="retryApps" /></p>
       <p v-if="unresolved" role="status">有 {{ unresolved }} 位创建人当前无法解析</p>
-      <div :inert="busy || !!editing || bindingsOpen">
+      <div :inert="busy || !!editing || bindingsOpen || deleteOpen || !!designId">
         <RendererTable :data-view-key="catalogKey" :children="fields" :filter="filter" :toolbar="toolbar" :actions="actions" :stripe="true"
           :on-row-click="choose" :highlight-current-row="true" />
       </div>
       <RendererDialog v-if="editing" :model-value="true" :data-view-key="catalogKey"
         :title="editing.mode === 'add' ? '新增数据空间' : '编辑数据空间'" :width="520" :close-disabled="true">
         <p v-if="actionError" role="alert">{{ actionError }}</p>
-        <p v-if="editing.status === 'unknown'" role="status">保存结果尚未确认。可放弃本地修改并重新查询核验，不会再次提交。</p>
-        <p v-else-if="editing.status === 'readback'" role="status">目录尚未重新读取成功，请重新查询核验。</p>
+        <p v-if="editing.unconfirmed" role="status">保存结果尚未确认。核验只确认原提交结果，不会再次写入。</p>
+        <p v-else-if="editing.readbackFailed" role="status">已保存，但目录尚未重新读取成功，请重新读取。</p>
         <RendererForm :data-view-key="catalogKey" context-data-member="currentRow" :auto-columns="false"
-          :show-data-view-meta="false" :grid-columns="1" :form-props="{disabled: busy || editing.status !== 'editing'}">
+          :show-data-view-meta="false" :grid-columns="1" :form-props="{disabled: busy || editing.unconfirmed || editing.readbackFailed}">
           <FieldSelect v-if="editing.mode === 'add'" field="sysid" label="所属应用" :option-data-view-key="appsKey"
             option-value-field="rowid" option-label-field="AppDesc" :option-label-fields="['AppDesc', 'AppName']"
             :disabled="owner?.apps.requestState !== RequestState.Loaded" />
@@ -26,11 +26,23 @@
           <FieldTextarea field="description" label="描述" :maxlength="500" />
         </RendererForm>
         <template #footer>
-          <RendererButton v-if="editing.status === 'editing'" label="取消" :disabled="busy" @click="cancelEdit" />
-          <RendererButton v-if="editing.status === 'editing'" label="确定" :disabled="busy" @click="saveEdit" />
-          <RendererButton v-if="editing.status === 'unknown' || editing.status === 'readback'"
-            label="放弃本地修改并重新查询核验" :disabled="busy" @click="reloadEdit" />
+          <RendererButton v-if="!editing.unconfirmed" label="取消" :disabled="busy" @click="cancelEdit" />
+          <RendererButton v-if="!editing.unconfirmed && !editing.readbackFailed" label="确定" :disabled="busy" @click="saveEdit" />
+          <RendererButton v-if="editing.unconfirmed" label="核验保存结果" :disabled="busy" @click="saveEdit" />
+          <RendererButton v-if="editing.readbackFailed" label="重新读取" :disabled="busy" @click="saveEdit" />
         </template>
+      </RendererDialog>
+      <RendererDialog v-if="deleteOpen" :model-value="true" title="删除确认" :width="420" :close-disabled="busy" @update:model-value="deleteOpen = false">
+        <p>确认删除数据空间“{{ deleteName }}”吗？仅删除空间记录；空间下仍有模型时不能删除。</p>
+        <p v-if="actionError" role="alert">{{ actionError }}</p>
+        <template #footer>
+          <RendererButton label="取消" :disabled="busy" @click="deleteOpen = false" />
+          <RendererButton label="删除" :disabled="busy" @click="confirmDelete" />
+        </template>
+      </RendererDialog>
+      <RendererDialog v-if="designId" :model-value="true" title="数据集设计" width="92vw" top="4vh" :append-to-body="true"
+        :destroy-on-close="true" :close-disabled="designPending" @update:model-value="closeDesign">
+        <DataSetDesign ref="designPage" :target-id="designId" />
       </RendererDialog>
       <RendererDialog v-if="bindingsOpen" :model-value="true" title="数据空间绑定查询" :width="800" :close-disabled="true">
         <p v-if="busy" role="status">正在查询绑定…</p>
@@ -44,16 +56,21 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
+import {computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
+import {useRoute} from 'vue-router'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm, FieldText, FieldTextarea,
   FieldSelect, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-catalog'
-import {buildTenantPath, parseTenantScope} from '@/services/tenant-scope'
+import {parseTenantScope} from '@/services/tenant-scope'
 
-const route = useRoute(), router = useRouter()
+const DataSetDesign = defineAsyncComponent(() => import('../design/ui/data-set-design-page.vue'))
+const route = useRoute()
+const deleteOpen = ref(false), deleteName = ref(''), designId = ref('')
+const designPage = ref<{hasPending: boolean} | null>(null)
+/** 设计页有未保存修改或在途操作时禁止关闭对话框，避免卸载时静默丢弃草稿。 */
+const designPending = computed(() => designPage.value?.hasPending === true)
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-set-list-page'})
 const owner = shallowRef<LowcodeDataSpaceCatalog>(), ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
 const busy = ref(false), actionError = ref(''), message = ref(''), bindingsOpen = ref(false), bindingsReady = ref(false)
@@ -78,6 +95,7 @@ const toolbar = computed<RToolbarProps>(() => {
   return {children: [
     {type: 'r-button', props: {label: '新增', disabled: busy.value || !owner.value?.canCreate(), onClick: beginCreate}},
     {type: 'r-button', props: {label: '编辑', disabled: busy.value || !owner.value?.canEdit(), onClick: beginEdit}},
+    {type: 'r-button', props: {label: '删除', disabled: busy.value || !owner.value?.canDelete(), onClick: openDelete}},
     {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
   ]}
 })
@@ -141,7 +159,17 @@ async function beginCreate(): Promise<void> {await act(catalog => catalog.beginC
 async function beginEdit(): Promise<void> {await act(catalog => catalog.beginEdit())}
 async function cancelEdit(): Promise<void> {await act(catalog => catalog.cancelEdit())}
 async function saveEdit(): Promise<void> {await act(catalog => catalog.saveEdit(), '数据空间已保存')}
-async function reloadEdit(): Promise<void> {await act(catalog => catalog.reloadEdit(), '已重新读取目录，请核对结果')}
+function openDelete(): void {
+  const catalog = owner.value
+  if (!catalog?.canDelete()) return
+  const row = catalog.view.selectedRows[0]
+  deleteName.value = typeof row?.['Name'] === 'string' ? row['Name'] : ''
+  actionError.value = ''; deleteOpen.value = true
+}
+async function confirmDelete(): Promise<void> {
+  await act(catalog => catalog.deleteSelected(), '数据空间已删除')
+  if (!actionError.value) deleteOpen.value = false
+}
 async function copyApi(): Promise<void> {
   await act(async catalog => {
     const content = await catalog.readApiInfo()
@@ -158,11 +186,15 @@ function closeBindings(): void {
   actionGeneration++; busy.value = false; bindingsOpen.value = false; bindingsReady.value = false
   owner.value?.closeBindings(); actionError.value = ''
 }
-async function design(): Promise<void> {
-  if (busy.value || editing.value || bindingsOpen.value) return
-  const target = owner.value?.designTarget(), scope = parseTenantScope(route.path)
-  if (!target || !scope) return
-  await router.push({path: buildTenantPath(scope, '/data-space-design'), query: {scenarioId: target, returnTo: route.fullPath}})
+function design(): void {
+  if (busy.value || editing.value || bindingsOpen.value || designId.value) return
+  const target = owner.value?.designTarget()
+  if (target) designId.value = target
+}
+function closeDesign(): void {
+  if (designPending.value) return
+  designId.value = ''
+  void owner.value?.view.refresh()
 }
 async function retryApps(): Promise<void> {await owner.value?.apps.refresh()}
 function release(): void {

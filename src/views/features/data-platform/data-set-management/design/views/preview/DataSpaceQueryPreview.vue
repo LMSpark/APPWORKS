@@ -126,8 +126,7 @@ async function open(): Promise<void> {
       sparkRemove(PAGE_RUNTIME); controls.value = undefined; preview.value = undefined
     })
     if (candidate.disposed) return
-    const modelInputs = props.modelId && props.tableName === undefined && props.viewId === undefined
-      ? props.session.getModelEdit(props.modelId).readPreview(candidate.view) : undefined
+    const modelOnlyPreview = props.modelId !== undefined && props.tableName === undefined && props.viewId === undefined
     let context = '{}'
     const sourceTest = props.tableName === undefined && props.viewId === undefined
       && ['third-party-api', 'logical-view'].includes(candidate.view.dataTable!.resourceType ?? '')
@@ -173,12 +172,18 @@ async function open(): Promise<void> {
     table.resourceType = 'static-data'
     const view = table.getOrCreateView('default')
     const queryConfig = candidate.view.queryConfig
+    const modelPreviewDefaults = modelOnlyPreview && props.modelId
+      ? props.session.getModelEdit(props.modelId).readPreview(candidate.view) : undefined
     nodeQueryInputs.value = !localQuery.value && (candidate.view.dataTable!.resourceType !== 'json' || queryConfig.tree !== undefined)
     if (props.tableName === undefined && props.viewId === undefined) candidate.view.pageSize = 10
     view.commitMode = 'staged'; view.replaceRows([{id: 'inputs', context, resultMode: 'data', pageSize: candidate.view.pageSize,
-      allPages: queryConfig.allPages ?? false, maxRows: queryConfig.maxRows ?? 50000, outputType: queryConfig.outputType ?? (queryConfig.tree ? 'SelfRefData' : ''),
-      keyField: modelInputs?.keyField ?? queryConfig.tree?.keyField ?? '', parentField: modelInputs?.parentField ?? queryConfig.tree?.parentField ?? '',
-      hasChildrenField: modelInputs?.hasChildrenField ?? queryConfig.tree?.hasChildrenField ?? '', treeMode: modelInputs?.treeMode ?? queryConfig.tree?.mode ?? '', nodeId: modelInputs?.nodeId ?? queryConfig.tree?.nodeId ?? '',
+      allPages: queryConfig.allPages ?? false, maxRows: queryConfig.maxRows ?? 50000,
+      outputType: modelPreviewDefaults?.outputType ?? queryConfig.outputType ?? (queryConfig.tree ? 'SelfRefData' : ''),
+      keyField: modelPreviewDefaults?.keyField ?? queryConfig.tree?.keyField ?? '',
+      parentField: modelPreviewDefaults?.parentField ?? queryConfig.tree?.parentField ?? '',
+      hasChildrenField: modelPreviewDefaults?.hasChildrenField ?? queryConfig.tree?.hasChildrenField ?? '',
+      treeMode: modelPreviewDefaults?.treeMode ?? queryConfig.tree?.mode ?? '',
+      nodeId: modelPreviewDefaults?.nodeId ?? queryConfig.tree?.nodeId ?? '',
     }]); view.setCurrentRowById('inputs')
     const fields = dataSet.addTable(`${table.tableName}_Fields`, [{name: 'name', type: 'string', isPrimaryKey: true}, {name: 'label', type: 'string'}])
     fields.resourceType = 'static-data'
@@ -201,7 +206,7 @@ async function open(): Promise<void> {
       {sourceField: 'context', target: 'queryContext', format: 'json'},
       {sourceField: 'pageSize', target: 'pageSize'},
       {sourceField: 'outputType', target: 'queryConfig.outputType', omitEmpty: true},
-      {sourceField: 'allPages', target: 'queryConfig.allPages', ...(modelInputs ? {when:{field:'outputType',equals:'Table'}} : {})},
+      {sourceField: 'allPages', target: 'queryConfig.allPages', ...(modelOnlyPreview ? {when:{field:'outputType',equals:'Table'}} : {})},
       {sourceField: 'maxRows', target: 'queryConfig.maxRows', when: {field: 'allPages', equals: true}},
       ...(nodeQueryInputs.value ? ['keyField', 'parentField', 'nodeId', 'hasChildrenField', 'mode'] as const : []).map(field => ({
         sourceField: field === 'mode' ? 'treeMode' : field, target: `queryConfig.tree.${field}` as const,

@@ -7,7 +7,7 @@
 import {buildDataViewKey, DataViewFilter, parseDataViewKey} from '@spark-appworks/spark-data'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
-import type {ArrayDefinitionChange} from './lowcode-data-space-array-edit'
+import type {ArrayDefinitionChange} from './lowcode-data-space-array-session'
 
 /** 一次已确认表头变更的场景投影；不持有运行状态或数据权限。 */
 export class LowcodeDataSpaceArrayConfiguration {

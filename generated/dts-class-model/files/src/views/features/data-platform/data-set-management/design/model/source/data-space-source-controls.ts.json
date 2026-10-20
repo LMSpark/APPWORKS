@@ -22,16 +22,7 @@
           "type": "object",
           "properties": {
             "status": {
-              "enum": [
-                "idle",
-                "unsubmitted",
-                "unknown",
-                "readback",
-                "ready",
-                "saving",
-                "previewing",
-                "different"
-              ]
+              "$ref": "../../../../../../../lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateStatus"
             },
             "pending": {
               "enum": [
@@ -86,17 +77,7 @@
           "type": "object",
           "properties": {
             "status": {
-              "enum": [
-                "idle",
-                "unsubmitted",
-                "unknown",
-                "readback",
-                "ready",
-                "saving",
-                "previewing",
-                "different",
-                "configuration"
-              ]
+              "type": "string"
             },
             "pending": {
               "enum": [
@@ -380,18 +361,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-14T22:41:20.375Z",
+  "generatedAt": "2026-10-20T05:21:59.613Z",
   "models": {
     "SourceState": {
       "name": "SourceState",
       "jsdoc": "原操作owner提供的展示状态。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ReturnType<LowcodeDataSpaceModelCreate['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>",
+        "declarationTypeText": "ReturnType<ModelCreateHandle['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "ReturnType<LowcodeDataSpaceModelCreate['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>",
+            "typeText": "ReturnType<ModelCreateHandle['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>",
             "targetName": "ReturnType"
           }
         ],

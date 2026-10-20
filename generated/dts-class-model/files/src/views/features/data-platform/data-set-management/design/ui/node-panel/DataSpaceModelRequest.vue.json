@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest",
+    "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue",
+    "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest",
+    "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest\n职责：维护正式模型上的默认请求方案（输出类型、过滤、树参、缓存与完成配置），经原 Base_DataModel DataView 提交。\n边界：命名视图的请求细项仍在 DataSpaceViewEditor；此处只编辑模型行上的请求默认值，不另建草稿真源。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-20T01:44:09.348Z",
+  "models": {}
+}

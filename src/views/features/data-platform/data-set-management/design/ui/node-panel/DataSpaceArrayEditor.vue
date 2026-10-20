@@ -31,10 +31,10 @@ AI用途：元模型工作区的数组编辑弹窗、取消和未知提交核验
 </template>
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
-import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, RequestState, type SparkNode} from '@spark-appworks/spark-data'
 import {FieldText, FieldJson, RendererButton, RendererDialog, RendererForm, RendererToolbar, type RToolbarProps} from '@spark-appworks/spark-component'
 import type {ArrayDefinition, LowcodeDataSpaceArrayDraft} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-draft'
-import type {LowcodeDataSpaceArrayEdit} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-edit'
+import type {ArrayEditHandle} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-session'
 import DataSpaceArrayHeaders from './DataSpaceArrayHeaders.vue'
 import type {DataSpaceModelEditorProps} from './data-set-design-node-panel.props'
 const props=defineProps<DataSpaceModelEditorProps>()
@@ -42,7 +42,7 @@ const emit=defineEmits<{changed: [];pending:[value:boolean]}>()
 const open=ref(false),busy=ref(false),rowEditing=ref(false),error=ref(''),tick=ref(0)
 const view=props.session.metadataDataSet.getView('Base_DataModel')!
 const dataViewKey=buildDataViewKey('Base_DataModel','default',props.session.metadataDataSet.scenarioId)
-const owner=shallowRef<LowcodeDataSpaceArrayEdit>(),headerDraft=shallowRef<LowcodeDataSpaceArrayDraft>()
+const owner=shallowRef<ArrayEditHandle>(),headerDraft=shallowRef<LowcodeDataSpaceArrayDraft>()
 const isArray=computed(()=>{props.revision;tick.value;const row=view.rows.find(row=>row['rowid']===props.modelId)
   return !!row && view.fieldAccess(row,'Type').read==='visible' && row['Type']==='数组'})
 const state=computed(()=>{props.revision;tick.value;return owner.value?.getState()??{status:'idle',pending:false,verification:[]}})
@@ -62,13 +62,16 @@ const footer=computed<SparkNode[]>(()=>[
 ])
 function changed():void{tick.value++;emit('changed')}
 function rowEditingChanged(value:boolean):void{rowEditing.value=value}
-function show():void{
+async function show():Promise<void>{
   if(props.disabled || open.value || !isArray.value)return
+  busy.value=true;error.value=''
   try{
     const model=props.session.getModelEdit(props.modelId)
     if(model.getState().pending || model.getState().status!=='idle')throw new Error('请先保存、取消或核验当前模型修改')
-    owner.value=props.session.getArrayEdit(props.modelId,'modelFields');owner.value.headers();view.setCurrentRowById(props.modelId);error.value='';open.value=true;emit('pending',true)
-  }catch(cause){error.value=String(cause)}
+    const fields=props.session.metadataDataSet.getView('Base_DataModel_Field','modelFields')
+    if(fields?.requestState!==RequestState.Loaded||fields.queryContext['modelId']!==props.modelId)await props.session.loadModelFields(props.modelId)
+    owner.value=props.session.getArrayEdit(props.modelId,'modelFields');owner.value.headers();view.setCurrentRowById(props.modelId);open.value=true;emit('pending',true)
+  }catch(cause){error.value=String(cause)}finally{busy.value=false;changed()}
 }
 function close():void{props.session.releaseArrayEdit(props.modelId,'modelFields');open.value=false;owner.value=undefined;emit('pending',false);changed()}
 function showHeaders():void{if(locked.value||rowEditing.value)return;try{headerDraft.value=owner.value?.beginHeaders();headerDraft.value?.beginHeaders()}catch(cause){error.value=String(cause)}}

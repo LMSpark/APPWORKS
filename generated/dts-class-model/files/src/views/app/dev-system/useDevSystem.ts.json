@@ -347,7 +347,7 @@
             },
             "autoSaveStatus": {
               "type": "object",
-              "title": "import(\"vue\").Ref<\"error\" | \"idle\" | \"pending\" | \"saved\" | \"saving\", \"error\" | \"idle\" | \"pending\" | \"saved\" | \"saving\">"
+              "title": "import(\"vue\").Ref<\"error\" | \"idle\" | \"pending\" | \"saving\" | \"saved\", \"error\" | \"idle\" | \"pending\" | \"saving\" | \"saved\">"
             },
             "pageDesignAiRunning": {
               "type": "object",

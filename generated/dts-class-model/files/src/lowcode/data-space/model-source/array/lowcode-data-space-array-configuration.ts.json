@@ -28,7 +28,7 @@
           "type": "object",
           "properties": {
             "change": {
-              "$ref": "lowcode-data-space-array-edit.ts.json#/$defs/ArrayDefinitionChange"
+              "$ref": "lowcode-data-space-array-session.ts.json#/$defs/ArrayDefinitionChange"
             }
           },
           "additionalProperties": false
@@ -44,7 +44,7 @@
               "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
             },
             "change": {
-              "$ref": "lowcode-data-space-array-edit.ts.json#/$defs/ArrayDefinitionChange"
+              "$ref": "lowcode-data-space-array-session.ts.json#/$defs/ArrayDefinitionChange"
             }
           },
           "additionalProperties": false
@@ -55,7 +55,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-12T00:33:43.013Z",
+  "generatedAt": "2026-10-20T05:21:58.278Z",
   "models": {
     "LowcodeDataSpaceArrayConfiguration": {
       "name": "LowcodeDataSpaceArrayConfiguration",
@@ -78,7 +78,7 @@
                   "type": {
                     "type": "reference",
                     "name": "ArrayDefinitionChange",
-                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts"
+                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts"
                   }
                 }
               ],
@@ -113,7 +113,7 @@
                   "type": {
                     "type": "reference",
                     "name": "ArrayDefinitionChange",
-                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts"
+                    "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts"
                   }
                 }
               ],

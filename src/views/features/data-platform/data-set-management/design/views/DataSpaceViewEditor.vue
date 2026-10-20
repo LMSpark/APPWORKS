@@ -204,7 +204,7 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
     </div>
     <RendererSection v-if="modelId" :data-view-key="modelViewKey" data-member="currentRow" title="旧模型请求配置" collapsible default-collapsed lazy
       :grid-columns="1" :bordered="false" data-legacy-request>
-      <p>旧值只读保留供核对，不会自动覆盖视图。请求完成函数和缓存使用上方原生配置，旧文本不会自动执行或迁入。</p>
+      <p>模型级默认请求请在模型工作区的「2 请求方案」页签维护。此处只读保留旧值供核对，不会自动覆盖命名视图配置。</p>
       <RendererForm :data-view-key="modelViewKey" context-data-member="currentRow" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
         <FieldText v-for="field in legacyFields" :key="field.name" :field="field.name" :label="field.label" readonly />
       </RendererForm>

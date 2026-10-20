@@ -7,11 +7,11 @@
 import {RequestState, buildDataViewKey, type DataColumn, type DataRow, type DataSet, type DataTable, type DataView} from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 type PageDataSpaceModelSourceType = Parameters<typeof LowcodeDataSpaceSourceCatalog.config>[0]
-import type {LowcodeDataSpaceModelCreate} from '@/lowcode/data-space/model-source/lowcode-data-space-model-create'
-import type {LowcodeDataSpaceModelSourceEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-edit'
+import type {ModelCreateHandle} from '@/lowcode/data-space/model-source/lowcode-data-space-model-create-session'
+import type {LowcodeDataSpaceModelSourceEdit} from '@/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session'
 
 /** 原操作owner提供的展示状态。 */
-type SourceState = ReturnType<LowcodeDataSpaceModelCreate['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>
+type SourceState = ReturnType<ModelCreateHandle['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>
 /** 组件输入事件；不携带正式权限或保存指令。 */
 type ControlChange = {
   /** 搜索输入、首次注册名、已有字段映射或新增输出选择。 */

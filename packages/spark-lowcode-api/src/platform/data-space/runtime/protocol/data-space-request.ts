@@ -10,8 +10,19 @@ import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestSco
 import { DataSpaceQueryTable } from './data-space-query-table'
 import type { DataSpaceQueryContext } from '../query/data-space-query-context'
 import { requireDataSpaceMutationInput, failDataSpaceMutationWithoutEffect } from '../save/data-space-save-guard'
-import { readDataSpaceSaveReceipt } from '../save/data-space-save-result'
+import { assertDataSpaceSaveSuccess, readDataSpaceSaveReceipt } from '../save/data-space-save-result'
 import { DataSpaceRequestConfig } from './data-space-request-config'
+
+/**
+ * 保存请求已发出但结果无法确认：传输异常、响应后执行域失效或回执与提交不一致。
+ * 服务端明确拒绝不属于此类；调用方不得重放写入，只能按主键回读核验。
+ */
+export class DataSpaceSaveUnconfirmedError extends Error {
+  public constructor(message: string, cause: unknown) {
+    super(`SPARK_SAVE_UNCONFIRMED: ${message}: ${cause instanceof Error ? cause.message : String(cause)}`, {cause})
+    this.name = 'DataSpaceSaveUnconfirmedError'
+  }
+}
 
 /** 实际 HTTP 通道及请求 scope 读取器，供请求前后核对执行域。 */
 type DataSpaceRequestOptions = Readonly<{
@@ -151,20 +162,26 @@ export class DataSpaceRequest {
     const headers = config.mergeHeaders(this.scenarioHeaders(scope, scenarioId))
     this.assertCurrent(captured)
     try {
-      const response = await this.#http.request<unknown>({
-        ...config.endpoint, method: 'POST', data, headers,
-        ...(config.timeout === undefined ? {} : {timeout: config.timeout}),
-        retry: 0, cache: false, meta: { rawEnvelope: true },
-        ...(command.signal === undefined ? {} : { signal: command.signal }),
-      })
-      this.assertCurrent(captured)
+      let response: unknown
+      try {
+        response = await this.#http.request<unknown>({
+          ...config.endpoint, method: 'POST', data, headers,
+          ...(config.timeout === undefined ? {} : {timeout: config.timeout}),
+          retry: 0, cache: false, meta: { rawEnvelope: true },
+          ...(command.signal === undefined ? {} : { signal: command.signal }),
+        })
+        this.assertCurrent(captured)
+      } catch (cause) {throw new DataSpaceSaveUnconfirmedError('保存请求已发出但未取得可确认的响应', cause)}
       const decoded = decodeEnvelope(response, '保存')
-      const receipts = readDataSpaceSaveReceipt(decoded, groups)
-      return prepared.map((target, index) => {
-        const receipt = receipts[index]
-        if (receipt === undefined) throw new Error('SPARK 保存缺少模型回执')
-        return target.context.acceptSaveReceipt({ requested: target.changes, receipt })
-      })
+      assertDataSpaceSaveSuccess(decoded)
+      try {
+        const receipts = readDataSpaceSaveReceipt(decoded, groups)
+        return prepared.map((target, index) => {
+          const receipt = receipts[index]
+          if (receipt === undefined) throw new Error('SPARK 保存缺少模型回执')
+          return target.context.acceptSaveReceipt({ requested: target.changes, receipt })
+        })
+      } catch (cause) {throw new DataSpaceSaveUnconfirmedError('服务端已受理但回执无法确认', cause)}
     } finally {
       this.assertCurrent(captured)
       targets.forEach(target => target.context.assertIdentity(target.identity))

@@ -1,0 +1,515 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session",
+    "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session",
+    "jsdoc": "@module lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session\n职责：正式来源入参 ValueFun 编辑与原生批次提交（无独立命令类 FSM）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SourceInputStatus",
+      "SourceInputLifecycle",
+      "SourceInputHost",
+      "SourceInputHandle"
+    ]
+  },
+  "$defs": {
+    "SourceInputStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "SourceInputStatus",
+      "enum": [
+        "idle",
+        "pending",
+        "unsubmitted",
+        "unknown",
+        "readback"
+      ]
+    },
+    "SourceInputLifecycle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SourceInputLifecycle",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onDispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDispatch.return": true,
+        "method.assertEditable.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertEditable.return": true,
+        "method.refreshDirectory.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshDirectory.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "SourceInputHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SourceInputHost",
+      "properties": {
+        "fieldId": {
+          "type": "string"
+        },
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "queryContext": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "baseline": true,
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "viewId": {
+          "enum": [
+            "default",
+            "sourceInputFields"
+          ]
+        },
+        "flow": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/SourceInputStatus"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/SourceInputLifecycle"
+        }
+      },
+      "required": [
+        "fieldId",
+        "view",
+        "queryContext",
+        "modelId",
+        "name",
+        "baseline",
+        "dataSet",
+        "targetId",
+        "viewId",
+        "flow",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
+    "SourceInputHandle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SourceInputHandle",
+      "$defs": {
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "title": "ReturnType<typeof sourceInputGetState>"
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "ReturnType<typeof sourceInputRead>"
+        },
+        "method.stage.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stage.return": true,
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.belongsTo.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "viewId": {
+              "enum": [
+                "default",
+                "sourceInputFields"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.belongsTo.return": {
+          "type": "boolean"
+        },
+        "method.assertWorkspaceChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertWorkspaceChanges.return": true,
+        "method.reload.params": {
+          "type": "object",
+          "properties": {
+            "discardPending": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.reload.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-20T05:17:24.923Z",
+  "models": {
+    "SourceInputStatus": {
+      "name": "SourceInputStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'pending'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unsubmitted'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SourceInputLifecycle": {
+      "name": "SourceInputLifecycle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    assertEditable?(): void;\n    refreshDirectory?(): Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    assertEditable?(): void;\n    refreshDirectory?(): Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDispatch",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertEditable",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "refreshDirectory",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SourceInputHost": {
+      "name": "SourceInputHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly fieldId: string;\n    readonly view: DataView;\n    readonly queryContext: string;\n    readonly modelId: string;\n    readonly name: string;\n    baseline: unknown;\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly viewId: 'default' | 'sourceInputFields';\n    flow: {\n        status: SourceInputStatus;\n    };\n    lifecycle: SourceInputLifecycle;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryContext",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flow",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "SourceInputHandle": {
+      "name": "SourceInputHandle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof sourceInputGetState>;\n    read(): ReturnType<typeof sourceInputRead>;\n    stage(value: string): void;\n    discard(): void;\n    save(): Promise<void>;\n    belongsTo(modelId: string, viewId: 'default' | 'sourceInputFields'): boolean;\n    assertWorkspaceChanges(): void;\n    reload(discardPending: boolean): Promise<void>;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "getState",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof sourceInputGetState"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "read",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof sourceInputRead"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "stage",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "discard",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "belongsTo",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "sourceInputFields"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "assertWorkspaceChanges",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reload",
+              "parameters": [
+                {
+                  "name": "discardPending",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

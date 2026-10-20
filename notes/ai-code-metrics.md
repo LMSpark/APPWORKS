@@ -1,5 +1,11 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-10-20 I4 §4.3 命令类收敛（范围 A）
+
+- 跨会话延续：11 类命令 FSM 删净，统一 `*-session.ts` + Handle；view-design Map/`get*()` 未改；不含 view-design 瘦身。
+- 验证：`typecheck`、`verify:page-thin`；metadata+chain 107；auth-nav data-space 798；native 1584（`native-design-regression-i4-convergence.log`）；`generate:class-model-surface`；`*-session.ts` ESLint 清零。
+- 测试：`field-removal` 页测对齐 I3 lazy 页签（「3 字段呈现」/保存前回字段 tab）。台账：`data-space-retirement-ledger` + `research-data-space-i4-command-inventory` 标 11/11；删除 `plan-data-space-i4-convergence.md`。全仓 lint 仍有存量项。30 天存活未计量；无用户请求 commit。
+
 ### 2026-10-19 数组表头平行草稿诊断
 
 - 本人沿真实模型工作区核查，无委派。发现确认后的数组表头仍由ArrayEdit.#headers持有，原字段DataView无变更且其取消无效；已有最终DataSet提交不能证明SSOT。缓存诊断复用原传输夹具，明确记录owner/视图值与pending差异，写入0，未改正式源码或将特征断言加入目标测试。

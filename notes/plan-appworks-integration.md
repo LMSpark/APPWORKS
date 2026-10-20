@@ -73,9 +73,9 @@
 
 | 阶段 | 参考页面（features/ 下） | 本仓现状 | 语义 | 合同 | 页面 | 删除 | 实页 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | data-platform/data-set-management/design/ui/data-set-design-page.vue | 已同路径(待按语义验收) | — | — | — | — | — |
+| 1 | data-platform/data-set-management/design/ui/data-set-design-page.vue | 已同路径；I3 五页签+请求方案；I4 §4.3 11 类命令已删（`*-session.ts`+Handle，view-design Map 保留） | 部分 | 部分 | 部分 | 部分 | — |
 | 1 | data-platform/data-set-management/ui/data-set-auth-page.vue | 缺 | — | — | — | — | — |
-| 1 | data-platform/data-set-management/ui/data-set-list-page.vue | 已同路径(待按语义验收) | — | — | — | — | — |
+| 1 | data-platform/data-set-management/ui/data-set-list-page.vue | 已同路径；对话框设计入口+删除+去短路径（工作区） | 通过 | 通过 | 通过 | 通过 | — |
 | 2 | data-platform/database-management/table-and-view/ui/add-table-dialog.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/database-management/table-and-view/ui/register-dialog.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/database-management/table-and-view/ui/table-and-view-page.vue | 换路径→app/DBMS.vue | — | — | — | — | — |

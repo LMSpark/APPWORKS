@@ -3,10 +3,10 @@ import {DOMWrapper, flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {FieldText, FieldValueFunction, FilterValueFunctionDialog, PAGE_RUNTIME, RendererForm, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {FieldText, FieldValueFunction, FilterValueFunctionDialog, PAGE_RUNTIME, RendererForm, RendererTabs, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import DataSpaceFieldCreate from '@/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue'
-import {dataSpacePageFixture} from '../data-space-page.fixture'
+import {dataSpacePageFixture, designPageHost} from '../data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
 import {createDynamicRouter} from '../../../../../../packages/spark-app/src/router/dynamic'
@@ -29,7 +29,7 @@ function fixture(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
 }
 async function page() {
   const router = createRouter({history: createMemoryHistory(), routes: []})
-  const dynamic = createDynamicRouter({router, pageComponent: DataSpaceDesignPage, componentMap: {'/data-space-design': DataSpaceDesignPage},
+  const dynamic = createDynamicRouter({router, pageComponent: designPageHost(DataSpaceDesignPage), componentMap: {'/data-space-design': designPageHost(DataSpaceDesignPage)},
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header',
       items: [{id: 'design', title: '数据空间设计', path: '/data-space-design', itemKind: 'system-page'}]})})
   await dynamic.registerRoutes()
@@ -39,6 +39,20 @@ async function page() {
     stubs: {SparkComponentRenderer: false, 'spark-component-renderer': false}}})
   wrappers.push(wrapper); await flushPromises()
   return wrapper
+}
+async function openModelFieldsTab(wrapper: ReturnType<typeof mount>) {
+  const tabs = wrapper.find('.node-panel-tabs').getComponent(RendererTabs)
+  await tabs.get('#tab-fields').trigger('click')
+  for (let attempt = 0; attempt < 80; attempt++) {
+    await flushPromises()
+    const workspace = wrapper.find('[aria-label="模型字段工作区"]')
+    if (!workspace.exists()) continue
+    const loading = workspace.find('[role="status"]')
+    if (loading.exists() && loading.text().includes('正在读取')) continue
+    if (workspace.find('[aria-label="字段配置编辑"]').exists()) return
+    if (workspace.text().includes('此模型尚无字段定义')) return
+    if (workspace.find('[role="alert"]').exists()) return
+  }
 }
 describe('computed field creation', () => {
   it.each(['formal', 'local'])('rejects standalone non-output creation colliding with a %s column', async kind => {
@@ -88,7 +102,7 @@ describe('computed field creation', () => {
     const f = fixture(), wrapper = await page()
     const model = wrapper.findAll('[data-design-node]').find(item => item.text() === 'Orders')!
     await model.trigger('click'); await flushPromises()
-    await wrapper.get('#tab-source').trigger('click'); await flushPromises()
+    await openModelFieldsTab(wrapper)
     const create = wrapper.find('[data-action="create-field"]')
     expect(create.exists()).toBe(true)
     await create.trigger('click'); await flushPromises()
@@ -245,7 +259,7 @@ describe('computed field creation', () => {
   it('edits via standard child bindings and saves from the real page', async () => {
     const f = fixture(), wrapper = await page()
     await wrapper.findAll('[data-design-node]').find(item => item.text() === 'Orders')!.trigger('click'); await flushPromises()
-    await wrapper.get('#tab-source').trigger('click'); await flushPromises()
+    await openModelFieldsTab(wrapper)
     await wrapper.get('[data-action="create-field"]').trigger('click'); await flushPromises()
     const form = wrapper.findAllComponents(RendererForm).find(item => item.props('dataViewKey')?.includes('@FieldCreate_'))!
     expect(form.findAllComponents(FieldText).map(item => item.props('field'))).toEqual(['Name'])

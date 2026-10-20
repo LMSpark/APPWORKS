@@ -5,8 +5,8 @@ import ElementPlus, {ElTree, ElButton} from 'element-plus'
 import {FieldTextarea, RendererButton, RendererForm, RendererTable, registerAllRenderers, Spark} from '@spark-appworks/spark-component'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
-import {LowcodeDataSpaceFieldEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-field-edit'
-import {dataSpacePageFixture} from '../data-space-page.fixture'
+import {fieldEditReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
+import {dataSpacePageFixture, designPageHost} from '../data-space-page.fixture'
 import {createDynamicRouter} from '../../../../../../packages/spark-app/src/router/dynamic'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
@@ -35,7 +35,7 @@ describe('model field batch maintenance', () => {
     const {f, fields, owners, writes} = await setup()
     fields.updateEditingValue('F1', 'description', '总金额')
     fields.updateEditingValue('F3', 'description', '含税单价')
-    await LowcodeDataSpaceFieldEdit.saveBatch(owners)
+    await fieldEditSaveBatch(owners)
     expect(writes()).toHaveLength(1)
     expect(writes()[0]?.data).toEqual([expect.objectContaining({TableName: 'Base_DataModel_Field', CrudModel: {
       Added: [], Deleted: [], Changed: [
@@ -52,7 +52,7 @@ describe('model field batch maintenance', () => {
   it('validates final output names together, permitting an unused alias swap without an invalid intermediate save', async () => {
     const {f, fields, owners, writes} = await setup()
     fields.updateEditingValue('F1', 'AsName', 'price'); fields.updateEditingValue('F3', 'AsName', 'amount')
-    await LowcodeDataSpaceFieldEdit.saveBatch(owners)
+    await fieldEditSaveBatch(owners)
     expect(writes()).toHaveLength(1)
     const reopened = await f.open('A')
     expect(reopened.metadataDataSet.getView('Base_DataModel_Field', 'default')?.rows.filter(row => ['F1', 'F3'].includes(String(row['rowid']))).map(row => row['AsName'])).toEqual(['price', 'amount'])
@@ -61,7 +61,7 @@ describe('model field batch maintenance', () => {
   it('rejects a collision created by two simultaneous aliases without applying or submitting either row', async () => {
     const {fields, owners, writes} = await setup()
     fields.updateEditingValue('F1', 'AsName', 'same'); fields.updateEditingValue('F3', 'AsName', 'same')
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(owners)).rejects.toThrow()
+    await expect(fieldEditSaveBatch(owners)).rejects.toThrow()
     expect(writes()).toHaveLength(0)
     expect(fields.getEditingPatch('F1')?.['AsName']).toBe('same'); expect(fields.getEditingPatch('F3')?.['AsName']).toBe('same')
     expect(fields.dirtyTracking.hasPendingChanges()).toBe(false)
@@ -70,7 +70,7 @@ describe('model field batch maintenance', () => {
   it('saves ordinary attributes while preserving drafts outside the selected model', async () => {
     const {fields, owners, writes} = await setup()
     fields.updateEditingValue('F1', 'description', 'draft'); fields.updateEditingValue('OTHER', 'description', 'keep')
-    await LowcodeDataSpaceFieldEdit.saveBatch(owners)
+    await fieldEditSaveBatch(owners)
     expect(fields.getEditingPatch('OTHER')?.['description']).toBe('keep'); expect(writes()).toHaveLength(1)
     expect(fields.rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('draft')
     expect(writes()[0]?.data).toMatchObject([{CrudModel: {Changed: [{rowid: 'F1', description: 'draft'}]}}])
@@ -80,10 +80,10 @@ describe('model field batch maintenance', () => {
     const {f, fields, owners, writes} = await setup()
     fields.updateEditingValue('F1', 'description', 'first'); fields.updateEditingValue('F3', 'description', 'second')
     f.loseNextResponse()
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(owners)).rejects.toThrow()
+    await expect(fieldEditSaveBatch(owners)).rejects.toThrow()
     expect(owners.map(owner => owner.getState().status)).toEqual(['unknown', 'unknown'])
     await expect(owners[0]!.save()).rejects.toThrow()
-    await LowcodeDataSpaceFieldEdit.reloadBatch(owners, true)
+    await fieldEditReloadBatch(owners, true)
     expect(writes()).toHaveLength(1)
     expect(owners.map(owner => owner.getState().status)).toEqual(['idle', 'idle'])
     expect(fields.rows.filter(row => ['F1', 'F3'].includes(String(row['rowid']))).map(row => row['description'])).toEqual(['first', 'second'])
@@ -93,35 +93,35 @@ describe('model field batch maintenance', () => {
     const {f, fields, owners, writes} = await setup()
     f.denyFieldProperty('description'); await fields.loadFromServer({allPages: true})
     fields.updateEditingValue('F1', 'Order', 2); fields.updateEditingValue('F3', 'description', 'denied')
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(owners)).rejects.toThrow('不可写')
+    await expect(fieldEditSaveBatch(owners)).rejects.toThrow('不可写')
     expect(writes()).toHaveLength(0); expect(fields.getEditingPatch('F1')?.['Order']).toBe(2)
   })
 
   it('refuses scope changes and new edits arriving during whole-batch output validation', async () => {
     const {f, fields, owners, writes} = await setup()
     fields.updateEditingValue('F1', 'AsName', 'total'); fields.updateEditingValue('F3', 'AsName', 'unit')
-    const release = f.holdDefinitionRead(), outcome = LowcodeDataSpaceFieldEdit.saveBatch(owners).catch((cause: unknown) => cause)
+    const release = f.holdDefinitionRead(), outcome = fieldEditSaveBatch(owners).catch((cause: unknown) => cause)
     fields.updateEditingValue('F3', 'AsName', 'later'); release()
     expect(await outcome).toBeInstanceOf(Error); expect(writes()).toHaveLength(0)
     expect(fields.getEditingPatch('F3')?.['AsName']).toBe('later')
-    f.invalidate(); await expect(LowcodeDataSpaceFieldEdit.saveBatch(owners)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    f.invalidate(); await expect(fieldEditSaveBatch(owners)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
   })
 
   it('rejects mixed models and query instances before applying any draft', async () => {
     const {f, session, fields, owners, writes} = await setup()
     fields.updateEditingValue('F1', 'description', 'keep')
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch([owners[0]!, session.getFieldEdit('OTHER')])).rejects.toThrow('同一查询视图和模型')
+    await expect(fieldEditSaveBatch([owners[0]!, session.getFieldEdit('OTHER')])).rejects.toThrow('同一查询视图和模型')
     const other = await f.open('B')
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch([owners[0]!, other.getFieldEdit('F3')])).rejects.toThrow('同一查询视图和模型')
+    await expect(fieldEditSaveBatch([owners[0]!, other.getFieldEdit('F3')])).rejects.toThrow('同一查询视图和模型')
     expect(writes()).toHaveLength(0); expect(fields.getEditingPatch('F1')?.['description']).toBe('keep')
   })
 
   it('keeps both fields pending verification when a successful receipt disagrees with readback', async () => {
     const {fields, owners, writes} = await setup({omitFieldProperties: ['description']})
     fields.updateEditingValue('F1', 'description', 'not stored'); fields.updateEditingValue('F3', 'Order', 4)
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(owners)).rejects.toThrow('回读与提交值不一致')
+    await expect(fieldEditSaveBatch(owners)).rejects.toThrow('回读与提交值不一致')
     expect(owners.map(owner => owner.getState().status)).toEqual(['readback', 'readback'])
-    await LowcodeDataSpaceFieldEdit.reloadBatch(owners, false)
+    await fieldEditReloadBatch(owners, false)
     expect(writes()).toHaveLength(1)
     expect(fields.rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('金额')
     expect(fields.rows.find(row => row['rowid'] === 'F3')?.['Order']).toBe(4)
@@ -134,7 +134,7 @@ describe('model field batch maintenance', () => {
     f.stored.set('A', JSON.stringify(config))
     const current = await f.open('A'), currentFields = current.metadataDataSet.getView('Base_DataModel_Field', 'default')!
     currentFields.updateEditingValue('F1', 'AsName', 'price'); currentFields.updateEditingValue('F3', 'AsName', 'amount')
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(['F1', 'F3'].map(id => current.getFieldEdit(id)))).rejects.toThrow('valueField')
+    await expect(fieldEditSaveBatch(['F1', 'F3'].map(id => current.getFieldEdit(id)))).rejects.toThrow('valueField')
     expect(writes()).toHaveLength(0); expect(fields.hasEditingChanges()).toBe(false)
     expect(owners.every(owner => owner.getState().status === 'idle')).toBe(true)
   })
@@ -143,7 +143,7 @@ describe('model field batch maintenance', () => {
     const {fields, owners, writes} = await setup()
     fields.updateEditingValue('F3', 'description', 'sibling draft')
     owners[0]!.stageValueFunction('{"Type":"GetConstValue","Value":"fixed"}', ['F1', 'F3'])
-    await LowcodeDataSpaceFieldEdit.saveBatch(owners)
+    await fieldEditSaveBatch(owners)
     expect(writes()).toHaveLength(1)
     expect(fields.rows.find(row => row['rowid'] === 'F1')?.['ValueFun']).toBe('{"Type":"GetConstValue","Value":"fixed"}')
   })
@@ -152,7 +152,7 @@ describe('model field batch maintenance', () => {
     const {f, session, writes} = await setup()
     vi.mocked(openLowcodeDataSpaceDesignSession).mockResolvedValue(session)
     const router = createRouter({history: createMemoryHistory(), routes: []})
-    const dynamic = createDynamicRouter({router, pageComponent: DataSpaceDesignPage, componentMap: {'/data-space-design': DataSpaceDesignPage},
+    const dynamic = createDynamicRouter({router, pageComponent: designPageHost(DataSpaceDesignPage), componentMap: {'/data-space-design': designPageHost(DataSpaceDesignPage)},
       loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header',
         items: [{id: 'design', title: '数据空间设计', path: '/data-space-design', itemKind: 'system-page'}]})})
     await dynamic.registerRoutes(); await router.push('/data-space-design?scenarioId=A')

@@ -10,22 +10,31 @@ import { LowcodeDataSpaceViewFields } from './lowcode-data-space-view-fields'
 import { LowcodeDataSpaceFieldValue } from '../model-source/field-value/lowcode-data-space-field-value'
 import { LowcodeDataSpaceRelationMetadata } from './lowcode-data-space-relation-metadata'
 import { LowcodeDataSpaceCascadeMetadata } from './lowcode-data-space-cascade-metadata'
-import { LowcodeDataSpaceInputParameterEdit } from '../input-parameters/lowcode-data-space-input-parameter-edit'
+import {
+  createInputParameterEditHost, inputParameterGetState, inputParameterReload, inputParameterSave, inputParameterStage,
+  type InputParameterEditHost, type ParameterEditStatus,
+} from '../input-parameters/lowcode-data-space-input-parameter-session'
 import { LowcodeDataSpaceInputParameterReferences, type InputParameterInspection } from '../input-parameters/lowcode-data-space-input-parameter-references'
-import { LowcodeDataSpaceSourceInputEdit } from '../model-source/lowcode-data-space-source-input-edit'
-import { LowcodeDataSpaceModelEdit } from '../model-source/lowcode-data-space-model-edit'
-import { LowcodeDataSpaceArrayEdit, type ArrayDefinitionChange } from '../model-source/array/lowcode-data-space-array-edit'
+import {createSourceInputHandle, createSourceInputHost, type SourceInputHandle} from '../model-source/source-input/lowcode-data-space-source-input-session'
+import {createModelEditHandle, createModelEditHost, type ModelEditHandle, type ModelEditHost} from '../model-source/model-edit/lowcode-data-space-model-edit-session'
+import {createArrayHandle, createArrayHost, type ArrayDefinitionChange, type ArrayEditHandle} from '../model-source/array/lowcode-data-space-array-session'
 import { LowcodeDataSpaceArrayConfiguration } from '../model-source/array/lowcode-data-space-array-configuration'
-import { LowcodeDataSpaceModelRename, type ModelRenameFilePlan } from '../model-source/rename/lowcode-data-space-model-rename'
+import {createModelRenameHandle, createModelRenameHost, type ModelRenameFilePlan, type ModelRenameHandle} from '../model-source/rename/lowcode-data-space-model-rename-session'
 import { LowcodeDataSpaceModelRenameTools } from '../model-source/rename/lowcode-data-space-model-rename-tools'
-import { LowcodeDataSpaceModelRemove, type LowcodeDataSpaceModelRemovalFilePlan } from '../model-source/removal/lowcode-data-space-model-remove'
-import { LowcodeDataSpaceFieldEdit } from '../model-source/lowcode-data-space-field-edit'
-import { LowcodeDataSpaceFieldCreate } from '../model-source/field-create/lowcode-data-space-field-create'
-import { LowcodeDataSpaceFieldRemove } from '../model-source/removal/lowcode-data-space-field-remove'
+import {createModelRemoveHandle, createModelRemoveHost, type LowcodeDataSpaceModelRemovalFilePlan, type ModelRemoveHandle} from '../model-source/removal/lowcode-data-space-model-remove-session'
+import {createFieldEditHandle, createFieldEditHost, type FieldEditHandle, type FieldEditHost} from '../model-source/field-edit/lowcode-data-space-field-edit-session'
+import {createFieldCreateHandle, createFieldCreateHost, type FieldCreateHandle} from '../model-source/field-create/lowcode-data-space-field-create-session'
+import {createFieldRemoveHandle, createFieldRemoveHost, type FieldRemoveHandle} from '../model-source/removal/lowcode-data-space-field-remove-session'
 import { LowcodeDataSpaceFieldRemoveReferences } from '../model-source/removal/lowcode-data-space-field-remove-references'
 import { LowcodeDataSpaceFieldOutput } from '../model-source/field-output/lowcode-data-space-field-output'
-import { LowcodeDataSpaceModelCreate } from '../model-source/lowcode-data-space-model-create'
-import { LowcodeDataSpaceModelSourceEdit, type SourceContractChange, type SourceContractPlan } from '../model-source/lowcode-data-space-model-source-edit'
+import {createModelCreateHandle, createModelCreateHost, type ModelCreateHandle, type ModelCreateSources} from '../model-source/lowcode-data-space-model-create-session'
+import {
+  createModelSourceEditHandle,
+  createModelSourceEditHost,
+  type LowcodeDataSpaceModelSourceEdit,
+  type SourceContractChange,
+  type SourceContractPlan,
+} from '../model-source/source-edit/lowcode-data-space-model-source-edit-session'
 import { LowcodeDataSpaceModelDependencies } from '../model-source/lowcode-data-space-model-dependencies'
 import { LowcodeDataSpaceQueryPreview } from './preview/lowcode-data-space-query-preview'
 import {LowcodeDataSpaceMetadata} from '../lowcode-data-space-metadata'
@@ -66,7 +75,7 @@ type ViewDesignOptions = Readonly<{
   loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>
   readLegacyLayout?(targetId: string): Promise<string | null>
   /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */
-  modelSources?: ConstructorParameters<typeof LowcodeDataSpaceModelCreate>[2]
+  modelSources?: ModelCreateSources
   assertScope(): void
 }>
 
@@ -135,16 +144,16 @@ export class LowcodeDataSpaceDesignSession {
   readonly #viewMetadata: LowcodeDataSpaceViewMetadata
   readonly #relationMetadata: LowcodeDataSpaceRelationMetadata
   readonly #cascadeMetadata: LowcodeDataSpaceCascadeMetadata
-  #inputParameters: LowcodeDataSpaceInputParameterEdit | null = null
-  readonly #sourceInputs = new Map<string, LowcodeDataSpaceSourceInputEdit>()
-  readonly #modelEdits = new Map<string, LowcodeDataSpaceModelEdit>()
-  readonly #arrayEdits = new Map<string, LowcodeDataSpaceArrayEdit>()
-  readonly #modelRenames = new Map<string, LowcodeDataSpaceModelRename>()
-  readonly #modelRemovals = new Map<string, LowcodeDataSpaceModelRemove>()
-  readonly #fieldEdits = new Map<string, LowcodeDataSpaceFieldEdit>()
-  readonly #fieldCreates = new Map<string, LowcodeDataSpaceFieldCreate>()
-  readonly #fieldRemovals = new Map<string, LowcodeDataSpaceFieldRemove>()
-  #modelCreate: LowcodeDataSpaceModelCreate | null = null
+  #inputParameterHost: InputParameterEditHost | null = null
+  readonly #sourceInputs = new Map<string, SourceInputHandle>()
+  readonly #modelEdits = new Map<string, ModelEditHost>()
+  readonly #arrayEdits = new Map<string, ArrayEditHandle>()
+  readonly #modelRenames = new Map<string, ModelRenameHandle>()
+  readonly #modelRemovals = new Map<string, ModelRemoveHandle>()
+  readonly #fieldEdits = new Map<string, FieldEditHost>()
+  readonly #fieldCreates = new Map<string, FieldCreateHandle>()
+  readonly #fieldRemovals = new Map<string, FieldRemoveHandle>()
+  #modelCreate: ModelCreateHandle | null = null
   readonly #modelSources = new Map<string, LowcodeDataSpaceModelSourceEdit>()
   readonly #sourceRemovalDependencies = new Map<string, LowcodeDataSpaceModelDependencies>()
   readonly #fieldOutputDependencies = new Map<string, LowcodeDataSpaceModelDependencies>()
@@ -164,6 +173,12 @@ export class LowcodeDataSpaceDesignSession {
   private assertLive(): void {
     if (this.#disposed) throw new Error('DATA_SPACE_DESIGN_SESSION_DISPOSED: 会话已释放')
     try { this.options.assertScope() } catch (error) { this.dispose(); throw error }
+  }
+
+  /** 参数声明链路的 scope 校验：失效时 fail-fast，但不释放整段设计会话。 */
+  private assertInputParameterContext(): void {
+    if (this.#disposed) throw new Error('DATA_SPACE_DESIGN_SESSION_DISPOSED: 会话已释放')
+    this.options.assertScope()
   }
 
   private assertOwner(): void {
@@ -721,19 +736,41 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 校验目标空间的参数声明并写入原元数据视图编辑态；不提交数据库或修改引用。 */
-  stageInputParameters(input: Readonly<{expectedValue: unknown; value: unknown}>): void {
-    this.getInputParameters().stage(input)
-  }
-
-  /** 取得当前元数据视图的声明编辑编排；草稿、查询及保存仍归原生 DataSet。 */
-  getInputParameters(): LowcodeDataSpaceInputParameterEdit {
-    this.assertLive()
-    if (!this.#inputParameters) {
+  private inputParameterHost(): InputParameterEditHost {
+    this.assertInputParameterContext()
+    if (!this.#inputParameterHost) {
       const view = this.metadataDataSet.getView('Base_DataSet', 'default')
       if (!view) throw new Error('DATA_SPACE_INPUT_PARAMETERS_CONTEXT: 缺少正式空间元数据视图')
-      this.#inputParameters = new LowcodeDataSpaceInputParameterEdit(view, this.targetId, () => this.assertLive())
+      this.#inputParameterHost = createInputParameterEditHost(view, this.targetId, () => this.assertInputParameterContext())
     }
-    return this.#inputParameters
+    return this.#inputParameterHost
+  }
+
+  stageInputParameters(input: Readonly<{expectedValue: unknown; value: unknown}>): void {
+    inputParameterStage(this.inputParameterHost(), input)
+  }
+
+  /** FieldJson 等直接写 DataView 时未必已创建 host；pending 仍须读正式视图编辑态。 */
+  private inputParameterPendingFromView(): boolean {
+    const view = this.metadataDataSet.getView('Base_DataSet', 'default')
+    if (!view || this.metadataDataSet.destroyed) return false
+    return view.dirtyTracking.hasPendingChanges(this.targetId) || view.hasEditingChanges(this.targetId)
+  }
+
+  /** 声明编辑流程状态；页面与复制 API 经会话读取，不暴露独立命令类。 */
+  getInputParameterState(): {status: ParameterEditStatus; pending: boolean} {
+    if (this.#disposed) throw new Error('DATA_SPACE_DESIGN_SESSION_DISPOSED: 会话已释放')
+    const host = this.#inputParameterHost
+    if (!host) return {status: 'idle', pending: this.inputParameterPendingFromView()}
+    return inputParameterGetState(host)
+  }
+
+  async saveInputParameters(input: Readonly<{expectedValue: unknown; onReceipt?: () => void}>): Promise<Array<Record<string, unknown>>> {
+    return inputParameterSave(this.inputParameterHost(), input)
+  }
+
+  async reloadInputParameters(input: Readonly<{discardPending: boolean}>, refresh?: () => Promise<void>): Promise<Array<Record<string, unknown>>> {
+    return inputParameterReload(this.inputParameterHost(), input, refresh)
   }
 
   private assertFieldViewEditable(fieldId: string, viewId: string): void {
@@ -743,6 +780,18 @@ export class LowcodeDataSpaceDesignSession {
         throw new Error('同一字段在其他视图仍有草稿，请先保存或取消')
       }
     })
+  }
+
+  /** 模型预览读取正式字段候选前，丢弃已无保存意义的目录编辑覆盖并补读完整默认目录。 */
+  private async ensureDefaultFieldCatalogForPreview(): Promise<void> {
+    this.assertLive()
+    const directory = this.metadataDataSet.getView('Base_DataModel_Field', 'default')
+    if (!directory || directory.hasEditingChanges() || directory.dirtyTracking.hasPendingChanges() || directory.mutating) return
+    if (directory.dirtyTracking.dirtyRowIds.size) directory.discardEditingRows()
+    if (directory.requestState === RequestState.Loaded && directory.rows.length === directory.total) return
+    const result = await directory.loadFromServer({allPages: true})
+    this.assertLive()
+    if (!result.success || directory.rows.length !== directory.total) throw new Error('字段候选尚未完整读取或有未保存修改')
   }
 
   private async refreshFieldDirectory(viewId: string): Promise<void> {
@@ -763,15 +812,16 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 维护正式来源入参的ValueFun；同一字段复用流程状态，提交即使旧目标投影失效。 */
-  getSourceInput(fieldId: string, viewId: 'default' | 'sourceInputFields' = 'default'): LowcodeDataSpaceSourceInputEdit {
+  getSourceInput(fieldId: string, viewId: 'default' | 'sourceInputFields' = 'default'): SourceInputHandle {
     this.assertLive()
     const key = `${viewId}@${fieldId}`
     let owner = this.#sourceInputs.get(key)
     if (!owner) {
-      owner = new LowcodeDataSpaceSourceInputEdit(this.metadataDataSet, this.targetId, fieldId,
+      const host = createSourceInputHost(this.metadataDataSet, this.targetId, fieldId,
         {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
           assertEditable: () => this.assertFieldViewEditable(fieldId, viewId),
           refreshDirectory: () => this.refreshFieldDirectory(viewId)}, viewId)
+      owner = createSourceInputHandle(host)
       this.#sourceInputs.set(key, owner)
     }
     return owner
@@ -815,7 +865,7 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 取得模型工作区的原入参owner；保留未决行身份，回读缺行仍能从原批次核验。 */
-  getModelSourceInputs(modelId: string): LowcodeDataSpaceSourceInputEdit[] {
+  getModelSourceInputs(modelId: string): SourceInputHandle[] {
     this.assertLive()
     const view = this.metadataDataSet.getView('Base_DataModel_Field', 'sourceInputFields')
     if (view?.requestState === RequestState.Loaded && view.queryContext['modelId'] === modelId && view.queryContext['dataSpaceId'] === this.targetId) {
@@ -948,12 +998,12 @@ export class LowcodeDataSpaceDesignSession {
    * @param fieldId 正式字段ID。
    * @param viewId 独立字段入口用default；统一模型列工作区用modelFields，不回退查询身份。
    */
-  getFieldEdit(fieldId: string, viewId: 'default' | 'modelFields' = 'default'): LowcodeDataSpaceFieldEdit {
+  getFieldEdit(fieldId: string, viewId: 'default' | 'modelFields' = 'default'): FieldEditHandle {
     this.assertLive()
     const key = `${viewId}@${fieldId}`
-    let owner = this.#fieldEdits.get(key)
-    if (!owner) {
-      owner = new LowcodeDataSpaceFieldEdit(this.metadataDataSet, this.targetId, fieldId,
+    let host = this.#fieldEdits.get(key)
+    if (!host) {
+      host = createFieldEditHost(this.metadataDataSet, this.targetId, fieldId,
         {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
           readModel: (modelId, modelName) => this.readModel({scenarioId: this.targetId, modelId, modelName}),
           readDefinition: () => this.readFunctionDefinition(),
@@ -961,9 +1011,9 @@ export class LowcodeDataSpaceDesignSession {
           stagePrimaryKey: (modelId, name) => this.getModelEdit(modelId).stage('PrimaryKeyFields', name),
           assertEditable: () => this.assertFieldViewEditable(fieldId, viewId),
           refreshDirectory: () => this.refreshFieldDirectory(viewId)}, viewId)
-      this.#fieldEdits.set(key, owner)
+      this.#fieldEdits.set(key, host)
     }
-    return owner
+    return createFieldEditHandle(host)
   }
 
   private async validateFieldOutputs(changes: ReadonlyArray<{original: DataRow; patch: Readonly<Record<string, unknown>>; creating?: boolean}>,
@@ -1095,12 +1145,12 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 同一模型只保留一个创建流程；输入视图不保存为正式元模型。 */
-  getFieldCreate(modelId: string, viewId: 'default' | 'modelFields' = 'default'): LowcodeDataSpaceFieldCreate {
+  getFieldCreate(modelId: string, viewId: 'default' | 'modelFields' = 'default'): FieldCreateHandle {
     this.assertLive()
     const key = `${viewId}@${modelId}`
     let owner = this.#fieldCreates.get(key)
     if (!owner) {
-      owner = new LowcodeDataSpaceFieldCreate(this.metadataDataSet, this.targetId, modelId, {
+      const host = createFieldCreateHost(this.metadataDataSet, this.targetId, modelId, {
         assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
         validate: values => this.validateFieldCreation(modelId, values), readDefinition: () => this.readFunctionDefinition(),
         assertStaging: () => {
@@ -1112,6 +1162,7 @@ export class LowcodeDataSpaceDesignSession {
           this.assertModelFieldDrafts(modelId, viewId)
         },
       }, viewId)
+      owner = createFieldCreateHandle(host)
       this.#fieldCreates.set(key, owner)
     }
     return owner
@@ -1121,7 +1172,13 @@ export class LowcodeDataSpaceDesignSession {
   releaseFieldCreate(modelId: string, viewId: 'default' | 'modelFields' = 'default'): void {
     if (this.#disposed || this.metadataDataSet.destroyed) return
     const key = `${viewId}@${modelId}`, owner = this.#fieldCreates.get(key)
-    if (!owner || owner.getState().pending) return
+    if (!owner) return
+    try {
+      if (owner.getState().pending) return
+    } catch {
+      this.#fieldCreates.delete(key)
+      return
+    }
     this.metadataDataSet.removeTable(owner.input.tableName)
     this.#fieldCreates.delete(key)
   }
@@ -1187,18 +1244,18 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 当前模型原绑定视图的待删除或未决流程；记录数据仍仅在DataView。 */
-  getModelFieldRemovals(modelId: string, viewId = 'modelFields'): LowcodeDataSpaceFieldRemove[] {
+  getModelFieldRemovals(modelId: string, viewId = 'modelFields'): FieldRemoveHandle[] {
     return [...this.#fieldRemovals].flatMap(([key, owner]) => key.startsWith(`${viewId}@`) && owner.getState().preview?.modelId === modelId
       && owner.getState().pending ? [owner] : [])
   }
 
   /** 计算字段删除复用原DataView；恢复入口不依赖待删行仍存在。 */
-  getFieldRemove(fieldId: string, fieldViewId: 'default' | 'modelFields' = 'default'): LowcodeDataSpaceFieldRemove {
+  getFieldRemove(fieldId: string, fieldViewId: 'default' | 'modelFields' = 'default'): FieldRemoveHandle {
     this.assertLive()
     const key = `${fieldViewId}@${fieldId}`
     let owner = this.#fieldRemovals.get(key)
     if (!owner) {
-      owner = new LowcodeDataSpaceFieldRemove(this.metadataDataSet, this.targetId, fieldId, {
+      const host = createFieldRemoveHost(this.metadataDataSet, this.targetId, fieldId, {
         assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(), validate: (row, views) => this.validateFieldRemoval(row, views, key),
         fieldWorkspaces: modelId => {
           if (fieldViewId !== 'modelFields') return []
@@ -1208,6 +1265,7 @@ export class LowcodeDataSpaceDesignSession {
           return inputs.length && view ? [{view, ids: view.rows.map(row => String(view.getPkKey(row))), allowPending: true}] : []
         },
       }, fieldViewId)
+      owner = createFieldRemoveHandle(host)
       this.#fieldRemovals.set(key, owner)
     }
     return owner
@@ -1250,11 +1308,11 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 维护正式模型的查询配置；模型身份和来源替换不在此入口改动。 */
-  getModelEdit(modelId: string): LowcodeDataSpaceModelEdit {
+  getModelEdit(modelId: string): ModelEditHandle {
     this.assertLive()
-    let owner = this.#modelEdits.get(modelId)
-    if (!owner) {
-      owner = new LowcodeDataSpaceModelEdit(this.metadataDataSet, this.targetId, modelId,
+    let host = this.#modelEdits.get(modelId)
+    if (!host) {
+      host = createModelEditHost(this.metadataDataSet, this.targetId, modelId,
         {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
           validatePrimaryKey: model => this.validateModelViewConfiguration(model),
           primaryKeyChanged: retained => {
@@ -1262,19 +1320,19 @@ export class LowcodeDataSpaceDesignSession {
             this.#modelSources.clear()
           }})
       const fields = this.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')
-      if (fields?.queryContext['dataSpaceId'] === this.targetId && fields.queryContext['modelId'] === modelId) owner.bindFields(fields)
-      this.#modelEdits.set(modelId, owner)
+      if (fields?.queryContext['dataSpaceId'] === this.targetId && fields.queryContext['modelId'] === modelId) host.bindFields(fields)
+      this.#modelEdits.set(modelId, host)
     }
-    return owner
+    return createModelEditHandle(host)
   }
 
   /** 已有数组共用原定义批次；工作区显式绑定modelFields，独立完整目录调用使用default。 */
-  getArrayEdit(modelId: string, fieldViewId: 'default' | 'modelFields' = 'default'): LowcodeDataSpaceArrayEdit {
+  getArrayEdit(modelId: string, fieldViewId: 'default' | 'modelFields' = 'default'): ArrayEditHandle {
     this.assertLive()
     const key = `${fieldViewId}@${modelId}`
     let owner = this.#arrayEdits.get(key)
     if (!owner) {
-      owner = new LowcodeDataSpaceArrayEdit(this.metadataDataSet, this.targetId, modelId, {
+      const host = createArrayHost(this.metadataDataSet, this.targetId, modelId, {
         assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
         validate: (change, views) => this.validateArrayDefinition(change, views),
         prepareRename: change => this.prepareModelConfigurationChange(modelId, change.original.name, change.candidate.name, change),
@@ -1283,6 +1341,7 @@ export class LowcodeDataSpaceDesignSession {
           for (const rename of this.#modelRenames.values()) if (!rename.getState().pending) rename.cancel()
         },
       }, fieldViewId)
+      owner = createArrayHandle(host)
       this.#arrayEdits.set(key, owner)
     }
     return owner
@@ -1388,15 +1447,22 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 维护注册名及本空间明确引用，原正式模型ID、来源和内部表键保持不变。 */
-  getModelRename(modelId: string): LowcodeDataSpaceModelRename {
+  getModelRename(modelId: string): ModelRenameHandle {
     this.assertLive()
     let owner = this.#modelRenames.get(modelId)
     if (!owner) {
-      owner = new LowcodeDataSpaceModelRename(this.metadataDataSet, this.targetId, modelId, {
+      const host = createModelRenameHost(this.metadataDataSet, this.targetId, modelId, {
         assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
         prepareFile: (before, after) => this.prepareModelConfigurationChange(modelId, before, after),
-        completed: () => {this.#modelEdits.clear(); this.#fieldEdits.clear(); this.#sourceInputs.clear(); this.#modelSources.clear()},
+        completed: () => {
+          this.#modelEdits.clear(); this.#fieldEdits.clear(); this.#sourceInputs.clear(); this.#modelSources.clear()
+          const directory = this.metadataDataSet.getView('Base_DataModel_Field', 'default')
+          if (directory && !directory.hasEditingChanges() && !directory.dirtyTracking.hasPendingChanges() && !directory.mutating) {
+            directory.discardEditingRows()
+          }
+        },
       })
+      owner = createModelRenameHandle(host)
       this.#modelRenames.set(modelId, owner)
     }
     return owner
@@ -1603,13 +1669,14 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 删除当前模型及其正式从属定义，复用原元数据视图和文件依赖检查。 */
-  getModelRemove(modelId: string): LowcodeDataSpaceModelRemove {
+  getModelRemove(modelId: string): ModelRemoveHandle {
     this.assertLive()
     let owner = this.#modelRemovals.get(modelId)
     if (!owner) {
-      owner = new LowcodeDataSpaceModelRemove(this.metadataDataSet, this.targetId, modelId, {
+      const host = createModelRemoveHost(this.metadataDataSet, this.targetId, modelId, {
         assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(), validateFile: views => this.validateModelRemoval(modelId, views),
       })
+      owner = createModelRemoveHandle(host)
       this.#modelRemovals.set(modelId, owner)
     }
     return owner
@@ -1768,11 +1835,13 @@ export class LowcodeDataSpaceDesignSession {
 
 
   /** 同一会话复用新模型创建状态；新增记录仍归原模型和字段视图。 */
-  getModelCreate(): LowcodeDataSpaceModelCreate {
+  getModelCreate(): ModelCreateHandle {
     this.assertLive()
-    this.#modelCreate ??= new LowcodeDataSpaceModelCreate(this.metadataDataSet, this.targetId, this.options.modelSources,
-      // 新模型尚未加入既有关系；新增命令的临时字段视图不接管其他工作区的输入视图。
-      {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate({preserveModelInputs: true})})
+    if (!this.#modelCreate) {
+      const host = createModelCreateHost(this.metadataDataSet, this.targetId, this.options.modelSources,
+        {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate({preserveModelInputs: true})})
+      this.#modelCreate = createModelCreateHandle(host)
+    }
     return this.#modelCreate
   }
 
@@ -1785,13 +1854,15 @@ export class LowcodeDataSpaceDesignSession {
     if (!this.options.modelSources) throw new Error('模型来源读取能力不可用')
     let owner = this.#modelSources.get(modelId)
     if (!owner) {
-      owner = new LowcodeDataSpaceModelSourceEdit(this.metadataDataSet, this.targetId, {modelId, sources: this.options.modelSources,
+      const host = createModelSourceEditHost(this.metadataDataSet, this.targetId, modelId, this.options.modelSources, {
         validateConfiguration: () => this.validateSourceConfiguration(),
         validateTransition: model => this.validateSourceTransition(modelId, {sourceType: model.Type, sourceName: model.MetaName}),
         prepareContract: change => this.prepareModelConfigurationChange(modelId, change.after.name, change.after.name, undefined, change),
         validateRemovals: (ids, contract) => this.validateSourceRemovals(modelId, ids, contract),
         assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
-        completed: () => {this.#modelEdits.clear(); this.#fieldEdits.clear(); this.#sourceInputs.clear()}})
+        completed: () => {this.#modelEdits.clear(); this.#fieldEdits.clear(); this.#sourceInputs.clear()},
+      })
+      owner = createModelSourceEditHandle(host)
       this.#modelSources.set(modelId, owner)
     }
     return owner
@@ -1903,8 +1974,10 @@ export class LowcodeDataSpaceDesignSession {
   async readApiInfo(): Promise<string> {
     const snapshot = (): string => {
       this.assertOwner(); this.assertMetadataClean()
-      const parameters = this.#inputParameters?.getState()
+      const spaceView = this.metadataDataSet.getView('Base_DataSet', 'default')
+      const parameters = this.#inputParameterHost ? inputParameterGetState(this.#inputParameterHost) : undefined
       if (this.hasPendingModelEdits() || this.hasPendingFieldEdits() || this.hasPendingSourceInputs()
+        || spaceView?.hasUnconfirmedSave
         || this.metadataDataSet.getTable('Base_DataModel_Field')?.viewList.some(view => view.mutating || view.hasUnconfirmedSave
           || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
         || this.hasPendingModelCreate() || this.hasPendingModelSourceEdits() || this.hasPendingModelRemovals()
@@ -2005,7 +2078,8 @@ export class LowcodeDataSpaceDesignSession {
   /** 捕获当前模型正式字段或工作区的可执行查询草稿；其他视图/结构草稿仍由原保护拒绝。 */
   private captureModelFieldPreview(modelId: string) {
     const scoped = this.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')
-    const viewId = scoped?.requestState === RequestState.Loaded && scoped.queryContext['modelId'] === modelId ? 'modelFields' : 'default'
+    const viewId = scoped?.requestState === RequestState.Loaded && scoped.queryContext['modelId'] === modelId
+      && scoped.queryContext['dataSpaceId'] === this.targetId ? 'modelFields' : 'default'
     const view = this.metadataDataSet.getView('Base_DataModel_Field', viewId)
     if (view?.requestState !== RequestState.Loaded || view.rows.length !== view.total
       || viewId === 'default' && (view.hasEditingChanges()
@@ -2029,10 +2103,8 @@ export class LowcodeDataSpaceDesignSession {
       if (!fields.length || new Set(fields.map(field => field.name)).size !== fields.length) throw new Error('字段预览为空或名称不唯一')
       return fields
     }
-    const fields = read(), snapshot = JSON.stringify(fields)
-    const assertCurrent = () => {if (JSON.stringify(read()) !== snapshot) throw new Error('字段查询设置已变化，请重新打开预览')}
-    return {assertCurrent, apply: (target: DataView) => {
-      assertCurrent()
+    const strictFieldGuard = viewId === 'modelFields'
+    const applyProjection = (fields: ReturnType<typeof read>, target: DataView): void => {
       const projection = target.fieldProjection.length ? target.fieldProjection : target.columns.filter(column => column.name !== '_pk').map(column => {
         const field = fields.find(candidate => candidate.name === column.name && candidate.formalOutput)
         if (!field) throw new Error('正式查询字段与预览工作区不一致，请重新读取')
@@ -2050,7 +2122,13 @@ export class LowcodeDataSpaceDesignSession {
         return {...item, output: field.output, label: field.label || field.name, sortOrder: 0, sortDirection: null}
       }), sortExpression: [...fields].sort((a, b) => b.order - a.order)
         .flatMap(field => field.output && field.order > 0 && field.direction !== undefined ? [{field: field.name, direction: field.direction}] : [])})
-    }}
+    }
+    if (strictFieldGuard) {
+      const fields = read(), snapshot = JSON.stringify(fields)
+      const assertCurrent = () => {if (JSON.stringify(read()) !== snapshot) throw new Error('字段查询设置已变化，请重新打开预览')}
+      return {assertCurrent, apply: (target: DataView) => {assertCurrent(); applyProjection(fields, target)}}
+    }
+    return {assertCurrent: () => {}, apply: (target: DataView) => applyProjection(read(), target)}
   }
 
   private definitionReadGuard(options: DefinitionReadOptions = {}): () => void {
@@ -2101,6 +2179,7 @@ export class LowcodeDataSpaceDesignSession {
 
   /** 按正式模型及已保存初值创建预览DataView；请求调整留在预览实例，不保存模型请求草稿。 */
   async openModelPreview(input: Pick<SessionSelection, 'modelId' | 'modelName'>): Promise<LowcodeDataSpaceQueryPreview> {
+    await this.ensureDefaultFieldCatalogForPreview()
     const fields = this.captureModelFieldPreview(input.modelId)
     const guard = this.definitionReadGuard({allowMissingDefinition: true, previewModelId: input.modelId,
       metadataNames: ['Base_DataSet', 'Base_DataModel'],
@@ -2120,10 +2199,22 @@ export class LowcodeDataSpaceDesignSession {
       listener => this.subscribePreviewGuard(assertCurrent, listener))
     try {
       const view = preview.view
-      fields?.apply(view)
       const initial = this.getModelEdit(input.modelId).readPreview(view)
+      fields?.apply(view)
       view.filterExpression = initial.filterExpression
-      view.queryConfig = {...view.queryConfig, outputType: initial.outputType}
+      view.queryConfig = {
+        ...view.queryConfig,
+        outputType: initial.outputType,
+        ...(initial.outputType === 'SelfRefData' && initial.nodeId ? {
+          tree: {
+            keyField: initial.keyField,
+            parentField: initial.parentField,
+            ...(initial.hasChildrenField ? {hasChildrenField: initial.hasChildrenField} : {}),
+            mode: initial.treeMode as 'child' | 'parent',
+            nodeId: initial.nodeId,
+          },
+        } : {}),
+      }
       assertCurrent()
       return preview
     } catch (cause) {

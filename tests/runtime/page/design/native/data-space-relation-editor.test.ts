@@ -8,13 +8,13 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
-import {dataSpacePageFixture} from './data-space-page.fixture'
+import {dataSpacePageFixture, designPageHost} from './data-space-page.fixture'
 import {VueFlow} from '@vue-flow/core'
 
 vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
 const wrappers: ReturnType<typeof mount>[] = []
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
-beforeAll(async () => {registerAllRenderers(); await getVuePageEntry('/data-space-design')!.load()}, 30000)
+beforeAll(async () => {registerAllRenderers(); await getVuePageEntry('/features/data-platform/data-set-management/design/ui/data-set-design-page')!.load()}, 30000)
 beforeEach(() => {
   vi.mocked(openLowcodeDataSpaceDesignSession).mockReset()
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
@@ -26,9 +26,9 @@ function fixture(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
   return f
 }
 async function page(target = 'A') {
-  const component = (await getVuePageEntry('/data-space-design')!.load()).default
+  const component = (await getVuePageEntry('/features/data-platform/data-set-management/design/ui/data-set-design-page')!.load()).default
   const router = createRouter({history: createMemoryHistory(), routes: []})
-  const dynamic = createDynamicRouter({router, pageComponent: component, componentMap: {'/data-space-design': component},
+  const dynamic = createDynamicRouter({router, pageComponent: designPageHost(component), componentMap: {'/data-space-design': designPageHost(component)},
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header',
       items: [{id: 'design', title: '数据空间设计', path: '/data-space-design', itemKind: 'system-page'}]})})
   await dynamic.registerRoutes(); await router.push(`/data-space-design?scenarioId=${target}`)

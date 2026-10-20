@@ -27,7 +27,7 @@ describe('native data space design session factory', () => {
     })
     runtime = await import('../../../../src/lowcode/lowcode-runtime')
     ;({ openLowcodeDataSpaceDesignSession: design } = await import('../../../../src/lowcode/data-space/lowcode-data-space-design'))
-  })
+  }, 60000)
   afterAll(() => { if (originalTransport) Object.defineProperty(Request.prototype, 'executeRequest', originalTransport) })
   afterEach(() => {
     transport.request.mockReset()

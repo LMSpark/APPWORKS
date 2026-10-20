@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture} from './data-space-page.fixture'
-import {LowcodeDataSpaceFieldEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-field-edit'
+import {fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {fixtures.splice(0).forEach(fixture => fixture.dispose())})
@@ -69,7 +69,7 @@ describe('model field workspace uses formal query views', () => {
   it('retains primary output, batches other output changes, and cancels without a write', async () => {
     const f = fixture(), session = await f.open('A'), view = await session.loadModelFields('M1')
     const owners = view.rows.map(row => session.getFieldEdit(String(row['rowid']), 'modelFields'))
-    await LowcodeDataSpaceFieldEdit.stageOutputBatch(owners, 'invert')
+    await fieldEditStageOutputBatch(owners, 'invert')
     expect(view.getEditingRow('PK')?.['IsOutput']).toBe(1)
     expect(view.getEditingRow('F1')?.['IsOutput']).toBe(0)
     await expect(session.loadModelFields('M2')).rejects.toThrow('字段草稿')
@@ -81,7 +81,7 @@ describe('model field workspace uses formal query views', () => {
   it('rejects a denied output target before staging any part of the batch', async () => {
     const f = fixture({deniedFieldOutputIds: ['F1']}), session = await f.open('A'), view = await session.loadModelFields('M1')
     const owners = view.rows.map(row => session.getFieldEdit(String(row['rowid']), 'modelFields'))
-    await expect(LowcodeDataSpaceFieldEdit.stageOutputBatch(owners, 'invert')).rejects.toThrow()
+    await expect(fieldEditStageOutputBatch(owners, 'invert')).rejects.toThrow()
     expect(view.hasEditingChanges()).toBe(false)
     expect(writes(f)).toHaveLength(0)
   })

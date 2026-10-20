@@ -1,0 +1,2215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session",
+    "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session",
+    "jsdoc": "@module lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session\n职责：预览来源替换或当前来源字段同步，保留同名定义及派生字段配置（无独立命令类 FSM）。\n边界：正式记录归原DataView；删除须检查引用，来源合同变化须明确确认并校验最终模型。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "SourceContractChange",
+      "SourceContractPlan",
+      "ModelSourceEditStatus",
+      "ModelSourceEditLifecycle",
+      "ModelSourceEditFlow",
+      "ModelSourceEditHost",
+      "ModelSourceEditHandle",
+      "LowcodeDataSpaceModelSourceEdit"
+    ]
+  },
+  "$defs": {
+    "Reader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Reader",
+      "properties": {
+        "query": {
+          "type": "object",
+          "title": "(input: PageDataSpaceModelSourceQuery, dataSet: DataSet) => Promise<Readonly<{ rows: readonly PageDataSpaceModelSource[]; total: number; }>>"
+        },
+        "prepare": {
+          "type": "object",
+          "title": "(source: PageDataSpaceModelSource, dataSet: DataSet) => Promise<PageDataSpaceModelSourcePrepared>"
+        }
+      },
+      "required": [
+        "query",
+        "prepare"
+      ],
+      "additionalProperties": false
+    },
+    "Prepared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Prepared",
+      "properties": {
+        "source": {
+          "type": "object",
+          "title": "PageDataSpaceModelSource"
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "Type": {
+              "type": "string"
+            },
+            "MetaName": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "DbId": {
+              "type": "string"
+            },
+            "DbName": {
+              "type": "string"
+            },
+            "JoinType": {
+              "type": "string"
+            },
+            "ForeignKeyFields": {
+              "type": "string"
+            },
+            "JoinFilter": {
+              "type": "string"
+            },
+            "PId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Type",
+            "MetaName",
+            "description",
+            "DbId",
+            "DbName",
+            "JoinType",
+            "ForeignKeyFields",
+            "JoinFilter",
+            "PId"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceField"
+          }
+        }
+      },
+      "required": [
+        "source",
+        "model",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "SourceContractChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SourceContractChange",
+      "properties": {
+        "after": {
+          "type": "object",
+          "title": "ReturnType<typeof DataSpaceDesignApi.projectModel>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.previous.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.previous.return": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "ReturnType<typeof DataSpaceDesignApi.projectModel>"
+        }
+      }
+    },
+    "SourceContractPlan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SourceContractPlan",
+      "properties": {
+        "viewChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tableName": {
+                "type": "string"
+              },
+              "viewId": {
+                "type": "string"
+              },
+              "fieldId": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tableName",
+              "viewId",
+              "fieldId",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.check.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.check.return": true,
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.complete.params": {
+          "type": "object",
+          "properties": {
+            "reconcile": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.complete.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "Preview": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Preview",
+      "properties": {
+        "operation": {
+          "enum": [
+            "replace",
+            "synchronize"
+          ]
+        },
+        "removals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "removalChoices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "removed": {
+                "enum": [
+                  false,
+                  true
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "removed"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "inputChoices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceName": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "sourceName",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "inputParams": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "parameterWarning": {
+          "type": "string"
+        },
+        "contractChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              },
+              "accepted": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "patch": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "before",
+              "after",
+              "accepted",
+              "patch"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "viewChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tableName": {
+                "type": "string"
+              },
+              "viewId": {
+                "type": "string"
+              },
+              "fieldId": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tableName",
+              "viewId",
+              "fieldId",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "prepared": {
+          "$ref": "#/$defs/Prepared"
+        },
+        "differences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "result": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "problems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fieldChoices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "outputName": {
+                "type": "string"
+              },
+              "sourceName": {
+                "type": "string"
+              },
+              "candidates": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "outputName",
+              "sourceName",
+              "candidates"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceName": {
+                "type": "string"
+              },
+              "included": {
+                "enum": [
+                  false,
+                  true
+                ]
+              }
+            },
+            "required": [
+              "sourceName",
+              "included"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "relationChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "modelChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "property",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "expressionChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "property": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "property",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "fieldExpressionChanges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "before",
+              "after"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "operation",
+        "removals",
+        "removalChoices",
+        "inputChoices",
+        "inputParams",
+        "parameterWarning",
+        "contractChanges",
+        "viewChanges",
+        "name",
+        "prepared",
+        "differences",
+        "problems",
+        "fieldChoices",
+        "additions",
+        "relationChanges",
+        "modelChanges",
+        "expressionChanges",
+        "fieldExpressionChanges"
+      ],
+      "additionalProperties": false
+    },
+    "FieldEdit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldEdit",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "patch": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "snapshot": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "patch",
+        "snapshot"
+      ],
+      "additionalProperties": false
+    },
+    "FieldAddition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldAddition",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "values": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "snapshot": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "values",
+        "snapshot"
+      ],
+      "additionalProperties": false
+    },
+    "ModelSourceEditStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ModelSourceEditStatus",
+      "enum": [
+        "idle",
+        "unsubmitted",
+        "unknown",
+        "readback",
+        "previewing",
+        "ready",
+        "saving",
+        "different",
+        "configuration"
+      ]
+    },
+    "ModelSourceEditLifecycle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelSourceEditLifecycle",
+      "$defs": {
+        "method.validateConfiguration.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validateConfiguration.return": {
+          "type": "object",
+          "title": "Promise<() => void>"
+        },
+        "method.validateTransition.params": {
+          "type": "object",
+          "properties": {
+            "model": true
+          },
+          "additionalProperties": false
+        },
+        "method.validateTransition.return": {
+          "type": "object",
+          "title": "Promise<() => void>"
+        },
+        "method.prepareContract.params": {
+          "type": "object",
+          "properties": {
+            "change": {
+              "$ref": "#/$defs/SourceContractChange"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareContract.return": {
+          "type": "object",
+          "title": "Promise<SourceContractPlan>"
+        },
+        "method.validateRemovals.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "contract": {
+              "$ref": "#/$defs/SourceContractChange"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateRemovals.return": {
+          "type": "object",
+          "title": "Promise<() => void>"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onDispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDispatch.return": true,
+        "method.completed.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.completed.return": true
+      }
+    },
+    "ModelSourceEditFlow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelSourceEditFlow",
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/ModelSourceEditStatus"
+        },
+        "generation": {
+          "type": "number"
+        },
+        "preview": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "Preview"
+        },
+        "baseline": {
+          "type": "string"
+        },
+        "expected": {
+          "type": "string"
+        },
+        "pendingSnapshot": {
+          "type": "string"
+        },
+        "patch": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "verifiedSnapshot": {
+          "type": "string"
+        },
+        "verification": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "table": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "result": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "table",
+              "id",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "mappings": {
+          "type": "object",
+          "title": "Map<string, string>"
+        },
+        "included": {
+          "type": "object",
+          "title": "Set<string>"
+        },
+        "removals": {
+          "type": "object",
+          "title": "Set<string>"
+        },
+        "inputs": {
+          "type": "object",
+          "title": "Map<string, string>"
+        },
+        "acceptedContracts": {
+          "type": "object",
+          "title": "Set<string>"
+        },
+        "contractPlan": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "SourceContractPlan"
+        },
+        "fieldEdits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldEdit"
+          }
+        },
+        "relationEdits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldEdit"
+          }
+        },
+        "modelEdits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldEdit"
+          }
+        },
+        "added": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldAddition"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "row": {
+                "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+              }
+            },
+            "required": [
+              "id",
+              "row"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "status",
+        "generation",
+        "preview",
+        "baseline",
+        "expected",
+        "pendingSnapshot",
+        "patch",
+        "verifiedSnapshot",
+        "verification",
+        "mappings",
+        "included",
+        "removals",
+        "inputs",
+        "acceptedContracts",
+        "contractPlan",
+        "fieldEdits",
+        "relationEdits",
+        "modelEdits",
+        "added",
+        "removed"
+      ],
+      "additionalProperties": false
+    },
+    "ModelSourceEditHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelSourceEditHost",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "sources": {
+          "$ref": "../lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceReader"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ModelSourceEditLifecycle"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "models": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "syncFields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "replacementFields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "relations": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "replacementRelations": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "contexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "flow": {
+          "$ref": "#/$defs/ModelSourceEditFlow"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "sources",
+        "lifecycle",
+        "views",
+        "models",
+        "fields",
+        "syncFields",
+        "replacementFields",
+        "relations",
+        "replacementRelations",
+        "contexts",
+        "flow"
+      ],
+      "additionalProperties": false
+    },
+    "ModelSourceEditHandle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelSourceEditHandle",
+      "$defs": {
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "title": "ReturnType<typeof modelSourceEditGetState>"
+        },
+        "method.confirmFieldContract.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "fieldId": {
+                  "type": "string"
+                },
+                "accepted": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "fieldId",
+                "accepted"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.confirmFieldContract.return": true,
+        "method.previewBoundSource.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.previewBoundSource.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.mapField.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "fieldId": {
+                  "type": "string"
+                },
+                "sourceName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "fieldId",
+                "sourceName"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.mapField.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.includeField.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "sourceName": {
+                  "type": "string"
+                },
+                "included": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "sourceName",
+                "included"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.includeField.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.removeField.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "fieldId": {
+                  "type": "string"
+                },
+                "removed": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "fieldId",
+                "removed"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.removeField.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.configureInput.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "sourceName": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sourceName",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.configureInput.return": true,
+        "method.preview.params": {
+          "type": "object",
+          "properties": {
+            "source": true
+          },
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>"
+        },
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": true
+      }
+    },
+    "LowcodeDataSpaceModelSourceEdit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelSourceEdit",
+      "properties": {
+        "getState": {
+          "type": "object",
+          "title": "() => ReturnType<typeof modelSourceEditGetState>"
+        },
+        "confirmFieldContract": {
+          "type": "object",
+          "title": "(input: Readonly<{ fieldId: string; accepted: boolean; }>) => void"
+        },
+        "previewBoundSource": {
+          "type": "object",
+          "title": "() => Promise<void>"
+        },
+        "mapField": {
+          "type": "object",
+          "title": "(input: Readonly<{ fieldId: string; sourceName: string; }>) => Promise<void>"
+        },
+        "includeField": {
+          "type": "object",
+          "title": "(input: Readonly<{ sourceName: string; included: boolean; }>) => Promise<void>"
+        },
+        "removeField": {
+          "type": "object",
+          "title": "(input: Readonly<{ fieldId: string; removed: boolean; }>) => Promise<void>"
+        },
+        "configureInput": {
+          "type": "object",
+          "title": "(input: Readonly<{ sourceName: string; value: string; }>) => void"
+        },
+        "preview": {
+          "type": "object",
+          "title": "(source: Parameters<Reader[\"prepare\"]>[0]) => Promise<void>"
+        },
+        "discard": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "save": {
+          "type": "object",
+          "title": "() => Promise<string>"
+        },
+        "verify": {
+          "type": "object",
+          "title": "() => Promise<Readonly<{ confirmed: boolean; modelId: string | null; }>>"
+        },
+        "acceptCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "getState",
+        "confirmFieldContract",
+        "previewBoundSource",
+        "mapField",
+        "includeField",
+        "removeField",
+        "configureInput",
+        "preview",
+        "discard",
+        "save",
+        "verify",
+        "acceptCurrent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-20T05:22:25.789Z",
+  "models": {
+    "Reader": {
+      "name": "Reader",
+      "jsdoc": "与新增模型共享的正式来源能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<ModelCreateSources>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<ModelCreateSources>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Prepared": {
+      "name": "Prepared",
+      "jsdoc": "精确读取后的来源配置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<Reader['prepare']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<Reader['prepare']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "SourceContractChange": {
+      "name": "SourceContractChange",
+      "jsdoc": "同一正式模型在来源变更前后的投影；只描述定义，不携带运行行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 仅固定投影迁移及删除检查需要原合同；纯来源修复不要求旧来源先可装配。无数据字段时返回null。 */\n    previous(): ReturnType<typeof DataSpaceDesignApi.projectModel> | null;\n    /** 来源变更候选模型，字段沿用正式ID，只包含预览中的合同变化。 */\n    after: ReturnType<typeof DataSpaceDesignApi.projectModel>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 仅固定投影迁移及删除检查需要原合同；纯来源修复不要求旧来源先可装配。无数据字段时返回null。 */\n    previous(): ReturnType<typeof DataSpaceDesignApi.projectModel> | null;\n    /** 来源变更候选模型，字段沿用正式ID，只包含预览中的合同变化。 */\n    after: ReturnType<typeof DataSpaceDesignApi.projectModel>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "after",
+              "jsdoc": "来源变更候选模型，字段沿用正式ID，只包含预览中的合同变化。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "previous",
+              "jsdoc": "仅固定投影迁移及删除检查需要原合同；纯来源修复不要求旧来源先可装配。无数据字段时返回null。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ReturnType",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "typeof DataSpaceDesignApi.projectModel"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SourceContractPlan": {
+      "name": "SourceContractPlan",
+      "jsdoc": "数据库确认后接续原定义DataView的文件迁移，不另开文件写入通道。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 用户确认时可见的命名视图字段差异。 */\n    viewChanges: Array<{\n        tableName: string;\n        viewId: string;\n        fieldId: string;\n        before: string;\n        after: string;\n    }>;\n    /** 应用与派发期间核对本地文件基线及其他定义操作。 */\n    check(): void;\n    /** 数据库派发前核对远端文件基线。 */\n    assertCurrent(): Promise<void>;\n    /** 数据库已确认后保存或核验文件；不会重放数据库写入。 */\n    complete(reconcile: boolean): Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 用户确认时可见的命名视图字段差异。 */\n    viewChanges: Array<{\n        tableName: string;\n        viewId: string;\n        fieldId: string;\n        before: string;\n        after: string;\n    }>;\n    /** 应用与派发期间核对本地文件基线及其他定义操作。 */\n    check(): void;\n    /** 数据库派发前核对远端文件基线。 */\n    assertCurrent(): Promise<void>;\n    /** 数据库已确认后保存或核验文件；不会重放数据库写入。 */\n    complete(reconcile: boolean): Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "viewChanges",
+              "jsdoc": "用户确认时可见的命名视图字段差异。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "check",
+              "jsdoc": "应用与派发期间核对本地文件基线及其他定义操作。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "数据库派发前核对远端文件基线。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "complete",
+              "jsdoc": "数据库已确认后保存或核验文件；不会重放数据库写入。",
+              "parameters": [
+                {
+                  "name": "reconcile",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Preview": {
+      "name": "Preview",
+      "jsdoc": "来源替换的预览；正式记录仍归原DataView。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** 同步保持已绑定来源；替换允许显式选择另一个来源。 */\n    operation: 'replace' | 'synchronize';\n    /** 同步已消失的字段或替换时明确选中的字段；保存前核验命令依赖。 */\n    removals: Array<{\n        id: string;\n        name: string;\n        type: string;\n    }>;\n    /** 来源已消失的普通字段可以显式选择移除，主键须同时校验候选合同。 */\n    removalChoices: Array<{\n        id: string;\n        name: string;\n        removed: boolean;\n    }>;\n    /** 新来源参数的明确取值；未配置时不得提交替换或同步。 */\n    inputChoices: Array<{\n        sourceName: string;\n        value: string;\n    }>;\n    /** 当前已保存的空间参数目录；不可读时常量仍可编辑。 */\n    inputParams: Array<{\n        value: string;\n        label: string;\n    }>;\n    /** 参数声明不可用的原因；不猜测引用。 */\n    parameterWarning: string;\n    /** 已有字段的类型/主键差异；只有明确确认才进入原视图变更。 */\n    contractChanges: Array<{\n        id: string;\n        name: string;\n        before: string;\n        after: string;\n        accepted: boolean;\n        patch: Record<string, unknown>;\n    }>;\n    /** 与本次来源合同一起确认、在数据库回读后提交的命名视图变化。 */\n    viewChanges: SourceContractPlan['viewChanges'];\n    /** 保持不变的模型注册名。 */\n    name: string;\n    /** 精确重读得到的来源。 */\n    prepared: Prepared;\n    /** 逐字段兼容性结果，不包含运行行或权限凭据。 */\n    differences: Array<{\n        name: string;\n        result: string;\n    }>;\n    /** 须先处理的迁移或诊断项。 */\n    problems: string[];\n    /** 原字段到同用途来源字段的显式选择；数据字段的合同差异另行确认。 */\n    fieldChoices: Array<{\n        id: string;\n        name: string;\n        outputName: string;\n        sourceName: string;\n        candidates: string[];\n    }>;\n    /** 尚未绑定的数据字段，可显式引入为输出列。 */\n    additions: Array<{\n        sourceName: string;\n        included: boolean;\n    }>;\n    /** 原始关系表达式与按本次字段映射生成的提交值；只在确认时写入。 */\n    relationChanges: Array<{\n        id: string;\n        before: string;\n        after: string;\n    }>;\n    /** 模型自身来源字段引用的原值和显式映射结果；输出名称不参与迁移。 */\n    modelChanges: Array<{\n        property: string;\n        before: string;\n        after: string;\n    }>;\n    /** 自身和依赖模型Filter字段引用变更；后端Join配置不参与本轮迁移。 */\n    expressionChanges: ReturnType<typeof LowcodeDataSpaceModelMigration.prepare>;\n    /** 本模型字段ValueFun中的明确来源引用变更；不修改输出名称。 */\n    fieldExpressionChanges: ReturnType<typeof LowcodeDataSpaceFieldMigration.prepare>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "operation",
+              "jsdoc": "同步保持已绑定来源；替换允许显式选择另一个来源。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removals",
+              "jsdoc": "同步已消失的字段或替换时明确选中的字段；保存前核验命令依赖。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removalChoices",
+              "jsdoc": "来源已消失的普通字段可以显式选择移除，主键须同时校验候选合同。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputChoices",
+              "jsdoc": "新来源参数的明确取值；未配置时不得提交替换或同步。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputParams",
+              "jsdoc": "当前已保存的空间参数目录；不可读时常量仍可编辑。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parameterWarning",
+              "jsdoc": "参数声明不可用的原因；不猜测引用。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contractChanges",
+              "jsdoc": "已有字段的类型/主键差异；只有明确确认才进入原视图变更。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewChanges",
+              "jsdoc": "与本次来源合同一起确认、在数据库回读后提交的命名视图变化。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "jsdoc": "保持不变的模型注册名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "prepared",
+              "jsdoc": "精确重读得到的来源。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "differences",
+              "jsdoc": "逐字段兼容性结果，不包含运行行或权限凭据。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "problems",
+              "jsdoc": "须先处理的迁移或诊断项。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldChoices",
+              "jsdoc": "原字段到同用途来源字段的显式选择；数据字段的合同差异另行确认。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "additions",
+              "jsdoc": "尚未绑定的数据字段，可显式引入为输出列。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "relationChanges",
+              "jsdoc": "原始关系表达式与按本次字段映射生成的提交值；只在确认时写入。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelChanges",
+              "jsdoc": "模型自身来源字段引用的原值和显式映射结果；输出名称不参与迁移。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expressionChanges",
+              "jsdoc": "自身和依赖模型Filter字段引用变更；后端Join配置不参与本轮迁移。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldExpressionChanges",
+              "jsdoc": "本模型字段ValueFun中的明确来源引用变更；不修改输出名称。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldEdit": {
+      "name": "FieldEdit",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: string;\n    patch: Record<string, unknown>;\n    snapshot: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "patch",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "snapshot",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldAddition": {
+      "name": "FieldAddition",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    id: string;\n    values: Record<string, unknown>;\n    snapshot: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "values",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "snapshot",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelSourceEditStatus": {
+      "name": "ModelSourceEditStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'previewing' | 'ready' | 'saving' | 'unknown' | 'readback' | 'unsubmitted' | 'different' | 'configuration'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'previewing'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ready'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'saving'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unsubmitted'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'different'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'configuration'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ModelSourceEditLifecycle": {
+      "name": "ModelSourceEditLifecycle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "validateConfiguration",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "validateTransition",
+              "parameters": [
+                {
+                  "name": "model",
+                  "type": {
+                    "type": "unknown",
+                    "name": "Prepared['model']"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareContract",
+              "parameters": [
+                {
+                  "name": "change",
+                  "type": {
+                    "type": "reference",
+                    "name": "SourceContractChange",
+                    "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "SourceContractPlan",
+                    "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "validateRemovals",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "contract",
+                  "type": {
+                    "type": "reference",
+                    "name": "SourceContractChange",
+                    "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDispatch",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "completed",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ModelSourceEditFlow": {
+      "name": "ModelSourceEditFlow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    status: ModelSourceEditStatus;\n    generation: number;\n    preview: Preview | null;\n    baseline: string;\n    expected: string;\n    pendingSnapshot: string;\n    patch: Record<string, unknown>;\n    verifiedSnapshot: string;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n    mappings: Map<string, string>;\n    included: Set<string>;\n    removals: Set<string>;\n    inputs: Map<string, string>;\n    acceptedContracts: Set<string>;\n    contractPlan: SourceContractPlan | null;\n    fieldEdits: FieldEdit[];\n    relationEdits: FieldEdit[];\n    modelEdits: FieldEdit[];\n    added: FieldAddition[];\n    removed: Array<{\n        id: string;\n        row: DataRow;\n    }>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "generation",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "preview",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "expected",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "pendingSnapshot",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "patch",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verifiedSnapshot",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verification",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "mappings",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "included",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removals",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "acceptedContracts",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contractPlan",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fieldEdits",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "relationEdits",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "modelEdits",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "added",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "removed",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelSourceEditHost": {
+      "name": "ModelSourceEditHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly modelId: string;\n    readonly sources: Reader;\n    readonly lifecycle: ModelSourceEditLifecycle;\n    views: DataView[];\n    models: DataView;\n    fields: DataView;\n    syncFields: DataView | undefined;\n    replacementFields: DataView | undefined;\n    relations: DataView;\n    replacementRelations: DataView | undefined;\n    contexts: string[];\n    flow: ModelSourceEditFlow;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "syncFields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "replacementFields",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "relations",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "replacementRelations",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "contexts",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "flow",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelSourceEditHandle": {
+      "name": "ModelSourceEditHandle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelSourceEditGetState>;\n    confirmFieldContract(input: Readonly<{\n        fieldId: string;\n        accepted: boolean;\n    }>): void;\n    previewBoundSource(): Promise<void>;\n    mapField(input: Readonly<{\n        fieldId: string;\n        sourceName: string;\n    }>): Promise<void>;\n    includeField(input: Readonly<{\n        sourceName: string;\n        included: boolean;\n    }>): Promise<void>;\n    removeField(input: Readonly<{\n        fieldId: string;\n        removed: boolean;\n    }>): Promise<void>;\n    configureInput(input: Readonly<{\n        sourceName: string;\n        value: string;\n    }>): void;\n    preview(source: Parameters<Reader['prepare']>[0]): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    verify(): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    acceptCurrent(): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "getState",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof modelSourceEditGetState"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "confirmFieldContract",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        fieldId: string;\n        accepted: boolean;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "previewBoundSource",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "mapField",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        fieldId: string;\n        sourceName: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "includeField",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        sourceName: string;\n        included: boolean;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "removeField",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        fieldId: string;\n        removed: boolean;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "configureInput",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        sourceName: string;\n        value: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "preview",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "unknown",
+                    "name": "Parameters<Reader['prepare']>[0]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discard",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        confirmed: boolean;\n        modelId: string | null;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelSourceEdit": {
+      "name": "LowcodeDataSpaceModelSourceEdit",
+      "jsdoc": "@deprecated 兼容旧类名；新代码使用 ModelSourceEditHandle。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ModelSourceEditHandle",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ModelSourceEditHandle",
+            "targetName": "ModelSourceEditHandle"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

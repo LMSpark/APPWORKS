@@ -1,0 +1,697 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session",
+    "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session",
+    "jsdoc": "@module lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session\n职责：预览并删除一个正式模型及其字段、直接关系，逐项确认回执与回读（无独立命令类 FSM）。\n边界：数据和权限仍归原DataView；不跨入独立功能标签体系改删配置。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceModelRemovalFilePlan",
+      "ModelRemoveStatus",
+      "ModelRemoveFlow",
+      "ModelRemoveLifecycle",
+      "ModelRemoveHost",
+      "ModelRemoveHandle"
+    ]
+  },
+  "$defs": {
+    "Removal": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Removal",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "id": {
+          "type": "string"
+        },
+        "row": {
+          "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "snapshot": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "view",
+        "id",
+        "row",
+        "snapshot"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceModelRemovalFilePlan": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelRemovalFilePlan",
+      "properties": {
+        "baseline": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "layout": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.complete.params": {
+          "type": "object",
+          "properties": {
+            "reconcile": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.complete.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "ModelRemoveStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ModelRemoveStatus",
+      "enum": [
+        "idle",
+        "unknown",
+        "readback",
+        "previewing",
+        "ready",
+        "saving",
+        "different",
+        "configuration"
+      ]
+    },
+    "ModelRemoveFlow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRemoveFlow",
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/ModelRemoveStatus"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Removal"
+          }
+        },
+        "staged": {
+          "type": "object",
+          "title": "Set<Removal>"
+        },
+        "baseline": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "confirmed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "databaseComplete": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "filePlan": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "LowcodeDataSpaceModelRemovalFilePlan"
+        },
+        "verification": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "table": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "result": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "table",
+              "id",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "status",
+        "entries",
+        "staged",
+        "baseline",
+        "name",
+        "confirmed",
+        "databaseComplete",
+        "filePlan",
+        "verification"
+      ],
+      "additionalProperties": false
+    },
+    "ModelRemoveLifecycle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRemoveLifecycle",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.validateFile.params": {
+          "type": "object",
+          "properties": {
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateFile.return": {
+          "type": "object",
+          "title": "Promise<LowcodeDataSpaceModelRemovalFilePlan>"
+        },
+        "method.onDispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDispatch.return": true
+      }
+    },
+    "ModelRemoveHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRemoveHost",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ModelRemoveLifecycle"
+        },
+        "dependencies": {
+          "$ref": "../lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "flow": {
+          "$ref": "#/$defs/ModelRemoveFlow"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "lifecycle",
+        "dependencies",
+        "views",
+        "flow"
+      ],
+      "additionalProperties": false
+    },
+    "ModelRemoveHandle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRemoveHandle",
+      "$defs": {
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "title": "ReturnType<typeof modelRemoveGetState>"
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-20T05:23:41.326Z",
+  "models": {
+    "Removal": {
+      "name": "Removal",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    view: DataView;\n    id: string;\n    row: DataRow;\n    snapshot: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "id",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "row",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "snapshot",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelRemovalFilePlan": {
+      "name": "LowcodeDataSpaceModelRemovalFilePlan",
+      "jsdoc": "删除预览的场景文件基线及数据库删除后的局部收尾。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    baseline: string | null;\n    layout: boolean;\n    assertCurrent(): void;\n    complete(reconcile: boolean): Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    baseline: string | null;\n    layout: boolean;\n    assertCurrent(): void;\n    complete(reconcile: boolean): Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "layout",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "complete",
+              "parameters": [
+                {
+                  "name": "reconcile",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ModelRemoveStatus": {
+      "name": "ModelRemoveStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'previewing' | 'ready' | 'saving' | 'unknown' | 'readback' | 'different' | 'configuration'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'previewing'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ready'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'saving'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'different'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'configuration'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ModelRemoveFlow": {
+      "name": "ModelRemoveFlow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    status: ModelRemoveStatus;\n    entries: Removal[];\n    staged: Set<Removal>;\n    baseline: string;\n    name: string;\n    confirmed: boolean;\n    databaseComplete: boolean;\n    filePlan: LowcodeDataSpaceModelRemovalFilePlan | null;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "entries",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "staged",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "confirmed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "databaseComplete",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "filePlan",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verification",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelRemoveLifecycle": {
+      "name": "ModelRemoveLifecycle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n    validateFile(views: readonly DataView[]): Promise<LowcodeDataSpaceModelRemovalFilePlan>;\n    onDispatch(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n    validateFile(views: readonly DataView[]): Promise<LowcodeDataSpaceModelRemovalFilePlan>;\n    onDispatch(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validateFile",
+              "parameters": [
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataView[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LowcodeDataSpaceModelRemovalFilePlan",
+                    "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "onDispatch",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ModelRemoveHost": {
+      "name": "ModelRemoveHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly modelId: string;\n    readonly lifecycle: ModelRemoveLifecycle;\n    readonly dependencies: LowcodeDataSpaceModelDependencies;\n    readonly views: DataView[];\n    flow: ModelRemoveFlow;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dependencies",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flow",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelRemoveHandle": {
+      "name": "ModelRemoveHandle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelRemoveGetState>;\n    preview(): Promise<void>;\n    cancel(): void;\n    save(): Promise<boolean>;\n    verify(): Promise<boolean>;\n    acceptCurrent(): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "getState",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof modelRemoveGetState"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "preview",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

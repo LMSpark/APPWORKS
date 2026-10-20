@@ -357,6 +357,11 @@ describe('persisted DataTable submission configuration', () => {
       await expect(runtime.view.saveChanges()).rejects.toThrow()
       expect(runtime.http.requests).toHaveLength(2)
       expect(runtime.view.dirtyTracking.isDirty('A')).toBe(true)
+      expect(runtime.view.hasUnconfirmedSave).toBe(true)
+      const writes = runtime.http.requests.filter(request => request.url === '/api/orders/save').length
+      await expect(runtime.view.saveChanges()).rejects.toThrow('SPARK_SAVE_NOT_APPLIED')
+      expect(runtime.http.requests.filter(request => request.url === '/api/orders/save')).toHaveLength(writes)
+      expect(runtime.view.dirtyTracking.isDirty('A')).toBe(true)
       runtime.http.receipt = {maplistedit: [{PhysicalOrders: [{id: 'A', title: 'Accepted'}]}]}
       await runtime.view.saveChanges()
       runtime.table.setApi({update: {url: '/api/next'}})

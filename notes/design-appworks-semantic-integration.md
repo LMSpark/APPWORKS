@@ -148,6 +148,8 @@
 
 总体：除入口与 A2 判断需按上表修正、P2/P4 规模上调外，方案语义与逻辑成立。
 
+**I2 实施中更正（2026-10-19）**：上表 P1 “未确认结果交原执行器核验”只对实现了 `hasUnconfirmedSave` 的执行器成立。全仓仅文件资源执行器实现（`packages/spark-project-model/src/scenario/scenario-definition-resource.ts` 60、146）；数据库记录执行器 `DataSpaceRuntimeApi` 未实现，写入后网络中断时 spark-data 不知道结果可能已生效。这正是旧命令类各自自建 unknown/readback 状态机的原因。新增 P1b：在 `DataSpaceRuntimeApi` 的保存执行器实现未确认标记与按主键回读核验（新增按 rowid 存在、修改按字段比对、删除按不存在），由 DataSet.saveChanges 的既有恢复路径统一消费；页面与命令不再自建。P1b 完成前，任何改为“读取 DataView 状态”的数据库保存页面都有重复提交风险。
+
 ## 8. 待用户审批的决定
 
 1. 设计器入口采用列表对话框 + 目标 ID prop（§4.2），并在 AGENTS 0.5 补述目标 ID 由宿主传入。

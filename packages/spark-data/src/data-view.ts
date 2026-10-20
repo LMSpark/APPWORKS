@@ -185,6 +185,8 @@ type DataViewQueryExecutor = Readonly<{
   save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>
   /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */
   hasUnconfirmedSave?(context: DataViewQueryResult): boolean
+  /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */
+  abandonUnconfirmedSave?(context: DataViewQueryResult): void
   /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */
   source?: DataViewSourceAdapter
 }>
@@ -2672,6 +2674,20 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   }
 
   /** 原查询owner仍保留的未确认提交；下一次保存先核验原捕获，新编辑和其他未派发视图留待随后显式保存。 */
+  /**
+   * 明确放弃本视图未确认提交的核验，之后可重新读取实际结果；本地草稿保留，由调用方决定丢弃或重新提交。
+   * 不撤销服务端可能已生效的写入。执行器未提供放弃能力时保持待核验并返回 false，仍须经原保存入口核验。
+   */
+  abandonUnconfirmedSave(): boolean {
+    const capture = this.#unconfirmedQuerySave
+    if (!capture) return true
+    if (!capture.executor.abandonUnconfirmedSave) return false
+    capture.executor.abandonUnconfirmedSave(capture.context)
+    if (capture.executor.hasUnconfirmedSave?.(capture.context) === true) return false
+    this.#unconfirmedQuerySave = undefined
+    return true
+  }
+
   get hasUnconfirmedSave(): boolean {
     const capture = this.#unconfirmedQuerySave
     return capture !== undefined && capture.executor.hasUnconfirmedSave?.(capture.context) === true

@@ -41,7 +41,7 @@ export class LowcodeDataSpaceCatalog {
   #disposed = false
   #revision = 0
   readonly #unsubscribe: () => void
-  #edit: {id: string; mode: 'add' | 'edit'; status: 'editing' | 'saving' | 'unknown' | 'readback'; row: DataRow; revision: number} | undefined
+  #edit: {id: string; mode: 'add' | 'edit'; row: DataRow; revision: number} | undefined
   #bindings: DataView | undefined
   #ancestors: DataView | undefined
   #bindingTarget: DataRow | undefined
@@ -101,8 +101,17 @@ export class LowcodeDataSpaceCatalog {
 
   public async initialize(): Promise<void> {await Promise.all([this.view.refresh(), this.apps.refresh()])}
 
-  /** 弹窗只持有操作身份；全部字段草稿仍在目录DataView。 */
-  public get editing() {return this.#edit ? {id: this.#edit.id, mode: this.#edit.mode, status: this.#edit.status} : undefined}
+  /**
+   * 弹窗只持有操作身份；草稿、提交中与未确认状态都读取目录DataView自身状态。
+   * unconfirmed：原提交结果未确认，只能经原保存入口核验；readbackFailed：已确认提交后的重新读取失败。
+   */
+  public get editing() {
+    const edit = this.#edit
+    if (!edit) return undefined
+    const unconfirmed = this.view.hasUnconfirmedSave
+    const pending = this.view.hasEditingChanges(edit.id) || this.view.dirtyTracking.hasPendingChanges()
+    return {id: edit.id, mode: edit.mode, unconfirmed, readbackFailed: !unconfirmed && !pending && !!this.view.loadingError}
+  }
   private row(id: string): DataRow | undefined {return this.view.rows.find(row => this.view.getPkKey(row) === id)}
   /** 新增继续消费正式查询的表级授权，不能由页面身份放行。 */
   public canCreate(): boolean {return this.idle() && this.view.addActionState() === 'enabled'}
@@ -131,7 +140,7 @@ export class LowcodeDataSpaceCatalog {
     const id = row['rowid'], current = this.row(id)
     if (!current) throw new Error('新增目录行未进入原视图')
     this.view.setCurrentRowById(id); this.view.setSelectedRows([current])
-    this.#edit = {id, mode: 'add', status: 'editing', row: current, revision}
+    this.#edit = {id, mode: 'add', row: current, revision}
   }
   /** 在当前正式行打开编辑，不复制modelValue或另建表单数据。 */
   public beginEdit(): void {
@@ -140,18 +149,27 @@ export class LowcodeDataSpaceCatalog {
     const id = this.designTarget(), row = this.row(id)
     if (!row) throw new Error('目录编辑目标已变化')
     this.view.setCurrentRowById(id)
-    this.#edit = {id, mode: 'edit', status: 'editing', row, revision: this.#revision}
+    this.#edit = {id, mode: 'edit', row, revision: this.#revision}
   }
   /** 取消只丢弃本条未提交修改；未确认保存不能伪装成服务器回滚。 */
   public cancelEdit(): void {
     const edit = this.#edit
-    if (edit?.status !== 'editing') throw new Error('请先核验未确认的保存结果')
+    if (!edit) return
+    if (this.view.hasUnconfirmedSave) throw new Error('请先核验未确认的保存结果')
+    if (this.view.mutating) throw new Error('保存进行中，不能取消')
+    if (this.editing?.readbackFailed) {this.#edit = undefined; return}
     this.editRow(); this.view.discardPendingChanges([edit.id]); this.#edit = undefined
   }
-  /** 仅保存当前空间记录；DataSet处理编辑覆盖、权限、批次及真实回执。 */
+  /**
+   * 仅保存当前空间记录；DataSet处理编辑覆盖、权限、批次及真实回执。
+   * 结果未确认时再次调用即走原保存入口核验（不重放写入）。
+   */
   public async saveEdit(): Promise<void> {
     const edit = this.#edit
-    if (edit?.status !== 'editing') throw new Error('当前编辑不能重复提交')
+    if (!edit) throw new Error('当前没有目录编辑')
+    if (this.view.mutating) throw new Error('当前编辑不能重复提交')
+    if (this.view.hasUnconfirmedSave) {await this.commit(edit.id); return}
+    if (this.editing?.readbackFailed) {await this.reload(); return}
     const row = this.editRow()
     const allowed = edit.mode === 'add' ? ['Name', 'description', 'sysid'] : ['Name', 'description']
     const patch = this.view.getEditingPatch(edit.id) ?? {}, value = this.view.getEditingRow(edit.id)
@@ -171,28 +189,53 @@ export class LowcodeDataSpaceCatalog {
     if (edit.mode === 'add' && (this.apps.requestState !== RequestState.Loaded || !this.apps.rows.some(app =>
       this.apps.fieldAccess(app, 'rowid').read === 'visible' && app['rowid'] === this.view.getEditingRow(edit.id)?.['sysid']))) throw new Error('所属应用不在当前可读候选项中')
     if (edit.mode === 'edit' && !this.view.hasEditingChanges(edit.id)) {this.#edit = undefined; return}
-    edit.status = 'saving'
-    try {
-      const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: [edit.id]}]})
-      this.assertCurrent()
-      const receipt = result.data?.viewResults
-      if (!result.success || receipt?.length !== 1 || receipt[0]?.failedCount || receipt[0]?.failedEditingRows
-        || receipt[0]?.[edit.mode === 'add' ? 'createdCount' : 'savedCount'] !== 1) throw new Error('目录保存回执未确认目标成功')
-      edit.status = 'readback'
-      await this.view.refresh(); this.assertCurrent()
-      if (this.view.loadingError) throw this.view.loadingError
-      this.#edit = undefined
-    } catch (cause) {if (edit.status === 'saving') edit.status = 'unknown'; throw cause}
+    await this.commit(edit.id)
   }
-  /** 用户明确放弃本地状态后只重查，不重放未知写入，也不宣称原保存成功。 */
-  public async reloadEdit(): Promise<void> {
+  /** 原保存入口提交一条目录记录；成功后重读目录，失败保留草稿，未确认交原执行器核验。 */
+  private async commit(id: string): Promise<void> {
+    const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: [id]}]})
     this.assertCurrent()
-    const edit = this.#edit
-    if (!edit || edit.status === 'saving') throw new Error('当前不能核验目录保存')
-    this.view.discardPendingChanges([edit.id]); edit.status = 'readback'
+    if (!result.success) throw new Error(result.message ?? '数据空间保存失败')
+    await this.reload()
+  }
+  private async reload(): Promise<void> {
     await this.view.refresh(); this.assertCurrent()
     if (this.view.loadingError) throw this.view.loadingError
     this.#edit = undefined
+  }
+
+  /** 删除仍消费正式查询的行级授权；空间下仍有模型时拒绝，避免遗留孤立模型、字段与关系。 */
+  public canDelete(): boolean {
+    const id = this.designTarget(), row = id ? this.row(id) : undefined
+    return this.idle() && !!row && this.view.deleteActionState(row) === 'enabled'
+  }
+  /** 先核空间下的模型数，再经原DataView暂存删除并由DataSet提交；不级联删除其他记录或场景文件。 */
+  public async deleteSelected(): Promise<void> {
+    if (!this.canDelete()) throw new Error('当前不能删除此数据空间')
+    const id = this.designTarget(), row = this.row(id)
+    if (!row) throw new Error('删除目标已变化')
+    const models = this.dataSet.getView('Base_DataModel')
+    if (!models) throw new Error('正式目录场景未配置模型视图，无法核对删除影响')
+    const check = models.createQueryView('catalogDeleteCheck')
+    try {
+      check.autoLoad = false; check.pageSize = 1
+      check.queryConfig = {...check.queryConfig, fields: ['rowid'], allPages: false, autoQuery: false}
+      const scope = models.filterExpression, own = {field: 'dataSetId', operator: 'eq' as const, value: id}
+      check.filterExpression = scope ? {logic: 'and', filters: [scope, own]} : own
+      await check.refresh(); this.assertCurrent()
+      if (check.loadingError) throw check.loadingError
+      if (check.total > 0) throw new Error(`该数据空间仍有 ${check.total} 个模型，请先在设计器中删除模型后再删除空间`)
+    } finally {models.dataTable?.destroyView(check.viewId)}
+    if (this.row(this.designTarget()) !== row) throw new Error('删除目标已变化')
+    await this.view.removeRow(id)
+    const result = await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: [id]}]})
+    this.assertCurrent()
+    if (!result.success) {
+      if (!this.view.hasUnconfirmedSave) this.view.discardPendingChanges([id])
+      throw new Error(result.message ?? '删除数据空间失败')
+    }
+    await this.view.refresh(); this.assertCurrent()
+    if (this.view.loadingError) throw this.view.loadingError
   }
 
   /** 绑定结果视图与祖先目录分别持有原查询结果，不构造页面数据数组。 */

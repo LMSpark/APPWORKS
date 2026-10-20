@@ -21,6 +21,7 @@ class DataSpaceFixtureHttpClient extends HttpClientBase {
   public saveGate: Promise<void> | undefined
   public saveStarted: (() => void) | undefined
   public saveResult: unknown = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 120 }] }] }
+  public saveError: Error | undefined
   public result: unknown = {
     primaryKeyField: 'rowid',
     data: {
@@ -53,6 +54,7 @@ class DataSpaceFixtureHttpClient extends HttpClientBase {
       this.saveRequests.push(config)
       this.saveStarted?.()
       await this.saveGate
+      if (this.saveError) throw this.saveError
     }
     return {
       data: { Code: 200, Result: config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD' ? this.saveResult
@@ -484,16 +486,51 @@ describe('DataSpace runtime save owner', () => {
     expect(http.queryRequests).toHaveLength(2)
   })
 
-  it('keeps a rejected baseline available for an explicit later save', async () => {
+  it('treats an accepted but unreadable receipt as unconfirmed, verifies without replay and then allows an explicit save', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const api = activeApi(http)
     const context = await api.dataSpace.runtime.query(identity)
     const command = { changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] }
     http.saveResult = {}
-    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('桶')
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNCONFIRMED')
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_NOT_APPLIED')
+    expect(http.saveRequests).toHaveLength(1)
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
     http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 120 }] }] }
     await expect(api.dataSpace.runtime.save(command)).resolves.toHaveLength(1)
     expect(http.saveRequests).toHaveLength(2)
+  })
+
+  it('confirms a write lost in transport by primary-key readback and publishes the read rows as the receipt', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    const command = { changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] }
+    http.saveError = new Error('socket closed')
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed')
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    http.saveError = undefined
+    http.queryResults.push({ ...(http.result as Record<string, unknown>), data: { Items: [{ rowid: 'ROW-1', salary: 120,
+      lingma_sys_key: 'ROW-KEY', lingma_sys_params: { r: ['salary'], e: ['salary'], h: [], m: [], d: true } }], Count: 1 } })
+    const receipts = await api.dataSpace.runtime.save(command)
+    expect(http.saveRequests).toHaveLength(1)
+    expect(http.queryRequests.at(-1)?.data).toMatchObject({ Table: [{ Filter: { Field: 'rowid', Operator: 'in' } }] })
+    expect(receipts[0]?.context.rows).toEqual([{ rowid: 'ROW-1', salary: 120 }])
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context: receipts[0]!.context,
+      changes: { changed: [{ rowid: 'ROW-1', salary: 130 }] } }] })).resolves.toHaveLength(1)
+  })
+
+  it('refuses to mix another change into an unconfirmed batch', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const api = activeApi(http)
+    const context = await api.dataSpace.runtime.query(identity)
+    http.saveError = new Error('timeout')
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] })).rejects.toThrow()
+    http.saveError = undefined
+    await expect(api.dataSpace.runtime.save({ changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 999 }] } }] }))
+      .rejects.toThrow('不能夹带')
+    expect(http.saveRequests).toHaveLength(1)
   })
 
   it('sends two owned models in one same-scenario request', async () => {
@@ -1155,7 +1192,7 @@ describe('DataView original query execution boundary', () => {
     ds.destroy()
   })
 
-  it('locally discards an unknown save result then explicitly reads the owner’s current server value', async () => {
+  it('blocks refresh while a save result is unconfirmed and resolves it only through the original save entry', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const { ds, view } = connectedView(http)
     await view.loadFromServer()
@@ -1164,17 +1201,14 @@ describe('DataView original query execution boundary', () => {
     await expect(view.saveChanges()).rejects.toThrow()
 
     expect(view.mutating).toBe(false)
-    expect(view.rows[0]?.['salary']).toBe(120)
-    expect(view.discardPendingChanges()).toBe(1)
-    expect(view.rows[0]?.['salary']).toBe(100)
-    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
-    expect(http.queryRequests).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(true)
+    await expect(view.refresh()).rejects.toThrow('DATA_VIEW_UNCONFIRMED_SAVE')
     expect(http.saveRequests).toHaveLength(1)
 
-    http.queryResults = [{ data: { Items: [] }, allowAdd: false }]
-    await view.refresh()
-    expect(view.rows[0]?.['salary']).toBe(100)
-    await expect(view.editRowById('ROW-1', { salary: 140 })).rejects.toThrow('DATA_VIEW_RESULT_STALE')
+    await expect(view.saveChanges()).rejects.toThrow('SPARK_SAVE_NOT_APPLIED')
+    expect(http.saveRequests).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(view.discardPendingChanges()).toBe(1)
 
     http.result = { primaryKeyField: 'rowid', allowAdd: true, lingma_sys_key: 'TABLE-KEY',
       data: { Items: [{ rowid: 'ROW-1', salary: 130, lingma_sys_key: 'ROW-KEY',
@@ -1182,7 +1216,6 @@ describe('DataView original query execution boundary', () => {
     await view.refresh()
     expect(view.rows[0]?.['salary']).toBe(130)
     expect(view.fieldAccess(view.rows[0] ?? null, 'salary')).toMatchObject({ read: 'visible', write: 'allowed' })
-    expect(http.queryRequests).toHaveLength(3)
     expect(http.saveRequests).toHaveLength(1)
     ds.destroy()
   })

@@ -1,0 +1,645 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session",
+    "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session",
+    "jsdoc": "@module lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session\n职责：计算字段定义的删除预览、原批次提交及精确回读（无独立命令类 FSM）。\n边界：不删除物理字段或自动改写引用；数据权限、暂存及写入归原DataView/DataSet。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "FieldRemoveStatus",
+      "FieldRemoveFlow",
+      "FieldRemoveLifecycle",
+      "FieldRemoveHost",
+      "FieldRemoveHandle"
+    ]
+  },
+  "$defs": {
+    "FieldRemoveStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "FieldRemoveStatus",
+      "enum": [
+        "staged",
+        "idle",
+        "unknown",
+        "readback",
+        "previewing",
+        "ready",
+        "saving",
+        "different"
+      ]
+    },
+    "FieldRemoveFlow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldRemoveFlow",
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/FieldRemoveStatus"
+        },
+        "row": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataRow"
+        },
+        "baseline": {
+          "type": "string"
+        },
+        "staged": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "confirmed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "verification": {
+          "type": "string"
+        },
+        "verifiedSnapshot": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "row",
+        "baseline",
+        "staged",
+        "confirmed",
+        "verification",
+        "verifiedSnapshot"
+      ],
+      "additionalProperties": false
+    },
+    "FieldRemoveLifecycle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldRemoveLifecycle",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onDispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDispatch.return": true,
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": {
+          "type": "object",
+          "title": "Promise<() => void>"
+        },
+        "method.fieldWorkspaces.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fieldWorkspaces.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "view": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "allowPending": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "view",
+              "ids"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "FieldRemoveHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldRemoveHost",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "fieldId": {
+          "type": "string"
+        },
+        "fieldViewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/FieldRemoveLifecycle"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "source": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "sourceContext": {
+          "type": "string"
+        },
+        "dependencies": {
+          "$ref": "../lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
+        },
+        "flow": {
+          "$ref": "#/$defs/FieldRemoveFlow"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "fieldId",
+        "fieldViewId",
+        "lifecycle",
+        "views",
+        "source",
+        "sourceContext",
+        "dependencies",
+        "flow"
+      ],
+      "additionalProperties": false
+    },
+    "FieldRemoveHandle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldRemoveHandle",
+      "$defs": {
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "title": "ReturnType<typeof fieldRemoveGetState>"
+        },
+        "method.preview.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.preview.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.stage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stage.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.prepareSave.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.prepareSave.return": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionSavePart"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<boolean>"
+        },
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-20T05:18:39.213Z",
+  "models": {
+    "FieldRemoveStatus": {
+      "name": "FieldRemoveStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'previewing' | 'ready' | 'staged' | 'saving' | 'unknown' | 'readback' | 'different'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'previewing'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'ready'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'staged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'saving'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'different'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FieldRemoveFlow": {
+      "name": "FieldRemoveFlow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    status: FieldRemoveStatus;\n    row: DataRow | null;\n    baseline: string;\n    staged: boolean;\n    confirmed: boolean;\n    verification: string;\n    verifiedSnapshot: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "status",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "row",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "baseline",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "staged",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "confirmed",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verification",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "verifiedSnapshot",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldRemoveLifecycle": {
+      "name": "FieldRemoveLifecycle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    validate(row: DataRow, views: readonly DataView[]): Promise<() => void>;\n    fieldWorkspaces?(modelId: string): ReadonlyArray<Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    validate(row: DataRow, views: readonly DataView[]): Promise<() => void>;\n    fieldWorkspaces?(modelId: string): ReadonlyArray<Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDispatch",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "validate",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                },
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataView[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "fieldWorkspaces",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FieldRemoveHost": {
+      "name": "FieldRemoveHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly fieldId: string;\n    readonly fieldViewId: 'default' | 'modelFields';\n    readonly lifecycle: FieldRemoveLifecycle;\n    views: DataView[];\n    readonly source: DataView;\n    readonly sourceContext: string;\n    dependencies: LowcodeDataSpaceModelDependencies | undefined;\n    flow: FieldRemoveFlow;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldViewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourceContext",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dependencies",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "flow",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldRemoveHandle": {
+      "name": "FieldRemoveHandle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof fieldRemoveGetState>;\n    preview(): Promise<void>;\n    cancel(): void;\n    stage(): Promise<void>;\n    prepareSave(): DataSpaceDefinitionSavePart;\n    save(): Promise<boolean>;\n    verify(): Promise<boolean>;\n    acceptCurrent(): void;\n}",
+        "members": {
+          "methods": [
+            {
+              "name": "getState",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "typeof fieldRemoveGetState"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "preview",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "stage",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareSave",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceDefinitionSavePart",
+                "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

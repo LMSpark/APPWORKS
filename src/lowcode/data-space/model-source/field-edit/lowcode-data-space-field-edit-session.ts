@@ -1,19 +1,31 @@
 /**
- * @module app:lowcode/data-space/model-source/lowcode-data-space-field-edit
- * 职责：编排正式字段配置提交；普通属性消费原生回执，结构变更与未知结果按领域核验。
+ * @module lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session
+ * 职责：编排正式字段配置提交；普通属性消费原生回执，结构变更与未知结果按领域核验（无独立命令类 FSM）。
  * 边界：原DataView持有编辑值和数据权限；不改来源身份或场景文件，不执行值函数。
- * AI用途：字段组件绑定元数据视图后调用此流程，未知结果只核验，不重放保存。
  */
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import type {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {LowcodeDataSpaceFieldValue} from './field-value/lowcode-data-space-field-value'
-import {DataSpaceDefinitionSave, type DataSpaceDefinitionSavePart} from './save/data-space-definition-save'
-import type {LowcodeDataSpaceFieldRemove} from './removal/lowcode-data-space-field-remove'
-import {LowcodeDataSpacePrimaryKey} from './primary-key/lowcode-data-space-primary-key'
+import {LowcodeDataSpaceFieldValue} from '../field-value/lowcode-data-space-field-value'
+import {DataSpaceDefinitionSave, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
+import type {FieldRemoveHandle} from '../removal/lowcode-data-space-field-remove-session'
+import {LowcodeDataSpacePrimaryKey} from '../primary-key/lowcode-data-space-primary-key'
+
+type FieldEditStatus = 'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback'
+
+export type FieldEditLifecycle = Readonly<{
+  assertCurrent(): void
+  onDispatch(): void
+  readDefinition?(): DataSet | ScenarioViewConfig | null
+  readModel(modelId: string, modelName: string): ReturnType<DataSpaceDesignApi['readModel']>
+  validateOutputs(changes: ReadonlyArray<{original: DataRow; patch: Readonly<Record<string, unknown>>; creating?: boolean}>, modelPatch?: Readonly<Record<string, unknown>>): Promise<() => void>
+  stagePrimaryKey?(modelId: string, name: string): void
+  refreshDirectory?(): Promise<void>
+  assertEditable?(): void
+}>
 
 /** 正式字段配置流程；所有数据、delta及权限留在原元数据视图。 */
-export class LowcodeDataSpaceFieldEdit {
+class FieldEditSession {
   /** 这些列属性不改变字段身份、输出结构或查询语义，直接消费原数据层字段回执。 */
   private static readonly receiptFields = new Set(['description', 'Expression', 'allowAIAdd'])
   private static readonly fields = [
@@ -36,15 +48,11 @@ export class LowcodeDataSpaceFieldEdit {
   #identity: string | undefined
   #baseline: string
   #created: boolean
-  #status: 'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback' = 'idle'
+  #status: FieldEditStatus = 'idle'
 
   /** 捕获当前字段及所属模型；派发提交后通知会话废弃旧目标投影。 */
   constructor(private readonly dataSet: DataSet, private readonly targetId: string, private readonly fieldId: string,
-    private readonly lifecycle: Readonly<{assertCurrent(): void; onDispatch(): void; readDefinition?(): DataSet | ScenarioViewConfig | null;
-      readModel(modelId: string, modelName: string): ReturnType<DataSpaceDesignApi['readModel']>;
-      validateOutputs(changes: ReadonlyArray<{original: DataRow; patch: Readonly<Record<string, unknown>>; creating?: boolean}>, modelPatch?: Readonly<Record<string, unknown>>): Promise<() => void>;
-      stagePrimaryKey?(modelId: string, name: string): void;
-      refreshDirectory?(): Promise<void>; assertEditable?(): void}>, private readonly viewId: 'default' | 'modelFields' = 'default') {
+    private readonly lifecycle: FieldEditLifecycle, private readonly viewId: 'default' | 'modelFields' = 'default') {
     const view = dataSet.getView('Base_DataModel_Field', viewId)
     if (!view) throw new Error('DATA_SPACE_FIELD_CONTEXT: 缺少正式字段视图')
     this.#view = view; this.#context = JSON.stringify(view.queryContext)
@@ -91,7 +99,7 @@ export class LowcodeDataSpaceFieldEdit {
     return row
   }
 
-  private snapshot(row: DataRow): string {return JSON.stringify(LowcodeDataSpaceFieldEdit.fields.map(field => row[field.name]))}
+  private snapshot(row: DataRow): string {return JSON.stringify(FieldEditSession.fields.map(field => row[field.name]))}
 
   private writable(row: DataRow): boolean {
     return (this.#view.dirtyTracking.isPendingCreate(this.fieldId) ? this.#view.addActionState() : this.#view.editActionState(row)) === 'enabled'
@@ -105,8 +113,16 @@ export class LowcodeDataSpaceFieldEdit {
       && models.fieldAccess(model, 'PrimaryKeyFields').write === 'allowed'
   }
 
+  /** 对外状态；`unknown` 优先消费 P1b `hasUnconfirmedSave`。 */
+  private flowStatus(): FieldEditStatus {
+    if (this.#status === 'pending') return 'pending'
+    if (this.#status === 'readback') return 'readback'
+    if (this.#status === 'unknown' || this.#view.hasUnconfirmedSave && this.#status !== 'idle') return 'unknown'
+    return this.#status
+  }
+
   /** 状态仅描述流程；未决提交即使没有delta仍需保留核验入口。 */
-  getState() {return {status: this.#status, pending: this.#view.hasEditingChanges(this.fieldId) || this.#view.dirtyTracking.hasPendingChanges(this.fieldId)}}
+  getState() {return {status: this.flowStatus(), pending: this.#view.hasEditingChanges(this.fieldId) || this.#view.dirtyTracking.hasPendingChanges(this.fieldId)}}
 
   /**
    * 读取可由正式查询消费的字段配置；不保存或改变模型定义。
@@ -115,7 +131,7 @@ export class LowcodeDataSpaceFieldEdit {
    */
   readPreview() {
     const original = this.current(), patch = this.#view.getEditingPatch(this.fieldId) ?? {}
-    if (this.viewId !== 'modelFields' && this.#view.hasEditingChanges() || this.#status !== 'idle' || this.#view.dirtyTracking.hasPendingChanges()) throw new Error('字段定义存在新增、删除或未决提交，不能预览')
+    if (this.viewId !== 'modelFields' && this.#view.hasEditingChanges() || this.flowStatus() !== 'idle' || this.#view.dirtyTracking.hasPendingChanges()) throw new Error('字段定义存在新增、删除或未决提交，不能预览')
     if (this.snapshot(original) !== this.#baseline) throw new Error('字段定义基线已变化，请重新读取')
     for (const [field, value] of Object.entries(patch)) {
       if (!['description', 'IsOutput', 'Order', 'OrderType'].includes(field)) throw new Error(`字段定义${field}尚未保存，查询接口不支持该结构草稿预览`)
@@ -139,7 +155,7 @@ export class LowcodeDataSpaceFieldEdit {
   /** 提供当前允许呈现的配置项，不复制值；组件直接绑定原DataView。 */
   read() {
     const row = this.current(), editing = this.#view.getEditingRow(this.fieldId) ?? row
-    return {fields: LowcodeDataSpaceFieldEdit.fields.filter(field => this.#view.columns.some(column => column.name === field.name)
+    return {fields: FieldEditSession.fields.filter(field => this.#view.columns.some(column => column.name === field.name)
       && (field.name !== 'Name' || row['FieldType'] === '计算字段')).map(field => {
       const access = this.#view.fieldAccess(row, field.name), value = access.read === 'visible' ? editing[field.name] : undefined
       const compatible = value === undefined || value === null || (field.kind === 'binary' ? value === 0 || value === 1
@@ -204,7 +220,7 @@ export class LowcodeDataSpaceFieldEdit {
 
   private validate(field: string, value: unknown): void {
     const row = this.current()
-    if (!LowcodeDataSpaceFieldEdit.fields.some(item => item.name === field) || !this.#view.columns.some(column => column.name === field)) {
+    if (!FieldEditSession.fields.some(item => item.name === field) || !this.#view.columns.some(column => column.name === field)) {
       throw new Error('字段配置不能修改来源身份或其他属性')
     }
     if (this.#view.fieldAccess(row, field).read !== 'visible' || this.#view.fieldAccess(row, field).write !== 'allowed'
@@ -242,10 +258,10 @@ export class LowcodeDataSpaceFieldEdit {
   private assertEditable(expected: 'idle' | 'pending' = 'idle', replacingValueFunction = false, fieldIds: readonly string[] = [this.fieldId],
     patch: Readonly<Partial<DataRow>> = this.#view.getEditingPatch(this.fieldId) ?? {}): void {
     this.lifecycle.assertEditable?.()
-    if (this.#status !== expected || this.#view.dirtyTracking.dirtyRowIds.size
+    if (this.flowStatus() !== expected || this.#view.dirtyTracking.dirtyRowIds.size
       || [...this.#view.dirtyTracking.pendingCreateIds].some(id => !fieldIds.includes(String(id)))) throw new Error('请先核验未决字段修改')
     if (this.snapshot(this.current()) !== this.#baseline) throw new Error('字段配置基线已变化，请重新核验')
-    if ((this.#created || Object.keys(patch).some(field => !LowcodeDataSpaceFieldEdit.receiptFields.has(field)))
+    if ((this.#created || Object.keys(patch).some(field => !FieldEditSession.receiptFields.has(field)))
       && this.#view.rows.some(row => !fieldIds.includes(String(this.#view.getPkKey(row))) && this.#view.hasEditingChanges(this.#view.getPkKey(row)))) {
       throw new Error('请先处理其他字段草稿，避免完整回读覆盖')
     }
@@ -272,15 +288,15 @@ export class LowcodeDataSpaceFieldEdit {
   /** 只取消尚未派发的当前字段编辑，其他记录保持原状。 */
   discard(): void {
     this.assertOwner()
-    if (this.#status !== 'idle') throw new Error('已派发字段修改必须先核验')
+    if (this.flowStatus() !== 'idle') throw new Error('已派发字段修改必须先核验')
     if (this.#created) this.#view.discardPendingChanges([this.fieldId])
     else this.#view.discardEditingRows([this.fieldId])
   }
 
   /** 单字段保存与批量保存共用校验和原生提交；结构命令保留必要回读。 */
-  save(): Promise<void> {return LowcodeDataSpaceFieldEdit.saveBatch([this])}
+  save(): Promise<void> {return FieldEditSession.saveBatch([this])}
 
-  private static batch(owners: readonly LowcodeDataSpaceFieldEdit[], checkRows = true): LowcodeDataSpaceFieldEdit {
+  private static batch(owners: readonly FieldEditSession[], checkRows = true): FieldEditSession {
     const first = owners[0]
     if (!first || new Set(owners.map(owner => owner.fieldId)).size !== owners.length) throw new Error('字段批次为空或身份重复')
     for (const owner of owners) {
@@ -298,7 +314,7 @@ export class LowcodeDataSpaceFieldEdit {
    * @param mode all将目标设为输出，invert反转非主键的0/1值；不转换未知旧值类型。
    * @returns 本次改变的字段数和保持输出的正式主键数；尚未保存，仍可取消。
    */
-  static async stageOutputBatch(owners: readonly LowcodeDataSpaceFieldEdit[], mode: 'all' | 'invert'): Promise<{changedCount: number; primaryCount: number}> {
+  static async stageOutputBatch(owners: readonly FieldEditSession[], mode: 'all' | 'invert'): Promise<{changedCount: number; primaryCount: number}> {
     if (!['all', 'invert'].includes(mode)) throw new Error('未知批量输出操作')
     const first = this.batch(owners), view = first.#view, ids = owners.map(owner => owner.fieldId)
     owners.forEach(owner => owner.assertEditable('idle', false, ids))
@@ -337,14 +353,14 @@ export class LowcodeDataSpaceFieldEdit {
   }
 
   /** 同一模型的多个字段只调用一次原DataSet保存；流程状态仍留在各字段owner。 */
-  static async saveBatch(owners: readonly LowcodeDataSpaceFieldEdit[], removals: readonly LowcodeDataSpaceFieldRemove[] = []): Promise<void> {
+  static async saveBatch(owners: readonly FieldEditSession[], removals: readonly FieldRemoveHandle[] = []): Promise<void> {
     const removalParts = removals.map(owner => owner.prepareSave())
     const part = this.prepareSave(owners, undefined, removalParts.flatMap(removal => removal.targets().flatMap(target => target.ids)))
     await DataSpaceDefinitionSave.run([...(part ? [part] : []), ...removalParts])
   }
 
   /** 模型主键选择与字段窗口共用同一工作区编辑域；先核全部权限，再同步标记，不派发。 */
-  static stagePrimaryKey(owners: readonly LowcodeDataSpaceFieldEdit[], name: string, scope: Readonly<{dataSet: DataSet; targetId: string; modelId: string}>): DataView {
+  static stagePrimaryKey(owners: readonly FieldEditSession[], name: string, scope: Readonly<{dataSet: DataSet; targetId: string; modelId: string}>): DataView {
     const first = this.batch(owners), view = first.#view, ids = owners.map(owner => owner.fieldId)
     if (first.dataSet !== scope.dataSet || first.targetId !== scope.targetId || first.#modelId !== scope.modelId) throw new Error('主键字段批次必须属于当前数据空间实例和模型')
     if (first.viewId !== 'modelFields' || view.rows.some(row => !ids.includes(String(row['rowid'])))) throw new Error('主键与字段修改必须在完整模型工作区统一保存')
@@ -366,9 +382,9 @@ export class LowcodeDataSpaceFieldEdit {
   }
 
   /** 为模型工作区提供原字段批次的保存阶段；不提前应用或派发。ValueFun、OrderType或AsName显式清空允许回读为null，其他值保持精确核验。 */
-  static prepareSave(owners: readonly LowcodeDataSpaceFieldEdit[], modelPatch?: Readonly<Record<string, unknown>>, removedIds: readonly string[] = []): DataSpaceDefinitionSavePart | undefined {
+  static prepareSave(owners: readonly FieldEditSession[], modelPatch?: Readonly<Record<string, unknown>>, removedIds: readonly string[] = []): DataSpaceDefinitionSavePart | undefined {
     if (!owners.length) return
-    if (owners.some(owner => owner.#status !== 'idle')) throw new Error('请先核验未决字段修改')
+    if (owners.some(owner => owner.flowStatus() !== 'idle')) throw new Error('请先核验未决字段修改')
     const first = this.batch(owners), view = first.#view, ids = owners.map(owner => owner.fieldId)
     owners.forEach(owner => owner.assertEditable('idle', false, ids))
     if ([...view.dirtyTracking.pendingDeleteIds].some(id => !removedIds.includes(String(id)))) throw new Error('字段删除必须与同一工作区统一保存')
@@ -425,11 +441,17 @@ export class LowcodeDataSpaceFieldEdit {
         }
         owners.forEach(owner => {owner.#baseline = owner.snapshot(owner.current()); owner.#created = false; owner.#status = 'idle'})
       },
-      failed: stage => {owners.forEach(owner => {owner.#status = stage === 'confirmed' ? 'readback' : stage === 'dispatched' ? 'unknown' : stage === 'applying' ? 'unsubmitted' : 'idle'})},
+      failed: stage => {owners.forEach(owner => {
+        owner.#status = stage === 'confirmed' ? 'readback'
+          : stage === 'dispatched' ? (owner.#view.hasUnconfirmedSave ? 'unsubmitted' : 'unknown')
+          : stage === 'applying' ? 'unsubmitted' : 'idle'
+      })},
     }
   }
 
   private async readback(): Promise<void> {
+
+    this.dataSet.abandonUnconfirmedSaves()
     this.assertOwner()
     if (this.#view.hasEditingChanges() || this.#view.dirtyTracking.hasPendingChanges()) throw new Error('字段草稿仍未处理，不能用回读覆盖')
     const result = await this.#view.loadFromServer({filter: this.#view.filterExpression ?? {field: 'dataSetId', operator: 'eq', value: this.targetId}, sort: 'rowid:asc', allPages: true, maxRows: 50000})
@@ -440,15 +462,15 @@ export class LowcodeDataSpaceFieldEdit {
   }
 
   /** 显式处理本行待提交差异后重新读取；不重放已经派发的请求。 */
-  reload(discardPending: boolean): Promise<void> {return LowcodeDataSpaceFieldEdit.reloadBatch([this], discardPending)}
+  reload(discardPending: boolean): Promise<void> {return FieldEditSession.reloadBatch([this], discardPending)}
 
   /** 明确放弃所选字段本地差异后统一回读，不重复提交，不覆盖范围外草稿。 */
-  static async reloadBatch(owners: readonly LowcodeDataSpaceFieldEdit[], discardPending: boolean): Promise<void> {
+  static async reloadBatch(owners: readonly FieldEditSession[], discardPending: boolean): Promise<void> {
     await this.prepareReloadBatch(owners, discardPending)()
   }
 
   /** 同步放弃本次明确选择的字段差异，返回原视图只读核验；先准备联合目标，异步等待中新增的草稿不得再次取消。 */
-  static prepareReloadBatch(owners: readonly LowcodeDataSpaceFieldEdit[], discardPending: boolean): () => Promise<void> {
+  static prepareReloadBatch(owners: readonly FieldEditSession[], discardPending: boolean): () => Promise<void> {
     owners = [...owners]
     const first = this.batch(owners, false), view = first.#view, ids = owners.map(owner => owner.fieldId)
     if (owners.some(owner => owner.#status === 'pending') || view.mutating || view.requestState === RequestState.Loading) throw new Error('字段请求仍在进行')
@@ -469,4 +491,42 @@ export class LowcodeDataSpaceFieldEdit {
       } catch (cause) {owners.forEach(owner => {owner.#status = 'readback'}); throw cause}
     }
   }
+}
+
+export type FieldEditHost = FieldEditSession
+
+export function createFieldEditHost(dataSet: DataSet, targetId: string, fieldId: string, lifecycle: FieldEditLifecycle,
+  viewId: 'default' | 'modelFields' = 'default'): FieldEditHost {
+  return new FieldEditSession(dataSet, targetId, fieldId, lifecycle, viewId)
+}
+
+export type FieldEditHandle = FieldEditHost
+
+/** 页面与测试沿用的句柄；委托同一 host，不单独持有命令类 FSM。 */
+export function createFieldEditHandle(host: FieldEditHost): FieldEditHandle {
+  return host
+}
+
+export async function fieldEditStageOutputBatch(owners: readonly FieldEditHost[], mode: 'all' | 'invert') {
+  return FieldEditSession.stageOutputBatch(owners, mode)
+}
+
+export async function fieldEditSaveBatch(owners: readonly FieldEditHost[], removals: readonly FieldRemoveHandle[] = []) {
+  return FieldEditSession.saveBatch(owners, removals)
+}
+
+export function fieldEditStagePrimaryKey(owners: readonly FieldEditHost[], name: string, scope: Readonly<{dataSet: DataSet; targetId: string; modelId: string}>) {
+  return FieldEditSession.stagePrimaryKey(owners, name, scope)
+}
+
+export function fieldEditPrepareSave(owners: readonly FieldEditHost[], modelPatch?: Readonly<Record<string, unknown>>, removedIds: readonly string[] = []) {
+  return FieldEditSession.prepareSave(owners, modelPatch, removedIds)
+}
+
+export async function fieldEditReloadBatch(owners: readonly FieldEditHost[], discardPending: boolean) {
+  return FieldEditSession.reloadBatch(owners, discardPending)
+}
+
+export function fieldEditPrepareReloadBatch(owners: readonly FieldEditHost[], discardPending: boolean) {
+  return FieldEditSession.prepareReloadBatch(owners, discardPending)
 }

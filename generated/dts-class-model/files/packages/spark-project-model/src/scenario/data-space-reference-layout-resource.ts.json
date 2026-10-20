@@ -49,6 +49,10 @@
           "type": "object",
           "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; total: number; ... 10 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
         },
+        "abandonUnconfirmedSave": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; total: number; ... 10 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
+        },
         "source": {
           "$ref": "../../../spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
         }

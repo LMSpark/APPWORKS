@@ -68,7 +68,7 @@ export class DictionaryWorkspace {
     if (this.#busy || this.pending && !discard) throw new Error('请先保存或明确放弃字典修改')
     this.#busy = true
     try {
-      if (discard) for (const view of [this.definition, this.entries]) view.discardPendingChanges()
+      if (discard) for (const view of [this.definition, this.entries]) {view.abandonUnconfirmedSave(); view.discardPendingChanges()}
       const result = await this.definition.loadFromServer({singleFlight: false})
       if (!result.success) throw new Error(result.message ?? '字典定义读取失败')
       const absentAfterDelete = this.#deleting && this.definition.rows.length === 0

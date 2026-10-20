@@ -9,6 +9,16 @@ import {DataViewFilterLocal} from '../../../../../packages/spark-data/src/query/
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import metadataConfig from '../../../../../config/pages/data-platform/data-space-design/pagedata.json'
 import type {DataViewFilterTree} from '@spark-appworks/spark-data'
+import {defineComponent, h, type Component} from 'vue'
+import {useRoute} from 'vue-router'
+
+/** 测试宿主：把路由 scenarioId 作为唯一 targetId 传入设计页（生产由数据空间目录对话框传入）。 */
+export function designPageHost(page: Component): Component {
+  return defineComponent({name: 'DesignPageTestHost', setup() {
+    const route = useRoute()
+    return () => {const id = route.query['scenarioId']; return h(page, {targetId: typeof id === 'string' ? id : ''})}
+  }})
+}
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 function formal(name: string, fields: string[]): FormalModel {

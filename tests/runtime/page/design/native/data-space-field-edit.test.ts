@@ -2,11 +2,11 @@ import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest
 import {DOMWrapper, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus, {ElTree, ElButton} from 'element-plus'
-import {FieldValueFunction, FieldNumber, FieldSelect, FieldText, RendererForm, RendererButton, RendererDialog, FilterValueFunctionDialog, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
-import {dataSpacePageFixture} from './data-space-page.fixture'
+import {FieldValueFunction, FieldNumber, FieldSelect, FieldText, RendererForm, RendererButton, RendererDialog, RendererTabs, FilterValueFunctionDialog, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {dataSpacePageFixture, designPageHost} from './data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
-import {LowcodeDataSpaceFieldEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-field-edit'
+import {fieldEditReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
 import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/dynamic'
 
 vi.mock('@/lowcode/data-space/lowcode-data-space-design', () => ({openLowcodeDataSpaceDesignSession: vi.fn()}))
@@ -100,7 +100,7 @@ async function setup(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
 }
 async function page() {
   const router = createRouter({history: createMemoryHistory(), routes: []})
-  const dynamic = createDynamicRouter({router, pageComponent: DataSpaceDesignPage, componentMap: {'/data-space-design': DataSpaceDesignPage},
+  const dynamic = createDynamicRouter({router, pageComponent: designPageHost(DataSpaceDesignPage), componentMap: {'/data-space-design': designPageHost(DataSpaceDesignPage)},
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header',
       items: [{id: 'design', title: '数据空间设计', path: '/data-space-design', itemKind: 'system-page'}]})})
   await dynamic.registerRoutes()
@@ -576,7 +576,7 @@ describe('formal field configuration maintenance', () => {
   it('inverts model output drafts with a standard bound button, preserves the formal key and cancels without a write', async () => {
     const f = fixture({editableFieldProperties: ['IsOutput'], sourceFields: originalFields.map(row => row.rowid === 'AMOUNT' ? {...row, IsOutput: 0} : row)})
     const wrapper = await page(); await select(wrapper, 'Orders')
-    await wrapper.get('#tab-source').trigger('click'); await flushPromises()
+    await wrapper.find('.node-panel-tabs').getComponent(RendererTabs).get('#tab-fields').trigger('click'); await flushPromises()
     const control = wrapper.find('[data-action="invert-field-output"]')
     expect(control.exists()).toBe(true)
     const button = wrapper.findAllComponents(RendererButton).find(item => item.attributes('data-action') === 'invert-field-output')!
@@ -600,7 +600,7 @@ describe('formal field configuration maintenance', () => {
   it('enables all model outputs then saves once and reopens the native field metadata', async () => {
     const f = fixture({editableFieldProperties: ['IsOutput'], sourceFields: originalFields.map(row => row.rowid === 'PK' ? row : {...row, IsOutput: 0})})
     const wrapper = await page(); await select(wrapper, 'Orders')
-    await wrapper.get('#tab-source').trigger('click'); await flushPromises()
+    await wrapper.find('.node-panel-tabs').getComponent(RendererTabs).get('#tab-fields').trigger('click'); await flushPromises()
     const control = wrapper.find('[data-action="enable-field-output"]')
     expect(control.exists()).toBe(true)
     await control.trigger('click'); await flushPromises()
@@ -614,7 +614,7 @@ describe('formal field configuration maintenance', () => {
   it('uses the formal source key instead of the editable IsPKey flag when inverting', async () => {
     const {session, fields, writes} = await setup({editableFieldProperties: ['IsOutput'], formalPrimaryKey: 'amount'})
     const owners = originalFields.map(row => session.getFieldEdit(row.rowid))
-    expect(await LowcodeDataSpaceFieldEdit.stageOutputBatch(owners, 'invert')).toEqual({changedCount: 2, primaryCount: 1})
+    expect(await fieldEditStageOutputBatch(owners, 'invert')).toEqual({changedCount: 2, primaryCount: 1})
     expect(fields.getEditingRow('AMOUNT')?.['IsOutput']).toBe(1)
     expect(fields.getEditingRow('PK')?.['IsOutput']).toBe(0)
     expect(writes()).toHaveLength(0)
@@ -622,20 +622,20 @@ describe('formal field configuration maintenance', () => {
 
   it('preflights every changed field permission before modifying any draft', async () => {
     const {session, fields, writes} = await setup({editableFieldProperties: ['IsOutput'], deniedFieldOutputIds: ['AMOUNT']})
-    await expect(LowcodeDataSpaceFieldEdit.stageOutputBatch(originalFields.map(row => session.getFieldEdit(row.rowid)), 'invert')).rejects.toThrow('不可写')
+    await expect(fieldEditStageOutputBatch(originalFields.map(row => session.getFieldEdit(row.rowid)), 'invert')).rejects.toThrow('不可写')
     expect(fields.hasEditingChanges()).toBe(false); expect(writes()).toHaveLength(0)
   })
 
   it('does not need write permission for an already output primary key', async () => {
     const {session, fields} = await setup({editableFieldProperties: ['IsOutput'], deniedFieldOutputIds: ['PK']})
-    await LowcodeDataSpaceFieldEdit.stageOutputBatch(originalFields.map(row => session.getFieldEdit(row.rowid)), 'invert')
+    await fieldEditStageOutputBatch(originalFields.map(row => session.getFieldEdit(row.rowid)), 'invert')
     expect(fields.getEditingPatch('PK')).toBeUndefined()
     expect(fields.getEditingRow('PARENT')?.['IsOutput']).toBe(0)
   })
 
   it.each([null, false, '1'])('preserves an ambiguous old output value %j and every other field', async value => {
     const {session, fields} = await setup({editableFieldProperties: ['IsOutput'], sourceFields: originalFields.map(row => row.rowid === 'AMOUNT' ? {...row, IsOutput: value} : row)})
-    await expect(LowcodeDataSpaceFieldEdit.stageOutputBatch(originalFields.map(row => session.getFieldEdit(row.rowid)), 'invert')).rejects.toThrow('只接受0或1')
+    await expect(fieldEditStageOutputBatch(originalFields.map(row => session.getFieldEdit(row.rowid)), 'invert')).rejects.toThrow('只接受0或1')
     expect(fields.hasEditingChanges()).toBe(false)
     expect(fields.getEditingRow('AMOUNT')?.['IsOutput']).toBe(value)
   })
@@ -644,7 +644,7 @@ describe('formal field configuration maintenance', () => {
     const {session, fields, writes} = await setup({editableFieldProperties: ['IsOutput', 'description']})
     fields.updateEditingValue('AMOUNT', 'IsOutput', 0)
     fields.updateEditingValue('AMOUNT', 'description', '保留说明草稿')
-    await LowcodeDataSpaceFieldEdit.stageOutputBatch(originalFields.map(row => session.getFieldEdit(row.rowid)), 'invert')
+    await fieldEditStageOutputBatch(originalFields.map(row => session.getFieldEdit(row.rowid)), 'invert')
     expect(fields.getEditingPatch('AMOUNT')).toEqual({description: '保留说明草稿'})
     expect(fields.getEditingRow('PARENT')?.['IsOutput']).toBe(0)
     expect(writes()).toHaveLength(0)
@@ -653,8 +653,8 @@ describe('formal field configuration maintenance', () => {
   it.each(['draft', 'permission', 'scope'])('does not apply a stale batch after %s changes while reading the formal model', async change => {
     const {f, session, fields, writes} = await setup({editableFieldProperties: ['IsOutput', 'description']})
     const owners = originalFields.map(row => session.getFieldEdit(row.rowid)), release = f.holdDefinitionRead()
-    const outcome = LowcodeDataSpaceFieldEdit.stageOutputBatch(owners, 'invert').catch((cause: unknown) => cause)
-    await expect(LowcodeDataSpaceFieldEdit.stageOutputBatch(owners, 'all')).rejects.toThrow('未决')
+    const outcome = fieldEditStageOutputBatch(owners, 'invert').catch((cause: unknown) => cause)
+    await expect(fieldEditStageOutputBatch(owners, 'all')).rejects.toThrow('未决')
     if (change === 'draft') fields.updateEditingValue('AMOUNT', 'description', 'later draft')
     else if (change === 'permission') {f.denyFieldProperty('IsOutput'); await fields.loadFromServer({allPages: true})}
     else f.invalidate()
@@ -669,8 +669,8 @@ describe('formal field configuration maintenance', () => {
     const f = fixture({editableFieldProperties: ['IsOutput']})
     f.stored.set('A', JSON.stringify({scenarioId: 'A', tables: {OrdersAlias: {modelBinding: {modelId: 'M1', modelName: 'Orders'}, views: {default: {labelField: 'amount'}}}}}))
     const session = await f.open('A'), owners = originalFields.map(row => session.getFieldEdit(row.rowid))
-    await LowcodeDataSpaceFieldEdit.stageOutputBatch(owners, 'invert')
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(owners)).rejects.toThrow('labelField')
+    await fieldEditStageOutputBatch(owners, 'invert')
+    await expect(fieldEditSaveBatch(owners)).rejects.toThrow('labelField')
     expect(session.metadataDataSet.getView('Base_DataModel_Field', 'default')?.getEditingRow('AMOUNT')?.['IsOutput']).toBe(0)
     expect(f.requests.some(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
   })
@@ -678,11 +678,11 @@ describe('formal field configuration maintenance', () => {
   it('recovers an unknown bulk output save without repeating its batch', async () => {
     const {f, session, fields, writes} = await setup({missing: true, editableFieldProperties: ['IsOutput']})
     const owners = originalFields.map(row => session.getFieldEdit(row.rowid))
-    await LowcodeDataSpaceFieldEdit.stageOutputBatch(owners, 'invert')
+    await fieldEditStageOutputBatch(owners, 'invert')
     f.loseNextResponse()
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(owners)).rejects.toThrow(/response lost/)
-    await expect(LowcodeDataSpaceFieldEdit.stageOutputBatch(owners, 'all')).rejects.toThrow('未决')
-    await LowcodeDataSpaceFieldEdit.reloadBatch(owners, true)
+    await expect(fieldEditSaveBatch(owners)).rejects.toThrow(/response lost/)
+    await expect(fieldEditStageOutputBatch(owners, 'all')).rejects.toThrow('未决')
+    await fieldEditReloadBatch(owners, true)
     expect(writes()).toHaveLength(1); expect(fields.getEditingRow('PK')?.['IsOutput']).toBe(1)
     expect(fields.getEditingRow('AMOUNT')?.['IsOutput']).toBe(0)
     expect(owners.every(owner => owner.getState().status === 'idle')).toBe(true)

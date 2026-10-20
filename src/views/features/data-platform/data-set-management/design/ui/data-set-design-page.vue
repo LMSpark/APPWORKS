@@ -171,22 +171,18 @@
             </template>
             <RendererTabs v-if="viewContext" :key="viewContext.modelId" v-model="activeModelSection" class="node-panel-tabs"
               :data-view-key="modelViewKey" data-member="currentRow" :toolbar="modelToolbar" toolbar-placement="header">
-              <RendererTabPane :index="0" name="source" label="1 模型" lazy :disabled="processEditor?.interactionLocked === true">
-                <DataSpaceModelFields ref="metaFieldsEditor" workspace-actions :key="viewContext.modelId" :session="session" :model-id="viewContext.modelId" :field-ids="modelFieldIds ?? []"
-                  :revision="revision" :disabled="busy || arrayEditorPending || workspaceBusy || computedConfigPending || layoutPending || viewEditorPending || modelRenamePending || dataProcessPending || modelSourcePending || modelRemovalPending || fieldCreatePending || !!activeFieldRemovalId"
-                  @changed="changed" @pending="fieldEditorPending = $event" @remove="beginFieldRemoval($event, 'modelFields')">
-                  <template #model-name>
-                    <DataSpaceModelRename :key="viewContext.modelId" workspace-actions :session="session" :model-id="viewContext.modelId" :revision="revision"
-                      :disabled="busy || arrayEditorPending || computedConfigPending || layoutPending || viewEditorPending || fieldEditorPending || fieldCreatePending || modelRemovalPending || modelEditorPending || modelSourcePending || dataProcessPending"
-                      @changed="changed" @pending="modelRenamePending = $event" />
-                    <div v-if="modelViewKey && sourceLabelParts.name" class="meta-source">
-                      <span>绑定源: </span>
-                      <DisplayText v-if="sourceLabelParts.database" :data-view-key="modelViewKey" data-member="currentRow" data-field="DbName" placeholder="" suffix="." />
-                      <DisplayText :data-view-key="modelViewKey" data-member="currentRow" data-field="MetaName" placeholder="" />
-                      <DisplayText v-if="sourceLabelParts.type" :data-view-key="modelViewKey" data-member="currentRow" data-field="Type" placeholder="" prefix=" (" suffix=")" />
-                    </div>
-                  </template>
-                  <template #model-actions>
+              <RendererTabPane :index="0" name="source" label="1 模型结构" lazy :disabled="processEditor?.interactionLocked === true">
+                <RendererSection v-if="modelViewKey" :data-view-key="modelViewKey" data-member="currentRow" title="模型与来源" :bordered="false" :grid-columns="1" class="model-structure-head">
+                  <DataSpaceModelRename :key="viewContext.modelId" workspace-actions :session="session" :model-id="viewContext.modelId" :revision="revision"
+                    :disabled="busy || arrayEditorPending || computedConfigPending || layoutPending || viewEditorPending || fieldEditorPending || fieldCreatePending || modelRemovalPending || modelEditorPending || modelSourcePending || dataProcessPending || modelRequestPending"
+                    @changed="changed" @pending="modelRenamePending = $event" />
+                  <div v-if="sourceLabelParts.name" class="meta-source">
+                    <span>绑定源: </span>
+                    <DisplayText v-if="sourceLabelParts.database" :data-view-key="modelViewKey" data-member="currentRow" data-field="DbName" placeholder="" suffix="." />
+                    <DisplayText :data-view-key="modelViewKey" data-member="currentRow" data-field="MetaName" placeholder="" />
+                    <DisplayText v-if="sourceLabelParts.type" :data-view-key="modelViewKey" data-member="currentRow" data-field="Type" placeholder="" prefix=" (" suffix=")" />
+                  </div>
+                  <div class="meta-actions">
                     <DataSpaceModelSource workspace-actions :session="session" :model-id="viewContext.modelId" :revision="revision"
                       :disabled="busy || layoutPending || viewEditorPending || fieldEditorPending || fieldCreatePending || modelRemovalPending || modelConfigPending && !modelSourcePending"
                       @changed="changed" @pending="modelSourcePending = $event" />
@@ -194,14 +190,8 @@
                       @changed="changed" @pending="arrayEditorPending = $event" @created="selectCreatedModel" />
                     <DataSpaceArrayEditor :key="`array:${viewContext.modelId}`" :session="session" :model-id="viewContext.modelId" :revision="revision"
                       :disabled="busy || layoutPending || hasPending && !arrayEditorPending" @changed="changed" @pending="arrayEditorPending = $event" />
-                  </template>
-                  <template #field-create>
-                    <DataSpaceFieldCreate :key="viewContext.modelId" workspace-actions :session="session" :model-id="viewContext.modelId" :revision="revision"
-                      :disabled="busy || computedConfigPending || layoutPending || viewEditorPending || modelRenamePending || arrayEditorPending || dataProcessPending
-                        || modelSourcePending || modelRemovalPending || workspaceBusy || metaFieldsEditor?.interactionLocked === true || modelEditor?.dialogOpen === true"
-                      @changed="changed" @pending="fieldCreatePending = $event" />
-                  </template>
-                </DataSpaceModelFields>
+                  </div>
+                </RendererSection>
                 <RendererSection :data-view-key="modelViewKey" title="本地计算字段" collapsible default-collapsed lazy data-local-computed :grid-columns="1">
                   <DataSpaceTableConfiguration ref="computedEditor" :key="`computed:${viewContext.modelId}`" section="columns" workspace-actions
                     :session="session" :model-id="viewContext.modelId" :field-ids="[]" :revision="revision"
@@ -209,15 +199,32 @@
                     @changed="changed" @pending="computedConfigPending = $event" />
                 </RendererSection>
                 <DataSpaceModelEditor ref="modelEditor" workspace-actions :session="session" :model-id="viewContext.modelId" :revision="revision"
-                  :disabled="busy || arrayEditorPending || workspaceBusy || computedConfigPending || layoutPending || viewEditorPending || fieldCreatePending || modelSourcePending || modelRemovalPending || modelRenamePending || dataProcessPending"
+                  :disabled="busy || arrayEditorPending || workspaceBusy || computedConfigPending || layoutPending || viewEditorPending || fieldCreatePending || modelSourcePending || modelRemovalPending || modelRenamePending || dataProcessPending || modelRequestPending"
                   @changed="changed" @pending="modelEditorPending = $event" />
               </RendererTabPane>
-              <RendererTabPane :index="1" name="dataProcess" label="2 数据处理" lazy>
+              <RendererTabPane :index="1" name="request" label="2 请求方案" lazy :disabled="processEditor?.interactionLocked === true">
+                <DataSpaceModelRequest ref="modelRequestEditor" workspace-actions :session="session" :model-id="viewContext.modelId" :revision="revision"
+                  :disabled="busy || arrayEditorPending || workspaceBusy || computedConfigPending || layoutPending || viewEditorPending || fieldCreatePending || modelSourcePending || modelRemovalPending || modelRenamePending || dataProcessPending || modelEditorPending"
+                  @changed="changed" @pending="modelRequestPending = $event" />
+              </RendererTabPane>
+              <RendererTabPane :index="2" name="fields" label="3 字段呈现" lazy :disabled="processEditor?.interactionLocked === true">
+                <DataSpaceModelFields ref="metaFieldsEditor" workspace-actions :key="viewContext.modelId" :session="session" :model-id="viewContext.modelId" :field-ids="modelFieldIds ?? []"
+                  :revision="revision" :disabled="busy || arrayEditorPending || workspaceBusy || computedConfigPending || layoutPending || viewEditorPending || modelRenamePending || dataProcessPending || modelSourcePending || modelRemovalPending || fieldCreatePending || !!activeFieldRemovalId || modelRequestPending"
+                  @changed="changed" @pending="fieldEditorPending = $event" @remove="beginFieldRemoval($event, 'modelFields')">
+                  <template #field-create>
+                    <DataSpaceFieldCreate :key="viewContext.modelId" workspace-actions :session="session" :model-id="viewContext.modelId" :revision="revision"
+                      :disabled="busy || computedConfigPending || layoutPending || viewEditorPending || modelRenamePending || arrayEditorPending || dataProcessPending || modelRequestPending
+                        || modelSourcePending || modelRemovalPending || workspaceBusy || metaFieldsEditor?.interactionLocked === true || modelEditor?.dialogOpen === true"
+                      @changed="changed" @pending="fieldCreatePending = $event" />
+                  </template>
+                </DataSpaceModelFields>
+              </RendererTabPane>
+              <RendererTabPane :index="3" name="dataProcess" label="4 数据处理" lazy>
                 <DataSpaceTableConfiguration ref="processEditor" workspace-actions :key="viewContext.modelId" :session="session" :model-id="viewContext.modelId" :field-ids="modelFieldIds ?? []"
                   :revision="revision" :disabled="busy || computedConfigPending || layoutPending || (viewEditorPending && !dataProcessPending) || modelEditorPending || modelRenamePending || modelSourcePending || modelRemovalPending || fieldEditorPending || fieldCreatePending"
                   @changed="changed" @pending="dataProcessPending = $event" />
               </RendererTabPane>
-              <RendererTabPane :index="2" name="views" label="数据视图" :disabled="processEditor?.interactionLocked === true">
+              <RendererTabPane :index="4" name="views" label="5 数据视图" :disabled="processEditor?.interactionLocked === true">
                 <DataSpaceViewEditor :session="session" :model-id="viewContext.modelId" :model-name="viewContext.modelName"
                   :row-key="viewContext.rowKey" :revision="revision" :disabled="busy || layoutPending || modelConfigPending || fieldEditorPending || fieldCreatePending || modelSourcePending || modelRemovalPending"
                   @changed="changed" @pending="viewEditorPending = $event" @select="selectView" />
@@ -293,7 +300,6 @@
 <script setup lang="ts">
 import {computed, nextTick, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import DataSpaceArrayEditor from './node-panel/DataSpaceArrayEditor.vue'
-import {useRoute} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
@@ -314,6 +320,7 @@ import DataSpaceModelRename from '../model/rename/DataSpaceModelRename.vue'
 import DataSpaceFieldCreate from './node-panel/fields/create/DataSpaceFieldCreate.vue'
 import DataSpaceFieldRemoval from './node-panel/fields/removal/DataSpaceFieldRemoval.vue'
 import DataSpaceModelEditor from './node-panel/data-set-design-node-panel.vue'
+import DataSpaceModelRequest from './node-panel/DataSpaceModelRequest.vue'
 import DataSpaceModelSource from '../model/source/DataSpaceModelSource.vue'
 import DataSpaceArrayCreate from './node-panel/DataSpaceArrayCreate.vue'
 import DataSpaceModelRemoval from '../model/removal/DataSpaceModelRemoval.vue'
@@ -322,7 +329,8 @@ import DataSpaceCascadeEditor from './cascades/DataSpaceCascadeEditor.vue'
 import {DataSpaceLayoutEdit} from '../graph/data-space-layout-edit'
 
 type DesignNode = {id: string; label: string; table?: string; viewId?: string; rowKey?: string | number; workspace?: 'views' | 'fields'; description?: string; children?: DesignNode[]; recordIndex?: number; unplacedReason?: string; removalModelId?: string}
-const route = useRoute()
+/** 唯一被设计空间 ID 由宿主（数据空间目录对话框）传入；页面不读路由参数，也不接受第二个空间身份。 */
+const props = defineProps<{targetId: string}>()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-space-design'})
 let pageRuntime: PageRuntime | undefined
 const session = shallowRef<LowcodeDataSpaceDesignSession | null>(null)
@@ -388,6 +396,8 @@ const sourceEditorPending = ref(false)
 const fieldEditorPending = ref(false)
 const fieldCreatePending = ref(false)
 const modelEditorPending = ref(false)
+const modelRequestPending = ref(false)
+const modelRequestEditor = ref<InstanceType<typeof DataSpaceModelRequest>>()
 const metaFieldsEditor = ref<InstanceType<typeof DataSpaceModelFields>>()
 const modelEditor = ref<InstanceType<typeof DataSpaceModelEditor>>()
 const processEditor = ref<InstanceType<typeof DataSpaceTableConfiguration>>()
@@ -398,7 +408,7 @@ const workspaceBusy = computed(() => metaFieldsEditor.value?.busy === true || mo
 const modelRenamePending = ref(false)
 const dataProcessPending = ref(false)
 const arrayEditorPending = ref(false)
-const modelConfigPending = computed(() => modelEditorPending.value || modelRenamePending.value || dataProcessPending.value || computedConfigPending.value || arrayEditorPending.value)
+const modelConfigPending = computed(() => modelEditorPending.value || modelRequestPending.value || modelRenamePending.value || dataProcessPending.value || computedConfigPending.value || arrayEditorPending.value)
 const modelCreatePending = ref(false)
 const modelSourcePending = ref(false)
 const activeRemovalId = ref('')
@@ -420,7 +430,7 @@ let generation = 0
 let active = true
 let unsubscribe: (() => void) | undefined
 let parameterBaseline: unknown
-const targetId = computed(() => typeof route.query['scenarioId'] === 'string' ? route.query['scenarioId'] : '')
+const targetId = computed(() => props.targetId)
 const readError = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
 const changed = () => {revision.value++}
 
@@ -1079,8 +1089,10 @@ const sourceLabelParts = computed(() => {
 })
 const activeModelSection = ref<string | number>('source')
 const activeSave = computed(() => activeModelSection.value === 'dataProcess' ? processEditor.value
-    : activeModelSection.value === 'source'
-      ? computedConfigPending.value ? computedEditor.value : metaFieldsEditor.value?.hasEditor ? metaFieldsEditor.value : modelEditor.value : undefined)
+    : activeModelSection.value === 'request' ? modelRequestEditor.value
+      : activeModelSection.value === 'fields' ? metaFieldsEditor.value
+        : activeModelSection.value === 'source'
+          ? (computedConfigPending.value ? computedEditor.value : modelEditor.value) : undefined)
 const modelToolbar = computed(() => ({wrap: true, children: [
   {type: 'r-button', props: {'data-action': 'open-model-preview', label: '预览', buttonType: 'primary',
     visible: activeModelSection.value !== 'views',
@@ -1177,7 +1189,7 @@ const parameterState = computed(() => {
     const row = currentView?.rows[0]
     if (!current || !currentView || !row || currentView.rows.length !== 1 || currentView.getPkKey(row) !== current.targetId
       || currentView.fieldAccess(row, 'inputParams').read !== 'visible') throw new Error('当前参数声明不可读')
-    const state = current.getInputParameters().getState()
+    const state = current.getInputParameterState()
     DataSpaceDesignApi.readInputParameters({value: currentView.getEditingRow(current.targetId)?.['inputParams'], editable: true})
     return {...state, error: '', writable: currentView.fieldAccess(row, 'inputParams').write === 'allowed'
       && currentView.editActionState(row) === 'enabled'}
@@ -1197,7 +1209,7 @@ function isPending(includeLayout = true): boolean {
   const current = session.value
   if (!current) return false
   try {
-    const state = current.getInputParameters().getState()
+    const state = current.getInputParameterState()
     const definitions = ['DataTableBindingDefinition', 'DataViewDefinition', 'DataResourceRelationDefinition', 'DataViewCascadeDefinition'].map(view)
     const fields = view('Base_DataModel_Field')
     const models = view('Base_DataModel')
@@ -1208,6 +1220,7 @@ function isPending(includeLayout = true): boolean {
   } catch {return true}
 }
 const hasPending = computed(() => {revision.value; return isPending()})
+defineExpose({hasPending})
 const definitionPending = computed(() => {revision.value; return isPending(false)})
 useSystemPageDirtySource({get isDirty() {return isPending()}})
 function beforeUnload(event: BeforeUnloadEvent): void {if (isPending()) {event.preventDefault(); event.returnValue = ''}}
@@ -1224,10 +1237,9 @@ async function load(): Promise<void> {
   sparkRemove(PAGE_RUNTIME); pageRuntime?.dispose(); pageRuntime = undefined
   session.value?.dispose(); session.value = null; navigationView.value = undefined; workbench.value = undefined; workbenchError.value = ''
   error.value = ''; actionError.value = ''; actionMessage.value = ''; apiMessage.value = ''; selectedId.value = 'space'; detailOpen.value = false
-  const id = route.query['scenarioId']
-  if (typeof id !== 'string' || !id || id.trim() !== id || id === '.' || id === '..' || /[\\/%@#\u0000-\u001f\u007f]/.test(id)
-    || Object.hasOwn(route.query, 'dataSpaceId') || Object.hasOwn(route.query, 'additionalScenarioIds')) {
-    loading.value = false; error.value = '请通过唯一的 scenarioId URL 参数指定目标空间，不能同时传入其他空间身份'; return
+  const id = props.targetId
+  if (typeof id !== 'string' || !id || id.trim() !== id || id === '.' || id === '..' || /[\\/%@#\u0000-\u001f\u007f]/.test(id)) {
+    loading.value = false; error.value = '目标数据空间 ID 无效，请从数据空间目录重新打开设计'; return
   }
   loading.value = true
   try {
@@ -1240,7 +1252,7 @@ async function load(): Promise<void> {
     try {
       const scenarioId = opened.metadataDataSet.scenarioId
       if (!scenarioId) throw new Error('元数据空间缺少正式场景身份')
-      runtime = new PageRuntime({pageId: '/data-space-design', scenarioIds: [scenarioId],
+      runtime = new PageRuntime({pageId: '/features/data-platform/data-set-management/design/ui/data-set-design-page', scenarioIds: [scenarioId],
         loadScenario: async () => opened.metadataDataSet})
       await runtime.load()
       if (!active || generation !== ownGeneration) {runtime.dispose(); opened.dispose(); return}
@@ -1284,12 +1296,12 @@ async function parameterAction(action: 'save' | 'verify'): Promise<void> {
   if (!current || busy.value) return
   busy.value = true; actionError.value = ''; actionMessage.value = ''
   try {
-    const owner = current.getInputParameters()
-    if (action === 'save') await owner.save({expectedValue: parameterBaseline})
-    else await owner.reload({discardPending: owner.getState().pending})
+    if (action === 'save') await current.saveInputParameters({expectedValue: parameterBaseline})
+    else await current.reloadInputParameters({discardPending: current.getInputParameterState().pending})
     if (!active || session.value !== current) return
     parameterBaseline = view('Base_DataSet')?.rows[0]?.['inputParams']
-    if (owner.getState().pending) actionMessage.value = '原输入参数提交已回读确认；仍有未保存修改，请继续保存或放弃'
+    const parameterFlow = current.getInputParameterState()
+    if (parameterFlow.pending) actionMessage.value = '原输入参数提交已回读确认；仍有未保存修改，请继续保存或放弃'
     else {
       if (action === 'save') parameterOpen.value = false
       actionMessage.value = action === 'save' ? '输入参数已保存并回读确认' : '已重新读取当前声明；未重复提交'
@@ -1307,7 +1319,7 @@ function cancelParameters(): void {
   const current = session.value
   if (!current || busy.value) return
   try {
-    if (current.getInputParameters().getState().status !== 'idle') return
+    if (current.getInputParameterState().status !== 'idle') return
     view('Base_DataSet')?.discardPendingChanges([current.targetId])
     actionError.value = ''; actionMessage.value = '已放弃本地修改'; changed()
   } catch (cause) {actionError.value = readError(cause)}
@@ -1318,7 +1330,7 @@ function closeParameters(): void {
   if (parameterState.value.pending) cancelParameters()
   if (!parameterState.value.pending) parameterOpen.value = false
 }
-watch(() => route.fullPath, () => {void load()}, {immediate: true})
+watch(() => props.targetId, () => {void load()}, {immediate: true})
 onBeforeUnmount(() => {
   active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME)
   layoutEdit.value?.dispose()

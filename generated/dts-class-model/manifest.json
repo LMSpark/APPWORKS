@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 878,
+  "scannedFileCount": 879,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -10404,6 +10404,7 @@
         "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-request\n职责：执行原始 SPARK 查询与同场景批量保存。\n边界：请求前后检查 scope 与代次，保存依据实际动作回执确认。\nAI用途：使用原封包和上下文组装统一 CRUD 请求。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "DataSpaceSaveUnconfirmedError",
           "DataSpaceRequest"
         ]
       }
@@ -12074,21 +12075,6 @@
         "symbols": []
       }
     },
-    "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit.ts": {
-      "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit",
-        "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit.ts",
-        "sourceFile": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit",
-        "jsdoc": "@module lowcode-data-space-input-parameter-edit\n职责：复用正式 DataView/save owner 编排参数声明的暂存、提交及精确回读。\n边界：草稿仍归 DataView；结果未知只核验，不重放写入，不修改引用或文件。\nAI用途：元数据会话通过同一入口处理声明编辑和恢复。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeDataSpaceInputParameterEdit"
-        ]
-      }
-    },
     "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts": {
       "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts.json",
       "module": {
@@ -12102,6 +12088,23 @@
         "symbols": [
           "InputParameterInspection",
           "LowcodeDataSpaceInputParameterReferences"
+        ]
+      }
+    },
+    "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts": {
+      "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session",
+        "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
+        "sourceFile": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session",
+        "jsdoc": "@module lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session\n职责：输入参数声明的暂存、提交与回读编排（无独立命令类 FSM）。\n边界：草稿归 DataView；流程状态由会话持有的 flow 记录。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ParameterEditStatus",
+          "InputParameterEditFlow",
+          "InputParameterEditHost"
         ]
       }
     },
@@ -12239,34 +12242,60 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts": {
-      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts.json",
+    "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/array/lowcode-data-space-array-edit",
-        "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts",
+        "name": "app:lowcode/data-space/model-source/array/lowcode-data-space-array-session",
+        "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/array/lowcode-data-space-array-edit",
-        "jsdoc": "@module app:lowcode/data-space/model-source/array/lowcode-data-space-array-edit\n职责：已有数组的名称、表头、数据成员及正式引用差异共同保存与核验。\n边界：原DataView持有正式数据与权限；局部表头只承载未确认输入，不重置已有字段属性。\nAI用途：数组设置表头、确认、取消与未知回执核验，复用DataSet定义批次。",
+        "modulePath": "lowcode/data-space/model-source/array/lowcode-data-space-array-session",
+        "jsdoc": "@module lowcode/data-space/model-source/array/lowcode-data-space-array-session\n职责：已有数组的名称、表头、数据成员及正式引用差异共同保存与核验（无独立命令类 FSM）。\n边界：原DataView持有正式数据与权限；局部表头只承载未确认输入，不重置已有字段属性。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "ArrayFieldChange",
           "ArrayDefinitionChange",
-          "LowcodeDataSpaceArrayEdit"
+          "ArrayEditStatus",
+          "ArraySessionLifecycle",
+          "ArraySessionFlow",
+          "ArraySessionHost",
+          "ArrayEditHandle"
         ]
       }
     },
-    "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create.ts": {
-      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create.ts.json",
+    "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/field-create/lowcode-data-space-field-create",
-        "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create.ts",
+        "name": "app:lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session",
+        "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/field-create/lowcode-data-space-field-create",
-        "jsdoc": "@module app:lowcode/data-space/model-source/field-create/lowcode-data-space-field-create\n职责：计算字段的输入草稿、正式新增及精确回读。\n边界：局部输入视图不授权或持久化；新增经原元数据DataView和DataSet提交。\nAI用途：标准组件绑定输入视图，未知提交只核验，不重复创建。",
+        "modulePath": "lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session",
+        "jsdoc": "@module lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session\n职责：计算字段新增的输入草稿、暂存、提交与精确回读（无独立命令类 FSM）。\n边界：局部输入视图不授权或持久化；新增经原元数据 DataView 和 DataSet 提交。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "LowcodeDataSpaceFieldCreate"
+          "FieldCreateStatus",
+          "FieldCreateFlow",
+          "FieldCreateLifecycle",
+          "FieldCreateHost",
+          "FieldCreateHandle"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session",
+        "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session",
+        "jsdoc": "@module lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session\n职责：编排正式字段配置提交；普通属性消费原生回执，结构变更与未知结果按领域核验（无独立命令类 FSM）。\n边界：原DataView持有编辑值和数据权限；不改来源身份或场景文件，不执行值函数。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "FieldEditLifecycle",
+          "FieldEditHost",
+          "FieldEditHandle"
         ]
       }
     },
@@ -12300,21 +12329,6 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-field-edit",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-field-edit",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-field-edit\n职责：编排正式字段配置提交；普通属性消费原生回执，结构变更与未知结果按领域核验。\n边界：原DataView持有编辑值和数据权限；不改来源身份或场景文件，不执行值函数。\nAI用途：字段组件绑定元数据视图后调用此流程，未知结果只核验，不重放保存。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeDataSpaceFieldEdit"
-        ]
-      }
-    },
     "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts": {
       "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts.json",
       "module": {
@@ -12345,18 +12359,23 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/lowcode-data-space-model-create.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create.ts.json",
+    "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-create",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-create.ts",
+        "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-create-session",
+        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-create",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-model-create\n职责：从正式来源创建模型及所属字段，经原元数据DataSet按范围提交和核验。\n边界：只持有操作候选与回执状态，数据和新增权限归原DataSet；不保存场景文件。\nAI用途：原生设计页新增模型入口，未知或部分结果只读核验，不自动重放。",
+        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-create-session",
+        "jsdoc": "@module lowcode/data-space/model-source/lowcode-data-space-model-create-session\n职责：从正式来源创建模型及所属字段，经原元数据 DataSet 按范围提交和核验（无独立命令类 FSM）。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "LowcodeDataSpaceModelCreate"
+          "ModelCreateSources",
+          "ModelCreateStatus",
+          "ModelCreateFlow",
+          "ModelCreateLifecycle",
+          "ModelCreateHost",
+          "ModelCreateHandle"
         ]
       }
     },
@@ -12375,21 +12394,6 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/lowcode-data-space-model-edit.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-edit.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-edit",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-edit.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-edit.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-edit",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-model-edit\n职责：维护正式模型的描述、主键、业务标志和数组数据，经原元数据视图提交并接纳数据层回执。\n边界：主键联动正式字段标记，不改注册名或来源；不复制真源，未知提交只核验。\nAI用途：原生设计页的模型配置入口，复用DataSet权限、编辑覆盖及签名保存。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "LowcodeDataSpaceModelEdit"
-        ]
-      }
-    },
     "src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts": {
       "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts.json",
       "module": {
@@ -12402,23 +12406,6 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeDataSpaceModelMigration"
-        ]
-      }
-    },
-    "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-model-source-edit",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-model-source-edit",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-model-source-edit\n职责：预览来源替换或当前来源字段同步，保留同名定义及派生字段配置。\n边界：正式记录归原DataView；删除须检查引用，来源合同变化须明确确认并校验最终模型。\nAI用途：沿原元数据视图的权限、批量保存和回读处理来源变更及未知结果。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "SourceContractChange",
-          "SourceContractPlan",
-          "LowcodeDataSpaceModelSourceEdit"
         ]
       }
     },
@@ -12473,18 +12460,20 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts": {
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts.json",
+    "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/lowcode-data-space-source-input-edit",
-        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts",
+        "name": "app:lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session",
+        "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/lowcode-data-space-source-input-edit",
-        "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-source-input-edit\n职责：编排正式来源入参ValueFun编辑与原生批次提交，未知结果通过显式查询核验。\n边界：不存数据副本，不改参数声明；原 DataSet 负责权限、delta、签名和传输，未知提交只核验。\nAI用途：原生设计页维护接口/逻辑视图入参时使用，保留旧原文并显式选择空间参数引用。",
+        "modulePath": "lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session",
+        "jsdoc": "@module lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session\n职责：维护正式模型的描述、主键、业务标志和数组数据，经原元数据视图提交并接纳数据层回执（无独立命令类 FSM）。\n边界：主键联动正式字段标记，不改注册名或来源；不复制真源，未知提交只核验。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "LowcodeDataSpaceSourceInputEdit"
+          "ModelEditLifecycle",
+          "ModelEditHost",
+          "ModelEditHandle"
         ]
       }
     },
@@ -12520,18 +12509,22 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts": {
-      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts.json",
+    "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/removal/lowcode-data-space-field-remove",
-        "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts",
+        "name": "app:lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session",
+        "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/removal/lowcode-data-space-field-remove",
-        "jsdoc": "@module app:lowcode/data-space/model-source/removal/lowcode-data-space-field-remove\n职责：计算字段定义的删除预览、原批次提交及精确回读。\n边界：不删除物理字段或自动改写引用；数据权限、暂存及写入归原DataView/DataSet。\nAI用途：确认和取消删除，未决结果只核验，不重复提交。",
+        "modulePath": "lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session",
+        "jsdoc": "@module lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session\n职责：计算字段定义的删除预览、原批次提交及精确回读（无独立命令类 FSM）。\n边界：不删除物理字段或自动改写引用；数据权限、暂存及写入归原DataView/DataSet。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "LowcodeDataSpaceFieldRemove"
+          "FieldRemoveStatus",
+          "FieldRemoveFlow",
+          "FieldRemoveLifecycle",
+          "FieldRemoveHost",
+          "FieldRemoveHandle"
         ]
       }
     },
@@ -12550,19 +12543,23 @@
         ]
       }
     },
-    "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts": {
-      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts.json",
+    "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts.json",
       "module": {
-        "name": "app:lowcode/data-space/model-source/removal/lowcode-data-space-model-remove",
-        "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts",
+        "name": "app:lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session",
+        "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
         "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/removal/lowcode-data-space-model-remove",
-        "jsdoc": "@module app:lowcode/data-space/model-source/removal/lowcode-data-space-model-remove\n职责：预览并删除一个正式模型及其字段、直接关系，逐项确认回执与回读。\n边界：数据和权限仍归原DataView；不跨入独立功能标签体系改删配置。\nAI用途：设计页删除与未知结果核验，不将空查询当成未知删除成功。",
+        "modulePath": "lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session",
+        "jsdoc": "@module lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session\n职责：预览并删除一个正式模型及其字段、直接关系，逐项确认回执与回读（无独立命令类 FSM）。\n边界：数据和权限仍归原DataView；不跨入独立功能标签体系改删配置。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeDataSpaceModelRemovalFilePlan",
-          "LowcodeDataSpaceModelRemove"
+          "ModelRemoveStatus",
+          "ModelRemoveFlow",
+          "ModelRemoveLifecycle",
+          "ModelRemoveHost",
+          "ModelRemoveHandle"
         ]
       }
     },
@@ -12582,6 +12579,26 @@
         ]
       }
     },
+    "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session",
+        "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session",
+        "jsdoc": "@module lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session\n职责：预览并提交模型注册名及本空间结构化引用，接续原场景配置保存（无独立命令类 FSM）。\n边界：原DataView承担权限与批量保存；未知回执只回读，不重放数据库写入。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ModelRenameFilePlan",
+          "ModelRenameStatus",
+          "ModelRenameFlow",
+          "ModelRenameLifecycle",
+          "ModelRenameHost",
+          "ModelRenameHandle"
+        ]
+      }
+    },
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts": {
       "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts.json",
       "module": {
@@ -12594,22 +12611,6 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeDataSpaceModelRenameTools"
-        ]
-      }
-    },
-    "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts": {
-      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts.json",
-      "module": {
-        "name": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename",
-        "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts",
-        "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/data-space/model-source/rename/lowcode-data-space-model-rename",
-        "jsdoc": "@module app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename\n职责：预览并提交模型注册名及本空间结构化引用，接续原场景配置保存。\n边界：原DataView承担权限与批量保存；未知回执只回读，不重放数据库写入。\nAI用途：模型节点的改名输入、预览、提交、取消和恢复流程。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ModelRenameFilePlan",
-          "LowcodeDataSpaceModelRename"
         ]
       }
     },
@@ -12626,6 +12627,46 @@
         "symbols": [
           "DataSpaceDefinitionSavePart",
           "DataSpaceDefinitionSave"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session",
+        "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session",
+        "jsdoc": "@module lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session\n职责：预览来源替换或当前来源字段同步，保留同名定义及派生字段配置（无独立命令类 FSM）。\n边界：正式记录归原DataView；删除须检查引用，来源合同变化须明确确认并校验最终模型。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SourceContractChange",
+          "SourceContractPlan",
+          "ModelSourceEditStatus",
+          "ModelSourceEditLifecycle",
+          "ModelSourceEditFlow",
+          "ModelSourceEditHost",
+          "ModelSourceEditHandle",
+          "LowcodeDataSpaceModelSourceEdit"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts": {
+      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session",
+        "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session",
+        "jsdoc": "@module lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session\n职责：正式来源入参 ValueFun 编辑与原生批次提交（无独立命令类 FSM）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "SourceInputStatus",
+          "SourceInputLifecycle",
+          "SourceInputHost",
+          "SourceInputHandle"
         ]
       }
     },
@@ -14120,6 +14161,19 @@
         "symbols": []
       }
     },
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue": {
+      "file": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest",
+        "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue",
+        "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest",
+        "jsdoc": "@module app:views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest\n职责：维护正式模型上的默认请求方案（输出类型、过滤、树参、缓存与完成配置），经原 Base_DataModel DataView 提交。\n边界：命名视图的请求细项仍在 DataSpaceViewEditor；此处只编辑模型行上的请求默认值，不另建草稿真源。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props.ts": {
       "file": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props.ts.json",
       "module": {
@@ -15550,8 +15604,32 @@
       "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts.json"
     },
     "ArrayDefinitionChange": {
-      "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts",
-      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
+    },
+    "ArrayEditHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
+    },
+    "ArrayEditStatus": {
+      "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
+    },
+    "ArrayFieldChange": {
+      "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
+    },
+    "ArraySessionFlow": {
+      "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
+    },
+    "ArraySessionHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
+    },
+    "ArraySessionLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
     },
     "AttributeGuide": {
       "sourcePath": "packages/spark-ai/src/class-model/knowledge/projection/dts-renderer.ts",
@@ -16405,6 +16483,10 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json"
     },
+    "DataSpaceSaveUnconfirmedError": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts.json"
+    },
     "DataSpaceSourceControls": {
       "sourcePath": "src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts",
       "file": "files/src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts.json"
@@ -17101,6 +17183,38 @@
       "sourcePath": "packages/spark-component/src/components/fields/context/useFieldContext.ts",
       "file": "files/packages/spark-component/src/components/fields/context/useFieldContext.ts.json"
     },
+    "FieldCreateFlow": {
+      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+    },
+    "FieldCreateHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+    },
+    "FieldCreateHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+    },
+    "FieldCreateLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+    },
+    "FieldCreateStatus": {
+      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json"
+    },
+    "FieldEditHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts.json"
+    },
+    "FieldEditHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts.json"
+    },
+    "FieldEditLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts.json"
+    },
     "FieldOption": {
       "sourcePath": "packages/spark-component/src/components/fields/options/option-normalization.ts",
       "file": "files/packages/spark-component/src/components/fields/options/option-normalization.ts.json"
@@ -17112,6 +17226,26 @@
     "FieldReferenceUpdate": {
       "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts",
       "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts.json"
+    },
+    "FieldRemoveFlow": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts.json"
+    },
+    "FieldRemoveHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts.json"
+    },
+    "FieldRemoveHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts.json"
+    },
+    "FieldRemoveLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts.json"
+    },
+    "FieldRemoveStatus": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts.json"
     },
     "FieldRename": {
       "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts",
@@ -17316,6 +17450,14 @@
     "InlineJustify": {
       "sourcePath": "packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.types.ts",
       "file": "files/packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.types.ts.json"
+    },
+    "InputParameterEditFlow": {
+      "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
+      "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json"
+    },
+    "InputParameterEditHost": {
+      "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
+      "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json"
     },
     "InputParameterInspection": {
       "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts",
@@ -17613,10 +17755,6 @@
       "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts",
       "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts.json"
     },
-    "LowcodeDataSpaceArrayEdit": {
-      "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts",
-      "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts.json"
-    },
     "LowcodeDataSpaceAssembler": {
       "sourcePath": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
       "file": "files/src/lowcode/data-space/lowcode-data-space-assembler.ts.json"
@@ -17641,14 +17779,6 @@
       "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "file": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json"
     },
-    "LowcodeDataSpaceFieldCreate": {
-      "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create.ts",
-      "file": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create.ts.json"
-    },
-    "LowcodeDataSpaceFieldEdit": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts.json"
-    },
     "LowcodeDataSpaceFieldMigration": {
       "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts",
       "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-field-migration.ts.json"
@@ -17656,10 +17786,6 @@
     "LowcodeDataSpaceFieldOutput": {
       "sourcePath": "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts",
       "file": "files/src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts.json"
-    },
-    "LowcodeDataSpaceFieldRemove": {
-      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts",
-      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts.json"
     },
     "LowcodeDataSpaceFieldRemoveReferences": {
       "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts",
@@ -17673,10 +17799,6 @@
       "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts",
       "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-filter-migration.ts.json"
     },
-    "LowcodeDataSpaceInputParameterEdit": {
-      "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit.ts",
-      "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit.ts.json"
-    },
     "LowcodeDataSpaceInputParameterReferences": {
       "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts",
       "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-references.ts.json"
@@ -17685,37 +17807,21 @@
       "sourcePath": "src/lowcode/data-space/lowcode-data-space-metadata.ts",
       "file": "files/src/lowcode/data-space/lowcode-data-space-metadata.ts.json"
     },
-    "LowcodeDataSpaceModelCreate": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create.ts.json"
-    },
     "LowcodeDataSpaceModelDependencies": {
       "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts",
       "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts.json"
-    },
-    "LowcodeDataSpaceModelEdit": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-edit.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-edit.ts.json"
     },
     "LowcodeDataSpaceModelMigration": {
       "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts",
       "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-migration.ts.json"
     },
     "LowcodeDataSpaceModelRemovalFilePlan": {
-      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts",
-      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts.json"
-    },
-    "LowcodeDataSpaceModelRemove": {
-      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts",
-      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts.json"
     },
     "LowcodeDataSpaceModelRemoveReferences": {
       "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts",
       "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts.json"
-    },
-    "LowcodeDataSpaceModelRename": {
-      "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts",
-      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts.json"
     },
     "LowcodeDataSpaceModelRenameReferences": {
       "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts",
@@ -17726,8 +17832,8 @@
       "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts.json"
     },
     "LowcodeDataSpaceModelSourceEdit": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "LowcodeDataSpaceModelSourceReader": {
       "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts",
@@ -17752,10 +17858,6 @@
     "LowcodeDataSpaceSourceCatalog": {
       "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts",
       "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts.json"
-    },
-    "LowcodeDataSpaceSourceInputEdit": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts.json"
     },
     "LowcodeDataSpaceViewDesign": {
       "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
@@ -18009,6 +18111,42 @@
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/types.ts.json"
     },
+    "ModelCreateFlow": {
+      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+    },
+    "ModelCreateHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+    },
+    "ModelCreateHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+    },
+    "ModelCreateLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+    },
+    "ModelCreateSources": {
+      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+    },
+    "ModelCreateStatus": {
+      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts.json"
+    },
+    "ModelEditHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts.json"
+    },
+    "ModelEditHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts.json"
+    },
+    "ModelEditLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts.json"
+    },
     "ModelGuide": {
       "sourcePath": "packages/spark-ai/src/class-model/knowledge/projection/dts-renderer.ts",
       "file": "files/packages/spark-ai/src/class-model/knowledge/projection/dts-renderer.ts.json"
@@ -18021,9 +18159,69 @@
       "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts",
       "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts.json"
     },
+    "ModelRemoveFlow": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts.json"
+    },
+    "ModelRemoveHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts.json"
+    },
+    "ModelRemoveHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts.json"
+    },
+    "ModelRemoveLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts.json"
+    },
+    "ModelRemoveStatus": {
+      "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts.json"
+    },
     "ModelRenameFilePlan": {
-      "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts",
-      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts.json"
+    },
+    "ModelRenameFlow": {
+      "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts.json"
+    },
+    "ModelRenameHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts.json"
+    },
+    "ModelRenameHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts.json"
+    },
+    "ModelRenameLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts.json"
+    },
+    "ModelRenameStatus": {
+      "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts.json"
+    },
+    "ModelSourceEditFlow": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+    },
+    "ModelSourceEditHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+    },
+    "ModelSourceEditHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+    },
+    "ModelSourceEditLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+    },
+    "ModelSourceEditStatus": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "ModuleContextCapability": {
       "sourcePath": "packages/spark-component/src/core/capability-keys.ts",
@@ -18460,6 +18658,10 @@
     "PageUploadFilesOptions": {
       "sourcePath": "packages/spark-component/src/runtime/app-services.ts",
       "file": "files/packages/spark-component/src/runtime/app-services.ts.json"
+    },
+    "ParameterEditStatus": {
+      "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
+      "file": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json"
     },
     "PatchAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
@@ -19522,12 +19724,28 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "SourceContractChange": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
     },
     "SourceContractPlan": {
-      "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts",
-      "file": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts.json"
+      "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json"
+    },
+    "SourceInputHandle": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
+    },
+    "SourceInputHost": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
+    },
+    "SourceInputLifecycle": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
+    },
+    "SourceInputStatus": {
+      "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json"
     },
     "SourceProvenanceMeta": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",

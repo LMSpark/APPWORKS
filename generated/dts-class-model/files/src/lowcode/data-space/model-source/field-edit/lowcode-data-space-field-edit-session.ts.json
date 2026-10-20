@@ -2,28 +2,159 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "app:lowcode/data-space/model-source/lowcode-data-space-field-edit",
-    "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts",
-    "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts",
+    "name": "app:lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session",
+    "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
     "packageName": "app",
-    "modulePath": "lowcode/data-space/model-source/lowcode-data-space-field-edit",
-    "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-field-edit\n职责：编排正式字段配置提交；普通属性消费原生回执，结构变更与未知结果按领域核验。\n边界：原DataView持有编辑值和数据权限；不改来源身份或场景文件，不执行值函数。\nAI用途：字段组件绑定元数据视图后调用此流程，未知结果只核验，不重放保存。",
+    "modulePath": "lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session",
+    "jsdoc": "@module lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session\n职责：编排正式字段配置提交；普通属性消费原生回执，结构变更与未知结果按领域核验（无独立命令类 FSM）。\n边界：原DataView持有编辑值和数据权限；不改来源身份或场景文件，不执行值函数。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "LowcodeDataSpaceFieldEdit"
+      "FieldEditLifecycle",
+      "FieldEditHost",
+      "FieldEditHandle"
     ]
   },
   "$defs": {
-    "LowcodeDataSpaceFieldEdit": {
+    "FieldEditStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "FieldEditStatus",
+      "enum": [
+        "idle",
+        "pending",
+        "unsubmitted",
+        "unknown",
+        "readback"
+      ]
+    },
+    "FieldEditLifecycle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "LowcodeDataSpaceFieldEdit",
+      "title": "FieldEditLifecycle",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.onDispatch.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.onDispatch.return": true,
+        "method.readDefinition.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readDefinition.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            {
+              "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.readModel.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "modelName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModel.return": {
+          "type": "object",
+          "title": "ReturnType<DataSpaceDesignApi['readModel']>"
+        },
+        "method.validateOutputs.params": {
+          "type": "object",
+          "properties": {
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "original": {
+                    "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+                  },
+                  "patch": {
+                    "type": "object",
+                    "title": "Record<string, unknown>"
+                  },
+                  "creating": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "original",
+                  "patch"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "modelPatch": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateOutputs.return": {
+          "type": "object",
+          "title": "Promise<() => void>"
+        },
+        "method.stagePrimaryKey.params": {
+          "type": "object",
+          "properties": {
+            "modelId": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stagePrimaryKey.return": true,
+        "method.refreshDirectory.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshDirectory.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.assertEditable.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertEditable.return": true
+      }
+    },
+    "FieldEditSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldEditSession",
       "$defs": {
         "constructor.params": {
           "type": "object",
           "properties": {
             "dataSet": {
-              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "targetId": {
               "type": "string"
@@ -32,8 +163,7 @@
               "type": "string"
             },
             "lifecycle": {
-              "type": "object",
-              "additionalProperties": false
+              "$ref": "#/$defs/FieldEditLifecycle"
             },
             "viewId": {
               "enum": [
@@ -53,13 +183,7 @@
           "type": "object",
           "properties": {
             "status": {
-              "enum": [
-                "unknown",
-                "idle",
-                "pending",
-                "readback",
-                "unsubmitted"
-              ]
+              "$ref": "#/$defs/FieldEditStatus"
             },
             "pending": {
               "type": "boolean"
@@ -656,7 +780,7 @@
             "owners": {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/LowcodeDataSpaceFieldEdit"
+                "$ref": "#/$defs/FieldEditSession"
               }
             },
             "mode": {
@@ -678,13 +802,13 @@
             "owners": {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/LowcodeDataSpaceFieldEdit"
+                "$ref": "#/$defs/FieldEditSession"
               }
             },
             "removals": {
               "type": "array",
               "items": {
-                "$ref": "removal/lowcode-data-space-field-remove.ts.json#/$defs/LowcodeDataSpaceFieldRemove"
+                "$ref": "../removal/lowcode-data-space-field-remove-session.ts.json#/$defs/FieldRemoveHandle"
               }
             }
           },
@@ -700,7 +824,7 @@
             "owners": {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/LowcodeDataSpaceFieldEdit"
+                "$ref": "#/$defs/FieldEditSession"
               }
             },
             "name": {
@@ -710,7 +834,7 @@
               "type": "object",
               "properties": {
                 "dataSet": {
-                  "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+                  "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
                 },
                 "targetId": {
                   "type": "string"
@@ -730,7 +854,7 @@
           "additionalProperties": false
         },
         "method.stagePrimaryKey.return": {
-          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "method.prepareSave.params": {
           "type": "object",
@@ -738,7 +862,7 @@
             "owners": {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/LowcodeDataSpaceFieldEdit"
+                "$ref": "#/$defs/FieldEditSession"
               }
             },
             "modelPatch": {
@@ -755,7 +879,7 @@
           "additionalProperties": false
         },
         "method.prepareSave.return": {
-          "$ref": "save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionSavePart"
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionSavePart"
         },
         "method.reload.params": {
           "type": "object",
@@ -776,7 +900,7 @@
             "owners": {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/LowcodeDataSpaceFieldEdit"
+                "$ref": "#/$defs/FieldEditSession"
               }
             },
             "discardPending": {
@@ -795,7 +919,7 @@
             "owners": {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/LowcodeDataSpaceFieldEdit"
+                "$ref": "#/$defs/FieldEditSession"
               }
             },
             "discardPending": {
@@ -809,18 +933,434 @@
           "title": "() => Promise<void>"
         }
       }
+    },
+    "FieldEditHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldEditHost",
+      "properties": {
+        "#private": true,
+        "dataSet": true,
+        "targetId": true,
+        "fieldId": true,
+        "lifecycle": true,
+        "viewId": true,
+        "assertOwner": true,
+        "identity": true,
+        "current": true,
+        "snapshot": true,
+        "writable": true,
+        "primaryWritable": true,
+        "flowStatus": true,
+        "getState": {
+          "type": "object",
+          "title": "() => { status: FieldEditStatus; pending: boolean; }"
+        },
+        "readPreview": {
+          "type": "object",
+          "title": "() => { id: string; modelId: string; name: string; output: boolean; formalOutput: boolean; direction: \"asc\" | \"desc\" | undefined; order: number; label: string; fingerprint: string; }"
+        },
+        "read": {
+          "type": "object",
+          "title": "() => { fields: ({ readable: boolean; writable: boolean; warning: string; name: \"Name\"; label: \"\\u8BA1\\u7B97\\u5B57\\u6BB5\\u540D\\u79F0\"; kind: \"text\"; } | { readable: boolean; writable: boolean; warning: string; name: \"description\"; label: \"\\u5B57\\u6BB5\\u8BF4\\u660E\"; kind: \"text\"; } | { readable: boolean; writable: bo..."
+        },
+        "readContract": {
+          "type": "object",
+          "title": "() => { readable: boolean; writable: boolean; warning: string; name: string; label: string; }[]"
+        },
+        "confirmContract": {
+          "type": "object",
+          "title": "(fieldIds?: readonly string[]) => void"
+        },
+        "ensurePrimaryOutput": {
+          "type": "object",
+          "title": "(fieldIds?: readonly string[]) => void"
+        },
+        "validate": true,
+        "assertEditable": true,
+        "readValueFunction": {
+          "type": "object",
+          "title": "() => { context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext; warning: string; value: string | null; }"
+        },
+        "stageValueFunction": {
+          "type": "object",
+          "title": "(value: string, fieldIds?: readonly string[]) => void"
+        },
+        "discard": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "save": {
+          "type": "object",
+          "title": "() => Promise<void>"
+        },
+        "readback": true,
+        "reload": {
+          "type": "object",
+          "title": "(discardPending: boolean) => Promise<void>"
+        }
+      },
+      "required": [
+        "#private",
+        "dataSet",
+        "targetId",
+        "fieldId",
+        "lifecycle",
+        "viewId",
+        "assertOwner",
+        "identity",
+        "current",
+        "snapshot",
+        "writable",
+        "primaryWritable",
+        "flowStatus",
+        "getState",
+        "readPreview",
+        "read",
+        "readContract",
+        "confirmContract",
+        "ensurePrimaryOutput",
+        "validate",
+        "assertEditable",
+        "readValueFunction",
+        "stageValueFunction",
+        "discard",
+        "save",
+        "readback",
+        "reload"
+      ],
+      "additionalProperties": false
+    },
+    "FieldEditHandle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldEditHandle",
+      "properties": {
+        "#private": true,
+        "dataSet": true,
+        "targetId": true,
+        "fieldId": true,
+        "lifecycle": true,
+        "viewId": true,
+        "assertOwner": true,
+        "identity": true,
+        "current": true,
+        "snapshot": true,
+        "writable": true,
+        "primaryWritable": true,
+        "flowStatus": true,
+        "getState": {
+          "type": "object",
+          "title": "() => { status: FieldEditStatus; pending: boolean; }"
+        },
+        "readPreview": {
+          "type": "object",
+          "title": "() => { id: string; modelId: string; name: string; output: boolean; formalOutput: boolean; direction: \"asc\" | \"desc\" | undefined; order: number; label: string; fingerprint: string; }"
+        },
+        "read": {
+          "type": "object",
+          "title": "() => { fields: ({ readable: boolean; writable: boolean; warning: string; name: \"Name\"; label: \"\\u8BA1\\u7B97\\u5B57\\u6BB5\\u540D\\u79F0\"; kind: \"text\"; } | { readable: boolean; writable: boolean; warning: string; name: \"description\"; label: \"\\u5B57\\u6BB5\\u8BF4\\u660E\"; kind: \"text\"; } | { readable: boolean; writable: bo..."
+        },
+        "readContract": {
+          "type": "object",
+          "title": "() => { readable: boolean; writable: boolean; warning: string; name: string; label: string; }[]"
+        },
+        "confirmContract": {
+          "type": "object",
+          "title": "(fieldIds?: readonly string[]) => void"
+        },
+        "ensurePrimaryOutput": {
+          "type": "object",
+          "title": "(fieldIds?: readonly string[]) => void"
+        },
+        "validate": true,
+        "assertEditable": true,
+        "readValueFunction": {
+          "type": "object",
+          "title": "() => { context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext; warning: string; value: string | null; }"
+        },
+        "stageValueFunction": {
+          "type": "object",
+          "title": "(value: string, fieldIds?: readonly string[]) => void"
+        },
+        "discard": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "save": {
+          "type": "object",
+          "title": "() => Promise<void>"
+        },
+        "readback": true,
+        "reload": {
+          "type": "object",
+          "title": "(discardPending: boolean) => Promise<void>"
+        }
+      },
+      "required": [
+        "#private",
+        "dataSet",
+        "targetId",
+        "fieldId",
+        "lifecycle",
+        "viewId",
+        "assertOwner",
+        "identity",
+        "current",
+        "snapshot",
+        "writable",
+        "primaryWritable",
+        "flowStatus",
+        "getState",
+        "readPreview",
+        "read",
+        "readContract",
+        "confirmContract",
+        "ensurePrimaryOutput",
+        "validate",
+        "assertEditable",
+        "readValueFunction",
+        "stageValueFunction",
+        "discard",
+        "save",
+        "readback",
+        "reload"
+      ],
+      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-18T10:13:29.270Z",
+  "generatedAt": "2026-10-20T05:22:34.380Z",
   "models": {
-    "LowcodeDataSpaceFieldEdit": {
-      "name": "LowcodeDataSpaceFieldEdit",
+    "FieldEditStatus": {
+      "name": "FieldEditStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'pending'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unsubmitted'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FieldEditLifecycle": {
+      "name": "FieldEditLifecycle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    readDefinition?(): DataSet | ScenarioViewConfig | null;\n    readModel(modelId: string, modelName: string): ReturnType<DataSpaceDesignApi['readModel']>;\n    validateOutputs(changes: ReadonlyArray<{\n        original: DataRow;\n        patch: Readonly<Record<string, unknown>>;\n        creating?: boolean;\n    }>, modelPatch?: Readonly<Record<string, unknown>>): Promise<() => void>;\n    stagePrimaryKey?(modelId: string, name: string): void;\n    refreshDirectory?(): Promise<void>;\n    assertEditable?(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n    onDispatch(): void;\n    readDefinition?(): DataSet | ScenarioViewConfig | null;\n    readModel(modelId: string, modelName: string): ReturnType<DataSpaceDesignApi['readModel']>;\n    validateOutputs(changes: ReadonlyArray<{\n        original: DataRow;\n        patch: Readonly<Record<string, unknown>>;\n        creating?: boolean;\n    }>, modelPatch?: Readonly<Record<string, unknown>>): Promise<() => void>;\n    stagePrimaryKey?(modelId: string, name: string): void;\n    refreshDirectory?(): Promise<void>;\n    assertEditable?(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "onDispatch",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "readDefinition",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "ScenarioViewConfig"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readModel",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "modelName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "DataSpaceDesignApi['readModel']"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "validateOutputs",
+              "parameters": [
+                {
+                  "name": "changes",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "unknown",
+                      "name": "{\n        original: DataRow;\n        patch: Readonly<Record<string, unknown>>;\n        creating?: boolean;\n    }"
+                    }
+                  }
+                },
+                {
+                  "name": "modelPatch",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "stagePrimaryKey",
+              "parameters": [
+                {
+                  "name": "modelId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "refreshDirectory",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertEditable",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FieldEditSession": {
+      "name": "FieldEditSession",
       "jsdoc": "正式字段配置流程；所有数据、delta及权限留在原元数据视图。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
           "jsdoc": "捕获当前字段及所属模型；派发提交后通知会话废弃旧目标投影。",
-          "signatureText": "constructor(dataSet: DataSet, targetId: string, fieldId: string, lifecycle: Readonly<{\n        assertCurrent(): void;\n        onDispatch(): void;\n        readDefinition?(): DataSet | ScenarioViewConfig | null;\n        readModel(modelId: string, modelName: string): ReturnType<DataSpaceDesignApi['readModel']>;\n        validateOutputs(changes: ReadonlyArray<{\n            original: DataRow;\n            patch: Readonly<Record<string, unknown>>;\n            creating?: boolean;\n        }>, modelPatch?: Readonly<Record<string, unknown>>): Promise<() => void>;\n        stagePrimaryKey?(modelId: string, name: string): void;\n        refreshDirectory?(): Promise<void>;\n        assertEditable?(): void;\n    }>, viewId?: 'default' | 'modelFields')",
+          "signatureText": "constructor(dataSet: DataSet, targetId: string, fieldId: string, lifecycle: FieldEditLifecycle, viewId?: 'default' | 'modelFields')",
           "parameters": [
             {
               "name": "dataSet",
@@ -847,13 +1387,8 @@
               "name": "lifecycle",
               "type": {
                 "type": "reference",
-                "name": "Readonly",
-                "typeArguments": [
-                  {
-                    "type": "unknown",
-                    "name": "{\n        assertCurrent(): void;\n        onDispatch(): void;\n        readDefinition?(): DataSet | ScenarioViewConfig | null;\n        readModel(modelId: string, modelName: string): ReturnType<DataSpaceDesignApi['readModel']>;\n        validateOutputs(changes: ReadonlyArray<{\n            original: DataRow;\n            patch: Readonly<Record<string, unknown>>;\n            creating?: boolean;\n        }>, modelPatch?: Readonly<Record<string, unknown>>): Promise<() => void>;\n        stagePrimaryKey?(modelId: string, name: string): void;\n        refreshDirectory?(): Promise<void>;\n        assertEditable?(): void;\n    }"
-                  }
-                ]
+                "name": "FieldEditLifecycle",
+                "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts"
               }
             },
             {
@@ -885,7 +1420,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        status: \"unknown\" | \"idle\" | \"pending\" | \"readback\" | \"unsubmitted\";\n        pending: boolean;\n    }"
+                "name": "{\n        status: FieldEditStatus;\n        pending: boolean;\n    }"
               }
             },
             {
@@ -1026,7 +1561,7 @@
                   "name": "owners",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly LowcodeDataSpaceFieldEdit[]"
+                    "name": "readonly FieldEditSession[]"
                   }
                 },
                 {
@@ -1065,14 +1600,14 @@
                   "name": "owners",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly LowcodeDataSpaceFieldEdit[]"
+                    "name": "readonly FieldEditSession[]"
                   }
                 },
                 {
                   "name": "removals",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly LowcodeDataSpaceFieldRemove[]"
+                    "name": "readonly FieldRemoveHandle[]"
                   },
                   "flags": {
                     "isOptional": true
@@ -1098,7 +1633,7 @@
                   "name": "owners",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly LowcodeDataSpaceFieldEdit[]"
+                    "name": "readonly FieldEditSession[]"
                   }
                 },
                 {
@@ -1135,7 +1670,7 @@
                   "name": "owners",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly LowcodeDataSpaceFieldEdit[]"
+                    "name": "readonly FieldEditSession[]"
                   }
                 },
                 {
@@ -1215,7 +1750,7 @@
                   "name": "owners",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly LowcodeDataSpaceFieldEdit[]"
+                    "name": "readonly FieldEditSession[]"
                   }
                 },
                 {
@@ -1245,7 +1780,7 @@
                   "name": "owners",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly LowcodeDataSpaceFieldEdit[]"
+                    "name": "readonly FieldEditSession[]"
                   }
                 },
                 {
@@ -1279,6 +1814,38 @@
             }
           ]
         }
+      }
+    },
+    "FieldEditHost": {
+      "name": "FieldEditHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FieldEditSession",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "FieldEditSession",
+            "targetName": "FieldEditSession"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FieldEditHandle": {
+      "name": "FieldEditHandle",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FieldEditHost",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "FieldEditHost",
+            "targetName": "FieldEditHost"
+          }
+        ],
+        "members": {}
       }
     }
   }

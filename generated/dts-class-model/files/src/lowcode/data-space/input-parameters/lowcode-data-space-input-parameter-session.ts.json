@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session",
+    "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
+    "sourceFile": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session",
+    "jsdoc": "@module lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session\n职责：输入参数声明的暂存、提交与回读编排（无独立命令类 FSM）。\n边界：草稿归 DataView；流程状态由会话持有的 flow 记录。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ParameterEditStatus",
+      "InputParameterEditFlow",
+      "InputParameterEditHost"
+    ]
+  },
+  "$defs": {
+    "ParameterEditStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ParameterEditStatus",
+      "enum": [
+        "idle",
+        "pending",
+        "unsubmitted",
+        "unknown",
+        "readback"
+      ]
+    },
+    "ParameterRecovery": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ParameterRecovery",
+      "enum": [
+        "none",
+        "unsubmitted",
+        "unknown",
+        "readback"
+      ]
+    },
+    "InputParameterEditFlow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InputParameterEditFlow",
+      "properties": {
+        "recovery": {
+          "$ref": "#/$defs/ParameterRecovery"
+        },
+        "inFlight": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "queryContext": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "recovery",
+        "inFlight",
+        "queryContext"
+      ],
+      "additionalProperties": false
+    },
+    "InputParameterEditHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InputParameterEditHost",
+      "properties": {
+        "view": {
+          "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "flow": {
+          "$ref": "#/$defs/InputParameterEditFlow"
+        }
+      },
+      "required": [
+        "flow"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-20T04:39:27.489Z",
+  "models": {
+    "ParameterEditStatus": {
+      "name": "ParameterEditStatus",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'idle'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'pending'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unsubmitted'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ParameterRecovery": {
+      "name": "ParameterRecovery",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'none' | 'unsubmitted' | 'unknown' | 'readback'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'none'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unsubmitted'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'unknown'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'readback'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "InputParameterEditFlow": {
+      "name": "InputParameterEditFlow",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    recovery: ParameterRecovery;\n    inFlight: boolean;\n    queryContext: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "recovery",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inFlight",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "queryContext",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "InputParameterEditHost": {
+      "name": "InputParameterEditHost",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    readonly view: DataView;\n    readonly targetId: string;\n    readonly dataSet: DataSet;\n    readonly assertCurrent: () => void;\n    flow: InputParameterEditFlow;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "flow",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -583,7 +583,17 @@
         },
         "method.hasUnconfirmedSave.return": {
           "type": "boolean"
-        }
+        },
+        "method.abandonUnconfirmedSave.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/DataViewQueryResult"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.abandonUnconfirmedSave.return": true
       }
     },
     "DataViewOptionQueryOptions": {
@@ -2209,6 +2219,14 @@
           "type": "object",
           "title": "Promise<CrudResult<SaveChangesData>>"
         },
+        "method.abandonUnconfirmedSave.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.abandonUnconfirmedSave.return": {
+          "type": "boolean"
+        },
         "method.saveQueryViews.params": {
           "type": "object",
           "properties": {
@@ -2554,7 +2572,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T13:20:42.310Z",
+  "generatedAt": "2026-10-19T03:11:24.241Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -3213,11 +3231,11 @@
       "jsdoc": "一次运行绑定的查询保存 owner；保存消费原查询上下文，数据层不依赖具体 API 包。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
+            "typeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -3356,6 +3374,24 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            },
+            {
+              "name": "abandonUnconfirmedSave",
+              "jsdoc": "调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryResult",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             }
           ]
@@ -4038,7 +4074,6 @@
             },
             {
               "name": "hasUnconfirmedSave",
-              "jsdoc": "原查询owner仍保留的未确认提交；下一次保存先核验原捕获，新编辑和其他未派发视图留待随后显式保存。",
               "readable": true,
               "writable": false
             },
@@ -5866,6 +5901,15 @@
                     ]
                   }
                 ]
+              }
+            },
+            {
+              "name": "abandonUnconfirmedSave",
+              "jsdoc": "明确放弃本视图未确认提交的核验，之后可重新读取实际结果；本地草稿保留，由调用方决定丢弃或重新提交。\n不撤销服务端可能已生效的写入。执行器未提供放弃能力时保持待核验并返回 false，仍须经原保存入口核验。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
               }
             },
             {

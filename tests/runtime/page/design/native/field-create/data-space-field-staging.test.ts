@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises} from '@vue/test-utils'
 import {getDataViewFilterFunctionDefinitions, type DataViewFilterValueFunction} from '@spark-appworks/spark-data'
-import {LowcodeDataSpaceFieldEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-field-edit'
+import {fieldEditReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
 import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 
@@ -120,7 +120,7 @@ describe('reference computed field confirmation and workspace save', () => {
       await expect(session.getModelEdit('M1').save(batch)).rejects.toThrow()
       await expect(session.getModelEdit('M1').save(batch)).rejects.toThrow()
       expect(writes()).toHaveLength(1)
-      await LowcodeDataSpaceFieldEdit.reloadBatch(batch, true)
+      await fieldEditReloadBatch(batch, true)
     } else await session.getModelEdit('M1').save(batch)
     expect(writes()).toHaveLength(mode === 'cancel' ? 0 : 1)
     const reopened = await f.open('A'), fields = await reopened.loadModelFields('M1')
@@ -422,7 +422,7 @@ describe('reference computed field confirmation and workspace save', () => {
     const id = await add('total'), owner = session.getFieldEdit(id, 'modelFields')
     expect(owner.read().fields.find(field => field.name === 'description')?.writable).toBe(true)
     view.updateEditingValue(id, 'description', 'changed')
-    await LowcodeDataSpaceFieldEdit.stageOutputBatch(owners(), 'all')
+    await fieldEditStageOutputBatch(owners(), 'all')
     owner.discard()
     expect(view.rows.some(row => row['rowid'] === id)).toBe(false)
     expect(session.hasPendingFieldEdits()).toBe(false)
@@ -436,7 +436,7 @@ describe('reference computed field confirmation and workspace save', () => {
     const id = await add('tax')
     owners()
     view.updateEditingValue(id, 'AsName', 'totalOutput')
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(owners())).rejects.toThrow(/字段重复/)
+    await expect(fieldEditSaveBatch(owners())).rejects.toThrow(/字段重复/)
     expect(view.getEditingRow(id)?.['AsName']).toBe('totalOutput')
     expect(writes()).toEqual([])
   })
@@ -447,7 +447,7 @@ describe('reference computed field confirmation and workspace save', () => {
     expect(session.hasPendingFieldEdits()).toBe(true)
     await expect(session.getModelEdit('M1').save(batch)).rejects.toThrow()
     expect(writes()).toHaveLength(1)
-    await LowcodeDataSpaceFieldEdit.reloadBatch(batch, true)
+    await fieldEditReloadBatch(batch, true)
     expect(view.rows.some(row => row['rowid'] === id)).toBe(true)
     expect(session.hasPendingFieldEdits()).toBe(false); expect(writes()).toHaveLength(1)
   })
@@ -455,11 +455,11 @@ describe('reference computed field confirmation and workspace save', () => {
   it('keeps an omitted creation recoverable after readback, then explicitly accepts its absence without replay', async () => {
     const {session, view, add, owners, writes} = await setup({omitFieldWrite: true})
     const id = await add('total'), batch = owners()
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(batch)).rejects.toThrow()
+    await expect(fieldEditSaveBatch(batch)).rejects.toThrow()
     expect(view.rows.some(row => row['rowid'] === id)).toBe(false)
     expect(session.getUnresolvedFieldIds('M1', 'modelFields')).toContain(id)
     expect(session.hasPendingFieldEdits()).toBe(true)
-    await LowcodeDataSpaceFieldEdit.reloadBatch(batch, true)
+    await fieldEditReloadBatch(batch, true)
     expect(session.getUnresolvedFieldIds('M1', 'modelFields')).toEqual([])
     expect(session.hasPendingFieldEdits()).toBe(false); expect(writes()).toHaveLength(1)
   })
@@ -508,7 +508,7 @@ describe('reference computed field confirmation and workspace save', () => {
   it.each(['draft', 'scope', 'file'])('rechecks %s during combined validation without dispatching', async kind => {
     const {f, session, view, owners, add, writes} = await setup()
     const id = await add('total'), batch = owners(), release = f.holdDefinitionRead()
-    const saving = LowcodeDataSpaceFieldEdit.saveBatch(batch), failure = expect(saving).rejects.toThrow()
+    const saving = fieldEditSaveBatch(batch), failure = expect(saving).rejects.toThrow()
     await flushPromises()
     if (kind === 'draft') view.updateEditingValue(id, 'AsName', 'later')
     if (kind === 'scope') f.invalidate()

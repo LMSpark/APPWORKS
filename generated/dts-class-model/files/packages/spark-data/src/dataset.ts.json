@@ -727,6 +727,21 @@
           "type": "object",
           "title": "Promise<DataSetPhasedSaveResult>"
         },
+        "method.resolveUnconfirmedSaves.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resolveUnconfirmedSaves.return": {
+          "type": "object",
+          "title": "Promise<'none' | 'confirmed' | 'not-applied'>"
+        },
+        "method.abandonUnconfirmedSaves.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.abandonUnconfirmedSaves.return": true,
         "method.toJson.params": {
           "type": "object",
           "properties": {},
@@ -761,7 +776,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-19T01:54:37.089Z",
+  "generatedAt": "2026-10-19T03:11:24.242Z",
   "models": {
     "DataSetConfig": {
       "name": "DataSetConfig",
@@ -1895,6 +1910,43 @@
                     "sourcePath": "packages/spark-data/src/types.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "resolveUnconfirmedSaves",
+              "jsdoc": "经原保存入口核验本实例所有未确认提交（执行器只回读、不重放）。\n返回 none（没有待核验）、confirmed（原提交已生效）或 not-applied（原提交未生效，草稿保留）；仍无法确认时抛出原错误。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "none"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "confirmed"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "not-applied"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "abandonUnconfirmedSaves",
+              "jsdoc": "调用方已自行回读比对时，明确放弃本实例未确认提交的核验；不撤销服务端写入，不丢弃草稿。\n执行器不支持放弃的视图（如文件资源）保持待核验，仍经原保存入口核验。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

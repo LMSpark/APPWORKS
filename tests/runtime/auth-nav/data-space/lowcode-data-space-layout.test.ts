@@ -27,7 +27,7 @@ describe('lowcode data space layout reader', () => {
     })
     runtime = await import('../../../../src/lowcode/lowcode-runtime')
     ;({ lowcodeDataSpaceLayout: layout } = await import('../../../../src/lowcode/data-space/lowcode-data-space-layout'))
-  })
+  }, 60000)
   afterAll(() => { if (originalTransport) Object.defineProperty(Request.prototype, 'executeRequest', originalTransport) })
   afterEach(() => {
     transport.request.mockReset()

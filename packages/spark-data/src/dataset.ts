@@ -1572,6 +1572,32 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     return {success: true, completedPhases: phases.length, results}
   }
 
+  /**
+   * 经原保存入口核验本实例所有未确认提交（执行器只回读、不重放）。
+   * 返回 none（没有待核验）、confirmed（原提交已生效）或 not-applied（原提交未生效，草稿保留）；仍无法确认时抛出原错误。
+   */
+  async resolveUnconfirmedSaves(): Promise<'none' | 'confirmed' | 'not-applied'> {
+    const views: DataView[] = []
+    for (const table of Object.values(this.tables)) table.forEachView(view => {if (view.hasUnconfirmedSave) views.push(view)})
+    if (views.length === 0) return 'none'
+    try {
+      const result = await this.saveChanges({applyEditingRows: false, views: views.map(view => ({tableName: view.tableName, viewId: view.viewId}))})
+      if (result.success && !views.some(view => view.hasUnconfirmedSave)) return 'confirmed'
+      throw new Error(result.message ?? 'DATA_SET_UNCONFIRMED_SAVE: 未确认提交仍无法核验')
+    } catch (error) {
+      if (views.some(view => view.hasUnconfirmedSave)) throw error
+      return 'not-applied'
+    }
+  }
+
+  /**
+   * 调用方已自行回读比对时，明确放弃本实例未确认提交的核验；不撤销服务端写入，不丢弃草稿。
+   * 执行器不支持放弃的视图（如文件资源）保持待核验，仍经原保存入口核验。
+   */
+  abandonUnconfirmedSaves(): void {
+    for (const table of Object.values(this.tables)) table.forEachView(view => {view.abandonUnconfirmedSave()})
+  }
+
   private assertScenarioSaveTargets(
     targets: DataSetSaveChangesTarget[],
     mode: NonNullable<DataSetSaveChangesOptions['mode']>,

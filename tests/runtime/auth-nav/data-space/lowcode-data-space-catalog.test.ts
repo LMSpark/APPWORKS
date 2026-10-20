@@ -12,6 +12,8 @@ const {executeQuery,loadScenario,readRequestScope,openDesign}=vi.hoisted(()=>({e
 vi.mock('@/lowcode/lowcode-runtime',()=>({lowcodeApi:{readRequestScope,dataSpace:{runtime:{executeQuery,save:vi.fn()}}}}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:loadScenario}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-design',()=>({openLowcodeDataSpaceDesignSession:openDesign}))
+// 列表页单独挂载、无系统页实例；只替换未保存来源登记，设计会话仍经 openDesign 观察目标 ID。
+vi.mock('@spark-appworks/spark-app',async importOriginal=>({...await importOriginal<Record<string,unknown>>(),useSystemPageDirtySource:()=>undefined}))
 import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-catalog'
 import CatalogPage from '@/views/features/data-platform/data-set-management/ui/data-set-list-page.vue'
 const disposals:Array<()=>void>=[],originalStubs=config.global.stubs
@@ -46,27 +48,38 @@ function writable() {
       snapshot:table.applyResult({Result:{primaryKeyField:view.tableName==='Base_UserInfo'?'ID':'rowid',allowAdd:true,
         data:{Items:rows,Count:rows.length,hasNextPage:false,Action:[]}}})})
   })
+  const pending=new Set<unknown>();let writes=0
+  // 与实际执行器同一契约：写入后结果未确认则登记；再次提交只按主键核验，不重放写入。
+  const hasUnconfirmedSave=(context:unknown)=>pending.has(context)
   const save=vi.fn(async(command:Parameters<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>>[0])=>{
+    if(command.changes.some(change=>pending.has(change.context)))return command.changes.map(change=>{
+      pending.delete(change.context)
+      if(!(change.context instanceof DataSpaceQueryContext))throw Error('Expected formal query context')
+      const rows=rowsByModel[change.identity.metaName]??[],requested=change.context.prepareSaveChanges(structuredClone(change.changes))
+      const pick=(row:Record<string,unknown>)=>rows.find(item=>item['rowid']===row['rowid'])??{}
+      return change.context.acceptSaveReceipt({requested,receipt:{metaName:change.identity.metaName,added:(requested.added??[]).map(pick),changed:(requested.changed??[]).map(pick),deleted:[...(requested.deleted??[])]}})
+    })
     return command.changes.map(change=>{
       if(!(change.context instanceof DataSpaceQueryContext))throw Error('Expected formal query context')
       const rows=rowsByModel[change.identity.metaName]??=[]
       const requests=change.context.buildSaveRequest(change.changes)
       const added:Record<string,unknown>[]=[],changed:Record<string,unknown>[]=[],deleted:Record<string,unknown>[]=[]
+      writes++
       for(const request of requests) {
         for(const row of request.CrudModel.Added){const result={...row,createuser:'USER',createtime:'2026-10-15'};rows.push(result);added.push(result)}
         for(const row of request.CrudModel.Changed){const original=rows.find(item=>item['rowid']===row['rowid']);if(!original)throw Error('Missing row');Object.assign(original,row);changed.push(row)}
         for(const row of request.CrudModel.Deleted){const i=rows.findIndex(item=>item['rowid']===row['rowid']);if(i<0)throw Error('Missing row');rows.splice(i,1);deleted.push(row)}
       }
-      afterWrite?.()
+      try{afterWrite?.()}catch(error){command.changes.forEach(item=>pending.add(item.context));throw error}
       return change.context.acceptSaveReceipt({requested:change.changes,receipt:{metaName:change.identity.metaName,added,changed,deleted}})
     })
   })
   loadScenario.mockImplementation(({scenarioId}:{scenarioId:string})=>{
     const dataSet=dataset(scenarioId)
-    for(const name of Object.keys(models))dataSet.getTable(name)!.forEachView(view=>view.bindQueryExecutor({executeQuery,save}))
+    for(const name of Object.keys(models))dataSet.getTable(name)!.forEachView(view=>view.bindQueryExecutor({executeQuery,save,hasUnconfirmedSave}))
     return Promise.resolve(dataSet)
   })
-  return {save,rows:rowsByModel['Base_DataSet']!,onWrite(fn:()=>void){afterWrite=fn}}
+  return {save,rows:rowsByModel['Base_DataSet']!,get writes(){return writes},onWrite(fn:()=>void){afterWrite=fn}}
 }
 function calls(name:string) {return executeQuery.mock.calls.filter(([view])=>view.tableName===name)}
 function last(name='Base_DataSet'):QueryParams {return calls(name).at(-1)![1] as QueryParams}
@@ -75,7 +88,6 @@ function button(wrapper:ReturnType<typeof mount>,text:string) {const found=wrapp
 const path='/t/TENANT/app-a/features/data-platform/data-set-management/ui/data-set-list-page'
 async function page(scenarioId='SCENE') {
   const router=createRouter({history:createMemoryHistory(),routes:[{path,component:CatalogPage,meta:{blueprintScenarioId:scenarioId}},
-    {path:'/t/TENANT/app-a/data-space-design',component:{template:'<div>designer</div>'}},
     {path:'/t/TENANT/app-a/second',component:CatalogPage,meta:{blueprintScenarioId:'OTHER'}}]})
   await router.push(`${path}?scenarioId=UNTRUSTED&__sparkNavigationId=node`)
   const registry=Spark.createRegistry()
@@ -217,7 +229,7 @@ describe('catalog original-view mutations',()=>{
     const server=writable(),value=await selected();await value.beginCreate();const id=value.editing!.id
     value.view.updateEditingValue(id,'Name',kind==='empty'?'':kind==='length'?'N'.repeat(101):'New')
     value.view.updateEditingValue(id,'sysid',kind==='application'?'UNKNOWN':'APP')
-    await expect(value.saveEdit()).rejects.toThrow();expect(server.save).not.toHaveBeenCalled();expect(value.editing?.status).toBe('editing')
+    await expect(value.saveEdit()).rejects.toThrow();expect(server.save).not.toHaveBeenCalled();expect(value.editing).toMatchObject({unconfirmed:false,readbackFailed:false})
   })
   it('does not save unchanged edits or expand the editable property set',async()=>{
     const server=writable(),value=await selected();value.beginEdit();await value.saveEdit();expect(server.save).not.toHaveBeenCalled()
@@ -229,19 +241,19 @@ describe('catalog original-view mutations',()=>{
     readRequestScope.mockReturnValue({token:'scope-b',headers:{'X-AppId':'app-a'}})
     await expect(value.saveEdit()).rejects.toThrow('STALE');expect(server.save).not.toHaveBeenCalled()
   })
-  it('never retries an unknown write and can explicitly discard then query its actual result',async()=>{
+  it('never replays an unknown write and verifies it through the original save entry',async()=>{
     const server=writable(),value=await selected();value.beginEdit();value.view.updateEditingValue('TARGET','Name','Applied')
     server.onWrite(()=>{throw Error('Network lost after write')});await expect(value.saveEdit()).rejects.toThrow()
-    expect(value.editing?.status).toBe('unknown');await expect(value.saveEdit()).rejects.toThrow('不能重复提交')
-    expect(()=>value.cancelEdit()).toThrow('核验');await value.reloadEdit()
-    expect(server.save).toHaveBeenCalledTimes(1);expect(value.view.rows[0]?.['Name']).toBe('Applied');expect(value.editing).toBeUndefined()
+    expect(value.editing?.unconfirmed).toBe(true);expect(()=>value.cancelEdit()).toThrow('核验')
+    await value.saveEdit()
+    expect(server.save).toHaveBeenCalledTimes(2);expect(server.writes).toBe(1);expect(value.view.rows[0]?.['Name']).toBe('Applied');expect(value.editing).toBeUndefined()
   })
   it('retains confirmed-write readback failure and retries only the read',async()=>{
     const server=writable(),value=await selected(),execute=executeQuery.getMockImplementation()!
     value.beginEdit();value.view.updateEditingValue('TARGET','Name','Applied')
     server.onWrite(()=>executeQuery.mockRejectedValue(Error('Read unavailable')))
-    await expect(value.saveEdit()).rejects.toThrow('Read unavailable');expect(value.editing?.status).toBe('readback')
-    executeQuery.mockImplementation(execute);await value.reloadEdit();expect(server.save).toHaveBeenCalledTimes(1)
+    await expect(value.saveEdit()).rejects.toThrow('Read unavailable');expect(value.editing?.readbackFailed).toBe(true)
+    executeQuery.mockImplementation(execute);await value.saveEdit();expect(server.save).toHaveBeenCalledTimes(1)
     expect(value.view.rows[0]?.['Name']).toBe('Applied')
   })
   it('keeps add/edit disabled for a formal read-only query',async()=>{
@@ -317,14 +329,17 @@ describe('catalog page entry',()=>{
     const {wrapper,router}=await page(),row=wrapper.get('tbody tr')
     const design=row.findAll('button').find(item=>item.text()==='设计')
     expect(design).toBeDefined();expect(design!.attributes('disabled')).toBeUndefined()
-    await design!.trigger('click');await flushPromises();expect(router.currentRoute.value.query['scenarioId']).toBe('TARGET')
+    const before=router.currentRoute.value.fullPath
+    await design!.trigger('click');await flushPromises();expect(router.currentRoute.value.fullPath).toBe(before)
+    await vi.waitFor(()=>expect(openDesign).toHaveBeenCalledWith('TARGET'),{timeout:20000})
   })
   it('targets the clicked row rather than a different selected row',async()=>{
     executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_DataSet'
       ?[defaults['Base_DataSet']![0]!,{...defaults['Base_DataSet']![0],rowid:'SECOND',Name:'Second'}]:defaults[view.tableName]??[]))
     const {wrapper,router}=await page(),rows=wrapper.findAll('tbody tr');await rows[0]!.trigger('click');await flushPromises()
     await rows[1]!.findAll('button').find(item=>item.text()==='设计')!.trigger('click');await flushPromises()
-    expect(router.currentRoute.value.query['scenarioId']).toBe('SECOND')
+    await vi.waitFor(()=>expect(openDesign).toHaveBeenCalledWith('SECOND'),{timeout:20000});expect(openDesign).not.toHaveBeenCalledWith('TARGET')
+    void router
   })
   it('closes a delayed binding query without keeping the list busy or publishing its late error',async()=>{
     const execute=executeQuery.getMockImplementation()!
@@ -352,8 +367,8 @@ describe('catalog page entry',()=>{
     await wrapper.getComponent(RendererForm).findAllComponents(FieldText).find(item=>item.props('field')==='Name')!.get('input').setValue('Applied once')
     server.onWrite(()=>{throw Error('Unknown write')});await button(wrapper,'确定').trigger('click');await flushPromises()
     expect(wrapper.text()).toContain('保存结果尚未确认');expect(wrapper.findAll('button').some(item=>item.text()==='确定')).toBe(false)
-    await button(wrapper,'放弃本地修改并重新查询核验').trigger('click');await flushPromises()
-    expect(server.save).toHaveBeenCalledTimes(1);expect(wrapper.text()).toContain('Applied once');expect(wrapper.text()).not.toContain('数据空间已保存')
+    await button(wrapper,'核验保存结果').trigger('click');await flushPromises()
+    expect(server.writes).toBe(1);expect(wrapper.text()).toContain('Applied once')
   })
   it('renders navigation paths from a bound standard table and releases the views on close',async()=>{
     const leaf={rowid:'NODE',SysId:'APP',conid:'TARGET',prowid:'000000',FunName:'Bound feature',name:'node',NavigationUrl:'/bound'}
@@ -395,13 +410,15 @@ describe('catalog page entry',()=>{
     expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe('OTHER@Base_DataSet@catalog')
     expect(wrapper.text()).toContain('Current application');expect(wrapper.text()).not.toContain('Obsolete application')
   })
-  it('binds standard components to the formal route space and navigates with target and return path only',async()=>{
+  it('binds standard components to the formal route space and opens the designer in a dialog with the selected target only',async()=>{
     const {wrapper,router}=await page();expect(loadScenario).toHaveBeenCalledWith({projectId:'app-a',scenarioId:'SCENE'})
     expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe('SCENE@Base_DataSet@catalog')
     expect(wrapper.text()).toContain('Creator');expect(wrapper.text()).toContain('Application');expect(button(wrapper,'编辑').attributes('disabled')).toBeDefined()
+    const before=router.currentRoute.value.fullPath
     await wrapper.get('tbody tr').trigger('click');await flushPromises();await button(wrapper,'设计').trigger('click');await flushPromises()
-    expect(router.currentRoute.value.path).toBe('/t/TENANT/app-a/data-space-design')
-    expect(router.currentRoute.value.query).toEqual({scenarioId:'TARGET',returnTo:`${path}?scenarioId=UNTRUSTED&__sparkNavigationId=node`})
+    expect(router.currentRoute.value.fullPath).toBe(before)
+    await vi.waitFor(()=>expect(openDesign).toHaveBeenCalledWith('TARGET'),{timeout:20000})
+    expect(openDesign).not.toHaveBeenCalledWith('UNTRUSTED')
   })
   it('retains standard OR/application filters across paging and resets them',async()=>{
     const {wrapper}=await page();await wrapper.get('input[placeholder="搜索名称或 ID"]').setValue(' FIND ');await flushPromises()

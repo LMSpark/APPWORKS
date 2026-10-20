@@ -10,10 +10,28 @@
     "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/protocol/data-space-request\n职责：执行原始 SPARK 查询与同场景批量保存。\n边界：请求前后检查 scope 与代次，保存依据实际动作回执确认。\nAI用途：使用原封包和上下文组装统一 CRUD 请求。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "DataSpaceSaveUnconfirmedError",
       "DataSpaceRequest"
     ]
   },
   "$defs": {
+    "DataSpaceSaveUnconfirmedError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceSaveUnconfirmedError",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "cause": true
+          },
+          "additionalProperties": false
+        }
+      }
+    },
     "DataSpaceRequestOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -196,8 +214,42 @@
       }
     }
   },
-  "generatedAt": "2026-10-11T00:07:00.493Z",
+  "generatedAt": "2026-10-19T02:39:36.641Z",
   "models": {
+    "DataSpaceSaveUnconfirmedError": {
+      "name": "DataSpaceSaveUnconfirmedError",
+      "jsdoc": "保存请求已发出但结果无法确认：传输异常、响应后执行域失效或回执与提交不一致。\n服务端明确拒绝不属于此类；调用方不得重放写入，只能按主键回读核验。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(message: string, cause: unknown)",
+          "parameters": [
+            {
+              "name": "message",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "cause",
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {}
+      }
+    },
     "DataSpaceRequestOptions": {
       "name": "DataSpaceRequestOptions",
       "jsdoc": "实际 HTTP 通道及请求 scope 读取器，供请求前后核对执行域。",

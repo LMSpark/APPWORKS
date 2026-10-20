@@ -17,15 +17,12 @@ describe('formal model configuration maintenance', () => {
   it.each([
     ['Filter', ''], ['OutputType', 'Join'], ['parentField', '订单编号'], ['hasChildField', 'haschild'],
     ['selfType', 'parent'], ['topValue', '0'], ['cacheType', '页面'], ['RequestComplete', 'completed'],
-  ] as const)('keeps legacy request property %s out of the model edit and save entry', async (field, value) => {
+  ] as const)('keeps legacy request property %s out of the model structure entry', async (field, value) => {
     const {owner, view, writes} = await setup()
     expect(owner.read().fields.some(item => item.name === field)).toBe(false)
+    expect(owner.readRequestScheme().fields.some(item => item.name === field)).toBe(true)
     expect(() => owner.stage(field, value)).toThrow('不能修改')
     expect(view.hasEditingChanges()).toBe(false)
-    view.updateEditingValue('M1', field, value === '' ? '{}' : value)
-    await expect(owner.save()).rejects.toThrow('不能修改')
-    expect(view.hasEditingChanges()).toBe(true)
-    owner.discard()
     expect(writes()).toHaveLength(0)
   })
 

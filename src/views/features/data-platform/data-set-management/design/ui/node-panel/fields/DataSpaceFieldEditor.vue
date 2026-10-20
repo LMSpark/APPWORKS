@@ -122,8 +122,8 @@ import {DisplayText, RendererButton} from '@spark-appworks/spark-component'
 import {FieldCheckbox, FieldNumber, FieldSelect, FieldText, FieldTextarea, FieldValueFunction, RendererDialog, RendererForm, RendererTable, RendererSection, type RTableProps} from '@spark-appworks/spark-component'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import type {DataSpaceFieldEditorProps} from './DataSpaceFieldEditor.props'
-import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-source-input-edit'
-import {LowcodeDataSpaceFieldEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-field-edit'
+import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
+import {fieldEditPrepareReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
 
 const props = defineProps<DataSpaceFieldEditorProps>()
 const groupHelp = '0 表示不参与分组，正整数表示参与分组；数值大小不决定顺序。分组查询的普通输出字段须参与分组，聚合输出通过值函数配置。'
@@ -330,7 +330,7 @@ async function stageOutput(mode: 'all' | 'invert'): Promise<void> {
   if (!active || blocked.value || dialogOpen.value || !outputWritable.value) return
   busy.value = true; error.value = ''; message.value = ''
   try {
-    const result = await LowcodeDataSpaceFieldEdit.stageOutputBatch(owners(), mode)
+    const result = await fieldEditStageOutputBatch(owners(), mode)
     if (active) {
       const outputPending = ids.value.some(id => Object.hasOwn(view.value?.getEditingPatch(id) ?? {}, 'IsOutput'))
       message.value = outputPending ? `已暂存 ${result.changedCount} 个字段的输出修改，保留 ${result.primaryCount} 个主键字段输出；保存后生效。`
@@ -345,14 +345,14 @@ async function run(action: 'save' | 'verify'): Promise<void> {
   try {
     if (action === 'save') {
       if (workspaceModel.value) await workspaceModel.value.save(owners(), sourceOwners(), removalOwners())
-      else await LowcodeDataSpaceFieldEdit.saveBatch(owners(), removalOwners())
+      else await fieldEditSaveBatch(owners(), removalOwners())
     } else {
       const removals = removalOwners(), fields = owners(), inputs = sourceOwners()
       if (removals.length) view.value?.discardPendingChanges([...ids.value, ...removals.map(item => item.getState().preview!.id)])
       const reloadModel = workspaceModel.value && (workspaceModel.value.getState().pending || workspaceModel.value.getState().status !== 'idle')
         ? workspaceModel.value.prepareReload(workspaceModel.value.getState().pending) : undefined
       const reloadFields = fields.length && (!removals.length || fields.some(item => item.getState().pending || item.getState().status !== 'idle'))
-        ? LowcodeDataSpaceFieldEdit.prepareReloadBatch(fields, fields.some(item => item.getState().pending)) : undefined
+        ? fieldEditPrepareReloadBatch(fields, fields.some(item => item.getState().pending)) : undefined
       const reloadInputs = LowcodeDataSpaceSourceInputEdit.prepareReloadBatch(inputs, inputs.some(item => item.getState().pending))
       await reloadModel?.()
       await reloadFields?.()

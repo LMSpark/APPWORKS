@@ -315,6 +315,28 @@
           "type": "object",
           "title": "Promise<DataSpaceQueryContext>"
         },
+        "method.hasUnconfirmedSave.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceQueryContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasUnconfirmedSave.return": {
+          "type": "boolean"
+        },
+        "method.abandonUnconfirmedSave.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceQueryContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.abandonUnconfirmedSave.return": true,
         "method.save.params": {
           "type": "object",
           "properties": {
@@ -331,7 +353,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T13:20:42.312Z",
+  "generatedAt": "2026-10-19T03:11:24.248Z",
   "models": {
     "DataSpaceRuntimeApiOptions": {
       "name": "DataSpaceRuntimeApiOptions",
@@ -755,6 +777,42 @@
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "jsdoc": "原保存请求已发出但结果未确认；DataView 据此只允许经原保存入口核验。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "abandonUnconfirmedSave",
+              "jsdoc": "调用方明确放弃核验：解除整批待核验记录，不撤销服务端可能已生效的写入。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

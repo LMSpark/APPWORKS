@@ -578,10 +578,9 @@ describe('one data space from metadata definitions through persistence to runtim
     }
     expect(view(session.metadataDataSet, 'Base_DataModel').rows.map(row => row['rowid'])).toEqual(['ORDER-MODEL', 'CHOICE-MODEL'])
 
-    const parameters = session.getInputParameters()
-    parameters.stage({expectedValue: '[]', value: [{rowid: 'REGION-PARAM', Name: 'region', Description: '区域', IsBusParam: true},
+    session.stageInputParameters({expectedValue: '[]', value: [{rowid: 'REGION-PARAM', Name: 'region', Description: '区域', IsBusParam: true},
       {rowid: 'CATEGORY-PARAM', Name: 'category', Description: '类别', IsBusParam: true}]})
-    await parameters.save({expectedValue: '[]'})
+    await session.saveInputParameters({expectedValue: '[]'})
     expect(f.fileWrites).toHaveLength(0)
 
     const definitions = view(session.metadataDataSet, 'DataViewDefinition')

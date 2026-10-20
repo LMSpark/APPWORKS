@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {LowcodeDataSpaceFieldEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-field-edit'
+import {fieldEditReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
 import {LowcodeDataSpacePrimaryKey} from '@/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 
@@ -64,7 +64,7 @@ describe('reference field primary key and workspace save', () => {
   it('does not allow an isolated field save to bypass the model declaration', async () => {
     const {view, owners, writes} = await setup()
     view.updateEditingValue('PK', 'IsPKey', 0)
-    await expect(LowcodeDataSpaceFieldEdit.saveBatch(owners())).rejects.toThrow(/主键.*(模型|统一)/)
+    await expect(fieldEditSaveBatch(owners())).rejects.toThrow(/主键.*(模型|统一)/)
     expect(writes()).toEqual([])
   })
   it('aligns the model selector with existing field drafts in the same workspace', async () => {
@@ -83,7 +83,7 @@ describe('reference field primary key and workspace save', () => {
     ]}, withoutReferences)
     if (!withoutReferences) expect(JSON.parse(f.stored.get('A')!).tables.OrdersAlias.views.shared.treeConfig).toEqual({idField: 'rowid', parentIdField: 'parentId'})
     confirm('PK', 0); confirm('CODE', 1)
-    expect(await LowcodeDataSpaceFieldEdit.stageOutputBatch(owners(), 'invert')).toEqual({changedCount: 2, primaryCount: 1})
+    expect(await fieldEditStageOutputBatch(owners(), 'invert')).toEqual({changedCount: 2, primaryCount: 1})
     expect(view.getEditingRow('PK')?.['IsOutput']).toBe(0)
     if (withoutReferences) {
       await model.save(owners())
@@ -141,7 +141,7 @@ describe('reference field primary key and workspace save', () => {
     expect(session.hasPendingModelEdits()).toBe(true); expect(session.hasPendingFieldEdits()).toBe(true)
     await expect(model.save(batch)).rejects.toThrow('先核验')
     expect(writes()).toHaveLength(1)
-    await model.reload(true); await LowcodeDataSpaceFieldEdit.reloadBatch(batch, true)
+    await model.reload(true); await fieldEditReloadBatch(batch, true)
     expect(model.getState().status).toBe('idle'); expect(session.hasPendingFieldEdits()).toBe(false)
     expect(view.rows.find(row => row['rowid'] === 'CODE')?.['IsPKey']).toBe(mode === 'partial' ? 0 : 1)
     expect(writes()).toHaveLength(1)

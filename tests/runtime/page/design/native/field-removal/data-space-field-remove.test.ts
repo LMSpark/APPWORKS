@@ -4,10 +4,10 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus, {ElTree} from 'element-plus'
 import {RendererTable, registerAllRenderers, Spark} from '@spark-appworks/spark-component'
 import {resolveDataViewKey} from '@spark-appworks/spark-data'
-import {dataSpacePageFixture} from '../data-space-page.fixture'
+import {dataSpacePageFixture, designPageHost} from '../data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
-import {LowcodeDataSpaceFieldEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-field-edit'
-import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/lowcode-data-space-source-input-edit'
+import {fieldEditReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
+import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
 import {createDynamicRouter} from '../../../../../../packages/spark-app/src/router/dynamic'
 
@@ -29,7 +29,7 @@ function fixture(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
 }
 async function page(selectField = false) {
   const router = createRouter({history: createMemoryHistory(), routes: []})
-  const dynamic = createDynamicRouter({router, pageComponent: DataSpaceDesignPage, componentMap: {'/data-space-design': DataSpaceDesignPage},
+  const dynamic = createDynamicRouter({router, pageComponent: designPageHost(DataSpaceDesignPage), componentMap: {'/data-space-design': designPageHost(DataSpaceDesignPage)},
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header',
       items: [{id: 'design', title: '数据空间设计', path: '/data-space-design', itemKind: 'system-page'}]})})
   await dynamic.registerRoutes(); await router.push('/data-space-design?scenarioId=A')
@@ -52,6 +52,9 @@ async function page(selectField = false) {
     return wrapper
   }
   await wrapper.findAll('[data-design-node]').find(item => item.text() === 'Orders')!.trigger('click'); await flushPromises()
+  const fieldsTab = wrapper.findAll('[role="tab"]').find(tab => tab.text().includes('字段呈现'))
+  if (fieldsTab) {await fieldsTab.trigger('click'); await flushPromises()}
+  await vi.waitFor(() => expect(wrapper.findAllComponents(RendererTable).some(item => item.props('dataViewKey')?.endsWith('@modelFields'))).toBe(true))
   const table = wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey')?.endsWith('@modelFields'))!
   const fieldsView = resolveDataViewKey(table.props('dataViewKey'), fixtures.at(-1)!.sessions.at(-1)!.metadataDataSet)!
   expect(fieldsView.viewId).toBe('modelFields')
@@ -67,7 +70,7 @@ describe('computed field removal', () => {
     const f = fixture(), session = await f.open('A'), removal = session.getFieldRemove('CALC')
     await removal.preview(); await removal.stage()
     expect(writes(f)).toEqual([])
-    await LowcodeDataSpaceFieldEdit.saveBatch([], [removal])
+    await fieldEditSaveBatch([], [removal])
     expect(writes(f)).toHaveLength(1)
     expect(removal.getState().pending).toBe(false)
     expect((await f.open('A')).metadataDataSet.getView('Base_DataModel_Field')!.rows.some(row => row['rowid'] === 'CALC')).toBe(false)
@@ -170,7 +173,7 @@ describe('computed field removal', () => {
       expect(writes(f)).toHaveLength(1)
       await model.reload(true)
       view.discardPendingChanges([...view.rows.map(row => String(row['rowid'])), 'CALC'])
-      await LowcodeDataSpaceFieldEdit.reloadBatch(owners, true)
+      await fieldEditReloadBatch(owners, true)
       await LowcodeDataSpaceSourceInputEdit.reloadBatch(inputs, true)
       expect(await removal.verify()).toBe(outcome === 'readback')
       if (outcome === 'lost') removal.acceptCurrent()
@@ -463,10 +466,15 @@ describe('computed field removal', () => {
     f.setModelValues({Type: '接口'})
     const wrapper = await page(), body = new DOMWrapper(document.body), session = f.sessions.at(-1)!
     await vi.waitFor(() => expect(session.metadataDataSet.getView('Base_DataModel_Field', 'sourceInputFields')?.rows[0]?.['rowid']).toBe('I1'))
+    const structureTab = wrapper.findAll('[role="tab"]').find(tab => tab.text().includes('模型结构'))
+    if (structureTab) {await structureTab.trigger('click'); await flushPromises()}
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererTable).some(item => item.props('dataViewKey')?.endsWith('@sourceInputFields'))).toBe(true))
     const table = wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey')?.endsWith('@sourceInputFields'))!
     expect(resolveDataViewKey(table.props('dataViewKey'), session.metadataDataSet)?.viewId).toBe('sourceInputFields')
     session.getModelSourceInputs('M1')[0]!.stage('{"Type":"GetConstValue","Value":false}')
     await flushPromises()
+    const fieldsTabAgain = wrapper.findAll('[role="tab"]').find(tab => tab.text().includes('字段呈现'))
+    if (fieldsTabAgain) {await fieldsTabAgain.trigger('click'); await flushPromises()}
     expect(wrapper.get('[data-action="preview-remove-field"]').attributes('disabled')).toBeUndefined()
     await wrapper.get('[data-action="preview-remove-field"]').trigger('click'); await flushPromises()
     await body.get('[data-action="confirm-remove-field"]').trigger('click'); await flushPromises()

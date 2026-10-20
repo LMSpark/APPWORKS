@@ -43,19 +43,18 @@
                 "edit"
               ]
             },
-            "status": {
-              "enum": [
-                "unknown",
-                "editing",
-                "readback",
-                "saving"
-              ]
+            "unconfirmed": {
+              "type": "boolean"
+            },
+            "readbackFailed": {
+              "type": "boolean"
             }
           },
           "required": [
             "id",
             "mode",
-            "status"
+            "unconfirmed",
+            "readbackFailed"
           ],
           "additionalProperties": false
         },
@@ -154,12 +153,20 @@
           "type": "object",
           "title": "Promise<void>"
         },
-        "method.reloadEdit.params": {
+        "method.canDelete.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.reloadEdit.return": {
+        "method.canDelete.return": {
+          "type": "boolean"
+        },
+        "method.deleteSelected.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.deleteSelected.return": {
           "type": "object",
           "title": "Promise<void>"
         },
@@ -246,7 +253,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T04:21:36.880Z",
+  "generatedAt": "2026-10-19T02:18:04.840Z",
   "models": {
     "LowcodeDataSpaceCatalog": {
       "name": "LowcodeDataSpaceCatalog",
@@ -281,7 +288,7 @@
             },
             {
               "name": "editing",
-              "jsdoc": "弹窗只持有操作身份；全部字段草稿仍在目录DataView。",
+              "jsdoc": "弹窗只持有操作身份；草稿、提交中与未确认状态都读取目录DataView自身状态。\nunconfirmed：原提交结果未确认，只能经原保存入口核验；readbackFailed：已确认提交后的重新读取失败。",
               "readable": true,
               "writable": false
             },
@@ -395,7 +402,7 @@
             },
             {
               "name": "saveEdit",
-              "jsdoc": "仅保存当前空间记录；DataSet处理编辑覆盖、权限、批次及真实回执。",
+              "jsdoc": "仅保存当前空间记录；DataSet处理编辑覆盖、权限、批次及真实回执。\n结果未确认时再次调用即走原保存入口核验（不重放写入）。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -409,8 +416,17 @@
               }
             },
             {
-              "name": "reloadEdit",
-              "jsdoc": "用户明确放弃本地状态后只重查，不重放未知写入，也不宣称原保存成功。",
+              "name": "canDelete",
+              "jsdoc": "删除仍消费正式查询的行级授权；空间下仍有模型时拒绝，避免遗留孤立模型、字段与关系。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "deleteSelected",
+              "jsdoc": "先核空间下的模型数，再经原DataView暂存删除并由DataSet提交；不级联删除其他记录或场景文件。",
               "parameters": [],
               "type": {
                 "type": "reference",

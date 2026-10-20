@@ -672,7 +672,7 @@ describe('data-space metadata DataSet', () => {
     expect(mocks.request.mock.calls).toHaveLength(count)
     expect(field['ValueFun']).toBe(JSON.stringify({Type: 'GetInputParam', ParamName: 'customer'}))
     expect(saveRequests()).toEqual([])
-    await session.getInputParameters().save({expectedValue: raw})
+    await session.saveInputParameters({expectedValue: raw})
     const fresh = await openMetadataSession()
     expect(fresh.session.inspectInputParameters().references).toEqual([
       expect.objectContaining({kind: 'source-input', parameterName: 'customer', declared: false, removedByEdit: false}),
@@ -805,8 +805,8 @@ describe('data-space metadata DataSet', () => {
     installRows(rows)
     const {session, view} = await openMetadataSession()
     session.stageInputParameters({expectedValue: raw, value: []})
-    await expect(session.getInputParameters().save({expectedValue: raw})).resolves.toEqual([])
-    expect(session.getInputParameters().getState()).toMatchObject({status: 'idle', pending: false})
+    await expect(session.saveInputParameters({expectedValue: raw})).resolves.toEqual([])
+    expect(session.getInputParameterState()).toMatchObject({status: 'idle', pending: false})
     expect(view.rows[0]?.['inputParams']).toBe('[]')
     expect(space['inputParams']).toBe('[]')
     expect(saveRequests()).toHaveLength(1)
@@ -818,7 +818,7 @@ describe('data-space metadata DataSet', () => {
     const {rows, raw, space} = declarationRows()
     installRows(rows)
     const {session, view} = await openMetadataSession()
-    const owner = session.getInputParameters(), table = view.dataTable!
+    const table = view.dataTable!
     const initialViews = [...table.viewList]
     const later = '[{"Name":"later","Description":"keep this draft"}]'
     const editLater = () => view.updateEditingValue('SPACE', 'inputParams', later)
@@ -830,8 +830,8 @@ describe('data-space metadata DataSet', () => {
     })
     session.stageInputParameters({expectedValue: raw, value: []})
     const readsBefore = mocks.request.mock.calls.filter(([request]) => request.url === '/api/DataOperation/GetData').length
-    await expect(owner.save({expectedValue: raw, ...(timing === 'after-receipt' ? {onReceipt: editLater} : {})})).resolves.toEqual([])
-    expect(owner.getState()).toEqual({status: 'idle', pending: true})
+    await expect(session.saveInputParameters({expectedValue: raw, ...(timing === 'after-receipt' ? {onReceipt: editLater} : {})})).resolves.toEqual([])
+    expect(session.getInputParameterState()).toEqual({status: 'idle', pending: true})
     expect(view.rows[0]?.['inputParams']).toBe('[]')
     expect(view.getEditingPatch('SPACE')).toEqual({inputParams: later})
     expect(space['inputParams']).toBe('[]')
@@ -840,7 +840,7 @@ describe('data-space metadata DataSet', () => {
     expect(table.viewList).toEqual(initialViews)
     view.discardPendingChanges(['SPACE'])
     expect(view.getEditingRow('SPACE')?.['inputParams']).toBe('[]')
-    expect(owner.getState()).toEqual({status: 'idle', pending: false})
+    expect(session.getInputParameterState()).toEqual({status: 'idle', pending: false})
     expect((await openMetadataSession()).view.rows[0]?.['inputParams']).toBe('[]')
   })
 
@@ -849,14 +849,14 @@ describe('data-space metadata DataSet', () => {
     installRows(rows, {loseSaveResponse: failure === 'lost-response', rejectSave: failure === 'server-rejection'})
     const {session, view} = await openMetadataSession()
     session.stageInputParameters({expectedValue: raw, value: []})
-    await expect(session.getInputParameters().save({expectedValue: raw})).rejects.toThrow(/response lost|server rejected/)
-    expect(session.getInputParameters().getState()).toMatchObject({status: 'unknown', pending: true})
-    await expect(session.getInputParameters().save({expectedValue: raw})).rejects.toThrow(/核验|PENDING/)
-    await expect(session.getInputParameters().reload({discardPending: false})).rejects.toThrow(/本地|PENDING/)
+    await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/response lost|server rejected/)
+    expect(session.getInputParameterState()).toMatchObject({status: 'unknown', pending: true})
+    await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/核验|PENDING/)
+    await expect(session.reloadInputParameters({discardPending: false})).rejects.toThrow(/本地|PENDING/)
     expect(saveRequests()).toHaveLength(1)
     expect(view.getEditingRow('SPACE')?.['inputParams']).toBe('[]')
-    await session.getInputParameters().reload({discardPending: true})
-    expect(session.getInputParameters().getState()).toMatchObject({status: 'idle', pending: false})
+    await session.reloadInputParameters({discardPending: true})
+    expect(session.getInputParameterState()).toMatchObject({status: 'idle', pending: false})
     expect(view.rows[0]?.['inputParams']).toBe(failure === 'lost-response' ? '[]' : raw)
     expect(space['inputParams']).toBe(view.rows[0]?.['inputParams'])
     expect(saveRequests()).toHaveLength(1)
@@ -870,7 +870,7 @@ describe('data-space metadata DataSet', () => {
     if (failure === 'wrong-input') view.queryContext = {dataSpaceId: 'OTHER'}
     if (failure === 'other-field') view.updateEditingValue('SPACE', 'description', 'other edit')
     const patch = view.getEditingPatch('SPACE')
-    await expect(session.getInputParameters().save({expectedValue: failure === 'stale-original' ? '[]' : raw}))
+    await expect(session.saveInputParameters({expectedValue: failure === 'stale-original' ? '[]' : raw}))
       .rejects.toThrow(/DATA_SPACE_INPUT_PARAMETERS/)
     expect(view.getEditingPatch('SPACE')).toEqual(patch)
     expect(saveRequests()).toEqual([])
@@ -887,9 +887,8 @@ describe('data-space metadata DataSet', () => {
       mocks.scope.mockReturnValue({token: 'CHANGED', headers: {'X-AppId': 'APP-2'}})
       return result
     })
-    const editor = session.getInputParameters()
-    await expect(editor.save({expectedValue: raw})).rejects.toThrow(/STALE_SCOPE/)
-    expect(editor.getState().status).toBe('unsubmitted')
+    await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/STALE_SCOPE/)
+    expect(session.getInputParameterState().status).toBe('unsubmitted')
     expect(saveRequests()).toEqual([])
   })
 
@@ -897,12 +896,12 @@ describe('data-space metadata DataSet', () => {
     const {rows} = declarationRows()
     installRows(rows)
     const {session, view} = await openMetadataSession()
-    await expect(session.getInputParameters().reload({discardPending: false}, async () => {})).rejects.toThrow(/新的声明查询/)
-    expect(session.getInputParameters().getState().status).toBe('readback')
+    await expect(session.reloadInputParameters({discardPending: false}, async () => {})).rejects.toThrow(/新的声明查询/)
+    expect(session.getInputParameterState().status).toBe('readback')
     const before = mocks.request.mock.calls.length
-    await session.getInputParameters().reload({discardPending: false}, async () => {await view.loadFromServer({allPages: true})})
+    await session.reloadInputParameters({discardPending: false}, async () => {await view.loadFromServer({allPages: true})})
     expect(mocks.request.mock.calls).toHaveLength(before + 1)
-    expect(session.getInputParameters().getState().status).toBe('idle')
+    expect(session.getInputParameterState().status).toBe('idle')
     expect(saveRequests()).toEqual([])
   })
 
@@ -912,9 +911,9 @@ describe('data-space metadata DataSet', () => {
     installRows(rows)
     const {session, view} = await openMetadataSession()
     view.updateEditingValue('SPACE', 'inputParams', '[]')
-    await expect(session.getInputParameters().save({expectedValue: raw})).rejects.toThrow(/读写权限/)
+    await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/读写权限/)
     expect(view.getEditingPatch('SPACE')).toEqual({inputParams: '[]'})
-    expect(session.getInputParameters().getState().status).toBe('idle')
+    expect(session.getInputParameterState().status).toBe('idle')
     expect(saveRequests()).toEqual([])
   })
 
@@ -940,14 +939,14 @@ describe('data-space metadata DataSet', () => {
     const {session, view} = await openMetadataSession()
     session.stageInputParameters({expectedValue: raw, value: []})
     const initialViews = [...view.dataTable!.viewList]
-    await expect(session.getInputParameters().save({expectedValue: raw})).rejects.toThrow(/readback unavailable|回读值|读写权限/)
+    await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/readback unavailable|回读值|读写权限/)
     expect(view.dataTable!.viewList).toEqual(initialViews)
-    expect(session.getInputParameters().getState()).toMatchObject({status: 'readback', pending: false})
-    await expect(session.getInputParameters().save({expectedValue: raw})).rejects.toThrow(/核验/)
+    expect(session.getInputParameterState()).toMatchObject({status: 'readback', pending: false})
+    await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/核验/)
     space['lingma_sys_params'] = {r: [], e: [], h: []}
-    await session.getInputParameters().reload({discardPending: false})
+    await session.reloadInputParameters({discardPending: false})
     expect(view.rows[0]?.['inputParams']).toBe(failure === 'mismatched-value' ? raw : '[]')
-    expect(session.getInputParameters().getState()).toMatchObject({status: 'idle', pending: false})
+    expect(session.getInputParameterState()).toMatchObject({status: 'idle', pending: false})
     expect(saveRequests()).toHaveLength(1)
   })
 
@@ -955,7 +954,7 @@ describe('data-space metadata DataSet', () => {
     const {rows, raw} = declarationRows()
     installRows(rows)
     const {session, view} = await openMetadataSession()
-    const owner = session.getInputParameters(), initialViews = [...view.dataTable!.viewList]
+    const initialViews = [...view.dataTable!.viewList]
     const execute = mocks.request.getMockImplementation()!
     let verifying = false
     mocks.request.mockImplementation(async (config: RequestConfig) => {
@@ -964,10 +963,10 @@ describe('data-space metadata DataSet', () => {
       return result
     })
     session.stageInputParameters({expectedValue: raw, value: []})
-    await expect(owner.save({expectedValue: raw, onReceipt: () => {
+    await expect(session.saveInputParameters({expectedValue: raw, onReceipt: () => {
       view.updateEditingValue('SPACE', 'inputParams', '[{"Name":"later"}]'); verifying = true
     }})).rejects.toThrow(/CONTEXT/)
-    expect(owner.getState()).toEqual({status: 'readback', pending: true})
+    expect(session.getInputParameterState()).toEqual({status: 'readback', pending: true})
     expect(view.getEditingPatch('SPACE')).toEqual({inputParams: '[{"Name":"later"}]'})
     expect(view.dataTable!.viewList).toEqual(initialViews)
     expect(saveRequests()).toHaveLength(1)
@@ -987,11 +986,11 @@ describe('data-space metadata DataSet', () => {
       return execute(config)
     })
     session.stageInputParameters({expectedValue: raw, value: []})
-    const save = session.getInputParameters().save({expectedValue: raw})
+    const save = session.saveInputParameters({expectedValue: raw})
     await vi.waitFor(() => expect(saveRequests()).toHaveLength(1))
-    expect(session.getInputParameters().getState().status).toBe('pending')
-    await expect(session.getInputParameters().save({expectedValue: raw})).rejects.toThrow(/核验/)
-    await expect(session.getInputParameters().reload({discardPending: true})).rejects.toThrow(/进行/)
+    expect(session.getInputParameterState().status).toBe('pending')
+    await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/核验/)
+    await expect(session.reloadInputParameters({discardPending: true})).rejects.toThrow(/进行/)
     expect(() => session.stageInputParameters({expectedValue: raw, value: []})).toThrow(/核验/)
     expect(other.view.rows[0]?.['inputParams']).toBe(raw)
     release()
@@ -1073,7 +1072,10 @@ describe('data-space metadata DataSet', () => {
     expect(saveRequests()).toHaveLength(1)
     expect(view.getEditingRow('SPACE')?.['inputParams']).toBe('[]')
     expect(view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges()).toBe(true)
-    view.discardPendingChanges(['SPACE'])
+    expect(view.hasUnconfirmedSave).toBe(true)
+    await expect(session.metadataDataSet.resolveUnconfirmedSaves()).resolves.toBe('confirmed')
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges()).toBe(false)
     await view.loadFromServer({allPages: true})
     expect(view.rows).toEqual([{rowid: 'SPACE', _pk: 'SPACE', inputParams: '[]'}])
     const fresh = await openMetadataSession()

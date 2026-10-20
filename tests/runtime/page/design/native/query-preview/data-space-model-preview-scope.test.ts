@@ -148,7 +148,6 @@ describe('model preview from the real overview loading state', () => {
   })
   it('renders and queries the standard bound preview while an unrelated legacy relation prevents only the function catalogue', async () => {
     const f = fixture(), session = await f.open('A')
-    await session.loadModelFields('M1')
     const opened = vi.spyOn(session, 'openModelPreview')
     const wrapper = mount(DataSpaceQueryPreview, {props: {session: markRaw(session), modelId: 'M1', modelName: 'Orders', filter: {autoQuery: false}},
       global: {plugins: [ElementPlus, VXETable, Spark.createPlugin()]}})
@@ -159,7 +158,7 @@ describe('model preview from the real overview loading state', () => {
     await flushPromises()
     expect(wrapper.getComponent(RendererTable).props('dataViewKey')).toBe('A@Orders@default')
     expect(preview.view.rows).toMatchObject([{rowid: 'O1', note: 'saved'}])
-    expect(session.metadataDataSet.getView('Base_DataModel_Field')!.requestState).not.toBe(RequestState.Loaded)
+    expect(session.metadataDataSet.getView('Base_DataModel_Field', 'default')!.requestState).toBe(RequestState.Loaded)
     expect(f.fileWrites).toEqual([])
     wrapper.unmount()
     expect(preview.disposed).toBe(true)
@@ -188,11 +187,10 @@ describe('model preview from the real overview loading state', () => {
       expect(preview.view.rows).toMatchObject([{rowid: 'O1', note: 'saved'}])
       expect(preview.view.fieldAccess(preview.view.rows[0]!, 'rowid').write).toBe('denied')
       expect(f.assemblyScopes).toEqual([['PreviewModel']])
-      expect(f.requests.slice(before)).toHaveLength(1)
+      expect(f.requests.slice(before)).toHaveLength(2)
       expect(fields.rows.map(row => row['dataModelId'])).toEqual(['M1', 'M1'])
-      for (const table of ['Base_DataModel_Field', 'Base_DataModel_Relation']) {
-        expect(session.metadataDataSet.getView(table)!.requestState).not.toBe(RequestState.Loaded)
-      }
+      expect(session.metadataDataSet.getView('Base_DataModel_Field', 'default')!.requestState).toBe(RequestState.Loaded)
+      expect(session.metadataDataSet.getView('Base_DataModel_Relation')!.requestState).not.toBe(RequestState.Loaded)
       expect(session.definitionStatus).toBe('unloaded')
       expect(f.stored.get('A')).toBe(stored)
       expect(f.fileWrites).toEqual([])

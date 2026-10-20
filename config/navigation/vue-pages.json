@@ -178,14 +178,6 @@
       "shellTool": false
     },
     {
-      "path": "/data-space-design",
-      "title": "数据空间设计",
-      "icon": "Grid",
-      "scope": "app",
-      "source": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
-      "description": "按目标空间组织模型、字段、数据视图与两类关系"
-    },
-    {
       "path": "/features/data-platform/data-set-management/design/ui/data-set-design-page",
       "title": "数据空间设计",
       "icon": "Grid",

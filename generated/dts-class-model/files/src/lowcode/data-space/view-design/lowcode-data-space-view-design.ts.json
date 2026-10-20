@@ -194,7 +194,10 @@
         "workspace": {
           "$ref": "../../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
         },
-        "modelSources": true
+        "modelSources": {
+          "type": "object",
+          "title": "ModelCreateSources"
+        }
       },
       "additionalProperties": false,
       "$defs": {
@@ -675,13 +678,76 @@
           "additionalProperties": false
         },
         "method.stageInputParameters.return": true,
-        "method.getInputParameters.params": {
+        "method.getInputParameterState.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.getInputParameters.return": {
-          "$ref": "../input-parameters/lowcode-data-space-input-parameter-edit.ts.json#/$defs/LowcodeDataSpaceInputParameterEdit"
+        "method.getInputParameterState.return": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "$ref": "../input-parameters/lowcode-data-space-input-parameter-session.ts.json#/$defs/ParameterEditStatus"
+            },
+            "pending": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "status",
+            "pending"
+          ],
+          "additionalProperties": false
+        },
+        "method.saveInputParameters.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "expectedValue": true,
+                "onReceipt": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "expectedValue"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveInputParameters.return": {
+          "type": "object",
+          "title": "Promise<Array<Record<string, unknown>>>"
+        },
+        "method.reloadInputParameters.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "discardPending": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "discardPending"
+              ],
+              "additionalProperties": false
+            },
+            "refresh": {
+              "type": "object",
+              "title": "() => Promise<void>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.reloadInputParameters.return": {
+          "type": "object",
+          "title": "Promise<Array<Record<string, unknown>>>"
         },
         "method.getSourceInput.params": {
           "type": "object",
@@ -699,7 +765,7 @@
           "additionalProperties": false
         },
         "method.getSourceInput.return": {
-          "$ref": "../model-source/lowcode-data-space-source-input-edit.ts.json#/$defs/LowcodeDataSpaceSourceInputEdit"
+          "$ref": "../model-source/source-input/lowcode-data-space-source-input-session.ts.json#/$defs/SourceInputHandle"
         },
         "method.loadSourceInputFields.params": {
           "type": "object",
@@ -726,7 +792,7 @@
         "method.getModelSourceInputs.return": {
           "type": "array",
           "items": {
-            "$ref": "../model-source/lowcode-data-space-source-input-edit.ts.json#/$defs/LowcodeDataSpaceSourceInputEdit"
+            "$ref": "../model-source/source-input/lowcode-data-space-source-input-session.ts.json#/$defs/SourceInputHandle"
           }
         },
         "method.hasPendingSourceInputs.params": {
@@ -779,7 +845,7 @@
           "additionalProperties": false
         },
         "method.getFieldEdit.return": {
-          "$ref": "../model-source/lowcode-data-space-field-edit.ts.json#/$defs/LowcodeDataSpaceFieldEdit"
+          "$ref": "../model-source/field-edit/lowcode-data-space-field-edit-session.ts.json#/$defs/FieldEditHandle"
         },
         "method.getFieldCreate.params": {
           "type": "object",
@@ -797,7 +863,7 @@
           "additionalProperties": false
         },
         "method.getFieldCreate.return": {
-          "$ref": "../model-source/field-create/lowcode-data-space-field-create.ts.json#/$defs/LowcodeDataSpaceFieldCreate"
+          "$ref": "../model-source/field-create/lowcode-data-space-field-create-session.ts.json#/$defs/FieldCreateHandle"
         },
         "method.releaseFieldCreate.params": {
           "type": "object",
@@ -859,7 +925,7 @@
         "method.getModelFieldRemovals.return": {
           "type": "array",
           "items": {
-            "$ref": "../model-source/removal/lowcode-data-space-field-remove.ts.json#/$defs/LowcodeDataSpaceFieldRemove"
+            "$ref": "../model-source/removal/lowcode-data-space-field-remove-session.ts.json#/$defs/FieldRemoveHandle"
           }
         },
         "method.getFieldRemove.params": {
@@ -878,7 +944,7 @@
           "additionalProperties": false
         },
         "method.getFieldRemove.return": {
-          "$ref": "../model-source/removal/lowcode-data-space-field-remove.ts.json#/$defs/LowcodeDataSpaceFieldRemove"
+          "$ref": "../model-source/removal/lowcode-data-space-field-remove-session.ts.json#/$defs/FieldRemoveHandle"
         },
         "method.getModelEdit.params": {
           "type": "object",
@@ -890,7 +956,7 @@
           "additionalProperties": false
         },
         "method.getModelEdit.return": {
-          "$ref": "../model-source/lowcode-data-space-model-edit.ts.json#/$defs/LowcodeDataSpaceModelEdit"
+          "$ref": "../model-source/model-edit/lowcode-data-space-model-edit-session.ts.json#/$defs/ModelEditHandle"
         },
         "method.getArrayEdit.params": {
           "type": "object",
@@ -908,7 +974,7 @@
           "additionalProperties": false
         },
         "method.getArrayEdit.return": {
-          "$ref": "../model-source/array/lowcode-data-space-array-edit.ts.json#/$defs/LowcodeDataSpaceArrayEdit"
+          "$ref": "../model-source/array/lowcode-data-space-array-session.ts.json#/$defs/ArrayEditHandle"
         },
         "method.releaseArrayEdit.params": {
           "type": "object",
@@ -944,7 +1010,7 @@
           "additionalProperties": false
         },
         "method.getModelRename.return": {
-          "$ref": "../model-source/rename/lowcode-data-space-model-rename.ts.json#/$defs/LowcodeDataSpaceModelRename"
+          "$ref": "../model-source/rename/lowcode-data-space-model-rename-session.ts.json#/$defs/ModelRenameHandle"
         },
         "method.releaseModelRename.params": {
           "type": "object",
@@ -966,7 +1032,7 @@
           "additionalProperties": false
         },
         "method.getModelRemove.return": {
-          "$ref": "../model-source/removal/lowcode-data-space-model-remove.ts.json#/$defs/LowcodeDataSpaceModelRemove"
+          "$ref": "../model-source/removal/lowcode-data-space-model-remove-session.ts.json#/$defs/ModelRemoveHandle"
         },
         "method.hasPendingModelRemovals.params": {
           "type": "object",
@@ -982,7 +1048,7 @@
           "additionalProperties": false
         },
         "method.getModelCreate.return": {
-          "$ref": "../model-source/lowcode-data-space-model-create.ts.json#/$defs/LowcodeDataSpaceModelCreate"
+          "$ref": "../model-source/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateHandle"
         },
         "method.hasPendingModelCreate.params": {
           "type": "object",
@@ -1002,7 +1068,7 @@
           "additionalProperties": false
         },
         "method.getModelSourceEdit.return": {
-          "$ref": "../model-source/lowcode-data-space-model-source-edit.ts.json#/$defs/LowcodeDataSpaceModelSourceEdit"
+          "$ref": "../model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json#/$defs/LowcodeDataSpaceModelSourceEdit"
         },
         "method.hasPendingModelSourceEdits.params": {
           "type": "object",
@@ -1234,7 +1300,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T14:11:05.508Z",
+  "generatedAt": "2026-10-20T05:22:45.725Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -1394,11 +1460,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * @param scenarioId 运行空间身份，必须与config一致。\n     * @param config 已校验的场景配置；预览只消费，不写回范围投影。\n     * @param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n     * @param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n     * @returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(scenarioId: string, config: ScenarioViewConfig, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>, modelScope?: string): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ConstructorParameters<typeof LowcodeDataSpaceModelCreate>[2];\n    assertScope(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * @param scenarioId 运行空间身份，必须与config一致。\n     * @param config 已校验的场景配置；预览只消费，不写回范围投影。\n     * @param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n     * @param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n     * @returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(scenarioId: string, config: ScenarioViewConfig, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>, modelScope?: string): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * @param scenarioId 运行空间身份，必须与config一致。\n     * @param config 已校验的场景配置；预览只消费，不写回范围投影。\n     * @param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n     * @param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n     * @returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(scenarioId: string, config: ScenarioViewConfig, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>, modelScope?: string): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ConstructorParameters<typeof LowcodeDataSpaceModelCreate>[2];\n    assertScope(): void;\n}>",
+            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * @param scenarioId 运行空间身份，必须与config一致。\n     * @param config 已校验的场景配置；预览只消费，不写回范围投影。\n     * @param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n     * @param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n     * @returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(scenarioId: string, config: ScenarioViewConfig, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>, modelScope?: string): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -2084,7 +2150,6 @@
             },
             {
               "name": "stageInputParameters",
-              "jsdoc": "校验目标空间的参数声明并写入原元数据视图编辑态；不提交数据库或修改引用。",
               "parameters": [
                 {
                   "name": "input",
@@ -2106,13 +2171,120 @@
               }
             },
             {
-              "name": "getInputParameters",
-              "jsdoc": "取得当前元数据视图的声明编辑编排；草稿、查询及保存仍归原生 DataSet。",
+              "name": "getInputParameterState",
+              "jsdoc": "声明编辑流程状态；页面与复制 API 经会话读取，不暴露独立命令类。",
               "parameters": [],
               "type": {
+                "type": "unknown",
+                "name": "{\n        status: ParameterEditStatus;\n        pending: boolean;\n    }"
+              }
+            },
+            {
+              "name": "saveInputParameters",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        expectedValue: unknown;\n        onReceipt?: () => void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceInputParameterEdit",
-                "sourcePath": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-edit.ts"
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Record",
+                      "typeArguments": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "unknown"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "reloadInputParameters",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        discardPending: boolean;\n    }"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "refresh",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "reference",
+                            "name": "Promise",
+                            "typeArguments": [
+                              {
+                                "type": "intrinsic",
+                                "name": "void"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Record",
+                      "typeArguments": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "unknown"
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
             },
             {
@@ -2148,8 +2320,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceSourceInputEdit",
-                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts"
+                "name": "SourceInputHandle",
+                "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts"
               }
             },
             {
@@ -2191,8 +2363,8 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "LowcodeDataSpaceSourceInputEdit",
-                  "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-source-input-edit.ts"
+                  "name": "SourceInputHandle",
+                  "sourcePath": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts"
                 }
               }
             },
@@ -2284,8 +2456,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceFieldEdit",
-                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-field-edit.ts"
+                "name": "FieldEditHandle",
+                "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts"
               }
             },
             {
@@ -2321,8 +2493,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceFieldCreate",
-                "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create.ts"
+                "name": "FieldCreateHandle",
+                "sourcePath": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts"
               }
             },
             {
@@ -2432,8 +2604,8 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "LowcodeDataSpaceFieldRemove",
-                  "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts"
+                  "name": "FieldRemoveHandle",
+                  "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts"
                 }
               }
             },
@@ -2470,8 +2642,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceFieldRemove",
-                "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove.ts"
+                "name": "FieldRemoveHandle",
+                "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts"
               }
             },
             {
@@ -2488,8 +2660,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceModelEdit",
-                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-edit.ts"
+                "name": "ModelEditHandle",
+                "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts"
               }
             },
             {
@@ -2525,8 +2697,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceArrayEdit",
-                "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-edit.ts"
+                "name": "ArrayEditHandle",
+                "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts"
               }
             },
             {
@@ -2588,8 +2760,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceModelRename",
-                "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename.ts"
+                "name": "ModelRenameHandle",
+                "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts"
               }
             },
             {
@@ -2623,8 +2795,8 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceModelRemove",
-                "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove.ts"
+                "name": "ModelRemoveHandle",
+                "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts"
               }
             },
             {
@@ -2642,8 +2814,8 @@
               "parameters": [],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceModelCreate",
-                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create.ts"
+                "name": "ModelCreateHandle",
+                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts"
               }
             },
             {
@@ -2670,7 +2842,7 @@
               "type": {
                 "type": "reference",
                 "name": "LowcodeDataSpaceModelSourceEdit",
-                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-edit.ts"
+                "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts"
               }
             },
             {

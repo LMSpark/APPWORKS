@@ -29,10 +29,9 @@ describe('Vue page registry', () => {
     expect(typeof entry?.load).toBe('function')
   })
 
-  it('keeps the existing design URL on the same loader without a second page implementation', () => {
-    const entry = getVuePageEntry('/features/data-platform/data-set-management/design/ui/data-set-design-page')
-    expect(entry).toBeDefined()
-    expect(getVuePageEntry('/data-space-design')?.load).toBe(entry?.load)
+  it('keeps only the blueprint design path; the self-built short path is removed', () => {
+    expect(getVuePageEntry('/features/data-platform/data-set-management/design/ui/data-set-design-page')).toBeDefined()
+    expect(getVuePageEntry('/data-space-design')).toBeUndefined()
   })
 
   it('binds JSON page declarations to route metadata', () => {

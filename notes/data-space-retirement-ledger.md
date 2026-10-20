@@ -1,5 +1,38 @@
 # 数据空间旧方案删除记录
-## 2026-10-19 数组表头回归原DataView（进行中）
+
+> 2026-10-19 起，参考仓 appworks 全量整合按 [plan-appworks-integration.md](plan-appworks-integration.md) 的阶段与整页验收矩阵推进；数据空间各项仍在本记录登记，矩阵只记状态。
+
+## 2026-10-19 I4 设计器其余（关系/级联/参数/命令类删除）— §4.3 删类完成（2026-10-20）
+
+- **前置**：I3 页签与 `DataSpaceModelRequest`、预览/数组懒加载修补已完成；`data-space-design-page.test.ts` 329/329 + 根 `typecheck` 通过（见 I3 节证据）。
+- **I4 退出条件（§4.3 删类，范围 A）**：`src/lowcode/data-space` 下 **11/11** 命令 FSM 类文件已删除，逻辑落在对应 `*-session.ts`（+ `create*Handle`）；`lowcode-data-space-view-design.ts` 仍保留 `#sourceInputs` / `#fieldEdits` 等 Map 缓存与既有 `get*()` 签名；**不含** view-design 统一 pending registry 或 ~5–7k 行终态瘦身（留 I5+）。
+- **Vue/会话**：各编辑器仍经 `session.get*Edit` / `getModelRename` / `getFieldRemove` 等 **Handle 门面**（非已删命令类）；保留 `*-references` / `model-dependencies` / `definition-save` 等领域辅助类。关系/级联仍走 `DataSpaceRelationEditor` / `DataSpaceCascadeEditor` + 定义 DataView。
+- **清点与台账**：`notes/research-data-space-i4-command-inventory.md`（11/11 已 session 化）；收敛实施见 Cursor plan `i4_command_class_convergence`（仓内 `notes/plan-data-space-i4-convergence.md` 已按 AGENTS 阶段 7 删除）。**P1b / `flowStatus` / `ModelEdit.save` 请求方案分区 / 预览链** 行为未改。
+- **回归（2026-10-20 收敛验收）**：`typecheck` + `verify:page-thin`；metadata+chain **107/107**；auth-nav data-space **798/798**；native 设计 **1584/1584**（`notes/evidence/data-space-config-storage/native-design-regression-i4-convergence.log`）；`generate:class-model-surface`（879 DTS，manifest 指向 `*-session.ts`）。**测试修补**：模型工作区 lazy 页签下 `field-removal` 页测 `page()` 需打开「3 字段呈现」/保存前回字段页签。`**-session.ts` ESLint 清零**；全仓 `pnpm run lint` 仍有存量项（非本次删类引入）。
+- **矩阵**：`plan-appworks-integration.md` 设计器行语义/合同/页面列仍标「部分」（I4 删类完成 ≠ 矩阵实页全绿 / I5 瘦身）。
+
+## 2026-10-19 I3 设计器页签拆分 + 请求方案分区（工作区已验证，待与 I2 同批提交）
+
+- **页签**：模型工作区按设计书 §4.1 拆为 `1 模型结构` / `2 请求方案` / `3 字段呈现` / `4 数据处理` / `5 数据视图`；新增 `DataSpaceModelRequest.vue`（OutputType、Filter、树参、cacheType、RequestComplete），字段表与 `DataSpaceFieldCreate` 迁至 lazy `3 字段呈现`。
+- **运行**：离开字段新增工作区时 `releaseFieldCreate` 在查询上下文已切换时不再因 `getState()` 断言抛错阻断卸载（已撤回选中模型时的 `loadModelFields` 预取，避免破坏「字段未加载」懒加载语义）。
+- **测试**：`data-space-design-page.test.ts` 增加 `openModelFieldsTab`（限定 `.node-panel-tabs`）；字段/合并保存用例先打开 `3 字段呈现` 再编辑或保存，避免 `DATA_VIEW_RESULT_STALE`；来源绑定标签在 `DbName` 不可读时仍展示可读 `MetaName`。
+- **运行（补充）**：`DataSpaceArrayEditor.show` 打开前按需 `loadModelFields`；`capturePreview` 仅在已绑定 `modelFields` 工作区时校验字段视图稳定性；`openModelPreview` 先 `ensureDefaultFieldCatalogForPreview`，默认目录字段投影延后到 `readPreview` 之后；模型改名 `completed` 丢弃已无保存意义的目录编辑覆盖；`DataSpaceQueryPreview` 不再对纯模型预览重复 `readPreview`。
+- **验证**：`data-space-design-page.test.ts` 329/329 通过（`design-page-vitest-20261019e.log`）。I2+I3 工作区修改仍未提交。
+
+## 2026-10-19 I2 目录 + P1b 数据库未确认保存（工作区已验证，待提交）
+
+- **I2 语义**：数据空间目录保留参考操作（新增/编辑/删除/设计/复制API/查询绑定）；设计入口改为列表页全屏 `RendererDialog` 传入 `:target-id`，不再依赖 `/data-space-design` 短路径或 `route.query.scenarioId`；隐藏蓝图路径 `data-set-design-page` 仅保留文件落点，不作为独立导航身份。
+- **删除**：`config/navigation/vue-pages.json` 中自建 `/data-space-design` 路由已移除；`LowcodeDataSpaceCatalog` 去掉目录编辑私有 `#edit.status` 状态机，未确认/回读失败改读 `DataView.hasUnconfirmedSave` 与 `loadingError`；新增 `canDelete`/`deleteSelected`（先查 `Base_DataModel` 计数，再经 `saveChanges` 删空间）。
+- **P1b**：`DataSpaceRuntimeApi` 实现 `hasUnconfirmedSave` / `verifyUnconfirmed`（主键 IN 回读核验）；传输失败包装为 `DataSpaceSaveUnconfirmedError`，禁止静默重放。`DataView`/`DataSet` 增加 `abandonUnconfirmedSave(s)`，设计器旧命令类在自定义 `readback()` 前调用，避免 `assertResultReplacementAllowed` 与未确认提交冲突（过渡桥接，I4 删除命令类后移除）。
+- **验证（2026-10-19 本地）**：`lowcode-data-space-catalog.test.ts` 63 项通过；`data-space-design-page.test.ts` 整文件通过（约 378s）；`data-space-runtime-api.test.ts` 8 项；`vue-page-registry.test.ts` 8 项；根 `pnpm run typecheck` 通过。实页矩阵「实页」列仍待隔离 T 走查，不替代 I2 退出条件中的在线验收。
+- 35 路径工作区修改未提交；无 Java 修改。下一断点 **I3**：设计器元模型/请求设置页签按 §4.1 对照参考，逐步去掉平行命令 FSM（I4 成组删除 `src/lowcode/data-space/model-source/*` 命令类）。
+
+## 2026-10-19 基线与数组表头本地收口
+
+- 工作区分组提交为基线 04dcaf178..91f0a6580（10-17 分支，未推送；notes/evidence 未入库）；提交前清除 10-17 遗留的空 index.lock，无运行中的 git/测试进程。
+- 数组表头（下节）本地验证完成：根 typecheck 无错误；数组相关 4 生产/5 测试路径 lint 通过；数组 5 文件 113 项通过；原生设计页 38 文件 1585 项全部通过（252 秒，2 worker，30000ms）。真实保存/独立重开并入整合计划阶段 1 的实页验收，不单独开轮。
+
+## 2026-10-19 数组表头回归原DataView（本地已收口，实页待阶段 1）
 
 - 继续上节已证实缺陷，原ArrayEdit.#headers已删除；确认表头直接使用原字段DataView的编辑覆盖、addRow/removeRow和变更追踪。只保留命令涉及的ID与不可变提交核验信息。原模型items/PrimaryKeyFields仍归模型DataView，未另建保存器或字段真源。
 - 新增反例先证实正式视图不可见、原取消无效，修复后增改删及取消通过。回归发现删除回读后的旧ID仍被当作当前工作区，已限定为仍有原生待提交变更的ID。未改表头的空值/数字字符串误标修改也已用失败反例定位并修复。

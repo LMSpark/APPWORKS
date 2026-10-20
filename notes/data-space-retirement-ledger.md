@@ -9,6 +9,8 @@
 - **Vue/会话**：各编辑器仍经 `session.get*Edit` / `getModelRename` / `getFieldRemove` 等 **Handle 门面**（非已删命令类）；保留 `*-references` / `model-dependencies` / `definition-save` 等领域辅助类。关系/级联仍走 `DataSpaceRelationEditor` / `DataSpaceCascadeEditor` + 定义 DataView。
 - **清点与台账**：`notes/research-data-space-i4-command-inventory.md`（11/11 已 session 化）；收敛实施见 Cursor plan `i4_command_class_convergence`（仓内 `notes/plan-data-space-i4-convergence.md` 已按 AGENTS 阶段 7 删除）。**P1b / `flowStatus` / `ModelEdit.save` 请求方案分区 / 预览链** 行为未改。
 - **回归（2026-10-20 收敛验收）**：`typecheck` + `verify:page-thin`；metadata+chain **107/107**；auth-nav data-space **798/798**；native 设计 **1584/1584**（`notes/evidence/data-space-config-storage/native-design-regression-i4-convergence.log`）；`generate:class-model-surface`（879 DTS，manifest 指向 `*-session.ts`）。**测试修补**：模型工作区 lazy 页签下 `field-removal` 页测 `page()` 需打开「3 字段呈现」/保存前回字段页签。`**-session.ts` ESLint 清零**；全仓 `pnpm run lint` 仍有存量项（非本次删类引入）。
+- **提交（2026-10-20）**：`5b09bab85` on `10-17`（含 I2 列表/P1b、I3 设计页签、`DataSpaceModelRequest`、I4 全量 session 化 + ClassModel/测试）；已 push `origin/10-17`。
+- **下一断点（整合计划）**：阶段 1 仍缺 `data-set-auth-page.vue`（功能标签/默认权限，AGENTS 0.3 暂缓运行权限接线但配置页属矩阵）；或阶段 2 **I5** database-management 六页替换 `src/views/app/DBMS.vue` 包装。
 - **矩阵**：`plan-appworks-integration.md` 设计器行语义/合同/页面列仍标「部分」（I4 删类完成 ≠ 矩阵实页全绿 / I5 瘦身）。
 
 ## 2026-10-19 I3 设计器页签拆分 + 请求方案分区（工作区已验证，待与 I2 同批提交）

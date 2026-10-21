@@ -1,0 +1,128 @@
+[
+  {
+    "file": "packages/spark-data/src/tests/cascade-computed-tree.test.ts",
+    "titlesUnchanged": true,
+    "titleCount": 3,
+    "assertions": [
+      7,
+      7
+    ],
+    "anyKeywords": [
+      0,
+      0
+    ],
+    "nonNullAssertions": [
+      6,
+      6
+    ],
+    "suppressions": [
+      0,
+      0
+    ]
+  },
+  {
+    "file": "packages/spark-data/src/tests/cascade-event-filter.test.ts",
+    "titlesUnchanged": true,
+    "titleCount": 11,
+    "assertions": [
+      33,
+      33
+    ],
+    "anyKeywords": [
+      0,
+      0
+    ],
+    "nonNullAssertions": [
+      23,
+      23
+    ],
+    "suppressions": [
+      0,
+      0
+    ]
+  },
+  {
+    "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+    "titlesUnchanged": true,
+    "titleCount": 33,
+    "assertions": [
+      95,
+      98
+    ],
+    "anyKeywords": [
+      0,
+      0
+    ],
+    "nonNullAssertions": [
+      0,
+      0
+    ],
+    "suppressions": [
+      0,
+      0
+    ]
+  },
+  {
+    "file": "packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts",
+    "titlesUnchanged": true,
+    "titleCount": 21,
+    "assertions": [
+      152,
+      152
+    ],
+    "anyKeywords": [
+      0,
+      0
+    ],
+    "nonNullAssertions": [
+      2,
+      2
+    ],
+    "suppressions": [
+      0,
+      0
+    ]
+  },
+  {
+    "file": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+    "titlesUnchanged": true,
+    "titleCount": 68,
+    "assertions": [
+      165,
+      165
+    ],
+    "anyKeywords": [
+      0,
+      0
+    ],
+    "nonNullAssertions": [
+      114,
+      114
+    ],
+    "suppressions": [
+      0,
+      0
+    ]
+  },
+  {
+    "file": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+    "titlesUnchanged": true,
+    "titleCount": 13,
+    "assertions": [
+      53,
+      53
+    ],
+    "anyKeywords": [
+      0,
+      0
+    ],
+    "nonNullAssertions": [
+      8,
+      8
+    ],
+    "suppressions": [
+      1,
+      1
+    ]
+  }
+]

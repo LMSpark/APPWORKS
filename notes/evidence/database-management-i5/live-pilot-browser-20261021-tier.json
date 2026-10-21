@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-21T10:22+08:00",
+  "env": {
+    "frontend": "http://localhost:5273 (HTTP 200，未建立登录会话)",
+    "app": "元数据管理 D99A1DCE9894698799101EFD70F8FC76"
+  },
+  "autonomousAttempt": {
+    "loggedIn": false,
+    "pathsSkipped": [
+      "hidden 服务器",
+      "hub 两 tab",
+      "hidden 表和视图"
+    ],
+    "reason": "仍为营销/登录壳，凭据不入库"
+  },
+  "continuation20261021": "未登录无法实页；补 hub serverOnly→服务器 Tab 单测与 catalog blocked 复用 SERVER_ONLY_NOTICE",
+  "continuation20261021b": {
+    "checkedAt": "2026-10-21T13:44+08:00",
+    "devServer": "localhost:5273 可起；直链 hub URL 重定向平台首页（无登录会话）",
+    "automated": "tests/runtime/page/database 39/39；typecheck；verify:page-thin；verify:lowcode-contracts"
+  },
+  "codeIterationThisRound": [
+    "resolveDatabaseCatalogScenarioTiered：五表失败同 rowid 降级 Base_serverInfo",
+    "catalogFormalTier + catalogHubCatalogBlocked；表和视图 Tab blocked UI",
+    "resolve 失败候选数/misbound 诊断；Hub KeepAlive",
+    "tests/runtime/page/database 39/39（含 serverOnly 服务器 Tab 单测）"
+  ],
+  "expectedLiveWhenLoggedIn": {
+    "serverOnlyMetadata": "hub status 未齐警告 + 服务器 Tab 可用 + 表和视图 blocked",
+    "fullMetadata": "catalogFormalTier=full，两 Tab 均 loadCatalog"
+  },
+  "priorEvidence": "live-pilot-browser-20261020.json"
+}

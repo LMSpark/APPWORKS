@@ -1,0 +1,19 @@
+{
+  "scenarioId": "944DEE5A-0000-0000-0000-000000000000",
+  "page": "add-table-dialog",
+  "livePilot": "vitest-contract+page-mount",
+  "recordedAt": "2026-10-20",
+  "checks": [
+    {
+      "step": "unregisteredTableNames",
+      "channel": "databaseCatalogQueryUnregisteredTableNames",
+      "result": "ok"
+    },
+    {
+      "step": "registerTable",
+      "channel": "DataSet.saveChanges on _Base_TblList",
+      "result": "ok"
+    }
+  ],
+  "notes": "Backed by database-catalog-table-view-ops.test.ts; browser capture optional."
+}

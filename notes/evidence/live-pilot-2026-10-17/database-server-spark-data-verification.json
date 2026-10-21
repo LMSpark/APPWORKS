@@ -1,0 +1,17 @@
+{
+  "scope": "I5 service-management unified architecture",
+  "date": "2026-10-20",
+  "checks": [
+    "RendererTable/RendererForm autoColumns without page field children",
+    "Base_serverInfo via LowcodeDatabaseServer.loadCatalog and saveChanges",
+    "databaseServerTestConnection via data layer lowcodeHttp only"
+  ],
+  "automated": {
+    "typecheck": "required in CI",
+    "vitest": "tests/runtime/page/database/* (9+ tests after table-and-view mount)"
+  },
+  "livePilot": {
+    "status": "pending",
+    "note": "Isolation T CRUD/readback to be captured in separate evidence commit"
+  }
+}

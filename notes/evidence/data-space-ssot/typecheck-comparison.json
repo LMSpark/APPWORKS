@@ -1,0 +1,280 @@
+{
+  "head": "f3a361e5112c4b94e2527fc68bf5f640a9f17863",
+  "method": "TypeScript API with HEAD source overlay, same config and compiler; working tree never reset",
+  "results": [
+    {
+      "package": "spark-data",
+      "baseline": [
+        {
+          "file": "packages/spark-data/src/tests/cascade-computed-tree.test.ts",
+          "code": 2379,
+          "line": 123,
+          "message": "Argument of type 'DataViewCascade' is not assignable to parameter of type 'DataViewQueryCascade' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n  Type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>' is missing the following properties from type 'DataViewQueryCascade': parentTable, parentViewId, childTable, childViewId, filterBindings"
+        },
+        {
+          "file": "packages/spark-data/src/tests/cascade-event-filter.test.ts",
+          "code": 2353,
+          "line": 58,
+          "message": "Object literal may only specify known properties, and 'dependencyType' does not exist in type 'DataViewCascade'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2379,
+          "line": 11,
+          "message": "Argument of type 'DataRow' is not assignable to parameter of type 'FixtureRow' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n  Type 'DataRow' is not assignable to type '{ lingma_sys_params?: { h?: string[]; m?: string[]; }; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n    The types of 'lingma_sys_params.h' are incompatible between these types.\n      The type 'readonly string[]' is 'readonly' and cannot be assigned to the mutable type 'string[]'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2345,
+          "line": 88,
+          "message": "Argument of type 'DataRow | undefined' is not assignable to parameter of type 'object'.\n  Type 'undefined' is not assignable to type 'object'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 117,
+          "message": "Type '{ [x: string]: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ [x: string]: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, h, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 282,
+          "message": "Type '{ [x: string]: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ [x: string]: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, h, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 344,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 388,
+          "message": "Type '(DataColumn | { computeExpression: undefined; name: string; type: ColumnType; label?: string; allowDBNull?: boolean; defaultValue?: unknown; isPrimaryKey?: boolean; autoIncrement?: boolean; isComputed?: boolean; required?: boolean; minLength?: number; maxLength?: number; min?: number; max?: number; pattern?: string; patternMessage?: string; })[]' is not assignable to type 'DataColumn[]'.\n  Type 'DataColumn | { computeExpression: undefined; name: string; type: ColumnType; label?: string; allowDBNull?: boolean; defaultValue?: unknown; isPrimaryKey?: boolean; autoIncrement?: boolean; isComputed?: boolean; required?: boolean; minLength?: number; maxLength?: number; min?: number; max?: number; pattern?: string; patternMessage?: string; }' is not assignable to type 'DataColumn' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n    Type '{ computeExpression: undefined; name: string; type: ColumnType; label?: string; allowDBNull?: boolean; defaultValue?: unknown; isPrimaryKey?: boolean; autoIncrement?: boolean; isComputed?: boolean; required?: boolean; minLength?: number; maxLength?: number; min?: number; max?: number; pattern?: string; patternMessage?: string; }' is not assignable to type 'DataColumn' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n      Types of property 'computeExpression' are incompatible.\n        Type 'undefined' is not assignable to type 'string'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 411,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 445,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 448,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 458,
+          "message": "Type '{ h: (\"amount\" | \"orderId\")[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: (\"amount\" | \"orderId\")[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 473,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2375,
+          "line": 481,
+          "message": "Type '{ lingma_sys_params?: { h: string[]; }; id: number; orderId: number; amount: number; }' is not assignable to type 'FixtureRow' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n  Type '{ lingma_sys_params?: { h: string[]; }; id: number; orderId: number; amount: number; }' is not assignable to type '{ lingma_sys_params?: Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>; lingma_sys_key?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n    Types of property 'lingma_sys_params' are incompatible.\n      Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts",
+          "code": 2339,
+          "line": 463,
+          "message": "Property 'filterBindings' does not exist on type 'DataViewCascade'.\n  Property 'filterBindings' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+          "code": 2339,
+          "line": 615,
+          "message": "Property 'parentTable' does not exist on type 'DataViewCascade'.\n  Property 'parentTable' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+          "code": 2339,
+          "line": 616,
+          "message": "Property 'childTable' does not exist on type 'DataViewCascade'.\n  Property 'childTable' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+          "code": 2339,
+          "line": 617,
+          "message": "Property 'parentViewId' does not exist on type 'DataViewCascade'.\n  Property 'parentViewId' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+          "code": 2339,
+          "line": 618,
+          "message": "Property 'childViewId' does not exist on type 'DataViewCascade'.\n  Property 'childViewId' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        }
+      ],
+      "current": [
+        {
+          "file": "packages/spark-data/src/tests/cascade-computed-tree.test.ts",
+          "code": 2379,
+          "line": 123,
+          "message": "Argument of type 'DataViewCascade' is not assignable to parameter of type 'DataViewQueryCascade' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n  Type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>' is missing the following properties from type 'DataViewQueryCascade': parentTable, parentViewId, childTable, childViewId, filterBindings"
+        },
+        {
+          "file": "packages/spark-data/src/tests/cascade-event-filter.test.ts",
+          "code": 2353,
+          "line": 58,
+          "message": "Object literal may only specify known properties, and 'dependencyType' does not exist in type 'DataViewCascade'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2379,
+          "line": 11,
+          "message": "Argument of type 'DataRow' is not assignable to parameter of type 'FixtureRow' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n  Type 'DataRow' is not assignable to type '{ lingma_sys_params?: { h?: string[]; m?: string[]; }; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n    The types of 'lingma_sys_params.h' are incompatible between these types.\n      The type 'readonly string[]' is 'readonly' and cannot be assigned to the mutable type 'string[]'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2345,
+          "line": 88,
+          "message": "Argument of type 'DataRow | undefined' is not assignable to parameter of type 'object'.\n  Type 'undefined' is not assignable to type 'object'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 117,
+          "message": "Type '{ [x: string]: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ [x: string]: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, h, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 282,
+          "message": "Type '{ [x: string]: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ [x: string]: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, h, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 344,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 388,
+          "message": "Type '(DataColumn | { computeExpression: undefined; name: string; type: ColumnType; label?: string; allowDBNull?: boolean; defaultValue?: unknown; isPrimaryKey?: boolean; autoIncrement?: boolean; isComputed?: boolean; required?: boolean; minLength?: number; maxLength?: number; min?: number; max?: number; pattern?: string; patternMessage?: string; })[]' is not assignable to type 'DataColumn[]'.\n  Type 'DataColumn | { computeExpression: undefined; name: string; type: ColumnType; label?: string; allowDBNull?: boolean; defaultValue?: unknown; isPrimaryKey?: boolean; autoIncrement?: boolean; isComputed?: boolean; required?: boolean; minLength?: number; maxLength?: number; min?: number; max?: number; pattern?: string; patternMessage?: string; }' is not assignable to type 'DataColumn' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n    Type '{ computeExpression: undefined; name: string; type: ColumnType; label?: string; allowDBNull?: boolean; defaultValue?: unknown; isPrimaryKey?: boolean; autoIncrement?: boolean; isComputed?: boolean; required?: boolean; minLength?: number; maxLength?: number; min?: number; max?: number; pattern?: string; patternMessage?: string; }' is not assignable to type 'DataColumn' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n      Types of property 'computeExpression' are incompatible.\n        Type 'undefined' is not assignable to type 'string'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 411,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 445,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 448,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 458,
+          "message": "Type '{ h: (\"amount\" | \"orderId\")[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: (\"amount\" | \"orderId\")[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2322,
+          "line": 473,
+          "message": "Type '{ h: string[]; }' is not assignable to type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }> & { h?: string[]; m?: string[]; }'.\n  Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/data-view/computed-query.test.ts",
+          "code": 2375,
+          "line": 481,
+          "message": "Type '{ lingma_sys_params?: { h: string[]; }; id: number; orderId: number; amount: number; }' is not assignable to type 'FixtureRow' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n  Type '{ lingma_sys_params?: { h: string[]; }; id: number; orderId: number; amount: number; }' is not assignable to type '{ lingma_sys_params?: Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>; lingma_sys_key?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n    Types of property 'lingma_sys_params' are incompatible.\n      Type '{ h: string[]; }' is missing the following properties from type 'Readonly<{ r: readonly string[]; e: readonly string[]; h: readonly string[]; m: readonly string[]; d: boolean; }>': r, e, m, d"
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-crud-tool.test.ts",
+          "code": 2339,
+          "line": 463,
+          "message": "Property 'filterBindings' does not exist on type 'DataViewCascade'.\n  Property 'filterBindings' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+          "code": 2339,
+          "line": 615,
+          "message": "Property 'parentTable' does not exist on type 'DataViewCascade'.\n  Property 'parentTable' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+          "code": 2339,
+          "line": 616,
+          "message": "Property 'childTable' does not exist on type 'DataViewCascade'.\n  Property 'childTable' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+          "code": 2339,
+          "line": 617,
+          "message": "Property 'parentViewId' does not exist on type 'DataViewCascade'.\n  Property 'parentViewId' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        },
+        {
+          "file": "packages/spark-data/src/tests/dataset/dataset-json-prompt-validation.test.ts",
+          "code": 2339,
+          "line": 618,
+          "message": "Property 'childViewId' does not exist on type 'DataViewCascade'.\n  Property 'childViewId' does not exist on type 'Readonly<{ kind: \"field\"; cascadeId: string; tableName: string; viewId: string; targetField: string; valueFormat: \"native\" | \"selection-string\"; parents: readonly Readonly<{ tableName: string; viewId: string; field?: string; parameter: string; }>[]; optionsView: Readonly<{ tableName: string; viewId: string; }>; valuePolicy: Readonly<{ mode: \"retain\"; } | { mode: \"clear\" | \"retain-valid\"; clearValue: string | number | boolean | readonly (string | number | boolean)[] | null; }>; }>'."
+        }
+      ],
+      "introduced": []
+    },
+    {
+      "package": "spark-project-model",
+      "baseline": [],
+      "current": [],
+      "introduced": []
+    },
+    {
+      "package": "spark-lowcode-api",
+      "baseline": [
+        {
+          "file": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+          "code": 2345,
+          "line": 109,
+          "message": "Argument of type 'DataRow | undefined' is not assignable to parameter of type 'DataRow | null'.\n  Type 'undefined' is not assignable to type 'DataRow | null'."
+        },
+        {
+          "file": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+          "code": 7006,
+          "line": 288,
+          "message": "Parameter 'field' implicitly has an 'any' type."
+        }
+      ],
+      "current": [
+        {
+          "file": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+          "code": 2345,
+          "line": 109,
+          "message": "Argument of type 'DataRow | undefined' is not assignable to parameter of type 'DataRow | null'.\n  Type 'undefined' is not assignable to type 'DataRow | null'."
+        },
+        {
+          "file": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+          "code": 7006,
+          "line": 288,
+          "message": "Parameter 'field' implicitly has an 'any' type."
+        }
+      ],
+      "introduced": []
+    }
+  ]
+}

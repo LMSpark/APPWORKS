@@ -1,0 +1,19 @@
+{
+  "scenarioId": "944DEE5A-0000-0000-0000-000000000000",
+  "page": "register-dialog",
+  "livePilot": "recorded",
+  "recordedAt": "2026-10-20",
+  "checks": [
+    {
+      "step": "unregisteredNames",
+      "channel": "databaseCatalogQueryUnregisteredDbNames",
+      "result": "ok"
+    },
+    {
+      "step": "registerDb",
+      "channel": "DataSet.saveChanges on _base_dbInfo",
+      "result": "ok"
+    }
+  ],
+  "notes": "Vitest-backed contract evidence; browser screenshots optional follow-up."
+}

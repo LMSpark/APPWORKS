@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-10-17T17:32+08:00",
+  "env": {
+    "frontend": "http://localhost:5273 (pnpm dev, branch 10-17 dirty tree, HEAD 1c7716898)",
+    "backend": "https://spark.lingmacn.com via Vite /api proxy",
+    "browser": "Cursor IDE Browser",
+    "tenant": "NewApp",
+    "user": "U00031 王涛",
+    "app": "元数据管理 D99A1DCE9894698799101EFD70F8FC76"
+  },
+  "b00_appEntry": {
+    "result": "only 元数据管理 enters; other apps rejected",
+    "rejections": [
+      { "app": "应用同步测试", "error": "配置节点 C03E607E66E9D7995B607908B608A501 缺少明确工具目标，不能根据路径推断 /应用同步测试/syncTest.html" },
+      { "app": "数据资产管理", "error": "配置节点 BD30E16E34BC2393D9C520C9DF0AE8AA 缺少明确工具目标，不能根据路径推断 /DataCenter/ServerManagerment.html" },
+      { "app": "SPARK薪酬管理系统", "error": "应用导航根节点应唯一，实际 0 个" }
+    ],
+    "cause": "remote blueprint records use legacy .html paths without navigation.target 'cfg:<pageId>'; lowcode-runtime.ts:222 only projects tool for cfg: targets; route-helpers.ts:11 throws. Code unchanged vs HEAD; stored app data not migrated.",
+    "warningOnEntry": "部分元数据模型不可见：Base_serverInfo、_Base_ViewList、Base_TblField",
+    "designerReach": "no nav entry in 元数据管理; opened /features/data-platform/data-set-management/ui/data-set-list-page by URL"
+  },
+  "targetCreate": {
+    "T": "944DEE5A0E5170F903E0E008172C4CD2",
+    "name": "LivePilot_T_20261017",
+    "cleanup": "keep; isolated pilot space, do not use for business",
+    "request": "POST /api/DataOperation/BatchTableOperateRequestByCRUD Base_DataSet Added[1] (sysid=D99A…, Type=datasource)",
+    "receipt": "200 操作成功 mapListAdd rowid=944DEE5A…",
+    "readback": "list GetData Count 1200 -> 1201, new row first by createtime desc",
+    "note": "dialog edit appeared in grid as draft row before 确定 — bound list DataView"
+  },
+  "b01_firstScreen": {
+    "url": "/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/data-space-design?scenarioId=944DEE5A0E5170F903E0E008172C4CD2",
+    "visible": "header LivePilot_T_20261017, models 0, relations 0, '尚无视图配置；正式模型、字段和输入参数仍可维护。'",
+    "targetScopedQueries": [
+      "Base_DataModel filter dataSetId=T (Count 0)",
+      "Base_DataSet filter rowid=T (Count 1)"
+    ],
+    "targetFieldOrRelationQueries": "none — PASS (Field/Relation not loaded on first screen)",
+    "metadataSpaceCAssembly": {
+      "requests": 26,
+      "detail": [
+        "2 x File/content/text (C pagedata etc.)",
+        "Base_DataModel dataSetId=C(8D1AB14D…) Name in [...]",
+        "Base_DataSet rowid=C",
+        "11 x View_TblList tblname=<meta table> dbid=EBEFF17B…",
+        "Base_DataModel_Field dataSetId=C dataModelId in [...]",
+        "11 x Base_TblField tblid=<each meta physical table>"
+      ],
+      "assessment": "C is assembled from formal records each open (consistent with contract: C read from formal store). Cost is N+1 (per-table View_TblList + Base_TblField); register as perf gap, not correctness."
+    },
+    "afterFirstScreen": "7 x File/content/text (T pagedata / definition files)",
+    "verdict": "B01 PASS for T scope; C assembly N+1 logged"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "oldFilePropertyCount": 15,
+  "oldEditorPropertyCount": 15,
+  "sharedPropertyCount": 15,
+  "properties": [
+    "fieldProjection",
+    "queryContext",
+    "filterExpression",
+    "sortExpression",
+    "autoCurrentFirst",
+    "autoSelectFirst",
+    "page",
+    "pageSize",
+    "treeConfig",
+    "valueField",
+    "labelField",
+    "selectionDelimiter",
+    "autoLoad",
+    "commitMode",
+    "aggregates"
+  ],
+  "sameAcceptedKeys": true,
+  "viewContentValidationUnchanged": false,
+  "editorSharedPredicateCalls": 2,
+  "editorLocalSetRemoved": true
+}

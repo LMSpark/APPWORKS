@@ -2,13 +2,21 @@
 
 > 2026-10-19 起，参考仓 appworks 全量整合按 [plan-appworks-integration.md](plan-appworks-integration.md) 的阶段与整页验收矩阵推进；数据空间各项仍在本记录登记，矩阵只记状态。
 
+## 2026-10-21 工作区收敛（Git / 证据 / stash）
+
+- **证据删除**：本地删除 `notes/evidence/data-space-config-storage/`（约 **13196** 文件、**85** 顶层 `e62-*-before` / `i7-*` 快照树）；删前 manifest [`research-evidence-deletion-manifest-20261021.json`](research-evidence-deletion-manifest-20261021.json)。I4 回归 log 副本：`notes/evidence/database-management-i5/native-design-regression-i4-convergence.log`。**DATAFLOW 内链该目录者暂为死链**，结论以台账/正文为准。
+- **stash**：drop **12** 条 `lint-staged automatic backup`；剩余 **21** 条见 [`research-git-stash-inventory.md`](research-git-stash-inventory.md)。
+- **验证（commit 前）**：`typecheck`；`tests/runtime/page/database` **39/39**；`verify:page-thin`；`verify:lowcode-contracts`；`generate:class-model-surface`。
+- **提交（`10-17`，本批）**：`0b1b39d23` I5 hub/catalog/dialogs；`e37527425` spark-data/command + column-auto-field；`8ec5bc9b4` ClassModel + consumer ledgers；本条 commit 台账 + 小 evidence + git 研读。
+- **常态**：禁止 `git add notes/evidence/data-space-config-storage/**`；见 [`research-git-staging-evidence-cleanup.md`](research-git-staging-evidence-cleanup.md)。
+
 ## 2026-10-19 I4 设计器其余（关系/级联/参数/命令类删除）— §4.3 删类完成（2026-10-20）
 
 - **前置**：I3 页签与 `DataSpaceModelRequest`、预览/数组懒加载修补已完成；`data-space-design-page.test.ts` 329/329 + 根 `typecheck` 通过（见 I3 节证据）。
 - **I4 退出条件（§4.3 删类，范围 A）**：`src/lowcode/data-space` 下 **11/11** 命令 FSM 类文件已删除，逻辑落在对应 `*-session.ts`（+ `create*Handle`）；`lowcode-data-space-view-design.ts` 仍保留 `#sourceInputs` / `#fieldEdits` 等 Map 缓存与既有 `get*()` 签名；**不含** view-design 统一 pending registry 或 ~5–7k 行终态瘦身（留 I5+）。
 - **Vue/会话**：各编辑器仍经 `session.get*Edit` / `getModelRename` / `getFieldRemove` 等 **Handle 门面**（非已删命令类）；保留 `*-references` / `model-dependencies` / `definition-save` 等领域辅助类。关系/级联仍走 `DataSpaceRelationEditor` / `DataSpaceCascadeEditor` + 定义 DataView。
 - **清点与台账**：`notes/research-data-space-i4-command-inventory.md`（11/11 已 session 化）；收敛实施见 Cursor plan `i4_command_class_convergence`（仓内 `notes/plan-data-space-i4-convergence.md` 已按 AGENTS 阶段 7 删除）。**P1b / `flowStatus` / `ModelEdit.save` 请求方案分区 / 预览链** 行为未改。
-- **回归（2026-10-20 收敛验收）**：`typecheck` + `verify:page-thin`；metadata+chain **107/107**；auth-nav data-space **798/798**；native 设计 **1584/1584**（`notes/evidence/data-space-config-storage/native-design-regression-i4-convergence.log`）；`generate:class-model-surface`（879 DTS，manifest 指向 `*-session.ts`）。**测试修补**：模型工作区 lazy 页签下 `field-removal` 页测 `page()` 需打开「3 字段呈现」/保存前回字段页签。`**-session.ts` ESLint 清零**；全仓 `pnpm run lint` 仍有存量项（非本次删类引入）。
+- **回归（2026-10-20 收敛验收）**：`typecheck` + `verify:page-thin`；metadata+chain **107/107**；auth-nav data-space **798/798**；native 设计 **1584/1584**（log 副本见 `notes/evidence/database-management-i5/native-design-regression-i4-convergence.log`）；`generate:class-model-surface`（879 DTS，manifest 指向 `*-session.ts`）。**测试修补**：模型工作区 lazy 页签下 `field-removal` 页测 `page()` 需打开「3 字段呈现」/保存前回字段页签。`**-session.ts` ESLint 清零**；全仓 `pnpm run lint` 仍有存量项（非本次删类引入）。
 - **提交（2026-10-20）**：`5b09bab85` on `10-17`（含 I2 列表/P1b、I3 设计页签、`DataSpaceModelRequest`、I4 全量 session 化 + ClassModel/测试）；已 push `origin/10-17`。
 - **下一断点（整合计划）**：阶段 1 仍缺 `data-set-auth-page.vue`；阶段 2 **I5** 单链 hub + 连接测试 + 只读级联 vitest 已推进（见下节）；四 dialog UI 与实页 CRUD 证据仍待。
 
@@ -32,9 +40,32 @@
 - **验证**：`tests/runtime/page/database/*` 8 项 + `typecheck`；夹具补齐查询 `lingma_sys_params.r/e` 以匹配正式权限消费。
 - **提交**：`bf66dd39e`（首切片）、`1295394af`（字段目录） on `10-17`；autoColumns 统一见 `1a5219e99`。
 
-## 2026-10-20 I5 架构收敛（hub / 连接测试 / DBMS 收窄，工作区）
+## 2026-10-20 I5 DataSet 命令 SSOT + 矩阵 6 页（工作区）
 
-- **导航**：`/dbms`、`/DataBaseManage/DataBaseManage/index` → `database-management-hub.vue`（服务器 + 表和视图 tab）；`DBMS.vue` 仅 re-export hub，已移除 ~2.5k 行 `getDatabaseCatalog` 与页面 `/api/Db`。
+- **spark-data**：[`packages/spark-data/src/data-set-command/data-set-command-view.ts`](../../packages/spark-data/src/data-set-command/data-set-command-view.ts) — `ensureDataSetStaticInputTable` / `ensureDataSetFileCommandView` / `bindDataSetReadonlyCommandQuery`；Db HTTP 仍只在 `lowcode-database-dataset-extensions` executor。
+- **页面**：`register-dialog.vue` 路径对齐参考；新增 `add-table-dialog`、`table-design-dialog`、`view-design-dialog`；`table-and-view-page` 接线。
+- **删除**：`src/views/app/DBMS.vue`（导航已直链 hub/feature）。
+- **验证**：`tests/runtime/page/database/*`（含 hub / 页面挂载 / 字段 save）；根 `typecheck` + `verify:page-thin`。
+- **证据 stub**：`notes/evidence/database-management-i5/live-pilot-*.json`（单独 commit 策略不变）。
+
+## 2026-10-20 I5 继续收敛（Type/筛选/字段保存/台账，工作区）
+
+- **服务器 Type**：`database-server-catalog-metadata` 补丁 DataColumn + `fieldProjection`；`DataColumn.enumOptions` + autoColumns → `r-select`（非 ScenarioViewConfig `type`）。
+- **筛选**：`listFilter` / `catalogListFilter`；**spark-data** `differsOnlyInAutoQuery` 修复 r-filter 覆盖 `autoQuery` 误 stale。
+- **页面 vitest**：hub 切换；`table-and-view` 注册库/表设计/未登记表名/add-table 对话框；`service-management` 注册对话框；`tests/runtime/page/database` **22** 项。
+- **实页（2026-10-20，领码/wangtao）**：元数据管理 `D99A…` 下 hidden「服务器管理」可加载列表+注册对话框；根 `/dbms` 仍 legacy blueprint 阻断；「表和视图」待同一 **Base_DataSet.rowid** 五表 `readModelBatch` → `live-pilot-formal-model-gap.json`。**代码（2026-10-21）**：`dataSpaceId`=DataSet ID；`database-catalog-context` hub provide + 子页 inject；`getDatabaseCatalog` 仅 FormKey 探测；研读 `notes/research-database-catalog-dataset-identity.md`。
+- **字段设计写链**：`database-catalog-field-view-ops` + 设计 dialog 工具栏「保存字段/刷新」；vitest `database-catalog-field-view-ops.test.ts`。
+- **治理产物**：`generate:class-model-surface`（manifest 无 `DBMS.vue`）；`generate:lowcode-contracts`（consumer ledger 无页面级 `/api/Db`）。
+
+## 2026-10-21 I5 持续迭代 II 复验（工作区）
+
+- **代码**：tiered resolve、Hub KeepAlive、表和视图 blocked 复用 `DATABASE_CATALOG_SERVER_ONLY_NOTICE`；Hub `serverOnly` 下服务器 Tab 单测。
+- **验证**：`tests/runtime/page/database` **39/39**；`vue-page-registry` 8/8；`typecheck`、`verify:page-thin`、`verify:lowcode-contracts`。
+- **实页**：dev `5273` 直链 hub 无会话 → 平台首页；登录后按 `live-pilot-browser-20261021-tier.json` 三态复验；五表元数据仍见 `live-pilot-formal-model-gap.json` operatorActions。
+
+## 2026-10-20 I5 架构收敛（hub / 连接测试 / DBMS 删除，工作区）
+
+- **导航**：`/dbms`、`/DataBaseManage/DataBaseManage/index` → `database-management-hub.vue`（服务器 + 表和视图 tab）；`DBMS.vue` 已删，无 re-export。
 - **服务器/目录**：CRUD 仅 `DataView` + `DataSet.saveChanges`；连接测试与未登记库名经 `database-spark-data-auxiliary` 辅助 DataView（file executor），页面只持有 DataSet。
 - **2b**：`register-database-dialog.vue` + `database-catalog-db-view-ops`（注册 `_base_dbInfo`）。
 - **验证**：`tests/runtime/page/database/*`（含 mount 级联、未登记库查询）；`vue-page-registry` 更新 hub source；实页 CRUD `livePilot: pending`（evidence 单独 commit）。

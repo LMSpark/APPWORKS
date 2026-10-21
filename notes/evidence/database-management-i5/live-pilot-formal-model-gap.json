@@ -1,0 +1,26 @@
+{
+  "recordedAt": "2026-10-21",
+  "semanticLayer": "正式模型 readModelBatch（非 GetBaseData 可读性）",
+  "dataSpaceIdContract": "Base_DataSet.rowid = DataSet.scenarioId = x-FormKey，不是导航 nodeId",
+  "liveFinding": {
+    "app": "元数据管理 D99A1DCE9894698799101EFD70F8FC76",
+    "tableAndViewNav": "blueprintScenarioId 曾等于 nodeId A8FB2B2B161125A16FD15ED9581CD15B",
+    "error": "正式模型集合不完整、身份重复或空间归属不一致",
+    "serverPage": "部分 FormKey 仅含 Base_serverInfo 正式定义，列表可加载"
+  },
+  "operatorActions": [
+    "蓝图 hidden 节点 dataSpace.scenarioId 改为真实 Base_DataSet.rowid",
+    "在同一 rowid 下登记五表正式模型：Base_serverInfo、_base_dbInfo、_Base_TblList、_Base_ViewList、Base_TblField",
+    "核对蓝图「结构化配置/数据资源管理/数据库管理」节点 scenarioId 与上列 rowid 一致"
+  ],
+  "codeMitigation": [
+    "database-catalog-scenario 解析 + hub provide 单身份",
+    "notes/research-database-catalog-dataset-identity.md",
+    "resolvedDataSpaceId 避免子页重复 readModelBatch（2026-10-21）",
+    "resolve 缓存 + DATABASE_CATALOG_RESOLVE_HINT + hub resolve status（2026-10-21）",
+    "Hub 解析完成前子页不拿 preferred 二次 loadCatalog；catalogAwaitingHubResolve（2026-10-21 收敛）",
+    "Hub tiered resolve：五表失败时 serverOnly 仍写 resolvedScenarioId，表和视图 Tab blocked（2026-10-21 II）"
+  ],
+  "livePilotTableAndView": "blocked-pending-metadata",
+  "livePilotAfterMetadata": "待五表 readModelBatch 通过后复验 DataView 与 vitest 对照"
+}

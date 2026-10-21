@@ -1,0 +1,24 @@
+{
+  "scenarioId": "944DEE5A-0000-0000-0000-000000000000",
+  "page": "table-design-dialog",
+  "livePilot": "vitest-contract",
+  "recordedAt": "2026-10-20",
+  "checks": [
+    {
+      "step": "fieldGridLoad",
+      "channel": "DataView.refresh Base_TblField",
+      "result": "ok"
+    },
+    {
+      "step": "fieldEditSave",
+      "channel": "databaseCatalogFieldSavePending",
+      "result": "ok"
+    },
+    {
+      "step": "pageToolbar",
+      "channel": "table-and-view-page mount opens design dialog",
+      "result": "ok"
+    }
+  ],
+  "notes": "Field view-ops + page mount tests; online edit/save screenshot optional."
+}

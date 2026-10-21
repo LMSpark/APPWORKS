@@ -1,0 +1,391 @@
+﻿{
+    "action":  "delete_local per git_workspace_cleanup plan",
+    "topLevelDirectories":  [
+                                {
+                                    "fileCount":  34,
+                                    "name":  "e62-view-group-mode-withdrawn"
+                                },
+                                {
+                                    "fileCount":  31,
+                                    "name":  "i7-aggregate-boundary-before"
+                                },
+                                {
+                                    "fileCount":  27,
+                                    "name":  "e62-retire-owner-before"
+                                },
+                                {
+                                    "fileCount":  25,
+                                    "name":  "e62-cancel-entry-before"
+                                },
+                                {
+                                    "fileCount":  24,
+                                    "name":  "e62-legacy-entry-before"
+                                },
+                                {
+                                    "fileCount":  19,
+                                    "name":  "e62-view-group-mode-before"
+                                },
+                                {
+                                    "fileCount":  18,
+                                    "name":  "i7-child-aggregate-before"
+                                },
+                                {
+                                    "fileCount":  18,
+                                    "name":  "e62-field-delete-staging-before"
+                                },
+                                {
+                                    "fileCount":  17,
+                                    "name":  "e62-query-cache-before"
+                                },
+                                {
+                                    "fileCount":  16,
+                                    "name":  "e62-parameter-binding-before"
+                                },
+                                {
+                                    "fileCount":  16,
+                                    "name":  "e62-page-function-binding-before"
+                                },
+                                {
+                                    "fileCount":  16,
+                                    "name":  "e62-request-complete-before"
+                                },
+                                {
+                                    "fileCount":  16,
+                                    "name":  "e62-native-view-chain-before"
+                                },
+                                {
+                                    "fileCount":  14,
+                                    "name":  "e62-cascade-lifecycle-scope-before"
+                                },
+                                {
+                                    "fileCount":  14,
+                                    "name":  "e62-legacy-preview-scope-before"
+                                },
+                                {
+                                    "fileCount":  14,
+                                    "name":  "e62-select-lifecycle-before"
+                                },
+                                {
+                                    "fileCount":  13,
+                                    "name":  "e62-legacy-relation-workspace-before"
+                                },
+                                {
+                                    "fileCount":  12,
+                                    "name":  "e62-field-workspace-before"
+                                },
+                                {
+                                    "fileCount":  11,
+                                    "name":  "i7-workspace-recovery-before"
+                                },
+                                {
+                                    "fileCount":  11,
+                                    "name":  "e62-source-projection-migration-before"
+                                },
+                                {
+                                    "fileCount":  11,
+                                    "name":  "e62-reference-field-input-before"
+                                },
+                                {
+                                    "fileCount":  10,
+                                    "name":  "e62-parameter-interaction-before"
+                                },
+                                {
+                                    "fileCount":  10,
+                                    "name":  "e62-source-replacement-choices-before"
+                                },
+                                {
+                                    "fileCount":  10,
+                                    "name":  "e62-query-projection-before"
+                                },
+                                {
+                                    "fileCount":  10,
+                                    "name":  "e62-contract-cleanup-before"
+                                },
+                                {
+                                    "fileCount":  10,
+                                    "name":  "e62-source-replacement-contract-before"
+                                },
+                                {
+                                    "fileCount":  10,
+                                    "name":  "e62-create-recovery-before"
+                                },
+                                {
+                                    "fileCount":  9,
+                                    "name":  "e62-source-contract-sync-before"
+                                },
+                                {
+                                    "fileCount":  9,
+                                    "name":  "e62-source-field-workspace-before"
+                                },
+                                {
+                                    "fileCount":  9,
+                                    "name":  "i7-assembly-acceptance-before"
+                                },
+                                {
+                                    "fileCount":  9,
+                                    "name":  "e62-server-query-aggregation-before"
+                                },
+                                {
+                                    "fileCount":  9,
+                                    "name":  "e62-definition-readback-before"
+                                },
+                                {
+                                    "fileCount":  9,
+                                    "name":  "e62-page-phase-before"
+                                },
+                                {
+                                    "fileCount":  9,
+                                    "name":  "e62-source-sync-input-before"
+                                },
+                                {
+                                    "fileCount":  9,
+                                    "name":  "e62-source-resource-transition-before"
+                                },
+                                {
+                                    "fileCount":  9,
+                                    "name":  "e62-node-render-before"
+                                },
+                                {
+                                    "fileCount":  8,
+                                    "name":  "e62-graph-presentation-before"
+                                },
+                                {
+                                    "fileCount":  8,
+                                    "name":  "e62-native-test-chain-before"
+                                },
+                                {
+                                    "fileCount":  8,
+                                    "name":  "e62-node-workspace-before"
+                                },
+                                {
+                                    "fileCount":  8,
+                                    "name":  "e62-workspace-field-drafts-before"
+                                },
+                                {
+                                    "fileCount":  8,
+                                    "name":  "e62-aggregate-valuefun-editor-before"
+                                },
+                                {
+                                    "fileCount":  8,
+                                    "name":  "e62-source-key-lifecycle-before"
+                                },
+                                {
+                                    "fileCount":  8,
+                                    "name":  "e62-joint-binding-save-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-source-adoption-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-table-column-lifecycle-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-graph-selection-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-model-preview-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-joint-definition-save-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-native-computed-editor-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-json-row-refresh-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-computed-field-edit-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-designer-self-consumption-before"
+                                },
+                                {
+                                    "fileCount":  7,
+                                    "name":  "e62-binding-lifecycle-before"
+                                },
+                                {
+                                    "fileCount":  6,
+                                    "name":  "e62-table-api-retired-before"
+                                },
+                                {
+                                    "fileCount":  6,
+                                    "name":  "e62-field-view-conflicts-before"
+                                },
+                                {
+                                    "fileCount":  6,
+                                    "name":  "i7-cascade-publication-before"
+                                },
+                                {
+                                    "fileCount":  6,
+                                    "name":  "e62-primary-query-scope-before"
+                                },
+                                {
+                                    "fileCount":  6,
+                                    "name":  "e62-session-native-before"
+                                },
+                                {
+                                    "fileCount":  6,
+                                    "name":  "e62-view-release-before"
+                                },
+                                {
+                                    "fileCount":  6,
+                                    "name":  "e62-array-contract-review-before"
+                                },
+                                {
+                                    "fileCount":  6,
+                                    "name":  "e62-catalog-management-before"
+                                },
+                                {
+                                    "fileCount":  5,
+                                    "name":  "e62-whole-page-chain-before"
+                                },
+                                {
+                                    "fileCount":  5,
+                                    "name":  "e62-backend-aggregation-boundary-before"
+                                },
+                                {
+                                    "fileCount":  5,
+                                    "name":  "e62-query-output-name-before"
+                                },
+                                {
+                                    "fileCount":  5,
+                                    "name":  "e62-active-contract-cleanup-before"
+                                },
+                                {
+                                    "fileCount":  5,
+                                    "name":  "e62-ui-invalidation-before"
+                                },
+                                {
+                                    "fileCount":  4,
+                                    "name":  "i7-preview-scope-before"
+                                },
+                                {
+                                    "fileCount":  4,
+                                    "name":  "e62-table-api-before"
+                                },
+                                {
+                                    "fileCount":  3,
+                                    "name":  "e62-query-defaults-before"
+                                },
+                                {
+                                    "fileCount":  3,
+                                    "name":  "i7-layout-later-before"
+                                },
+                                {
+                                    "fileCount":  3,
+                                    "name":  "native-relation-before"
+                                },
+                                {
+                                    "fileCount":  3,
+                                    "name":  "i7-view-feedback-before"
+                                },
+                                {
+                                    "fileCount":  3,
+                                    "name":  "i7-reset-scope-before"
+                                },
+                                {
+                                    "fileCount":  3,
+                                    "name":  "e62-request-complete-trace-before"
+                                },
+                                {
+                                    "fileCount":  3,
+                                    "name":  "e62-view-receipt-before"
+                                },
+                                {
+                                    "fileCount":  3,
+                                    "name":  "e62-view-lifecycle-before"
+                                },
+                                {
+                                    "fileCount":  2,
+                                    "name":  "relation-metadata-before"
+                                },
+                                {
+                                    "fileCount":  2,
+                                    "name":  "i7-action-before"
+                                },
+                                {
+                                    "fileCount":  2,
+                                    "name":  "i7-edge-cascade-feedback-before"
+                                },
+                                {
+                                    "fileCount":  2,
+                                    "name":  "i7-refresh-before"
+                                },
+                                {
+                                    "fileCount":  1,
+                                    "name":  "e62-graph-presentation-cpu"
+                                },
+                                {
+                                    "fileCount":  1,
+                                    "name":  "i7-business-coverage-before"
+                                },
+                                {
+                                    "fileCount":  1,
+                                    "name":  "e62-reopen-native-cpu"
+                                },
+                                {
+                                    "fileCount":  1,
+                                    "name":  "i7-scope-consumer-before"
+                                },
+                                {
+                                    "fileCount":  0,
+                                    "name":  "e62-source-flow-before"
+                                }
+                            ],
+    "path":  "notes/evidence/data-space-config-storage",
+    "topLevelRootFileCount":  12435,
+    "recordedAt":  "2026-10-21",
+    "sampleRootFiles":  [
+                            "api-config-build.log",
+                            "api-config-cancel-reopen.png",
+                            "api-config-classmodel-after.log",
+                            "api-config-classmodel-before.log",
+                            "api-config-classmodel-build.log",
+                            "api-config-design.png",
+                            "api-config-display-red.log",
+                            "api-config-docs.log",
+                            "api-config-first.log",
+                            "api-config-focused.log",
+                            "api-config-lint.log",
+                            "api-config-models.json",
+                            "api-config-output-preflight.json",
+                            "api-config-output-saved.json",
+                            "api-config-output-stage-error.json",
+                            "api-config-pages.log",
+                            "api-config-race-red.log",
+                            "api-config-red.log",
+                            "api-config-regression.log",
+                            "api-config-schema.log",
+                            "api-config-select-red.log",
+                            "api-config-typecheck.log",
+                            "api-config-verification.json",
+                            "api-headers-behavior.log",
+                            "api-headers-build.log",
+                            "api-headers-cancel-reopen.png",
+                            "api-headers-classmodel.log",
+                            "api-headers-design.png",
+                            "api-headers-docs.log",
+                            "api-headers-field-green.log",
+                            "api-headers-field-red.log",
+                            "api-headers-guide.log",
+                            "api-headers-lint.log",
+                            "api-headers-owner-green.log",
+                            "api-headers-owner-red.log",
+                            "api-headers-page-first.log",
+                            "api-headers-page-red.log",
+                            "api-headers-pages.log",
+                            "api-headers-regression.log",
+                            "api-headers-schema.log"
+                        ],
+    "totalFiles":  13196
+}

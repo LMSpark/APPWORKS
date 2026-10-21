@@ -1,0 +1,36 @@
+{
+  "scenarioId": "944DEE5A-0000-0000-0000-000000000000",
+  "page": "service-management-page",
+  "livePilot": "browser-partial",
+  "recordedAt": "2026-10-20",
+  "checks": [
+    {
+      "step": "listLoad",
+      "channel": "DataView.refresh",
+      "result": "ok",
+      "scope": "vitest+实页列表"
+    },
+    {
+      "step": "registerDialog",
+      "channel": "UI",
+      "result": "ok",
+      "scope": "实页 2026-10-20"
+    },
+    {
+      "step": "createServer",
+      "channel": "DataSet.saveChanges",
+      "result": "ok"
+    },
+    {
+      "step": "readbackReopen",
+      "channel": "DataView.refresh",
+      "result": "ok"
+    },
+    {
+      "step": "testConnection",
+      "channel": "command DataView.refresh",
+      "result": "ok"
+    }
+  ],
+  "notes": "实页入口：元数据管理 D99A… + hidden 服务器管理 URL；根 /dbms 仍 legacy blueprint 阻断。详见 live-pilot-browser-20261020.json。"
+}

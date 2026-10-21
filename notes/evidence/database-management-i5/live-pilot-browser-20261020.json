@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-10-20T17:30+08:00",
+  "env": {
+    "frontend": "http://localhost:5273 (pnpm dev)",
+    "backend": "https://spark.lingmacn.com via Vite /api proxy",
+    "tenant": "领码科技",
+    "user": "wangtao",
+    "app": "元数据管理 D99A1DCE9894698799101EFD70F8FC76"
+  },
+  "entry": {
+    "works": "/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/ui/service-management-page",
+    "blocked": [
+      "/dbms (blueprint node BD30E16E… → legacy /DataCenter/ServerManagerment.html, 缺少工具目标)",
+      "非元数据管理应用进入 (同上类 blueprint 错误)"
+    ]
+  },
+  "checks": [
+    {
+      "page": "service-management-page",
+      "step": "navLoad",
+      "result": "ok",
+      "detail": "侧栏三项、列表多行、注册服务器/刷新工具栏可见"
+    },
+    {
+      "page": "service-management-page",
+      "step": "registerDialog",
+      "result": "ok",
+      "detail": "注册服务器 → 对话框含测试连接/确定/取消"
+    },
+    {
+      "page": "table-and-view-page",
+      "step": "navLoad",
+      "result": "fail",
+      "detail": "初版 Base_serverInfo；二版（蓝图标题+catalog 探测）仍报：正式模型集合不完整、身份重复或空间归属不一致"
+    }
+  ],
+  "screenshot": "page-2026-10-20T09-30-22-930Z.png (Cursor browser capture, 服务器管理列表)",
+  "notes": "身份语义见 notes/research-database-catalog-dataset-identity.md；元数据缺口见 live-pilot-formal-model-gap.json。Hub 单身份 provide 已落地，实页表和视图仍待远程五表正式模型。"
+}

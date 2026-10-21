@@ -1,0 +1,15 @@
+{
+  "oldTypeStillPresent": true,
+  "oldGrantFields": [
+    "grantId",
+    "pageId",
+    "featureTagIds",
+    "subjectKind",
+    "subjectIds",
+    "organizationScope",
+    "businessId",
+    "enabled",
+    "rawGrantType"
+  ],
+  "finding": "ensure-class-model-bundle only generates when manifest is missing"
+}

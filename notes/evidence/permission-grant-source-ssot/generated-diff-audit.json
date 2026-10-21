@@ -1,0 +1,126 @@
+[
+  {
+    "path": "generated/dts-class-model/.dts-manifest.json",
+    "kind": "bundle-index-or-report"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/native-runtime/native-script-context.ts.json",
+    "kind": "source-contract-refresh"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/index.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/index.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request.ts.json",
+    "kind": "source-contract-refresh"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts.json",
+    "kind": "source-contract-refresh"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts.json",
+    "kind": "source-contract-refresh"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-config.ts.json",
+    "kind": "obsolete-shard-removed",
+    "sourceExists": false
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/permission/design/permission-design-api.ts.json",
+    "kind": "source-contract-refresh"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-project-model/src/scenario/scenario-view-config.ts.json",
+    "kind": "source-contract-refresh"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/lowcode/data-space/lowcode-data-space-design.ts.json",
+    "kind": "timestamp-or-compiler-symbol-id"
+  },
+  {
+    "path": "generated/dts-class-model/files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
+    "kind": "source-contract-refresh"
+  },
+  {
+    "path": "generated/dts-class-model/manifest.json",
+    "kind": "bundle-index-or-report"
+  },
+  {
+    "path": "generated/dts-class-model/semantic-gaps.json",
+    "kind": "bundle-index-or-report"
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-data/src/core/formal-table-request-config.ts.json",
+    "kind": "new-shard",
+    "sourceExists": true
+  },
+  {
+    "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts.json",
+    "kind": "new-shard",
+    "sourceExists": true
+  },
+  {
+    "path": "generated/dts-class-model/files/src/lowcode/data-space/view-design/lowcode-data-space-view-layout.ts.json",
+    "kind": "new-shard",
+    "sourceExists": true
+  }
+]

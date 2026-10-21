@@ -1,21 +1,27 @@
-状态：draft
+状态：implementing
 
 ## 任务目标
 
 I5 迭代 2b–2c：表和视图写能力（注册物理库、建表、表/视图设计）按 dialog 切片接入 spark-data；UI 仍禁止手写字段 children。
 
-## 2b 注册数据库（register）
+## 2b 注册数据库（register）— done
 
 - **语义**：在已选服务器下查询物理库名 → 选择未登记库 → 写入 `_base_dbInfo`（与 DBMS `dlgDb` 对齐）。
-- **数据层（已落地）**：`fetchUnregisteredDatabaseNames(serverId)` → `/api/Db/getUnregisteredDb/{id}`（`database-catalog-unregistered-db.ts`）；vitest `database-catalog-unregistered-db.test.ts`。
-- [x] `register-database-dialog.vue` + `database-catalog-db-view-ops`（`_base_dbInfo` 经 `saveChanges`）
-- [x] 未登记库名经 `databaseCatalogQueryUnregisteredDbNames`（同一 DataSet 上 DataView.refresh；装配在 `LowcodeDatabaseTableView.loadCatalog`）
+- **数据层**：`databaseCatalogQueryUnregisteredDbNames` → 命令 DataView.refresh（`lowcode-database-dataset-extensions` + spark-data `bindDataSetReadonlyCommandQuery`）。
+- [x] [`register-dialog.vue`](../../src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue) + `database-catalog-db-view-ops`（`_base_dbInfo` 经 `saveChanges`）
+- [x] vitest：`database-catalog-db-view-ops.test.ts`、`database-catalog-unregistered-db.test.ts`
 
-## 2c add-table / table-design / view-design
+## 2c add-table — done（首条写切片）
 
-- **语义**：对照参考 hook；各 dialog 独立装配与提交链。
-- **待做**：后端写合同逐项核对；方案批准后按 dialog 单切片实施。
+- [x] [`add-table-dialog.vue`](../../src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue) + `database-catalog-table-view-ops`
+- [x] 未登记表名：`databaseCatalogQueryUnregisteredTableNames` + `/api/Db/getUnregisteredTable`
+- [x] vitest：`database-catalog-table-view-ops.test.ts`
+- add-table 子计划已并入本文件（`plan-database-management-i5-add-table-dialog.md` 已删除）。
+
+## 2c table-design / view-design — 首版
+
+- [x] [`table-design-dialog.vue`](../../src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue)、[`view-design-dialog.vue`](../../src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue)：字段目录经 `Base_TblField` 命名视图 autoColumns 只读展示；完整字段写回仍随后端 `/api/Table/*` 合同扩展。
 
 ## 验证
 
-- 每切片：`tests/runtime/page/database/*` + 实页证据（单独 commit `notes/evidence/**`）。
+- 每切片：`tests/runtime/page/database/*` + 实页证据（`notes/evidence/database-management-i5/**` 单独 commit）。

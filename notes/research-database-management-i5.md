@@ -6,14 +6,12 @@
 
 ## 本仓现状
 
-| 入口 | `config/navigation/vue-pages.json` → `source` |
+| 入口 | `config/navigation/vue-pages.json` → `source`（2026-10-21） |
 | --- | --- |
-| `/dbms` | `src/views/app/DBMS.vue` |
-| `/features/.../service-management-page` | 同上（hidden） |
-| `/DataBaseManage/DataBaseManage/index` | 同上（hidden，蓝图 URL） |
-| `/features/.../table-and-view-page` | 同上（hidden） |
+| `/dbms`、`/DataBaseManage/.../index` | `database-management-hub.vue` |
+| hidden 服务器 / 表和视图 | 各 feature 页；hub 内 inject 单身份 + tiered resolve |
 
-`src/views/features/data-platform/database-management/` **不存在**。`vue-page-registry.test.ts` 断言上述别名均指向 DBMS.vue。
+`DBMS.vue` 已删除；目录见 `src/views/features/data-platform/database-management/**` 与 `notes/research-database-catalog-dataset-identity.md`。
 
 ## DBMS.vue 职责与数据链（约 2570 行）
 
@@ -62,15 +60,15 @@
 | **query/save owner** | 仅在 **装配时** 由 `LowcodeDataSpaceAssembler` + `DataSpaceRuntimeApi.bindModelView` 绑定到 **DataView**；业务代码不可另建 Catalog/Coordinator 充当 owner |
 | **组件 ↔ 数据** | 只经 **DataView**（`dataViewKey`、字段子组件、工具栏 `refresh`） |
 | **提交** | **DataSet.saveChanges**；编排函数（如 `database-server-view-ops`）只调用 `DataView`/`DataSet` 公开 API |
-| **禁止** | 页面 `lowcodeHttp`/`LowcodeApi.catalog` 读写在册业务目录；`LowcodeCatalogApi.getDatabaseCatalog` 仅 **DBMS 只读聚合**（待 I5 全量迁移后删除） |
+| **禁止** | 页面 `lowcodeHttp`/`LowcodeApi.catalog` 读写在册业务目录；`getDatabaseCatalog` 仅允许在 **FormKey 解析**（`database-catalog-scenario`）中探测 `sourceDataSpaces`，不得驱动 UI 列表/CRUD |
 
 ### 1. 身份链（用户已确认）
 
 | 概念 | I5 服务器管理约定 |
 | --- | --- |
 | **FormKey** | HTTP 头 `x-FormKey` / 后端查询上下文 |
-| **dataSpaceId / scenarioId** | 与 FormKey **同一字符串** |
-| **页面绑定** | 与字典目录相同：`route.meta.blueprintScenarioId` → `buildDataViewKey(model, view, scenarioId)` |
+| **dataSpaceId / scenarioId** | 与 FormKey **同一字符串**；即正式 **Base_DataSet.rowid**（DataSet 身份），**不是**导航 `nodeId` |
+| **页面绑定** | 导航 `blueprintScenarioId` 须为上述 DataSet ID；解析后以 `DataSet.scenarioId` 写 `buildDataViewKey(model, view, scenarioId)` |
 | **读写通道** | **spark-data 为唯一后端桥梁**；**DataView 是标准组件与数据的交互层**（`dataViewKey` 定位视图，字段子组件在视图上下文读写）；**DataSet** 组织模型、关系、级联与 `saveChanges`。页面/协调器不 `lowcodeHttp`、不借 `_sharedHttpClient` 旁路。`LowcodeCatalogApi` 仅 DBMS 只读聚合，不能作为业务页第二链。 |
 
 黑盒记录（`notes/test-project-blueprint-black-box.md`）：数据库目录路由已从后端授权保留 **FormKey**；`Base_serverInfo` 等模型在 lowcode「可用模型」投影上可能不完整，但 **GetBaseData 仍可按表名读到目录行**（与可见模型列表不完全等价）。

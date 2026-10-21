@@ -1,0 +1,60 @@
+{
+  "unchangedFunctions": [
+    "finiteNumber",
+    "organizationScope",
+    "featureTag",
+    "dataObjectPolicy"
+  ],
+  "retainedGrantFields": [
+    [
+      "grantId",
+      "string"
+    ],
+    [
+      "pageId",
+      "string"
+    ],
+    [
+      "featureTagIds",
+      "readonly string[]"
+    ],
+    [
+      "subjectIds",
+      "readonly string[]"
+    ],
+    [
+      "organizationScope",
+      "PermissionGrantOrganizationScope"
+    ],
+    [
+      "businessId",
+      "string"
+    ],
+    [
+      "enabled",
+      "boolean"
+    ],
+    [
+      "rawGrantType",
+      "number | null"
+    ]
+  ],
+  "generatedSchemaFields": [
+    "grantId",
+    "pageId",
+    "featureTagIds",
+    "subjectIds",
+    "organizationScope",
+    "businessId",
+    "enabled",
+    "rawGrantType"
+  ],
+  "removedClassificationInGeneratedFiles": true,
+  "unchangedOwners": [
+    "packages/spark-lowcode-api/src/platform/permission/design/permission-design-mutation.ts",
+    "packages/spark-lowcode-api/src/platform/permission/runtime/permission-runtime-api.ts",
+    "packages/spark-lowcode-api/src/platform/permission/permission-wire.ts",
+    "packages/spark-lowcode-api/src/platform/permission/permission-api.ts"
+  ],
+  "previousViewPropertyMethodGenerated": true
+}

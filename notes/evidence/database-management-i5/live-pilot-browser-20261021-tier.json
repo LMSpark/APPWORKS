@@ -30,6 +30,16 @@
     },
     "automated": "tests/runtime/page/database 39/39（post-cleanup 复验）"
   },
+  "continuation20261021d": {
+    "checkedAt": "2026-10-21T14:12+08:00",
+    "routerDiagnosis": "未登录时 /t/.../DataBaseManage/... 无 match → 重定向 /；登录后路由由蓝图+vue-pages 注册",
+    "recommendedUrlsAfterLogin": [
+      "/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/DataBaseManage/DataBaseManage/index",
+      "/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/dbms"
+    ],
+    "doc": "notes/research-database-catalog-dataset-identity.md § 本地 dev 路由",
+    "loggedIn": false
+  },
   "codeIterationThisRound": [
     "resolveDatabaseCatalogScenarioTiered：五表失败同 rowid 降级 Base_serverInfo",
     "catalogFormalTier + catalogHubCatalogBlocked；表和视图 Tab blocked UI",

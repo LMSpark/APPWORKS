@@ -13,6 +13,16 @@
    - `readModelBatch` 失败但 GetBaseData 有行 → 正式模型未在同一 rowid 登记。
 4. **读/写链**：仅 DataView.refresh / saveChanges；`getDatabaseCatalog` 只参与 **FormKey 解析**，不驱动 UI。
 
+## 本地 dev 路由（实页前置）
+
+| 状态 | 行为 |
+|------|------|
+| **未登录** | 动态路由仅来自 `buildPreAuthNavTree()`（`scope: public`）。直链 `/t/{tenant}/{appId}/DataBaseManage/DataBaseManage/index` 常出现 Vue Router **No match**，并重定向平台首页 `/`；**不是 hub 组件缺陷**。 |
+| **已登录** | 路由由 `readLowcodeRuntimeNavigation()` 蓝图 + 授权装配。元数据应用入口：`/t/{tenant}/{appId}/DataBaseManage/DataBaseManage/index`（hidden，`vue-pages.json` → hub）；壳侧快捷 **`/t/{tenant}/{appId}/dbms`** 与 hub 同组件（`withShellSystemTools` 注入 SPARK 工具，且不与蓝图同 path 重复）。 |
+| **hidden 子页** | `service-management-page`、`table-and-view-page` 路径见 `config/navigation/vue-pages.json`；FormKey 仍须 hub inject 的 `resolvedScenarioId`。 |
+
+登录页：`/login`。取证顺序：登录 → 进入元数据管理应用 → 打开 hub 或 `/dbms` → 记录 Network 中 **x-FormKey** 与 hub 解析文案（serverOnly / full）。
+
 ## 实页取证模板（元数据管理 D99A…）
 
 | 导航项 | nodeId | blueprintScenarioId | 是否 nodeId=scenario | readModelBatch(五表) | DataView 列表 |

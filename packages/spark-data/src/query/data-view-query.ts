@@ -92,6 +92,18 @@ export class DataViewQuery {
     return this.parse({outputType: params.outputType, tree: params.tree, allPages: params.allPages, maxRows: params.maxRows, fields: params.fields, sourceInputMode: params.sourceInputMode})
   }
 
+  /** 仅 autoQuery 不同不算查询语义变更，不应使已加载结果 stale。 */
+  static differsOnlyInAutoQuery(
+    next: NonNullable<ViewMetadata['queryConfig']>,
+    current: NonNullable<ViewMetadata['queryConfig']>,
+  ): boolean {
+    const withoutAutoQuery = (config: NonNullable<ViewMetadata['queryConfig']>) => {
+      const {autoQuery: _autoQuery, ...rest} = config
+      return rest
+    }
+    return JSON.stringify(withoutAutoQuery(next)) === JSON.stringify(withoutAutoQuery(current))
+  }
+
   /** 查询字段必须属于正式输出，不能把本地计算字段提交给服务器。 */
   static validateFields(config: NonNullable<ViewMetadata['queryConfig']>, fields: ReadonlySet<string>): void {
     const parsed = this.parse(config)

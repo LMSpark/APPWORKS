@@ -19,6 +19,7 @@ import { useDataViewEventBridge } from './useDataViewEventBridge.js'
 import { useContainerGrid } from './container-layout.js'
 import { useContainerModuleContext } from './container-ui.js'
 import { resolveDataViewEditingRow } from '../../fields/context/dataViewEditing'
+import { sparkColumnToAutoFieldNode } from './column-auto-field.js'
 
 // ============================================================
 // § 常量
@@ -106,33 +107,12 @@ export function useFormDetailContainer(
   // 目标：将容器 children 统一投影为可渲染网格结构，避免模板层重复计算。
   // ==========================================================================
 
-  function toAutoFieldNode(column: DataColumn): SparkNode {
-    const common = {field: column.name, label: column.label ?? column.name, colSpan: 6}
-    switch (column.type) {
-      case 'string': case 'varchar': case 'text': case 'time':
-        return {type: 'r-text', props: common}
-      case 'number': case 'int': case 'integer': case 'decimal': case 'float': case 'double':
-        return {type: 'r-number', props: common}
-      case 'boolean': case 'bool':
-        return {type: 'r-switch', props: common}
-      case 'date': case 'datetime':
-        return {type: 'r-date', props: {...common, dateType: column.type}}
-      case 'object': case 'array': case 'enum':
-        break
-    }
-    // 复杂值及枚举需要业务显式配置子组件，自动展示不能把原值改写成字符串。
-    return {
-      type: 'r-text',
-      props: {...common, readonly: true},
-    }
-  }
-
   const contentChildren = computed(() => {
     const explicitChildren = props.children ?? []
     if (explicitChildren.length > 0 || props.autoColumns === false) return explicitChildren
     return dataState.columns.value
       .filter(column => column.isComputed !== true)
-      .map(toAutoFieldNode)
+      .map(column => sparkColumnToAutoFieldNode(column, 'form'))
   })
 
   const { gridChildren, gridStyle, getChildGridStyle } = useContainerGrid({

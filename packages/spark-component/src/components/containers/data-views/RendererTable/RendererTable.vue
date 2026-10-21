@@ -148,6 +148,7 @@ import { toSortDirection, type ElementPlusTableSortOrder } from './types'
 import { useContainerDataSource } from '../view-data-source'
 import { buildTreeTableRows } from '../view-tree-state'
 import { useContainerToolbar } from '../../runtime/container-ui'
+import { sparkColumnToAutoFieldNode } from '../../runtime/column-auto-field.js'
 import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
 import { TABLE_COLUMN_RESIZABLE_KEY } from '../../../fields/context/tableColumnContext'
@@ -174,18 +175,6 @@ const dataState = useContainerDataSource({
   logPrefix: 'RendererTable',
 })
 
-function toAutoFieldNode(column: DataColumn): SparkNode {
-  return {
-    type: 'r-text',
-    props: {
-      field: column.name,
-      label: column.label ?? column.name,
-      width: 200,
-      sortable: true,
-    },
-  }
-}
-
 const explicitContentChildNodes = computed(() => getSparkNodeChildren(props.children))
 
 const contentSourceChildNodes = computed<SparkNode[]>(() => {
@@ -194,7 +183,7 @@ const contentSourceChildNodes = computed<SparkNode[]>(() => {
   }
   return dataState.columns.value
     .filter(column => column.isComputed !== true)
-    .map(toAutoFieldNode)
+    .map(column => sparkColumnToAutoFieldNode(column, 'table'))
 })
 
 const normalizedContentChildNodes = computed<SparkNode[]>(() => {

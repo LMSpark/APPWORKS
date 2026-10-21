@@ -371,10 +371,15 @@ viewId: string
     const config = DataViewQuery.parse(value)
     this.assertResultReplacementAllowed()
     if (JSON.stringify(config) === JSON.stringify(this._queryConfig)) return
+    const autoQueryOnly = DataViewQuery.differsOnlyInAutoQuery(config, this._queryConfig)
     if (this._queryConfig.cacheType && this._queryConfig.cacheType !== 'none' && config.cacheType !== this._queryConfig.cacheType) {
       this.#queryExecutor?.invalidateQueryCache?.()
     }
     this._queryConfig = config
+    if (autoQueryOnly) {
+      this.emitConfigChanged()
+      return
+    }
     if (this.currentLoadRequestId > 0 || this.requestState === RequestState.Preparing) this.currentLoadRequestId++
     this._resultStale = true
     this.setRequestState(RequestState.Idle)

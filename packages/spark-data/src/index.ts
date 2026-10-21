@@ -34,6 +34,19 @@ export { DataViewQuery } from './query/data-view-query'
 export { DataViewQueryCache } from './query/data-view-query-cache'
 export { DataViewArrayQuery } from './query/data-view-array-query'
 export { DataViewLocalQuery } from './query/data-view-local-query'
+export {
+  bindDataSetReadonlyCommandQuery,
+  dataSetCommandQueryResultFromLocalRows,
+  ensureDataSetFileCommandView,
+  ensureDataSetStaticInputTable,
+} from './data-set-command/data-set-command-view'
+export type {
+  BindReadonlyCommandQueryOptions,
+  DataSetCommandColumnSpec,
+  DataSetCommandResourceIdentity,
+  DataSetCommandRowsLoader,
+  DataSetCommandScopeGuard,
+} from './data-set-command/data-set-command-view'
 export { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
 export { FormalTableRequestConfig } from './core/formal-table-request-config'
 export type { DataViewFilterTree, DataViewFilterOperator, DataViewFilterJsonValue } from './query/filter/data-view-filter-contract'

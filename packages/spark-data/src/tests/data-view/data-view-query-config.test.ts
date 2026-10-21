@@ -2,6 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {createRequest} from '@spark-appworks/spark-utils'
 import {DataSet} from '../../dataset'
 import {DataView} from '../../data-view'
+import {RequestState} from '../../types'
 import {DataViewQuery} from '../../query/data-view-query'
 import type {QueryParams} from '../../types'
 
@@ -174,6 +175,17 @@ describe('DataView owns query configuration', () => {
     const restored = DataView.fromJson(view.toJson(), 'Nodes', 'restored')
     expect(restored.queryConfig).toEqual(view.queryConfig)
     restored.destroy()
+  })
+
+  it('does not reset request state when only autoQuery changes', () => {
+    const {view} = fixture()
+    view.queryConfig = {outputType: 'Table'}
+    const afterSemantic = view.requestState
+    view.queryConfig = {outputType: 'Table', autoQuery: true}
+    expect(view.requestState).toBe(afterSemantic)
+    view.queryConfig = {outputType: 'Join'}
+    expect(view.requestState).toBe(RequestState.Idle)
+    expect(DataViewQuery.differsOnlyInAutoQuery({autoQuery: true}, {})).toBe(true)
   })
 
   it('copies nested configuration and preserves explicit false, with empty configuration restoring defaults', async () => {

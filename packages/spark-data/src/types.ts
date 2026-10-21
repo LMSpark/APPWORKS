@@ -235,7 +235,13 @@ export type DataColumn = {
    * `"$count('OrderItems')"`
    * `"$join('Tags', 'name', ' | ')"`
    */
-  computeExpression?: string}
+  computeExpression?: string
+
+  /**
+   * 枚举选项（`type` 为 `enum` 时由标准组件 autoColumns 生成 `r-select`）。
+   */
+  enumOptions?: readonly Readonly<{value: string; label: string}>[]
+}
 
 // ═══════════════════════════════════════════════════════
 // 3. 表语义元数据

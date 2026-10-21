@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 153,
-  "directUnmatchedCount": 98,
+  "consumerCount": 180,
+  "directUnmatchedCount": 121,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -175,7 +175,7 @@
     {
       "expression": "/api/users",
       "sourceFile": "packages/spark-data/src/tests/crud/commit-mode.test.ts",
-      "sourceLine": 575,
+      "sourceLine": 600,
       "scope": "tooling"
     },
     {
@@ -257,6 +257,90 @@
       "scope": "tooling"
     },
     {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 6,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/changed",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 9,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 13,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/save",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 19,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/save",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 22,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 24,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 25,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/{id}",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 33,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 36,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 37,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 38,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 48,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 53,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/list",
+      "sourceFile": "packages/spark-data/src/tests/crud/formal-table-request-config.test.ts",
+      "sourceLine": 61,
+      "scope": "tooling"
+    },
+    {
       "expression": "/api/test",
       "sourceFile": "packages/spark-data/src/tests/crud/safety-guards.test.ts",
       "sourceLine": 71,
@@ -325,7 +409,19 @@
     {
       "expression": "/api/users/{id}",
       "sourceFile": "packages/spark-data/src/tests/data-view/data-view-events.test.ts",
-      "sourceLine": 245,
+      "sourceLine": 341,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/example",
+      "sourceFile": "packages/spark-data/src/tests/data-view/local-configuration-cascade.test.ts",
+      "sourceLine": 61,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/example",
+      "sourceFile": "packages/spark-data/src/tests/data-view/local-configuration-cascade.test.ts",
+      "sourceLine": 70,
       "scope": "tooling"
     },
     {
@@ -361,7 +457,7 @@
     {
       "expression": "/api/users",
       "sourceFile": "packages/spark-data/src/types.ts",
-      "sourceLine": 481,
+      "sourceLine": 487,
       "scope": "tooling"
     },
     {
@@ -479,51 +575,27 @@
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/DataOperation/GetBaseData",
+      "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 78,
+      "sourceLine": 297,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 212,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/DataOperation/GetBaseData",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 214,
+      "sourceLine": 430,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 516,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/DataOperation/GetData",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 603,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/DataOperation/GetData",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 746,
+      "sourceLine": 901,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
-      "sourceLine": 750,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/DataOperation/GetData",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
-      "sourceLine": 838,
+      "sourceLine": 622,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -541,17 +613,11 @@
     {
       "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
-      "sourceLine": 59,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/LoginAuthority/refresh",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
       "sourceLine": 60,
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/DataOperation/GetData",
+      "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
       "sourceLine": 61,
       "scope": "publishable-lowcode-api"
@@ -559,25 +625,43 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
-      "sourceLine": 246,
+      "sourceLine": 62,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
+      "sourceLine": 144,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
-      "sourceLine": 16,
+      "sourceLine": 14,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
-      "sourceLine": 26,
+      "sourceLine": 24,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
-      "sourceLine": 33,
+      "sourceLine": 302,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+      "sourceLine": 306,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-model-alias.test.ts",
+      "sourceLine": 407,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -590,6 +674,24 @@
       "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-save-parity.test.ts",
       "sourceLine": 47,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-source-input.test.ts",
+      "sourceLine": 44,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-source-input.test.ts",
+      "sourceLine": 56,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/data-space-source-input.test.ts",
+      "sourceLine": 77,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -721,19 +823,19 @@
     {
       "expression": "/api/Function/GetFormUserFunction",
       "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-api.test.ts",
-      "sourceLine": 13,
+      "sourceLine": 20,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-api.test.ts",
-      "sourceLine": 60,
+      "sourceLine": 70,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/permission/permission-api.test.ts",
-      "sourceLine": 88,
+      "sourceLine": 197,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -803,40 +905,100 @@
       "scope": "publishable-lowcode-api"
     },
     {
+      "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
+      "sourceLine": 27,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
+      "sourceLine": 37,
+      "scope": "publishable-lowcode-api"
+    },
+    {
       "expression": "/api/ai/turns",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.test.ts",
       "sourceLine": 21,
       "scope": "publishable-lowcode-api"
     },
     {
+      "expression": "/api/message/offlineMessages",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.test.ts",
+      "sourceLine": 119,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/message/confirmMessages",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.test.ts",
+      "sourceLine": 146,
+      "scope": "publishable-lowcode-api"
+    },
+    {
       "expression": "/api/ai/turns",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 219,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/sessions/S1/turn/append",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.test.ts",
-      "sourceLine": 113,
+      "sourceLine": 224,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/chat",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
-      "sourceLine": 144,
+      "sourceLine": 162,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/turns",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
-      "sourceLine": 160,
+      "sourceLine": 178,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/message/offlineMessages",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "sourceLine": 284,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/message/confirmMessages",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
+      "sourceLine": 305,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/sse/connect",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
-      "sourceLine": 265,
+      "sourceLine": 327,
       "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/query",
+      "sourceFile": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+      "sourceLine": 192,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/query",
+      "sourceFile": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+      "sourceLine": 199,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/query",
+      "sourceFile": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+      "sourceLine": 202,
+      "scope": "tooling"
+    },
+    {
+      "expression": "/api/query",
+      "sourceFile": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
+      "sourceLine": 735,
+      "scope": "tooling"
     },
     {
       "expression": "/api/logs/batch",
@@ -905,6 +1067,12 @@
       "scope": "tooling"
     },
     {
+      "expression": "/api/Db/testConnection",
+      "sourceFile": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+      "sourceLine": 95,
+      "scope": "app-composition"
+    },
+    {
       "expression": "/api/sse/connect",
       "sourceFile": "src/services/sse-events.ts",
       "sourceLine": 10,
@@ -920,12 +1088,6 @@
       "expression": "/api/demo",
       "sourceFile": "src/views/app/CapabilityDemo.vue",
       "sourceLine": 315,
-      "scope": "app-composition"
-    },
-    {
-      "expression": "/api/Db/testConnection",
-      "sourceFile": "src/views/app/DBMS.vue",
-      "sourceLine": 1270,
       "scope": "app-composition"
     }
   ]

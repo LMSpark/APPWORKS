@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/lowcode-database-dataset-extensions",
+    "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+    "sourceFile": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/lowcode-database-dataset-extensions",
+    "jsdoc": "@module app:lowcode/resources/database/lowcode-database-dataset-extensions\n职责：Db 专题命令视图端点映射；装配调用 spark-data DataSet 命令 helper。\n边界：仅供 lowcode-database-*.ts 调用；页面与 view-ops 只消费 DataView.refresh/saveChanges。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-20T08:30:25.243Z",
+  "models": {}
+}

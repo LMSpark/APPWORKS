@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/ui/database-management-hub",
+    "sourcePath": "src/views/features/data-platform/database-management/ui/database-management-hub.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/ui/database-management-hub.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/ui/database-management-hub",
+    "jsdoc": "@module app:views/features/data-platform/database-management/ui/database-management-hub\n职责：数据库管理组合入口；一次解析目录 DataSet 身份并 provide，子页 inject 后走同一 spark-data 链。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-21T02:41:48.199Z",
+  "models": {}
+}

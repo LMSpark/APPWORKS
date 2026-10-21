@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/database-catalog-scenario",
+    "sourcePath": "src/lowcode/resources/database/database-catalog-scenario.ts",
+    "sourceFile": "src/lowcode/resources/database/database-catalog-scenario.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/database-catalog-scenario",
+    "jsdoc": "@module app:lowcode/resources/database/database-catalog-scenario\n职责：解析数据库目录 FormKey。dataSpaceId = 正式 Base_DataSet.rowid = 运行 DataSet.scenarioId = x-FormKey，不是导航 nodeId。\n蓝图 hidden 节点若把 nodeId 写入 dataSpace.scenarioId 则无效；合并蓝图标题与候选后再 readModelBatch。\ngetDatabaseCatalog 仅用于 FormKey 探测（sourceDataSpaces），不参与页面列表/CRUD，不是第二套 DataSet 读链。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DatabaseCatalogLoadOptions",
+      "DatabaseCatalogFormalTier",
+      "DatabaseCatalogTieredResolve",
+      "DatabaseCatalogResolveDiagnostics"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogLoadOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogLoadOptions",
+      "properties": {
+        "navigationNodeId": {
+          "type": "string"
+        },
+        "resolvedDataSpaceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DatabaseCatalogFormalTier": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DatabaseCatalogFormalTier",
+      "enum": [
+        "full",
+        "serverOnly"
+      ]
+    },
+    "DatabaseCatalogTieredResolve": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogTieredResolve",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "tier": {
+          "$ref": "#/$defs/DatabaseCatalogFormalTier"
+        }
+      },
+      "required": [
+        "dataSpaceId",
+        "tier"
+      ],
+      "additionalProperties": false
+    },
+    "DatabaseCatalogResolveDiagnostics": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogResolveDiagnostics",
+      "properties": {
+        "candidateCount": {
+          "type": "number"
+        },
+        "misboundPreferred": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResolveDatabaseCatalogScenarioInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolveDatabaseCatalogScenarioInput",
+      "properties": {
+        "preferredScenarioId": {
+          "type": "string"
+        },
+        "metaNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "navigationNodeId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ResolveDatabaseCatalogTieredInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolveDatabaseCatalogTieredInput",
+      "properties": {
+        "preferredScenarioId": {
+          "type": "string"
+        },
+        "fullMetaNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "serverMetaNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "navigationNodeId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-10-21T02:22:19.874Z",
+  "models": {
+    "DatabaseCatalogLoadOptions": {
+      "name": "DatabaseCatalogLoadOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前系统页导航 nodeId；与 blueprintScenarioId 相同时视为误绑，解析时降权。 */\n    navigationNodeId?: string;\n    /** Hub 已 batch 校验的 DataSet rowid；传入则 loadCatalog 跳过二次 resolve。 */\n    resolvedDataSpaceId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前系统页导航 nodeId；与 blueprintScenarioId 相同时视为误绑，解析时降权。 */\n    navigationNodeId?: string;\n    /** Hub 已 batch 校验的 DataSet rowid；传入则 loadCatalog 跳过二次 resolve。 */\n    resolvedDataSpaceId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "navigationNodeId",
+              "jsdoc": "当前系统页导航 nodeId；与 blueprintScenarioId 相同时视为误绑，解析时降权。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resolvedDataSpaceId",
+              "jsdoc": "Hub 已 batch 校验的 DataSet rowid；传入则 loadCatalog 跳过二次 resolve。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DatabaseCatalogFormalTier": {
+      "name": "DatabaseCatalogFormalTier",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'full' | 'serverOnly'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'full'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'serverOnly'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DatabaseCatalogTieredResolve": {
+      "name": "DatabaseCatalogTieredResolve",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    tier: DatabaseCatalogFormalTier;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    tier: DatabaseCatalogFormalTier;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tier",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DatabaseCatalogResolveDiagnostics": {
+      "name": "DatabaseCatalogResolveDiagnostics",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    candidateCount?: number;\n    misboundPreferred?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    candidateCount?: number;\n    misboundPreferred?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "candidateCount",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "misboundPreferred",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ResolveDatabaseCatalogScenarioInput": {
+      "name": "ResolveDatabaseCatalogScenarioInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    preferredScenarioId: string;\n    metaNames: readonly string[];\n    assertCurrent: () => void;\n    navigationNodeId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    preferredScenarioId: string;\n    metaNames: readonly string[];\n    assertCurrent: () => void;\n    navigationNodeId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "preferredScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaNames",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ResolveDatabaseCatalogTieredInput": {
+      "name": "ResolveDatabaseCatalogTieredInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    preferredScenarioId: string;\n    fullMetaNames: readonly string[];\n    serverMetaNames: readonly string[];\n    assertCurrent: () => void;\n    navigationNodeId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    preferredScenarioId: string;\n    fullMetaNames: readonly string[];\n    serverMetaNames: readonly string[];\n    assertCurrent: () => void;\n    navigationNodeId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "preferredScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fullMetaNames",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "serverMetaNames",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

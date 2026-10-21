@@ -7,7 +7,7 @@
     "ANY means RequestMapping did not declare a single HTTP method.",
     "Authentication, transaction, database and response semantics require linked source or behavior fixtures."
   ],
-  "endpointCount": 587,
+  "endpointCount": 613,
   "endpoints": [
     {
       "method": "GET",
@@ -1875,7 +1875,7 @@
       "controller": "BidController",
       "handler": "entSuggest",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
-      "sourceLine": 724,
+      "sourceLine": 805,
       "evidence": "@GetMapping(value = \"/entSuggest\", produces = MediaType.APPLICATION_JSON_VALUE)",
       "confidence": "source-characterized"
     },
@@ -1885,7 +1885,7 @@
       "controller": "BidController",
       "handler": "entVerify",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
-      "sourceLine": 599,
+      "sourceLine": 680,
       "evidence": "@PostMapping(value = \"/entVerify\", produces = MediaType.APPLICATION_JSON_VALUE)",
       "confidence": "source-characterized"
     },
@@ -1895,7 +1895,7 @@
       "controller": "BidController",
       "handler": "ocrVerify",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
-      "sourceLine": 887,
+      "sourceLine": 1155,
       "evidence": "@PostMapping(value = \"/ocrVerify\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)",
       "confidence": "source-characterized"
     },
@@ -1905,7 +1905,7 @@
       "controller": "BidController",
       "handler": "orgRegister",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
-      "sourceLine": 746,
+      "sourceLine": 827,
       "evidence": "@PostMapping(value = \"/orgRegister\", produces = MediaType.APPLICATION_JSON_VALUE)",
       "confidence": "source-characterized"
     },
@@ -1915,7 +1915,7 @@
       "controller": "BidController",
       "handler": "submitBid",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
-      "sourceLine": 69,
+      "sourceLine": 104,
       "evidence": "@PostMapping(value = \"/submit\", produces = MediaType.APPLICATION_JSON_VALUE)",
       "confidence": "source-characterized"
     },
@@ -1925,7 +1925,7 @@
       "controller": "BidController",
       "handler": "viewCount",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/zcpm/BidController.java",
-      "sourceLine": 851,
+      "sourceLine": 1119,
       "evidence": "@PostMapping(value = \"/viewCount\", produces = MediaType.APPLICATION_JSON_VALUE)",
       "confidence": "source-characterized"
     },
@@ -2345,7 +2345,7 @@
       "controller": "DouyinOpenController",
       "handler": "experienceQrcode",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 313,
+      "sourceLine": 305,
       "evidence": "@GetMapping(\"/accounts/{authorizerAppId}/experience-qrcode\")",
       "confidence": "source-characterized"
     },
@@ -2445,7 +2445,7 @@
       "controller": "DouyinOpenController",
       "handler": "deployments",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 306,
+      "sourceLine": 298,
       "evidence": "@GetMapping(\"/deployments\")",
       "confidence": "source-characterized"
     },
@@ -2455,7 +2455,7 @@
       "controller": "DouyinOpenController",
       "handler": "submitAudit",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 321,
+      "sourceLine": 313,
       "evidence": "@PostMapping(\"/deployments/{deploymentId}/audit\")",
       "confidence": "source-characterized"
     },
@@ -2465,18 +2465,8 @@
       "controller": "DouyinOpenController",
       "handler": "release",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 330,
+      "sourceLine": 322,
       "evidence": "@PostMapping(\"/deployments/{deploymentId}/release\")",
-      "confidence": "source-characterized"
-    },
-    {
-      "method": "POST",
-      "path": "/api/douyin-open/runtime/miniapp/bind",
-      "controller": "DouyinOpenController",
-      "handler": "bindMiniapp",
-      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 223,
-      "evidence": "@PostMapping(\"/runtime/miniapp/bind\")",
       "confidence": "source-characterized"
     },
     {
@@ -2525,7 +2515,7 @@
       "controller": "DouyinOpenController",
       "handler": "templateApplications",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 275,
+      "sourceLine": 267,
       "evidence": "@GetMapping(\"/template-applications\")",
       "confidence": "source-characterized"
     },
@@ -2535,7 +2525,7 @@
       "controller": "DouyinOpenController",
       "handler": "applyTemplate",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 260,
+      "sourceLine": 252,
       "evidence": "@PostMapping(\"/template-applications\")",
       "confidence": "source-characterized"
     },
@@ -2545,7 +2535,7 @@
       "controller": "DouyinOpenController",
       "handler": "approveApplication",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 286,
+      "sourceLine": 278,
       "evidence": "@PostMapping(\"/template-applications/{id}/approve\")",
       "confidence": "source-characterized"
     },
@@ -2555,7 +2545,7 @@
       "controller": "DouyinOpenController",
       "handler": "rejectApplication",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 295,
+      "sourceLine": 287,
       "evidence": "@PostMapping(\"/template-applications/{id}/reject\")",
       "confidence": "source-characterized"
     },
@@ -2565,7 +2555,7 @@
       "controller": "DouyinOpenController",
       "handler": "templates",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 240,
+      "sourceLine": 232,
       "evidence": "@GetMapping(\"/templates\")",
       "confidence": "source-characterized"
     },
@@ -2575,7 +2565,7 @@
       "controller": "DouyinOpenController",
       "handler": "updateCatalog",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 248,
+      "sourceLine": 240,
       "evidence": "@PatchMapping(\"/templates/{templateId}/catalog\")",
       "confidence": "source-characterized"
     },
@@ -2585,7 +2575,7 @@
       "controller": "DouyinOpenController",
       "handler": "syncTemplates",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/douyinopen/controller/DouyinOpenController.java",
-      "sourceLine": 233,
+      "sourceLine": 225,
       "evidence": "@PostMapping(\"/templates/sync\")",
       "confidence": "source-characterized"
     },
@@ -2597,6 +2587,16 @@
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/erLunYanBao/ErLunYanBaoController.java",
       "sourceLine": 186,
       "evidence": "@PostMapping(\"combinedSignFileInit\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/elyb/createOrgAccount",
+      "controller": "ErLunYanBaoController",
+      "handler": "createOrgAccount",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/erLunYanBao/ErLunYanBaoController.java",
+      "sourceLine": 218,
+      "evidence": "@PostMapping(\"createOrgAccount\")",
       "confidence": "source-characterized"
     },
     {
@@ -2665,18 +2665,8 @@
       "controller": "ErLunYanBaoController",
       "handler": "issuerSignFileInit",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/erLunYanBao/ErLunYanBaoController.java",
-      "sourceLine": 218,
+      "sourceLine": 233,
       "evidence": "@PostMapping(\"issuerSignFileInit\")",
-      "confidence": "source-characterized"
-    },
-    {
-      "method": "POST",
-      "path": "/api/elyb/issuerSignFileResult",
-      "controller": "ErLunYanBaoController",
-      "handler": "issuerSignFileResult",
-      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/erLunYanBao/ErLunYanBaoController.java",
-      "sourceLine": 231,
-      "evidence": "@PostMapping(\"issuerSignFileResult\")",
       "confidence": "source-characterized"
     },
     {
@@ -3251,6 +3241,26 @@
     },
     {
       "method": "POST",
+      "path": "/api/File/inspect/init",
+      "controller": "InspectionController",
+      "handler": "init",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/inspection/InspectionController.java",
+      "sourceLine": 17,
+      "evidence": "@PostMapping(\"/init\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/inspect/result",
+      "controller": "InspectionController",
+      "handler": "result",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/inspection/InspectionController.java",
+      "sourceLine": 20,
+      "evidence": "@PostMapping(\"/result\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
       "path": "/api/File/lastModifiedTime",
       "controller": "FileController",
       "handler": "getFileLastModified",
@@ -3407,6 +3417,116 @@
       "sourceFile": "lowcode-file/src/main/java/com/htong/controller/FileController.java",
       "sourceLine": 298,
       "evidence": "@PostMapping(value = \"/uploadFileByUrl\", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/File/v2/admin/paths",
+      "controller": "V2DirectoryController",
+      "handler": "paths",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2DirectoryController.java",
+      "sourceLine": 24,
+      "evidence": "@GetMapping(\"/paths\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/v2/admin/paths",
+      "controller": "V2DirectoryController",
+      "handler": "create",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2DirectoryController.java",
+      "sourceLine": 25,
+      "evidence": "@PostMapping(\"/paths\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/File/v2/admin/paths/{code}/enabled",
+      "controller": "V2DirectoryController",
+      "handler": "enable",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2DirectoryController.java",
+      "sourceLine": 29,
+      "evidence": "@PatchMapping(\"/paths/{code}/enabled\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/File/v2/admin/storages",
+      "controller": "V2DirectoryController",
+      "handler": "storages",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2DirectoryController.java",
+      "sourceLine": 20,
+      "evidence": "@GetMapping(\"/storages\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/v2/admin/storages",
+      "controller": "V2DirectoryController",
+      "handler": "storage",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2DirectoryController.java",
+      "sourceLine": 21,
+      "evidence": "@PostMapping(\"/storages\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/v2/DownFile",
+      "controller": "V2FileController",
+      "handler": "download",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2FileController.java",
+      "sourceLine": 42,
+      "evidence": "@PostMapping(\"/DownFile\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/v2/list",
+      "controller": "V2FileController",
+      "handler": "list",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2FileController.java",
+      "sourceLine": 69,
+      "evidence": "@PostMapping(\"/list\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/v2/RemoveFile",
+      "controller": "V2FileController",
+      "handler": "delete",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2FileController.java",
+      "sourceLine": 73,
+      "evidence": "@PostMapping(\"/RemoveFile\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/v2/resolve",
+      "controller": "V2FileController",
+      "handler": "resolve",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2FileController.java",
+      "sourceLine": 78,
+      "evidence": "@PostMapping(\"/resolve\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/v2/stat",
+      "controller": "V2FileController",
+      "handler": "stat",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2FileController.java",
+      "sourceLine": 65,
+      "evidence": "@PostMapping(\"/stat\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/File/v2/UploadFile",
+      "controller": "V2FileController",
+      "handler": "upload",
+      "sourceFile": "lowcode-file/src/main/java/com/htong/filev2/api/V2FileController.java",
+      "sourceLine": 27,
+      "evidence": "@PostMapping(value = \"/UploadFile\", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)",
       "confidence": "source-characterized"
     },
     {
@@ -3735,7 +3855,7 @@
       "controller": "LoginController",
       "handler": "forceLogout",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
-      "sourceLine": 291,
+      "sourceLine": 299,
       "evidence": "@GetMapping(\"ForceLogout\")",
       "confidence": "source-characterized"
     },
@@ -3745,7 +3865,7 @@
       "controller": "LoginController",
       "handler": "getOrg",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
-      "sourceLine": 328,
+      "sourceLine": 336,
       "evidence": "@GetMapping(\"org/list\")",
       "confidence": "source-characterized"
     },
@@ -3755,7 +3875,7 @@
       "controller": "LoginController",
       "handler": "refresh",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
-      "sourceLine": 368,
+      "sourceLine": 376,
       "evidence": "@PostMapping(\"/refresh\")",
       "confidence": "source-characterized"
     },
@@ -3775,8 +3895,48 @@
       "controller": "LoginController",
       "handler": "loginOut",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/LoginController.java",
-      "sourceLine": 261,
+      "sourceLine": 269,
       "evidence": "@GetMapping(\"UserLogoutByEnt\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/LoginAuthority/web/csrf",
+      "controller": "WebAuthController",
+      "handler": "csrf",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/WebAuthController.java",
+      "sourceLine": 48,
+      "evidence": "@GetMapping(\"/csrf\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/web/login",
+      "controller": "WebAuthController",
+      "handler": "login",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/WebAuthController.java",
+      "sourceLine": 39,
+      "evidence": "@PostMapping(value = \"/login\", consumes = \"application/json\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/web/logout",
+      "controller": "WebAuthController",
+      "handler": "logout",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/WebAuthController.java",
+      "sourceLine": 75,
+      "evidence": "@PostMapping(value = \"/logout\", consumes = \"application/json\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/LoginAuthority/web/refresh",
+      "controller": "WebAuthController",
+      "handler": "refresh",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/WebAuthController.java",
+      "sourceLine": 54,
+      "evidence": "@PostMapping(value = \"/refresh\", consumes = \"application/json\")",
       "confidence": "source-characterized"
     },
     {
@@ -4055,7 +4215,7 @@
       "controller": "SseController",
       "handler": "allConnections",
       "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
-      "sourceLine": 135,
+      "sourceLine": 143,
       "evidence": "@GetMapping(value = \"/allConnections\")",
       "confidence": "source-characterized"
     },
@@ -4065,7 +4225,7 @@
       "controller": "SseController",
       "handler": "anonymousConnect",
       "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
-      "sourceLine": 78,
+      "sourceLine": 86,
       "evidence": "@GetMapping(value = \"/anonymousConnect\", produces = MediaType.TEXT_EVENT_STREAM_VALUE)",
       "confidence": "source-characterized"
     },
@@ -4075,7 +4235,7 @@
       "controller": "SseController",
       "handler": "anonymousConnections",
       "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
-      "sourceLine": 145,
+      "sourceLine": 153,
       "evidence": "@GetMapping(value = \"/anonymousConnections\")",
       "confidence": "source-characterized"
     },
@@ -4085,7 +4245,7 @@
       "controller": "SseController",
       "handler": "anonymousCount",
       "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
-      "sourceLine": 155,
+      "sourceLine": 163,
       "evidence": "@GetMapping(value = \"/anonymousCount\")",
       "confidence": "source-characterized"
     },
@@ -4105,7 +4265,7 @@
       "controller": "SseController",
       "handler": "kickUser",
       "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
-      "sourceLine": 123,
+      "sourceLine": 131,
       "evidence": "@PostMapping(value = \"/kick\")",
       "confidence": "source-characterized"
     },
@@ -4115,7 +4275,7 @@
       "controller": "SseController",
       "handler": "onlineCount",
       "sourceFile": "lowcode-framework/lowcode-model-sse/src/main/java/com/htong/controller/SseController.java",
-      "sourceLine": 111,
+      "sourceLine": 119,
       "evidence": "@GetMapping(value = \"/onlineCount\")",
       "confidence": "source-characterized"
     },
@@ -4165,7 +4325,7 @@
       "controller": "SysCacheController",
       "handler": "clearAllCache",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
-      "sourceLine": 265,
+      "sourceLine": 270,
       "evidence": "@GetMapping(\"/clearAll\")",
       "confidence": "source-characterized"
     },
@@ -4175,7 +4335,7 @@
       "controller": "SysCacheController",
       "handler": "delete",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
-      "sourceLine": 199,
+      "sourceLine": 201,
       "evidence": "@PostMapping(\"/delete\")",
       "confidence": "source-characterized"
     },
@@ -4185,7 +4345,7 @@
       "controller": "SysCacheController",
       "handler": "deleteByPreKey",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
-      "sourceLine": 231,
+      "sourceLine": 233,
       "evidence": "@PostMapping(\"/deleteByPreKey\")",
       "confidence": "source-characterized"
     },
@@ -4195,7 +4355,7 @@
       "controller": "SysCacheController",
       "handler": "GetAllCache",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
-      "sourceLine": 82,
+      "sourceLine": 84,
       "evidence": "@PostMapping(\"/findByPatternPageWithTotal\")",
       "confidence": "source-characterized"
     },
@@ -4205,7 +4365,7 @@
       "controller": "SysCacheController",
       "handler": "getByPreKey",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
-      "sourceLine": 166,
+      "sourceLine": 168,
       "evidence": "@PostMapping(\"/GetByPreKey\")",
       "confidence": "source-characterized"
     },
@@ -4215,7 +4375,7 @@
       "controller": "SysCacheController",
       "handler": "keyList",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
-      "sourceLine": 52,
+      "sourceLine": 54,
       "evidence": "@GetMapping(\"/keyList\")",
       "confidence": "source-characterized"
     },
@@ -4225,7 +4385,7 @@
       "controller": "SysCacheController",
       "handler": "getValue",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/SysCacheController.java",
-      "sourceLine": 133,
+      "sourceLine": 135,
       "evidence": "@PostMapping(\"/value\")",
       "confidence": "source-characterized"
     },
@@ -4277,6 +4437,116 @@
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TableFieldController.java",
       "sourceLine": 81,
       "evidence": "@RequestMapping( value = \"SyncMetaData/{db}/{table}\", method = {RequestMethod.POST, RequestMethod.GET})",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Tasks",
+      "controller": "TaskManagementController",
+      "handler": "tasks",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 23,
+      "evidence": "@GetMapping",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Tasks/{id}",
+      "controller": "TaskManagementController",
+      "handler": "task",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 27,
+      "evidence": "@GetMapping(\"/{id}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Tasks/{id}/actions",
+      "controller": "TaskManagementController",
+      "handler": "action",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 59,
+      "evidence": "@PostMapping(\"/{id}/actions\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Tasks/{id}/audit",
+      "controller": "TaskManagementController",
+      "handler": "audit",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 72,
+      "evidence": "@GetMapping(\"/{id}/audit\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Tasks/channel/{id}/review",
+      "controller": "ChannelTaskReviewController",
+      "handler": "review",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/task/ChannelTaskReviewController.java",
+      "sourceLine": 10,
+      "evidence": "@PostMapping(\"/{id}/review\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Tasks/domain/{type}",
+      "controller": "TaskManagementController",
+      "handler": "domain",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 51,
+      "evidence": "@GetMapping(\"/domain/{type}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Tasks/history",
+      "controller": "TaskManagementController",
+      "handler": "history",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 35,
+      "evidence": "@GetMapping(\"/history\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Tasks/queues",
+      "controller": "TaskManagementController",
+      "handler": "queues",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 66,
+      "evidence": "@GetMapping(\"/queues\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Tasks/queues/{queue}",
+      "controller": "TaskManagementController",
+      "handler": "queue",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 68,
+      "evidence": "@PostMapping(\"/queues/{queue}\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/Tasks/storage-check",
+      "controller": "TaskManagementController",
+      "handler": "check",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 79,
+      "evidence": "@PostMapping(\"/storage-check\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/Tasks/types",
+      "controller": "TaskManagementController",
+      "handler": "types",
+      "sourceFile": "lowcode-framework/lowcode-common-data/src/main/java/com/htong/task/TaskManagementController.java",
+      "sourceLine": 42,
+      "evidence": "@GetMapping(\"/types\")",
       "confidence": "source-characterized"
     },
     {
@@ -4355,7 +4625,7 @@
       "controller": "TestController",
       "handler": "testA",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
-      "sourceLine": 80,
+      "sourceLine": 82,
       "evidence": "@GetMapping(\"a\")",
       "confidence": "source-characterized"
     },
@@ -4365,7 +4635,7 @@
       "controller": "TestController",
       "handler": "add",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
-      "sourceLine": 395,
+      "sourceLine": 397,
       "evidence": "@GetMapping(\"add\")",
       "confidence": "source-characterized"
     },
@@ -4375,7 +4645,7 @@
       "controller": "TestController",
       "handler": "testB",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
-      "sourceLine": 97,
+      "sourceLine": 99,
       "evidence": "@GetMapping(\"b\")",
       "confidence": "source-characterized"
     },
@@ -4385,7 +4655,7 @@
       "controller": "TestController",
       "handler": "testA",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
-      "sourceLine": 41,
+      "sourceLine": 43,
       "evidence": "@GetMapping(\"c\")",
       "confidence": "source-characterized"
     },
@@ -4395,7 +4665,7 @@
       "controller": "TestController",
       "handler": "testdd",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
-      "sourceLine": 104,
+      "sourceLine": 106,
       "evidence": "@GetMapping(\"dd\")",
       "confidence": "source-characterized"
     },
@@ -4405,7 +4675,7 @@
       "controller": "TestController",
       "handler": "del",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
-      "sourceLine": 411,
+      "sourceLine": 413,
       "evidence": "@GetMapping(\"del\")",
       "confidence": "source-characterized"
     },
@@ -4415,7 +4685,7 @@
       "controller": "TestController",
       "handler": "query",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
-      "sourceLine": 388,
+      "sourceLine": 390,
       "evidence": "@GetMapping(\"query\")",
       "confidence": "source-characterized"
     },
@@ -4425,7 +4695,7 @@
       "controller": "TestController",
       "handler": "registerDataSource",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
-      "sourceLine": 362,
+      "sourceLine": 364,
       "evidence": "@GetMapping(\"register\")",
       "confidence": "source-characterized"
     },
@@ -4435,7 +4705,7 @@
       "controller": "TestController",
       "handler": "update",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/controller/TestController.java",
-      "sourceLine": 403,
+      "sourceLine": 405,
       "evidence": "@GetMapping(\"update\")",
       "confidence": "source-characterized"
     },
@@ -4655,7 +4925,7 @@
       "controller": "WechatOpenController",
       "handler": "experienceQrcode",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 306,
+      "sourceLine": 300,
       "evidence": "@GetMapping(\"/accounts/{authorizerAppId}/experience-qrcode\")",
       "confidence": "source-characterized"
     },
@@ -4665,7 +4935,7 @@
       "controller": "WechatOpenController",
       "handler": "bindRuntimeApplication",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 373,
+      "sourceLine": 367,
       "evidence": "@PostMapping(\"/accounts/{authorizerAppId}/runtime-application\")",
       "confidence": "source-characterized"
     },
@@ -4675,7 +4945,7 @@
       "controller": "WechatOpenController",
       "handler": "getServerDomains",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 314,
+      "sourceLine": 308,
       "evidence": "@GetMapping(\"/accounts/{authorizerAppId}/server-domains\")",
       "confidence": "source-characterized"
     },
@@ -4685,7 +4955,7 @@
       "controller": "WechatOpenController",
       "handler": "syncServerDomains",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 323,
+      "sourceLine": 317,
       "evidence": "@PostMapping(\"/accounts/{authorizerAppId}/server-domains/sync\")",
       "confidence": "source-characterized"
     },
@@ -4755,7 +5025,7 @@
       "controller": "WechatOpenController",
       "handler": "linkChannelsMiniapp",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 355,
+      "sourceLine": 349,
       "evidence": "@PostMapping(\"/channels/{channelsAuthorizerAppId}/link-miniapp\")",
       "confidence": "source-characterized"
     },
@@ -4765,7 +5035,7 @@
       "controller": "WechatOpenController",
       "handler": "channelsMountGuide",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 365,
+      "sourceLine": 359,
       "evidence": "@GetMapping(\"/channels/{channelsAuthorizerAppId}/mount-guide\")",
       "confidence": "source-characterized"
     },
@@ -4775,7 +5045,7 @@
       "controller": "WechatOpenController",
       "handler": "channelsAccounts",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 348,
+      "sourceLine": 342,
       "evidence": "@GetMapping(\"/channels/accounts\")",
       "confidence": "source-characterized"
     },
@@ -4785,7 +5055,7 @@
       "controller": "WechatOpenController",
       "handler": "deployments",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 299,
+      "sourceLine": 293,
       "evidence": "@GetMapping(\"/deployments\")",
       "confidence": "source-characterized"
     },
@@ -4795,7 +5065,7 @@
       "controller": "WechatOpenController",
       "handler": "submitAudit",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 385,
+      "sourceLine": 379,
       "evidence": "@PostMapping(\"/deployments/{deploymentId}/audit\")",
       "confidence": "source-characterized"
     },
@@ -4805,7 +5075,7 @@
       "controller": "WechatOpenController",
       "handler": "refreshAudit",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 393,
+      "sourceLine": 387,
       "evidence": "@PostMapping(\"/deployments/{deploymentId}/audit/refresh\")",
       "confidence": "source-characterized"
     },
@@ -4815,7 +5085,7 @@
       "controller": "WechatOpenController",
       "handler": "release",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 400,
+      "sourceLine": 394,
       "evidence": "@PostMapping(\"/deployments/{deploymentId}/release\")",
       "confidence": "source-characterized"
     },
@@ -4825,18 +5095,8 @@
       "controller": "WechatOpenController",
       "handler": "commit",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 335,
+      "sourceLine": 329,
       "evidence": "@PostMapping(\"/deployments/commit\")",
-      "confidence": "source-characterized"
-    },
-    {
-      "method": "POST",
-      "path": "/api/wechat-open/runtime/miniapp/bind",
-      "controller": "WechatOpenController",
-      "handler": "bindMiniapp",
-      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 221,
-      "evidence": "@PostMapping(\"/runtime/miniapp/bind\")",
       "confidence": "source-characterized"
     },
     {
@@ -4885,7 +5145,7 @@
       "controller": "WechatOpenController",
       "handler": "templateApplications",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 270,
+      "sourceLine": 264,
       "evidence": "@GetMapping(\"/template-applications\")",
       "confidence": "source-characterized"
     },
@@ -4895,7 +5155,7 @@
       "controller": "WechatOpenController",
       "handler": "applyTemplate",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 254,
+      "sourceLine": 248,
       "evidence": "@PostMapping(\"/template-applications\")",
       "confidence": "source-characterized"
     },
@@ -4905,7 +5165,7 @@
       "controller": "WechatOpenController",
       "handler": "approveApplication",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 281,
+      "sourceLine": 275,
       "evidence": "@PostMapping(\"/template-applications/{id}/approve\")",
       "confidence": "source-characterized"
     },
@@ -4915,7 +5175,7 @@
       "controller": "WechatOpenController",
       "handler": "rejectApplication",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 290,
+      "sourceLine": 284,
       "evidence": "@PostMapping(\"/template-applications/{id}/reject\")",
       "confidence": "source-characterized"
     },
@@ -4925,7 +5185,7 @@
       "controller": "WechatOpenController",
       "handler": "templates",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 236,
+      "sourceLine": 230,
       "evidence": "@GetMapping(\"/templates\")",
       "confidence": "source-characterized"
     },
@@ -4935,7 +5195,7 @@
       "controller": "WechatOpenController",
       "handler": "updateCatalog",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 244,
+      "sourceLine": 238,
       "evidence": "@PatchMapping(\"/templates/{templateId}/catalog\")",
       "confidence": "source-characterized"
     },
@@ -4945,7 +5205,7 @@
       "controller": "WechatOpenController",
       "handler": "syncTemplates",
       "sourceFile": "lowcode-mainbody/src/main/java/com/htong/thirdParty/wechatopen/controller/WechatOpenController.java",
-      "sourceLine": 229,
+      "sourceLine": 223,
       "evidence": "@PostMapping(\"/templates/sync\")",
       "confidence": "source-characterized"
     },

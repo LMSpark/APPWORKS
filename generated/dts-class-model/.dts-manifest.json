@@ -924,7 +924,7 @@
     "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue.json",
-      "sourceModifiedAt": "2026-10-18T04:44:40.087Z"
+      "sourceModifiedAt": "2026-10-20T08:38:05.829Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts",
@@ -1386,6 +1386,11 @@
       "shardFile": "files/packages/spark-component/src/components/containers/layout/structure/RendererSpace/RendererSpace.vue.json",
       "sourceModifiedAt": "2026-10-07T02:30:27.121Z"
     },
+    "packages/spark-component/src/components/containers/runtime/column-auto-field.ts": {
+      "sourceFile": "packages/spark-component/src/components/containers/runtime/column-auto-field.ts",
+      "shardFile": "files/packages/spark-component/src/components/containers/runtime/column-auto-field.ts.json",
+      "sourceModifiedAt": "2026-10-20T08:37:54.833Z"
+    },
     "packages/spark-component/src/components/containers/runtime/container-filter.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/runtime/container-filter.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/runtime/container-filter.ts.json",
@@ -1394,7 +1399,7 @@
     "packages/spark-component/src/components/containers/runtime/container-form-detail.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/runtime/container-form-detail.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/runtime/container-form-detail.ts.json",
-      "sourceModifiedAt": "2026-10-16T05:14:03.117Z"
+      "sourceModifiedAt": "2026-10-20T08:37:56.507Z"
     },
     "packages/spark-component/src/components/containers/runtime/container-layout.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/runtime/container-layout.ts",
@@ -2561,6 +2566,11 @@
       "shardFile": "files/packages/spark-data/src/core/utils.ts.json",
       "sourceModifiedAt": "2026-10-08T19:28:48.772Z"
     },
+    "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
+      "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
+      "sourceModifiedAt": "2026-10-20T08:28:56.289Z"
+    },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
       "shardFile": "files/packages/spark-data/src/data-table.ts.json",
@@ -2569,7 +2579,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-10-19T03:11:24.241Z"
+      "sourceModifiedAt": "2026-10-20T08:56:04.435Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2589,7 +2599,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-19T01:52:43.619Z"
+      "sourceModifiedAt": "2026-10-20T08:27:42.398Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -2639,7 +2649,7 @@
     "packages/spark-data/src/query/data-view-query.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-query.ts",
       "shardFile": "files/packages/spark-data/src/query/data-view-query.ts.json",
-      "sourceModifiedAt": "2026-10-15T05:48:38.535Z"
+      "sourceModifiedAt": "2026-10-20T08:56:03.253Z"
     },
     "packages/spark-data/src/query/data-view-source.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-source.ts",
@@ -2774,7 +2784,7 @@
     "packages/spark-data/src/types.ts": {
       "sourceFile": "packages/spark-data/src/types.ts",
       "shardFile": "files/packages/spark-data/src/types.ts.json",
-      "sourceModifiedAt": "2026-10-19T01:54:37.091Z"
+      "sourceModifiedAt": "2026-10-20T08:37:53.039Z"
     },
     "packages/spark-data/src/validation/column-validation.ts": {
       "sourceFile": "packages/spark-data/src/validation/column-validation.ts",
@@ -2949,12 +2959,12 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-17T15:49:13.940Z"
+      "sourceModifiedAt": "2026-10-20T07:17:19.488Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/lowcode-api.ts.json",
-      "sourceModifiedAt": "2026-10-15T05:49:40.717Z"
+      "sourceModifiedAt": "2026-10-20T07:17:20.315Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/data-space-api.ts",
@@ -3559,7 +3569,7 @@
     "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts": {
       "sourceFile": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
       "shardFile": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json",
-      "sourceModifiedAt": "2026-10-20T04:39:27.489Z"
+      "sourceModifiedAt": "2026-10-20T05:42:56.618Z"
     },
     "src/lowcode/data-space/lowcode-data-space-assembler.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
@@ -3689,7 +3699,7 @@
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts.json",
-      "sourceModifiedAt": "2026-10-20T05:18:39.213Z"
+      "sourceModifiedAt": "2026-10-20T05:42:56.611Z"
     },
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts",
@@ -3699,7 +3709,7 @@
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts.json",
-      "sourceModifiedAt": "2026-10-20T05:23:41.326Z"
+      "sourceModifiedAt": "2026-10-20T05:42:56.609Z"
     },
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts",
@@ -3770,6 +3780,56 @@
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
       "sourceModifiedAt": "2026-10-15T11:11:25.933Z"
+    },
+    "src/lowcode/resources/database/database-catalog-context.ts": {
+      "sourceFile": "src/lowcode/resources/database/database-catalog-context.ts",
+      "shardFile": "files/src/lowcode/resources/database/database-catalog-context.ts.json",
+      "sourceModifiedAt": "2026-10-21T02:41:49.167Z"
+    },
+    "src/lowcode/resources/database/database-catalog-db-view-ops.ts": {
+      "sourceFile": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
+      "shardFile": "files/src/lowcode/resources/database/database-catalog-db-view-ops.ts.json",
+      "sourceModifiedAt": "2026-10-20T08:23:40.638Z"
+    },
+    "src/lowcode/resources/database/database-catalog-field-view-ops.ts": {
+      "sourceFile": "src/lowcode/resources/database/database-catalog-field-view-ops.ts",
+      "shardFile": "files/src/lowcode/resources/database/database-catalog-field-view-ops.ts.json",
+      "sourceModifiedAt": "2026-10-20T08:43:23.377Z"
+    },
+    "src/lowcode/resources/database/database-catalog-scenario.ts": {
+      "sourceFile": "src/lowcode/resources/database/database-catalog-scenario.ts",
+      "shardFile": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json",
+      "sourceModifiedAt": "2026-10-21T02:22:19.874Z"
+    },
+    "src/lowcode/resources/database/database-catalog-table-view-ops.ts": {
+      "sourceFile": "src/lowcode/resources/database/database-catalog-table-view-ops.ts",
+      "shardFile": "files/src/lowcode/resources/database/database-catalog-table-view-ops.ts.json",
+      "sourceModifiedAt": "2026-10-20T08:33:24.916Z"
+    },
+    "src/lowcode/resources/database/database-server-catalog-metadata.ts": {
+      "sourceFile": "src/lowcode/resources/database/database-server-catalog-metadata.ts",
+      "shardFile": "files/src/lowcode/resources/database/database-server-catalog-metadata.ts.json",
+      "sourceModifiedAt": "2026-10-20T08:41:20.699Z"
+    },
+    "src/lowcode/resources/database/database-server-view-ops.ts": {
+      "sourceFile": "src/lowcode/resources/database/database-server-view-ops.ts",
+      "shardFile": "files/src/lowcode/resources/database/database-server-view-ops.ts.json",
+      "sourceModifiedAt": "2026-10-20T08:23:40.642Z"
+    },
+    "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts": {
+      "sourceFile": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+      "shardFile": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json",
+      "sourceModifiedAt": "2026-10-20T08:30:25.243Z"
+    },
+    "src/lowcode/resources/database/lowcode-database-server.ts": {
+      "sourceFile": "src/lowcode/resources/database/lowcode-database-server.ts",
+      "shardFile": "files/src/lowcode/resources/database/lowcode-database-server.ts.json",
+      "sourceModifiedAt": "2026-10-20T17:18:24.073Z"
+    },
+    "src/lowcode/resources/database/lowcode-database-table-view.ts": {
+      "sourceFile": "src/lowcode/resources/database/lowcode-database-table-view.ts",
+      "shardFile": "files/src/lowcode/resources/database/lowcode-database-table-view.ts.json",
+      "sourceModifiedAt": "2026-10-20T17:18:24.703Z"
     },
     "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
       "sourceFile": "src/lowcode/resources/dictionary/lowcode-dictionary.ts",
@@ -3930,11 +3990,6 @@
       "sourceFile": "src/views/app/Dashboard.vue",
       "shardFile": "files/src/views/app/Dashboard.vue.json",
       "sourceModifiedAt": "2026-06-11T12:38:13.665Z"
-    },
-    "src/views/app/DBMS.vue": {
-      "sourceFile": "src/views/app/DBMS.vue",
-      "shardFile": "files/src/views/app/DBMS.vue.json",
-      "sourceModifiedAt": "2026-10-06T20:08:09.343Z"
     },
     "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
@@ -4300,6 +4355,41 @@
       "sourceFile": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue.json",
       "sourceModifiedAt": "2026-10-19T02:03:41.517Z"
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue.json",
+      "sourceModifiedAt": "2026-10-20T08:30:33.141Z"
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue.json",
+      "sourceModifiedAt": "2026-10-20T08:30:17.362Z"
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue": {
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue.json",
+      "sourceModifiedAt": "2026-10-21T02:27:16.759Z"
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue.json",
+      "sourceModifiedAt": "2026-10-20T08:43:30.473Z"
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue.json",
+      "sourceModifiedAt": "2026-10-20T08:43:31.507Z"
+    },
+    "src/views/features/data-platform/database-management/ui/database-management-hub.vue": {
+      "sourceFile": "src/views/features/data-platform/database-management/ui/database-management-hub.vue",
+      "shardFile": "files/src/views/features/data-platform/database-management/ui/database-management-hub.vue.json",
+      "sourceModifiedAt": "2026-10-21T02:41:48.199Z"
+    },
+    "src/views/features/data-platform/database-management/ui/service-management-page.vue": {
+      "sourceFile": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+      "shardFile": "files/src/views/features/data-platform/database-management/ui/service-management-page.vue.json",
+      "sourceModifiedAt": "2026-10-21T01:53:24.776Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",

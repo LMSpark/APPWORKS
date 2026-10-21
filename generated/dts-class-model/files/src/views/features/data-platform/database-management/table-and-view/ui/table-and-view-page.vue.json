@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+    "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-and-view-page\n职责：库/表/视图/字段目录；登记与字段维护经 DataSet.saveChanges；列元信息只在各模型 DataTable.columns，autoColumns 消费列链，不手写字段 children。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-21T02:27:16.759Z",
+  "models": {}
+}

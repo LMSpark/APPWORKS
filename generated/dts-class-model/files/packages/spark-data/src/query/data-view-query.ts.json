@@ -118,6 +118,23 @@
           "type": "object",
           "title": "NonNullable<ViewMetadata['queryConfig']>"
         },
+        "method.differsOnlyInAutoQuery.params": {
+          "type": "object",
+          "properties": {
+            "next": {
+              "type": "object",
+              "title": "NonNullable<ViewMetadata['queryConfig']>"
+            },
+            "current": {
+              "type": "object",
+              "title": "NonNullable<ViewMetadata['queryConfig']>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.differsOnlyInAutoQuery.return": {
+          "type": "boolean"
+        },
         "method.validateFields.params": {
           "type": "object",
           "properties": {
@@ -136,7 +153,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T05:48:38.535Z",
+  "generatedAt": "2026-10-20T08:56:03.253Z",
   "models": {
     "DataViewQuery": {
       "name": "DataViewQuery",
@@ -269,6 +286,42 @@
                     "name": "ViewMetadata['queryConfig']"
                   }
                 ]
+              }
+            },
+            {
+              "name": "differsOnlyInAutoQuery",
+              "jsdoc": "仅 autoQuery 不同不算查询语义变更，不应使已加载结果 stale。",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "type": "reference",
+                    "name": "NonNullable",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "ViewMetadata['queryConfig']"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "current",
+                  "type": {
+                    "type": "reference",
+                    "name": "NonNullable",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "ViewMetadata['queryConfig']"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
               }
             },
             {

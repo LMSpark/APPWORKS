@@ -219,7 +219,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -274,7 +274,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },
@@ -504,7 +504,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -559,7 +559,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },
@@ -845,7 +845,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@196574": {
+                    "__@iterator@196876": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -900,7 +900,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@196574"
+                    "__@iterator@196876"
                   ],
                   "additionalProperties": false
                 },
@@ -993,6 +993,25 @@
             },
             "computeExpression": {
               "type": "string"
+            },
+            "enumOptions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "additionalProperties": false
+              }
             }
           },
           "additionalProperties": false
@@ -1250,7 +1269,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1305,7 +1324,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },
@@ -1538,7 +1557,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1593,7 +1612,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },
@@ -1943,7 +1962,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@196574": {
+                    "__@iterator@196876": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -1998,7 +2017,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@196574"
+                    "__@iterator@196876"
                   ],
                   "additionalProperties": false
                 },
@@ -2091,6 +2110,25 @@
             },
             "computeExpression": {
               "type": "string"
+            },
+            "enumOptions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "additionalProperties": false
+              }
             }
           },
           "additionalProperties": false
@@ -2374,7 +2412,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2429,7 +2467,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },
@@ -2662,7 +2700,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2717,7 +2755,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },

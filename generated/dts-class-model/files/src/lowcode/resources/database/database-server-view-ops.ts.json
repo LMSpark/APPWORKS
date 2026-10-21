@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/database-server-view-ops",
+    "sourcePath": "src/lowcode/resources/database/database-server-view-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/database-server-view-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/database-server-view-ops",
+    "jsdoc": "@module app:lowcode/resources/database/database-server-view-ops\n职责：服务器目录页的 DataView 编排（非 query/save owner；后端 owner 仅在装配时 bind 到 DataView）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseServerEditState",
+      "DatabaseServerEditingUi"
+    ]
+  },
+  "$defs": {
+    "DatabaseServerEditState": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseServerEditState",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "add",
+            "edit"
+          ]
+        },
+        "row": {
+          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        }
+      },
+      "required": [
+        "id",
+        "mode",
+        "row"
+      ],
+      "additionalProperties": false
+    },
+    "DatabaseServerEditingUi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseServerEditingUi",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "add",
+            "edit"
+          ]
+        },
+        "unconfirmed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "readbackFailed": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "mode",
+        "unconfirmed",
+        "readbackFailed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-20T08:23:40.642Z",
+  "models": {
+    "DatabaseServerEditState": {
+      "name": "DatabaseServerEditState",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    mode: 'add' | 'edit';\n    row: DataRow;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    mode: 'add' | 'edit';\n    row: DataRow;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "row",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DatabaseServerEditingUi": {
+      "name": "DatabaseServerEditingUi",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string;\n    mode: 'add' | 'edit';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string;\n    mode: 'add' | 'edit';\n    unconfirmed: boolean;\n    readbackFailed: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unconfirmed",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readbackFailed",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

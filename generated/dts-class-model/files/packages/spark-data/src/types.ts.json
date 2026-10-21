@@ -392,7 +392,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@196574": {
+            "__@iterator@196876": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -447,7 +447,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@196574"
+            "__@iterator@196876"
           ],
           "additionalProperties": false
         },
@@ -661,6 +661,25 @@
         },
         "computeExpression": {
           "type": "string"
+        },
+        "enumOptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
         }
       },
       "required": [
@@ -871,7 +890,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@196574": {
+            "__@iterator@196876": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -926,7 +945,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@196574"
+            "__@iterator@196876"
           ],
           "additionalProperties": false
         },
@@ -1152,7 +1171,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@196574": {
+            "__@iterator@196876": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1207,7 +1226,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@196574"
+            "__@iterator@196876"
           ],
           "additionalProperties": false
         },
@@ -1445,7 +1464,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1500,7 +1519,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },
@@ -1730,7 +1749,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1785,7 +1804,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },
@@ -2721,7 +2740,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2776,7 +2795,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },
@@ -3006,7 +3025,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196574": {
+                "__@iterator@196876": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3061,7 +3080,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196574"
+                "__@iterator@196876"
               ],
               "additionalProperties": false
             },
@@ -5986,7 +6005,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-19T01:54:37.091Z",
+  "generatedAt": "2026-10-20T08:37:53.039Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -6417,7 +6436,7 @@
       "jsdoc": "数据列定义\n分为两个部分：\n- **数据属性**（name, type, isPrimaryKey, ...）：描述数据结构，供校验 / 计算列 / CRUD 使用\n- **渲染属性**（label, visible, editable, ...）：描述 UI 呈现方式，供表格 / 表单组件消费\n渲染属性均为可选，不影响纯数据层使用。\nUI 组件通过 `DataSource.columns` 或 `DataView.columns` 读取列元数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 列名称 */\n    name: string;\n    /**\n     * 列值类型。已知类型见 `ColumnType`；未知业务类型按 unknown 处理。\n     *\n     * 常用值：`'string'` | `'number'` | `'boolean'` | `'date'` | `'datetime'`\n     */\n    type: ColumnType;\n    /** 列标题（UI 表头 / 表单标签 / 描述列标题）。未设置时 UI 回退到 `name` */\n    label?: string;\n    /** 是否允许数据库 NULL 值 */\n    allowDBNull?: boolean;\n    /** 默认值 */\n    defaultValue?: unknown;\n    /** 是否为主键字段 */\n    isPrimaryKey?: boolean;\n    /** 是否自增 */\n    autoIncrement?: boolean;\n    /**\n     * 是否为框架计算列（如 `_pk`）。\n     *\n     * 计算列的值由框架自动维护，不参与序列化（`DataTable.toJson()` 自动排除）。\n     * UI 组件可通过 `columns.filter(c => !c.isComputed)` 获取用户定义列。\n     */\n    isComputed?: boolean;\n    /**\n     * UI 必填标记。\n     *\n     * - `true`：表单中必填（生成 required 验证规则）\n     * - 未设置时回退到 `!allowDBNull`（allowDBNull 显式为 false 也视为必填）\n     */\n    required?: boolean;\n    /** 字符串最小长度（仅 type 为 string 系列时生效） */\n    minLength?: number;\n    /** 字符串最大长度（仅 type 为 string 系列时生效） */\n    maxLength?: number;\n    /** 数值最小值（仅 type 为 number 系列时生效） */\n    min?: number;\n    /** 数值最大值（仅 type 为 number 系列时生效） */\n    max?: number;\n    /**\n     * 正则校验模式（字符串形式，运行时编译为 RegExp）。\n     *\n     * @example `\"^[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+$\"`\n     */\n    pattern?: string;\n    /** 正则校验失败时的自定义提示消息。未设置时使用默认提示 */\n    patternMessage?: string;\n    /**\n     * 计算列表达式（JS 表达式字符串）。\n     *\n     * 行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n     * 子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n     * 当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n     * 计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n     *\n     * @example\n     * `\"price * qty\"`\n     * `\"firstName + ' ' + lastName\"`\n     * `\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n     * `\"$sum('OrderItems', 'amount')\"`\n     * `\"$count('OrderItems')\"`\n     * `\"$join('Tags', 'name', ' | ')\"`\n     */\n    computeExpression?: string;\n}",
+        "declarationTypeText": "{\n    /** 列名称 */\n    name: string;\n    /**\n     * 列值类型。已知类型见 `ColumnType`；未知业务类型按 unknown 处理。\n     *\n     * 常用值：`'string'` | `'number'` | `'boolean'` | `'date'` | `'datetime'`\n     */\n    type: ColumnType;\n    /** 列标题（UI 表头 / 表单标签 / 描述列标题）。未设置时 UI 回退到 `name` */\n    label?: string;\n    /** 是否允许数据库 NULL 值 */\n    allowDBNull?: boolean;\n    /** 默认值 */\n    defaultValue?: unknown;\n    /** 是否为主键字段 */\n    isPrimaryKey?: boolean;\n    /** 是否自增 */\n    autoIncrement?: boolean;\n    /**\n     * 是否为框架计算列（如 `_pk`）。\n     *\n     * 计算列的值由框架自动维护，不参与序列化（`DataTable.toJson()` 自动排除）。\n     * UI 组件可通过 `columns.filter(c => !c.isComputed)` 获取用户定义列。\n     */\n    isComputed?: boolean;\n    /**\n     * UI 必填标记。\n     *\n     * - `true`：表单中必填（生成 required 验证规则）\n     * - 未设置时回退到 `!allowDBNull`（allowDBNull 显式为 false 也视为必填）\n     */\n    required?: boolean;\n    /** 字符串最小长度（仅 type 为 string 系列时生效） */\n    minLength?: number;\n    /** 字符串最大长度（仅 type 为 string 系列时生效） */\n    maxLength?: number;\n    /** 数值最小值（仅 type 为 number 系列时生效） */\n    min?: number;\n    /** 数值最大值（仅 type 为 number 系列时生效） */\n    max?: number;\n    /**\n     * 正则校验模式（字符串形式，运行时编译为 RegExp）。\n     *\n     * @example `\"^[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+$\"`\n     */\n    pattern?: string;\n    /** 正则校验失败时的自定义提示消息。未设置时使用默认提示 */\n    patternMessage?: string;\n    /**\n     * 计算列表达式（JS 表达式字符串）。\n     *\n     * 行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n     * 子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n     * 当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n     * 计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n     *\n     * @example\n     * `\"price * qty\"`\n     * `\"firstName + ' ' + lastName\"`\n     * `\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n     * `\"$sum('OrderItems', 'amount')\"`\n     * `\"$count('OrderItems')\"`\n     * `\"$join('Tags', 'name', ' | ')\"`\n     */\n    computeExpression?: string;\n    /**\n     * 枚举选项（`type` 为 `enum` 时由标准组件 autoColumns 生成 `r-select`）。\n     */\n    enumOptions?: readonly Readonly<{\n        value: string;\n        label: string;\n    }>[];\n}",
         "members": {
           "attributes": [
             {
@@ -6513,6 +6532,12 @@
             {
               "name": "computeExpression",
               "jsdoc": "计算列表达式（JS 表达式字符串）。\n行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n@example `\"price * qty\"`\n`\"firstName + ' ' + lastName\"`\n`\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n`\"$sum('OrderItems', 'amount')\"`\n`\"$count('OrderItems')\"`\n`\"$join('Tags', 'name', ' | ')\"`",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "enumOptions",
+              "jsdoc": "枚举选项（`type` 为 `enum` 时由标准组件 autoColumns 生成 `r-select`）。",
               "readable": true,
               "writable": false
             }

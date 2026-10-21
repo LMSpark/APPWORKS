@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/table-and-view/ui/add-table-dialog",
+    "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/table-and-view/ui/add-table-dialog",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/add-table-dialog\n职责：注册物理表对话框；表单 autoColumns，未登记表名经 DataSet 命令视图提示。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-20T08:30:33.141Z",
+  "models": {}
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/table-and-view/ui/view-design-dialog",
+    "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/table-and-view/ui/view-design-dialog",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/view-design-dialog\n职责：视图字段设计对话框；字段列表经 Base_TblField 命名视图 autoColumns，保存走 saveChanges。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-20T08:43:31.507Z",
+  "models": {}
+}

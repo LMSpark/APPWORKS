@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 879,
+  "scannedFileCount": 897,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -4772,6 +4772,21 @@
         "componentDirectory": "containers/layout"
       }
     },
+    "packages/spark-component/src/components/containers/runtime/column-auto-field.ts": {
+      "file": "files/packages/spark-component/src/components/containers/runtime/column-auto-field.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/containers/runtime/column-auto-field",
+        "sourcePath": "packages/spark-component/src/components/containers/runtime/column-auto-field.ts",
+        "sourceFile": "packages/spark-component/src/components/containers/runtime/column-auto-field.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/containers/runtime/column-auto-field",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/runtime/column-auto-field\n职责：DataColumn → 标准字段 SparkNode（表单/表格 autoColumns 共用）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ColumnAutoFieldTarget"
+        ]
+      }
+    },
     "packages/spark-component/src/components/containers/runtime/container-filter.ts": {
       "file": "files/packages/spark-component/src/components/containers/runtime/container-filter.ts.json",
       "module": {
@@ -8883,6 +8898,25 @@
         "symbols": []
       }
     },
+    "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:data-set-command/data-set-command-view",
+        "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+        "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "data-set-command/data-set-command-view",
+        "jsdoc": "@module @spark-appworks/spark-data:data-set-command-view\n职责：在运行 DataSet 上幂等装配 static/file 命令表与只读 refresh 查询结果。\n边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "DataSetCommandColumnSpec",
+          "DataSetCommandScopeGuard",
+          "DataSetCommandRowsLoader",
+          "DataSetCommandResourceIdentity",
+          "BindReadonlyCommandQueryOptions"
+        ]
+      }
+    },
     "packages/spark-data/src/data-table.ts": {
       "file": "files/packages/spark-data/src/data-table.ts.json",
       "module": {
@@ -12794,6 +12828,158 @@
         ]
       }
     },
+    "src/lowcode/resources/database/database-catalog-context.ts": {
+      "file": "files/src/lowcode/resources/database/database-catalog-context.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/database-catalog-context",
+        "sourcePath": "src/lowcode/resources/database/database-catalog-context.ts",
+        "sourceFile": "src/lowcode/resources/database/database-catalog-context.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/database-catalog-context",
+        "jsdoc": "@module app:lowcode/resources/database/database-catalog-context\n职责：Hub 与子页共享目录 DataSet 身份（Base_DataSet.rowid）；子页 inject 优先于 route.meta。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DatabaseCatalogContext"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/database-catalog-db-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/database-catalog-db-view-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/database-catalog-db-view-ops",
+        "sourcePath": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/database-catalog-db-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/database-catalog-db-view-ops\n职责：_base_dbInfo 注册/编辑编排（非 query/save owner）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DatabaseCatalogDbEditState",
+          "DatabaseCatalogDbEditingUi"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/database-catalog-field-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/database-catalog-field-view-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/database-catalog-field-view-ops",
+        "sourcePath": "src/lowcode/resources/database/database-catalog-field-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/database-catalog-field-view-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/database-catalog-field-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/database-catalog-field-view-ops\n职责：Base_TblField 字段目录 staged 保存编排（非 query/save owner）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DatabaseCatalogFieldViewId"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/database-catalog-scenario.ts": {
+      "file": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/database-catalog-scenario",
+        "sourcePath": "src/lowcode/resources/database/database-catalog-scenario.ts",
+        "sourceFile": "src/lowcode/resources/database/database-catalog-scenario.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/database-catalog-scenario",
+        "jsdoc": "@module app:lowcode/resources/database/database-catalog-scenario\n职责：解析数据库目录 FormKey。dataSpaceId = 正式 Base_DataSet.rowid = 运行 DataSet.scenarioId = x-FormKey，不是导航 nodeId。\n蓝图 hidden 节点若把 nodeId 写入 dataSpace.scenarioId 则无效；合并蓝图标题与候选后再 readModelBatch。\ngetDatabaseCatalog 仅用于 FormKey 探测（sourceDataSpaces），不参与页面列表/CRUD，不是第二套 DataSet 读链。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "DatabaseCatalogLoadOptions",
+          "DatabaseCatalogFormalTier",
+          "DatabaseCatalogTieredResolve",
+          "DatabaseCatalogResolveDiagnostics"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/database-catalog-table-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/database-catalog-table-view-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/database-catalog-table-view-ops",
+        "sourcePath": "src/lowcode/resources/database/database-catalog-table-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/database-catalog-table-view-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/database-catalog-table-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/database-catalog-table-view-ops\n职责：_Base_TblList 注册表编排（非 query/save owner）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DatabaseCatalogTableEditState",
+          "DatabaseCatalogTableEditingUi"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/database-server-catalog-metadata.ts": {
+      "file": "files/src/lowcode/resources/database/database-server-catalog-metadata.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/database-server-catalog-metadata",
+        "sourcePath": "src/lowcode/resources/database/database-server-catalog-metadata.ts",
+        "sourceFile": "src/lowcode/resources/database/database-server-catalog-metadata.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/database-server-catalog-metadata",
+        "jsdoc": "@module app:lowcode/resources/database/database-server-catalog-metadata\n职责：服务器目录专题列元数据（loadCatalog 装配后 patch DataTable.columns，供 autoColumns 消费）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/database/database-server-view-ops.ts": {
+      "file": "files/src/lowcode/resources/database/database-server-view-ops.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/database-server-view-ops",
+        "sourcePath": "src/lowcode/resources/database/database-server-view-ops.ts",
+        "sourceFile": "src/lowcode/resources/database/database-server-view-ops.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/database-server-view-ops",
+        "jsdoc": "@module app:lowcode/resources/database/database-server-view-ops\n职责：服务器目录页的 DataView 编排（非 query/save owner；后端 owner 仅在装配时 bind 到 DataView）。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DatabaseServerEditState",
+          "DatabaseServerEditingUi"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts": {
+      "file": "files/src/lowcode/resources/database/lowcode-database-dataset-extensions.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/lowcode-database-dataset-extensions",
+        "sourcePath": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+        "sourceFile": "src/lowcode/resources/database/lowcode-database-dataset-extensions.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/lowcode-database-dataset-extensions",
+        "jsdoc": "@module app:lowcode/resources/database/lowcode-database-dataset-extensions\n职责：Db 专题命令视图端点映射；装配调用 spark-data DataSet 命令 helper。\n边界：仅供 lowcode-database-*.ts 调用；页面与 view-ops 只消费 DataView.refresh/saveChanges。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/database/lowcode-database-server.ts": {
+      "file": "files/src/lowcode/resources/database/lowcode-database-server.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/lowcode-database-server",
+        "sourcePath": "src/lowcode/resources/database/lowcode-database-server.ts",
+        "sourceFile": "src/lowcode/resources/database/lowcode-database-server.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/lowcode-database-server",
+        "jsdoc": "@module app:lowcode/resources/database/lowcode-database-server\n职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配 Base_serverInfo 目录 DataSet。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeDatabaseServer"
+        ]
+      }
+    },
+    "src/lowcode/resources/database/lowcode-database-table-view.ts": {
+      "file": "files/src/lowcode/resources/database/lowcode-database-table-view.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/database/lowcode-database-table-view",
+        "sourcePath": "src/lowcode/resources/database/lowcode-database-table-view.ts",
+        "sourceFile": "src/lowcode/resources/database/lowcode-database-table-view.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/database/lowcode-database-table-view",
+        "jsdoc": "@module app:lowcode/resources/database/lowcode-database-table-view\n职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配库/表/视图目录 DataSet。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeDatabaseTableView"
+        ]
+      }
+    },
     "src/lowcode/resources/dictionary/lowcode-dictionary.ts": {
       "file": "files/src/lowcode/resources/dictionary/lowcode-dictionary.ts.json",
       "module": {
@@ -13324,19 +13510,6 @@
         "packageName": "app",
         "modulePath": "views/app/Dashboard",
         "jsdoc": "@module app:views/app/Dashboard\n职责：提供主应用 Dashboard 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/Dashboard。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/DBMS.vue": {
-      "file": "files/src/views/app/DBMS.vue.json",
-      "module": {
-        "name": "app:views/app/DBMS",
-        "sourcePath": "src/views/app/DBMS.vue",
-        "sourceFile": "src/views/app/DBMS.vue",
-        "packageName": "app",
-        "modulePath": "views/app/DBMS",
-        "jsdoc": "@module app:views/app/DBMS\n职责：提供主应用 DBMS 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/DBMS。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -14367,6 +14540,97 @@
         "modulePath": "views/features/data-platform/data-set-management/ui/data-set-list-page",
         "jsdoc": "app 的 views/features/data-platform/data-set-management/ui/data-set-list-page 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
         "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue": {
+      "file": "files/src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/database-management/table-and-view/ui/add-table-dialog",
+        "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+        "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/database-management/table-and-view/ui/add-table-dialog",
+        "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/add-table-dialog\n职责：注册物理表对话框；表单 autoColumns，未登记表名经 DataSet 命令视图提示。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue": {
+      "file": "files/src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
+        "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+        "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/database-management/table-and-view/ui/register-dialog",
+        "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/register-dialog\n职责：注册物理库对话框；表单 autoColumns，未登记库名经数据层加载后提示，不直调 HTTP。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue": {
+      "file": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+        "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+        "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+        "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-and-view-page\n职责：库/表/视图/字段目录；登记与字段维护经 DataSet.saveChanges；列元信息只在各模型 DataTable.columns，autoColumns 消费列链，不手写字段 children。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue": {
+      "file": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/database-management/table-and-view/ui/table-design-dialog",
+        "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
+        "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/database-management/table-and-view/ui/table-design-dialog",
+        "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-design-dialog\n职责：表字段设计对话框；字段列表经 Base_TblField 绑定 DataView autoColumns，保存走 saveChanges。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue": {
+      "file": "files/src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/database-management/table-and-view/ui/view-design-dialog",
+        "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+        "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/database-management/table-and-view/ui/view-design-dialog",
+        "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/view-design-dialog\n职责：视图字段设计对话框；字段列表经 Base_TblField 命名视图 autoColumns，保存走 saveChanges。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/database-management/ui/database-management-hub.vue": {
+      "file": "files/src/views/features/data-platform/database-management/ui/database-management-hub.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/database-management/ui/database-management-hub",
+        "sourcePath": "src/views/features/data-platform/database-management/ui/database-management-hub.vue",
+        "sourceFile": "src/views/features/data-platform/database-management/ui/database-management-hub.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/database-management/ui/database-management-hub",
+        "jsdoc": "@module app:views/features/data-platform/database-management/ui/database-management-hub\n职责：数据库管理组合入口；一次解析目录 DataSet 身份并 provide，子页 inject 后走同一 spark-data 链。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/database-management/ui/service-management-page.vue": {
+      "file": "files/src/views/features/data-platform/database-management/ui/service-management-page.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/database-management/ui/service-management-page",
+        "sourcePath": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+        "sourceFile": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/database-management/ui/service-management-page",
+        "jsdoc": "@module app:views/features/data-platform/database-management/ui/service-management-page\n职责：服务器目录；字段元信息只在 Base_serverInfo 的 DataTable.columns，列表/表单由绑定 DataView 的 autoColumns 消费列链，编排只调用 spark-data。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
@@ -15679,6 +15943,10 @@
       "sourcePath": "packages/spark-component/src/components/support/beforeRender.ts",
       "file": "files/packages/spark-component/src/components/support/beforeRender.ts.json"
     },
+    "BindReadonlyCommandQueryOptions": {
+      "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
+    },
     "BlueprintNodeDraft": {
       "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-edit.ts",
       "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-edit.ts.json"
@@ -15987,6 +16255,10 @@
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
     },
+    "ColumnAutoFieldTarget": {
+      "sourcePath": "packages/spark-component/src/components/containers/runtime/column-auto-field.ts",
+      "file": "files/packages/spark-component/src/components/containers/runtime/column-auto-field.ts.json"
+    },
     "ColumnType": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
@@ -16175,6 +16447,54 @@
       "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
       "file": "files/packages/spark-component/src/components/containers/support/interactionControl.ts.json"
     },
+    "DatabaseCatalogContext": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-context.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-context.ts.json"
+    },
+    "DatabaseCatalogDbEditingUi": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-db-view-ops.ts.json"
+    },
+    "DatabaseCatalogDbEditState": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-db-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-db-view-ops.ts.json"
+    },
+    "DatabaseCatalogFieldViewId": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-field-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-field-view-ops.ts.json"
+    },
+    "DatabaseCatalogFormalTier": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-scenario.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json"
+    },
+    "DatabaseCatalogLoadOptions": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-scenario.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json"
+    },
+    "DatabaseCatalogResolveDiagnostics": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-scenario.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json"
+    },
+    "DatabaseCatalogTableEditingUi": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-table-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-table-view-ops.ts.json"
+    },
+    "DatabaseCatalogTableEditState": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-table-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-table-view-ops.ts.json"
+    },
+    "DatabaseCatalogTieredResolve": {
+      "sourcePath": "src/lowcode/resources/database/database-catalog-scenario.ts",
+      "file": "files/src/lowcode/resources/database/database-catalog-scenario.ts.json"
+    },
+    "DatabaseServerEditingUi": {
+      "sourcePath": "src/lowcode/resources/database/database-server-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/database-server-view-ops.ts.json"
+    },
+    "DatabaseServerEditState": {
+      "sourcePath": "src/lowcode/resources/database/database-server-view-ops.ts",
+      "file": "files/src/lowcode/resources/database/database-server-view-ops.ts.json"
+    },
     "DataBatchJobEvent": {
       "sourcePath": "src/services/sse-events.ts",
       "file": "files/src/services/sse-events.ts.json"
@@ -16222,6 +16542,22 @@
     "DataSetAppServices": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "DataSetCommandColumnSpec": {
+      "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
+    },
+    "DataSetCommandResourceIdentity": {
+      "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
+    },
+    "DataSetCommandRowsLoader": {
+      "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
+    },
+    "DataSetCommandScopeGuard": {
+      "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
     },
     "DataSetCommitSnapshotOptions": {
       "sourcePath": "packages/spark-data/src/dataset-history.ts",
@@ -17742,6 +18078,10 @@
     "LowcodeDatabaseTable": {
       "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
       "file": "files/packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts.json"
+    },
+    "LowcodeDatabaseTableView": {
+      "sourcePath": "src/lowcode/resources/database/lowcode-database-table-view.ts",
+      "file": "files/src/lowcode/resources/database/lowcode-database-table-view.ts.json"
     },
     "LowcodeDatabaseView": {
       "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
@@ -23932,5 +24272,12 @@
         "BeforeRenderState"
       ]
     }
-  }
+  },
+  "duplicates": [
+    {
+      "className": "LowcodeDatabaseServer",
+      "keptFile": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",
+      "skippedFile": "src/lowcode/resources/database/lowcode-database-server.ts"
+    }
+  ]
 }

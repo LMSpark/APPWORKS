@@ -1,0 +1,330 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:data-set-command/data-set-command-view",
+    "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+    "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "data-set-command/data-set-command-view",
+    "jsdoc": "@module @spark-appworks/spark-data:data-set-command-view\n职责：在运行 DataSet 上幂等装配 static/file 命令表与只读 refresh 查询结果。\n边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataSetCommandColumnSpec",
+      "DataSetCommandScopeGuard",
+      "DataSetCommandRowsLoader",
+      "DataSetCommandResourceIdentity",
+      "BindReadonlyCommandQueryOptions"
+    ]
+  },
+  "$defs": {
+    "DataSetCommandColumnSpec": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCommandColumnSpec",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "primary": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "QueryResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "QueryResult",
+      "properties": {
+        "undefinedChanges": {
+          "const": "clear"
+        },
+        "countReported": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "resultPrimaryKey": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../data-view.ts.json#/$defs/DataViewQueryRow"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "assertIdentity": {
+          "type": "object",
+          "title": "(identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>) => void"
+        },
+        "rowKey": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => unknown"
+        },
+        "prepareNewRow": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>) => Record<string, unknown>"
+        },
+        "isFieldReadOnly": {
+          "type": "object",
+          "title": "(field: string) => boolean"
+        },
+        "fieldAccess": {
+          "type": "object",
+          "title": "(rowKey: unknown, field: string) => Readonly<{ read: \"invisible\" | \"masked\" | \"visible\"; write: \"denied\" | \"allowed\"; component: \"hidden\" | \"readonly\" | \"editable\"; required: boolean; writeMode: \"required\" | \"editable\" | \"readonly\"; }>"
+        },
+        "readFieldAccess": {
+          "type": "object",
+          "title": "(row: Readonly<Record<string, unknown>>, field: string) => \"masked\" | \"invisible\" | \"visible\""
+        },
+        "addActionState": {
+          "type": "object",
+          "title": "(available?: boolean) => DataViewActionState"
+        },
+        "editActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "deleteActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "createChildActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        },
+        "viewActionState": {
+          "type": "object",
+          "title": "(rowKey: unknown, available?: boolean) => DataViewActionState"
+        }
+      },
+      "required": [
+        "rows",
+        "total",
+        "assertIdentity",
+        "rowKey",
+        "fieldAccess",
+        "readFieldAccess",
+        "addActionState",
+        "editActionState",
+        "deleteActionState",
+        "createChildActionState",
+        "viewActionState"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetCommandResourceIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetCommandResourceIdentity",
+      "properties": {
+        "resourceType": {
+          "const": "file"
+        },
+        "resourceId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "resourceType",
+        "resourceId"
+      ],
+      "additionalProperties": false
+    },
+    "BindReadonlyCommandQueryOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BindReadonlyCommandQueryOptions",
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/DataSetCommandResourceIdentity"
+        },
+        "guard": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
+        "loadRows": {
+          "type": "object",
+          "title": "DataSetCommandRowsLoader"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.queryColumns.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.queryColumns.return": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataColumn"
+          }
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-20T08:28:56.289Z",
+  "models": {
+    "DataSetCommandColumnSpec": {
+      "name": "DataSetCommandColumnSpec",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    primary?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    primary?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primary",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetCommandScopeGuard": {
+      "name": "DataSetCommandScopeGuard",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "() => void",
+        "members": {}
+      }
+    },
+    "QueryResult": {
+      "name": "QueryResult",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataSetCommandRowsLoader": {
+      "name": "DataSetCommandRowsLoader",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(view: DataView) => Promise<readonly DataRow[]>",
+        "members": {}
+      }
+    },
+    "DataSetCommandResourceIdentity": {
+      "name": "DataSetCommandResourceIdentity",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resourceType: 'file';\n    resourceId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resourceType: 'file';\n    resourceId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BindReadonlyCommandQueryOptions": {
+      "name": "BindReadonlyCommandQueryOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "guard",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "loadRows",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "queryColumns",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "readonly DataColumn[]"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

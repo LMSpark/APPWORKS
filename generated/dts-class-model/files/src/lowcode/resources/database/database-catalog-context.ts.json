@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/database-catalog-context",
+    "sourcePath": "src/lowcode/resources/database/database-catalog-context.ts",
+    "sourceFile": "src/lowcode/resources/database/database-catalog-context.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/database-catalog-context",
+    "jsdoc": "@module app:lowcode/resources/database/database-catalog-context\n职责：Hub 与子页共享目录 DataSet 身份（Base_DataSet.rowid）；子页 inject 优先于 route.meta。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseCatalogContext"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogContext",
+      "properties": {
+        "preferredScenarioId": {
+          "type": "object",
+          "title": "Ref<string, string>"
+        },
+        "navigationNodeId": {
+          "type": "object",
+          "title": "Ref<string | undefined, string | undefined>"
+        },
+        "resolvedScenarioId": {
+          "type": "object",
+          "title": "Ref<string | undefined, string | undefined>"
+        },
+        "resolveError": {
+          "type": "object",
+          "title": "Ref<string, string>"
+        },
+        "catalogFormalTier": {
+          "type": "object",
+          "title": "Ref<DatabaseCatalogFormalTier | undefined, DatabaseCatalogFormalTier | undefined>"
+        }
+      },
+      "required": [
+        "preferredScenarioId",
+        "navigationNodeId",
+        "resolvedScenarioId",
+        "resolveError",
+        "catalogFormalTier"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-21T02:41:49.167Z",
+  "models": {
+    "DatabaseCatalogContext": {
+      "name": "DatabaseCatalogContext",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 导航 blueprintScenarioId（可能误绑 nodeId，须经 resolve）。 */\n    preferredScenarioId: Ref<string>;\n    navigationNodeId: Ref<string | undefined>;\n    /** Hub 解析后的正式 dataSpaceId；未就绪时为 undefined。 */\n    resolvedScenarioId: Ref<string | undefined>;\n    /** Hub 解析失败时的诊断文案；serverOnly 时为五表缺口警告。 */\n    resolveError: Ref<string>;\n    /** Hub 正式模型档位；未解析完为 undefined。 */\n    catalogFormalTier: Ref<DatabaseCatalogFormalTier | undefined>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 导航 blueprintScenarioId（可能误绑 nodeId，须经 resolve）。 */\n    preferredScenarioId: Ref<string>;\n    navigationNodeId: Ref<string | undefined>;\n    /** Hub 解析后的正式 dataSpaceId；未就绪时为 undefined。 */\n    resolvedScenarioId: Ref<string | undefined>;\n    /** Hub 解析失败时的诊断文案；serverOnly 时为五表缺口警告。 */\n    resolveError: Ref<string>;\n    /** Hub 正式模型档位；未解析完为 undefined。 */\n    catalogFormalTier: Ref<DatabaseCatalogFormalTier | undefined>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "preferredScenarioId",
+              "jsdoc": "导航 blueprintScenarioId（可能误绑 nodeId，须经 resolve）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationNodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resolvedScenarioId",
+              "jsdoc": "Hub 解析后的正式 dataSpaceId；未就绪时为 undefined。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resolveError",
+              "jsdoc": "Hub 解析失败时的诊断文案；serverOnly 时为五表缺口警告。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogFormalTier",
+              "jsdoc": "Hub 正式模型档位；未解析完为 undefined。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

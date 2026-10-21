@@ -19,6 +19,17 @@
     "devServer": "localhost:5273 可起；直链 hub URL 重定向平台首页（无登录会话）",
     "automated": "tests/runtime/page/database 39/39；typecheck；verify:page-thin；verify:lowcode-contracts"
   },
+  "continuation20261021c": {
+    "checkedAt": "2026-10-21T14:00+08:00",
+    "postCleanupPush": "origin/10-17 已推送至 86051af9a；docs 死链修复 a0f68a6cb 待 push",
+    "autonomousAttempt": {
+      "loggedIn": false,
+      "hubUrl": "http://localhost:5273/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/DataBaseManage/DataBaseManage/index",
+      "landedUrl": "http://localhost:5273/",
+      "observation": "仍重定向平台首页；矩阵实页列不升级"
+    },
+    "automated": "tests/runtime/page/database 39/39（post-cleanup 复验）"
+  },
   "codeIterationThisRound": [
     "resolveDatabaseCatalogScenarioTiered：五表失败同 rowid 降级 Base_serverInfo",
     "catalogFormalTier + catalogHubCatalogBlocked；表和视图 Tab blocked UI",

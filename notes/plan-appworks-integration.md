@@ -78,10 +78,10 @@
 | 1 | data-platform/data-set-management/ui/data-set-list-page.vue | 已同路径；对话框设计入口+删除+去短路径（工作区） | 通过 | 通过 | 通过 | 通过 | — |
 | 2 | data-platform/database-management/table-and-view/ui/add-table-dialog.vue | `add-table-dialog.vue` + table view-ops + vitest | 部分 | 通过 | 部分 | — | — |
 | 2 | data-platform/database-management/table-and-view/ui/register-dialog.vue | `register-dialog.vue` + db view-ops + vitest | 部分 | 通过 | 部分 | — | — |
-| 2 | data-platform/database-management/table-and-view/ui/table-and-view-page.vue | tiered hub：serverOnly 时 catalog blocked；full 时 loadCatalog；vitest 39 | 部分 | 部分 | 部分 | 通过 | 部分 |
+| 2 | data-platform/database-management/table-and-view/ui/table-and-view-page.vue | tiered hub：serverOnly 时 catalog blocked；full 时 loadCatalog；vitest 39 | 部分 | 部分 | 部分 | 通过 | 部分（2026-10-21 实页 catalog blocked 已验） |
 | 2 | data-platform/database-management/table-and-view/ui/table-design-dialog.vue | Base_TblField staged 网格 + 保存字段/刷新（field view-ops + vitest） | 部分 | 通过 | 部分 | — | — |
 | 2 | data-platform/database-management/table-and-view/ui/view-design-dialog.vue | Base_TblField（视图）同上 DataSet 写链 | 部分 | 通过 | 部分 | — | — |
-| 2 | data-platform/database-management/ui/service-management-page.vue | hub tiered serverOnly 仍可用；resolved 注入；vitest 39；实页待登录复验 | 部分 | 通过 | 部分 | 通过 | 部分 |
+| 2 | data-platform/database-management/ui/service-management-page.vue | hub serverOnly 下服务器 Tab 列表+工具栏（FormKey 62DB03B…）；vitest 39 | 部分 | 通过 | 部分 | 通过 | 部分（2026-10-21 实页 hub 服务器 Tab） |
 | 2 | data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue | 缺 | — | — | — | — | — |
 | 2 | data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-lookup-dialog.vue | 缺 | — | — | — | — | — |

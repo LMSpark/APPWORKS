@@ -1,12 +1,18 @@
-import type {Mock} from 'vitest'
+import {vi, type Mock} from 'vitest'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 
-export type DatabaseServerDesignMocks = Readonly<{
+export type DatabaseServerDesignMocks = {
   readSpaceDefinition: Mock
   readModel: Mock
+  readModelBatch?: Mock
   readRequestScope: Mock
-}>
+}
+
+export function attachDesignReadModelBatch(service: Pick<DatabaseServerDesignMocks, 'readModel'> & DatabaseServerDesignMocks): void {
+  service.readModelBatch = vi.fn(async (input: {metaNames: readonly string[]}) =>
+    Promise.all(input.metaNames.map(metaName => service.readModel({...input, metaName}))))
+}
 
 export const DATABASE_SERVER_SCENARIO_ID = 'FORM-DBMS'
 
@@ -104,5 +110,6 @@ export function bootstrapDatabaseServerRuntime(http: DatabaseServerHttp, service
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP', 'x-FormKey': DATABASE_SERVER_SCENARIO_ID}})
   service.readSpaceDefinition.mockResolvedValue({dataSpaceId: DATABASE_SERVER_SCENARIO_ID, name: '数据库', raw: {}})
   service.readModel.mockResolvedValue(databaseServerModel)
+  attachDesignReadModelBatch(service)
   return new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
 }

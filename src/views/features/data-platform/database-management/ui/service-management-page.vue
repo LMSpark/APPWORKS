@@ -11,7 +11,7 @@
     <template v-if="ready">
       <p v-if="listError" role="alert">{{ listError }}</p>
       <div :inert="busy || !!editing">
-        <RendererTable :data-view-key="catalogKey" :toolbar="toolbar" :filter="{}"
+        <RendererTable :data-view-key="catalogKey" :toolbar="toolbar" :filter="listFilter"
           :stripe="true" :on-row-click="choose" :highlight-current-row="true" :show-data-view-meta="false" />
       </div>
       <RendererDialog v-if="editing" :model-value="true"
@@ -45,11 +45,11 @@
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
-import {useRoute} from 'vue-router'
+import {useDatabaseCatalogRouteScenario} from '@/lowcode/resources/database/database-catalog-context'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm,
-  useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
+  useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/lowcode-database-server'
 import {
   databaseServerBeginCreate,
@@ -67,7 +67,7 @@ import {
   type DatabaseServerEditState,
 } from '@/lowcode/resources/database/database-server-view-ops'
 
-const route = useRoute()
+const {scenarioId, catalogLoadOptions, catalogAwaitingHubResolve, catalogHubResolveFailed} = useDatabaseCatalogRouteScenario()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'service-management-page'})
 const dataSet = shallowRef<DataSet>()
 const view = shallowRef<DataView>()
@@ -75,8 +75,13 @@ const edit = shallowRef<DatabaseServerEditState>()
 const ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
 const busy = ref(false), actionError = ref(''), message = ref(''), deleteOpen = ref(false), deleteName = ref('')
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
-const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
-const catalogKey = computed(() => buildDataViewKey(DATABASE_SERVER_MODEL, 'default', scenarioId.value))
+const catalogScenarioId = computed(() => dataSet.value?.scenarioId ?? scenarioId.value)
+const catalogKey = computed(() => buildDataViewKey(DATABASE_SERVER_MODEL, 'default', catalogScenarioId.value))
+const listFilter = computed<RFilterProps>(() => ({
+  autoQuery: true,
+  collapsible: true,
+  defaultCollapsed: true,
+}))
 const listError = computed(() => {revision.value; return view.value?.loadingError?.message ?? ''})
 const editing = computed(() => {revision.value; const v = view.value; return v ? databaseServerEditing(v, edit.value) : undefined})
 const toolbar = computed<RToolbarProps>(() => {
@@ -178,19 +183,24 @@ watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''; release()
   try {
-    if (!id) throw new Error('服务器管理入口缺少导航绑定的数据空间ID')
-    const ds = await LowcodeDatabaseServer.loadCatalog(id)
+    if (!id) {
+      if (catalogAwaitingHubResolve.value) return
+      if (catalogHubResolveFailed.value) return
+      throw new Error('服务器管理入口缺少导航绑定的数据空间ID')
+    }
+    const ds = await LowcodeDatabaseServer.loadCatalog(id, catalogLoadOptions.value)
     if (!active || own !== generation) {ds.destroy(); return}
     const v = requireDatabaseServerView(ds)
     dataSet.value = ds; view.value = v
-    const current = new PageRuntime({pageId: 'service-management-page', scenarioIds: [id], loadScenario: async () => ds})
+    const formKey = ds.scenarioId ?? id
+    const current = new PageRuntime({pageId: 'service-management-page', scenarioIds: [formKey], loadScenario: async () => ds})
     runtime = current; await current.load()
     if (!active || own !== generation) {current.dispose(); return}
     unsubscribe = ds.onAnyViewChange({rowsChanged: () => revision.value++, selectedRowsChanged: () => revision.value++,
       requestStateChanged: () => revision.value++, editingChanged: () => revision.value++})
     sparkProvide(PAGE_RUNTIME, current); ready.value = true
   } catch (cause) {if (active && own === generation) {error.value = cause instanceof Error ? cause.message : String(cause); release()}}
-  finally {if (active && own === generation) loading.value = false}
+  finally {if (active && own === generation) loading.value = catalogAwaitingHubResolve.value && !id ? true : false}
 }, {immediate: true})
 onBeforeUnmount(() => {active = false; generation++; release()})
 </script>

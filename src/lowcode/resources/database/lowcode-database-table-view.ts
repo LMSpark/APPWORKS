@@ -1,6 +1,6 @@
 /**
  * @module app:lowcode/resources/database/lowcode-database-table-view
- * 职责：按导航 FormKey 动态装配库/表/视图只读目录 DataSet。
+ * 职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配库/表/视图目录 DataSet。
  */
 import {type DataSet} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
@@ -9,9 +9,11 @@ import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
 import {DATABASE_SERVER_MODEL} from './lowcode-database-server'
 import {attachCatalogCommandViews} from './lowcode-database-dataset-extensions'
+import {type DatabaseCatalogLoadOptions, resolveDatabaseCatalogDataSpaceId} from './database-catalog-scenario'
 
 export const DATABASE_CATALOG_COMMAND_INPUT_TABLE = 'DatabaseCatalogCommandInput'
 export const DATABASE_UNREGISTERED_DB_NAMES_TABLE = 'DatabaseUnregisteredNames'
+export const DATABASE_UNREGISTERED_TABLE_NAMES_TABLE = 'DatabaseUnregisteredTables'
 
 export const DATABASE_CATALOG_DB_MODEL = '_base_dbInfo'
 export {DATABASE_SERVER_MODEL as DATABASE_CATALOG_SERVER_MODEL}
@@ -21,13 +23,15 @@ export const DATABASE_CATALOG_FIELD_MODEL = 'Base_TblField'
 export const DATABASE_CATALOG_FIELD_TABLE_VIEW = 'tableFields'
 export const DATABASE_CATALOG_FIELD_VIEW_VIEW = 'viewFields'
 
-const catalogModels = [
+export const DATABASE_CATALOG_SCENARIO_META_NAMES = [
   DATABASE_SERVER_MODEL,
   DATABASE_CATALOG_DB_MODEL,
   DATABASE_CATALOG_TABLE_MODEL,
   DATABASE_CATALOG_VIEW_MODEL,
   DATABASE_CATALOG_FIELD_MODEL,
 ] as const
+
+const catalogModels = DATABASE_CATALOG_SCENARIO_META_NAMES
 
 function defaultView(model: Awaited<ReturnType<typeof lowcodeApi.dataSpace.design.readModel>>): Record<string, unknown> {
   return {
@@ -42,13 +46,14 @@ function defaultView(model: Awaited<ReturnType<typeof lowcodeApi.dataSpace.desig
 
 /** 库→表/视图只读专题：装配 DataSet 并 bind runtime query owner；页面只消费 spark-data。 */
 export class LowcodeDatabaseTableView {
-  public static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    if (!scenarioId.trim()) throw new Error('表和视图管理入口缺少导航绑定的数据空间ID')
+  public static async loadCatalog(scenarioId: string, options: DatabaseCatalogLoadOptions = {}): Promise<DataSet> {
+    if (!scenarioId.trim()) throw new Error('表和视图管理入口缺少导航绑定的数据空间 ID（Base_DataSet.rowid）')
     const scope = lowcodeApi.readRequestScope()
     const assertCurrent = (): void => {
       if (lowcodeApi.readRequestScope().token !== scope.token) throw new Error('表和视图目录请求所属应用或登录身份已变化')
     }
-    const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: scenarioId, assertCurrent}
+    const dataSpaceId = await resolveDatabaseCatalogDataSpaceId(scenarioId, catalogModels, options, assertCurrent)
+    const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId, assertCurrent}
     const [space, ...models] = await Promise.all([
       lowcodeApi.dataSpace.design.readSpaceDefinition(input),
       ...catalogModels.map(metaName => lowcodeApi.dataSpace.design.readModel({...input, metaName})),
@@ -112,8 +117,8 @@ export class LowcodeDatabaseTableView {
       },
     ]
     const fieldSort = [{field: 'ordIdx', direction: 'asc'}, {field: fieldModel.primaryKey, direction: 'asc'}]
-    const config = new ScenarioViewConfig(scenarioId, JSON.stringify({
-      scenarioId,
+    const config = new ScenarioViewConfig(dataSpaceId, JSON.stringify({
+      scenarioId: dataSpaceId,
       tables: Object.fromEntries(catalogModels.map(name => {
         const model = byName.get(name)!
         if (name === DATABASE_CATALOG_FIELD_MODEL) {
@@ -134,7 +139,8 @@ export class LowcodeDatabaseTableView {
     try {
       attachCatalogCommandViews(dataSet, lowcodeHttp, assertCurrent, {
         commandInput: DATABASE_CATALOG_COMMAND_INPUT_TABLE,
-        unregisteredNames: DATABASE_UNREGISTERED_DB_NAMES_TABLE,
+        unregisteredDbNames: DATABASE_UNREGISTERED_DB_NAMES_TABLE,
+        unregisteredTableNames: DATABASE_UNREGISTERED_TABLE_NAMES_TABLE,
       })
       const serverView = dataSet.getView(DATABASE_SERVER_MODEL, 'default')
       const dbView = dataSet.getView(DATABASE_CATALOG_DB_MODEL, 'default')

@@ -1,11 +1,16 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {registerAllRenderers, RendererTable, Spark} from '@spark-appworks/spark-component'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ServiceManagementPage from '@/views/features/data-platform/database-management/ui/service-management-page.vue'
+import {LowcodeDatabaseServer} from '@/lowcode/resources/database/lowcode-database-server'
+import {
+  databaseServerCanCreate,
+  requireDatabaseServerView,
+} from '@/lowcode/resources/database/database-server-view-ops'
 import {
   DATABASE_SERVER_SCENARIO_ID,
   DatabaseServerHttp,
@@ -74,5 +79,28 @@ describe('service-management-page', () => {
   it('reports missing navigation scenario identity before loading', async () => {
     const wrapper = await open('')
     expect(wrapper.text()).toContain('缺少导航绑定的数据空间ID')
+  })
+
+  it('allows register after catalog load in view-ops contract', async () => {
+    const ds = await LowcodeDatabaseServer.loadCatalog(DATABASE_SERVER_SCENARIO_ID)
+    sets.push(ds)
+    const v = requireDatabaseServerView(ds)
+    expect(databaseServerCanCreate(v, undefined)).toBe(true)
+  })
+
+  it('opens register server dialog from toolbar', async () => {
+    const wrapper = await open(DATABASE_SERVER_SCENARIO_ID)
+    const table = wrapper.findComponent(RendererTable)
+    expect(table.findAll('.el-table__body-wrapper tbody tr').length).toBeGreaterThan(0)
+    await flushPromises()
+    const add = wrapper.findAll('button').find(button => button.text() === '注册服务器')
+    expect(add).toBeTruthy()
+    expect(add!.element.hasAttribute('disabled')).toBe(false)
+    await add!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    const body = new DOMWrapper(document.body)
+    expect(body.text()).toContain('确定')
+    expect(body.findAll('button').some(button => button.text() === '测试连接')).toBe(true)
   })
 })

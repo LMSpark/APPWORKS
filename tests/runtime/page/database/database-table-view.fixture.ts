@@ -3,6 +3,7 @@ import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spar
 import {DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataViewFilterLocal} from '../../../../packages/spark-data/src/query/filter/data-view-filter-local'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
+import {attachDesignReadModelBatch} from './database-server.fixture'
 import {
   DATABASE_CATALOG_DB_MODEL,
   DATABASE_CATALOG_FIELD_MODEL,
@@ -13,11 +14,12 @@ import {DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/lowcode-databa
 
 export const DATABASE_TABLE_VIEW_SCENARIO_ID = 'FORM-DB-TAV'
 
-export type DatabaseTableViewDesignMocks = Readonly<{
+export type DatabaseTableViewDesignMocks = {
   readSpaceDefinition: Mock
   readModel: Mock
+  readModelBatch?: Mock
   readRequestScope: Mock
-}>
+}
 
 function model(metaName: string, fields: readonly string[], primaryKey = 'rowid'): Awaited<ReturnType<DataSpaceDesignApi['readModel']>> {
   return {
@@ -61,6 +63,7 @@ export const databaseTableViewModels = {
 export class DatabaseTableViewHttp extends HttpClientBase {
   requests: RequestConfig[] = []
   unregisteredByServer: Record<string, string[]> = {}
+  unregisteredByDb: Record<string, string[]> = {}
   rows: Record<string, Array<Record<string, unknown>>> = {
     [DATABASE_SERVER_MODEL]: [{rowid: 'S1', Type: 'MYSQL', ServerName: '主库', ip_address: '10.0.0.1', Port: '3306', description: ''}],
     [DATABASE_CATALOG_DB_MODEL]: [{rowid: 'DB1', serverId: 'S1', Name: '业务库', ServerName: '主库', SchemaName: 'dbo', Remark: ''}],
@@ -82,15 +85,41 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       const serverId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredDb/'.length))
       return {data: this.unregisteredByServer[serverId] ?? [], status: 200, statusText: 'OK', headers: {}}
     }
+    if (config.url?.startsWith('/api/Db/getUnregisteredTable/')) {
+      const dbId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredTable/'.length))
+      return {data: this.unregisteredByDb[dbId] ?? [], status: 200, statusText: 'OK', headers: {}}
+    }
     if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
       const payload = config.data as Array<{CrudModel?: {Added?: Record<string, unknown>[]; Changed?: Record<string, unknown>[]; Deleted?: Record<string, unknown>[]}}>
-      const added = payload.flatMap(item => item.CrudModel?.Added ?? [])
-      for (const row of added) {
-        this.rows[DATABASE_CATALOG_DB_MODEL]!.push({
-          rowid: 'DB-NEW', serverId: 'S1', Name: '', SchemaName: 'dbo', ServerName: '主库', Type: 'MYSQL', State: '1', Remark: '', ...row,
-        })
+      const added: Record<string, unknown>[] = []
+      const changed: Record<string, unknown>[] = []
+      for (const item of payload) {
+        for (const row of item.CrudModel?.Added ?? []) {
+          added.push(row)
+          if (Object.hasOwn(row, 'tblname') && !Object.hasOwn(row, 'enname')) {
+            this.rows[DATABASE_CATALOG_TABLE_MODEL]!.push({
+              rowid: 'T-NEW', dbid: 'DB1', tblname: '', tbldesc: '', schemaName: 'dbo', status: 1, ...row,
+            })
+          } else if (Object.hasOwn(row, 'enname')) {
+            this.rows[DATABASE_CATALOG_FIELD_MODEL]!.push({rowid: 'F-NEW', tblid: 'T1', ordIdx: 99, ...row})
+          } else {
+            this.rows[DATABASE_CATALOG_DB_MODEL]!.push({
+              rowid: 'DB-NEW', serverId: 'S1', Name: '', SchemaName: 'dbo', ServerName: '主库', Type: 'MYSQL', State: '1', Remark: '', ...row,
+            })
+          }
+        }
+        for (const row of item.CrudModel?.Changed ?? []) {
+          changed.push(row)
+          const id = row['rowid']
+          const fieldRows = this.rows[DATABASE_CATALOG_FIELD_MODEL]!
+          const index = fieldRows.findIndex(item => item['rowid'] === id)
+          if (index >= 0) fieldRows[index] = {...fieldRows[index]!, ...row}
+        }
       }
-      return {data: {Code: 200, Result: {maplistadd: [{physical: added}]}}, status: 200, statusText: 'OK', headers: {}}
+      return {data: {Code: 200, Result: {
+        ...(added.length ? {maplistadd: [{physical: added}]} : {}),
+        ...(changed.length ? {maplistedit: [{physical: changed}]} : {}),
+      }}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url !== '/api/DataOperation/GetData') throw new Error(`unexpected request ${config.url ?? ''}`)
     const table = (config.data as {Table: Array<{Name: string; Filter?: unknown}>}).Table[0]!
@@ -101,7 +130,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     }
     const model = databaseTableViewModels[table.Name as keyof typeof databaseTableViewModels]
     const fieldNames = model?.fields.map(field => field.name) ?? []
-    const allowAdd = table.Name === DATABASE_CATALOG_DB_MODEL
+    const allowAdd = table.Name === DATABASE_CATALOG_DB_MODEL || table.Name === DATABASE_CATALOG_TABLE_MODEL
     return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd, lingma_sys_key: 'table-key',
       data: {Items: rows.map(row => ({
         ...row,
@@ -120,5 +149,6 @@ export function bootstrapDatabaseTableViewRuntime(http: DatabaseTableViewHttp, s
     if (!found) throw new Error(`unexpected model ${metaName}`)
     return Promise.resolve(found)
   })
+  attachDesignReadModelBatch(service)
   return new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
 }

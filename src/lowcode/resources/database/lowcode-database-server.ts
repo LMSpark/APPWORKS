@@ -1,6 +1,6 @@
 /**
  * @module app:lowcode/resources/database/lowcode-database-server
- * 职责：按导航 FormKey 动态装配 Base_serverInfo 目录 DataSet。
+ * 职责：按正式数据空间 ID（Base_DataSet.rowid = DataSet.scenarioId = x-FormKey）装配 Base_serverInfo 目录 DataSet。
  */
 import {type DataSet} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
@@ -8,6 +8,8 @@ import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
 import {LowcodeDataSpaceAssembler} from '../../data-space/lowcode-data-space-assembler'
 import {attachServerConnectionTestViews} from './lowcode-database-dataset-extensions'
+import {applyDatabaseServerCatalogMetadata} from './database-server-catalog-metadata'
+import {type DatabaseCatalogLoadOptions, resolveDatabaseCatalogDataSpaceId} from './database-catalog-scenario'
 
 export const DATABASE_SERVER_MODEL = 'Base_serverInfo'
 export const DATABASE_CONNECTION_TEST_INPUT_TABLE = 'DatabaseConnectionTestInput'
@@ -15,20 +17,21 @@ export const DATABASE_CONNECTION_TEST_RESULT_TABLE = 'DatabaseConnectionTestResu
 
 /** 服务器目录专题：装配 DataSet 并 bind runtime query/save owner 到 DataView；页面只消费 spark-data。 */
 export class LowcodeDatabaseServer {
-  public static async loadCatalog(scenarioId: string): Promise<DataSet> {
-    if (!scenarioId.trim()) throw new Error('服务器管理入口缺少导航绑定的数据空间ID')
+  public static async loadCatalog(scenarioId: string, options: DatabaseCatalogLoadOptions = {}): Promise<DataSet> {
+    if (!scenarioId.trim()) throw new Error('服务器管理入口缺少导航绑定的数据空间 ID（Base_DataSet.rowid）')
     const scope = lowcodeApi.readRequestScope()
     const assertCurrent = (): void => {
       if (lowcodeApi.readRequestScope().token !== scope.token) throw new Error('服务器目录请求所属应用或登录身份已变化')
     }
-    const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: scenarioId, assertCurrent}
+    const dataSpaceId = await resolveDatabaseCatalogDataSpaceId(scenarioId, [DATABASE_SERVER_MODEL], options, assertCurrent)
+    const input = {designScenarioId: DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId, assertCurrent}
     const [space, model] = await Promise.all([
       lowcodeApi.dataSpace.design.readSpaceDefinition(input),
       lowcodeApi.dataSpace.design.readModel({...input, metaName: DATABASE_SERVER_MODEL}),
     ])
     assertCurrent()
-    const config = new ScenarioViewConfig(scenarioId, JSON.stringify({
-      scenarioId,
+    const config = new ScenarioViewConfig(dataSpaceId, JSON.stringify({
+      scenarioId: dataSpaceId,
       tables: {
         [DATABASE_SERVER_MODEL]: {
           modelBinding: {modelId: model.id, modelName: model.metaName},
@@ -47,6 +50,7 @@ export class LowcodeDatabaseServer {
     }))
     const {dataSet} = new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models: [model], relations: []})
     try {
+      applyDatabaseServerCatalogMetadata(dataSet)
       attachServerConnectionTestViews(dataSet, lowcodeHttp, assertCurrent, {
         commandInput: DATABASE_CONNECTION_TEST_INPUT_TABLE,
         testResult: DATABASE_CONNECTION_TEST_RESULT_TABLE,

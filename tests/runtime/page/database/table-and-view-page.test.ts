@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {registerAllRenderers, RendererTable, Spark} from '@spark-appworks/spark-component'
@@ -37,6 +37,24 @@ afterEach(() => {
   vi.unstubAllGlobals()
   config.global.stubs = originalStubs
 })
+
+function pageButton(wrapper: VueWrapper, label: string) {
+  const button = wrapper.findAll('button').find(item => item.text() === label)
+  expect(button).toBeTruthy()
+  return button!
+}
+
+async function selectServerAndDatabase(wrapper: VueWrapper): Promise<void> {
+  let tables = wrapper.findAllComponents(RendererTable)
+  await tables[0]!.find('.el-table__body-wrapper tbody tr').trigger('click')
+  await flushPromises()
+  await flushPromises()
+  tables = wrapper.findAllComponents(RendererTable)
+  expect(tables.length).toBeGreaterThan(1)
+  await tables[1]!.find('.el-table__body-wrapper tbody tr').trigger('click')
+  await flushPromises()
+  await flushPromises()
+}
 
 async function open(scenarioId: string): Promise<VueWrapper> {
   const router = createRouter({
@@ -80,5 +98,66 @@ describe('table-and-view-page', () => {
     expect(objectTables.length).toBeGreaterThan(1)
     const tblTable = objectTables[1]!
     expect(tblTable.findAll('.el-table__body-wrapper tbody tr').length).toBeGreaterThan(0)
+  })
+
+  it('opens register database dialog from toolbar after server selection', async () => {
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await wrapper.findAllComponents(RendererTable)[0]!.find('.el-table__body-wrapper tbody tr').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    await pageButton(wrapper, '注册数据库').trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('注册数据库')
+    expect(wrapper.text()).toContain('服务器：主库')
+  })
+
+  it('opens table design dialog with field save toolbar after table selection', async () => {
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await selectServerAndDatabase(wrapper)
+    const tables = wrapper.findAllComponents(RendererTable)
+    expect(tables.length).toBeGreaterThan(2)
+    await tables[2]!.find('.el-table__body-wrapper tbody tr').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    await pageButton(wrapper, '表设计').trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('表设计')
+    expect(wrapper.text()).toContain('保存字段')
+    expect(wrapper.text()).toContain('双击单元格编辑字段')
+  })
+
+  it('loads unregistered physical table names into add-table dialog hint', async () => {
+    http.unregisteredByDb = {DB1: ['StagingOrders', 'RawArchive']}
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await selectServerAndDatabase(wrapper)
+    await pageButton(wrapper, '注册数据表').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    const body = new DOMWrapper(document.body)
+    const refresh = body.findAll('button').find(button => button.text() === '刷新未登记表名')
+    expect(refresh).toBeTruthy()
+    expect(refresh!.element.hasAttribute('disabled')).toBe(false)
+    await refresh!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+    expect(body.text()).toContain('StagingOrders')
+    expect(http.requests.some(request => request.url === '/api/Db/getUnregisteredTable/DB1')).toBe(true)
+  })
+
+  it('opens add-table dialog with register and unregistered actions enabled', async () => {
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await selectServerAndDatabase(wrapper)
+    await pageButton(wrapper, '注册数据表').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    const body = new DOMWrapper(document.body)
+    expect(body.text()).toContain('注册数据表')
+    expect(body.text()).toContain('数据库：业务库')
+    const save = body.findAll('button').find(button => button.text() === '注册')
+    const refresh = body.findAll('button').find(button => button.text() === '刷新未登记表名')
+    expect(save).toBeTruthy()
+    expect(refresh).toBeTruthy()
+    expect(save!.element.hasAttribute('disabled')).toBe(false)
+    expect(refresh!.element.hasAttribute('disabled')).toBe(false)
   })
 })

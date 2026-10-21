@@ -7,7 +7,7 @@
 - **证据删除**：本地删除 `notes/evidence/data-space-config-storage/`（约 **13196** 文件、**85** 顶层 `e62-*-before` / `i7-*` 快照树）；删前 manifest [`research-evidence-deletion-manifest-20261021.json`](research-evidence-deletion-manifest-20261021.json)。I4 回归 log 副本：`notes/evidence/database-management-i5/native-design-regression-i4-convergence.log`。**DATAFLOW 内链该目录者暂为死链**，结论以台账/正文为准。
 - **stash**：drop **12** 条 `lint-staged automatic backup`；剩余 **21** 条见 [`research-git-stash-inventory.md`](research-git-stash-inventory.md)。
 - **验证（commit 前）**：`typecheck`；`tests/runtime/page/database` **39/39**；`verify:page-thin`；`verify:lowcode-contracts`；`generate:class-model-surface`。
-- **提交（`10-17`，本批）**：`0b1b39d23` I5 hub/catalog/dialogs；`e37527425` spark-data/command + column-auto-field；`8ec5bc9b4` ClassModel + consumer ledgers；本条 commit 台账 + 小 evidence + git 研读。
+- **提交（`10-17`，本批）**：`0b1b39d23` I5 hub/catalog/dialogs；`e37527425` spark-data/command + column-auto-field；`8ec5bc9b4` ClassModel + consumer ledgers；`ef65ec535` 台账 + 小 evidence + git 研读。
 - **常态**：禁止 `git add notes/evidence/data-space-config-storage/**`；见 [`research-git-staging-evidence-cleanup.md`](research-git-staging-evidence-cleanup.md)。
 
 ## 2026-10-19 I4 设计器其余（关系/级联/参数/命令类删除）— §4.3 删类完成（2026-10-20）

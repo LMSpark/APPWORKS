@@ -34,5 +34,5 @@
 
 ## 清理后回填（2026-10-21 已完成）
 
-- evidence 删除 **13196** 文件；stash drop **12**；功能提交 `0b1b39d23`、`e37527425`、`8ec5bc9b4` + 本条 notes commit。
+- evidence 删除 **13196** 文件；stash drop **12**；提交 `0b1b39d23`、`e37527425`、`8ec5bc9b4`、`ef65ec535`。
 - 详见 [`data-space-retirement-ledger.md`](data-space-retirement-ledger.md) § 2026-10-21 工作区收敛。

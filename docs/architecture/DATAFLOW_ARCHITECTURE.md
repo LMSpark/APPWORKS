@@ -6,7 +6,7 @@
 
 **无显示投影的查询字段**：正式模型查询在没有fieldProjection时，从DataView.queryColumns取得输出字段；不能把完整DataTable/视图结构columns中的非输出列当作请求输出。正式元数据读取清除工作区显示投影后仍遵循同一规则。非输出列留在原模型结构，显式请求未知或非输出字段仍拒绝；此目录不授予数据权限，查询与提交继续消费原owner的正式上下文。
 
-本文是**数据空间跨包语义的唯一文档入口**。源码决定当前行为；[AGENTS 0.2—0.7](../../AGENTS.md)记录产品方向。包 API 说明方法，指南说明操作，任务研究和历史验收记录不替代本合同。本文将当前实现与未完成项分开记录。历史验收证据位于[证据目录](../../notes/evidence/data-space-config-storage/)，只证明记录时点与范围，不替代已删除方案或本次线上验证。
+本文是**数据空间跨包语义的唯一文档入口**。源码决定当前行为；[AGENTS 0.2—0.7](../../AGENTS.md)记录产品方向。包 API 说明方法，指南说明操作，任务研究和历史验收记录不替代本合同。本文将当前实现与未完成项分开记录。历史验收证据曾位于 `notes/evidence/data-space-config-storage/`（**2026-10-21 已从本仓删除**，删前路径见 [manifest](../../notes/research-evidence-deletion-manifest-20261021.json)）；结论以本文与 [删除记录 §2026-10-21 工作区收敛](../../notes/data-space-retirement-ledger.md) 为准，不替代已删除方案或本次线上验证。
 
 **直接查询同样消费视图过滤配置**：DataView.loadFromServer在调用方未显式传filter时使用自身filterExpression；直接加载、派生查询视图、refresh、排序和翻页均由同一SPARK data边界生成过滤参数。显式调用过滤保持原优先级，不改写持久视图配置；动态选项查找仍在既有公共链解析。来源适配及业务页面不再各自补传默认过滤，避免文件资源直接加载时漏掉范围条件。
 
@@ -395,7 +395,7 @@ flowchart TD
 - `DataView.createQueryView`已经复制同表定义/查询配置并绑定同一个查询owner，不复制行、选择、编辑或授权结果，释放用DataTable.destroyView；无需新增查询框架。
 - 分析探针用正式DataSpaceRuntimeApi及HTTP夹具验证：default字段目录保持Idle → 派生T+新M范围 → 空结果返回自身新增授权 → 本视图暂存字段 → 丢弃；无DB或文件写入请求。空行集不等于没有表级新增权限，但必须真正执行本视图查询，不能复制另一个视图的授权。
 - 当时同一探针对照验证脱敏规则ID误判：空Expression通过；无关模型的Expression=MASK_RULE_1时，符合产品语义的“不应抛错”断言失败。该历史反例已在2.5.146按脱敏规则ID语义修复；当前验收见历史模型工作区记录，不再以原失败描述现状。
-- 结果为3项中2通过、1预期缺陷失败；仅证明上述公共能力及错误守卫，**不证明线上新模型创建、批量提交或完整页面通过**。证据：[探针](../../notes/evidence/data-space-config-storage/chain-dependency-probe.test.ts)、[输出](../../notes/evidence/data-space-config-storage/chain-dependency-probe.log)。
+- 结果为3项中2通过、1预期缺陷失败；仅证明上述公共能力及错误守卫，**不证明线上新模型创建、批量提交或完整页面通过**。历史证据：`chain-dependency-probe` 探针与 log（原 `notes/evidence/data-space-config-storage/` 已删除，见 [删除记录](../../notes/data-space-retirement-ledger.md)）。
 
 旧方案的推进顺序已撤回。上述依赖语义只用于核对实际操作：局部用例通过不能代替完整自描述、操作目标消费及整页验收，也不能成为继续堆叠旧实现的依据。
 
@@ -415,13 +415,13 @@ flowchart TD
 
 显式file配置与fileExecutors已由正式装配链消费，ScenarioDefinitionRecords声明定义资源身份及记录映射，ScenarioDefinitionResource执行查询、变更校验和存储适配；C通过pagedata声明绑定、视图、模型关系、级联和布局等模型。字段/视图配置不存运行rows、权限凭据或目标T的调用值，临时候选和导航投影不落作正式定义。不增加Java表、第二份数据库元数据、任意文件读取器或页面私有保存器；实际部署及未验收项须核对各自历史证据和当前源码，不能恢复“运行时临时造定义表”的旧方案。
 
-源码：[JSON专题入口](../../packages/spark-json-document/src/index.ts)、[JSON标准字段合同](../../packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts)、[原生表合同](../../packages/spark-data/src/types.ts)、[场景文件owner](../../packages/spark-project-model/src/scenario/scenario-view-file.ts)。查询证据：[17项ClassModel目录、概要和指南](../../notes/evidence/data-space-config-storage/classmodel-definition-resource-query.json)。工具返回成功只证明能查询；TableSemanticMetadata指南将开放字符串联合展开为字符串方法对象，实际DTS仍是TableResourceType，不能按该展示结果生成对象值。该投影缺陷单独登记，不能用手改产物纠正。
+源码：[JSON专题入口](../../packages/spark-json-document/src/index.ts)、[JSON标准字段合同](../../packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts)、[原生表合同](../../packages/spark-data/src/types.ts)、[场景文件owner](../../packages/spark-project-model/src/scenario/scenario-view-file.ts)。历史查询证据：`classmodel-definition-resource-query.json`（原 evidence 目录已删除，见 [删除记录](../../notes/data-space-retirement-ledger.md)）。工具返回成功只证明能查询；TableSemanticMetadata指南将开放字符串联合展开为字符串方法对象，实际DTS仍是TableResourceType，不能按该展示结果生成对象值。该投影缺陷单独登记，不能用手改产物纠正。
 
 原生值的树编辑以固定`value`节点承载对象、数组和标量，包裹结构不参与存储。公共`JsonTreePolicy.canAddChild`按实际父容器控制新增，子项/同级变更与显示行使用同一策略；默认允许新增，`isProtected`仍只表达不可删除。FieldJson的native模式及值函数JSON参数禁止根新增、value同级新增和value删除/改名，value自身类型及内部增删改继续由原字段/函数校验接纳。普通JSON文档和规则树不受该包裹边界限制；被策略拒绝的操作保持原树且不发出虚假变更，原字段完整性校验仍保留。
 
 ### 0.9 深度复核：矛盾、反证与可行性边界
 
-本节只记录当前判定边界。修复前的反例与探针原文已移入[历史审查证据](../../notes/evidence/data-space-config-storage/e62-retire-owner-review-history.txt)，不再把已删除prepare算法、未接通直接保存或旧停止顺序描述为现状。旧实施编号已删除；下表只用于核对当前源码，不能从历史失败记录恢复旧入口。
+本节只记录当前判定边界。修复前的反例与探针原文曾位于 `e62-retire-owner-review-history.txt`（原 evidence 目录已删除，见 [删除记录](../../notes/data-space-retirement-ledger.md)），不再把已删除prepare算法、未接通直接保存或旧停止顺序描述为现状。旧实施编号已删除；下表只用于核对当前源码，不能从历史失败记录恢复旧入口。
 
 | 核查项 | 当前链路与验收边界 |
 | --- | --- |
@@ -546,7 +546,7 @@ DataView 属于模型；同模型的多个视图共用正式定义，不共享�
 
 **稳定模型的字段配置保存范围**：在前后配置均为原生v2、模型与资源身份不变时，columns及同次views/api/crudConfig编辑沿selectTableValidationScope校验该DataTable全部命名视图，并沿已有原生关系、级联和辅助过滤依赖读取相关模型；包含反向依赖消费者，无关模型不成为保存前置。字段仍被视图引用时拒绝提交，原修改可纠正或取消；原生新增绑定使用同一依赖校验；纯解除绑定先核文件引用。换绑、旧格式及混合删除等结构变化继续按各自边界核定，不能把此规则扩大为跳过依赖。投影只供校验，DataSet.saveChanges仍保存完整文件中的捕获修改，保留无关配置。回执未知沿同一保存链核验，不重放已应用文件；独立重开后多个视图继续消费本地计算定义与正式查询权限。
 
-2026-10-18实际服务验收在隔离T通过标准字段配置保存单行表达式`txt + " / " + val`，独立重开后default和Verification_20261018均显示4个正确组合值；第二视图服务响应只含原9正式字段，计算后界面为10字段。随后沿同一DataSet删除测试列并保存、重开，恢复4行/9字段；文件唯一残留差异为原先省略的columns变成空数组，其他解析配置相同。此次两次文件提交均确认回读，没有数据库写入，不证明跨行聚合或整个参考页完成。详见[本次浏览器证据](../../notes/evidence/data-space-config-storage/native-column-browser-20261018.json)。
+2026-10-18实际服务验收在隔离T通过标准字段配置保存单行表达式`txt + " / " + val`，独立重开后default和Verification_20261018均显示4个正确组合值；第二视图服务响应只含原9正式字段，计算后界面为10字段。随后沿同一DataSet删除测试列并保存、重开，恢复4行/9字段；文件唯一残留差异为原先省略的columns变成空数组，其他解析配置相同。此次两次文件提交均确认回读，没有数据库写入，不证明跨行聚合或整个参考页完成。历史浏览器证据：`native-column-browser-20261018.json`（原 evidence 目录已删除，见 [删除记录](../../notes/data-space-retirement-ledger.md)）。
 
 
 **聚合执行边界**：DataColumn单行计算可继续在前端处理已返回值；跨行/跨模型业务统计必须由后端按正式查询范围、过滤及授权执行，再装入DataView。不得把分页行、尚未全加载的子表或前端选择缓存当成完整统计集合，也不得靠浏览器拉全来补救。ComputedColumnAggregateResolver与AggregateDelegate均按原查询owner的localAggregates能力核边界；只在允许本地计算的来源执行原算法，完整后端迁移仍未完成。aggregateResult及selectionAggregateResult的真实数据范围、过滤和选择身份须在迁移时明确，未接通前不能标成全量统计。$list/$join、复杂父子关系表达式与任意JS公式尚无已证明的等价后端接法，不能静默转换、回退本地或删除原配置。
@@ -634,13 +634,13 @@ DataSet.schemaVersion缺省为2；triggerAutoLoad遍历所有表的视图，仅�
 
 **缓存与完成配置的核查边界**：冻结master对cacheType提供页面/浏览器/不设置选项；RequestComplete的可证实合同是文本配置：默认空字符串，节点输入框maxlength=50，读取兼容大小写，保存trim后写Base_DataModel.RequestComplete，复制模型和关系时保留。源码没有把该文本解析为函数名、脚本体或动作配置；50只是该输入框约束，不是已证明的后端长度约束。
 
-**RequestComplete完整源码链与断点**：参考节点handleSaveMetaAndRequest→saveDataModel→正式模型记录的读写链存在；handleQueryPreview→getDataModelPreview→公共query→queryScenarioResource→toProtocolQueryOptions→DataSpaceModelApi.query/queryFresh→resource.queryPlan→协议查询返回值的消费链没有读取此配置，也没有完成处理器分发。设计快照normalizeModel只投影身份、来源、业务标志和CRUD目标，同样未交付RequestComplete。冻结参考与当前参考的TS/Vue/JS检索均为22处声明/读写/复制命中；本地Java仅实体JsonProperty与字段声明2处命中，只作参考，不能推出部署服务行为。隔离执行参考原函数的两种预览查询（假查询、不联网）证明RequestComplete属性读取次数为0，出站仅filter/inputParams/page/outputType，返回行正常交回。证据为[源码与探针](../../notes/evidence/data-space-config-storage/e62-request-complete-trace-evidence.json)，不能扩大为线上或所有外部消费者已验。
+**RequestComplete完整源码链与断点**：参考节点handleSaveMetaAndRequest→saveDataModel→正式模型记录的读写链存在；handleQueryPreview→getDataModelPreview→公共query→queryScenarioResource→toProtocolQueryOptions→DataSpaceModelApi.query/queryFresh→resource.queryPlan→协议查询返回值的消费链没有读取此配置，也没有完成处理器分发。设计快照normalizeModel只投影身份、来源、业务标志和CRUD目标，同样未交付RequestComplete。冻结参考与当前参考的TS/Vue/JS检索均为22处声明/读写/复制命中；本地Java仅实体JsonProperty与字段声明2处命中，只作参考，不能推出部署服务行为。隔离执行参考原函数的两种预览查询（假查询、不联网）证明RequestComplete属性读取次数为0，出站仅filter/inputParams/page/outputType，返回行正常交回。历史证据：`e62-request-complete-trace-evidence.json`（原 evidence 目录已删除，见 [删除记录](../../notes/data-space-retirement-ledger.md)），不能扩大为线上或所有外部消费者已验。
 
 本仓readModel在raw中保留RequestComplete原值；旧DB字符串只读核对，不自动解释成脚本或函数名。原生完成配置为所属DataView的`onRequestComplete`：页面`script.js`函数标识符，省略或空字符串禁用，脚本体/调用表达式/属性路径被拒绝。ScenarioViewConfig与DataView共用DataViewQuery.parseCompletionHandler校验；标准FieldText绑定DataViewDefinition字段，经DataSet.saveChanges和pagedata资源适配保存，独立重开装配到原生视图。引导C已声明该字段；若正式C尚无字段，页面提示更新配置，不伪造本地列或假称线上已迁移。
 
 DataView在实际查询成功接纳结果、计算字段和自动指针后发`requestCompleted`；覆盖loadFromServer、loadTreeNested及requestData的本地查询，刷新/过滤/排序/翻页复用原查询入口。失败、过期响应、初始灌入、普通行编辑不触发；不能用所有Loaded状态变化替代完成事件。createQueryView是辅助查询，默认不继承页面完成函数，需消费者显式配置。通用DataSet.onAnyViewChange桥接新事件，动态视图和释放沿同一订阅机制。
 
-SparkPageRenderer在页面脚本编译后、初始化与自动加载前，在原有DataSet订阅中消费事件，按`空间@正式模型名@视图`定位，复用callFunc调用本次页面函数。函数接收一个`{view, dataViewKey, signal}`对象；signal属于该页面运行，切换、重载及卸载时作废。未找到函数、同步抛错和异步拒绝走现有script-function诊断，查询结果保持成功，不等待处理函数完成才宣称查询完成。异步脚本须遵循signal和页面现有失效保护；不承诺中断任意JS副作用。原生Vue消费者可订阅同一requestCompleted；设计器查询预览没有被设计页面的脚本作用域，不执行其完成函数。正式保存/重开及页面消费由隔离链测试覆盖，线上/视觉仍未验；证据见[e62-request-complete-verification.json](../../notes/evidence/data-space-config-storage/e62-request-complete-verification.json)。
+SparkPageRenderer在页面脚本编译后、初始化与自动加载前，在原有DataSet订阅中消费事件，按`空间@正式模型名@视图`定位，复用callFunc调用本次页面函数。函数接收一个`{view, dataViewKey, signal}`对象；signal属于该页面运行，切换、重载及卸载时作废。未找到函数、同步抛错和异步拒绝走现有script-function诊断，查询结果保持成功，不等待处理函数完成才宣称查询完成。异步脚本须遵循signal和页面现有失效保护；不承诺中断任意JS副作用。原生Vue消费者可订阅同一requestCompleted；设计器查询预览没有被设计页面的脚本作用域，不执行其完成函数。正式保存/重开及页面消费由隔离链测试覆盖，线上/视觉仍未验；历史证据见 `e62-request-complete-verification.json`（原 evidence 目录已删除，见 [删除记录](../../notes/data-space-retirement-ledger.md)）。
 
 **原生结果缓存（2026-10-15用户确认范围）**：queryConfig.cacheType取none/page/browser，省略等同none。page仅同一运行DataSet，页面释放时删除；browser为同一运行owner在当前浏览器JavaScript会话内跨页面复用，刷新浏览器或关闭即丢失，退出/登录身份/应用变化立即清除，不使用localStorage、sessionStorage或IndexedDB。旧Base_DataModel.cacheType只读保留，不自动覆盖命名视图。
 
@@ -842,7 +842,7 @@ views 的键提供 viewId；正式文件不保存 view 内的 `tableName / viewI
 
 不能把“Navigation仅允许逻辑视图”写成当前执行事实：BasicFunService的数据库表/数据库视图GetTableData也有Navigation/HierarchyData分支，带ChildTables时可进入相同嵌套组装。是否完整配置、正式权限及输出/分页是否成立仍需真实用例验证。参考数据空间预览的五项模式候选未按来源区分；逻辑视图设计序列化保留节点OutputType，但当前该页Vue/TS没有显式编辑入口，新节点缺省Table，属于恢复业务时须核的缺口。当前本仓的统一候选目录也不证明每种来源均支持每个模式，不先按来源名称建立未经验证的白名单。
 
-已核分页边界：逻辑视图无分页时Count是完整结果数；分页分支只取到判断下一页所需的记录，PageResult以hasNextPage和本页长度构造。数据库Navigation直接返回数组。两者不能未经验证就套用“Count为全量总数”的普通分页或allPages收集合同。2026-10-10只读实测正式sys_edit模型：已存资源根及子节点为Table，返回合并字段的平面记录；每页1条时第1页Count=1、第2页Count=0，两页hasNextPage=false，primaryKeyField=null，记录不含行权限凭据。此样本证明逻辑视图正式查询通道及该回包形状，不证明Navigation主从绑定或可写权限。完整证据见[逻辑视图在线核查](../../notes/evidence/data-space-config-storage/logical-view-live-review.json)。
+已核分页边界：逻辑视图无分页时Count是完整结果数；分页分支只取到判断下一页所需的记录，PageResult以hasNextPage和本页长度构造。数据库Navigation直接返回数组。两者不能未经验证就套用“Count为全量总数”的普通分页或allPages收集合同。2026-10-10只读实测正式sys_edit模型：已存资源根及子节点为Table，返回合并字段的平面记录；每页1条时第1页Count=1、第2页Count=0，两页hasNextPage=false，primaryKeyField=null，记录不含行权限凭据。此样本证明逻辑视图正式查询通道及该回包形状，不证明Navigation主从绑定或可写权限。历史完整证据：`logical-view-live-review.json`（原 evidence 目录已删除，见 [删除记录](../../notes/data-space-retirement-ledger.md)）。
 
 **主从表一次输出的后端实现已经存在，本仓尚未完成对应消费。** 一次输出指一个调用返回主记录及其从表集合，后端内部仍可先查主表、递归查询子表；不表示一条SQL，也不自动表示根集合无分页。BasicFunServiceImpl的GetNavigationOrHierarchyData/fetchChildData/processTableData已承担查询和组装，前端接入应复用该结果。逻辑视图也可输出其他形态，不能把所有logical-view来源固定解释成主从嵌套。
 

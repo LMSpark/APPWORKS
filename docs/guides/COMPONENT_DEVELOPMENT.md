@@ -8,7 +8,7 @@
 
 DataTable中记录的控件类型只为AI提供设计思路，不强制组件选择。选择取决于业务目的和页面交互；选定标准组件后，其真实属性、事件、数据成员与子节点合同必须成立。同模型可以按状态隔离需要具有多个DataView；刻意共享状态的区域可复用视图。运行结构保留default视图，不表示数据策划时就应预建全部页面专用视图。级联在真实输入与消费点明确后配置，不由控件类型或模型关系自动生成。
 
-历史参考是《DataSet包与AI页面设计100步流程（数据规划优先版）》，原路径`docs/ai/dataset-page-design-ai-flow-100-steps-zh.md`，在提交`1d9fd0f38`中删除；[原文留档](../../notes/evidence/data-space-config-storage/page-design-100-steps-original.txt)取自该提交的父版本，仅用于追溯设计意图。当前执行对应为：
+历史参考是《DataSet包与AI页面设计100步流程（数据规划优先版）》，原路径`docs/ai/dataset-page-design-ai-flow-100-steps-zh.md`，在提交`1d9fd0f38`中删除；原文留档 `page-design-100-steps-original.txt` 曾位于 `notes/evidence/data-space-config-storage/`（**2026-10-21 已删除**，见 [删除记录](../../notes/data-space-retirement-ledger.md)），仅用于追溯设计意图。当前执行对应为：
 
 | 原步骤 | 本次生成页面时的使用方式 |
 | --- | --- |

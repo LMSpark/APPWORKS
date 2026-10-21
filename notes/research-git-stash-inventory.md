@@ -80,3 +80,9 @@ Indexes（删前）: 8, 9, 10, 11, 14, 20, 21, 25, 26, 28, 30, 32
 - **已 drop**：12 条 `lint-staged automatic backup`
 - **剩余 stash**：21 条（具名 WIP / protected-local-files 等，未动）
 - 30 天后可复核 stash@{2..} 大体积 temp 是否仍需要
+
+## 执行结果（2026-10-21 post-cleanup 复核）
+
+- **模式 drop**（自 `stash@{0}` 迭代）：`codex-temp-*`、`temp-before-commit-second-batch*`、`temp-recover-after-lint-staged`、`temp-switch-back-latest`、`temp-before-restore-8456f45b`、`wip: catalog snapshot`
+- **当前 `git stash list`**：**空**（上述 21 条均已 drop，含原 `protected-local-files-before-push` / `rollback-warning-fix-attempt`；当前 `10-17` 以已推送 commit 为准，不再依赖 stash）
+- **恢复**：若需旧 WIP，从对应分支 reflog / 远程分支查找；勿再从 lint-staged 备份恢复

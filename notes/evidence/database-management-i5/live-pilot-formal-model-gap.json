@@ -22,5 +22,11 @@
     "Hub tiered resolve：五表失败时 serverOnly 仍写 resolvedScenarioId，表和视图 Tab blocked（2026-10-21 II）"
   ],
   "livePilotTableAndView": "blocked-pending-metadata",
-  "livePilotAfterMetadata": "待五表 readModelBatch 通过后复验 DataView 与 vitest 对照"
+  "livePilotAfterMetadata": "待五表 readModelBatch 通过后复验 DataView 与 vitest 对照",
+  "liveVerified20261021": {
+    "resolvedDataSpaceId": "62DB03B06A489600FFF86F3640D5C0E7",
+    "catalogFormalTier": "serverOnly",
+    "hubAndCatalogTabBlockedCopyConfirmed": true,
+    "serverListLoadsUnderSameFormKey": true
+  }
 }

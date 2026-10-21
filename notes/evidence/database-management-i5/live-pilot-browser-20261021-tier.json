@@ -50,5 +50,29 @@
     "serverOnlyMetadata": "hub status 未齐警告 + 服务器 Tab 可用 + 表和视图 blocked",
     "fullMetadata": "catalogFormalTier=full，两 Tab 均 loadCatalog"
   },
+  "liveLoggedIn20261021": {
+    "checkedAt": "2026-10-21T14:16+08:00",
+    "tenant": "领码科技",
+    "operator": "wangtao",
+    "appProjectId": "D99A1DCE9894698799101EFD70F8FC76",
+    "url": "/t/NewApp/D99A1DCE9894698799101EFD70F8FC76/DataBaseManage/DataBaseManage/index",
+    "loggedIn": true,
+    "catalogFormalTier": "serverOnly",
+    "resolvedDataSpaceId": "62DB03B06A489600FFF86F3640D5C0E7",
+    "resolveFingerprint": "Base_serverInfo",
+    "hubWarning": "当前 FormKey 下仅 Base_serverInfo 正式模型可用，库/表/视图五表 readModelBatch 未齐",
+    "serverTab": {
+      "loaded": true,
+      "toolbar": ["注册服务器", "编辑", "删除", "刷新"],
+      "serverRowCountObserved": 5
+    },
+    "catalogTab": {
+      "blocked": true,
+      "noCatalogTables": true,
+      "blockedMessageSameAsHubWarning": true
+    },
+    "screenshot": "browser temp page-2026-10-21T06-16-38-816Z.png（未入库）",
+    "matrix实页列": "服务器 Tab 部分成立；表和视图仍 blocked（元数据五表未齐）"
+  },
   "priorEvidence": "live-pilot-browser-20261020.json"
 }

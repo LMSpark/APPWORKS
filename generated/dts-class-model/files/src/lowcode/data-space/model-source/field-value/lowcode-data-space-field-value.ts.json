@@ -10,10 +10,45 @@
     "jsdoc": "@module app:lowcode/data-space/model-source/field-value/lowcode-data-space-field-value\n职责：从正式元数据视图提供字段值函数引用目录并校验显式修改。\n边界：不执行值函数、不持有草稿、不保存；字段取正式Name，GetRefData输出引用取数据库来源名。\nAI用途：字段编辑复用原查询权限和函数合同，未知函数不被误当成后端不支持。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "FieldValueScope",
       "LowcodeDataSpaceFieldValue"
     ]
   },
   "$defs": {
+    "FieldValueScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldValueScope",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "viewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        },
+        "usage": {
+          "enum": [
+            "field-output",
+            "operation-input"
+          ]
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeDataSpaceFieldValue": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -22,26 +57,8 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
-            },
-            "targetId": {
-              "type": "string"
-            },
-            "modelId": {
-              "type": "string"
-            },
-            "viewId": {
-              "enum": [
-                "default",
-                "modelFields"
-              ]
-            },
-            "usage": {
-              "enum": [
-                "field-output",
-                "operation-input"
-              ]
+            "scope": {
+              "$ref": "#/$defs/FieldValueScope"
             }
           },
           "additionalProperties": false
@@ -155,74 +172,67 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T02:24:22.565Z",
+  "generatedAt": "2026-10-23T06:52:20.795Z",
   "models": {
+    "FieldValueScope": {
+      "name": "FieldValueScope",
+      "jsdoc": "元数据实例、目标空间及正式模型 ID；modelFields 消费本模型工作区。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    viewId?: 'default' | 'modelFields';\n    /** field-output 引用数据库资源；operation-input 保留操作映射的模型引用合同。 */\n    usage?: 'field-output' | 'operation-input';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    viewId?: 'default' | 'modelFields';\n    /** field-output 引用数据库资源；operation-input 保留操作映射的模型引用合同。 */\n    usage?: 'field-output' | 'operation-input';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "usage",
+              "jsdoc": "field-output 引用数据库资源；operation-input 保留操作映射的模型引用合同。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeDataSpaceFieldValue": {
       "name": "LowcodeDataSpaceFieldValue",
       "jsdoc": "按当前可读定义构建目录，不缓存查询结果或权限。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "元数据实例、目标空间及正式模型ID；modelFields消费本模型工作区。字段输出引用数据库资源，operation-input保留操作映射的模型引用合同。",
-          "signatureText": "constructor(dataSet: DataSet, targetId: string, modelId: string, viewId?: 'default' | 'modelFields', usage?: 'field-output' | 'operation-input')",
+          "signatureText": "constructor(scope: FieldValueScope)",
           "parameters": [
             {
-              "name": "dataSet",
+              "name": "scope",
               "type": {
                 "type": "reference",
-                "name": "DataSet"
-              }
-            },
-            {
-              "name": "targetId",
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "modelId",
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "viewId",
-              "type": {
-                "type": "union",
-                "types": [
-                  {
-                    "type": "literal",
-                    "value": "default"
-                  },
-                  {
-                    "type": "literal",
-                    "value": "modelFields"
-                  }
-                ]
-              },
-              "flags": {
-                "isOptional": true
-              }
-            },
-            {
-              "name": "usage",
-              "type": {
-                "type": "union",
-                "types": [
-                  {
-                    "type": "literal",
-                    "value": "field-output"
-                  },
-                  {
-                    "type": "literal",
-                    "value": "operation-input"
-                  }
-                ]
-              },
-              "flags": {
-                "isOptional": true
+                "name": "FieldValueScope",
+                "sourcePath": "src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts"
               }
             }
           ]

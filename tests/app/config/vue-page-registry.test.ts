@@ -19,13 +19,22 @@ afterEach(() => {
 
 describe('Vue page registry', () => {
   it.each([
-    '/features/data-platform/data-set-management/ui/data-set-list-page',
-    '/features/data-platform/data-set-management/design/ui/data-set-design-page',
-  ])('resolves the unchanged native navigation path to its matching source: %s', path => {
+    ['/features/data-platform/data-set-management/ui/data-set-list-page', false],
+    ['/features/data-platform/data-set-management/design/ui/data-set-design-page', false],
+    ['/features/data-platform/semi-structured/json-data/ui/json-data-page', false],
+    ['/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page', false],
+    ['/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page', false],
+    ['/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page', false],
+    ['/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page', false],
+    ['/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page', false],
+    ['/features/data-platform/structured-config/data-code/ui/data-code-editor-page', false],
+    ['/features/data-platform/structured-config/logic-view/ui/logic-view-design-page', false],
+    ['/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page', false],
+  ])('resolves the unchanged native navigation path to its matching source: %s', (path, shellTool) => {
     const entry = getVuePageEntry(path)
     expect(entry?.source).toBe(`src/views${path}.vue`)
     expect(entry?.scope).toBe('app')
-    expect(entry?.shellTool).toBe(false)
+    expect(entry?.shellTool).toBe(shellTool)
     expect(typeof entry?.load).toBe('function')
   })
 

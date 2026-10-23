@@ -207,7 +207,7 @@ async function readback(): Promise<void> {
   message.value = readbackViews.some(view => view.refreshPending) ? `${title}已保存，目录将在当前修改或操作结束后更新` : `${title}已保存并回读确认`
 }
 async function retryReadback(): Promise<void> {return run(readback)}
-const selectBinding: NonNullable<RTableProps['onRowClick']> = (_row, _column, _event, control) => {if (blocked.value || editing.value) control.cancel = true}
+const selectBinding: NonNullable<RTableProps['onRowClick']> = (...args) => {if (blocked.value || editing.value) args[3].cancel = true}
 async function createBinding(): Promise<void> {
   if (blocked.value || bindingCount.value) return
   try {

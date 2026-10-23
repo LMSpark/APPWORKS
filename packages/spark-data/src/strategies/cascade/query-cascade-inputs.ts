@@ -7,9 +7,50 @@
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {DataSet} from '../../dataset'
 import type {DataView} from '../../data-view'
-import type {DataViewCascadeInputBinding, DataViewQueryCascade, DataViewQueryContext} from '../../types'
+import type {DataViewCascadeFilterBinding, DataViewCascadeInputBinding, DataViewQueryCascade, DataViewQueryContext} from '../../types'
 import {DataViewQuery} from '../../query/data-view-query'
 import {DataViewCascadeValueBinding} from './cascade-value-binding'
+
+type QueryCascadeWhenItem = NonNullable<DataViewQueryCascade['when']>[number]
+
+function isQueryCascadeWhenItem(item: unknown): item is QueryCascadeWhenItem {
+  if (!isRecord(item)) return false
+  if (Object.keys(item).some(key => !['field', 'equals'].includes(key))) return false
+  if (typeof item['field'] !== 'string' || !item['field'].trim()) return false
+  const equals = item['equals']
+  return equals === null || typeof equals === 'string' || typeof equals === 'boolean'
+    || typeof equals === 'number' && Number.isFinite(equals)
+}
+
+function isQueryCascadeWhenArray(input: unknown): input is NonNullable<DataViewQueryCascade['when']> {
+  return Array.isArray(input) && input.length > 0 && input.every(isQueryCascadeWhenItem)
+}
+
+function isQueryCascadeFilterBinding(item: unknown): item is DataViewCascadeFilterBinding {
+  if (!isRecord(item)) return false
+  if (Object.keys(item).some(key => !['sourceField', 'targetField', 'operator', 'omitEmpty'].includes(key))) return false
+  if (typeof item['targetField'] !== 'string' || !item['targetField'].trim()) return false
+  if (item['sourceField'] !== undefined && (typeof item['sourceField'] !== 'string' || !item['sourceField'].trim())) return false
+  if (item['operator'] !== undefined && (typeof item['operator'] !== 'string' || !['eq', 'in', 'contains'].includes(item['operator']))) return false
+  if (item['omitEmpty'] !== undefined && typeof item['omitEmpty'] !== 'boolean') return false
+  return true
+}
+
+function isQueryCascadeInputBinding(item: unknown, targets: ReadonlyArray<DataViewCascadeInputBinding['target']>, contextKey: (target: string) => string | undefined): item is DataViewCascadeInputBinding {
+  if (!isRecord(item)) return false
+  if (Object.keys(item).some(key => !['sourceField', 'target', 'format', 'omitEmpty', 'when'].includes(key))) return false
+  if (typeof item['target'] !== 'string') return false
+  if (!targets.some(target => target === item['target']) && contextKey(item['target']) === undefined) return false
+  if (item['sourceField'] !== undefined && (typeof item['sourceField'] !== 'string' || !item['sourceField'].trim())) return false
+  if (item['format'] !== undefined && (item['format'] !== 'json' || item['target'] !== 'queryContext')) return false
+  if (item['omitEmpty'] !== undefined && typeof item['omitEmpty'] !== 'boolean') return false
+  const when = item['when']
+  if (when !== undefined && (!isRecord(when) || Object.keys(when).some(key => !['field', 'equals'].includes(key))
+    || typeof when['field'] !== 'string' || !when['field'].trim()
+    || !(when['equals'] === null || typeof when['equals'] === 'string' || typeof when['equals'] === 'boolean'
+      || (typeof when['equals'] === 'number' && Number.isFinite(when['equals']))))) return false
+  return true
+}
 
 /** 一次解析后的查询输入快照；只在级联执行期间使用，不写入pagedata。 */
 type InputValue = Readonly<{
@@ -37,14 +78,8 @@ export class DataViewQueryCascadeInputs {
   /** 校验可选启用条件；条件读取仍经过统一值与数据权限边界。 */
   static parseWhen(input: unknown): NonNullable<DataViewQueryCascade['when']> {
     if (input === undefined) return []
-    if (!Array.isArray(input) || !input.length || input.some(item => !isRecord(item)
-      || Object.keys(item).some(key => !['field', 'equals'].includes(key))
-      || typeof item['field'] !== 'string' || !item['field'].trim()
-      || !(item['equals'] === null || typeof item['equals'] === 'string' || typeof item['equals'] === 'boolean'
-        || typeof item['equals'] === 'number' && Number.isFinite(item['equals'])))) {
-      throw new Error('QUERY_CASCADE_INPUT: when必须是非空字段条件数组')
-    }
-    return input as NonNullable<DataViewQueryCascade['when']>
+    if (!isQueryCascadeWhenArray(input)) throw new Error('QUERY_CASCADE_INPUT: when必须是非空字段条件数组')
+    return input
   }
 
   /** 判断父值条件；不满足或尚未就绪时不查询子视图。 */
@@ -58,44 +93,27 @@ export class DataViewQueryCascadeInputs {
 
   /** 查询过滤绑定由文件解析与运行装配共用，不接受未实现的操作符。 */
   static parseFilters(input: unknown): DataViewQueryCascade['filterBindings'] {
-    if (!Array.isArray(input) || input.some(item => !isRecord(item)
-      || Object.keys(item).some(key => !['sourceField', 'targetField', 'operator', 'omitEmpty'].includes(key))
-      || typeof item['targetField'] !== 'string' || !item['targetField'].trim()
-      || item['sourceField'] !== undefined && (typeof item['sourceField'] !== 'string' || !item['sourceField'].trim())
-      || item['operator'] !== undefined && (typeof item['operator'] !== 'string' || !['eq', 'in', 'contains'].includes(item['operator']))
-      || item['omitEmpty'] !== undefined && typeof item['omitEmpty'] !== 'boolean')) {
-      throw new Error('QUERY_CASCADE_INPUT: filterBindings格式无效')
-    }
-    return input as DataViewQueryCascade['filterBindings']
+    if (!Array.isArray(input) || !input.every(isQueryCascadeFilterBinding)) throw new Error('QUERY_CASCADE_INPUT: filterBindings格式无效')
+    return input
   }
   /** 校验形状、唯一目标和条件；无输入绑定时返回空集合。 */
   static parse(input: unknown): readonly DataViewCascadeInputBinding[] {
     if (input === undefined) return []
     if (!Array.isArray(input) || input.length === 0) throw new Error('QUERY_CASCADE_INPUT: inputBindings必须是非空数组')
     const seen = new Set<string>()
+    const bindings: DataViewCascadeInputBinding[] = []
     for (const binding of input) {
-      if (!isRecord(binding) || Object.keys(binding).some(key => !['sourceField', 'target', 'format', 'omitEmpty', 'when'].includes(key))
-        || typeof binding['target'] !== 'string'
-        || (!this.targets.some(target => target === binding['target']) && this.contextKey(binding['target']) === undefined)
-        || (binding['sourceField'] !== undefined && (typeof binding['sourceField'] !== 'string' || !binding['sourceField'].trim()))
-        || (binding['format'] !== undefined && (binding['format'] !== 'json' || binding['target'] !== 'queryContext'))
-        || (binding['omitEmpty'] !== undefined && typeof binding['omitEmpty'] !== 'boolean')) {
+      if (!isQueryCascadeInputBinding(binding, this.targets, target => this.contextKey(target))) {
         throw new Error('QUERY_CASCADE_INPUT: 输入绑定格式无效')
       }
-      if (seen.has(binding['target'])) throw new Error(`QUERY_CASCADE_INPUT: 重复目标 ${binding['target']}`)
-      seen.add(binding['target'])
-      const when = binding['when']
-      if (when !== undefined && (!isRecord(when) || Object.keys(when).some(key => !['field', 'equals'].includes(key))
-        || typeof when['field'] !== 'string' || !when['field'].trim()
-        || !(when['equals'] === null || typeof when['equals'] === 'string' || typeof when['equals'] === 'boolean'
-          || (typeof when['equals'] === 'number' && Number.isFinite(when['equals']))))) {
-        throw new Error('QUERY_CASCADE_INPUT: when必须声明字段和值')
-      }
+      if (seen.has(binding.target)) throw new Error(`QUERY_CASCADE_INPUT: 重复目标 ${binding.target}`)
+      seen.add(binding.target)
+      bindings.push(binding)
     }
     if (seen.has('queryContext') && [...seen].some(target => this.contextKey(target) !== undefined)) {
       throw new Error('QUERY_CASCADE_INPUT: 整体queryContext与单键目标不能混用')
     }
-    return input as readonly DataViewCascadeInputBinding[]
+    return bindings
   }
 
   /** 同一子视图的同一输入只能有一个定义来源，禁止顺序覆盖。 */

@@ -9,9 +9,509 @@
     "modulePath": "lowcode/resources/database/lowcode-database-dataset-extensions",
     "jsdoc": "@module app:lowcode/resources/database/lowcode-database-dataset-extensions\n职责：Db 专题命令视图端点映射；装配调用 spark-data DataSet 命令 helper。\n边界：仅供 lowcode-database-*.ts 调用；页面与 view-ops 只消费 DataView.refresh/saveChanges。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": []
+    "symbols": [
+      "AttachCatalogCommandViewsInput",
+      "AttachServerRegisterViewInput",
+      "AttachTableRegisterCommandViewInput",
+      "AttachViewRegisterCommandViewInput",
+      "AttachTableSyncMetaDataViewInput",
+      "AttachServerConnectionTestViewsInput"
+    ]
   },
-  "$defs": {},
-  "generatedAt": "2026-10-20T08:30:25.243Z",
-  "models": {}
+  "$defs": {
+    "DatabaseCommandAttachInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCommandAttachInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "assertScope": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        }
+      },
+      "required": [
+        "dataSet",
+        "http",
+        "assertScope"
+      ],
+      "additionalProperties": false
+    },
+    "AttachCatalogCommandViewsInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AttachCatalogCommandViewsInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "assertScope": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
+        "tables": {
+          "type": "object",
+          "properties": {
+            "commandInput": {
+              "type": "string"
+            },
+            "unregisteredDbNames": {
+              "type": "string"
+            },
+            "unregisteredTableNames": {
+              "type": "string"
+            },
+            "unregisteredViewNames": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "commandInput",
+            "unregisteredDbNames"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "dataSet",
+        "http",
+        "assertScope",
+        "tables"
+      ],
+      "additionalProperties": false
+    },
+    "AttachServerRegisterViewInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AttachServerRegisterViewInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "assertScope": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
+        "register": {
+          "type": "string"
+        },
+        "catalog": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
+          }
+        }
+      },
+      "required": [
+        "dataSet",
+        "http",
+        "assertScope",
+        "register",
+        "catalog",
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "AttachTableRegisterCommandViewInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AttachTableRegisterCommandViewInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "assertScope": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
+        "register": {
+          "type": "string"
+        },
+        "catalogModel": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "http",
+        "assertScope",
+        "register",
+        "catalogModel"
+      ],
+      "additionalProperties": false
+    },
+    "AttachViewRegisterCommandViewInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AttachViewRegisterCommandViewInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "assertScope": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
+        "register": {
+          "type": "string"
+        },
+        "catalogModel": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "http",
+        "assertScope",
+        "register",
+        "catalogModel"
+      ],
+      "additionalProperties": false
+    },
+    "AttachTableSyncMetaDataViewInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AttachTableSyncMetaDataViewInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "assertScope": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
+        "sync": {
+          "type": "string"
+        },
+        "fieldTableView": {
+          "type": "string"
+        },
+        "fieldModel": {
+          "type": "string"
+        },
+        "tableCatalogModel": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "http",
+        "assertScope",
+        "sync",
+        "fieldTableView",
+        "fieldModel",
+        "tableCatalogModel"
+      ],
+      "additionalProperties": false
+    },
+    "AttachServerConnectionTestViewsInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AttachServerConnectionTestViewsInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "assertScope": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
+        "tables": {
+          "type": "object",
+          "properties": {
+            "commandInput": {
+              "type": "string"
+            },
+            "testResult": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "commandInput",
+            "testResult"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "dataSet",
+        "http",
+        "assertScope",
+        "tables"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-23T06:52:15.192Z",
+  "models": {
+    "DatabaseCommandAttachInput": {
+      "name": "DatabaseCommandAttachInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    assertScope: DataSetCommandScopeGuard;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    assertScope: DataSetCommandScopeGuard;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "assertScope",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttachCatalogCommandViewsInput": {
+      "name": "AttachCatalogCommandViewsInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DatabaseCommandAttachInput",
+            "targetName": "DatabaseCommandAttachInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        unregisteredDbNames: string;\n        unregisteredTableNames?: string;\n        unregisteredViewNames?: string;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tables",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttachServerRegisterViewInput": {
+      "name": "AttachServerRegisterViewInput",
+      "jsdoc": "注册服务器写命令视图：一行新增 = 一次 `/Db/registerServer`（后端测连、查重、写企业归属并加密密码）。\n结果未知时按前端生成的 rowid 重新读取服务器目录核验，不重放注册。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    register: string;\n    catalog: string;\n    columns: DataColumn[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DatabaseCommandAttachInput",
+            "targetName": "DatabaseCommandAttachInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    register: string;\n    catalog: string;\n    columns: DataColumn[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "register",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalog",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttachTableRegisterCommandViewInput": {
+      "name": "AttachTableRegisterCommandViewInput",
+      "jsdoc": "同步表元数据写命令：`POST /Table/SyncMetaData/{dbid}/{tableid}`。\nverify 通过刷新字段目录确认同步已反映到 Base_TblField。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    register: string;\n    catalogModel: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DatabaseCommandAttachInput",
+            "targetName": "DatabaseCommandAttachInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    register: string;\n    catalogModel: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "register",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogModel",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttachViewRegisterCommandViewInput": {
+      "name": "AttachViewRegisterCommandViewInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    register: string;\n    catalogModel: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DatabaseCommandAttachInput",
+            "targetName": "DatabaseCommandAttachInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    register: string;\n    catalogModel: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "register",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogModel",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttachTableSyncMetaDataViewInput": {
+      "name": "AttachTableSyncMetaDataViewInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    sync: string;\n    fieldTableView: string;\n    fieldModel: string;\n    tableCatalogModel: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DatabaseCommandAttachInput",
+            "targetName": "DatabaseCommandAttachInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    sync: string;\n    fieldTableView: string;\n    fieldModel: string;\n    tableCatalogModel: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "sync",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldTableView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldModel",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableCatalogModel",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AttachServerConnectionTestViewsInput": {
+      "name": "AttachServerConnectionTestViewsInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        testResult: string;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DatabaseCommandAttachInput",
+            "targetName": "DatabaseCommandAttachInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    tables: Readonly<{\n        commandInput: string;\n        testResult: string;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tables",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
 }

@@ -40,7 +40,7 @@ export class GraphLayout {
   static positions(keys: readonly GraphKey[], edges: readonly GraphEdge[]): readonly GraphPosition[] {
     const ids = new Set(keys)
     if (ids.size !== keys.length || keys.some(id => typeof id === 'number' ? !Number.isFinite(id) : !id.trim() || id.trim() !== id)) throw new Error('图节点身份无效或重复')
-    const children = new Map(keys.map(id => [id, [] as GraphKey[]]))
+    const children = new Map<GraphKey, GraphKey[]>(keys.map(id => [id, []]))
     const degrees = new Map(keys.map(id => [id, 0]))
     for (const edge of edges) {
       if (!ids.has(edge.source) || !ids.has(edge.target)) throw new Error('图关系端点不存在')

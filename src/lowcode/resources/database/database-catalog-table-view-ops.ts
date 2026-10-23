@@ -151,5 +151,5 @@ export async function databaseCatalogQueryUnregisteredTableNames(dataSet: DataSe
   if (!view) throw new Error('未登记表查询视图缺失')
   await view.refresh()
   if (view.loadingError) throw view.loadingError
-  return view.rows.map(row => scalar(row['name'])).filter(Boolean)
+  return view.rows.map(item => scalar(item['name'])).filter(Boolean)
 }

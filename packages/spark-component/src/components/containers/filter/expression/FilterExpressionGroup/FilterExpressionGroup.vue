@@ -139,9 +139,13 @@ function changeField(node: FilterExpressionEditorCondition, value: unknown): voi
   if (!canEdit(node) || typeof value !== 'string') return
   jsonRevision.value++; delete valueModes[node.id]; node.field = value; emit('change')
 }
+function isOperatorChoice(value: unknown, allowed: readonly DataViewFilterOperator[]): value is DataViewFilterOperator {
+  return typeof value === 'string' && allowed.some(operator => operator === value)
+}
 function changeOperator(node: FilterExpressionEditorCondition, value: unknown): void {
-  if (!canEdit(node) || !operators(node).includes(value as DataViewFilterOperator)) return
-  jsonRevision.value++; delete valueModes[node.id]; node.operator = value as DataViewFilterOperator; emit('change')
+  const allowed = operators(node)
+  if (!canEdit(node) || !isOperatorChoice(value, allowed)) return
+  jsonRevision.value++; delete valueModes[node.id]; node.operator = value; emit('change')
 }
 function updateLogic(value: unknown): void {if (canEdit() && (value === 'and' || value === 'or')) {props.group.logic = value; emit('change')}}
 function addCondition(): void {if (canEdit() && props.draft.countRules() < props.maxRules) {props.draft.addCondition(props.group); emit('change')}}

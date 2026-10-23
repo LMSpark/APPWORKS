@@ -256,13 +256,13 @@ export class LowcodeDataSpaceCatalog {
     try {
       const bound = this.#bindings = source.createQueryView('catalogBindings'), ancestors = this.#ancestors = source.createQueryView('catalogBindingAncestors')
       const current = () => {this.assertCurrent(); if (revision !== this.#bindingRevision || this.designTarget() !== id || this.row(id) !== row) throw new Error('绑定查询目标已变化')}
-      const fields = ['rowid', 'SysId', 'conid', 'prowid', 'FunName', 'name', 'NavigationUrl']
+      const fields = ['rowid', 'SysId', 'prowid', 'FunName', 'name', 'NavigationUrl']
       for (const view of [bound, ancestors]) {
         view.autoLoad = false; view.queryConfig = {...view.queryConfig, fields, allPages: true, maxRows: 50000, autoQuery: false}
         view.validateQueryResult = result => {
           current(); validate(result, 'rowid', fields)
           for (const node of result.rows) if (fields.some(field => result.fieldAccess(result.rowKey(node), field).read !== 'visible')
-            || node['SysId'] !== row['sysid'] || !Object.hasOwn(node, 'conid') || !Object.hasOwn(node, 'prowid')) throw new Error('导航绑定身份、归属或读取权限不完整')
+            || node['SysId'] !== row['sysid'] || !Object.hasOwn(node, 'prowid')) throw new Error('导航绑定身份、归属或读取权限不完整')
         }
       }
       const appFilter = {field: 'SysId', operator: 'eq' as const, value: scalar(row['sysid'])}
@@ -271,7 +271,6 @@ export class LowcodeDataSpaceCatalog {
       bound.filterExpression = {logic: 'and', filters: [...(scope ? [scope] : []), appFilter, {field: 'conid', operator: 'eq', value: id}]}
       await bound.refresh(); current()
       if (bound.loadingError) throw bound.loadingError
-      if (bound.rows.some(node => node['conid'] !== id)) throw new Error('导航结果不属于当前数据空间')
       if (bound.rows.length) {
         await ancestors.refresh(); current()
         if (ancestors.loadingError) throw ancestors.loadingError

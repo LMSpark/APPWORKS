@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page",
+    "sourcePath": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+    "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page",
+    "jsdoc": "@module app:views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-23T06:52:19.035Z",
+  "models": {}
+}

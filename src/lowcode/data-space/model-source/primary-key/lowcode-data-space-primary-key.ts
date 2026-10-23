@@ -17,10 +17,36 @@ type KeyChange = {
   patch: Record<string, number>
 }
 
+export type PrimaryKeyScopeInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  name: string
+  models: DataView
+  assertLive: () => void
+  workspace?: DataView | undefined
+}>
+
+export type PrimaryKeyPrepareInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  name: string
+  assertLive: () => void
+  workspace?: DataView | undefined
+}>
+
 /** 一次显式主键变更；正式记录及授权始终由原视图持有。 */
 export class LowcodeDataSpacePrimaryKey {
   private static readonly modelFields = ['rowid', 'dataSetId', 'Name', 'MetaName', 'Type', 'DbId', 'DbName', 'PrimaryKeyFields']
   private static readonly fieldFields = ['rowid', 'dataSetId', 'dataModelId', 'type', 'Name', 'AsName', 'FieldType', 'IsPKey', 'IsOutput', 'ValueFun', 'Expression']
+  private readonly dataSet: DataSet
+  private readonly targetId: string
+  private readonly modelId: string
+  private readonly name: string
+  private readonly models: DataView
+  private readonly assertLive: () => void
+  private readonly workspace: DataView | undefined
   /** 原元数据字段视图，持有正式行、权限及编辑状态。 */
   readonly fields: DataView
   /** 拟提交的字段标记，不包含其他消费者的编辑。 */
@@ -37,8 +63,15 @@ export class LowcodeDataSpacePrimaryKey {
   static sourceControlled(row: DataRow): boolean {return ['数据库表', '表', 'table'].includes(String(row['Type']))}
 
   /** 从原元数据视图捕获一次计划；调用方须经prepare核最新记录和权限。 */
-  private constructor(private readonly dataSet: DataSet, private readonly targetId: string, private readonly modelId: string,
-    private readonly name: string, private readonly models: DataView, private readonly assertLive: () => void, private readonly workspace?: DataView) {
+  private constructor(scope: PrimaryKeyScopeInput) {
+    const {dataSet, targetId, modelId, name, models, assertLive, workspace} = scope
+    this.dataSet = dataSet
+    this.targetId = targetId
+    this.modelId = modelId
+    this.name = name
+    this.models = models
+    this.assertLive = assertLive
+    this.workspace = workspace
     const fields = workspace ?? dataSet.getView('Base_DataModel_Field')
     if (!fields) throw new Error('缺少正式字段视图')
     this.fields = fields
@@ -107,10 +140,11 @@ export class LowcodeDataSpacePrimaryKey {
   }
 
   /** 独立读取最新正式元记录和权限，旧记录不因投影失败而无法修复。 */
-  static async prepare(dataSet: DataSet, targetId: string, modelId: string, name: string, assertLive: () => void, workspace?: DataView): Promise<LowcodeDataSpacePrimaryKey> {
+  static async prepare(input: PrimaryKeyPrepareInput): Promise<LowcodeDataSpacePrimaryKey> {
+    const {dataSet, targetId, modelId, name, assertLive, workspace} = input
     const models = dataSet.getView('Base_DataModel')
     if (!models) throw new Error('缺少正式模型视图')
-    const plan = new LowcodeDataSpacePrimaryKey(dataSet, targetId, modelId, name, models, assertLive, workspace)
+    const plan = new LowcodeDataSpacePrimaryKey({dataSet, targetId, modelId, name, models, assertLive, ...(workspace ? {workspace} : {})})
     for (const source of [models, plan.fields]) {
       const fresh = source.createQueryView(`keyCheck_${crypto.randomUUID().replaceAll('-', '')}`)
       try {

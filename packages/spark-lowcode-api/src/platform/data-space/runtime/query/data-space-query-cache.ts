@@ -26,6 +26,21 @@ type ResultCacheRequest = Readonly<{
 /** 查询资源的 HTTP 与 scope 配置，所有资源共享同一请求身份读取器。 */
 type DataSpaceQueryCacheOptions = ConstructorParameters<typeof DataSpaceQueryResource>[0]
 
+type DataSpaceQueryCacheQueryInput = Readonly<{
+  identity: DataSpaceQueryIdentity
+  options?: DataSpaceQueryOptions
+  config?: DataSpaceRequestConfig
+  cache?: ResultCacheRequest
+}>
+
+type DataSpaceQueryCacheLoadInput = Readonly<{
+  key: string
+  normalized: DataSpaceQueryIdentity
+  executionOptions: DataSpaceQueryOptions
+  config: DataSpaceRequestConfig
+  accept?: ResultCacheRequest['accept']
+}>
+
 /** 请求owner内的执行器、在途请求及显式配置的结果复用；保留原权限上下文。 */
 export class DataSpaceQueryCache {
   readonly #options: DataSpaceQueryCacheOptions
@@ -58,22 +73,25 @@ export class DataSpaceQueryCache {
     this.invalidate()
   }
 
-  public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {},
-    config: DataSpaceRequestConfig = DataSpaceRequestConfig.resolveQuery(), cache?: ResultCacheRequest): Promise<DataSpaceQueryContext> {
+  public async query(input: DataSpaceQueryCacheQueryInput): Promise<DataSpaceQueryContext> {
+    const options = input.options ?? {}
+    const config = input.config ?? DataSpaceRequestConfig.resolveQuery()
+    const cache = input.cache
     const scope = this.currentScope()
-    const normalized = new DataSpaceQueryTable(identity).identity
+    const normalized = new DataSpaceQueryTable(input.identity).identity
     const { singleFlight: _singleFlight, ...executionOptions } = options
     const key = this.cacheKey([scope, normalized, config.endpoint, config.timeout, cache?.definition, { ...executionOptions,
       ...(executionOptions.filter === undefined ? {} : { filter: executionOptions.filter?.toJSON() ?? null }) }])
-    const load = () => this.load(key, normalized, executionOptions, config, cache?.accept)
-    const context = cache === undefined ? await load() : await this.#results.query(key, cache.page, load,
-      () => this.currentScope() === scope && cache.isCurrent())
+    const load = () => this.load({key, normalized, executionOptions, config, ...(cache?.accept ? {accept: cache.accept} : {})})
+    const context = cache === undefined ? await load() : await this.#results.query({
+      key, page: cache.page, load, isCurrent: () => this.currentScope() === scope && cache.isCurrent(),
+    })
     context.assertIdentity(normalized)
     return context
   }
 
-  private async load(key: string, normalized: DataSpaceQueryIdentity, executionOptions: DataSpaceQueryOptions,
-    config: DataSpaceRequestConfig, accept?: ResultCacheRequest['accept']): Promise<DataSpaceQueryContext> {
+  private async load(input: DataSpaceQueryCacheLoadInput): Promise<DataSpaceQueryContext> {
+    const {key, normalized, executionOptions, config, accept} = input
     const existing = this.#flights.get(key)
     if (existing) return existing
     let resource = this.#resources.get(normalized.scenarioId)

@@ -45,7 +45,7 @@ export class ApiProviderDesign {
     if (this.#busy || this.pending && !discard) throw new Error('请先处理服务商修改或等待提交核验')
     this.#busy = true
     try {
-      if (discard) this.definition.discardPendingChanges()
+      if (discard) await this.definition.discardAndReload()
       const result = await this.definition.loadFromServer({singleFlight: false})
       if (!result.success) throw new Error(result.message ?? '服务商基础信息读取失败')
       if (this.#creating && this.definition.rows.length > 0 && !this.#creationSubmitted) throw new Error('服务商身份已存在，不能覆盖创建')

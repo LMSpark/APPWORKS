@@ -10,6 +10,8 @@
     "jsdoc": "@module app:lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key\n职责：核定一次模型主键变更涉及的正式字段标记和提交前基线。\n边界：复用原DataView查询/编辑/权限，不修改物理主键，不保存场景文件。\nAI用途：模型配置保存时共同提交PrimaryKeyFields、IsPKey和必要IsOutput。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "PrimaryKeyScopeInput",
+      "PrimaryKeyPrepareInput",
       "LowcodeDataSpacePrimaryKey"
     ]
   },
@@ -98,6 +100,71 @@
       ],
       "additionalProperties": false
     },
+    "PrimaryKeyScopeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PrimaryKeyScopeInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "models": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "workspace": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertLive.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertLive.return": true
+      }
+    },
+    "PrimaryKeyPrepareInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PrimaryKeyPrepareInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "workspace": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertLive.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertLive.return": true
+      }
+    },
     "LowcodeDataSpacePrimaryKey": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -138,24 +205,8 @@
         "method.prepare.params": {
           "type": "object",
           "properties": {
-            "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
-            },
-            "targetId": {
-              "type": "string"
-            },
-            "modelId": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "assertLive": {
-              "type": "object",
-              "title": "() => void"
-            },
-            "workspace": {
-              "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            "input": {
+              "$ref": "#/$defs/PrimaryKeyPrepareInput"
             }
           },
           "additionalProperties": false
@@ -183,7 +234,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-14T22:06:12.093Z",
+  "generatedAt": "2026-10-23T06:52:21.214Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -220,6 +271,119 @@
               "jsdoc": "仅含本次必要的IsPKey和IsOutput数值标记。",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "PrimaryKeyScopeInput": {
+      "name": "PrimaryKeyScopeInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    name: string;\n    models: DataView;\n    assertLive: () => void;\n    workspace?: DataView | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    name: string;\n    models: DataView;\n    assertLive: () => void;\n    workspace?: DataView | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workspace",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertLive",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PrimaryKeyPrepareInput": {
+      "name": "PrimaryKeyPrepareInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    name: string;\n    assertLive: () => void;\n    workspace?: DataView | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    name: string;\n    assertLive: () => void;\n    workspace?: DataView | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workspace",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertLive",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -279,58 +443,11 @@
               "jsdoc": "独立读取最新正式元记录和权限，旧记录不因投影失败而无法修复。",
               "parameters": [
                 {
-                  "name": "dataSet",
+                  "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
-                  }
-                },
-                {
-                  "name": "targetId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "modelId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "name",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "assertLive",
-                  "type": {
-                    "type": "reflection",
-                    "declaration": {
-                      "signatures": [
-                        {
-                          "parameters": [],
-                          "type": {
-                            "type": "intrinsic",
-                            "name": "void"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "name": "workspace",
-                  "type": {
-                    "type": "reference",
-                    "name": "DataView"
-                  },
-                  "flags": {
-                    "isOptional": true
+                    "name": "PrimaryKeyPrepareInput",
+                    "sourcePath": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts"
                   }
                 }
               ],

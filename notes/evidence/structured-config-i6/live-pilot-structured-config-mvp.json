@@ -1,0 +1,10 @@
+{
+  "scope": "structured-config-i6-data-code-logic-workflow",
+  "recordedAt": "2026-10-22",
+  "status": "blocked",
+  "vitest": "tests/runtime/page/structured-config — 40 passed",
+  "notes": "MVP 页面与 mock 合同已验收；实页依赖 X-AppId、正式模型 _Base_CodeDesign/Base_DataViewList/_Base_DataWorkFlow 及实服 Codeing/ViewData/DataWorkFlowDesign URL",
+  "refs": [
+    "notes/evidence/structured-config-i6/api-gaps.json"
+  ]
+}

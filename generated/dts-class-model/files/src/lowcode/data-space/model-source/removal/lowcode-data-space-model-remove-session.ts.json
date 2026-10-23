@@ -15,6 +15,7 @@
       "ModelRemoveFlow",
       "ModelRemoveLifecycle",
       "ModelRemoveHost",
+      "ModelRemoveHostInput",
       "ModelRemoveHandle"
     ]
   },
@@ -253,6 +254,32 @@
       ],
       "additionalProperties": false
     },
+    "ModelRemoveHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRemoveHostInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ModelRemoveLifecycle"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
     "ModelRemoveHandle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -309,7 +336,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T05:42:56.609Z",
+  "generatedAt": "2026-10-23T06:52:20.941Z",
   "models": {
     "Removal": {
       "name": "Removal",
@@ -604,6 +631,45 @@
               "name": "flow",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelRemoveHostInput": {
+      "name": "ModelRemoveHostInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: ModelRemoveLifecycle;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: ModelRemoveLifecycle;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
             }
           ]
         }

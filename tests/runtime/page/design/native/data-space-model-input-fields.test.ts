@@ -145,7 +145,7 @@ describe('request panel model input fields', () => {
     const session = await f.open('A'), models = session.metadataDataSet.getView('Base_DataModel')!
     await models.loadFromServer({page: 1, pageSize: 1})
     await session.loadModelFields('M1')
-    const values = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1', 'modelFields')
+    const values = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'})
     const before = f.requests.length
     expect(values.read().context.tables?.[0]).toEqual({name: 'Orders', fields: [{name: 'rowid'}, {name: 'parentId'}]})
     expect(() => values.validate('{"Type":"GetTableField","Field":"rowid"}')).not.toThrow()

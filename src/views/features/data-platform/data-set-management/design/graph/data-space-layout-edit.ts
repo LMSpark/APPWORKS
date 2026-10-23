@@ -28,6 +28,7 @@ type RebuildPreview = Readonly<{
   relationCount: number
 }>
 type RebuildEdge = {rowid: string; source: string; target: string}
+const LAYOUT_FIELDS = ['modelPositions', 'tablePositions', 'unboundNodes', 'unboundEdges'] as const
 type RebuildState = {preview: RebuildPreview; fingerprint: string; file: FileState}
 
 /** 布局是场景文件配置，模型DataView只提供当前可读身份，不以模型写权限代替文件保存合同。 */
@@ -123,9 +124,11 @@ export class DataSpaceLayoutEdit {
 
   private hasNativeLayout(): boolean {
     // ScenarioViewFile已校验布局结构；坐标读取不依赖可销毁的运行投影。
-    const layout = this.file().config['layout'] as DataSetMetadata['layout']
-    return !!layout && [layout.modelPositions, layout.tablePositions, layout.unboundNodes, layout.unboundEdges]
-      .some(value => value && Object.keys(value).length > 0)
+    const layout = this.file().config['layout']
+    return isRecord(layout) && LAYOUT_FIELDS.some(field => {
+      const value = layout[field]
+      return isRecord(value) && Object.keys(value).length > 0
+    })
   }
 
   private assertRebuildBase(file: FileState): void {
@@ -305,8 +308,7 @@ export class DataSpaceLayoutEdit {
     if (file.dirty || file.saveStatus !== 'idle') throw new Error('共享配置正在修改或等待提交确认')
     const persisted = isRecord(file.config['layout']) ? file.config['layout'] : {}
     const loaded = this.layout()
-    if (['modelPositions', 'tablePositions', 'unboundNodes', 'unboundEdges'].some(field =>
-      JSON.stringify(loaded[field as keyof typeof loaded]) !== JSON.stringify(persisted[field]))) {
+    if (LAYOUT_FIELDS.some(field => JSON.stringify(loaded[field]) !== JSON.stringify(persisted[field]))) {
       if (!this.#refreshing && !this.#loadError) {
         this.#refreshing = true
         void this.#view.refresh().then(() => {

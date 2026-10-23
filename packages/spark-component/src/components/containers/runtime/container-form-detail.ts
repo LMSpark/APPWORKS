@@ -6,7 +6,7 @@
  */
 
 import { computed, shallowReactive, toRef, watch } from 'vue'
-import { DataMember, getSparkNodeChildren, type DataColumn, type DataRow, type DataView, type SparkNode } from '@spark-appworks/spark-data'
+import { DataMember, getSparkNodeChildren, type DataRow, type DataView, type SparkNode } from '@spark-appworks/spark-data'
 import {
   DATA_SOURCE,
   MODULE_CONTEXT,

@@ -10,9 +10,9 @@
     "jsdoc": "@module lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session\n职责：编排正式字段配置提交；普通属性消费原生回执，结构变更与未知结果按领域核验（无独立命令类 FSM）。\n边界：原DataView持有编辑值和数据权限；不改来源身份或场景文件，不执行值函数。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "FieldEditSessionInput",
       "FieldEditLifecycle",
-      "FieldEditHost",
-      "FieldEditHandle"
+      "FieldEditSession"
     ]
   },
   "$defs": {
@@ -26,6 +26,38 @@
         "unknown",
         "readback"
       ]
+    },
+    "FieldEditSessionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldEditSessionInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "fieldId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/FieldEditLifecycle"
+        },
+        "viewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "fieldId",
+        "lifecycle"
+      ],
+      "additionalProperties": false
     },
     "FieldEditLifecycle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -149,27 +181,33 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "FieldEditSession",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "fieldId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/FieldEditLifecycle"
+        },
+        "viewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
           "properties": {
-            "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
-            },
-            "targetId": {
-              "type": "string"
-            },
-            "fieldId": {
-              "type": "string"
-            },
-            "lifecycle": {
-              "$ref": "#/$defs/FieldEditLifecycle"
-            },
-            "viewId": {
-              "enum": [
-                "default",
-                "modelFields"
-              ]
+            "input": {
+              "$ref": "#/$defs/FieldEditSessionInput"
             }
           },
           "additionalProperties": false
@@ -933,203 +971,9 @@
           "title": "() => Promise<void>"
         }
       }
-    },
-    "FieldEditHost": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FieldEditHost",
-      "properties": {
-        "#private": true,
-        "dataSet": true,
-        "targetId": true,
-        "fieldId": true,
-        "lifecycle": true,
-        "viewId": true,
-        "assertOwner": true,
-        "identity": true,
-        "current": true,
-        "snapshot": true,
-        "writable": true,
-        "primaryWritable": true,
-        "flowStatus": true,
-        "getState": {
-          "type": "object",
-          "title": "() => { status: FieldEditStatus; pending: boolean; }"
-        },
-        "readPreview": {
-          "type": "object",
-          "title": "() => { id: string; modelId: string; name: string; output: boolean; formalOutput: boolean; direction: \"asc\" | \"desc\" | undefined; order: number; label: string; fingerprint: string; }"
-        },
-        "read": {
-          "type": "object",
-          "title": "() => { fields: ({ readable: boolean; writable: boolean; warning: string; name: \"Name\"; label: \"\\u8BA1\\u7B97\\u5B57\\u6BB5\\u540D\\u79F0\"; kind: \"text\"; } | { readable: boolean; writable: boolean; warning: string; name: \"description\"; label: \"\\u5B57\\u6BB5\\u8BF4\\u660E\"; kind: \"text\"; } | { readable: boolean; writable: bo..."
-        },
-        "readContract": {
-          "type": "object",
-          "title": "() => { readable: boolean; writable: boolean; warning: string; name: string; label: string; }[]"
-        },
-        "confirmContract": {
-          "type": "object",
-          "title": "(fieldIds?: readonly string[]) => void"
-        },
-        "ensurePrimaryOutput": {
-          "type": "object",
-          "title": "(fieldIds?: readonly string[]) => void"
-        },
-        "validate": true,
-        "assertEditable": true,
-        "readValueFunction": {
-          "type": "object",
-          "title": "() => { context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext; warning: string; value: string | null; }"
-        },
-        "stageValueFunction": {
-          "type": "object",
-          "title": "(value: string, fieldIds?: readonly string[]) => void"
-        },
-        "discard": {
-          "type": "object",
-          "title": "() => void"
-        },
-        "save": {
-          "type": "object",
-          "title": "() => Promise<void>"
-        },
-        "readback": true,
-        "reload": {
-          "type": "object",
-          "title": "(discardPending: boolean) => Promise<void>"
-        }
-      },
-      "required": [
-        "#private",
-        "dataSet",
-        "targetId",
-        "fieldId",
-        "lifecycle",
-        "viewId",
-        "assertOwner",
-        "identity",
-        "current",
-        "snapshot",
-        "writable",
-        "primaryWritable",
-        "flowStatus",
-        "getState",
-        "readPreview",
-        "read",
-        "readContract",
-        "confirmContract",
-        "ensurePrimaryOutput",
-        "validate",
-        "assertEditable",
-        "readValueFunction",
-        "stageValueFunction",
-        "discard",
-        "save",
-        "readback",
-        "reload"
-      ],
-      "additionalProperties": false
-    },
-    "FieldEditHandle": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "FieldEditHandle",
-      "properties": {
-        "#private": true,
-        "dataSet": true,
-        "targetId": true,
-        "fieldId": true,
-        "lifecycle": true,
-        "viewId": true,
-        "assertOwner": true,
-        "identity": true,
-        "current": true,
-        "snapshot": true,
-        "writable": true,
-        "primaryWritable": true,
-        "flowStatus": true,
-        "getState": {
-          "type": "object",
-          "title": "() => { status: FieldEditStatus; pending: boolean; }"
-        },
-        "readPreview": {
-          "type": "object",
-          "title": "() => { id: string; modelId: string; name: string; output: boolean; formalOutput: boolean; direction: \"asc\" | \"desc\" | undefined; order: number; label: string; fingerprint: string; }"
-        },
-        "read": {
-          "type": "object",
-          "title": "() => { fields: ({ readable: boolean; writable: boolean; warning: string; name: \"Name\"; label: \"\\u8BA1\\u7B97\\u5B57\\u6BB5\\u540D\\u79F0\"; kind: \"text\"; } | { readable: boolean; writable: boolean; warning: string; name: \"description\"; label: \"\\u5B57\\u6BB5\\u8BF4\\u660E\"; kind: \"text\"; } | { readable: boolean; writable: bo..."
-        },
-        "readContract": {
-          "type": "object",
-          "title": "() => { readable: boolean; writable: boolean; warning: string; name: string; label: string; }[]"
-        },
-        "confirmContract": {
-          "type": "object",
-          "title": "(fieldIds?: readonly string[]) => void"
-        },
-        "ensurePrimaryOutput": {
-          "type": "object",
-          "title": "(fieldIds?: readonly string[]) => void"
-        },
-        "validate": true,
-        "assertEditable": true,
-        "readValueFunction": {
-          "type": "object",
-          "title": "() => { context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext; warning: string; value: string | null; }"
-        },
-        "stageValueFunction": {
-          "type": "object",
-          "title": "(value: string, fieldIds?: readonly string[]) => void"
-        },
-        "discard": {
-          "type": "object",
-          "title": "() => void"
-        },
-        "save": {
-          "type": "object",
-          "title": "() => Promise<void>"
-        },
-        "readback": true,
-        "reload": {
-          "type": "object",
-          "title": "(discardPending: boolean) => Promise<void>"
-        }
-      },
-      "required": [
-        "#private",
-        "dataSet",
-        "targetId",
-        "fieldId",
-        "lifecycle",
-        "viewId",
-        "assertOwner",
-        "identity",
-        "current",
-        "snapshot",
-        "writable",
-        "primaryWritable",
-        "flowStatus",
-        "getState",
-        "readPreview",
-        "read",
-        "readContract",
-        "confirmContract",
-        "ensurePrimaryOutput",
-        "validate",
-        "assertEditable",
-        "readValueFunction",
-        "stageValueFunction",
-        "discard",
-        "save",
-        "readback",
-        "reload"
-      ],
-      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-20T05:22:34.380Z",
+  "generatedAt": "2026-10-23T03:04:28.907Z",
   "models": {
     "FieldEditStatus": {
       "name": "FieldEditStatus",
@@ -1160,6 +1004,50 @@
           }
         ],
         "members": {}
+      }
+    },
+    "FieldEditSessionInput": {
+      "name": "FieldEditSessionInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    fieldId: string;\n    lifecycle: FieldEditLifecycle;\n    viewId?: 'default' | 'modelFields';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    fieldId: string;\n    lifecycle: FieldEditLifecycle;\n    viewId?: 'default' | 'modelFields';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "FieldEditLifecycle": {
@@ -1360,59 +1248,46 @@
       "classDecl": {
         "constructorMeta": {
           "jsdoc": "捕获当前字段及所属模型；派发提交后通知会话废弃旧目标投影。",
-          "signatureText": "constructor(dataSet: DataSet, targetId: string, fieldId: string, lifecycle: FieldEditLifecycle, viewId?: 'default' | 'modelFields')",
+          "signatureText": "constructor(input: FieldEditSessionInput)",
           "parameters": [
             {
-              "name": "dataSet",
+              "name": "input",
               "type": {
                 "type": "reference",
-                "name": "DataSet"
-              }
-            },
-            {
-              "name": "targetId",
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "fieldId",
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "lifecycle",
-              "type": {
-                "type": "reference",
-                "name": "FieldEditLifecycle",
+                "name": "FieldEditSessionInput",
                 "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts"
-              }
-            },
-            {
-              "name": "viewId",
-              "type": {
-                "type": "union",
-                "types": [
-                  {
-                    "type": "literal",
-                    "value": "default"
-                  },
-                  {
-                    "type": "literal",
-                    "value": "modelFields"
-                  }
-                ]
-              },
-              "flags": {
-                "isOptional": true
               }
             }
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "getState",
@@ -1814,38 +1689,6 @@
             }
           ]
         }
-      }
-    },
-    "FieldEditHost": {
-      "name": "FieldEditHost",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "FieldEditSession",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "FieldEditSession",
-            "targetName": "FieldEditSession"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "FieldEditHandle": {
-      "name": "FieldEditHandle",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "FieldEditHost",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "FieldEditHost",
-            "targetName": "FieldEditHost"
-          }
-        ],
-        "members": {}
       }
     }
   }

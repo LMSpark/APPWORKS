@@ -361,18 +361,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T05:21:59.613Z",
+  "generatedAt": "2026-10-23T06:56:27.389Z",
   "models": {
     "SourceState": {
       "name": "SourceState",
       "jsdoc": "原操作owner提供的展示状态。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "ReturnType<ModelCreateHandle['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>",
+        "declarationTypeText": "ReturnType<ModelCreateHandle['getState'] | ModelSourceEditHandle['getState']>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "ReturnType<ModelCreateHandle['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>",
+            "typeText": "ReturnType<ModelCreateHandle['getState'] | ModelSourceEditHandle['getState']>",
             "targetName": "ReturnType"
           }
         ],

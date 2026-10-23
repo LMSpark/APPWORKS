@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/database-catalog-preview-view-ops",
+    "sourcePath": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
+    "sourceFile": "src/lowcode/resources/database/database-catalog-preview-view-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/database-catalog-preview-view-ops",
+    "jsdoc": "@module app:lowcode/resources/database/database-catalog-preview-view-ops\n职责：物理表数据预览（builtin tableData 语义 → GetData 物理表描述 + 只读命令 DataView）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DatabaseCatalogPreviewParams",
+      "DatabaseCatalogViewPreviewParams"
+    ]
+  },
+  "$defs": {
+    "DatabaseCatalogPreviewParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogPreviewParams",
+      "properties": {
+        "dbId": {
+          "type": "string"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "tblid": {
+          "type": "string"
+        },
+        "pageIndex": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "dbId",
+        "tableName",
+        "tblid"
+      ],
+      "additionalProperties": false
+    },
+    "DatabaseCatalogViewPreviewParams": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DatabaseCatalogViewPreviewParams",
+      "properties": {
+        "dbId": {
+          "type": "string"
+        },
+        "viewName": {
+          "type": "string"
+        },
+        "pageIndex": {
+          "type": "number"
+        },
+        "pageSize": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "dbId",
+        "viewName"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-23T06:52:16.150Z",
+  "models": {
+    "DatabaseCatalogPreviewParams": {
+      "name": "DatabaseCatalogPreviewParams",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dbId: string;\n    tableName: string;\n    tblid: string;\n    pageIndex?: number;\n    pageSize?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dbId: string;\n    tableName: string;\n    tblid: string;\n    pageIndex?: number;\n    pageSize?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dbId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tblid",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DatabaseCatalogViewPreviewParams": {
+      "name": "DatabaseCatalogViewPreviewParams",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dbId: string;\n    viewName: string;\n    pageIndex?: number;\n    pageSize?: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dbId: string;\n    viewName: string;\n    pageIndex?: number;\n    pageSize?: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dbId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageIndex",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageSize",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

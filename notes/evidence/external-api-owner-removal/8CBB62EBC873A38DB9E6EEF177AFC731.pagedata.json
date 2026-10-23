@@ -1,0 +1,94 @@
+{
+  "scenarioId": "8CBB62EBC873A38DB9E6EEF177AFC731",
+  "tables": {
+    "Base_InterfaceProvider": {
+      "modelBinding": {
+        "modelId": "8CBB62EBC873A38DB9E6EEF177AFC731p000",
+        "modelName": "Base_InterfaceProvider"
+      },
+      "columns": [
+        {
+          "name": "Name",
+          "required": true,
+          "trim": "normalize"
+        },
+        {
+          "name": "BaseURL",
+          "required": true,
+          "trim": "normalize"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "BaseURL",
+              "updateuser",
+              "updatetime"
+            ]
+          }
+        },
+        "definition": {
+          "autoLoad": true,
+          "autoCurrentFirst": true,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "allowDelete": false,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "BaseURL"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    },
+    "Base_UserInfo": {
+      "modelBinding": {
+        "modelId": "8CBB62EBC873A38DB9E6EEF177AFC731p001",
+        "modelName": "Base_UserInfo"
+      },
+      "views": {
+        "default": {
+          "autoLoad": true,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "valueField": "ROWID",
+          "labelField": "UserName",
+          "queryConfig": {
+            "fields": [
+              "ID",
+              "ROWID",
+              "UserName"
+            ],
+            "allPages": true
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": [
+    {
+      "kind": "query",
+      "cascadeId": "provider-definition",
+      "parentTable": "Base_InterfaceProvider",
+      "parentViewId": "default",
+      "childTable": "Base_InterfaceProvider",
+      "childViewId": "definition",
+      "autoLoad": true,
+      "filterBindings": [
+        {
+          "targetField": "rowid",
+          "operator": "in"
+        }
+      ]
+    }
+  ]
+}

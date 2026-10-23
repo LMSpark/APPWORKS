@@ -24,8 +24,9 @@ import type {
   CommitMode, RetrieveRecordOptions,
   SparkEventEmitter,
   DataViewEditingFieldChangeEvent, DataViewApplyEditingRowsResult,
-  DataViewFieldProjection, DataViewQueryContext,
+  DataViewFieldProjection, DataViewQueryContext, DataColumnOptionSource,
 } from './types'
+import { SaveRuleValidator } from './validation/save-rule-validator'
 
 import { DataViewFilter } from './query/filter/data-view-filter'
 import { DataViewQuery } from './query/data-view-query'
@@ -238,6 +239,7 @@ type DataViewQuerySaveCapture = Readonly<{
   changed: readonly DataViewQuerySaveRow[]
   deleted: readonly DataViewQuerySaveRow[]
 }>
+type DataViewQuerySavePreview = Pick<DataViewQuerySaveCapture, 'context' | 'added' | 'changed' | 'deleted'>
 type DataViewQuerySaveAcceptance = DataViewQuerySaveCapture & Readonly<{
   receipt: DataViewQuerySaveReceipt
 }>
@@ -652,7 +654,7 @@ rows: DataRow[] = []
       return { ...DENIED_FIELD_ACCESS, read, component: read === 'invisible' ? 'hidden' : 'readonly' }
     }
     const access = context.fieldAccess(context.rowKey(row), field)
-    if (!this._resultStale) return access
+    if (!this._resultStale && this.getColumn(field)?.immutable !== true) return access
     return { ...access, write: 'denied', writeMode: 'readonly',
       component: access.read === 'invisible' ? 'hidden' : 'readonly' }
   }
@@ -675,7 +677,7 @@ rows: DataRow[] = []
 
   /** 新增呈现来自原查询模型权限，旧结果期间只保留展示。 */
   addActionState(available = true): DataViewActionState {
-    return this.currentQueryResult()?.addActionState(available && !this._resultStale) ?? 'hidden'
+    return this.currentQueryResult()?.addActionState(available && !this._resultStale && !this.queryParentPendingCreate()) ?? 'hidden'
   }
 
   /** 行编辑呈现来自原 E 汇总，并受当前结果可写状态约束。 */
@@ -687,7 +689,7 @@ rows: DataRow[] = []
   /** 删除呈现消费后端行权限。 */
   deleteActionState(row: DataRow | null, available = true): DataViewActionState {
     const context = this.currentQueryResult()
-    return context && row ? context.deleteActionState(context.rowKey(row), available && !this._resultStale) : 'disabled'
+    return context && row ? context.deleteActionState(context.rowKey(row), available && !this._resultStale && this.allowDelete) : 'disabled'
   }
 
   /** 树行新增子行呈现消费后端 c，不由模型新增权限推测。 */
@@ -847,6 +849,7 @@ rows: DataRow[] = []
    * @param originatorId 可选变更来源标识，用于级联订阅方避免回环。
    */
   setCurrentRow(row: DataRow | null, originatorId?: string): void {
+    this.assertSelectionUnlocked(row === null ? [] : [row])
     this.selectionDelegate.setCurrentRow(row, originatorId)
   }
 
@@ -857,6 +860,8 @@ rows: DataRow[] = []
    * @param originatorId 可选变更来源标识，用于级联订阅方避免回环。
    */
   setCurrentRowById(id: string | number | null, originatorId?: string): boolean {
+    const row = id === null ? null : this.getRowById(id)
+    if (id === null || row !== null) this.assertSelectionUnlocked(row === null ? [] : [row])
     return this.selectionDelegate.setCurrentRowById(id, originatorId)
   }
 
@@ -867,6 +872,11 @@ rows: DataRow[] = []
    * @param originatorId 可选变更来源标识，用于级联订阅方避免回环。
    */
   setSelectedRows(rows: DataRow[], originatorId?: string): void {
+    if (Array.isArray(rows)) {
+      const selected = this.selectedRows
+      const same = selected.length === rows.length && rows.every(row => selected.includes(row))
+      if (!same) this.assertSelectionUnlocked(rows)
+    }
     this.selectionDelegate.setSelectedRows(rows, originatorId)
   }
 
@@ -1007,6 +1017,9 @@ sortExpression?: SortExpression
   private _assertKnownFilterFieldExists(fieldName: string): void {
     if ((this._columnMap?.size ?? 0) === 0) return
     if (this.getColumn(fieldName) !== undefined) return
+    // 远端过滤由服务端执行，可引用不输出的资源字段；改名字段无法确定服务端名称，仍拒绝。
+    if (this.fieldProjection.some(field => !field.output && field.source === 'resource'
+      && field.viewField === fieldName && field.resourceField === fieldName)) return
     throw new Error(`过滤表达式引用了不存在的字段 "${fieldName}"`)
   }
 
@@ -1062,6 +1075,12 @@ sortExpression?: SortExpression
    * - `'staged'`：仅修改内存并标脏，调用 saveChanges() 批量提交
    */
   commitMode: CommitMode = 'immediate'
+
+  /** false 时禁止删除既有记录；通过 applyViewConfig 配置。 */
+  allowDelete = true
+
+  /** 本视图或查询级联子视图有未提交修改时锁定当前行与选中行；通过 applyViewConfig 配置。 */
+  lockCurrentWhilePending = false
 
   /** 视图级本地汇总配置；按来源能力执行，远程禁止时保留原文并由aggregateError诊断。通过applyViewConfig配置。 */
   readonly aggregates: Record<string, AggregateColumnConfig> = {}
@@ -1476,13 +1495,13 @@ treeManager?: TreeManager | undefined
   /** 计算列委托（立即初始化，因 dataTable setter 可能在第一次懒访问之前触发） */
   private _computedDelegate: ComputedColumnDelegate = new ComputedColumnDelegate(this)
   /** 主键委托（立即初始化，因 dataTable setter 在首次懒访问前就可能触发主键列更新） */
-  private _primaryKeyDelegate: PrimaryKeyDelegate = new PrimaryKeyDelegate(
-    () => this._dataTable?.columns ?? [],
-    () => this._columnMap,
-    () => this.rows,
-    (name, fn) => this._computedDelegate.register(name, fn),
-    () => this.#queryResult?.resultPrimaryKey,
-  )
+  private _primaryKeyDelegate: PrimaryKeyDelegate = new PrimaryKeyDelegate({
+    getColumns: () => this._dataTable?.columns ?? [],
+    getColumnMap: () => this._columnMap,
+    getRows: () => this.rows,
+    registerComputed: (name, fn) => this._computedDelegate.register(name, fn),
+    getResultPrimaryKey: () => this.#queryResult?.resultPrimaryKey,
+  })
   /** CRUD 操作委托（懒初始化） */
   private _crudDelegate?: CrudDelegate | undefined
   /** 级联订阅委托（懒初始化） */
@@ -2574,10 +2593,11 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   async addRow(data: Partial<DataRow>): Promise<DataRow | CrudResult<DataRow>> {
     this.assertResultWritable()
     let row: DataRow
+    if (this.queryParentPendingCreate()) throw new Error('DATA_VIEW_ADD_PARENT_PENDING: 请先保存父记录')
     if (this.#queryExecutor !== undefined) {
       const context = this.#queryResult
       if (context?.prepareNewRow === undefined) throw new Error('DATA_VIEW_NEW_ROW_OWNER: 新增缺少原查询身份准备能力')
-      row = context.prepareNewRow(data)
+      row = context.prepareNewRow({ ...this.queryOwnershipDefaults(), ...data })
     } else row = this._primaryKeyDelegate.ensurePrimaryKey(data)
     if (this.shouldDirectCommitCrud('create')) {
       return this.crudDelegate.createRecord(row)
@@ -2603,6 +2623,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     }
     const snapshot = this.rows.find(r => this.getPkKey(r) === id)
     if (!snapshot) return false
+    if (!this.allowDelete && !this.dirtyTrackingDelegate.pendingCreateIds.has(id)) {
+      throw new Error(`DATA_VIEW_DELETE_DISABLED: ${this.tableName}@${this.viewId} 不允许删除记录`)
+    }
     const result = this.deleteRowById(id)
     if (result) {
       this.dirtyTrackingDelegate.trackDelete(id, snapshot)
@@ -2670,6 +2693,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   async saveChanges(ids?: Array<string | number>): Promise<CrudResult<SaveChangesData>> {
     this.assertResultWritable()
     if (this.#queryExecutor !== undefined) {
+      const preparation = this.prepareQuerySave({ ...(ids === undefined ? {} : { ids }), includeEditingRows: false })
+      if (preparation !== undefined) (await preparation)()
       const results = await DataView.saveQueryViews([{ view: this, ...(ids === undefined ? {} : { ids }) }])
       const result = results[0]
       if (result === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 缺少视图保存结果')
@@ -2714,6 +2739,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       return {view: target.view, capture}
     })
     for (const { view, capture } of captures) view.validateQuerySaveColumns(capture)
+    if (!recovering) for (const { view, capture } of captures) await view.validateQuerySaveReferences(capture)
     const active = captures.filter(({ capture }) => capture.added.length + capture.changed.length + capture.deleted.length > 0)
     const first = active[0]
     if (first === undefined) return captures.map(() => ({ success: true, message: '没有待提交的变更',
@@ -2813,18 +2839,43 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     }
   }
 
-  private validateQuerySaveColumns(capture: DataViewQuerySaveCapture): void {
+  private validateQuerySaveColumns(capture: DataViewQuerySavePreview, includeEditingRows = false): void {
     const validator = this.validator
-    if (validator === undefined) return
+    const label = `${this.tableName}@${this.viewId}`
     const check = (row: DataRow, fields?: ReadonlySet<string>): void => {
+      if (validator === undefined) return
       const columns = dataRowFromPartial(Object.fromEntries(Object.entries(row).filter(([field]) => !field.startsWith('lingma_sys_'))))
       const error = validator.validateColumns(columns, fields).errors[0]
-      if (error !== undefined) throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}.${error.field}: ${error.message}`)
+      if (error !== undefined) throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${label}.${error.field}: ${error.message}`)
     }
     const addedFields = new Set(this._dataTable?.columns.filter(column => !column.name.startsWith('lingma_sys_'))
       .map(column => column.name))
     for (const item of capture.added) check(item.row, addedFields)
-    for (const item of capture.changed) {
+    const rules = this.querySaveRuleRows(capture)
+    for (const item of rules) if (!item.created) check(item.row, item.fields)
+    const submitted = new Map([...capture.added, ...capture.changed].map(item => [item.id, item.row]))
+    const deleted = this.dirtyTrackingDelegate.pendingDeleteIds
+    const retained = this.rows.flatMap(row => {
+      const id = this.getPkKey(row)
+      if (id === undefined) return [row]
+      if (deleted.has(id)) return []
+      return [submitted.get(id) ?? (includeEditingRows ? this.getEditingRow(id) ?? row : row)]
+    })
+    const declared = this.queryConfig.fields
+    SaveRuleValidator.check({ label, columns: this.columns, rows: rules, retained,
+      ...(declared === undefined ? {} : { allowedFields: new Set(declared) }),
+      createdExemptFields: new Set(Object.keys(this.queryOwnershipDefaults())),
+      deletes: capture.deleted.length, allowDelete: this.allowDelete })
+  }
+
+  /** 提交行及其修改字段；新增行取非空输入字段，既有行与唯一原查询行比较。 */
+  private querySaveRuleRows(capture: DataViewQuerySavePreview): Array<{ id: string | number; row: DataRow; created: boolean; fields: ReadonlySet<string> }> {
+    const internal = (field: string): boolean => field.startsWith('lingma_sys_') || field === '_pk' || this.effectivePkFields.includes(field)
+      || this.computedColumnNames.has(field)
+    const added = capture.added.map(item => ({ id: item.id, row: item.row, created: true,
+      fields: new Set(Object.entries(item.row).filter(([field, value]) => !internal(field)
+        && value !== undefined && value !== null && value !== '').map(([field]) => field)) }))
+    const changed = capture.changed.map(item => {
       if (this.querySaveKey(capture.context, item.row) === '') {
         throw new Error(`DATA_VIEW_SAVE_BASELINE: ${this.tableName}@${this.viewId} 缺少唯一原查询行`)
       }
@@ -2837,8 +2888,137 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       const fields = new Set(Object.entries(item.row).filter(([field, value]) =>
         !field.startsWith('lingma_sys_') && (value !== undefined || capture.context.undefinedChanges === 'clear') && !this.effectivePkFields.includes(field)
         && !this.sameQuerySaveValue(value, original[field])).map(([field]) => field))
-      check(item.row, fields)
+      return { id: item.id, row: item.row, created: false, fields }
+    })
+    return [...added, ...changed]
+  }
+
+  /** 选项引用与值函数规则；只读来源视图正式查询，不改变提交捕获。 */
+  private async validateQuerySaveReferences(capture: DataViewQuerySavePreview): Promise<void> {
+    if (!this.columns.some(column => column.optionsView !== undefined || column.valueFunction !== undefined)) return
+    await SaveRuleValidator.checkReferences({ label: `${this.tableName}@${this.viewId}`, columns: this.columns,
+      rows: this.querySaveRuleRows(capture), query: this.saveRuleOptionQuery() })
+  }
+
+  private saveRuleOptionQuery(): (source: DataColumnOptionSource, fields: readonly string[], context?: DataViewQueryContext) => Promise<DataRow[]> {
+    return async (source, fields, context) => {
+      const viewId = source.viewId ?? 'default'
+      const view = this.dataSet?.getView(source.tableName, viewId)
+      if (!view) throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}: 选项来源视图不存在 ${source.tableName}@${viewId}`)
+      return view.queryOptionRows({ fields, ...(context === undefined ? {} : { context }) })
     }
+  }
+
+  /**
+   * @internal 保存前按列声明写回：normalize 去除首尾空白，optionsView.fill 同步匹配选项字段。
+   * 写入沿编辑覆盖或脏追踪通道并核当次字段写权限；随后的预检与捕获照常校验全部规则。
+   * @param input 限定选中行及写回目标是否为编辑覆盖。
+   */
+  prepareQuerySave(input: DataViewQuerySaveValidationInput): Promise<() => void> | undefined {
+    if (this.#queryExecutor === undefined || this.currentQueryResult() === undefined || this.hasUnconfirmedSave) return
+    if (!this.columns.some(column => column.trim === 'normalize' || column.optionsView?.fill !== undefined)) return
+    return this.prepareQuerySaveWrites(input)
+  }
+
+  private async prepareQuerySaveWrites(input: DataViewQuerySaveValidationInput): Promise<() => void> {
+    const preview = this.previewQuerySave(input)
+    const writes = await SaveRuleValidator.writes({ label: `${this.tableName}@${this.viewId}`, columns: this.columns,
+      rows: this.querySaveRuleRows(preview), query: this.saveRuleOptionQuery() })
+    const assertUnchanged = (expected: DataViewQuerySavePreview): void => {
+      const current = this.previewQuerySave(input)
+      if (current.context !== expected.context || !this.sameQuerySaveValue(
+        [current.added, current.changed, current.deleted], [expected.added, expected.changed, expected.deleted])) {
+        throw new Error('DATA_VIEW_SAVE_STALE: 保存校验期间编辑或查询身份已变化，请重新保存')
+      }
+    }
+    assertUnchanged(preview)
+    for (const write of writes) {
+      const row = input.includeEditingRows ? this.getEditingRow(write.id) : this.getRowById(write.id)
+      if (!row || this.fieldAccess(row, write.field).write !== 'allowed') {
+        throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}.${write.field}: 当前查询不允许写回该字段`)
+      }
+      if (input.includeEditingRows) this.updateEditingValue(write.id, write.field, write.value)
+      else await this.editRowById(write.id, { [write.field]: write.value })
+    }
+    const prepared = this.previewQuerySave(input)
+    return () => assertUnchanged(prepared)
+  }
+
+  /** 视图范围唯一确定的非主键字段值：自身过滤与查询级联中 AND 连接的 eq（或单值 in）条件；GetInputParam 取本视图 queryContext。 */
+  private queryOwnershipDefaults(): Record<string, unknown> {
+    const filters: DataViewFilterTree[] = this.filterExpression === undefined ? [] : [this.filterExpression]
+    const ds = this.dataSet
+    for (const rel of ds?.getParentCascades(this.tableName, this.viewId) ?? []) {
+      let resolved: DataViewFilterTree | undefined | null
+      try { resolved = ds?.resolveCascadeFilter(rel) } catch { resolved = null }
+      if (resolved) filters.push(resolved)
+    }
+    const defaults: Record<string, unknown> = {}
+    const visit = (node: DataViewFilterTree): void => {
+      if ('logic' in node) {
+        if (node.logic === 'and') node.filters.forEach(visit)
+        return
+      }
+      const list = node.value
+      const raw: unknown = node.operator === 'eq' ? list : node.operator === 'in' && Array.isArray(list) && list.length === 1 ? list[0] : undefined
+      const value: unknown = isRecord(raw) && raw['Type'] === 'GetInputParam'
+        && typeof raw['ParamName'] === 'string' ? this.queryContext[raw['ParamName']] : raw
+      if (value === undefined || value === null || value === '' || typeof value === 'object' || !this.getColumn(node.field)
+        || this.effectivePkFields.includes(node.field)) return
+      defaults[node.field] = value
+    }
+    filters.forEach(visit)
+    return defaults
+  }
+
+  /** 查询级联父视图的选中行仍是本地新增时，子视图不能新增依附记录。 */
+  private queryParentPendingCreate(): boolean {
+    const ds = this.dataSet
+    if (!ds) return false
+    return ds.getParentCascades(this.tableName, this.viewId).some(rel => {
+      const parent = ds.getView(rel.parentTable, rel.parentViewId)
+      if (!parent) return false
+      const current = parent.currentRow
+      const rows = parent.selectedRows.length > 0 ? parent.selectedRows : current ? [current] : []
+      return rows.some(row => {
+        const key = parent.getPkKey(row)
+        return key !== undefined && parent.dirtyTrackingDelegate.pendingCreateIds.has(key)
+      })
+    })
+  }
+
+  /** 本视图或其查询级联子视图存在本地修改。 */
+  private pendingWithQueryChildren(): boolean {
+    const pending = (view: DataView): boolean => view.hasEditingChanges() || view.dirtyTrackingDelegate.hasPendingChanges()
+    if (pending(this)) return true
+    const ds = this.dataSet
+    return ds?.getChildCascades(this.tableName, this.viewId).some(rel => {
+      const child = ds.getView(rel.childTable, rel.childViewId)
+      return child !== undefined && pending(child)
+    }) ?? false
+  }
+
+  /** lockCurrentWhilePending 时拒绝切离当前行；选择本视图本地新增行仍允许。 */
+  private assertSelectionUnlocked(rows: readonly DataRow[]): void {
+    if (!this.lockCurrentWhilePending) return
+    const current = this.currentRow
+    const same = rows.length === 0 ? current === null : rows.every(row => row === current)
+    if (same || rows.length > 0 && rows.every(row => {
+      const key = this.getPkKey(row)
+      return key !== undefined && this.dirtyTrackingDelegate.pendingCreateIds.has(key)
+    })) return
+    if (this.pendingWithQueryChildren()) throw new Error('DATA_VIEW_SELECTION_LOCKED: 请先保存或放弃当前修改')
+  }
+
+  /**
+   * 明确丢弃本视图全部本地修改，放弃未确认提交的核验后按当前输入重新查询。
+   * 不撤销服务端可能已生效的写入；执行器不支持放弃未确认提交时抛错，须经原保存入口核验。
+   */
+  async discardAndReload(): Promise<void> {
+    this.checkDestroyed()
+    if (!this.abandonUnconfirmedSave()) throw new Error('DATA_VIEW_DISCARD_UNCONFIRMED: 未确认提交须经原保存入口核验')
+    if (this.#queryExecutor !== undefined && this.currentQueryResult() !== undefined) this.discardPendingChanges()
+    await this.refresh()
   }
 
   /**
@@ -2860,6 +3040,11 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   /** @internal DataSet 在应用任何编辑缓冲前复用原查询列校验，不改变保存状态。 */
   assertQuerySaveColumns(input: DataViewQuerySaveValidationInput): void {
+    this.validateQuerySaveColumns(this.previewQuerySave(input), input.includeEditingRows)
+  }
+
+  /** 按当前待提交状态构造只读预览；可叠加编辑覆盖，不应用任何修改。 */
+  private previewQuerySave(input: DataViewQuerySaveValidationInput): DataViewQuerySavePreview {
     this.assertResultWritable()
     const executor = this.#queryExecutor
     const context = this.currentQueryResult()
@@ -2881,7 +3066,11 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     const added = addedIds.map(id => ({ id, row: rowFor(id) }))
     const changed = [...changedIds].filter(id => !this.dirtyTrackingDelegate.pendingCreateIds.has(id) && !deletedIds.has(id))
       .map(id => ({ id, row: rowFor(id) }))
-    this.validateQuerySaveColumns({ executor, identity: this.queryIdentity(), context, added, changed, deleted: [] })
+    const deleted = [...deletedIds].filter(accepts).flatMap(id => {
+      const row = this.dirtyTrackingDelegate.getPendingDeleteSnapshot(id)
+      return row === undefined ? [] : [{ id, row: dataRowFromPartial(structuredClone(row)) }]
+    })
+    return { context, added, changed, deleted }
   }
 
   private validateQuerySaveReceipt(command: DataViewQuerySaveAcceptance): void {
@@ -3418,6 +3607,8 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
       this.autoLoadConfigured = true
     }
     if (vc.commitMode !== undefined) this.commitMode = vc.commitMode
+    if (vc.allowDelete !== undefined) this.allowDelete = vc.allowDelete
+    if (vc.lockCurrentWhilePending !== undefined) this.lockCurrentWhilePending = vc.lockCurrentWhilePending
     if (vc.valueField !== undefined) this.valueField = vc.valueField
     if (vc.labelField !== undefined) this.labelField = vc.labelField
     if (vc.selectionDelimiter !== undefined) this.selectionDelimiter = vc.selectionDelimiter
@@ -3501,6 +3692,8 @@ toJson(): ViewMetadata {
     if (this.autoLoad !== false) result.autoLoad = this.autoLoad
     if (this.onRequestComplete) result.onRequestComplete = this.onRequestComplete
     if (this.commitMode !== 'immediate') result.commitMode = this.commitMode
+    if (!this.allowDelete) result.allowDelete = false
+    if (this.lockCurrentWhilePending) result.lockCurrentWhilePending = true
     if (this.valueField !== undefined) result.valueField = this.valueField
     if (this.labelField !== undefined) result.labelField = this.labelField
     if (this.selectionDelimiter !== ',') result.selectionDelimiter = this.selectionDelimiter

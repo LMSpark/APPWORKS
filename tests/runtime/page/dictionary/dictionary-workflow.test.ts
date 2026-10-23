@@ -84,6 +84,10 @@ function secondDictionary(): DictionaryHttp {
 }
 
 describe('Dictionary independent design and data pages', () => {
+  it('shows dictionary heading with saved type name', async () => {
+    const data = await open('data')
+    expect(data.text()).toContain('当前方案：配色')
+  })
   it.each(['target-switch', 'unmount'])('ignores a late formal query after %s and does not start further reads for it', async action => {
     const previous = http
     const gate = holdResponse(previous, '/api/DataOperation/GetData')

@@ -29,7 +29,7 @@
  * └──────────────────────────────────────────────────────────────┘
  */
 
-import type { DataViewFilterTree } from './query/filter/data-view-filter-contract'
+import type { DataViewFilterFunctionCapability, DataViewFilterTree } from './query/filter/data-view-filter-contract'
 import type { DataTable } from './data-table'
 import type { DataView } from './data-view'
 import type { LoggerApi, Method } from '@spark-appworks/spark-utils'
@@ -151,6 +151,35 @@ export type InferColumnValue<T extends ColumnType> =
 export type ComputedColumnFn = {
   (row: DataRow): unknown}
 
+/** 同一 DataSet 内的选项来源视图；viewId 省略为 default。 */
+export type DataColumnOptionSource = {
+  tableName: string
+  viewId?: string
+  /** 与列值比较的选项字段。 */
+  valueField: string
+  /** 值函数候选的显示字段，省略用 valueField。 */
+  labelField?: string
+}
+
+/** 列值引用核对配置；context 为选项查询参数名到本行字段名，fill 为本行目标字段到选项字段。 */
+export type DataColumnOptionsView = DataColumnOptionSource & {
+  context?: Record<string, string>
+  fill?: Record<string, string>
+}
+
+/**
+ * 值函数列：text 允许普通文本或值函数 JSON；json 须为 JSON 对象或数组，json-object 须为对象，
+ * 其中字符串节点按值函数核对。sources 提供输入参数及接口公共参数候选。
+ */
+export type DataColumnValueFunction = {
+  format: 'text' | 'json' | 'json-object'
+  capabilities?: DataViewFilterFunctionCapability[]
+  sources?: {
+    inputParams?: DataColumnOptionSource
+    apiPublicParams?: DataColumnOptionSource
+  }
+}
+
 /**
  * 数据列定义
  *
@@ -216,6 +245,16 @@ export type DataColumn = {
   pattern?: string
   /** 正则校验失败时的自定义提示消息。未设置时使用默认提示 */
   patternMessage?: string
+  /** 字符串首尾空白：reject 保存时拒绝，normalize 保存前去除；两者都把纯空白视为空值。 */
+  trim?: 'reject' | 'normalize'
+  /** 保存后本视图保留行中的非空值不得重复；只核已加载及待提交行，不替代服务端约束。 */
+  unique?: boolean
+  /** 仅本视图待新增行可写；既有行字段只读，保存拒绝对其修改。 */
+  immutable?: boolean
+  /** 保存前核对非空值在选项视图中唯一存在；fill 在本字段新增或变更时把匹配选项写回本行。 */
+  optionsView?: DataColumnOptionsView
+  /** 值函数字段，保存前按 DataViewFilter 值函数合同校验。 */
+  valueFunction?: DataColumnValueFunction
 
   // ── 计算字段属性 ──
 
@@ -240,7 +279,7 @@ export type DataColumn = {
   /**
    * 枚举选项（`type` 为 `enum` 时由标准组件 autoColumns 生成 `r-select`）。
    */
-  enumOptions?: readonly Readonly<{value: string; label: string}>[]
+  enumOptions?: ReadonlyArray<Readonly<{value: string; label: string}>>
 }
 
 // ═══════════════════════════════════════════════════════
@@ -706,6 +745,10 @@ export type ViewMetadata = {
    * - `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交
    */
   commitMode?: CommitMode
+  /** false 时禁止删除既有记录：删除呈现为 disabled，removeRow 及保存拒绝；撤销本地新增不受影响。 */
+  allowDelete?: boolean
+  /** 本视图或其查询级联子视图有未提交修改时，拒绝切换当前行与选中行。 */
+  lockCurrentWhilePending?: boolean
   /**
    * 视图级聚合配置——输出名 → 聚合列配置。
    *
@@ -1446,6 +1489,11 @@ export type DataSetSaveChangesOptions = {
   mode?: DataSetSaveChangesMode
   /** 事务选项 */
   transaction?: DataSetSaveChangesTransactionOptions}
+
+/** DataSet.discardAndReload 的目标视图，按顺序丢弃后重新查询。 */
+export type DataSetDiscardAndReloadOptions = {
+  views: ReadonlyArray<Readonly<{ tableName: string; viewId: string }>>
+}
 
 /** DataSet.saveChangesInPhases 的结果；completedPhases 为已确认完成的连续阶段数。 */
 export type DataSetPhasedSaveResult = {

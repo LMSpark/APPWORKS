@@ -222,7 +222,106 @@
       "source": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
       "description": "按dictionaryId消费已保存的设计，仅维护业务数据",
       "hidden": true,
-      "shellTool": true
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-code/ui/data-code-list-page",
+      "title": "数据编码",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
+      "description": "编码方案目录",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-code/ui/data-code-editor-page",
+      "title": "编码方案设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
+      "description": "编码规则与辅助对话框",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "title": "逻辑视图",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "description": "逻辑视图目录",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/structured-config/logic-view/ui/logic-view-design-page",
+      "title": "逻辑视图设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
+      "description": "ViewData 设计 JSON",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "title": "数据工作流",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "description": "数据工作流目录",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page",
+      "title": "数据工作流设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "description": "节点与连线设计",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/semi-structured/json-data/ui/json-data-page",
+      "title": "JSON 数据",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "description": "JSON 目录与树内容",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page",
+      "title": "Excel 导入",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "description": "Excel 导入方案目录",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page",
+      "title": "Excel 导入设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+      "description": "Sheet 布局与转换规则",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page",
+      "title": "PDF 识别",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+      "description": "PDF 规则目录",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
+      "path": "/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page",
+      "title": "PDF 规则设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
+      "description": "PDF 规则 JSON",
+      "hidden": true,
+      "shellTool": false
     }
   ]
 }

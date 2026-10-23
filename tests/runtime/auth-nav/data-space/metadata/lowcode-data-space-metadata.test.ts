@@ -244,7 +244,7 @@ describe('data-space metadata DataSet', () => {
       const workspace = new ProjectWorkspace({projectId: 'APP-1', ...gateways})
       const service = new LowcodeDataSpaceViewDesign({workspace, assertScope, loadMetadata: loadLowcodeDataSpaceMetadata,
         readModel: async input => formalModel(input.modelName),
-        assemble: (scenarioId, config, fileExecutors, modelScope) => loadScenarioDataSet({scenarioId, config, assertCurrent: assertScope,
+        assemble: ({scenarioId, config, fileExecutors, modelScope}) => loadScenarioDataSet({scenarioId, config, assertCurrent: assertScope,
           ...(fileExecutors ? {fileExecutors} : {}), ...(modelScope === undefined ? {} : {modelScope})})})
       const session = await service.openDesignSession(target, {deferDefinition: true})
       metadataSessions.push(session)

@@ -74,10 +74,16 @@ export class FilterExpressionEditorDraft {
   }
 
   /** 参考组件的递归摘要；括号保留组关系，字段标题不替换字段身份，不执行表达式。 */
-  static summarize(tree: Data.DataViewFilterTree | undefined, columns: readonly Data.DataColumn[], context: Data.DataViewFilterFunctionContext = {}, root = true): string {
+  static summarize(input: Readonly<{
+    tree: Data.DataViewFilterTree | undefined
+    columns: readonly Data.DataColumn[]
+    context?: Data.DataViewFilterFunctionContext
+    root?: boolean
+  }>): string {
+    const {tree, columns, context = {}, root = true} = input
     if (!tree) return ''
     if ('logic' in tree) {
-      const parts = tree.filters.map(child => this.summarize(child, columns, context, false))
+      const parts = tree.filters.map(child => this.summarize({tree: child, columns, context, root: false}))
       const content = parts.join(tree.logic === 'and' ? ' 并且 ' : ' 或者 ')
       return root || parts.length <= 1 ? content : `（${content}）`
     }

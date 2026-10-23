@@ -86,7 +86,7 @@ function fixture(text: string | null = initial) {
     const http = new QueryHttp()
     const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})})
     const assembler = new LowcodeDataSpaceAssembler(runtime, http)
-    const assemble = async (scenarioId: string, config: ScenarioViewConfig) => {
+    const assemble = async ({scenarioId, config}: {scenarioId: string; config: ScenarioViewConfig}) => {
       if (config.scenarioId !== scenarioId) throw new Error('scenario identity mismatch')
       return assembler.assemble({config, space: {dataSpaceId: scenarioId, name: formalSpaceName}, models, relations})
     }
@@ -136,7 +136,7 @@ describe('scenario view persistence and formal model assembly', () => {
     const saved = opened.viewState!
     const reopened = storage.openOwner()
     const read = await reopened.open()
-    const {dataSet} = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
+    const {dataSet} = await reopened.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', read.viewState!.text)})
     const parent = dataSet.getView('Parents', 'shared')!
     const child = dataSet.getView('Children', 'shared')!
     const independent = dataSet.getView('Parents', 'detail')!
@@ -213,7 +213,7 @@ describe('scenario view persistence and formal model assembly', () => {
     const saved = opened.viewState!
     const reopened = storage.openOwner()
     const read = await reopened.open()
-    const {dataSet} = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
+    const {dataSet} = await reopened.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', read.viewState!.text)})
     const parent = dataSet.getView('Parents', 'shared')!
     const child = dataSet.getView('Children', 'shared')!
     let release: (() => void) | undefined
@@ -292,7 +292,7 @@ describe('scenario view persistence and formal model assembly', () => {
 
     const reopened = storage.openOwner()
     const read = await reopened.open()
-    const assembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
+    const assembly = await reopened.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', read.viewState!.text)})
     const dataSet = assembly.dataSet
     expect(dataSet.viewCascades).toMatchObject([cascade, field])
     expect(dataSet.resourceRelations).toMatchObject([{sourceRelationId: 'REL'}])
@@ -344,7 +344,7 @@ describe('scenario view persistence and formal model assembly', () => {
 
     const fresh = storage.openOwner()
     const freshFile = await fresh.open()
-    const freshAssembly = await fresh.assemble('SPACE', new ScenarioViewConfig('SPACE', freshFile.viewState!.text))
+    const freshAssembly = await fresh.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', freshFile.viewState!.text)})
     try {
       fresh.http.result = {primaryKeyField: 'id', allowAdd: false, data: {Items: [{...savedRow,
         lingma_sys_key: 'READBACK', lingma_sys_params: {r: ['id', 'title', 'country', 'province', 'city'], e: ['country', 'city']}}], Count: 1}}
@@ -359,7 +359,7 @@ describe('scenario view persistence and formal model assembly', () => {
       await freshFile.metadataDataSet.saveChanges()
       const finalOwner = storage.openOwner()
       const finalFile = await finalOwner.open()
-      const finalAssembly = await finalOwner.assemble('SPACE', new ScenarioViewConfig('SPACE', finalFile.viewState!.text))
+      const finalAssembly = await finalOwner.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', finalFile.viewState!.text)})
       try {
         expect(finalAssembly.dataSet.viewCascades).toMatchObject([cascade])
         expect(finalAssembly.dataSet.resourceRelations).toMatchObject([{sourceRelationId: 'REL'}])
@@ -390,13 +390,13 @@ describe('scenario view persistence and formal model assembly', () => {
 
     const reopened = storage.openOwner()
     const read = await reopened.open()
-    const firstAssembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
+    const firstAssembly = await reopened.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', read.viewState!.text)})
     expect(firstAssembly.dataSet.dataSetName).toBe('正式空间名称')
     expect(firstAssembly.dataSet.getTable('Parents')).toMatchObject({resourceType: 'database-table', resourceId: 'ParentSource'})
     storage.setSpaceName('正式空间新名称')
     storage.setModels([model('ParentModel', 'ParentSourceNext', ['id', 'title', 'price', 'qty'], ['price', 'qty']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
-    const secondAssembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
+    const secondAssembly = await reopened.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', read.viewState!.text)})
     expect(secondAssembly.dataSet.dataSetName).toBe('正式空间新名称')
     expect(secondAssembly.dataSet.getTable('Parents')?.resourceId).toBe('ParentSourceNext')
     expect(read.viewState!.text).toBe(saved.text)
@@ -437,7 +437,7 @@ describe('scenario view persistence and formal model assembly', () => {
     // An independently persisted configuration without root overrides uses native defaults.
     const last = fixture().openOwner()
     const lastFile = await last.open()
-    const lastAssembly = await last.assemble('SPACE', new ScenarioViewConfig('SPACE', lastFile.viewState!.text))
+    const lastAssembly = await last.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', lastFile.viewState!.text)})
     expect(lastAssembly.dataSet.toJson()).toMatchObject({schemaVersion: 2})
     expect(lastAssembly.dataSet.version).toBeUndefined()
     expect(lastAssembly.dataSet.layout).toBeUndefined()
@@ -457,7 +457,7 @@ describe('scenario view persistence and formal model assembly', () => {
     expect(storage.stored.get('SPACE')).toContain('"computeExpression":"price * qty"')
     const second = storage.openOwner()
     const read = await second.open()
-    const assembled = await second.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
+    const assembled = await second.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', read.viewState!.text)})
     const view = assembled.dataSet.getView('Parents', 'shared')!
     expect(view.columns.find(column => column.name === 'total')).toMatchObject({
       type: 'number', label: 'Total', computeExpression: 'price * qty', min: 0})
@@ -482,14 +482,14 @@ describe('scenario view persistence and formal model assembly', () => {
       ['price', 'qty', 'total']), model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const conflict = storage.openOwner()
     const conflictFile = await conflict.open()
-    await expect(conflict.assemble('SPACE', new ScenarioViewConfig('SPACE', conflictFile.viewState!.text))).rejects.toThrow('本地计算列与正式字段重名')
+    await expect(conflict.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', conflictFile.viewState!.text)})).rejects.toThrow('本地计算列与正式字段重名')
     storage.setModels([model('ParentModel', 'ParentSource', ['id', 'title', 'price', 'qty'], ['price', 'qty']),
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     editColumns(read.metadataDataSet, 'Parents', [])
     await read.metadataDataSet.saveChanges()
     const last = storage.openOwner()
     const lastFile = await last.open()
-    const lastAssembly = await last.assemble('SPACE', new ScenarioViewConfig('SPACE', lastFile.viewState!.text))
+    const lastAssembly = await last.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', lastFile.viewState!.text)})
     expect(lastAssembly.dataSet.getTable('Parents')?.columns.map(column => column.name)).not.toContain('total')
     lastAssembly.dataSet.destroy()
   })
@@ -520,7 +520,7 @@ describe('scenario view persistence and formal model assembly', () => {
     expect(saved.text).not.toMatch(/"type"|"label"|"isPrimaryKey"|"rows"|"token"/)
     const reopened = storage.openOwner()
     const read = await reopened.open()
-    const assembled = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
+    const assembled = await reopened.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', read.viewState!.text)})
     const dataSet = assembled.dataSet
     const parent = dataSet.getTable('Parents')!.columns.find(column => column.name === 'title')!
     const child = dataSet.getTable('Children')!.columns.find(column => column.name === 'title')!
@@ -546,7 +546,7 @@ describe('scenario view persistence and formal model assembly', () => {
     const cleared = read.viewState!
     const clearOwner = storage.openOwner()
     const clearRead = await clearOwner.open()
-    const clearAssembly = await clearOwner.assemble('SPACE', new ScenarioViewConfig('SPACE', clearRead.viewState!.text))
+    const clearAssembly = await clearOwner.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', clearRead.viewState!.text)})
     expect(extractColumnRules(clearAssembly.dataSet.getTable('Parents')!.columns.find(column => column.name === 'title')!))
       .toEqual([])
     clearAssembly.dataSet.destroy()
@@ -557,7 +557,7 @@ describe('scenario view persistence and formal model assembly', () => {
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const changed = storage.openOwner()
     const stale = await changed.open()
-    await expect(changed.assemble('SPACE', new ScenarioViewConfig('SPACE', stale.viewState!.text))).rejects.toThrow('未解析到唯一正式输出字段')
+    await expect(changed.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', stale.viewState!.text)})).rejects.toThrow('未解析到唯一正式输出字段')
     expect(storage.stored.get('SPACE')).toBe(saved.text)
   })
   it('validates persisted column rules before formal DataSet save and accepts the corrected receipt', async () => {
@@ -572,7 +572,7 @@ describe('scenario view persistence and formal model assembly', () => {
     const saved = opened.viewState!
     const reopened = storage.openOwner()
     const read = await reopened.open()
-    const assembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', read.viewState!.text))
+    const assembly = await reopened.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', read.viewState!.text)})
     const dataSet = assembly.dataSet
     const view = dataSet.getView('Parents', 'shared')!
     reopened.http.result = {primaryKeyField: 'id', allowAdd: false,
@@ -628,7 +628,7 @@ describe('scenario view persistence and formal model assembly', () => {
     const reopened = storage.openOwner()
     const reread = await reopened.open()
     expect(reread.viewState!.text).toBe(saved.text)
-    const assembly = await reopened.assemble('SPACE', new ScenarioViewConfig('SPACE', reread.viewState!.text))
+    const assembly = await reopened.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', reread.viewState!.text)})
     const dataSet = assembly.dataSet
     expect(assembly.diagnostics).toEqual([])
     expect(dataSet.scenarioId).toBe('SPACE')
@@ -674,7 +674,7 @@ describe('scenario view persistence and formal model assembly', () => {
       model('ChildModel', 'ChildSource', ['id', 'parentId', 'title'])])
     const third = storage.openOwner()
     const latest = await third.open()
-    const updated = await third.assemble('SPACE', new ScenarioViewConfig('SPACE', latest.viewState!.text))
+    const updated = await third.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', latest.viewState!.text)})
     expect(updated.dataSet.getTable('Parents')?.columns.map(column => column.name).filter(name => name !== '_pk'))
       .toEqual(['id', 'title', 'newColumn'])
     expect(storage.stored.get('SPACE')).toBe(saved.text)
@@ -690,7 +690,7 @@ describe('scenario view persistence and formal model assembly', () => {
     editView(opened.metadataDataSet, 'Parents', 'shared', {fieldProjection: [projection], valueField: 'id', ...(tree ? {treeConfig: {}} : {})})
     await opened.metadataDataSet.saveChanges()
     const saved = opened.viewState!
-    const {dataSet} = await owner.assemble('SPACE', new ScenarioViewConfig('SPACE', opened.viewState!.text))
+    const {dataSet} = await owner.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', opened.viewState!.text)})
     const configured = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
     const metadata = DataSet.fromJson({scenarioId: 'META', dataSetName: 'metadata', tables: {DataViewDefinition: configured.tables.DataViewDefinition, DataTableBindingDefinition: configured.tables.DataTableBindingDefinition}})
     try {
@@ -721,6 +721,6 @@ describe('scenario view persistence and formal model assembly', () => {
     const wrong = initial.replace('"modelId":"ParentModel"', '"modelId":"OTHER"')
     const wrongOwner = fixture(wrong).openOwner()
     const opened = await wrongOwner.open()
-    await expect(wrongOwner.assemble('SPACE', new ScenarioViewConfig('SPACE', opened.viewState!.text))).rejects.toThrow('唯一正式模型')
+    await expect(wrongOwner.assemble({scenarioId: 'SPACE', config: new ScenarioViewConfig('SPACE', opened.viewState!.text)})).rejects.toThrow('唯一正式模型')
   })
 })

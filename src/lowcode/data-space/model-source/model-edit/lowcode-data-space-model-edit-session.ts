@@ -8,11 +8,18 @@ import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {LowcodeDataSpacePrimaryKey} from '../primary-key/lowcode-data-space-primary-key'
 import type {FieldRemoveHandle} from '../removal/lowcode-data-space-field-remove-session'
-import {fieldEditPrepareSave, fieldEditStagePrimaryKey, type FieldEditHost} from '../field-edit/lowcode-data-space-field-edit-session'
+import {fieldEditPrepareSave, fieldEditStagePrimaryKey, type FieldEditSession} from '../field-edit/lowcode-data-space-field-edit-session'
 import {sourceInputPrepareSave, type SourceInputHandle} from '../source-input/lowcode-data-space-source-input-session'
 import {DataSpaceDefinitionSave, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
 
 type ModelEditStatus = 'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback'
+
+export type ModelEditSessionInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  lifecycle: ModelEditLifecycle
+}>
 
 export type ModelEditLifecycle = Readonly<{
   assertCurrent(): void
@@ -22,7 +29,7 @@ export type ModelEditLifecycle = Readonly<{
 }>
 
 /** 单个正式模型的配置编辑流程；原DataView仍是数据和授权的唯一持有者。 */
-class ModelEditSession {
+export class ModelEditSession {
   private static readonly fields: ReadonlyArray<{name: string; label: string; kind: 'text' | 'select' | 'json'; choices?: ReadonlyArray<readonly [string, string | number]>}> = [
     {name: 'description', label: '模型说明', kind: 'text'},
     {name: 'items', label: '数组数据', kind: 'json'},
@@ -331,7 +338,7 @@ class ModelEditSession {
   }
 
   /** 同一批次提交当前模型及显式传入的元模型字段；不保存场景文件或其他模型。 */
-  async save(fields: readonly FieldEditHost[] = [], inputs: readonly SourceInputHandle[] = [], removals: readonly FieldRemoveHandle[] = []): Promise<void> {
+  async save(fields: readonly FieldEditSession[] = [], inputs: readonly SourceInputHandle[] = [], removals: readonly FieldRemoveHandle[] = []): Promise<void> {
     this.assertEditable()
     const keyPatch = this.#view.getEditingPatch(this.modelId)
     const workspace = fields.length && keyPatch && Object.hasOwn(keyPatch, 'PrimaryKeyFields')
@@ -359,7 +366,7 @@ class ModelEditSession {
       this.assertEditable(); this.#status = 'pending'
       if (Object.hasOwn(patch, 'PrimaryKeyFields')) {
         this.#primaryWorkspace = !!workspace
-        this.#primary = await LowcodeDataSpacePrimaryKey.prepare(this.dataSet, this.targetId, this.modelId, String(patch['PrimaryKeyFields']), () => this.assertOwner(), workspace)
+        this.#primary = await LowcodeDataSpacePrimaryKey.prepare({dataSet: this.dataSet, targetId: this.targetId, modelId: this.modelId, name: String(patch['PrimaryKeyFields']), assertLive: () => this.assertOwner(), workspace})
         if (!this.lifecycle.validatePrimaryKey) throw new Error('缺少主键配置依赖校验')
         assertConfiguration = await this.lifecycle.validatePrimaryKey(this.#primary.candidate)
         this.#primary.assertCurrent()
@@ -458,15 +465,11 @@ class ModelEditSession {
 
 export const modelEditRequestSchemeFields = ModelEditSession.requestSchemeFields
 
-export type ModelEditHost = ModelEditSession
-
-export function createModelEditHost(dataSet: DataSet, targetId: string, modelId: string, lifecycle: ModelEditLifecycle): ModelEditHost {
-  return new ModelEditSession(dataSet, targetId, modelId, lifecycle)
+export function createModelEditHost(input: ModelEditSessionInput): ModelEditSession {
+  return new ModelEditSession(input.dataSet, input.targetId, input.modelId, input.lifecycle)
 }
 
-export type ModelEditHandle = ModelEditHost
-
 /** 页面与测试沿用的句柄；委托同一 host，不单独持有命令类 FSM。 */
-export function createModelEditHandle(host: ModelEditHost): ModelEditHandle {
+export function createModelEditHandle(host: ModelEditSession): ModelEditSession {
   return host
 }

@@ -319,7 +319,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T05:23:15.450Z",
+  "generatedAt": "2026-10-23T17:44:50.539Z",
   "models": {
     "ScenarioConfigObject": {
       "name": "ScenarioConfigObject",
@@ -342,11 +342,11 @@
       "jsdoc": "目录依赖只消费关系身份与端点；不代表完整运行关系或过滤表达式已转换。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Pick<DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'>",
+        "declarationTypeText": "Pick<SparkData.DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Pick<DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'>",
+            "typeText": "Pick<SparkData.DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'>",
             "targetName": "Pick"
           }
         ],
@@ -654,7 +654,7 @@
                   "name": "inherited",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly DataResourceRelation[]"
+                    "name": "readonly SparkData.DataResourceRelation[]"
                   }
                 }
               ],
@@ -662,7 +662,7 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "DataResourceRelation"
+                  "name": "SparkData.DataResourceRelation"
                 }
               }
             },

@@ -231,6 +231,10 @@ export class ScenarioDefinitionResource {
     return this.result({view, params: structuredClone(params), file, resource, source})
   }
 
+  private hasTable(tables: unknown, tableName: string): boolean {
+    return isRecord(tables) && Object.hasOwn(tables, tableName)
+  }
+
   private key(view: DataView, row: Readonly<DataRow>): string {
     const values = view.pk.effectivePkFields.map(field => row[field])
     if (!values.length || values.some(value => typeof value !== 'string' && typeof value !== 'number' || value === '')) {
@@ -385,7 +389,7 @@ export class ScenarioDefinitionResource {
           // 同批新建表的运行结构必须有default；显式新增的default替换此空占位，不能覆盖既有定义。
           const newDefault = resource === ScenarioDefinitionRecords.resources.DataViewDefinition && row['viewId'] === 'default'
             && createdBindings.has(row['tableName']) && typeof row['tableName'] === 'string'
-            && !Object.hasOwn(previous.toJSON()['tables'] as object, row['tableName'])
+            && !this.hasTable(previous.toJSON()['tables'], row['tableName'])
           if (currentRow && !newDefault) throw new Error('SCENARIO_DEFINITION_DUPLICATE: 新增定义已存在')
           const value = this.clean(row)
           merged.set(key, value); added.push(value)

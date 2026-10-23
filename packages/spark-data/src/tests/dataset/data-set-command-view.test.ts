@@ -12,7 +12,7 @@ describe('DataSet command view helper', () => {
     ensureDataSetStaticInputTable(dataSet, 'CmdInput', [{name: 'commandId', primary: true}, {name: 'value'}])
     const input = dataSet.getTable('CmdInput')!
     input.addRows([{commandId: 'default', value: 'x'}])
-    const resultView = ensureDataSetFileCommandView(dataSet, 'CmdResult', 'cmd-result', [{name: 'ok', primary: true}])
+    const resultView = ensureDataSetFileCommandView({dataSet, tableName: 'CmdResult', resourceId: 'cmd-result', columns: [{name: 'ok', primary: true}]})
     const guard = vi.fn()
     bindDataSetReadonlyCommandQuery(resultView, {
       resource: {resourceType: 'file', resourceId: 'cmd-result'},
@@ -28,8 +28,8 @@ describe('DataSet command view helper', () => {
 
   it('ensure file command view is idempotent', () => {
     const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
-    const first = ensureDataSetFileCommandView(dataSet, 'Once', 'once', [{name: 'id', primary: true}])
-    const second = ensureDataSetFileCommandView(dataSet, 'Once', 'once', [{name: 'id', primary: true}])
+    const first = ensureDataSetFileCommandView({dataSet, tableName: 'Once', resourceId: 'once', columns: [{name: 'id', primary: true}]})
+    const second = ensureDataSetFileCommandView({dataSet, tableName: 'Once', resourceId: 'once', columns: [{name: 'id', primary: true}]})
     expect(first).toBe(second)
     expect(dataSet.getTable('Once')).toBeTruthy()
   })

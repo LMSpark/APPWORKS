@@ -40,10 +40,13 @@ import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type SparkNode} from '@spark-appworks/spark-data'
 import {ApiPublicParameterDesign, ApiRequestHeaderDesign} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererTable, RendererForm, RendererDialog, RendererButton, RendererTabs, RendererTabPane, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeApiProvider} from '@/lowcode/resources/external-api/lowcode-api-provider'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import type {ApiConfigPageProps} from './api-config-page.props'
+
+type RToolbarProps = SparkComponent.RToolbarProps
+const {PAGE_RUNTIME, RendererTable, RendererForm, RendererDialog, RendererButton, RendererTabs, RendererTabPane, useSparkComponent} = SparkComponent
 
 const props = defineProps<ApiConfigPageProps>()
 const emit = defineEmits<{close: []}>()

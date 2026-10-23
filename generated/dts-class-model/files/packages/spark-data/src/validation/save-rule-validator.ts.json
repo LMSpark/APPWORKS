@@ -1,0 +1,529 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:validation/save-rule-validator",
+    "sourcePath": "packages/spark-data/src/validation/save-rule-validator.ts",
+    "sourceFile": "packages/spark-data/src/validation/save-rule-validator.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "validation/save-rule-validator",
+    "jsdoc": "@module @spark-appworks/spark-data:validation/save-rule-validator\n职责：执行 DataColumn 与视图声明的保存规则：唯一、创建后不可改、字段范围、删除许可、选项引用、值函数及保存前写回。\n边界：只读取调用方给出的提交行与选项查询结果，不修改视图状态、不发起保存；写回由 DataView 经编辑通道应用。\nAI用途：外部接口等配置页把业务规则声明在 pagedata 列/视图上，由同一 SPARK data 保存链执行。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "SaveRuleValidator"
+    ]
+  },
+  "$defs": {
+    "SaveRuleRow": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveRuleRow",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "row": {
+          "$ref": "../types.ts.json#/$defs/DataRow"
+        },
+        "created": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "object",
+          "title": "ReadonlySet<string>"
+        }
+      },
+      "required": [
+        "id",
+        "row",
+        "created",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "SaveRuleScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveRuleScope",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SaveRuleRow"
+          }
+        }
+      },
+      "required": [
+        "label",
+        "columns",
+        "rows"
+      ],
+      "additionalProperties": false
+    },
+    "SaveRuleCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveRuleCheck",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SaveRuleRow"
+          }
+        },
+        "retained": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataRow"
+          }
+        },
+        "allowedFields": {
+          "type": "object",
+          "title": "ReadonlySet<string>"
+        },
+        "createdExemptFields": {
+          "type": "object",
+          "title": "ReadonlySet<string>"
+        },
+        "deletes": {
+          "type": "number"
+        },
+        "allowDelete": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "label",
+        "columns",
+        "rows",
+        "retained",
+        "createdExemptFields",
+        "deletes",
+        "allowDelete"
+      ],
+      "additionalProperties": false
+    },
+    "SaveRuleReferenceCheck": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveRuleReferenceCheck",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "../types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SaveRuleRow"
+          }
+        },
+        "query": {
+          "type": "object",
+          "title": "SaveRuleOptionQuery"
+        }
+      },
+      "required": [
+        "label",
+        "columns",
+        "rows",
+        "query"
+      ],
+      "additionalProperties": false
+    },
+    "SaveRuleWrite": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveRuleWrite",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "field": {
+          "type": "string"
+        },
+        "value": true
+      },
+      "required": [
+        "id",
+        "field",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "SaveRuleValidator": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SaveRuleValidator",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.check.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SaveRuleCheck"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.check.return": true,
+        "method.checkReferences.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SaveRuleReferenceCheck"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.checkReferences.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.writes.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SaveRuleReferenceCheck"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.writes.return": {
+          "type": "object",
+          "title": "Promise<SaveRuleWrite[]>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-23T17:02:23.708Z",
+  "models": {
+    "SaveRuleRow": {
+      "name": "SaveRuleRow",
+      "jsdoc": "一条待提交行；fields 为相对原查询行的修改字段，新增行为全部输入字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string | number;\n    row: DataRow;\n    created: boolean;\n    fields: ReadonlySet<string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string | number;\n    row: DataRow;\n    created: boolean;\n    fields: ReadonlySet<string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "row",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "created",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SaveRuleScope": {
+      "name": "SaveRuleScope",
+      "jsdoc": "规则作用的视图范围；label 形如 `表@视图`，用于统一错误格式。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    label: string;\n    columns: readonly DataColumn[];\n    rows: readonly SaveRuleRow[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    label: string;\n    columns: readonly DataColumn[];\n    rows: readonly SaveRuleRow[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SaveRuleCheck": {
+      "name": "SaveRuleCheck",
+      "jsdoc": "同步规则输入；retained 是保存后本视图保留的全部已知行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SaveRuleScope & Readonly<{\n    retained: readonly DataRow[];\n    allowedFields?: ReadonlySet<string>;\n    /** 新增行由视图范围填充的归属字段，不受 allowedFields 限制。 */\n    createdExemptFields: ReadonlySet<string>;\n    deletes: number;\n    allowDelete: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SaveRuleScope",
+            "targetName": "SaveRuleScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    retained: readonly DataRow[];\n    allowedFields?: ReadonlySet<string>;\n    /** 新增行由视图范围填充的归属字段，不受 allowedFields 限制。 */\n    createdExemptFields: ReadonlySet<string>;\n    deletes: number;\n    allowDelete: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "retained",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowedFields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createdExemptFields",
+              "jsdoc": "新增行由视图范围填充的归属字段，不受 allowedFields 限制。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deletes",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowDelete",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SaveRuleOptionQuery": {
+      "name": "SaveRuleOptionQuery",
+      "jsdoc": "在同一 DataSet 中查询选项来源视图的读取器。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    (source: DataColumnOptionSource, fields: readonly string[], context?: Record<string, unknown>): Promise<DataRow[]>;\n}",
+        "members": {}
+      }
+    },
+    "SaveRuleReferenceCheck": {
+      "name": "SaveRuleReferenceCheck",
+      "jsdoc": "异步规则输入，选项读取复用来源视图的正式查询。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "SaveRuleScope & Readonly<{\n    query: SaveRuleOptionQuery;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SaveRuleScope",
+            "targetName": "SaveRuleScope"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    query: SaveRuleOptionQuery;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "query",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SaveRuleWrite": {
+      "name": "SaveRuleWrite",
+      "jsdoc": "保存前需写回本行的字段值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    id: string | number;\n    field: string;\n    value: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    id: string | number;\n    field: string;\n    value: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "SaveRuleValidator": {
+      "name": "SaveRuleValidator",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "check",
+              "jsdoc": "同步规则；违反时抛出 DATA_VIEW_SAVE_VALIDATION，不改变任何状态。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SaveRuleCheck",
+                    "sourcePath": "packages/spark-data/src/validation/save-rule-validator.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "checkReferences",
+              "jsdoc": "选项引用与值函数规则；只核新增行及本次修改的字段。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SaveRuleReferenceCheck",
+                    "sourcePath": "packages/spark-data/src/validation/save-rule-validator.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "writes",
+              "jsdoc": "保存前写回：normalize 去除首尾空白；选项 fill 在本字段新增或变更时同步匹配选项字段。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "SaveRuleReferenceCheck",
+                    "sourcePath": "packages/spark-data/src/validation/save-rule-validator.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "SaveRuleWrite",
+                      "sourcePath": "packages/spark-data/src/validation/save-rule-validator.ts"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

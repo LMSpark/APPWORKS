@@ -49,7 +49,8 @@ export class ApiRequestHeaderDesign {
     if (this.#busy || this.pending && !discard) throw new Error('请先处理头部修改或等待核验')
     this.#busy = true
     try {
-      if (discard) {this.headers.discardPendingChanges(); this.provider.discardPendingChanges()}
+      if (discard) await this.#input.dataSet.discardAndReload({views: [this.provider, this.headers]
+        .map(view => ({tableName: view.tableName, viewId: view.viewId}))})
       for (const view of [this.provider, this.headers, this.references]) await this.read(view)
       this.assertScope(); this.provider.setCurrentRowById(this.#input.providerId); this.#uncertain = false
     } finally {this.#busy = false}

@@ -24,6 +24,14 @@ export type LoadScenarioDataSetInput = Readonly<{
  assertCurrent?: () => void
 }>
 
+type DefinitionExecutorsInput = Readonly<{
+  projectId: string
+  scenarioId: string
+  config: ScenarioViewConfig
+  assertCurrent: () => void
+  owner?: ProjectWorkspace
+}>
+
 /** 场景视图文件与正式模型的唯一运行装配入口；请求 owner 提供应用及租户身份。 */
 export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Promise<LowcodeDataSpaceAssembly> {
  const scenarioId = input.scenarioId.trim()
@@ -87,7 +95,7 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
  if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
  const config = new ScenarioViewConfig(scenarioId, text)
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
-  fileExecutors: definitionExecutors(projectId, scenarioId, config, assertCurrent)})
+  fileExecutors: definitionExecutors({projectId, scenarioId, config, assertCurrent})})
  try {
   assertCurrent()
   if (result.diagnostics.length > 0) {
@@ -98,8 +106,8 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
 }
 
 /** 文件资源由已声明的语义身份接线，目标ID仍由DataView输入提供，不从当前空间猜测。 */
-function definitionExecutors(projectId: string, scenarioId: string, config: ScenarioViewConfig, assertCurrent: () => void,
- owner?: ProjectWorkspace): NonNullable<LoadScenarioDataSetInput['fileExecutors']> {
+function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadScenarioDataSetInput['fileExecutors']> {
+ const {projectId, scenarioId, config, assertCurrent, owner} = input
  const tables = config.toJSON()['tables']
  const declared = isRecord(tables) ? Object.entries(tables).filter(([name, table]) => isRecord(table) && table['resourceType'] === 'file'
   && Object.entries(ScenarioDefinitionRecords.resources).some(([key, resource]) => key === name && resource === table['resourceId'])) : []
@@ -149,7 +157,7 @@ export async function loadLowcodeDataSpaceMetadata(dataSpaceId: string,
  if (text === null) throw new Error('DATA_SPACE_METADATA_CONFIG: 数据空间设计器尚未建立正式视图配置')
  const config = new ScenarioViewConfig(DATA_SPACE_DESIGN_FORM_KEY, text)
  const assembly = await loadScenarioDataSet({scenarioId: DATA_SPACE_DESIGN_FORM_KEY, config, assertCurrent,
-  fileExecutors: fileExecutors ?? definitionExecutors(projectId, DATA_SPACE_DESIGN_FORM_KEY, config, assertCurrent, workspace)})
+  fileExecutors: fileExecutors ?? definitionExecutors({projectId, scenarioId: DATA_SPACE_DESIGN_FORM_KEY, config, assertCurrent, ...(workspace ? {owner: workspace} : {})})})
  const dataSet = assembly.dataSet
  try {
   assertCurrent()

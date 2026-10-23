@@ -78,8 +78,17 @@ export type ArraySessionHost = {
 
 type ArrayPlan = ReturnType<typeof arrayPlan>
 
-export function createArrayHost(dataSet: DataSet, targetId: string, modelId: string, lifecycle: ArraySessionLifecycle,
-  fieldViewId: 'default' | 'modelFields' = 'default'): ArraySessionHost {
+export type ArraySessionHostInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  lifecycle: ArraySessionLifecycle
+  fieldViewId?: 'default' | 'modelFields'
+}>
+
+export function createArrayHost(input: ArraySessionHostInput): ArraySessionHost {
+  const fieldViewId = input.fieldViewId ?? 'default'
+  const {dataSet, targetId, modelId, lifecycle} = input
   const models = dataSet.getView('Base_DataModel'), fields = dataSet.getView('Base_DataModel_Field', fieldViewId)
   if (!models || !fields) throw new Error('缺少数组正式定义视图')
   if (fieldViewId !== 'default' && (fields.queryContext['modelId'] !== modelId || fields.requestState !== RequestState.Loaded)) {
@@ -205,7 +214,7 @@ export async function arrayApplyHeaders(host: ArraySessionHost, definition: Arra
   const model=arrayModel(host)
   if(definition.name!==(host.models.getEditingRow(host.modelId)??model)['Name'])throw new Error('表头窗口所属模型名称已变化，请重新打开')
   const patch={items:definition.items,PrimaryKeyFields:definition.headers.find(h=>h.primary)?.name??''}
-  const plan=arrayPlan(host, definition.headers,{...host.models.getEditingPatch(host.modelId),...patch},true,false)
+  const plan=arrayPlan(host, {headers: definition.headers, modelPatch: {...host.models.getEditingPatch(host.modelId), ...patch}, structural: true, withReferences: false})
   const current=arrayRows(host),before=arrayOriginalRows(host),keep=new Set(definition.headers.map(header=>header.id))
   for(const header of definition.headers) {
     const original=current.find(row=>row['rowid']===header.id)
@@ -248,7 +257,18 @@ function arrayReferenceView(host: ArraySessionHost, reference: ModelNameChange):
   if(reference.table===host.fields.tableName&&arrayRows(host).some(row=>row['rowid']===reference.id))return host.fields
   return arrayReferenceViews(host).find(view=>view.tableName===reference.table&&view.rows.some(row=>row['rowid']===reference.id))
 }
-function arrayPlan(host: ArraySessionHost, headers: ArrayDefinition['headers'] = arrayHeaders(host), modelPatch: Record<string, unknown> = {...host.models.getEditingPatch(host.modelId)}, structural = arrayFieldPending(host), withReferences = true) {
+type ArrayPlanInput = Readonly<{
+  headers?: ArrayDefinition['headers']
+  modelPatch?: Record<string, unknown>
+  structural?: boolean
+  withReferences?: boolean
+}>
+
+function arrayPlan(host: ArraySessionHost, input: ArrayPlanInput = {}) {
+  const headers = input.headers ?? arrayHeaders(host)
+  const modelPatch = input.modelPatch ?? {...host.models.getEditingPatch(host.modelId)}
+  const structural = input.structural ?? arrayFieldPending(host)
+  const withReferences = input.withReferences ?? true
   const model=arrayModel(host),rows=arrayOriginalRows(host),prepared=LowcodeDataSpaceArrayDraft.prepare({name:String(model['Name']),description:String(modelPatch['description']??model['description']??''),
     items:String(modelPatch['items']??model['items']),headers})
   if(!structural&&prepared.model.PrimaryKeyFields!==(model['PrimaryKeyFields']??''))throw new Error('数组主键声明与表头不一致，请先通过设置表头确认')
@@ -276,9 +296,9 @@ function arrayPlan(host: ArraySessionHost, headers: ArrayDefinition['headers'] =
   const candidate=DataSpaceDesignApi.projectModel({...model,...patch},[...candidateRows,...additions.map((r,index)=>({...r,rowid:`new:${index}`}))],'')
   if(structural)DataSpaceDesignApi.resolveFields(candidate)
   const fieldRenames=changes.filter(change=>Object.hasOwn(change.patch,'Name')).map(change=>({id:change.id,name:String(change.patch['Name'])}))
-  const references:ModelNameChange[]=withReferences&&fieldRenames.length?LowcodeDataSpaceFieldRemoveReferences.prepareRenames(arrayReferenceViews(host),host.modelId,fieldRenames,prepared.model.PrimaryKeyFields):[]
+  const references:ModelNameChange[]=withReferences&&fieldRenames.length?LowcodeDataSpaceFieldRemoveReferences.prepareRenames({views: arrayReferenceViews(host), modelId: host.modelId, mappings: fieldRenames, primaryReplacement: prepared.model.PrimaryKeyFields}):[]
   const projected=[...references,...fieldRenames.map(item=>({table:host.fields.tableName,id:item.id,property:'Name',before:String(rows.find(row=>row['rowid']===item.id)?.['Name']),after:item.name}))]
-  if(withReferences&&Object.hasOwn(patch,'Name'))for(const change of LowcodeDataSpaceModelRenameReferences.prepare(arrayReferenceViews(host),host.modelId,String(patch['Name']),undefined,projected)) {
+  if(withReferences&&Object.hasOwn(patch,'Name'))for(const change of LowcodeDataSpaceModelRenameReferences.prepare({views: arrayReferenceViews(host), modelId: host.modelId, nextName: String(patch['Name']), projected})) {
     const previous=references.findIndex(item=>item.table===change.table&&item.id===change.id&&item.property===change.property)
     const original=references[previous]
     if(!original)references.push(change);else references[previous]={...change,before:original.before}
@@ -327,27 +347,31 @@ async function arrayFresh(host: ArraySessionHost, plan: ArrayPlan): Promise<void
     arrayPermissions(view,row,{[reference.property]:reference.after})
   }
 }
-async function arrayUpdate(host: ArraySessionHost, view: DataView, id: string, patch: Record<string, unknown>): Promise<void> {
-  for(const [key,value]of Object.entries(patch))view.updateEditingValue(id,key,value)
+type ArrayUpdateInput = Readonly<{view: DataView; id: string; patch: Record<string, unknown>}>
+
+async function arrayUpdate(host: ArraySessionHost, input: ArrayUpdateInput): Promise<void> {
+  for(const [key,value]of Object.entries(input.patch))input.view.updateEditingValue(input.id,key,value)
   try {
-    const result=await view.applyEditingRows([id])
+    const result=await input.view.applyEditingRows([input.id])
     if(!result.success||result.data?.appliedCount!==1||result.data.failedCount)throw new Error('数组定义编辑未完整应用')
   } finally {
-    const row=view.rows.find(r=>view.getPkKey(r)===id)
-    if(row)host.flow.staged.push({view,id,after:JSON.stringify(row),values:patch})
+    const row=input.view.rows.find(r=>input.view.getPkKey(r)===input.id)
+    if(row)host.flow.staged.push({view: input.view, id: input.id, after: JSON.stringify(row), values: input.patch})
   }
 }
 /** 所有预检通过后，同一DataSet批次保存模型items、表头增改删及正式引用。 */
 export async function arraySave(host: ArraySessionHost): Promise<void> {
-  arrayEditable(host);const local=arrayPlan(host, undefined,undefined,undefined,false),draft=JSON.stringify(host.models.getEditingPatch(host.modelId)),headers=arrayFieldFingerprint(host)
+  arrayEditable(host);const local=arrayPlan(host, {withReferences: false}),draft=JSON.stringify(host.models.getEditingPatch(host.modelId)),headers=arrayFieldFingerprint(host)
   host.flow.status='saving'
   let plan:ArrayPlan
   try {
     if(Object.hasOwn(local.patch,'Name')||local.fieldRenames.length||local.removals.length) {
       if(!host.dependencies) {
-        host.dependencies=new LowcodeDataSpaceModelDependencies(host.dataSet,host.targetId,host.modelId,`array:${host.fields.viewId}`,
-          ()=>host.lifecycle.assertCurrent(),{view:host.models,id:host.modelId},undefined,
-          ()=>[{view:host.fields,ids:[...host.flow.fieldIds].filter(id=>host.fields.hasEditingChanges(id)||host.fields.dirtyTracking.hasPendingChanges(id)),allowPending:true}])
+        host.dependencies=new LowcodeDataSpaceModelDependencies({
+          dataSet: host.dataSet, targetId: host.targetId, modelId: host.modelId, operation: `array:${host.fields.viewId}`,
+          assertCurrent: () => host.lifecycle.assertCurrent(), editing: {view: host.models, id: host.modelId},
+          fieldWorkspaces: () => [{view: host.fields, ids: [...host.flow.fieldIds].filter(id => host.fields.hasEditingChanges(id) || host.fields.dirtyTracking.hasPendingChanges(id)), allowPending: true}],
+        })
         host.views.push(...host.dependencies.views)
       }
       await host.dependencies.load()
@@ -386,7 +410,7 @@ export async function arraySave(host: ArraySessionHost): Promise<void> {
       if(JSON.stringify(arrayPlan(host).references)!==JSON.stringify(plan.references))throw new Error('数组改名引用已变化，请重新保存前核验')
     },
     apply:async()=>{
-      for(const item of updates)await arrayUpdate(host, item.view,item.id,item.patch)
+      for(const item of updates)await arrayUpdate(host, {view: item.view, id: item.id, patch: item.patch})
       for(const values of plan.additions) {
         const id=values['rowid']
         if(typeof id!=='string'||!host.flow.fieldIds.has(id)||!host.fields.dirtyTracking.isPendingCreate(id))throw new Error('新增数组字段未取得唯一身份')
@@ -477,7 +501,7 @@ async function arrayReadback(host: ArraySessionHost): Promise<boolean> {
     return ok?[]:[`${item.view.tableName}(${item.id})：${item.values===null&&!row?'删除结果缺少正式回执':'正式记录与提交值不一致'}`]
   })
   if(host.flow.rename&&host.flow.rename.before!==host.flow.rename.after) {
-    const remaining=LowcodeDataSpaceModelRenameReferences.prepare(arrayReferenceViews(host),host.modelId,host.flow.rename.after,host.flow.rename.before)
+    const remaining=LowcodeDataSpaceModelRenameReferences.prepare({views: arrayReferenceViews(host), modelId: host.modelId, nextName: host.flow.rename.after, previousName: host.flow.rename.before})
     host.flow.verification.push(...remaining.map(change=>`${change.table}(${change.id}).${change.property}：仍有旧注册名或引用；未自动补写`))
   }
   if(host.flow.fieldRenames.length&&arrayReferenceSnapshot(host)!==host.flow.referenceSnapshot)host.flow.verification.push('字段改名涉及的正式定义集合已变化；未自动改写并发引用')

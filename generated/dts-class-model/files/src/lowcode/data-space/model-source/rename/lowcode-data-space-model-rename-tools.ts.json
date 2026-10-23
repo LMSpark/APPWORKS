@@ -10,10 +10,76 @@
     "jsdoc": "@module app:lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools\n职责：经正式工具资源视图核查静态绑定，由DataSet保存改名差异。\n边界：不改导航、不改脚本，不将未挂载工具或原生Vue视为已扫描。\nAI用途：模型注册名变更的工具引用预览及分步恢复。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "ModelRenameToolsScopeInput",
+      "ModelRenameToolsPrepareInput",
       "LowcodeDataSpaceModelRenameTools"
     ]
   },
   "$defs": {
+    "ModelRenameToolsScopeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRenameToolsScopeInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        },
+        "after": {
+          "type": "string"
+        },
+        "fieldNames": {
+          "type": "object",
+          "title": "ReadonlyMap<string, string>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertLive.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertLive.return": true
+      }
+    },
+    "ModelRenameToolsPrepareInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRenameToolsPrepareInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        },
+        "after": {
+          "type": "string"
+        },
+        "fieldNames": {
+          "type": "object",
+          "title": "ReadonlyMap<string, string>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertLive.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertLive.return": true
+      }
+    },
     "LowcodeDataSpaceModelRenameTools": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -42,25 +108,8 @@
         "method.prepare.params": {
           "type": "object",
           "properties": {
-            "dataSet": {
-              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
-            },
-            "targetId": {
-              "type": "string"
-            },
-            "before": {
-              "type": "string"
-            },
-            "after": {
-              "type": "string"
-            },
-            "assertLive": {
-              "type": "object",
-              "title": "() => void"
-            },
-            "fieldNames": {
-              "type": "object",
-              "title": "ReadonlyMap<string, string>"
+            "input": {
+              "$ref": "#/$defs/ModelRenameToolsPrepareInput"
             }
           },
           "additionalProperties": false
@@ -94,8 +143,116 @@
       }
     }
   },
-  "generatedAt": "2026-10-13T19:55:37.684Z",
+  "generatedAt": "2026-10-23T06:52:21.286Z",
   "models": {
+    "ModelRenameToolsScopeInput": {
+      "name": "ModelRenameToolsScopeInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    before: string;\n    after: string;\n    assertLive: () => void;\n    fieldNames: ReadonlyMap<string, string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    before: string;\n    after: string;\n    assertLive: () => void;\n    fieldNames: ReadonlyMap<string, string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "before",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldNames",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertLive",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ModelRenameToolsPrepareInput": {
+      "name": "ModelRenameToolsPrepareInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    before: string;\n    after: string;\n    assertLive: () => void;\n    fieldNames?: ReadonlyMap<string, string>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    before: string;\n    after: string;\n    assertLive: () => void;\n    fieldNames?: ReadonlyMap<string, string>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "before",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldNames",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertLive",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
     "LowcodeDataSpaceModelRenameTools": {
       "name": "LowcodeDataSpaceModelRenameTools",
       "jsdoc": "本次改名的工具工作文件计划；只保存正式声明的静态完整绑定。",
@@ -127,68 +284,11 @@
               "jsdoc": "从正式远端蓝图读取去重工具及规则/脚本；任何读取失败或未解析旧名脚本均拒绝预览。",
               "parameters": [
                 {
-                  "name": "dataSet",
+                  "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
-                  }
-                },
-                {
-                  "name": "targetId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "before",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "after",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "assertLive",
-                  "type": {
-                    "type": "reflection",
-                    "declaration": {
-                      "signatures": [
-                        {
-                          "parameters": [],
-                          "type": {
-                            "type": "intrinsic",
-                            "name": "void"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "name": "fieldNames",
-                  "type": {
-                    "type": "reference",
-                    "name": "ReadonlyMap",
-                    "typeArguments": [
-                      {
-                        "type": "intrinsic",
-                        "name": "string"
-                      },
-                      {
-                        "type": "intrinsic",
-                        "name": "string"
-                      }
-                    ]
-                  },
-                  "flags": {
-                    "isOptional": true
+                    "name": "ModelRenameToolsPrepareInput",
+                    "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts"
                   }
                 }
               ],

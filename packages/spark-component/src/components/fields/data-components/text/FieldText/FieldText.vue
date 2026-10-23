@@ -20,6 +20,8 @@ AI用途：需要理解 field text 的实际渲染结构、slot/toolbar/状态�
         :placeholder="placeholder"
         :clearable="clearable"
         :maxlength="maxlength"
+        :type="showPassword ? 'password' : 'text'"
+        :show-password="showPassword"
         @update:model-value="handleChange"
       />
     </template>

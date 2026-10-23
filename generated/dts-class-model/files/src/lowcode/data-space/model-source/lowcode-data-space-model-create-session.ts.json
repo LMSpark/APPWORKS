@@ -15,6 +15,7 @@
       "ModelCreateFlow",
       "ModelCreateLifecycle",
       "ModelCreateHost",
+      "ModelCreateHostInput",
       "ModelCreateHandle"
     ]
   },
@@ -322,6 +323,33 @@
       ],
       "additionalProperties": false
     },
+    "ModelCreateHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelCreateHostInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "object",
+          "title": "ModelCreateSources"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ModelCreateLifecycle"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "sources",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
     "ModelCreateHandle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -405,7 +433,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T05:13:08.344Z",
+  "generatedAt": "2026-10-23T06:52:20.974Z",
   "models": {
     "ModelCreateSources": {
       "name": "ModelCreateSources",
@@ -688,6 +716,45 @@
               "name": "lifecycle",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelCreateHostInput": {
+      "name": "ModelCreateHostInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
             }
           ]
         }

@@ -45,19 +45,19 @@ describe('source parameter maintenance through the metadata DataSet', () => {
 
   it('separates the space call catalogue from scoped source input names without editing definitions', async () => {
     const {session, writes} = await setup()
-    const directory = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1')
+    const directory = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1'})
     expect(directory.readQueryParameters('mapped')).toMatchObject({schema: {properties: {customer: {description: '客户'}}}, warning: ''})
     expect(directory.readQueryParameters('direct').warning).toContain('未完整读取')
     await session.loadSourceInputFields('M1')
     expect(Object.keys(directory.readQueryParameters('direct').schema.properties!)).toEqual(['customerArg'])
-    const wrongModel = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M2')
+    const wrongModel = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M2'})
     expect(wrongModel.readQueryParameters('direct').warning).toContain('未完整读取')
     expect(writes()).toHaveLength(0)
   })
   it('reports unavailable parameter names instead of publishing a misleading empty catalogue', async () => {
     const {session} = await setup({hiddenFieldProperties: ['Name']})
     await session.loadSourceInputFields('M1')
-    const result = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1').readQueryParameters('direct')
+    const result = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1'}).readQueryParameters('direct')
     expect(result.warning).toContain('来源测试参数名称不可读'); expect(result.schema.properties).toEqual({})
   })
   it.each([{readOnly: true}, {hidden: true}])('rejects denied ValueFun access: %j', async options => {

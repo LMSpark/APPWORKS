@@ -10,10 +10,105 @@
     "jsdoc": "@module app:lowcode/data-space/model-source/lowcode-data-space-model-dependencies\n职责：为模型/字段结构命令读取明确的依赖，保留C的正式查询、权限及提交责任方。\n边界：不预载字段default，不复制行；只读取显式依赖，具体命令负责引用改写与变更清单。\nAI用途：结构命令的预览、派发前检查和回读共用同一组DataView。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "ModelDependenciesInput",
       "LowcodeDataSpaceModelDependencies"
     ]
   },
   "$defs": {
+    "ModelDependenciesInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelDependenciesInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "operation": true,
+        "editing": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "view",
+            "id"
+          ],
+          "additionalProperties": false
+        },
+        "fieldEditing": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allowPending": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "view",
+            "ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.fieldWorkspaces.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.fieldWorkspaces.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "view": {
+                "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "allowPending": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "view",
+              "ids"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
     "LowcodeDataSpaceModelDependencies": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -39,61 +134,8 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "dataSet": {
-              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
-            },
-            "targetId": {
-              "type": "string"
-            },
-            "modelId": {
-              "type": "string"
-            },
-            "operation": true,
-            "assertCurrent": {
-              "type": "object",
-              "title": "() => void"
-            },
-            "editing": {
-              "type": "object",
-              "properties": {
-                "view": {
-                  "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-                },
-                "id": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "view",
-                "id"
-              ],
-              "additionalProperties": false
-            },
-            "fieldEditing": {
-              "type": "object",
-              "properties": {
-                "view": {
-                  "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-                },
-                "ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "allowPending": {
-                  "type": "boolean"
-                }
-              },
-              "required": [
-                "view",
-                "ids"
-              ],
-              "additionalProperties": false
-            },
-            "fieldWorkspaces": {
-              "type": "object",
-              "title": "() => ReadonlyArray<Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>>"
+            "input": {
+              "$ref": "#/$defs/ModelDependenciesInput"
             }
           },
           "additionalProperties": false
@@ -170,110 +212,68 @@
       }
     }
   },
-  "generatedAt": "2026-10-14T20:48:11.118Z",
+  "generatedAt": "2026-10-23T06:52:21.106Z",
   "models": {
-    "LowcodeDataSpaceModelDependencies": {
-      "name": "LowcodeDataSpaceModelDependencies",
-      "jsdoc": "当前空间模型结构命令的按需依赖；生命周期归元数据DataSet。",
-      "declarationKind": "class",
-      "classDecl": {
-        "constructorMeta": {
-          "jsdoc": "从C派生命令视图；editing指定须保留的本模型编辑行，依赖使用独立模型查询。",
-          "signatureText": "constructor(dataSet: DataSet, targetId: string, modelId: string, operation: 'rename' | 'remove' | 'sourceRemoval' | `fieldRemove:${string}` | `fieldOutput:${string}` | `array:${string}`, assertCurrent: () => void, editing?: Readonly<{\n        view: DataView;\n        id: string;\n    }> | undefined, fieldEditing?: Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }> | undefined, fieldWorkspaces?: (() => ReadonlyArray<Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>>) | undefined)",
-          "parameters": [
+    "ModelDependenciesInput": {
+      "name": "ModelDependenciesInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    operation: 'rename' | 'remove' | 'sourceRemoval' | `fieldRemove:${string}` | `fieldOutput:${string}` | `array:${string}`;\n    assertCurrent: () => void;\n    editing?: Readonly<{\n        view: DataView;\n        id: string;\n    }>;\n    fieldEditing?: Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>;\n    fieldWorkspaces?: () => ReadonlyArray<Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    operation: 'rename' | 'remove' | 'sourceRemoval' | `fieldRemove:${string}` | `fieldOutput:${string}` | `array:${string}`;\n    assertCurrent: () => void;\n    editing?: Readonly<{\n        view: DataView;\n        id: string;\n    }>;\n    fieldEditing?: Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>;\n    fieldWorkspaces?: () => ReadonlyArray<Readonly<{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
             {
               "name": "dataSet",
-              "type": {
-                "type": "reference",
-                "name": "DataSet"
-              }
+              "readable": true,
+              "writable": false
             },
             {
               "name": "targetId",
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
+              "readable": true,
+              "writable": false
             },
             {
               "name": "modelId",
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
+              "readable": true,
+              "writable": false
             },
             {
               "name": "operation",
-              "type": {
-                "type": "union",
-                "types": [
-                  {
-                    "type": "literal",
-                    "value": "rename"
-                  },
-                  {
-                    "type": "literal",
-                    "value": "remove"
-                  },
-                  {
-                    "type": "literal",
-                    "value": "sourceRemoval"
-                  },
-                  {
-                    "type": "unknown",
-                    "name": "`fieldRemove:${string}`"
-                  },
-                  {
-                    "type": "unknown",
-                    "name": "`fieldOutput:${string}`"
-                  },
-                  {
-                    "type": "unknown",
-                    "name": "`array:${string}`"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "assertCurrent",
-              "type": {
-                "type": "reflection",
-                "declaration": {
-                  "signatures": [
-                    {
-                      "parameters": [],
-                      "type": {
-                        "type": "intrinsic",
-                        "name": "void"
-                      }
-                    }
-                  ]
-                }
-              }
+              "readable": true,
+              "writable": false
             },
             {
               "name": "editing",
-              "type": {
-                "type": "optional",
-                "elementType": {
-                  "type": "reference",
-                  "name": "Readonly",
-                  "typeArguments": [
-                    {
-                      "type": "unknown",
-                      "name": "{\n        view: DataView;\n        id: string;\n    }"
-                    }
-                  ]
-                }
-              },
-              "flags": {
-                "isOptional": true
-              }
+              "readable": true,
+              "writable": false
             },
             {
               "name": "fieldEditing",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
               "type": {
-                "type": "optional",
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "fieldWorkspaces",
+              "parameters": [],
+              "type": {
+                "type": "array",
                 "elementType": {
                   "type": "reference",
                   "name": "Readonly",
@@ -284,41 +284,27 @@
                     }
                   ]
                 }
-              },
-              "flags": {
-                "isOptional": true
               }
-            },
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelDependencies": {
+      "name": "LowcodeDataSpaceModelDependencies",
+      "jsdoc": "当前空间模型结构命令的按需依赖；生命周期归元数据DataSet。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "从C派生命令视图；editing指定须保留的本模型编辑行，依赖使用独立模型查询。",
+          "signatureText": "constructor(input: ModelDependenciesInput)",
+          "parameters": [
             {
-              "name": "fieldWorkspaces",
+              "name": "input",
               "type": {
-                "type": "optional",
-                "elementType": {
-                  "type": "reflection",
-                  "declaration": {
-                    "signatures": [
-                      {
-                        "parameters": [],
-                        "type": {
-                          "type": "array",
-                          "elementType": {
-                            "type": "reference",
-                            "name": "Readonly",
-                            "typeArguments": [
-                              {
-                                "type": "unknown",
-                                "name": "{\n        view: DataView;\n        ids: readonly string[];\n        allowPending?: boolean;\n    }"
-                              }
-                            ]
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              "flags": {
-                "isOptional": true
+                "type": "reference",
+                "name": "ModelDependenciesInput",
+                "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts"
               }
             }
           ]

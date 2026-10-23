@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/database-management/table-and-view/ui/view-design-dialog",
-    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/view-design-dialog\n职责：视图字段设计对话框；字段列表经 Base_TblField 命名视图 autoColumns，保存走 saveChanges。",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/view-design-dialog\n职责：视图设计三页签（设计 / 输出模型 / 数据）；绑定同一 catalog DataSet。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-20T08:43:31.507Z",
+  "generatedAt": "2026-10-23T06:52:15.804Z",
   "models": {}
 }

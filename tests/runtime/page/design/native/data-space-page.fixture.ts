@@ -466,7 +466,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
         }
         return metadata
       }),
-      assemble: async (id, config, fileExecutors, modelScope) => {
+      assemble: async ({scenarioId: id, config, fileExecutors, modelScope}) => {
         await options.assemblyGate
         if (options.broken) throw new Error('SCENARIO_ASSEMBLY: 模型关系无法装配')
         const relations = !config.usesNativeResourceRelations && options.relationRows?.length ? await design.readRelations({designScenarioId: 'META', dataSpaceId: id}) : []

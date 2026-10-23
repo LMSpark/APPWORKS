@@ -1,6 +1,6 @@
 import {ScenarioDefinitionResource, ScenarioDefinitionRecords, DataSpaceReferenceLayoutResource, ProjectToolResource} from '@spark-appworks/spark-project-model'
 import { DataSpaceDesignApi, DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
-import { buildDataViewKey, DataTable, DataViewFilter, DataViewQuery, FormalTableRequestConfig, RequestState, type DataColumn, type DataRow, type DataSet, type DataView, type DataViewFieldProjection, type DataViewFilterFunctionContext, type DataResourceRelation } from '@spark-appworks/spark-data'
+import * as SparkData from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { ScenarioViewConfig, ScenarioViewFile, type ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import type { LowcodeDataSpaceAssembly } from '../lowcode-data-space-assembler'
@@ -16,13 +16,13 @@ import {
 } from '../input-parameters/lowcode-data-space-input-parameter-session'
 import { LowcodeDataSpaceInputParameterReferences, type InputParameterInspection } from '../input-parameters/lowcode-data-space-input-parameter-references'
 import {createSourceInputHandle, createSourceInputHost, type SourceInputHandle} from '../model-source/source-input/lowcode-data-space-source-input-session'
-import {createModelEditHandle, createModelEditHost, type ModelEditHandle, type ModelEditHost} from '../model-source/model-edit/lowcode-data-space-model-edit-session'
+import {createModelEditHandle, createModelEditHost, type ModelEditSession} from '../model-source/model-edit/lowcode-data-space-model-edit-session'
 import {createArrayHandle, createArrayHost, type ArrayDefinitionChange, type ArrayEditHandle} from '../model-source/array/lowcode-data-space-array-session'
 import { LowcodeDataSpaceArrayConfiguration } from '../model-source/array/lowcode-data-space-array-configuration'
 import {createModelRenameHandle, createModelRenameHost, type ModelRenameFilePlan, type ModelRenameHandle} from '../model-source/rename/lowcode-data-space-model-rename-session'
 import { LowcodeDataSpaceModelRenameTools } from '../model-source/rename/lowcode-data-space-model-rename-tools'
 import {createModelRemoveHandle, createModelRemoveHost, type LowcodeDataSpaceModelRemovalFilePlan, type ModelRemoveHandle} from '../model-source/removal/lowcode-data-space-model-remove-session'
-import {createFieldEditHandle, createFieldEditHost, type FieldEditHandle, type FieldEditHost} from '../model-source/field-edit/lowcode-data-space-field-edit-session'
+import {createFieldEditHandle, createFieldEditHost, type FieldEditSession} from '../model-source/field-edit/lowcode-data-space-field-edit-session'
 import {createFieldCreateHandle, createFieldCreateHost, type FieldCreateHandle} from '../model-source/field-create/lowcode-data-space-field-create-session'
 import {createFieldRemoveHandle, createFieldRemoveHost, type FieldRemoveHandle} from '../model-source/removal/lowcode-data-space-field-remove-session'
 import { LowcodeDataSpaceFieldRemoveReferences } from '../model-source/removal/lowcode-data-space-field-remove-references'
@@ -31,7 +31,7 @@ import {createModelCreateHandle, createModelCreateHost, type ModelCreateHandle, 
 import {
   createModelSourceEditHandle,
   createModelSourceEditHost,
-  type LowcodeDataSpaceModelSourceEdit,
+  type ModelSourceEditHandle,
   type SourceContractChange,
   type SourceContractPlan,
 } from '../model-source/source-edit/lowcode-data-space-model-source-edit-session'
@@ -60,19 +60,23 @@ type PageDataSpaceViewSelection = Readonly<{
   viewId: string
 }>
 
+export type ViewDesignAssembleInput = Readonly<{
+  scenarioId: string
+  config: ScenarioViewConfig
+  fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>
+  modelScope?: string
+}>
+
 type ViewDesignOptions = Readonly<{
   workspace: ProjectWorkspace
-  readModel(input: PageDataSpaceViewModelInput, metadata: DataSet): Promise<FormalModel>
+  readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>
   /**
    * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。
-   * @param scenarioId 运行空间身份，必须与config一致。
-   * @param config 已校验的场景配置；预览只消费，不写回范围投影。
-   * @param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。
-   * @param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。
-   * @returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。
+   * scenarioId 必须与 config 一致；fileExecutors 为文件资源既有查询适配；modelScope 可选表键。
+   * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。
    */
-  assemble(scenarioId: string, config: ScenarioViewConfig, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>, modelScope?: string): Promise<LowcodeDataSpaceAssembly>
-  loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>
+  assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>
+  loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>): Promise<SparkData.DataSet>
   readLegacyLayout?(targetId: string): Promise<string | null>
   /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */
   modelSources?: ModelCreateSources
@@ -86,7 +90,7 @@ type SessionAdopt = Readonly<{
   expectedRevision: number
   previewText: string | null
   /** 仅在远端核对成功后允许取消的文件定义视图；未列出的脏视图保持并阻止接纳。 */
-  discardViews?: ReadonlyArray<Pick<DataView, 'tableName' | 'viewId'>>
+  discardViews?: ReadonlyArray<Pick<SparkData.DataView, 'tableName' | 'viewId'>>
 }>
 /** 当前会话的加载阶段；省略时完成目标定义装配后交付。 */
 type SessionLoadOptions = Readonly<{
@@ -113,7 +117,21 @@ type SessionBindingRemoval = Readonly<Pick<SessionSelection, 'tableName'> & (Pic
   /** 预览确认时的完整文件原文；与当前草稿不同则拒绝解除。 */
   expectedText: string
 }>
-function projectionConfig(dataSet: DataSet): string {
+type DesignSessionConstruction = Readonly<{
+  targetId: string
+  metadataDataSet: SparkData.DataSet
+  design: LowcodeDataSpaceViewDesign
+  options: ViewDesignOptions
+  definitionResource: ScenarioDefinitionResource
+}>
+type PrepareModelConfigurationChangeInput = Readonly<{
+  modelId: string
+  before: string
+  after: string
+  arrayChange?: ArrayDefinitionChange
+  sourceChange?: SourceContractChange
+}>
+function projectionConfig(dataSet: SparkData.DataSet): string {
   const config = dataSet.toJson()
   for (const table of Object.values(config.tables)) {
     for (const view of Object.values(table.views)) delete view.rows
@@ -124,9 +142,9 @@ function projectionConfig(dataSet: DataSet): string {
 /** The file owns editable definitions; assembled DataSets are disposable projections of its revision. */
 export class LowcodeDataSpaceDesignSession {
   readonly targetId: string
-  readonly metadataDataSet: DataSet
+  readonly metadataDataSet: SparkData.DataSet
   #file: ScenarioViewFile | null = null
-  #definition: DataSet | null = null
+  #definition: SparkData.DataSet | null = null
   #definitionError: Error | null = null
   #relationDefinitionKey: string | null = null
   #relationDefinitionReadVersion = 0
@@ -135,9 +153,9 @@ export class LowcodeDataSpaceDesignSession {
   #projectionConfig: string | null = null
   #unsubscribe: (() => void) | null = null
   #generation = 0
-  #viewFields: {key: string; columns: readonly DataColumn[]; outputProjection?: ReturnType<typeof LowcodeDataSpaceViewFields.project>['outputProjection']} | null = null
+  #viewFields: {key: string; columns: readonly SparkData.DataColumn[]; outputProjection?: ReturnType<typeof LowcodeDataSpaceViewFields.project>['outputProjection']} | null = null
   #viewFieldLoad: {key: string; task: Promise<void>} | null = null
-  readonly #modelFieldReads = new Map<string, {key: string; model?: FormalModel; columns?: readonly DataColumn[]; task: Promise<readonly DataColumn[]>}>()
+  readonly #modelFieldReads = new Map<string, {key: string; model?: FormalModel; columns?: readonly SparkData.DataColumn[]; task: Promise<readonly SparkData.DataColumn[]>}>()
   #disposed = false
   readonly #previewInvalidationListeners = new Set<() => void>()
   readonly #metadata: LowcodeDataSpaceMetadata
@@ -146,24 +164,29 @@ export class LowcodeDataSpaceDesignSession {
   readonly #cascadeMetadata: LowcodeDataSpaceCascadeMetadata
   #inputParameterHost: InputParameterEditHost | null = null
   readonly #sourceInputs = new Map<string, SourceInputHandle>()
-  readonly #modelEdits = new Map<string, ModelEditHost>()
+  readonly #modelEdits = new Map<string, ModelEditSession>()
   readonly #arrayEdits = new Map<string, ArrayEditHandle>()
   readonly #modelRenames = new Map<string, ModelRenameHandle>()
   readonly #modelRemovals = new Map<string, ModelRemoveHandle>()
-  readonly #fieldEdits = new Map<string, FieldEditHost>()
+  readonly #fieldEdits = new Map<string, FieldEditSession>()
   readonly #fieldCreates = new Map<string, FieldCreateHandle>()
   readonly #fieldRemovals = new Map<string, FieldRemoveHandle>()
   #modelCreate: ModelCreateHandle | null = null
-  readonly #modelSources = new Map<string, LowcodeDataSpaceModelSourceEdit>()
+  readonly #modelSources = new Map<string, ModelSourceEditHandle>()
   readonly #sourceRemovalDependencies = new Map<string, LowcodeDataSpaceModelDependencies>()
   readonly #fieldOutputDependencies = new Map<string, LowcodeDataSpaceModelDependencies>()
 
-  constructor(targetId: string, metadataDataSet: DataSet,
-    private readonly design: LowcodeDataSpaceViewDesign,
-    private readonly options: ViewDesignOptions,
-    private readonly definitionResource: ScenarioDefinitionResource) {
+  private readonly design: LowcodeDataSpaceViewDesign
+  private readonly options: ViewDesignOptions
+  private readonly definitionResource: ScenarioDefinitionResource
+
+  constructor(input: DesignSessionConstruction) {
+    const {targetId, metadataDataSet, design, options, definitionResource} = input
     this.targetId = targetId
     this.metadataDataSet = metadataDataSet
+    this.design = design
+    this.options = options
+    this.definitionResource = definitionResource
     this.#metadata = new LowcodeDataSpaceMetadata(metadataDataSet, targetId, () => this.assertLive())
     this.#viewMetadata = new LowcodeDataSpaceViewMetadata(metadataDataSet)
     this.#relationMetadata = new LowcodeDataSpaceRelationMetadata(metadataDataSet, definitionResource)
@@ -259,7 +282,7 @@ export class LowcodeDataSpaceDesignSession {
     const file = this.#file, tables = file?.value.toJSON()['tables']
     let table = isRecord(tables) ? tables[tableName] : undefined
     if (table === undefined) {
-      // 首个视图尚未保存时，模型绑定只从原定义DataView的新增记录读取，不另存绑定草稿。
+      // 首个视图尚未保存时，模型绑定只从原定义SparkData.DataView的新增记录读取，不另存绑定草稿。
       const definitions = this.metadataDataSet.getView('DataViewDefinition', 'default')
       const pending = definitions?.rows.filter(row => row['tableName'] === tableName).map(row => {
         const key = definitions.getPkKey(row), draft = key === undefined ? undefined : definitions.getEditingRow(key)
@@ -284,7 +307,7 @@ export class LowcodeDataSpaceDesignSession {
     const input = {scenarioId: this.targetId, modelId: binding['modelId'], modelName: binding['modelName']}
     const models = this.metadataDataSet.getView('Base_DataModel', 'default')
     const matches = models?.rows.filter(row => row['rowid'] === input.modelId) ?? [], model = matches[0]
-    if (models?.requestState !== RequestState.Loaded
+    if (models?.requestState !== SparkData.RequestState.Loaded
       || models.queryContext['dataSpaceId'] !== this.targetId || models.dataTable?.modelBinding?.modelName !== 'Base_DataModel'
       || !model || matches.length !== 1 || model['Name'] !== input.modelName || model['dataSetId'] !== this.targetId
       || ['rowid', 'dataSetId', 'Name', 'MetaName'].some(field => models.fieldAccess(model, field).read !== 'visible')) {
@@ -318,14 +341,14 @@ export class LowcodeDataSpaceDesignSession {
     return this.options.readModel(input, this.metadataDataSet)
   }
 
-  private async readModelColumns(tableName: string): Promise<readonly DataColumn[]> {
+  private async readModelColumns(tableName: string): Promise<readonly SparkData.DataColumn[]> {
     const snapshot = this.modelFieldSnapshot(tableName), previous = this.#modelFieldReads.get(tableName)
     if (previous?.key === snapshot.key) return previous.task
-    const pending: {key: string; model?: FormalModel; columns?: readonly DataColumn[]; task: Promise<readonly DataColumn[]>} = {key: snapshot.key, task: Promise.resolve([])}
+    const pending: {key: string; model?: FormalModel; columns?: readonly SparkData.DataColumn[]; task: Promise<readonly SparkData.DataColumn[]>} = {key: snapshot.key, task: Promise.resolve([])}
     this.#modelFieldReads.set(tableName, pending)
     pending.task = (async () => {
       if (!snapshot.input) {
-        const table = DataTable.fromJson({tableName, ...snapshot.table, views: {default: {autoLoad: false}}})
+        const table = SparkData.DataTable.fromJson({tableName, ...snapshot.table, views: {default: {autoLoad: false}}})
         try {pending.columns = Object.freeze(table.columns.filter(column => column.name !== '_pk').map(column => Object.freeze({...column})))}
         finally {table.destroy()}
         return pending.columns
@@ -346,11 +369,11 @@ export class LowcodeDataSpaceDesignSession {
 
   /**
    * 为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。
-   * @param rowKey 当前元数据DataView中关系定义的主键；不接受另一空间或无读取许可的行。
+   * @param rowKey 当前元数据SparkData.DataView中关系定义的主键；不接受另一空间或无读取许可的行。
    * @returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。
    * @throws 模型/关系身份、字段读取权限、文件或会话发生变化时拒绝旧目录。
    */
-  async loadRelationFields(rowKey: string | number): Promise<Readonly<{columns: readonly DataColumn[]; context: DataViewFilterFunctionContext}>> {
+  async loadRelationFields(rowKey: string | number): Promise<Readonly<{columns: readonly SparkData.DataColumn[]; context: SparkData.DataViewFilterFunctionContext}>> {
     this.assertOwner()
     const file = this.#file, originalText = file?.getText()
     const view = this.metadataDataSet.getView('DataResourceRelationDefinition')
@@ -377,7 +400,7 @@ export class LowcodeDataSpaceDesignSession {
     }
     const [parentColumns, childColumns] = await Promise.all([this.readModelColumns(parent), this.readModelColumns(child)])
     assertCatalogCurrent()
-    const fields = (columns: readonly DataColumn[]) => columns.map(column => ({name: column.name, label: column.label ?? column.name}))
+    const fields = (columns: readonly SparkData.DataColumn[]) => columns.map(column => ({name: column.name, label: column.label ?? column.name}))
     const parameters = this.metadataDataSet.getView('Base_DataSet', 'default')
     const spaceRow = parameters?.rows.find(item => parameters.getPkKey(item) === this.targetId)
     const inputParams = spaceRow && parameters?.fieldAccess(spaceRow, 'inputParams').read === 'visible'
@@ -386,7 +409,7 @@ export class LowcodeDataSpaceDesignSession {
         if (typeof name !== 'string') throw new Error('空间参数名称无效')
         return {label: name, value: name}
       }) : []
-    const context = DataViewFilter.editorContext({inputParams,
+    const context = SparkData.DataViewFilter.editorContext({inputParams,
       relatedFields: parentColumns.flatMap(column => [{label: column.name, value: column.name}, {label: `${parent}.${column.name}`, value: `${parent}.${column.name}`}]),
       tables: snapshots.map(snapshot => {
         const cached = this.#modelFieldReads.get(snapshot.tableName)
@@ -399,24 +422,24 @@ export class LowcodeDataSpaceDesignSession {
           return fields(result)
         }}
       })})
-    const filter = DataViewFilter.parse(row['filterExpression'])
+    const filter = SparkData.DataViewFilter.parse(row['filterExpression'])
     const resolved = filter.ok ? await filter.value.loadEditorContext(context) : context
     assertCatalogCurrent()
     return {columns: childColumns.flatMap(column => [column, {...column, name: `${child}.${column.name}`}]), context: resolved}
   }
 
   /** Read the selected view's disposable field catalog; null means it has not been loaded for this identity/configuration. */
-  getViewFields(input: NativeViewSelection): readonly DataColumn[] | null {
+  getViewFields(input: NativeViewSelection): readonly SparkData.DataColumn[] | null {
     const snapshot = this.viewFieldSnapshot(input)
     return this.#viewFields?.key === snapshot.key ? this.#viewFields.columns : null
   }
   /**
    * 当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。
    * @param input 精确模型与命名视图身份。
-   * @returns 目录尚未加载或文件资源返回null；用户显式初始化后才由原定义DataView记录变更。
+   * @returns 目录尚未加载或文件资源返回null；用户显式初始化后才由原定义SparkData.DataView记录变更。
    * @throws 目标、模型、视图或会话身份失效时拒绝读取。
    */
-  getViewOutputProjection(input: NativeViewSelection): readonly DataViewFieldProjection[] | null {
+  getViewOutputProjection(input: NativeViewSelection): readonly SparkData.DataViewFieldProjection[] | null {
     const snapshot = this.viewFieldSnapshot(input)
     return this.#viewFields?.key === snapshot.key && this.#viewFields.outputProjection
       ? structuredClone(this.#viewFields.outputProjection) : null
@@ -428,7 +451,7 @@ export class LowcodeDataSpaceDesignSession {
    * @returns 模型名称为正式modelName，字段为本仓正式输出；与视图字段目录共用按模型读取，不装配完整目标或执行函数。
    * @throws 文件、正式模型、视图身份、可读权限或会话变化时拒绝过期目录；不改变原过滤定义。
    */
-  async loadViewFilterContext(input: NativeViewSelection): Promise<DataViewFilterFunctionContext> {
+  async loadViewFilterContext(input: NativeViewSelection): Promise<SparkData.DataViewFilterFunctionContext> {
     const initial = this.viewFieldSnapshot(input), text = initial.file.getText()
     const assertCurrent = (): void => {
       const current = this.viewFieldSnapshot(input)
@@ -439,11 +462,11 @@ export class LowcodeDataSpaceDesignSession {
 
   /**
    * 为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。
-   * @param preview 本空间仍有效的模型或命名视图预览；当前字段复用原DataView查询来源合同。
+   * @param preview 本空间仍有效的模型或命名视图预览；当前字段复用原SparkData.DataView查询来源合同。
    * @returns 正式模型名称及字段目录；仅补读尚未缓存的上游模型，不装配目标或修改预览与持久定义。
    * @throws 预览关闭、模型/文件/会话身份变化或上游字段不可读取时拒绝过期目录。
    */
-  async loadPreviewFilterContext(preview: LowcodeDataSpaceQueryPreview): Promise<DataViewFilterFunctionContext> {
+  async loadPreviewFilterContext(preview: LowcodeDataSpaceQueryPreview): Promise<SparkData.DataViewFilterFunctionContext> {
     this.assertOwner()
     const view = preview.view, table = view.dataTable, binding = table?.modelBinding
     if (!table || view.dataSet?.scenarioId !== this.targetId) throw new Error('预览函数目录正式模型身份不一致')
@@ -457,7 +480,7 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   private async readFilterContext(input: Pick<SessionSelection, 'modelId' | 'modelName'> & {tableName?: string} | Readonly<{tableName: string; fileResourceId: string}>,
-    assertCurrent: () => void, currentColumns?: readonly DataColumn[]): Promise<DataViewFilterFunctionContext> {
+    assertCurrent: () => void, currentColumns?: readonly SparkData.DataColumn[]): Promise<SparkData.DataViewFilterFunctionContext> {
     const file = this.#file, text = file?.getText()
     const check = (): void => {
       assertCurrent()
@@ -495,7 +518,7 @@ export class LowcodeDataSpaceDesignSession {
     const columns = await Promise.all(snapshots.map(snapshot => this.readModelColumns(snapshot.tableName)))
     check()
     if (snapshots.some(snapshot => this.modelFieldSnapshot(snapshot.tableName).key !== snapshot.key)) throw new Error('视图函数目录模型身份已变化')
-    const fields = (items: readonly DataColumn[]) => items.filter(column => column.name !== '_pk' && !column.isComputed && !column.computeExpression)
+    const fields = (items: readonly SparkData.DataColumn[]) => items.filter(column => column.name !== '_pk' && !column.isComputed && !column.computeExpression)
       .map(column => ({name: column.name, label: column.label ?? column.name}))
     const directory = [...currentColumns ? [{name: 'fileResourceId' in input ? input.tableName : input.modelName, fields: fields(currentColumns)}] : [], ...snapshots.map((snapshot, index) => {
       const items = columns[index]
@@ -505,7 +528,7 @@ export class LowcodeDataSpaceDesignSession {
       const outputs = model ? new Set(DataSpaceDesignApi.resolveOutputFields(model).map(field => field.canonicalName)) : undefined
       return {name: snapshot.input?.modelName ?? snapshot.tableName, fields: fields(outputs ? items.filter(column => outputs.has(column.name)) : items)}
     })]
-    return DataViewFilter.editorContext({
+    return SparkData.DataViewFilter.editorContext({
       tables: directory,
       relatedFields: directory.flatMap((table, index) => index === 0 ? [] : table.fields.map(field => ({
         label: `${table.name}.${field.label}`, value: `${table.name}.${field.name}`,
@@ -520,14 +543,16 @@ export class LowcodeDataSpaceDesignSession {
     if (this.viewFieldSnapshot(input).key !== snapshot.key || this.#file !== snapshot.file) throw new Error('字段目录读取已过期')
     let catalog: ReturnType<typeof LowcodeDataSpaceViewFields.project>
     if ('fileResourceId' in input) {
-      const table = DataTable.fromJson({tableName: input.tableName, ...snapshot.table, views: {default: {}, [input.viewId]: snapshot.projection}})
+      const table = SparkData.DataTable.fromJson({tableName: input.tableName, ...snapshot.table, views: {default: {}, [input.viewId]: snapshot.projection}})
       try {
         const view = table.getOrCreateView(input.viewId)
         catalog = {columns: [...view.columns], selectionColumns: LowcodeDataSpaceViewFields.selectionColumns(view), primaryKeys: [...view.effectivePkFields]}
       } finally {table.destroy()}
     } else {
       if (model?.id !== input.modelId || model.metaName !== input.modelName || model.sourceName !== snapshot.sourceName) throw new Error('字段目录正式模型身份已变化')
-      catalog = LowcodeDataSpaceViewFields.project(model, input.tableName, snapshot.table['columns'], input.viewId, snapshot.projection)
+      catalog = LowcodeDataSpaceViewFields.project({
+        model, tableName: input.tableName, configured: snapshot.table['columns'], viewId: input.viewId, definition: snapshot.projection,
+      })
     }
     return {snapshot, catalog}
   }
@@ -536,7 +561,7 @@ export class LowcodeDataSpaceDesignSession {
    * 为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。
    * @param tableName 当前文件内的模型表键；正式模型身份从已核定绑定读取，不接受模型名或首表回退。
    * @param viewId 所属模型的命名视图；输出投影和主键/计算字段只读约束沿原生视图合同。
-   * @returns 候选DataView已刷新；不装配整个目标、不查询业务行、不修改定义或持久化。
+   * @returns 候选SparkData.DataView已刷新；不装配整个目标、不查询业务行、不修改定义或持久化。
    * @throws 不可读身份、失效作用域或读取期间的绑定/投影变化拒绝发布候选。
    */
   async loadCascadeFields(tableName: string, viewId: string): Promise<void> {
@@ -558,9 +583,9 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /**
-   * Read only the selected formal model and project its named-view fields without assembling the target DataSet.
+   * Read only the selected formal model and project its named-view fields without assembling the target SparkData.DataSet.
    * @param input Exact table binding, model identity and view name in the current metadata definition view.
-   * @returns Populates the existing field-option DataView; no business query, definition edit or persistence occurs.
+   * @returns Populates the existing field-option SparkData.DataView; no business query, definition edit or persistence occurs.
    * @throws Missing/read-restricted identity, changed file/scope or obsolete request prevents publication.
    */
   async loadViewFields(input: NativeViewSelection): Promise<void> {
@@ -581,7 +606,7 @@ export class LowcodeDataSpaceDesignSession {
     try {await pending.task} finally {if (this.#viewFieldLoad === pending) this.#viewFieldLoad = null}
   }
 
-  /** 工作区按需读取字段或来源关系，复用正式 DataView；不是保存前的全量检查。 */
+  /** 工作区按需读取字段或来源关系，复用正式 SparkData.DataView；不是保存前的全量检查。 */
   async loadMetadataViews(names: ReadonlyArray<'Base_DataModel_Field' | 'Base_DataModel_Relation'>): Promise<void> {
     this.assertLive()
     await this.#metadata.load(names)
@@ -589,7 +614,7 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /**
-   * 当前文件的关系定义已可交给默认DataView编辑；不代表整个目标DataSet已经装配。
+   * 当前文件的关系定义已可交给默认SparkData.DataView编辑；不代表整个目标SparkData.DataSet已经装配。
    * 原生文件直接就绪，旧格式须有完整投影或同文件/代次/正式来源的成功转换记录。
    * @returns 关系工作区是否就绪；源查询或身份不再成立时拒绝复用。
    */
@@ -619,7 +644,7 @@ export class LowcodeDataSpaceDesignSession {
     if (!file) return
     const adapter = new LowcodeModelRelationAdapter()
     const sourceView = this.metadataDataSet.getView('Base_DataModel_Relation', 'default')
-    if (this.#relationDefinitionKey && sourceView?.requestState === RequestState.Loaded && this.#relationDefinitionKey === this.relationDefinitionSnapshot()) {
+    if (this.#relationDefinitionKey && sourceView?.requestState === SparkData.RequestState.Loaded && this.#relationDefinitionKey === this.relationDefinitionSnapshot()) {
       this.#viewMetadata.assertClean(); this.#cascadeMetadata.assertClean()
       if (this.#definition) this.assertProjectionClean()
       return // 同一已完整转换的工作区允许继续编辑，不能重查覆盖刚创建或修改的关系草稿。
@@ -629,7 +654,7 @@ export class LowcodeDataSpaceDesignSession {
     const readVersion = ++this.#relationDefinitionReadVersion
     this.#relationDefinitionKey = null
     this.definitionResource.useResolvedRelations(file, undefined)
-    const loaded = sourceView?.requestState === RequestState.Loaded
+    const loaded = sourceView?.requestState === SparkData.RequestState.Loaded
     await this.#metadata.load(['Base_DataModel_Relation'])
     adapter.readMetadataRelations(this.metadataDataSet, this.targetId)
     // 已展示的目录可能查询过子集；完整转换须显式按正式空间范围重新查询，不能把子集当空/全量。
@@ -656,7 +681,7 @@ export class LowcodeDataSpaceDesignSession {
       if (isRecord(table) && table['resourceType'] === 'file') continue
       const binding = isRecord(table) ? table['modelBinding'] : undefined
       if (!isRecord(binding)) throw new Error('关系工作区模型绑定不完整')
-      identities.set(key, {id: viewName(binding['modelId'] as string, '模型ID'), name: viewName(binding['modelName'] as string, '模型名称')})
+      identities.set(key, {id: viewName(binding['modelId'], '模型ID'), name: viewName(binding['modelName'], '模型名称')})
     }
     const needed = new Set(adapter.scopeDependencies(sources, identities).flatMap(relation =>
       [relation.parentTable, relation.childTable, ...relation.referencedTables]).filter(key => identities.has(key)))
@@ -672,7 +697,7 @@ export class LowcodeDataSpaceDesignSession {
     const diagnostics = [...converted.diagnostics, ...sources.filter(source => !resolvedIds.has(source.sourceRelationId))
       .map(source => `旧关系未完整转换: ${source.sourceRelationId}`)]
     this.#diagnostics = Object.freeze(diagnostics)
-    let resolved: DataResourceRelation[]
+    let resolved: SparkData.DataResourceRelation[]
     try {resolved = file.value.resolveResourceRelations(converted.resourceRelations)}
     catch (cause) {
       this.#definitionError = cause instanceof Error ? cause : new Error(String(cause))
@@ -711,7 +736,7 @@ export class LowcodeDataSpaceDesignSession {
       if (!file.value.usesNativeResourceRelations) await this.#metadata.load(['Base_DataModel_Relation'])
       assertCurrent()
       const models = this.metadataDataSet.getView('Base_DataModel', 'default')
-      if (models?.requestState !== RequestState.Loaded || models.total !== models.rows.length
+      if (models?.requestState !== SparkData.RequestState.Loaded || models.total !== models.rows.length
         || models.queryContext['dataSpaceId'] !== this.targetId || models.dataTable?.modelBinding?.modelName !== 'Base_DataModel') throw new Error('画布模型未完整读取')
       const tables = file.value.toJSON()['tables'], bindings = new Map<string, Pick<FormalModel, 'id'>>()
       if (!isRecord(tables)) throw new Error('画布缺少表配置')
@@ -750,7 +775,7 @@ export class LowcodeDataSpaceDesignSession {
     inputParameterStage(this.inputParameterHost(), input)
   }
 
-  /** FieldJson 等直接写 DataView 时未必已创建 host；pending 仍须读正式视图编辑态。 */
+  /** FieldJson 等直接写 SparkData.DataView 时未必已创建 host；pending 仍须读正式视图编辑态。 */
   private inputParameterPendingFromView(): boolean {
     const view = this.metadataDataSet.getView('Base_DataSet', 'default')
     if (!view || this.metadataDataSet.destroyed) return false
@@ -788,7 +813,7 @@ export class LowcodeDataSpaceDesignSession {
     const directory = this.metadataDataSet.getView('Base_DataModel_Field', 'default')
     if (!directory || directory.hasEditingChanges() || directory.dirtyTracking.hasPendingChanges() || directory.mutating) return
     if (directory.dirtyTracking.dirtyRowIds.size) directory.discardEditingRows()
-    if (directory.requestState === RequestState.Loaded && directory.rows.length === directory.total) return
+    if (directory.requestState === SparkData.RequestState.Loaded && directory.rows.length === directory.total) return
     const result = await directory.loadFromServer({allPages: true})
     this.assertLive()
     if (!result.success || directory.rows.length !== directory.total) throw new Error('字段候选尚未完整读取或有未保存修改')
@@ -801,11 +826,11 @@ export class LowcodeDataSpaceDesignSession {
     if (!directory) throw new Error('空间字段目录不存在')
     // 目录是独立查询快照；有草稿或在途操作时保留，不能为已确认的字段回读覆盖它。
     if (directory.hasEditingChanges() || directory.dirtyTracking.hasPendingChanges() || directory.mutating
-      || [RequestState.Preparing, RequestState.Loading].includes(directory.requestState)) return
-    if (directory.requestState === RequestState.Idle && directory.rows.length === 0) return
-    // 已确认的提交与独立目录的读取分别报告；查询失败由原DataView保留错误和只读状态。
+      || [SparkData.RequestState.Preparing, SparkData.RequestState.Loading].includes(directory.requestState)) return
+    if (directory.requestState === SparkData.RequestState.Idle && directory.rows.length === 0) return
+    // 已确认的提交与独立目录的读取分别报告；查询失败由原SparkData.DataView保留错误和只读状态。
     try {await directory.loadFromServer({allPages: true})} catch (cause) {
-      if (directory.requestState !== RequestState.Failed || !directory.loadingError) throw cause
+      if (directory.requestState !== SparkData.RequestState.Failed || !directory.loadingError) throw cause
       return
     }
     this.assertLive()
@@ -817,10 +842,12 @@ export class LowcodeDataSpaceDesignSession {
     const key = `${viewId}@${fieldId}`
     let owner = this.#sourceInputs.get(key)
     if (!owner) {
-      const host = createSourceInputHost(this.metadataDataSet, this.targetId, fieldId,
-        {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
+      const host = createSourceInputHost({
+        dataSet: this.metadataDataSet, targetId: this.targetId, fieldId, viewId,
+        lifecycle: {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
           assertEditable: () => this.assertFieldViewEditable(fieldId, viewId),
-          refreshDirectory: () => this.refreshFieldDirectory(viewId)}, viewId)
+          refreshDirectory: () => this.refreshFieldDirectory(viewId)},
+      })
       owner = createSourceInputHandle(host)
       this.#sourceInputs.set(key, owner)
     }
@@ -828,18 +855,18 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 读取当前模型的正式来源入参；过滤及查询选项来自pagedata，不替换目录视图。 */
-  async loadSourceInputFields(modelId: string): Promise<DataView> {
+  async loadSourceInputFields(modelId: string): Promise<SparkData.DataView> {
     this.assertLive()
     const models = this.metadataDataSet.getView('Base_DataModel', 'default')
     const rows = models?.rows.filter(row => models.getPkKey(row) === modelId) ?? [], model = rows[0]
     const view = this.metadataDataSet.getView('Base_DataModel_Field', 'sourceInputFields')
     if (!models || !model || rows.length !== 1 || !view || models.dataTable?.modelBinding?.modelName !== 'Base_DataModel'
-      || view.dataTable?.modelBinding?.modelName !== 'Base_DataModel_Field' || models.requestState !== RequestState.Loaded
+      || view.dataTable?.modelBinding?.modelName !== 'Base_DataModel_Field' || models.requestState !== SparkData.RequestState.Loaded
       || models.queryContext['dataSpaceId'] !== this.targetId || model['dataSetId'] !== this.targetId
       || ['rowid', 'dataSetId', 'Type'].some(field => models.fieldAccess(model, field).read !== 'visible')
       || !['接口', '视图'].includes(String(model['Type']))) throw new Error('来源入参所属模型不是当前空间可确认的接口或逻辑视图')
     if (this.hasPendingSourceInputs() || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()
-      || view.requestState === RequestState.Loading || view.mutating) throw new Error('请先处理来源入参草稿或在途查询')
+      || view.requestState === SparkData.RequestState.Loading || view.mutating) throw new Error('请先处理来源入参草稿或在途查询')
     for (const key of this.#sourceInputs.keys()) if (key.startsWith('sourceInputFields@')) this.#sourceInputs.delete(key)
     view.configure({queryContext: {dataSpaceId: this.targetId, modelId}})
     const modelContext = JSON.stringify(models.queryContext), sourceType = model['Type']
@@ -847,7 +874,7 @@ export class LowcodeDataSpaceDesignSession {
     const assertContext = (): void => {
       this.assertLive()
       const currentModels = this.metadataDataSet.getView('Base_DataModel', 'default')
-      if (currentModels !== models || models.requestState !== RequestState.Loaded || JSON.stringify(models.queryContext) !== modelContext
+      if (currentModels !== models || models.requestState !== SparkData.RequestState.Loaded || JSON.stringify(models.queryContext) !== modelContext
         || models.rows.filter(row => row['rowid'] === modelId && row['dataSetId'] === this.targetId && row['Type'] === sourceType
           && ['rowid', 'dataSetId', 'Type'].every(field => models.fieldAccess(row, field).read === 'visible')).length !== 1) throw new Error('来源入参读取期间模型身份已变化')
       if (JSON.stringify(view.queryContext) !== context) throw new Error('来源入参查询已过期')
@@ -868,7 +895,7 @@ export class LowcodeDataSpaceDesignSession {
   getModelSourceInputs(modelId: string): SourceInputHandle[] {
     this.assertLive()
     const view = this.metadataDataSet.getView('Base_DataModel_Field', 'sourceInputFields')
-    if (view?.requestState === RequestState.Loaded && view.queryContext['modelId'] === modelId && view.queryContext['dataSpaceId'] === this.targetId) {
+    if (view?.requestState === SparkData.RequestState.Loaded && view.queryContext['modelId'] === modelId && view.queryContext['dataSpaceId'] === this.targetId) {
       for (const row of view.rows) {
         const id = view.getPkKey(row)
         if (typeof id === 'string' && ['rowid', 'dataSetId', 'dataModelId', 'Name', 'type', 'ValueFun'].every(field => view.fieldAccess(row, field).read === 'visible')) {
@@ -891,7 +918,7 @@ export class LowcodeDataSpaceDesignSession {
    * 原生v2直接读取文件关系；旧格式只读取关系目录并映射端点，不装配完整目标。
    * @throws 关系定义、正式身份、查询范围或本次会话失效时明确报错，不把未知关系当作空结果。
    */
-  async loadModelInputFields(modelId: string): Promise<DataView> {
+  async loadModelInputFields(modelId: string): Promise<SparkData.DataView> {
     this.assertOwner()
     const generation = this.#generation
     if (this.#file && !this.#file.value.usesNativeResourceRelations && !this.#definition) await this.#metadata.load(['Base_DataModel_Relation'])
@@ -903,7 +930,7 @@ export class LowcodeDataSpaceDesignSession {
     const view = this.metadataDataSet.getView('Base_DataModel_Field', 'modelInputFields')
     if (!models || !view || models.dataTable?.modelBinding?.modelName !== 'Base_DataModel'
       || view.dataTable?.modelBinding?.modelName !== 'Base_DataModel_Field'
-      || models.requestState !== RequestState.Loaded || models.mutating
+      || models.requestState !== SparkData.RequestState.Loaded || models.mutating
       || models.queryContext['dataSpaceId'] !== this.targetId) throw new Error('模型输入参数缺少当前模型查询或命名视图')
     const identity = (id: string, name?: string): void => {
       const rows = models.rows.filter(row => models.getPkKey(row) === id), row = rows[0]
@@ -913,11 +940,11 @@ export class LowcodeDataSpaceDesignSession {
     }
     identity(modelId)
     const hasPendingInput = (): boolean => view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()
-      || view.mutating || [RequestState.Preparing, RequestState.Loading].includes(view.requestState)
+      || view.mutating || [SparkData.RequestState.Preparing, SparkData.RequestState.Loading].includes(view.requestState)
     if (hasPendingInput()) {
       throw new Error('模型输入参数仍有草稿或在途查询')
     }
-    const references = new LowcodeDataSpaceFieldValue(this.metadataDataSet, this.targetId, modelId)
+    const references = new LowcodeDataSpaceFieldValue({dataSet: this.metadataDataSet, targetId: this.targetId, modelId})
     const ids = references.readAncestorModelIds(definition), modelIds = new Set(ids)
     view.configure({queryContext: {dataSpaceId: this.targetId, modelId, modelIds: ids}})
     const queryContext = JSON.stringify(view.queryContext)
@@ -954,7 +981,7 @@ export class LowcodeDataSpaceDesignSession {
    * @returns 由metadataDataSet持有的命名视图，表格和编辑器共同消费。
    * @throws 有字段草稿、未决请求或返回范围失配时拒绝切换，不复制旧权限或数据。
    */
-  async loadModelFields(modelId: string): Promise<DataView> {
+  async loadModelFields(modelId: string): Promise<SparkData.DataView> {
     this.assertLive()
     const viewId = 'modelFields'
     const models = this.metadataDataSet.getView('Base_DataModel', 'default')
@@ -963,7 +990,7 @@ export class LowcodeDataSpaceDesignSession {
     if (!models || model?.['dataSetId'] !== this.targetId || ['rowid', 'dataSetId'].some(field => models.fieldAccess(model, field).read !== 'visible')
       || !view) throw new Error('模型字段工作区缺少正式模型或命名视图')
     if (this.hasPendingFieldEdits() || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()
-      || view.requestState === RequestState.Loading || view.mutating) throw new Error('请先处理字段草稿或在途查询')
+      || view.requestState === SparkData.RequestState.Loading || view.mutating) throw new Error('请先处理字段草稿或在途查询')
     const rules = this.metadataDataSet.getView('Base_Desensitization_Rule', 'default')
     if (rules && view.columns.some(column => column.name === 'Expression')) {
       const loaded = await rules.loadFromServer()
@@ -975,7 +1002,7 @@ export class LowcodeDataSpaceDesignSession {
     const context = JSON.stringify(view.queryContext)
     const assertContext = (): void => {
       this.assertLive()
-      if (JSON.stringify(view.queryContext) !== context || models.requestState !== RequestState.Loaded
+      if (JSON.stringify(view.queryContext) !== context || models.requestState !== SparkData.RequestState.Loaded
         || models.queryContext['dataSpaceId'] !== this.targetId
         || models.rows.filter(row => row['rowid'] === modelId && row['dataSetId'] === this.targetId
           && ['rowid', 'dataSetId'].every(field => models.fieldAccess(row, field).read === 'visible')).length !== 1) throw new Error('模型字段读取期间模型身份已变化')
@@ -998,25 +1025,27 @@ export class LowcodeDataSpaceDesignSession {
    * @param fieldId 正式字段ID。
    * @param viewId 独立字段入口用default；统一模型列工作区用modelFields，不回退查询身份。
    */
-  getFieldEdit(fieldId: string, viewId: 'default' | 'modelFields' = 'default'): FieldEditHandle {
+  getFieldEdit(fieldId: string, viewId: 'default' | 'modelFields' = 'default'): FieldEditSession {
     this.assertLive()
     const key = `${viewId}@${fieldId}`
     let host = this.#fieldEdits.get(key)
     if (!host) {
-      host = createFieldEditHost(this.metadataDataSet, this.targetId, fieldId,
-        {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
+      host = createFieldEditHost({
+        dataSet: this.metadataDataSet, targetId: this.targetId, fieldId, viewId,
+        lifecycle: {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
           readModel: (modelId, modelName) => this.readModel({scenarioId: this.targetId, modelId, modelName}),
           readDefinition: () => this.readFunctionDefinition(),
           validateOutputs: (changes, modelPatch) => this.validateFieldOutputs(changes, modelPatch, viewId),
           stagePrimaryKey: (modelId, name) => this.getModelEdit(modelId).stage('PrimaryKeyFields', name),
           assertEditable: () => this.assertFieldViewEditable(fieldId, viewId),
-          refreshDirectory: () => this.refreshFieldDirectory(viewId)}, viewId)
+          refreshDirectory: () => this.refreshFieldDirectory(viewId)},
+      })
       this.#fieldEdits.set(key, host)
     }
     return createFieldEditHandle(host)
   }
 
-  private async validateFieldOutputs(changes: ReadonlyArray<{original: DataRow; patch: Readonly<Record<string, unknown>>; creating?: boolean}>,
+  private async validateFieldOutputs(changes: ReadonlyArray<{original: SparkData.DataRow; patch: Readonly<Record<string, unknown>>; creating?: boolean}>,
     modelPatch: Readonly<Record<string, unknown>> | undefined, viewId: 'default' | 'modelFields'): Promise<() => void> {
     this.assertOwner(); this.assertMetadataClean()
     const file = this.#file, text = file?.getText() ?? null, revision = file?.revision
@@ -1027,13 +1056,15 @@ export class LowcodeDataSpaceDesignSession {
     if (changes.some(change => change.original['dataModelId'] !== model['rowid'])) throw new Error('字段批次所属模型不一致')
     const altersReferences = changes.some(({original, patch}) => 'Name' in patch
       || patch['IsOutput'] === 0 && Number(original['IsOutput']) === 1)
-    let definitionViews: ReadonlyArray<DataView | undefined> = [models, fields]
+    let definitionViews: ReadonlyArray<SparkData.DataView | undefined> = [models, fields]
     if (changes.some(({patch}) => 'Name' in patch)) {
       const key = `${viewId}:${model['rowid']}`
       this.#fieldOutputDependencies.get(key)?.release()
-      const dependencies = new LowcodeDataSpaceModelDependencies(this.metadataDataSet, this.targetId, model['rowid'],
-        `fieldOutput:${viewId}`, () => this.assertLive(), {view: models, id: model['rowid']},
-        {view: fields, ids: [...changes.map(change => String(change.original['rowid'])), ...[...fields.dirtyTracking.pendingDeleteIds].map(String)], allowPending: fields.dirtyTracking.pendingDeleteIds.size > 0})
+      const dependencies = new LowcodeDataSpaceModelDependencies({
+        dataSet: this.metadataDataSet, targetId: this.targetId, modelId: model['rowid'], operation: `fieldOutput:${viewId}`,
+        assertCurrent: () => this.assertLive(), editing: {view: models, id: model['rowid']},
+        fieldEditing: {view: fields, ids: [...changes.map(change => String(change.original['rowid'])), ...[...fields.dirtyTracking.pendingDeleteIds].map(String)], allowPending: fields.dirtyTracking.pendingDeleteIds.size > 0},
+      })
       this.#fieldOutputDependencies.set(key, dependencies)
       await dependencies.load()
       definitionViews = dependencies.views
@@ -1042,7 +1073,7 @@ export class LowcodeDataSpaceDesignSession {
       if (!template) throw new Error('缺少模型关系查询配置')
       const key = `fieldOutput:${viewId}:${model['rowid']}`
       const relations = template.dataTable?.views[key] ?? template.createQueryView(key)
-      if (relations.mutating || relations.requestState === RequestState.Loading || relations.hasEditingChanges()
+      if (relations.mutating || relations.requestState === SparkData.RequestState.Loading || relations.hasEditingChanges()
         || relations.dirtyTracking.hasPendingChanges() || template.hasEditingChanges() || template.dirtyTracking.hasPendingChanges()) throw new Error('请先处理模型关系草稿或查询')
       relations.configure({queryContext: {...template.queryContext}})
       relations.filterExpression = template.filterExpression
@@ -1054,7 +1085,7 @@ export class LowcodeDataSpaceDesignSession {
     const dependencies = ['Base_DataModel', 'Base_DataModel_Field', ...altersReferences ? ['Base_DataModel_Relation'] : []]
     const snapshot = (): string => JSON.stringify(dependencies.map(name => {
       const view = name === 'Base_DataModel_Field' ? fields : name === 'Base_DataModel_Relation' ? definitionViews[2] : models
-      if (!view || view.mutating || view.requestState !== RequestState.Loaded || view.loadingError
+      if (!view || view.mutating || view.requestState !== SparkData.RequestState.Loaded || view.loadingError
         || name !== 'Base_DataModel' && view.rows.filter(row => !view.dirtyTracking.isPendingCreate(view.getPkKey(row) ?? '')).length + view.dirtyTracking.pendingDeleteIds.size !== view.total
         || view.queryContext['dataSpaceId'] !== this.targetId) throw new Error('输出依赖元数据未完整读取')
       if (name === 'Base_DataModel_Field' && viewId !== 'default' && view.queryContext['modelId'] !== model['rowid']) throw new Error('字段工作区所属模型已变化')
@@ -1080,7 +1111,7 @@ export class LowcodeDataSpaceDesignSession {
     const referenceBaseline = referenceSnapshot()
     const assertCurrent = () => {
       this.assertOwner(); this.assertMetadataClean()
-      if (changes.some(change => change.creating)) this.assertModelFieldDrafts(model['rowid'] as string, viewId)
+      if (changes.some(change => change.creating)) this.assertModelFieldDrafts(viewName(model['rowid'], '模型ID'), viewId)
       if (this.#file !== file || file?.isDirty || file?.saveStatus !== undefined && file.saveStatus !== 'idle'
         || file?.revision !== revision || (file?.getText() ?? null) !== text || snapshot() !== baseline
         || referenceSnapshot() !== referenceBaseline) throw new Error('输出依赖配置已变化，请重新核验')
@@ -1150,18 +1181,21 @@ export class LowcodeDataSpaceDesignSession {
     const key = `${viewId}@${modelId}`
     let owner = this.#fieldCreates.get(key)
     if (!owner) {
-      const host = createFieldCreateHost(this.metadataDataSet, this.targetId, modelId, {
-        assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
-        validate: values => this.validateFieldCreation(modelId, values), readDefinition: () => this.readFunctionDefinition(),
-        assertStaging: () => {
-          this.assertLive(); this.assertMetadataClean()
-          if ([...this.#fieldEdits.values(), ...this.#modelEdits.values(), ...this.#sourceInputs.values()].some(edit => edit.getState().status !== 'idle')
-            || this.hasPendingModelRemovals() || this.hasPendingModelCreate() || this.hasPendingModelSourceEdits()
-            || [...this.#fieldRemovals].some(([id, edit]) => edit.getState().pending && !(viewId === 'modelFields' && id.startsWith('modelFields@') && edit.getState().status === 'staged' && edit.getState().preview?.modelId === modelId))
-            || [...this.#fieldCreates].some(([id, edit]) => id !== key && edit.getState().pending)) throw new Error('请先核验其他未决操作')
-          this.assertModelFieldDrafts(modelId, viewId)
+      const host = createFieldCreateHost({
+        dataSet: this.metadataDataSet, targetId: this.targetId, modelId, viewId,
+        lifecycle: {
+          assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
+          validate: values => this.validateFieldCreation(modelId, values), readDefinition: () => this.readFunctionDefinition(),
+          assertStaging: () => {
+            this.assertLive(); this.assertMetadataClean()
+            if ([...this.#fieldEdits.values(), ...this.#modelEdits.values(), ...this.#sourceInputs.values()].some(edit => edit.getState().status !== 'idle')
+              || this.hasPendingModelRemovals() || this.hasPendingModelCreate() || this.hasPendingModelSourceEdits()
+              || [...this.#fieldRemovals].some(([id, edit]) => edit.getState().pending && !(viewId === 'modelFields' && id.startsWith('modelFields@') && edit.getState().status === 'staged' && edit.getState().preview?.modelId === modelId))
+              || [...this.#fieldCreates].some(([id, edit]) => id !== key && edit.getState().pending)) throw new Error('请先核验其他未决操作')
+            this.assertModelFieldDrafts(modelId, viewId)
+          },
         },
-      }, viewId)
+      })
       owner = createFieldCreateHandle(host)
       this.#fieldCreates.set(key, owner)
     }
@@ -1183,7 +1217,7 @@ export class LowcodeDataSpaceDesignSession {
     this.#fieldCreates.delete(key)
   }
 
-  private async validateFieldCreation(modelId: string, values: DataRow): Promise<() => void> {
+  private async validateFieldCreation(modelId: string, values: SparkData.DataRow): Promise<() => void> {
     this.assertOwner(); this.assertMetadataClean()
     const file = this.#file, text = file?.getText() ?? null, revision = file?.revision
     const models = this.metadataDataSet.getView('Base_DataModel', 'default'), fields = this.metadataDataSet.getView('Base_DataModel_Field', 'default')
@@ -1243,19 +1277,19 @@ export class LowcodeDataSpaceDesignSession {
       || [...this.#fieldRemovals.values()].some(owner => owner.getState().pending)
   }
 
-  /** 当前模型原绑定视图的待删除或未决流程；记录数据仍仅在DataView。 */
+  /** 当前模型原绑定视图的待删除或未决流程；记录数据仍仅在SparkData.DataView。 */
   getModelFieldRemovals(modelId: string, viewId = 'modelFields'): FieldRemoveHandle[] {
     return [...this.#fieldRemovals].flatMap(([key, owner]) => key.startsWith(`${viewId}@`) && owner.getState().preview?.modelId === modelId
       && owner.getState().pending ? [owner] : [])
   }
 
-  /** 计算字段删除复用原DataView；恢复入口不依赖待删行仍存在。 */
+  /** 计算字段删除复用原SparkData.DataView；恢复入口不依赖待删行仍存在。 */
   getFieldRemove(fieldId: string, fieldViewId: 'default' | 'modelFields' = 'default'): FieldRemoveHandle {
     this.assertLive()
     const key = `${fieldViewId}@${fieldId}`
     let owner = this.#fieldRemovals.get(key)
     if (!owner) {
-      const host = createFieldRemoveHost(this.metadataDataSet, this.targetId, fieldId, {
+      const host = createFieldRemoveHost({dataSet: this.metadataDataSet, targetId: this.targetId, fieldId, fieldViewId, lifecycle: {
         assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(), validate: (row, views) => this.validateFieldRemoval(row, views, key),
         fieldWorkspaces: modelId => {
           if (fieldViewId !== 'modelFields') return []
@@ -1264,14 +1298,14 @@ export class LowcodeDataSpaceDesignSession {
           const view = this.metadataDataSet.getView('Base_DataModel_Field', 'sourceInputFields')
           return inputs.length && view ? [{view, ids: view.rows.map(row => String(view.getPkKey(row))), allowPending: true}] : []
         },
-      }, fieldViewId)
+      }})
       owner = createFieldRemoveHandle(host)
       this.#fieldRemovals.set(key, owner)
     }
     return owner
   }
 
-  private async validateFieldRemoval(row: DataRow, views: readonly DataView[], ownerKey: string): Promise<() => void> {
+  private async validateFieldRemoval(row: SparkData.DataRow, views: readonly SparkData.DataView[], ownerKey: string): Promise<() => void> {
     this.assertOwner(); this.assertMetadataClean()
     const file = this.#file, text = file?.getText() ?? null, revision = file?.revision
     const workspace = ownerKey.startsWith('modelFields@') ? this.metadataDataSet.getView('Base_DataModel_Field', 'modelFields') : undefined
@@ -1308,17 +1342,19 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /** 维护正式模型的查询配置；模型身份和来源替换不在此入口改动。 */
-  getModelEdit(modelId: string): ModelEditHandle {
+  getModelEdit(modelId: string): ModelEditSession {
     this.assertLive()
     let host = this.#modelEdits.get(modelId)
     if (!host) {
-      host = createModelEditHost(this.metadataDataSet, this.targetId, modelId,
-        {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
+      host = createModelEditHost({
+        dataSet: this.metadataDataSet, targetId: this.targetId, modelId,
+        lifecycle: {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
           validatePrimaryKey: model => this.validateModelViewConfiguration(model),
           primaryKeyChanged: retained => {
             for (const key of this.#fieldEdits.keys()) if (!retained || !key.startsWith(`${retained}@`)) this.#fieldEdits.delete(key)
             this.#modelSources.clear()
-          }})
+          }},
+      })
       const fields = this.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')
       if (fields?.queryContext['dataSpaceId'] === this.targetId && fields.queryContext['modelId'] === modelId) host.bindFields(fields)
       this.#modelEdits.set(modelId, host)
@@ -1332,15 +1368,20 @@ export class LowcodeDataSpaceDesignSession {
     const key = `${fieldViewId}@${modelId}`
     let owner = this.#arrayEdits.get(key)
     if (!owner) {
-      const host = createArrayHost(this.metadataDataSet, this.targetId, modelId, {
-        assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
-        validate: (change, views) => this.validateArrayDefinition(change, views),
-        prepareRename: change => this.prepareModelConfigurationChange(modelId, change.original.name, change.candidate.name, change),
-        completed: () => {
-          this.#modelEdits.clear(); this.#fieldEdits.clear(); this.#modelSources.clear()
-          for (const rename of this.#modelRenames.values()) if (!rename.getState().pending) rename.cancel()
+      const host = createArrayHost({
+        dataSet: this.metadataDataSet, targetId: this.targetId, modelId, fieldViewId,
+        lifecycle: {
+          assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
+          validate: (change, views) => this.validateArrayDefinition(change, views),
+          prepareRename: change => this.prepareModelConfigurationChange({
+            modelId, before: change.original.name, after: change.candidate.name, arrayChange: change,
+          }),
+          completed: () => {
+            this.#modelEdits.clear(); this.#fieldEdits.clear(); this.#modelSources.clear()
+            for (const rename of this.#modelRenames.values()) if (!rename.getState().pending) rename.cancel()
+          },
         },
-      }, fieldViewId)
+      })
       owner = createArrayHandle(host)
       this.#arrayEdits.set(key, owner)
     }
@@ -1354,7 +1395,7 @@ export class LowcodeDataSpaceDesignSession {
     if (owner && !owner.getState().pending) {owner.release(); this.#arrayEdits.delete(key)}
   }
 
-  private async validateArrayDefinition(change: ArrayDefinitionChange, views: readonly DataView[]): Promise<() => void> {
+  private async validateArrayDefinition(change: ArrayDefinitionChange, views: readonly SparkData.DataView[]): Promise<() => void> {
     this.assertLive(); this.assertMetadataClean()
     // 保留字段名称的新增/主键切换只依赖本模型及配置；标题/顺序连文件也不需要读取。
     if (change.original.name === change.candidate.name
@@ -1371,7 +1412,7 @@ export class LowcodeDataSpaceDesignSession {
     const file = this.#file, text = file?.getText() ?? null, revision = file?.revision
     const snapshot = () => JSON.stringify(views.map(view => {
       const name = view.tableName
-      if (view.requestState !== RequestState.Loaded || view.total !== view.rows.length - view.dirtyTracking.pendingCreateIds.size + view.dirtyTracking.pendingDeleteIds.size || view.mutating
+      if (view.requestState !== SparkData.RequestState.Loaded || view.total !== view.rows.length - view.dirtyTracking.pendingCreateIds.size + view.dirtyTracking.pendingDeleteIds.size || view.mutating
         || view.queryContext['dataSpaceId'] !== this.targetId) throw new Error('数组依赖元数据未完整读取')
       return view.rows.filter(row => !(name === 'Base_DataModel' && row['rowid'] === change.original.id)
         && !(name === 'Base_DataModel_Field' && row['dataModelId'] === change.original.id && row['type'] === 'dataModel'))
@@ -1419,7 +1460,7 @@ export class LowcodeDataSpaceDesignSession {
         && model.fields.some(field => field.canonicalName === column['name']))) throw new Error(`tables.${tableName}.columns 正式字段与本地计算列重名`)
       if (validateViews && isRecord(table['views'])) for (const [viewId, view] of Object.entries(table['views'])) {
         if (!isRecord(view)) continue
-        const projected = LowcodeDataSpaceViewFields.project(model, tableName, table['columns'], viewId, view)
+        const projected = LowcodeDataSpaceViewFields.project({model, tableName, configured: table['columns'], viewId, definition: view})
         const outputs = new Set(model.fields.filter(field => field.output).map(field => field.canonicalName))
         LowcodeDataSpaceViewFields.validateReferences(view, outputs, new Set(projected.columns.filter(column => !outputs.has(column.name)).map(column => column.name)))
         LowcodeDataSpaceViewFields.validateSelection(view, new Set(projected.selectionColumns.map(column => column.name)))
@@ -1451,9 +1492,9 @@ export class LowcodeDataSpaceDesignSession {
     this.assertLive()
     let owner = this.#modelRenames.get(modelId)
     if (!owner) {
-      const host = createModelRenameHost(this.metadataDataSet, this.targetId, modelId, {
+      const host = createModelRenameHost({dataSet: this.metadataDataSet, targetId: this.targetId, modelId, lifecycle: {
         assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
-        prepareFile: (before, after) => this.prepareModelConfigurationChange(modelId, before, after),
+        prepareFile: (before, after) => this.prepareModelConfigurationChange({modelId, before, after}),
         completed: () => {
           this.#modelEdits.clear(); this.#fieldEdits.clear(); this.#sourceInputs.clear(); this.#modelSources.clear()
           const directory = this.metadataDataSet.getView('Base_DataModel_Field', 'default')
@@ -1461,7 +1502,7 @@ export class LowcodeDataSpaceDesignSession {
             directory.discardEditingRows()
           }
         },
-      })
+      }})
       owner = createModelRenameHandle(host)
       this.#modelRenames.set(modelId, owner)
     }
@@ -1475,14 +1516,14 @@ export class LowcodeDataSpaceDesignSession {
     owner.release(); this.#modelRenames.delete(modelId)
   }
 
-  private async prepareModelConfigurationChange(modelId: string, before: string, after: string, arrayChange?: ArrayDefinitionChange,
-    sourceChange?: SourceContractChange): Promise<ModelRenameFilePlan & Pick<SourceContractPlan, 'check' | 'viewChanges'>> {
+  private async prepareModelConfigurationChange(input: PrepareModelConfigurationChangeInput): Promise<ModelRenameFilePlan & Pick<SourceContractPlan, 'check' | 'viewChanges'>> {
+    const {modelId, before, after, arrayChange, sourceChange} = input
     this.assertOwner(); this.assertMetadataClean()
     const file = this.#file, text = file?.getText() ?? null, revision = file?.revision
     const check = () => {
       this.assertOwner(); this.assertMetadataClean()
       for (const name of Object.keys(ScenarioDefinitionRecords.resources)) {
-        if (this.metadataDataSet.getTable(name)?.viewList.some(view => view.mutating || view.requestState === RequestState.Loading
+        if (this.metadataDataSet.getTable(name)?.viewList.some(view => view.mutating || view.requestState === SparkData.RequestState.Loading
           || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())) throw new Error('请先处理定义视图草稿或查询')
       }
       const space = this.metadataDataSet.getView('Base_DataSet')
@@ -1526,12 +1567,19 @@ export class LowcodeDataSpaceDesignSession {
     if (await this.previewRemoteViews() !== text) throw new Error('远端场景配置已变化，请重新打开')
     const fieldNames = arrayChange ? LowcodeDataSpaceArrayConfiguration.names(arrayChange) : undefined
     const tools = before !== after || fieldNames?.size
-      ? await LowcodeDataSpaceModelRenameTools.prepare(this.metadataDataSet, this.targetId, before, after, () => this.assertLive(), fieldNames)
+      ? await LowcodeDataSpaceModelRenameTools.prepare({
+        dataSet: this.metadataDataSet,
+        targetId: this.targetId,
+        before,
+        after,
+        assertLive: () => this.assertLive(),
+        ...(fieldNames !== undefined ? { fieldNames } : {}),
+      })
       : undefined
     check()
     let owned = text
-    const commandViews = new Map<string, DataView>(), signatures = new Map<DataView, string>()
-    const signature = (view: DataView) => JSON.stringify([view.queryContext, view.filterExpression, view.rows.map(row => {
+    const commandViews = new Map<string, SparkData.DataView>(), signatures = new Map<SparkData.DataView, string>()
+    const signature = (view: SparkData.DataView) => JSON.stringify([view.queryContext, view.filterExpression, view.rows.map(row => {
       const id = view.getPkKey(row)
       if (id === undefined) throw new Error('定义查询行缺少主键')
       return Object.entries(view.getEditingRow(id) ?? row).filter(([key]) => key !== '_pk' && key !== 'dataModelName').sort(([a], [b]) => a.localeCompare(b))
@@ -1544,12 +1592,12 @@ export class LowcodeDataSpaceDesignSession {
           && (view.mutating || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))) throw new Error('改名期间其他定义视图出现草稿，不能覆盖')
       }
       for (const [view, expected] of signatures) {
-        if (view.destroyed || view.mutating || view.requestState !== RequestState.Loaded
+        if (view.destroyed || view.mutating || view.requestState !== SparkData.RequestState.Loaded
           || this.metadataDataSet.getView(view.tableName, view.viewId) !== view || signature(view) !== expected) throw new Error('改名期间定义命令视图出现外来修改，不能覆盖')
       }
       if (this.#file !== file || (file?.getText() ?? null) !== owned) throw new Error('改名期间场景配置被其他编辑改变，不能覆盖')
       const models = this.metadataDataSet.getView('Base_DataModel'), row = models?.rows.find(item => item['rowid'] === modelId)
-      if (!models || !row || models.requestState !== RequestState.Loaded || models.rows.length !== models.total || row['Name'] !== after
+      if (!models || !row || models.requestState !== SparkData.RequestState.Loaded || models.rows.length !== models.total || row['Name'] !== after
         || models.fieldAccess(row, 'Name').read !== 'visible' || models.hasEditingChanges() || models.dirtyTracking.hasPendingChanges()) throw new Error('正式注册名未确认，不能保存场景绑定')
     }
     const stageDefinitions = async (nextText: string): Promise<void> => {
@@ -1559,8 +1607,8 @@ export class LowcodeDataSpaceDesignSession {
         const previous = ScenarioDefinitionRecords.read(file.value, resource), candidateRows = ScenarioDefinitionRecords.read(next, resource)
         const source = this.metadataDataSet.getView(name, 'default')
         if (!source || source.dataTable?.resourceId !== resource) throw new Error('正式定义资源缺失或已改变')
-        // 配置投影尚未进入DataView，不含其计算主键；先按正式主键字段匹配，再从查询行取得实际主键。
-        const identity = (row: DataRow) => JSON.stringify(source.pk.effectivePkFields.map(field => row[field]))
+        // 配置投影尚未进入SparkData.DataView，不含其计算主键；先按正式主键字段匹配，再从查询行取得实际主键。
+        const identity = (row: SparkData.DataRow) => JSON.stringify(source.pk.effectivePkFields.map(field => row[field]))
         const candidates = new Map(candidateRows.map(row => [identity(row), row]))
         if (previous.length !== candidates.size || previous.some(row => !candidates.has(identity(row)))) throw new Error('定义改名不能隐式增删模型或视图')
         const updates = previous.flatMap(row => {
@@ -1573,7 +1621,7 @@ export class LowcodeDataSpaceDesignSession {
         })
         if (!updates.length) continue
         let view = commandViews.get(name)
-        if (view?.requestState !== RequestState.Loaded) {
+        if (view?.requestState !== SparkData.RequestState.Loaded) {
           if (!view) {view = source.createQueryView(`modelDefinition:${modelId}`); commandViews.set(name, view)}
           if (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()) throw new Error('定义查询已失效，未提交修改继续保留')
           const result = await view.loadFromServer({allPages: true, maxRows: 50000})
@@ -1673,8 +1721,9 @@ export class LowcodeDataSpaceDesignSession {
     this.assertLive()
     let owner = this.#modelRemovals.get(modelId)
     if (!owner) {
-      const host = createModelRemoveHost(this.metadataDataSet, this.targetId, modelId, {
-        assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(), validateFile: views => this.validateModelRemoval(modelId, views),
+      const host = createModelRemoveHost({
+        dataSet: this.metadataDataSet, targetId: this.targetId, modelId,
+        lifecycle: {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(), validateFile: views => this.validateModelRemoval(modelId, views)},
       })
       owner = createModelRemoveHandle(host)
       this.#modelRemovals.set(modelId, owner)
@@ -1685,13 +1734,13 @@ export class LowcodeDataSpaceDesignSession {
   /** 含预览和未决删除，避免模型行消失后丢失核验入口。 */
   hasPendingModelRemovals(): boolean {return [...this.#modelRemovals.values()].some(owner => owner.getState().pending)}
 
-  private async validateModelRemoval(modelId: string, views: readonly DataView[]): Promise<LowcodeDataSpaceModelRemovalFilePlan> {
+  private async validateModelRemoval(modelId: string, views: readonly SparkData.DataView[]): Promise<LowcodeDataSpaceModelRemovalFilePlan> {
     this.assertOwner(); this.assertMetadataClean()
     const file = this.#file, text = file?.getText() ?? null, revision = file?.revision
     const layoutView = this.metadataDataSet.getView('DataSpaceLayoutDefinition', 'default')
     if (!layoutView || layoutView.dataTable?.resourceId !== ScenarioDefinitionRecords.resources.DataSpaceLayoutDefinition) throw new Error('布局定义视图缺失')
     const assertLayoutClean = () => {
-      if (layoutView.dataTable?.viewList.some(view => view.mutating || view.requestState === RequestState.Loading
+      if (layoutView.dataTable?.viewList.some(view => view.mutating || view.requestState === SparkData.RequestState.Loading
         || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())) throw new Error('请先处理布局草稿或查询，再删除模型')
     }
     const assertCurrent = () => {
@@ -1730,7 +1779,7 @@ export class LowcodeDataSpaceDesignSession {
     }
     const layoutRow = () => {
       if (layoutView.destroyed || this.metadataDataSet.getView(layoutView.tableName, layoutView.viewId) !== layoutView
-        || layoutView.queryContext['dataSpaceId'] !== this.targetId || layoutView.requestState !== RequestState.Loaded
+        || layoutView.queryContext['dataSpaceId'] !== this.targetId || layoutView.requestState !== SparkData.RequestState.Loaded
         || layoutView.rows.length !== 1 || layoutView.total !== 1 || layoutView.rows[0]?.['dataSetId'] !== this.targetId) throw new Error('布局查询身份已变化')
       const id = layoutView.getPkKey(layoutView.rows[0])
       if (id === undefined) throw new Error('布局定义记录缺少主键')
@@ -1744,13 +1793,13 @@ export class LowcodeDataSpaceDesignSession {
     const assertCompletion = (): void => {
       this.assertLive(); this.assertMetadataClean()
       if (hasLayout && (layoutSignature() !== ownedLayout || layoutView.mutating
-        || layoutView.dataTable?.viewList.some(view => view !== layoutView && (view.mutating || view.requestState === RequestState.Loading
+        || layoutView.dataTable?.viewList.some(view => view !== layoutView && (view.mutating || view.requestState === SparkData.RequestState.Loading
           || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())))) throw new Error('布局清理期间出现外来草稿或查询，不能覆盖')
       if (this.#file !== file || this.options.workspace.getScenarioViews(this.targetId) !== file
         || (file?.getText() ?? null) !== ownedText) throw new Error('布局清理期间文件或外来草稿已变化，不能覆盖')
       for (const tableName of ['Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation']) {
         const view = views.find(item => item.tableName === tableName)
-        if (view?.requestState !== RequestState.Loaded || this.metadataDataSet.getView(tableName, view.viewId) !== view || view.mutating || view.rows.length !== view.total
+        if (view?.requestState !== SparkData.RequestState.Loaded || this.metadataDataSet.getView(tableName, view.viewId) !== view || view.mutating || view.rows.length !== view.total
           || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()) throw new Error('布局清理所需元数据已变化或仍有草稿')
         if (view.rows.some(row => tableName === 'Base_DataModel' ? row['rowid'] === modelId
           : tableName === 'Base_DataModel_Field' ? row['dataModelId'] === modelId : row['parentModId'] === modelId || row['childModId'] === modelId)) {
@@ -1838,8 +1887,10 @@ export class LowcodeDataSpaceDesignSession {
   getModelCreate(): ModelCreateHandle {
     this.assertLive()
     if (!this.#modelCreate) {
-      const host = createModelCreateHost(this.metadataDataSet, this.targetId, this.options.modelSources,
-        {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate({preserveModelInputs: true})})
+      const host = createModelCreateHost({
+        dataSet: this.metadataDataSet, targetId: this.targetId, sources: this.options.modelSources,
+        lifecycle: {assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate({preserveModelInputs: true})},
+      })
       this.#modelCreate = createModelCreateHandle(host)
     }
     return this.#modelCreate
@@ -1848,19 +1899,24 @@ export class LowcodeDataSpaceDesignSession {
   /** 包括预览和没有本地delta的未决新增，避免关闭时丢失核验入口。 */
   hasPendingModelCreate(): boolean {return this.#modelCreate?.getState().pending === true}
 
-  /** 保留字段合同的来源替换或当前来源同步；共用正式来源读取与原DataView保存。 */
-  getModelSourceEdit(modelId: string): LowcodeDataSpaceModelSourceEdit {
+  /** 保留字段合同的来源替换或当前来源同步；共用正式来源读取与原SparkData.DataView保存。 */
+  getModelSourceEdit(modelId: string): ModelSourceEditHandle {
     this.assertLive()
     if (!this.options.modelSources) throw new Error('模型来源读取能力不可用')
     let owner = this.#modelSources.get(modelId)
     if (!owner) {
-      const host = createModelSourceEditHost(this.metadataDataSet, this.targetId, modelId, this.options.modelSources, {
-        validateConfiguration: () => this.validateSourceConfiguration(),
-        validateTransition: model => this.validateSourceTransition(modelId, {sourceType: model.Type, sourceName: model.MetaName}),
-        prepareContract: change => this.prepareModelConfigurationChange(modelId, change.after.name, change.after.name, undefined, change),
-        validateRemovals: (ids, contract) => this.validateSourceRemovals(modelId, ids, contract),
-        assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
-        completed: () => {this.#modelEdits.clear(); this.#fieldEdits.clear(); this.#sourceInputs.clear()},
+      const host = createModelSourceEditHost({
+        dataSet: this.metadataDataSet, targetId: this.targetId, modelId, sources: this.options.modelSources,
+        lifecycle: {
+          validateConfiguration: () => this.validateSourceConfiguration(),
+          validateTransition: model => this.validateSourceTransition(modelId, {sourceType: model.Type, sourceName: model.MetaName}),
+          prepareContract: change => this.prepareModelConfigurationChange({
+            modelId, before: change.after.name, after: change.after.name, sourceChange: change,
+          }),
+          validateRemovals: (ids, contract) => this.validateSourceRemovals(modelId, ids, contract),
+          assertCurrent: () => this.assertLive(), onDispatch: () => this.invalidate(),
+          completed: () => {this.#modelEdits.clear(); this.#fieldEdits.clear(); this.#sourceInputs.clear()},
+        },
       })
       owner = createModelSourceEditHandle(host)
       this.#modelSources.set(modelId, owner)
@@ -1893,11 +1949,11 @@ export class LowcodeDataSpaceDesignSession {
     if (isRecord(tables)) for (const [name, table] of Object.entries(tables)) {
       if (!isRecord(table) || !isRecord(table['modelBinding']) || table['modelBinding']['modelId'] !== modelId) continue
       if (table['modelBinding']['modelName'] !== original['Name'] || !isRecord(table['views'])) throw new Error(`${name}的模型绑定已失效`)
-      const requests = FormalTableRequestConfig.parse(table, `tables.${name}`)
+      const requests = SparkData.FormalTableRequestConfig.parse(table, `tables.${name}`)
       if (from.resourceType !== to.resourceType && Object.keys(requests.endpoints).length) throw new Error(`${name}.api含显式请求端点，须先确认新来源的查询和提交合同`)
       for (const [viewId, view] of Object.entries(table['views'])) {
         if (!isRecord(view)) throw new Error(`${name}@${viewId}不是有效视图定义`)
-        const query = DataViewQuery.parse(view['queryConfig'] ?? {})
+        const query = SparkData.DataViewQuery.parse(view['queryConfig'] ?? {})
         const fields = Array.isArray(view['fieldProjection']) ? view['fieldProjection'].filter(isRecord)
           .filter(field => field['output'] === true && (!query.fields || query.fields.includes(String(field['viewField'])))) : []
         try {
@@ -1918,8 +1974,10 @@ export class LowcodeDataSpaceDesignSession {
     if (!dependencies) {
       const models = this.metadataDataSet.getView('Base_DataModel', 'default')
       if (!models) throw new Error('来源字段删除缺少模型目录视图')
-      dependencies = new LowcodeDataSpaceModelDependencies(this.metadataDataSet, this.targetId, modelId, 'sourceRemoval', () => this.assertLive(),
-        {view: models, id: modelId})
+      dependencies = new LowcodeDataSpaceModelDependencies({
+        dataSet: this.metadataDataSet, targetId: this.targetId, modelId, operation: 'sourceRemoval',
+        assertCurrent: () => this.assertLive(), editing: {view: models, id: modelId},
+      })
       this.#sourceRemovalDependencies.set(modelId, dependencies)
     }
     await dependencies.load(true); check()
@@ -1962,7 +2020,7 @@ export class LowcodeDataSpaceDesignSession {
     }
     return () => {
       check(); dependencies.assertOwner()
-      if (snapshot() !== baseline || dependencies.views.some(view => view.mutating || view.requestState !== RequestState.Loaded
+      if (snapshot() !== baseline || dependencies.views.some(view => view.mutating || view.requestState !== SparkData.RequestState.Loaded
         || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())) throw new Error('同步删除的依赖已变化，请重新预览')
     }
   }
@@ -1985,7 +2043,7 @@ export class LowcodeDataSpaceDesignSession {
         || this.#file?.isDirty || this.#file && this.#file.saveStatus !== 'idle') throw new Error('请先处理未提交修改或待核验操作，再复制 API 信息')
       return JSON.stringify(['Base_DataSet', 'Base_DataModel'].map(name => {
         const view = this.metadataDataSet.getView(name, 'default')
-        if (!view || view.destroyed || view.requestState !== RequestState.Loaded || view.mutating || view.rows.length !== view.total
+        if (!view || view.destroyed || view.requestState !== SparkData.RequestState.Loaded || view.mutating || view.rows.length !== view.total
           || view.queryContext['dataSpaceId'] !== this.targetId || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()) {
           throw new Error('复制 API 所需的正式元数据尚未完整确认')
         }
@@ -2023,7 +2081,7 @@ export class LowcodeDataSpaceDesignSession {
         if (bound) throw new Error('命名视图的模型绑定不唯一')
         bound = true
         if (table['modelBinding']['modelName'] !== model.metaName || !isRecord(table['views'])) throw new Error('命名视图的模型绑定已失效')
-        for (const viewId of Object.keys(table['views'])) dataViewKeys.push(buildDataViewKey(model.metaName, viewId, this.targetId))
+        for (const viewId of Object.keys(table['views'])) dataViewKeys.push(SparkData.buildDataViewKey(model.metaName, viewId, this.targetId))
       }
       return {...identity, primaryKey: model.primaryKey, dataViewKeys}
     })
@@ -2053,14 +2111,14 @@ export class LowcodeDataSpaceDesignSession {
     return this.#definition ? 'ready' : 'unloaded'
   }
 
-  private readFunctionDefinition(): DataSet | ScenarioViewConfig | null {
+  private readFunctionDefinition(): SparkData.DataSet | ScenarioViewConfig | null {
     this.assertOwner()
     this.#relationMetadata.assertClean()
     if (this.#file?.value.usesNativeResourceRelations) return this.#file.value
     const status = this.definitionStatus
     if (status === 'ready') this.assertProjectionClean()
     else if (this.#file) {
-      if (this.metadataDataSet.getView('Base_DataModel_Relation')?.requestState !== RequestState.Loaded) {
+      if (this.metadataDataSet.getView('Base_DataModel_Relation')?.requestState !== SparkData.RequestState.Loaded) {
         throw new Error('模型关系配置尚未读取，上游字段候选暂不可用；请在模型输入参数区读取')
       }
       return this.#file.value
@@ -2068,7 +2126,7 @@ export class LowcodeDataSpaceDesignSession {
     return this.definitionDataSet
   }
 
-  get definitionDataSet(): DataSet | null {
+  get definitionDataSet(): SparkData.DataSet | null {
     this.assertOwner()
     if (this.#definitionError) throw this.#definitionError
     if (this.#file && !this.#definition) throw new Error('DATA_SPACE_DESIGN_SESSION_STALE: 定义投影已失效，请刷新')
@@ -2078,16 +2136,16 @@ export class LowcodeDataSpaceDesignSession {
   /** 捕获当前模型正式字段或工作区的可执行查询草稿；其他视图/结构草稿仍由原保护拒绝。 */
   private captureModelFieldPreview(modelId: string) {
     const scoped = this.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')
-    const viewId = scoped?.requestState === RequestState.Loaded && scoped.queryContext['modelId'] === modelId
+    const viewId = scoped?.requestState === SparkData.RequestState.Loaded && scoped.queryContext['modelId'] === modelId
       && scoped.queryContext['dataSpaceId'] === this.targetId ? 'modelFields' : 'default'
     const view = this.metadataDataSet.getView('Base_DataModel_Field', viewId)
-    if (view?.requestState !== RequestState.Loaded || view.rows.length !== view.total
+    if (view?.requestState !== SparkData.RequestState.Loaded || view.rows.length !== view.total
       || viewId === 'default' && (view.hasEditingChanges()
         || !view.rows.some(row => row['dataModelId'] === modelId && row['type'] === 'dataModel'))) return undefined
     if (!view.rows.length && !view.hasEditingChanges() && !view.dirtyTracking.hasPendingChanges()) return undefined
     const read = () => {
       this.assertLive()
-      if (view !== this.metadataDataSet.getView('Base_DataModel_Field', viewId) || view.requestState !== RequestState.Loaded
+      if (view !== this.metadataDataSet.getView('Base_DataModel_Field', viewId) || view.requestState !== SparkData.RequestState.Loaded
         || view.rows.length !== view.total || viewId === 'modelFields' && view.queryContext['modelId'] !== modelId
         || view.queryContext['dataSpaceId'] !== this.targetId || view.dirtyTracking.hasPendingChanges()
         || [...this.#fieldCreates.values(), ...this.#fieldRemovals.values()].some(owner => owner.getState().pending)
@@ -2104,7 +2162,7 @@ export class LowcodeDataSpaceDesignSession {
       return fields
     }
     const strictFieldGuard = viewId === 'modelFields'
-    const applyProjection = (fields: ReturnType<typeof read>, target: DataView): void => {
+    const applyProjection = (fields: ReturnType<typeof read>, target: SparkData.DataView): void => {
       const projection = target.fieldProjection.length ? target.fieldProjection : target.columns.filter(column => column.name !== '_pk').map(column => {
         const field = fields.find(candidate => candidate.name === column.name && candidate.formalOutput)
         if (!field) throw new Error('正式查询字段与预览工作区不一致，请重新读取')
@@ -2126,9 +2184,9 @@ export class LowcodeDataSpaceDesignSession {
     if (strictFieldGuard) {
       const fields = read(), snapshot = JSON.stringify(fields)
       const assertCurrent = () => {if (JSON.stringify(read()) !== snapshot) throw new Error('字段查询设置已变化，请重新打开预览')}
-      return {assertCurrent, apply: (target: DataView) => {assertCurrent(); applyProjection(fields, target)}}
+      return {assertCurrent, apply: (target: SparkData.DataView) => {assertCurrent(); applyProjection(fields, target)}}
     }
-    return {assertCurrent: () => {}, apply: (target: DataView) => applyProjection(read(), target)}
+    return {assertCurrent: () => {}, apply: (target: SparkData.DataView) => applyProjection(read(), target)}
   }
 
   private definitionReadGuard(options: DefinitionReadOptions = {}): () => void {
@@ -2152,7 +2210,7 @@ export class LowcodeDataSpaceDesignSession {
         || this.hasPendingModelCreate() || this.hasPendingModelSourceEdits() || this.hasPendingModelRemovals()) throw new Error('请先处理元数据修改，再继续操作')
       for (const name of metadataNames) {
         const view = this.metadataDataSet.getView(name, 'default')
-        if (view?.requestState !== RequestState.Loaded || view.mutating || view.rows.length !== view.total
+        if (view?.requestState !== SparkData.RequestState.Loaded || view.mutating || view.rows.length !== view.total
           || view.queryContext['dataSpaceId'] !== this.targetId || view.hasEditingChanges() && !(previewGuard && name === 'Base_DataModel') || view.dirtyTracking.hasPendingChanges()) {
           throw new Error('所需元数据未完整读取或存在其他定义草稿，请先处理未保存修改')
         }
@@ -2177,7 +2235,7 @@ export class LowcodeDataSpaceDesignSession {
     return () => {stop(); this.#previewInvalidationListeners.delete(listener)}
   }
 
-  /** 按正式模型及已保存初值创建预览DataView；请求调整留在预览实例，不保存模型请求草稿。 */
+  /** 按正式模型及已保存初值创建预览SparkData.DataView；请求调整留在预览实例，不保存模型请求草稿。 */
   async openModelPreview(input: Pick<SessionSelection, 'modelId' | 'modelName'>): Promise<LowcodeDataSpaceQueryPreview> {
     await this.ensureDefaultFieldCatalogForPreview()
     const fields = this.captureModelFieldPreview(input.modelId)
@@ -2210,7 +2268,7 @@ export class LowcodeDataSpaceDesignSession {
             keyField: initial.keyField,
             parentField: initial.parentField,
             ...(initial.hasChildrenField ? {hasChildrenField: initial.hasChildrenField} : {}),
-            mode: initial.treeMode as 'child' | 'parent',
+            mode: treeRelationMode(initial.treeMode),
             nodeId: initial.nodeId,
           },
         } : {}),
@@ -2287,7 +2345,7 @@ export class LowcodeDataSpaceDesignSession {
     }
     let candidate: LowcodeDataSpaceAssembly
     try {
-      candidate = await this.options.assemble(this.targetId, file.value)
+      candidate = await this.options.assemble({scenarioId: this.targetId, config: file.value})
     } catch (error) {
       assertAssemblyCurrent()
       this.#definitionError = error instanceof Error ? error : new Error(String(error))
@@ -2330,14 +2388,14 @@ export class LowcodeDataSpaceDesignSession {
     if (generation !== this.#generation) throw new Error('DATA_SPACE_DESIGN_SESSION_STALE: 布局读取期间定义已变化')
     if (view.loadingError) throw view.loadingError
     const row = view.rows[0]
-    if (view.requestState !== RequestState.Loaded || view.rows.length !== 1 || row?.['dataSetId'] !== this.targetId
+    if (view.requestState !== SparkData.RequestState.Loaded || view.rows.length !== 1 || row?.['dataSetId'] !== this.targetId
       || view.fieldAccess(row, 'content').read !== 'visible' || (row['content'] !== null && typeof row['content'] !== 'string')) {
       throw new Error('DATA_SPACE_REFERENCE_RESULT: 参考布局查询没有返回当前目标的完整结果')
     }
     return row['content']
   }
 
-  /** 将精确模型绑定及所属配置的删除记入原生DataView；提交和取消仍由DataSet/DataView执行。 */
+  /** 将精确模型绑定及所属配置的删除记入原生SparkData.DataView；提交和取消仍由SparkData.DataSet/SparkData.DataView执行。 */
   async removeModelBinding(input: SessionBindingRemoval): Promise<PageDataSpaceViewState> {
     this.assertOwner()
     this.#viewMetadata.assertViewsClean()
@@ -2364,10 +2422,10 @@ export class LowcodeDataSpaceDesignSession {
     if (view.hasEditingChanges(key) || view.dirtyTracking.hasPendingChanges(key)) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 请先处理当前模型配置修改')
     const generation = this.#generation
     const snapshot = JSON.stringify(view.rows)
-    const next = ScenarioDefinitionRecords.write(file.value, ScenarioDefinitionRecords.resources.DataTableBindingDefinition,
-      ScenarioDefinitionRecords.read(file.value, ScenarioDefinitionRecords.resources.DataTableBindingDefinition).filter(item => item['tableName'] !== tableName))
+    const next = ScenarioDefinitionRecords.write({config: file.value, resource: ScenarioDefinitionRecords.resources.DataTableBindingDefinition,
+      rows: ScenarioDefinitionRecords.read(file.value, ScenarioDefinitionRecords.resources.DataTableBindingDefinition).filter(item => item['tableName'] !== tableName)})
     const scope = next.selectTableValidationScope(file.value)
-    const candidate = scope ? await this.options.assemble(this.targetId, scope) : null
+    const candidate = scope ? await this.options.assemble({scenarioId: this.targetId, config: scope}) : null
     try {
       this.assertOwner()
       if (file.getText() !== expectedText || this.#generation !== generation || JSON.stringify(view.rows) !== snapshot || view.hasEditingChanges(key) || view.dirtyTracking.hasPendingChanges(key)) throw new Error('SCENARIO_VIEW_DRAFT_STALE: 解除期间配置已改变')
@@ -2384,7 +2442,7 @@ export class LowcodeDataSpaceDesignSession {
     return result.content
   }
 
-  private definitionSourceView(): DataView {
+  private definitionSourceView(): SparkData.DataView {
     const view = this.metadataDataSet.getView('DataViewDefinition', 'default')
     if (!view) throw new Error('SCENARIO_DEFINITION_IDENTITY: 文件定义视图缺失')
     return view
@@ -2409,7 +2467,7 @@ export class LowcodeDataSpaceDesignSession {
       if (!view || !views.includes(view)) throw new Error('SCENARIO_DEFINITION_IDENTITY: 只能明确取消本次文件定义视图')
       return view
     })
-    const loaded = views.filter(view => view.requestState === RequestState.Loaded)
+    const loaded = views.filter(view => view.requestState === SparkData.RequestState.Loaded)
     await this.definitionSourceView().adoptSource({version: input.expectedRevision, content: input.previewText}, {discardViews: discarded})
     this.assertLive()
     this.attach(this.options.workspace.getScenarioViews(this.targetId))
@@ -2445,10 +2503,16 @@ function record(value: unknown, label: string): Record<string, unknown> {
   return value
 }
 
-function viewName(value: string, label: string): string {
+function viewName(value: unknown, label: string): string {
+  if (typeof value !== 'string') throw new Error(`${label} 无效`)
   const name = value.trim()
   if (!name || name.includes('@') || name.startsWith('#')) throw new Error(`${label} 身份非法`)
   return name
+}
+
+function treeRelationMode(value: unknown): 'child' | 'parent' {
+  if (value === 'child' || value === 'parent') return value
+  throw new Error('树关系方向无效')
 }
 
 function state(file: ScenarioViewFile): PageDataSpaceViewState {
@@ -2486,7 +2550,7 @@ export class LowcodeDataSpaceViewDesign {
       if (!resource) throw new Error('SCENARIO_DEFINITION_LOADING: 元数据空间尚未装配')
       return resource
     }
-    const executor: Parameters<DataView['bindQueryExecutor']>[0] = {
+    const executor: Parameters<SparkData.DataView['bindQueryExecutor']>[0] = {
       hasUnconfirmedSave: context => requireResource().hasUnconfirmedSave(context),
       source: {
         history: {
@@ -2508,7 +2572,7 @@ export class LowcodeDataSpaceViewDesign {
       },
     }
     const fileExecutors = Object.fromEntries(Object.keys(ScenarioDefinitionRecords.resources).map(name => [name, executor]))
-    const toolExecutor: Parameters<DataView['bindQueryExecutor']>[0] = {
+    const toolExecutor: Parameters<SparkData.DataView['bindQueryExecutor']>[0] = {
       executeQuery: (view, params) => {
         const metadataScenarioId = view.dataSet?.scenarioId
         if (!metadataScenarioId) throw new Error('PROJECT_TOOL_IDENTITY: 元空间身份缺失')
@@ -2526,7 +2590,7 @@ export class LowcodeDataSpaceViewDesign {
       if (!scenarioId) throw new Error('DATA_SPACE_REFERENCE_IDENTITY: 元空间身份缺失')
       return this.referenceLayoutResource(scenarioId).executeQuery(view, params)
     }}
-    const assemble = (scenarioId: string, config: ScenarioViewConfig) => this.options.assemble(scenarioId, config, fileExecutors)
+    const assemble = (input: ViewDesignAssembleInput) => this.options.assemble({...input, fileExecutors: input.fileExecutors ?? fileExecutors})
     const metadata = await loadMetadata(id, fileExecutors)
     let session: LowcodeDataSpaceDesignSession | undefined
     try {
@@ -2536,11 +2600,18 @@ export class LowcodeDataSpaceViewDesign {
         metadataScenarioId: metadata.scenarioId, targetScenarioId: id, assertCurrent: this.options.assertScope,
         validate: async (next, previous, resources) => {
           if (resources.includes(ScenarioDefinitionRecords.resources.DataSpaceLayoutDefinition)) {
-            LowcodeDataSpaceViewLayout.assertModels(previous.toJSON(), next.toJSON(), id, metadata.getView('Base_DataModel', 'default'), metadata.getView('DataTableBindingDefinition', 'fileModels'))
+            const fileModels = metadata.getView('DataTableBindingDefinition', 'fileModels')
+            LowcodeDataSpaceViewLayout.assertModels({
+              base: previous.toJSON(),
+              config: next.toJSON(),
+              targetId: id,
+              models: metadata.getView('Base_DataModel', 'default'),
+              ...(fileModels ? {files: fileModels} : {}),
+            })
           }
           const scope = ScenarioDefinitionRecords.validationScope(next, previous, resources)
           if (!scope) return
-          const candidate = await assemble(id, scope)
+          const candidate = await assemble({scenarioId: id, config: scope})
           try {
             if (candidate.diagnostics.length) throw new Error(`SCENARIO_DEFINITION_INCOMPLETE: ${candidate.diagnostics.join('；')}`)
           } finally {candidate.dataSet.destroy()}
@@ -2559,7 +2630,9 @@ export class LowcodeDataSpaceViewDesign {
         assertCachedClean()
         if (remote.content !== cached.getText()) await source.adoptSource(remote)
       }
-      session = new LowcodeDataSpaceDesignSession(id, metadata, this, {...this.options, assemble}, resource)
+      session = new LowcodeDataSpaceDesignSession({
+        targetId: id, metadataDataSet: metadata, design: this, options: {...this.options, assemble}, definitionResource: resource,
+      })
       try { await session.refresh(options) } catch (error) {
         if (session.metadataDataSet.destroyed || session.definitionError !== error) throw error
       }
@@ -2580,7 +2653,7 @@ export class LowcodeDataSpaceViewDesign {
 
   /**
    * 装配可供标准组件绑定的独立预览实例；调用方关闭时必须dispose。
-   * @param subscribe 调用方定义/会话失效订阅；与文件订阅共同释放已绑定的DataView，预览关闭时解除。
+   * @param subscribe 调用方定义/会话失效订阅；与文件订阅共同释放已绑定的SparkData.DataView，预览关闭时解除。
    */
   async openPreview(input: NativeViewSelection & {scenarioId: string}, assertCurrent?: () => void,
     subscribe?: (listener: () => void) => () => void): Promise<LowcodeDataSpaceQueryPreview> {
@@ -2609,7 +2682,7 @@ export class LowcodeDataSpaceViewDesign {
       executeQuery: (view, params) => toolResource.executeQuery(view, params),
       save: () => Promise.reject(new Error('SCENARIO_VIEW_PREVIEW_READ_ONLY: 预览不提交工具文件')),
     }
-    const assembled = await this.options.assemble(input.scenarioId, file.value, fileExecutors, tableName)
+    const assembled = await this.options.assemble({scenarioId: input.scenarioId, config: file.value, fileExecutors, modelScope: tableName})
     let preview: LowcodeDataSpaceQueryPreview | undefined
     try {
       const validate = (): void => {
@@ -2645,7 +2718,7 @@ export class LowcodeDataSpaceViewDesign {
     const file = new ScenarioViewFile(scenarioId, JSON.stringify({scenarioId, schemaVersion: 2, resourceRelations: [], tables: {PreviewModel: {
       modelBinding: {modelId: input.modelId, modelName: input.modelName}, views: {default: {autoLoad: false}},
     }}}))
-    const assembled = await this.options.assemble(scenarioId, file.value)
+    const assembled = await this.options.assemble({scenarioId, config: file.value})
     let preview: LowcodeDataSpaceQueryPreview | undefined
     try {
       validate()

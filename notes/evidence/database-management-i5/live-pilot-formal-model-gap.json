@@ -23,6 +23,11 @@
   ],
   "livePilotTableAndView": "blocked-pending-metadata",
   "livePilotAfterMetadata": "待五表 readModelBatch 通过后复验 DataView 与 vitest 对照",
+  "vitestBaseline20261022": {
+    "command": "pnpm exec vitest run tests/runtime/page/database",
+    "passed": 84,
+    "note": "夹具通过不替代实页 formal 模型登记"
+  },
   "liveVerified20261021": {
     "resolvedDataSpaceId": "62DB03B06A489600FFF86F3640D5C0E7",
     "catalogFormalTier": "serverOnly",

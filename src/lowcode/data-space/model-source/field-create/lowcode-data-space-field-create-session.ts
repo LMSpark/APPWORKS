@@ -40,8 +40,17 @@ export type FieldCreateHost = {
   lifecycle: FieldCreateLifecycle
 }
 
-export function createFieldCreateHost(dataSet: DataSet, targetId: string, modelId: string, lifecycle: FieldCreateLifecycle,
-  viewId: 'default' | 'modelFields' = 'default'): FieldCreateHost {
+export type FieldCreateHostInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  lifecycle: FieldCreateLifecycle
+  viewId?: 'default' | 'modelFields'
+}>
+
+export function createFieldCreateHost(hostInput: FieldCreateHostInput): FieldCreateHost {
+  const viewId = hostInput.viewId ?? 'default'
+  const {dataSet, targetId, modelId, lifecycle} = hostInput
   const fields = dataSet.getView('Base_DataModel_Field', viewId), models = dataSet.getView('Base_DataModel', 'default')
   if (!fields || !models) throw new Error('缺少正式模型或字段视图')
   const contexts = JSON.stringify([models.queryContext, fields.queryContext])
@@ -123,14 +132,14 @@ export function fieldCreateBegin(host: FieldCreateHost): void {
 
 export function fieldCreateReadValueFunction(host: FieldCreateHost) {
   assertOwner(host)
-  return {...new LowcodeDataSpaceFieldValue(host.dataSet, host.targetId, host.modelId, host.viewId).read(host.lifecycle.readDefinition),
+  return {...new LowcodeDataSpaceFieldValue({dataSet: host.dataSet, targetId: host.targetId, modelId: host.modelId, viewId: host.viewId}).read(host.lifecycle.readDefinition),
     value: host.input.getEditingRow('draft')?.['ValueFun']}
 }
 
 export function fieldCreateStageValueFunction(host: FieldCreateHost, value: string): void {
   assertOwner(host)
   if (flowStatus(host) !== 'editing') throw new Error('新增字段草稿当前不可修改')
-  new LowcodeDataSpaceFieldValue(host.dataSet, host.targetId, host.modelId, host.viewId).validate(value)
+  new LowcodeDataSpaceFieldValue({dataSet: host.dataSet, targetId: host.targetId, modelId: host.modelId, viewId: host.viewId}).validate(value)
   host.input.updateEditingValue('draft', 'ValueFun', value)
 }
 
@@ -145,7 +154,7 @@ function fieldCreateValues(host: FieldCreateHost): DataRow {
     || /[\u0000-\u001f\u007f]/.test(row[key]) || row[key] === '_pk') throw new Error('字段名称必须是非空文本，别名可留空；不能含首尾空白、控制字符或使用保留字段_pk')
   if (typeof row['description'] !== 'string' || row['IsOutput'] !== 0 && row['IsOutput'] !== 1) throw new Error('说明或输出开关格式无效')
   if (String(row['Name']).length > 100 || String(row['AsName']).length > 100 || row['description'].length > 200) throw new Error('名称和规范别名不能超过100个字符，描述不能超过200个字符')
-  new LowcodeDataSpaceFieldValue(host.dataSet, host.targetId, host.modelId, host.viewId).validate(row['ValueFun'])
+  new LowcodeDataSpaceFieldValue({dataSet: host.dataSet, targetId: host.targetId, modelId: host.modelId, viewId: host.viewId}).validate(row['ValueFun'])
   return {dataSetId: host.targetId, dataModelId: host.modelId, type: 'dataModel', FieldType: '计算字段', IsPKey: 0,
     Name: row['Name'], AsName: row['AsName'], description: row['description'], ValueFun: row['ValueFun'], IsOutput: row['IsOutput'],
     Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}

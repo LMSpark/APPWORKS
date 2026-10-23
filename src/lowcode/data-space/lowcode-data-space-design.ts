@@ -36,7 +36,7 @@ function createViewDesign(scope: ReturnType<typeof lowcodeApi.readRequestScope>)
       designScenarioId: LowcodePlatform.DATA_SPACE_DESIGN_FORM_KEY, dataSpaceId: input.scenarioId,
       metaName: input.modelName, assertCurrent: assertScope,
     }, metadata),
-    assemble: (scenarioId, config, fileExecutors, modelScope) => loadScenarioDataSet({scenarioId, config, assertCurrent: assertScope,
+    assemble: ({scenarioId, config, fileExecutors, modelScope}) => loadScenarioDataSet({scenarioId, config, assertCurrent: assertScope,
       ...(modelScope === undefined ? {} : {modelScope}),
       ...(fileExecutors ? {fileExecutors} : {})}),
     loadMetadata: loadLowcodeDataSpaceMetadata,

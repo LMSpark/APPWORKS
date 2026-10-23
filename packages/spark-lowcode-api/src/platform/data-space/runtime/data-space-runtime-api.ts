@@ -2,10 +2,10 @@
  * @module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-runtime-api
  * 职责：拥有模型查询与统一保存的运行入口。
  * 边界：只接受当前 scope 中本 owner 登记的原查询基线。
- * AI用途：把 DataView 查询与同场景模型保存接入实际运行 owner。
+ * AI用途：把 SparkData.DataView 查询与同场景模型保存接入实际运行 owner。
  */
 /** 数据空间运行态 API；按场景与模型 Name 拥有原查询、权限基线和统一保存。 */
-import { DataViewArrayQuery, DataViewFilter, type DataColumn, type DataViewFilterTree, type DataView, type DataTable, type TableMetadata, type QueryParams, type DataRow } from '@spark-appworks/spark-data'
+import * as SparkData from '@spark-appworks/spark-data'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope } from './data-space-runtime-contract.js'
 import { DataSpaceQueryCache } from './query/data-space-query-cache.js'
@@ -25,7 +25,7 @@ type DataSpaceRuntimeApiOptions = Readonly<{
 }>
 /** 统一保存命令；每个目标携带本 owner 的原查询上下文与候选变更。 */
 type DataSpaceRuntimeSaveChange = Parameters<DataSpaceRequest['save']>[0]['changes'][number]
-  & Readonly<{tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>}>
+  & Readonly<{tableConfig?: Pick<SparkData.TableMetadata, 'api' | 'crudConfig'>}>
 type DataSpaceRuntimeSaveCommand = Readonly<{
   changes: readonly DataSpaceRuntimeSaveChange[]
   signal?: AbortSignal
@@ -33,6 +33,14 @@ type DataSpaceRuntimeSaveCommand = Readonly<{
 /** 实际保存回执和推进后的独立上下文；失败不产生确认结果。 */
 type DataSpaceRuntimeSaveResult = Awaited<ReturnType<DataSpaceRequest['save']>>
 type DataSpaceRuntimeUnconfirmed = Readonly<{signature: string; contexts: ReadonlySet<DataSpaceQueryContext>}>
+type DataSpaceQueryWithConfigInput = Readonly<{
+  identity: DataSpaceQueryIdentity
+  options: DataSpaceQueryOptions
+  config: DataSpaceRequestConfig
+  view?: SparkData.DataView
+  accept?: (context: DataSpaceQueryContext) => void
+  definition?: unknown
+}>
 /** 未确认批次的核验输入：当前 scope、本次再提交的批次及其签名。 */
 type DataSpaceRuntimeVerifyCommand = Readonly<{scope: string; changes: readonly DataSpaceRuntimeSaveChange[]
   pending: DataSpaceRuntimeUnconfirmed; signature: string}>
@@ -45,18 +53,18 @@ type DataSpaceRuntimeQueryFlights = Set<DataSpaceRuntimeQueryFlight>
 /** 来源类型改变时须仍成立的查询特征；由运行请求或持久视图配置提供。 */
 type DataSpaceResourceQuery = Readonly<{
   /** mapped按模型取值定义解析；direct仅接口和逻辑视图接收来源实参。 */
-  sourceInputMode?: QueryParams['sourceInputMode']
+  sourceInputMode?: SparkData.QueryParams['sourceInputMode']
   /** 本次输出包含显式聚合或分组。 */
   aggregate?: boolean
   /** 查询树参数或结果树组织实际参与查询。 */
   tree?: boolean
   /** 省略时沿用单表查询。 */
-  outputType?: QueryParams['outputType']
+  outputType?: SparkData.QueryParams['outputType']
 }>
 /** 仅定位原生资源，不加载模型字段或查询业务数据。 */
 type DataSpaceRuntimeQuerySource = Pick<Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, 'sourceType' | 'sourceName'>
 
-/** 拥有原查询缓存、保存基线归属和同模型读写串行化；DataView 与 DataSet 消费同一实际保存 owner。 */
+/** 拥有原查询缓存、保存基线归属和同模型读写串行化；SparkData.DataView 与 DataSet 消费同一实际保存 owner。 */
 export class DataSpaceRuntimeApi {
   /** 正式服务汇总必须消费后端结果；旧view.aggregates不能按分页行或选择缓存计算。静态数组绑定其本地owner。 */
   readonly localAggregates = false
@@ -65,7 +73,7 @@ export class DataSpaceRuntimeApi {
   readonly #readScope: DataSpaceRuntimeApiOptions['readScope']
   readonly #contexts = new WeakMap<DataSpaceQueryContext, string>()
   readonly #mutationFlights = new Map<string, Promise<void>>()
-  readonly #models = new WeakMap<DataTable, Readonly<{model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>; scope: string}>>()
+  readonly #models = new WeakMap<SparkData.DataTable, Readonly<{model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>; scope: string}>>()
   readonly #queryFlights = new Map<string, DataSpaceRuntimeQueryFlights>()
   /** 结果未确认的保存批次：同批原查询上下文共享一条记录，再次保存只核验、不重放。 */
   readonly #unconfirmed = new Map<DataSpaceQueryContext, DataSpaceRuntimeUnconfirmed>()
@@ -96,19 +104,18 @@ export class DataSpaceRuntimeApi {
     }
   }
 
-  /** 查询后端注册模型；原结果上下文只供 DataView 的执行边界持有。 */
+  /** 查询后端注册模型；原结果上下文只供 SparkData.DataView 的执行边界持有。 */
   public query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {}): Promise<DataSpaceQueryContext> {
-    return this.queryWithConfig(identity, options, DataSpaceRequestConfig.resolveQuery())
+    return this.queryWithConfig({identity, options, config: DataSpaceRequestConfig.resolveQuery()})
   }
 
   /** 清除当前请求owner的查询结果；登录/应用切换、刷新及写入共用，不撤销已接纳的查询基线。 */
   public invalidateQueryCache(): void {this.queryCache.invalidateResults()}
-  /** 页面释放沿DataView生命周期清理页面级结果。 */
+  /** 页面释放沿SparkData.DataView生命周期清理页面级结果。 */
   public releaseQueryCache(page: object): void {this.queryCache.releaseResults(page)}
 
-  private async queryWithConfig(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions,
-    config: DataSpaceRequestConfig, view?: DataView, accept?: (context: DataSpaceQueryContext) => void,
-    definition?: unknown): Promise<DataSpaceQueryContext> {
+  private async queryWithConfig(input: DataSpaceQueryWithConfigInput): Promise<DataSpaceQueryContext> {
+    const {identity, options, config, view, accept, definition} = input
     const scope = this.currentScope()
     const normalized = new DataSpaceQueryTable(identity).identity
     const key = this.resourceKey(scope, normalized)
@@ -122,7 +129,12 @@ export class DataSpaceRuntimeApi {
       isCurrent: () => !view.isDestroyed() && !view.dataSet?.destroyed,
       ...(accept === undefined ? {} : {accept}),
     } : undefined
-    const flight = this.queryCache.query(normalized, options, config, cache)
+    const flight = this.queryCache.query({
+      identity: normalized,
+      options,
+      config,
+      ...(cache !== undefined ? { cache } : {}),
+    })
     let flights = this.#queryFlights.get(key)
     if (flights === undefined) {
       flights = new Set()
@@ -144,10 +156,10 @@ export class DataSpaceRuntimeApi {
   }
 
   /**
-   * 将正式模型及当前请求scope绑定到DataTable，所属派生视图复用同一身份；scope失效须重新装配。
+   * 将正式模型及当前请求scope绑定到SparkData.DataTable，所属派生视图复用同一身份；scope失效须重新装配。
    * 正式数组可提供已解析且投影的items；仅本地读取，元数据保存仍走正式模型查询。
    */
-  public bindModelView(view: DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, arrayRows?: readonly DataRow[]): void {
+  public bindModelView(view: SparkData.DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, arrayRows?: readonly SparkData.DataRow[]): void {
     const table = view.dataTable
     if (table?.modelBinding?.modelId !== model.id || table.modelBinding.modelName !== model.metaName) {
       throw new Error('SPARK_VIEW_MODEL_IDENTITY: 视图与正式模型身份不一致')
@@ -162,7 +174,7 @@ export class DataSpaceRuntimeApi {
     const previous = this.#models.get(table)
     if (previous) this.assertScope(previous.scope)
     if (previous && previous.model !== model && JSON.stringify(previous.model) !== JSON.stringify(model)) {
-      throw new Error('SPARK_VIEW_MODEL_IDENTITY: 同一DataTable不能绑定不同正式定义，请重新装配')
+      throw new Error('SPARK_VIEW_MODEL_IDENTITY: 同一SparkData.DataTable不能绑定不同正式定义，请重新装配')
     }
     const scope = this.currentScope()
     if (view.fieldProjection.length === 0) {
@@ -172,7 +184,7 @@ export class DataSpaceRuntimeApi {
     this.#models.set(table, {model, scope})
     if (model.sourceType === '数组') {
       if (arrayRows === undefined) throw new Error('正式数组缺少已读取的items')
-      view.bindQueryExecutor(new DataViewArrayQuery(view, arrayRows, () => this.assertScope(scope)))
+      view.bindQueryExecutor(new SparkData.DataViewArrayQuery(view, arrayRows, () => this.assertScope(scope)))
       return
     }
     if (arrayRows !== undefined) throw new Error('只有数组模型可以绑定本地items')
@@ -186,8 +198,8 @@ export class DataSpaceRuntimeApi {
    * @param queryTree 本次查询捕获的树参数；省略时使用视图queryConfig.tree。
    * @returns 需要查询并核验可读性的模型输出字段名集合。
    */
-  public static resolveTreeFields(view: DataView, formalFields: ReadonlySet<string>,
-    queryTree: QueryParams['tree'] = view.queryConfig.tree): ReadonlySet<string> {
+  public static resolveTreeFields(view: SparkData.DataView, formalFields: ReadonlySet<string>,
+    queryTree: SparkData.QueryParams['tree'] = view.queryConfig.tree): ReadonlySet<string> {
     const fields = new Set<string>()
     if (queryTree) {
       fields.add(queryTree.keyField)
@@ -209,11 +221,11 @@ export class DataSpaceRuntimeApi {
   }
 
   /**
-   * 从本运行owner绑定的正式模型解析查询字段，供DataView.queryColumns统一消费。
+   * 从本运行owner绑定的正式模型解析查询字段，供SparkData.DataView.queryColumns统一消费。
    * 字段名为规范输出名；不受命名视图显示投影限制，不包含非输出或本地计算列，也不授予数据权限。
-   * 未绑定正式模型的既有原生查询仍使用其DataTable字段，生命周期由DataView保护。
+   * 未绑定正式模型的既有原生查询仍使用其SparkData.DataTable字段，生命周期由SparkData.DataView保护。
    */
-  public queryColumns(view: DataView): readonly DataColumn[] {
+  public queryColumns(view: SparkData.DataView): readonly SparkData.DataColumn[] {
     const table = view.dataTable, binding = table ? this.#models.get(table) : undefined
     if (view.destroyed || !table) throw new Error('SPARK_VIEW_MODEL_IDENTITY: 查询字段视图已失效')
     if (!binding) return table.columns
@@ -226,7 +238,7 @@ export class DataSpaceRuntimeApi {
   }
 
   /** 命名视图选择正式输出，安全聚合及显式分组由GetData执行；不改模型永久定义。 */
-  public async executeQuery(view: DataView, params: QueryParams): Promise<DataSpaceQueryContext> {
+  public async executeQuery(view: SparkData.DataView, params: SparkData.QueryParams): Promise<DataSpaceQueryContext> {
     const command = captureDataSpaceViewQuery(view, params)
     const config = DataSpaceRequestConfig.resolveQuery(view.dataTable ?? undefined)
     const binding = view.dataTable ? this.#models.get(view.dataTable) : undefined
@@ -234,7 +246,7 @@ export class DataSpaceRuntimeApi {
     const model = binding?.model
     if (model === undefined) {
       if (command.sourceInputMode === 'direct') throw new Error('SPARK_SOURCE_INPUT: 直接来源入参需要正式模型绑定')
-      return this.queryWithConfig(command.identity, command.options, config, view)
+      return this.queryWithConfig({identity: command.identity, options: command.options, config, view})
     }
     DataSpaceRuntimeApi.validateResourceQuery(model, {sourceInputMode: command.sourceInputMode})
     const outputFields = DataSpaceDesignApi.resolveOutputFields(model)
@@ -243,9 +255,16 @@ export class DataSpaceRuntimeApi {
       if (!field) throw new Error(`SPARK_MODEL_FIELD_UNRESOLVED: ${output}`)
       return field.name
     }
-    const filterTree = (tree: DataViewFilterTree): DataViewFilterTree => 'logic' in tree
-      ? {...tree, filters: tree.filters.map(filterTree)} : {...tree, field: requestField(tree.field)}
-    const toFilter = (tree: DataViewFilterTree): DataViewFilter => 'logic' in tree ? DataViewFilter.group(tree) : DataViewFilter.condition(tree)
+    // 服务端过滤可引用不输出的模型字段；输出投影仍只解析输出字段。
+    const modelFields = DataSpaceDesignApi.resolveFields(model)
+    const filterField = (name: string): string => {
+      const field = modelFields.find(candidate => candidate.canonicalName === name)
+      if (!field) throw new Error(`SPARK_MODEL_FIELD_UNRESOLVED: ${name}`)
+      return field.name
+    }
+    const filterTree = (tree: SparkData.DataViewFilterTree): SparkData.DataViewFilterTree => 'logic' in tree
+      ? {...tree, filters: tree.filters.map(filterTree)} : {...tree, field: filterField(tree.field)}
+    const toFilter = (tree: SparkData.DataViewFilterTree): SparkData.DataViewFilter => 'logic' in tree ? SparkData.DataViewFilter.group(tree) : SparkData.DataViewFilter.condition(tree)
     const options = command.options
     for (const field of options.fields ?? []) {
       if (typeof field !== 'string' && (field.expression
@@ -311,26 +330,33 @@ export class DataSpaceRuntimeApi {
     for (const [name, group] of groups) {
       if (queryFields && !queryFields.some(field => field.name === name)) queryFields.push({name, group})
     }
-    const context = await this.queryWithConfig(command.identity, {...options, outputFieldMode: 'REQUEST',
-      ...(model.sourceInputBindings?.length ? {inputParams: DataSpaceSourceInput.resolve(model.sourceInputBindings, options.inputParams, command.sourceInputMode)} : {}),
-      ...(queryFields === undefined ? {} : {fields: queryFields}),
-      ...(options.sort === undefined ? {} : {sort: options.sort.map(sort => ({...sort, field: requestField(sort.field)}))}),
-      ...(options.filter ? {filter: toFilter(filterTree(options.filter.toJSON()))} : {}),
-      ...(options.tree === undefined ? {} : {tree: {...options.tree, keyField: requestField(options.tree.keyField),
-        parentField: requestField(options.tree.parentField),
-        ...(options.tree.hasChildrenField === undefined ? {} : {hasChildrenField: requestField(options.tree.hasChildrenField)})}}),
-    }, config, view, result => {
-      result.bindFormalModel(model, {aggregateResult})
-      for (const row of result.rows) for (const field of treeFields) {
-        if (!Object.hasOwn(row, field) || result.readFieldAccess(row, field) !== 'visible') {
-          throw new Error(`SPARK_TREE_FIELD_UNAVAILABLE: 树字段未返回或不可读: ${field}`)
+    const context = await this.queryWithConfig({
+      identity: command.identity,
+      options: {...options, outputFieldMode: 'REQUEST',
+        ...(model.sourceInputBindings?.length ? {inputParams: DataSpaceSourceInput.resolve(model.sourceInputBindings, options.inputParams, command.sourceInputMode)} : {}),
+        ...(queryFields === undefined ? {} : {fields: queryFields}),
+        ...(options.sort === undefined ? {} : {sort: options.sort.map(sort => ({...sort, field: requestField(sort.field)}))}),
+        ...(options.filter ? {filter: toFilter(filterTree(options.filter.toJSON()))} : {}),
+        ...(options.tree === undefined ? {} : {tree: {...options.tree, keyField: requestField(options.tree.keyField),
+          parentField: requestField(options.tree.parentField),
+          ...(options.tree.hasChildrenField === undefined ? {} : {hasChildrenField: requestField(options.tree.hasChildrenField)})}}),
+      },
+      config,
+      view,
+      accept: result => {
+        result.bindFormalModel(model, {aggregateResult})
+        for (const row of result.rows) for (const field of treeFields) {
+          if (!Object.hasOwn(row, field) || result.readFieldAccess(row, field) !== 'visible') {
+            throw new Error(`SPARK_TREE_FIELD_UNAVAILABLE: 树字段未返回或不可读: ${field}`)
+          }
         }
-      }
-    }, model)
+      },
+      definition: model,
+    })
     return context
   }
 
-  /** 原保存请求已发出但结果未确认；DataView 据此只允许经原保存入口核验。 */
+  /** 原保存请求已发出但结果未确认；SparkData.DataView 据此只允许经原保存入口核验。 */
   public hasUnconfirmedSave(context: DataSpaceQueryContext): boolean {return this.#unconfirmed.has(context)}
   /** 调用方明确放弃核验：解除整批待核验记录，不撤销服务端可能已生效的写入。 */
   public abandonUnconfirmedSave(context: DataSpaceQueryContext): void {
@@ -407,7 +433,8 @@ export class DataSpaceRuntimeApi {
       for (const context of pending.contexts) this.#unconfirmed.delete(context)
       this.invalidateQueryCache()
       return changes.map((change, index) => {
-        const outcome = outcomes[index]!
+        const outcome = outcomes[index]
+        if (!outcome) throw new Error('save outcome missing for change')
         const receipt = change.context.acceptSaveReceipt({requested: outcome.requested, receipt: outcome.receipt})
         this.#contexts.delete(change.context)
         this.#contexts.set(receipt.context, this.resourceKey(scope, change.identity))
@@ -438,9 +465,12 @@ export class DataSpaceRuntimeApi {
     const origin = this.#queryOrigins.get(change.context)
     const {sort, tree, ...base}: DataSpaceQueryOptions = origin?.options ?? {}
     void sort; void tree
-    const context = await this.queryWithConfig(change.identity, {...base, filter: DataViewFilter.condition({field: keyField, operator: 'in', value: keys}),
-      page: {index: 1, size: Math.max(keys.length, 1)}, allPages: true, maxRows: keys.length + 1, singleFlight: false},
-      origin?.config ?? DataSpaceRequestConfig.resolveQuery())
+    const context = await this.queryWithConfig({
+      identity: change.identity,
+      options: {...base, filter: SparkData.DataViewFilter.condition({field: keyField, operator: 'in', value: keys}),
+        page: {index: 1, size: Math.max(keys.length, 1)}, allPages: true, maxRows: keys.length + 1, singleFlight: false},
+      config: origin?.config ?? DataSpaceRequestConfig.resolveQuery(),
+    })
     const found = new Map(context.rows.map(row => [String(context.rowKey(row) ?? '').trim(), row]))
     const same = (left: unknown, right: unknown) => Object.is(left, right) || JSON.stringify(left) === JSON.stringify(right)
     const states = [

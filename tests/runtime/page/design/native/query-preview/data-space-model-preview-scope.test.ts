@@ -80,8 +80,8 @@ describe('model preview from the real overview loading state', () => {
     const key = definitions.getPkKey(row)!, options = session.metadataDataSet.getTable('DataViewFieldOption')!
     const unrelated = options.rows.filter(item => item['tableName'] === 'CustomersAlias')
     const project = LowcodeDataSpaceViewFields.project.bind(LowcodeDataSpaceViewFields)
-    const projection = vi.spyOn(LowcodeDataSpaceViewFields, 'project').mockImplementationOnce((...args) => {
-      const result = project(...args)
+    const projection = vi.spyOn(LowcodeDataSpaceViewFields, 'project').mockImplementationOnce(input => {
+      const result = project(input)
       // 用户编辑排在目录返回之后、调用方恢复执行之前；不替换查询或发布实现。
       queueMicrotask(() => definitions.updateEditingValue(key, 'fieldProjection', result.outputProjection!.filter(field => field.resourceField === 'rowid')))
       return result

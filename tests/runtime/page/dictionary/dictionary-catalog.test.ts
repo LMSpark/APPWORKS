@@ -10,8 +10,10 @@ import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererTable, RendererFilter} from '@spark-appworks/spark-component'
 import DictionaryCatalog from '@/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue'
+import {DictionaryHttp, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture'
 import {buildOptionSourceFromView} from '../../../../packages/spark-component/src/components/fields/options/option-source'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
+import {parseTenantScope} from '@/services/tenant-scope'
 import {defineComponent, h} from 'vue'
 import {RouterView} from 'vue-router'
 
@@ -77,32 +79,43 @@ beforeEach(() => {
   service.readSpaceDefinition.mockResolvedValue({dataSpaceId: 'CATALOG', name: '字典目录', raw: {}})
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(models.find(m => m.metaName === metaName)))
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
+  vi.spyOn(LowcodeDictionary, 'loadEditor').mockImplementation(async () => {
+    const {dataSet} = fixture(new DictionaryHttp(), false, LowcodeDictionary.editorScenarioId)
+    sets.push(dataSet)
+    return {dataSet, applicationId: 'APP'}
+  })
 })
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); sets.splice(0).forEach(ds => ds.destroy()); vi.restoreAllMocks(); vi.unstubAllGlobals(); config.global.stubs = originalStubs})
 
-async function openCatalog() {
+async function openCatalog(routePath = '/catalog') {
   registerAllRenderers()
   const stubs = {...originalStubs}
   for (const key of ['el-button', 'el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[key]
   config.global.stubs = stubs
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
   const router = createRouter({history: createMemoryHistory(), routes: []})
-  const dynamic = createDynamicRouter({router, pageComponent: DictionaryCatalog, componentMap: {'/catalog': DictionaryCatalog},
-    loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header', items: [
-      {id: 'catalog', title: '字典目录', path: '/catalog', itemKind: 'system-page', blueprintScenarioId: 'CATALOG'},
-    ]})})
+  const tenantScope = parseTenantScope(routePath)
+  const dynamic = createDynamicRouter({
+    router, pageComponent: DictionaryCatalog, componentMap: {'/catalog': DictionaryCatalog},
+    ...(tenantScope ? {tenantPathPrefix: '/t/:tenantId/:projectId'} : {}),
+    loadNavigation: async () => ({
+      id: 'root', title: 'Root', childPlacement: 'header',
+      ...(tenantScope ? {projectId: tenantScope.projectId} : {}),
+      items: [{id: 'catalog', title: '字典目录', path: '/catalog', itemKind: 'system-page', blueprintScenarioId: 'CATALOG'}],
+    }),
+  })
   await dynamic.registerRoutes()
-  await router.push('/catalog'); await router.isReady()
+  await router.push(routePath); await router.isReady()
   const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper)
   await flushPromises()
-  return wrapper
+  return {wrapper, router}
 }
 
 describe('dictionary catalog formal view assembly', () => {
   it('consumes the catalog add permission while retaining browsing and refresh', async () => {
     http.allowAdd = false
-    const wrapper = await openCatalog()
+    const {wrapper} = await openCatalog()
     const add = wrapper.findAll('button').find(button => button.text() === '新增字典')!
     expect(add.attributes('disabled')).toBeDefined()
     expect(wrapper.findComponent(RendererTable).text()).toContain('配色')
@@ -112,7 +125,8 @@ describe('dictionary catalog formal view assembly', () => {
     expect(wrapper.text()).not.toContain('保存设计')
   })
   it('keeps standard toolbar actions bound and sorts through the catalog view with its application filter', async () => {
-    const wrapper = await openCatalog()
+    const {wrapper} = await openCatalog()
+    expect(wrapper.text()).toContain('数据字典')
     const table = wrapper.findComponent(RendererTable)
     const toolbar = table.get('.renderer-toolbar')
     expect(toolbar.text()).toContain('新增字典')
@@ -309,7 +323,7 @@ describe('dictionary catalog formal view assembly', () => {
     }}))).toThrow('rootParentValue')
   })
   it('renders resolved labels and applies and resets the standard filter without a page query implementation', async () => {
-    const wrapper = await openCatalog()
+    const {wrapper} = await openCatalog()
     const table = wrapper.findComponent(RendererTable)
     expect(table.find('.el-table__body').text()).toContain('张三')
     expect(table.find('.el-table__body').text()).toContain('基础')
@@ -334,5 +348,47 @@ describe('dictionary catalog formal view assembly', () => {
     expect(http.requests.length).toBe(beforeRefresh + 1)
     expect(table.find('.el-table__body').text()).toContain('OLD-ID')
     expect(wrapper.find('[role="status"]').text()).toContain('创建人')
+  })
+
+  it('opens design dialog for selected dictionary from toolbar', async () => {
+    const {wrapper} = await openCatalog()
+    const table = wrapper.findComponent(RendererTable)
+    await table.get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    const design = wrapper.findAll('button').find(button => button.text() === '方案设计')!
+    await design.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('保存设计')
+    expect(wrapper.text()).toContain('编码类型')
+  })
+
+  it('navigates to dictionary data page with dictionaryId under tenant scope', async () => {
+    const {wrapper, router} = await openCatalog('/t/ENT/PROJ/catalog')
+    const push = vi.spyOn(router, 'push')
+    const table = wrapper.findComponent(RendererTable)
+    await table.get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    const openData = wrapper.findAll('button').find(button => button.text() === '打开数据维护')!
+    await openData.trigger('click')
+    await flushPromises()
+    expect(push).toHaveBeenCalledWith({
+      path: '/t/ENT/PROJ/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page',
+      query: {dictionaryId: 'D1'},
+    })
+  })
+
+  it('navigates to dictionary data page without tenant prefix on catalog route', async () => {
+    const {wrapper, router} = await openCatalog('/catalog')
+    const push = vi.spyOn(router, 'push')
+    const table = wrapper.findComponent(RendererTable)
+    await table.get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    const openData = wrapper.findAll('button').find(button => button.text() === '打开数据维护')!
+    await openData.trigger('click')
+    await flushPromises()
+    expect(push).toHaveBeenCalledWith({
+      path: '/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page',
+      query: {dictionaryId: 'D1'},
+    })
   })
 })

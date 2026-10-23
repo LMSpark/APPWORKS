@@ -17,7 +17,7 @@ export type InputParameterRowAdapter = {
 export class DataSpaceInputParameters {
   /** 旧字段仅作读取兼容；确认时只合并实际修改的成员，不改未编辑项或旧ID属性。 */
   static rowAdapter(): InputParameterRowAdapter {
-    const cryptoApi = (): Crypto | undefined => (globalThis as {crypto?: Crypto}).crypto
+    const cryptoApi = (): Crypto | undefined => 'crypto' in globalThis ? globalThis.crypto : undefined
     const read = (original: Readonly<Record<string, unknown>>): Record<string, unknown> => ({
       Name: original['Name'] ?? original['name'] ?? '',
       Description: original['Description'] ?? original['description'] ?? '',

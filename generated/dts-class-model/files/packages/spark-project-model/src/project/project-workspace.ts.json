@@ -385,6 +385,34 @@
       ],
       "additionalProperties": false
     },
+    "ProjectWorkspacePageFileChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ProjectWorkspacePageFileChange",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "fileName": {
+          "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
+        },
+        "expectedText": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
     "ProjectWorkspaceOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -735,32 +763,7 @@
           "type": "object",
           "properties": {
             "command": {
-              "type": "object",
-              "properties": {
-                "pageId": {
-                  "type": "string"
-                },
-                "fileName": {
-                  "$ref": "../page/page-file.ts.json#/$defs/PageToolFileName"
-                },
-                "expectedText": {
-                  "type": "string"
-                },
-                "text": {
-                  "type": "string"
-                },
-                "assertCurrent": {
-                  "type": "object",
-                  "title": "() => void"
-                }
-              },
-              "required": [
-                "pageId",
-                "fileName",
-                "expectedText",
-                "text"
-              ],
-              "additionalProperties": false
+              "$ref": "#/$defs/ProjectWorkspacePageFileChange"
             }
           },
           "additionalProperties": false
@@ -1166,7 +1169,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T12:37:48.649Z",
+  "generatedAt": "2026-10-23T06:54:09.666Z",
   "models": {
     "ProjectPageLoadOptions": {
       "name": "ProjectPageLoadOptions",
@@ -1748,6 +1751,55 @@
               "name": "version",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ProjectWorkspacePageFileChange": {
+      "name": "ProjectWorkspacePageFileChange",
+      "jsdoc": "单个工具文件的明确原文更新。\npageId — 正式工具身份；fileName — 三文件中的目标文件；expectedText — 调用方已预览的远端原文；\ntext — 本次提交的完整新原文；assertCurrent — 每次异步边界核验调用身份及操作仍有效。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    fileName: PageToolFileName;\n    expectedText: string;\n    text: string;\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageId: string;\n    fileName: PageToolFileName;\n    expectedText: string;\n    text: string;\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedText",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "text",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -2342,13 +2394,8 @@
                   "name": "command",
                   "type": {
                     "type": "reference",
-                    "name": "Readonly",
-                    "typeArguments": [
-                      {
-                        "type": "unknown",
-                        "name": "{\n        /** 正式工具身份。 */ pageId: string;\n        /** 三文件中的目标文件。 */ fileName: PageToolFileName;\n        /** 调用方已预览的远端原文。 */ expectedText: string;\n        /** 本次提交的完整新原文。 */ text: string;\n        /** 每次异步边界核验调用身份及操作仍有效。 */ assertCurrent?: () => void;\n    }"
-                      }
-                    ]
+                    "name": "ProjectWorkspacePageFileChange",
+                    "sourcePath": "packages/spark-project-model/src/project/project-workspace.ts"
                   }
                 }
               ],

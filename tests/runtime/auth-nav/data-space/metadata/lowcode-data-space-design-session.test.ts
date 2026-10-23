@@ -111,7 +111,7 @@ function fixture(text: string | null = initial) {
         if (!found) throw new Error('formal model missing')
         return found
       },
-      assemble: async (id: string, config: ScenarioViewConfig) => {
+      assemble: async ({scenarioId: id, config}) => {
         assemblyCalls++
         if (id !== config.scenarioId) throw new Error('wrong target')
         if (assemblyFailure) {

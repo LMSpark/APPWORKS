@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/shared/model/use-staged-design-page",
+    "sourcePath": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
+    "sourceFile": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/shared/model/use-staged-design-page",
+    "jsdoc": "@module app:views/features/data-platform/shared/model/use-staged-design-page\n编辑器页共用：PageRuntime + 设计 file DataView（refresh/saveChanges），页面不直连 HTTP。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "StagedDesignPageConfig"
+    ]
+  },
+  "$defs": {
+    "StagedDesignPageConfig": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StagedDesignPageConfig",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "scopeId": {
+          "type": "object",
+          "title": "ComputedRef<string | undefined>"
+        },
+        "scopeInputTable": {
+          "type": "string"
+        },
+        "scopeField": {
+          "type": "string"
+        },
+        "designViewTable": {
+          "type": "string"
+        },
+        "missingScopeMessage": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.loadDataSet.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadDataSet.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-23T06:52:19.533Z",
+  "models": {
+    "StagedDesignPageConfig": {
+      "name": "StagedDesignPageConfig",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    loadDataSet: (scenarioId: string) => Promise<DataSet>;\n    missingScopeMessage: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    loadDataSet: (scenarioId: string) => Promise<DataSet>;\n    missingScopeMessage: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeInputTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "designViewTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "missingScopeMessage",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadDataSet",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

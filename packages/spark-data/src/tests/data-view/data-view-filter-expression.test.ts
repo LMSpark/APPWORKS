@@ -67,6 +67,27 @@ describe('DataView SPARK public filter', () => {
     expect(view.filterExpression).toEqual({ field: 'total', operator: 'gte', value: 30 })
   })
 
+  it('lets a remote filter reference a non-output resource field but not a renamed or unknown one', () => {
+    const projected = (field: string, output: boolean, resourceField = field) => ({
+      fieldId: field.toUpperCase(), source: 'resource', resourceFieldId: resourceField.toUpperCase(), resourceField, viewField: field,
+      type: 'string', label: field, output, sortOrder: 0, sortDirection: null, group: 0, distinct: false,
+      primaryKey: field === 'rowid', value: '', valueFunction: '', expression: '',
+    })
+    const view = SparkData.createDataSet({ dataSetName: 'RemoteFilter', scenarioId: 'SCENE', tables: {
+      Nav: { tableName: 'Nav', modelBinding: { modelId: 'NAV', modelName: 'Nav' }, columns: [
+        { name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'name', type: 'string' },
+        { name: 'conid', type: 'string' }, { name: 'secret', type: 'string' },
+      ], views: { default: { fieldProjection: [
+        projected('rowid', true), projected('name', true), projected('conid', false), projected('alias', false, 'secret'),
+      ] } } },
+    } }).getView('Nav')!
+    expect(view.columns.map(column => column.name)).not.toContain('conid')
+    view.filterExpression = { field: 'conid', operator: 'eq', value: 'S1' }
+    expect(view.filterExpression).toEqual({ field: 'conid', operator: 'eq', value: 'S1' })
+    expect(() => { view.filterExpression = { field: 'alias', operator: 'eq', value: 'x' } }).toThrow('不存在的字段 "alias"')
+    expect(() => { view.filterExpression = { field: 'missing', operator: 'eq', value: 'x' } }).toThrow('不存在的字段 "missing"')
+  })
+
   it('rejects service functions before a local short-circuit can hide them', async () => {
     const view = staticView()
     await expect(view.setFilter({ logic: 'or', filters: [

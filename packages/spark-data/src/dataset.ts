@@ -11,7 +11,7 @@ import type {
   DataSetContract, DataSetMetadata, TableMetadata, DataResourceRelation, DataResourceRelationInput, DataViewCascade,
   DataViewQueryCascade, DataViewCascadeSelector, DataViewFieldCascadeAddress, DataViewFieldCascadeState, DataRow, DataColumn,
   ColumnType, ViewChangeHandlers, CrudResult,
-  DataSetSaveChangesOptions, DataSetSaveChangesResult, DataSetSaveChangesViewResult, DataSetPhasedSaveResult,
+  DataSetSaveChangesOptions, DataSetSaveChangesResult, DataSetSaveChangesViewResult, DataSetPhasedSaveResult, DataSetDiscardAndReloadOptions,
   DataSetSaveChangesConfig, DataSetTransactionOperation, DataSetTransactionRequest,
   DataSetTransactionResponse, HttpEndpoint,
 } from './types'
@@ -1451,10 +1451,16 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     const mode = options?.mode ?? this.saveChangesConfig?.mode ?? 'perView'
     this.assertScenarioSaveTargets(targets, mode, options)
     if (this.scenarioId !== undefined) {
-      for (const target of targets) {
-        if (!hasPendingChanges(target.view, target.ids)
-          && !((options?.applyEditingRows ?? true) && hasEditingChanges(target.view, target.ids))) continue
-        if (recovering) continue
+      const active = recovering ? [] : targets.filter(target => hasPendingChanges(target.view, target.ids)
+        || ((options?.applyEditingRows ?? true) && hasEditingChanges(target.view, target.ids)))
+      const assertPrepared: Array<() => void> = []
+      for (const target of active) {
+        const preparation = target.view.prepareQuerySave({ ...(target.ids === undefined ? {} : { ids: target.ids }),
+          includeEditingRows: options?.applyEditingRows ?? true })
+        if (preparation !== undefined) assertPrepared.push(await preparation)
+      }
+      for (const check of assertPrepared) check()
+      for (const target of active) {
         target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
           includeEditingRows: options?.applyEditingRows ?? true })
       }
@@ -1596,6 +1602,23 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    */
   abandonUnconfirmedSaves(): void {
     for (const table of Object.values(this.tables)) table.forEachView(view => {view.abandonUnconfirmedSave()})
+  }
+
+  /**
+   * 明确丢弃指定视图的本地修改并放弃其未确认提交核验，再按给定顺序重新查询；不撤销服务端可能已生效的写入。
+   * 查询级联子视图应一并列出，父视图在前。
+   */
+  async discardAndReload(options: DataSetDiscardAndReloadOptions): Promise<void> {
+    const views = options.views.map(({tableName, viewId}) => {
+      const view = this.getView(tableName, viewId)
+      if (!view) throw new Error(`DATA_SET_DISCARD_VIEW: 视图不存在 ${tableName}@${viewId}`)
+      return view
+    })
+    for (const view of views) {
+      if (!view.abandonUnconfirmedSave()) throw new Error('DATA_VIEW_DISCARD_UNCONFIRMED: 未确认提交须经原保存入口核验')
+    }
+    for (const view of views) if (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()) view.discardPendingChanges()
+    for (const view of views) await view.refresh()
   }
 
   private assertScenarioSaveTargets(

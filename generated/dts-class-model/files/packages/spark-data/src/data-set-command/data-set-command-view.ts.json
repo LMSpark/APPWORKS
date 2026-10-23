@@ -7,14 +7,16 @@
     "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
     "packageName": "@spark-appworks/spark-data",
     "modulePath": "data-set-command/data-set-command-view",
-    "jsdoc": "@module @spark-appworks/spark-data:data-set-command-view\n职责：在运行 DataSet 上幂等装配 static/file 命令表与只读 refresh 查询结果。\n边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。",
+    "jsdoc": "@module @spark-appworks/spark-data:data-set-command-view\n职责：在运行 DataSet 上幂等装配 static/file 命令表、只读 refresh 查询结果与写命令提交。\n边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "DataSetCommandColumnSpec",
       "DataSetCommandScopeGuard",
       "DataSetCommandRowsLoader",
       "DataSetCommandResourceIdentity",
-      "BindReadonlyCommandQueryOptions"
+      "BindReadonlyCommandQueryOptions",
+      "EnsureDataSetFileCommandViewInput",
+      "BindCommandSubmitOptions"
     ]
   },
   "$defs": {
@@ -177,9 +179,105 @@
           }
         }
       }
+    },
+    "EnsureDataSetFileCommandViewInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "EnsureDataSetFileCommandViewInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../dataset.ts.json#/$defs/DataSet"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSetCommandColumnSpec"
+          }
+        }
+      },
+      "required": [
+        "dataSet",
+        "tableName",
+        "resourceId",
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "BindCommandSubmitOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "BindCommandSubmitOptions",
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/DataSetCommandResourceIdentity"
+        },
+        "guard": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
+        "inputFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.createKey.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.createKey.return": {
+          "type": "string"
+        },
+        "method.submit.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.submit.return": {
+          "type": "object",
+          "title": "Promise<DataRow>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<DataRow | undefined>"
+        },
+        "method.isUnconfirmed.params": {
+          "type": "object",
+          "properties": {
+            "error": true
+          },
+          "additionalProperties": false
+        },
+        "method.isUnconfirmed.return": {
+          "type": "boolean"
+        }
+      }
     }
   },
-  "generatedAt": "2026-10-20T08:28:56.289Z",
+  "generatedAt": "2026-10-23T06:52:15.118Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",
@@ -320,6 +418,156 @@
               "type": {
                 "type": "unknown",
                 "name": "readonly DataColumn[]"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "EnsureDataSetFileCommandViewInput": {
+      "name": "EnsureDataSetFileCommandViewInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    tableName: string;\n    resourceId: string;\n    columns: readonly DataSetCommandColumnSpec[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    tableName: string;\n    resourceId: string;\n    columns: readonly DataSetCommandColumnSpec[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "BindCommandSubmitOptions": {
+      "name": "BindCommandSubmitOptions",
+      "jsdoc": "写命令视图：一行新增即一次后端业务命令（如注册服务器），不是模型插表。\ninputFields — 可录入的命令参数，其余列只读\ncreateKey — 新增行的前端主键，命令须携带它以便结果未知时按主键核验\nsubmit — 执行命令并返回后端接纳行；明确失败直接抛错\nisUnconfirmed — 判定抛错属于结果未知（如网络中断、超时）；缺省全部视为明确失败\nverify — 结果未知后的下一次保存只调用它核验原提交，返回已生效行或 undefined（确认未生效），不重放 submit",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "resource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "guard",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputFields",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "createKey",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "submit",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataRow",
+                      "sourcePath": "packages/spark-data/src/types.ts"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "isUnconfirmed",
+              "parameters": [
+                {
+                  "name": "error",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
               }
             }
           ]

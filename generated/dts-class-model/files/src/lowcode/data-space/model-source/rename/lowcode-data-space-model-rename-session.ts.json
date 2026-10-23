@@ -15,6 +15,7 @@
       "ModelRenameFlow",
       "ModelRenameLifecycle",
       "ModelRenameHost",
+      "ModelRenameHostInput",
       "ModelRenameHandle"
     ]
   },
@@ -247,6 +248,32 @@
       ],
       "additionalProperties": false
     },
+    "ModelRenameHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRenameHostInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ModelRenameLifecycle"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
     "ModelRenameHandle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -318,7 +345,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T05:18:58.876Z",
+  "generatedAt": "2026-10-23T03:13:28.363Z",
   "models": {
     "ModelRenameFilePlan": {
       "name": "ModelRenameFilePlan",
@@ -612,6 +639,45 @@
               "name": "flow",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ModelRenameHostInput": {
+      "name": "ModelRenameHostInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: ModelRenameLifecycle;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: ModelRenameLifecycle;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
             }
           ]
         }

@@ -191,7 +191,7 @@ describe('reference computed field confirmation and workspace save', () => {
     expect(writes()).toHaveLength(1)
     const reopened = await f.open('A'), loaded = await reopened.loadModelFields('M1')
     expect(loaded.rows.find(row => row['rowid'] === 'PARENT')?.['ValueFun']).toBe(raw)
-    expect(() => new LowcodeDataSpaceFieldValue(reopened.metadataDataSet, 'A', 'M1', 'modelFields').validate(raw)).not.toThrow()
+    expect(() => new LowcodeDataSpaceFieldValue({dataSet: reopened.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'}).validate(raw)).not.toThrow()
     expect(f.fileWrites).toEqual([])
     expect(reopened.metadataDataSet.getView('Base_DataModel_Field', 'default')?.rows).toEqual([])
     expect(reopened.metadataDataSet.getView('Base_DataModel_Relation', 'default')?.rows).toEqual([])
@@ -204,7 +204,7 @@ describe('reference computed field confirmation and workspace save', () => {
       f.setModelValues({Type: kind === 'non-database' ? '字典' : '数据库表', DbId: kind === 'other-db' ? 'OTHER_DB' : 'DB',
         DbName: kind === 'other-db' ? 'otherDb' : 'ordersDb', MetaName: 'Customers'}, 'A', 'M2')
     })
-    const catalog = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1', 'modelFields')
+    const catalog = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'})
     expect(() => catalog.validate(JSON.stringify({Type: 'GetRefData', RefTableName: 'Customers',
       RefFieldName: 'rowid', FkFieldName: 'rowid'}))).toThrow(/数据库|资源.*不唯一/)
     expect(writes()).toEqual([])
@@ -216,7 +216,7 @@ describe('reference computed field confirmation and workspace save', () => {
       f.setModelValues({Type: '数据库表', DbId: kind === 'same-db' ? 'DB' : 'OTHER_DB',
         DbName: kind === 'same-db' ? 'ordersDb' : 'otherDb', MetaName: 'OrderSource'}, 'A', 'M2')
     })
-    const before = f.requests.length, catalog = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1', 'modelFields')
+    const before = f.requests.length, catalog = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'})
     expect(() => catalog.validate('{"Type":"GetRefData","RefTableName":"OrderSource","RefFieldName":"parentId","FkFieldName":"rowid"}')).not.toThrow()
     expect(catalog.read().warning).toBe('')
     expect(f.requests).toHaveLength(before)
@@ -225,7 +225,7 @@ describe('reference computed field confirmation and workspace save', () => {
   it.each(['MetaName', 'DbName', 'FieldType'])('withholds unreadable reference identities or fields when %s is hidden', async key => {
     const f = dataSpacePageFixture({sourceFields, ...(key === 'FieldType' ? {hiddenFieldProperties: [key]} : {hiddenModelProperties: [key]})})
     fixtures.push(f); f.setModelValues({Type: '数据库表', DbId: 'DB', DbName: 'ordersDb'})
-    const session = await f.open('A'), catalog = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1')
+    const session = await f.open('A'), catalog = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1'})
     const {context, warning} = catalog.read()
     expect(warning).toContain('不可读')
     expect(context.relatedFields).toContainEqual({label: 'parentId', value: 'parentId'})
@@ -258,7 +258,7 @@ describe('reference computed field confirmation and workspace save', () => {
 
   it('resolves a local field from its model workspace without loading space-wide directories', async () => {
     const {session, view, f} = await setup({overviewOnly: true})
-    const catalog = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1', 'modelFields')
+    const catalog = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'})
     const before = f.requests.length
     expect(catalog.read().context.relatedFields).toContainEqual({label: 'parentId', value: 'parentId'})
     expect(() => catalog.validate('{"Type":"GetTableField","Field":"parentId"}')).not.toThrow()
@@ -272,7 +272,7 @@ describe('reference computed field confirmation and workspace save', () => {
 
   it('checks space input parameters without reading model or field directories', async () => {
     const {session, f} = await setup({overviewOnly: true})
-    const catalog = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1', 'modelFields')
+    const catalog = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'})
     const getView = vi.spyOn(session.metadataDataSet, 'getView'), before = f.requests.length
     for (const expression of [{Type: 'GetInputParam', ParamName: 'customer'},
       {Type: 'GetObjectArray', arrParamName: 'customer', objectConstruct: '{"id":"item.id"}'}]) {
@@ -289,7 +289,7 @@ describe('reference computed field confirmation and workspace save', () => {
   it('checks a physical reference without unrelated malformed field definitions', async () => {
     const {session, f} = await setup({sourceFields: [...sourceFields,
       {rowid: 'BAD', dataModelId: 'M2', type: 'dataModel', Name: '', FieldType: 'string', IsOutput: 1}]}, f => f.setModelValues({Type: '数据库表'}))
-    const catalog = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1', 'modelFields'), before = f.requests.length
+    const catalog = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'}), before = f.requests.length
     expect(() => catalog.validate('{"Type":"GetRefData","RefTableName":"OrderSource","RefFieldName":"parentId","FkFieldName":"rowid"}')).not.toThrow()
     expect(() => catalog.validate('{"Type":"GetRefData","RefTableName":"OrderSource","RefFieldName":"missing","FkFieldName":"rowid"}')).toThrow()
     expect(() => catalog.validate('{"Type":"GetRefData","RefTableName":"OrdersAlias","RefFieldName":"parentId","FkFieldName":"rowid"}')).toThrow()
@@ -362,7 +362,7 @@ describe('reference computed field confirmation and workspace save', () => {
 
   it.each(['model', 'space', 'identity', 'query'])('rejects %s changes without falling back to the saved field directory', async kind => {
     const {f, session, view, writes} = await setup()
-    const catalog = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1', 'modelFields')
+    const catalog = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'})
     expect(catalog.read().context.relatedFields).toContainEqual({label: 'parentId', value: 'parentId'})
     if (kind === 'model') view.configure({queryContext: {dataSpaceId: 'A', modelId: 'M2'}})
     if (kind === 'space') view.configure({queryContext: {dataSpaceId: 'B', modelId: 'M1'}})
@@ -376,11 +376,11 @@ describe('reference computed field confirmation and workspace save', () => {
 
   it('does not expose unreadable names or use another model draft as reference context', async () => {
     const hidden = await setup({hiddenFieldProperties: ['Name']})
-    const hiddenCatalog = new LowcodeDataSpaceFieldValue(hidden.session.metadataDataSet, 'A', 'M1', 'modelFields')
+    const hiddenCatalog = new LowcodeDataSpaceFieldValue({dataSet: hidden.session.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'})
     expect(hiddenCatalog.read().context.relatedFields).toEqual([])
     expect(hiddenCatalog.read().warning).toContain('不可读')
     const {session, writes} = await setup({allowModelRename: true})
-    const catalog = new LowcodeDataSpaceFieldValue(session.metadataDataSet, 'A', 'M1', 'modelFields')
+    const catalog = new LowcodeDataSpaceFieldValue({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', viewId: 'modelFields'})
     const models = session.metadataDataSet.getView('Base_DataModel', 'default')!
     for (const [id, field, value] of [['M1', 'Name', 'OtherName']]) {
       models.updateEditingValue(id!, field!, value)

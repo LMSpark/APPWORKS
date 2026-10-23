@@ -136,6 +136,18 @@ type ScenarioViewAdoptCommand = Readonly<{ scenarioId: string; expectedRevision:
 
 /** 场景编号快照操作，版本为非负安全整数，不是工具发布VersionId。 */
 type ScenarioViewVersionCommand = Readonly<{ scenarioId: string; version: number }>
+/**
+ * 单个工具文件的明确原文更新。
+ * pageId — 正式工具身份；fileName — 三文件中的目标文件；expectedText — 调用方已预览的远端原文；
+ * text — 本次提交的完整新原文；assertCurrent — 每次异步边界核验调用身份及操作仍有效。
+ */
+type ProjectWorkspacePageFileChange = Readonly<{
+  pageId: string
+  fileName: PageToolFileName
+  expectedText: string
+  text: string
+  assertCurrent?: () => void
+}>
 /** 版本操作捕获的场景owner、请求scope和工作文本基线。 */
 type ScenarioViewVersionContext = Readonly<{ scenarioId: string; scope: string; file: ScenarioViewFile; text: string; key: string }>
 
@@ -516,13 +528,7 @@ constructor(options: ProjectWorkspaceOptions) {
   }
 
   /** 按明确原文更新单个工具文件并精确回读；已是目标原文时只确认，不重放写入。无后端CAS，不能保证原子并发。 */
-  public async savePageFileChange(command: Readonly<{
-    /** 正式工具身份。 */ pageId: string
-    /** 三文件中的目标文件。 */ fileName: PageToolFileName
-    /** 调用方已预览的远端原文。 */ expectedText: string
-    /** 本次提交的完整新原文。 */ text: string
-    /** 每次异步边界核验调用身份及操作仍有效。 */ assertCurrent?: () => void
-  }>): Promise<void> {
+  public async savePageFileChange(command: ProjectWorkspacePageFileChange): Promise<void> {
     const {fileName, expectedText, text} = command, pageId = assertNonEmptyPageId(command.pageId)
     const key = JSON.stringify([pageId, fileName]), page = this.project.findPageTool(pageId)
     if (this.unconfirmedToolSaves.has(key)) throw new Error('PAGE_TOOL_SAVE_UNCONFIRMED: 请先核验原工具编辑提交')

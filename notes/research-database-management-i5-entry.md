@@ -1,30 +1,36 @@
-# I5 database-management 研读入口（2026-10-20）
+# I5 database-management 入口（2026-10-22 收束）
 
-整合计划 I5 退出：阶段 2 矩阵 **6 行**通过；删除 `src/views/app/DBMS.vue` 包装，页面落点 `src/views/features/data-platform/database-management/**`（与参考仓相对路径对齐）。
+> 整合计划 **I5**；v3 七步流与矩阵见 [`plan-appworks-integration.md`](plan-appworks-integration.md)。载体汇总 [`research-database-management-i5-hub.md`](research-database-management-i5-hub.md)。
 
-## 矩阵六页（参考 features/）
+## 六页落点（已对齐 `src/views/features/data-platform/database-management/**`）
 
-| 参考路径 | 本仓现状 |
+| 参考路径 | 本仓 | v3 语义卡 |
+| --- | --- | --- |
+| `database-management/ui/service-management-page.vue` | 同路径 | [`service-management-v3`](research-database-management-i5-service-management.md) |
+| `database-management/ui/database-management-hub.vue` | 同路径（hub 壳） | [`management-hub-v3`](research-database-management-i5-management-hub.md) |
+| `table-and-view/ui/table-and-view-page.vue` | 同路径 | [`hub-v3`](research-database-management-i5-hub.md) |
+| `table-and-view/ui/add-table-dialog.vue` | 同路径 | [`add-table-v3`](research-database-management-i5-add-table.md) |
+| `table-and-view/ui/register-dialog.vue` | 同路径 | [`register-dialog-v3`](research-database-management-i5-register-dialog.md) |
+| `table-and-view/ui/table-design-dialog.vue` | 同路径 | [`table-design-v3`](research-database-management-i5-table-design.md) |
+| `table-and-view/ui/view-design-dialog.vue` | 同路径 | [`view-design-v3`](research-database-management-i5-view-design.md) |
+
+`DBMS.vue` 包装已移除；数据链为 **单 FormKey catalog DataSet + spark-data**。
+
+## 验证基线
+
+- `pnpm exec vitest run tests/runtime/page/database` → **84** 例（2026-10-22）。
+- 实页仍阻塞 [`live-pilot-formal-model-gap.json`](evidence/database-management-i5/live-pilot-formal-model-gap.json)（五表正式模型登记，非前端可关）。
+
+## 仍开放（不冒充 I5 退出）
+
+| 项 | 说明 |
 | --- | --- |
-| `database-management/table-and-view/ui/table-and-view-page.vue` | 能力在 `src/views/app/DBMS.vue` 单页 |
-| `table-and-view/ui/add-table-dialog.vue` | 缺（DBMS 内联） |
-| `table-and-view/ui/register-dialog.vue` | 缺 |
-| `table-and-view/ui/table-design-dialog.vue` | 缺 |
-| `table-and-view/ui/view-design-dialog.vue` | 缺 |
-| `database-management/ui/service-management-page.vue` | 同上 DBMS |
+| add-table vs 参考 `saveAddTable` 字段批 | 目录插表 + 表设计；见 add-table-v3 |
+| 表/视图设计 AI #9/#8 | [`ai-capability-gap-v3`](research-database-management-i5-ai-capability-gap.md) |
+| 矩阵「语义/页面=通过」全六行 | vitest 主路径已齐；语义/实页列待 formal 模型与产品签核 |
 
-## 当前 DBMS.vue（约 2.5k 行）
+## 下一迭代
 
-- 职责：lowcode 已注册服务器 → 数据库 → 表 → 字段（只读）+ 注册/同步/建表等编排。
-- 边界：app 层入口，非 spark-data 数据空间链；与 I4 设计器无直接耦合。
-- 实施前须：对照参考六页语义（输入输出、持久化、取消/异常）→ 是否已有 `spark-lowcode-api` 合同 → 四文件或原生 Vue 落点 → 整页验收。
+**I6 structured-config**：已收束（字典 58 + structured-config 40 vitest；hub [`research-structured-config-dictionary-i6.md`](research-structured-config-dictionary-i6.md)）。
 
-## 与 I4 的关系
-
-I4 §4.3 删类已交付（`5b09bab85`）；I5 不依赖 view-design session。阶段 1 仍开放 `data-set-auth-page.vue`（权限配置 UI，AGENTS 0.3 暂缓运行权限扩展）。
-
-## 下一动作
-
-- pagedata/DataSet 合同：**已补全** → [`research-database-management-i5.md`](research-database-management-i5.md) § pagedata / DataSet。
-- 计划：**`notes/plan-database-management-i5.md`**（implementing；首屏 `bbc254aba`）。
-- table-and-view 研读：**[`research-database-management-i5-table-and-view.md`](research-database-management-i5-table-and-view.md)**（draft）。
+**I7 semi-structured**：入口 [`research-semi-structured-i7-hub.md`](research-semi-structured-i7-hub.md)；计划 draft [`plan-semi-structured-i7-full.md`](plan-semi-structured-i7-full.md)。

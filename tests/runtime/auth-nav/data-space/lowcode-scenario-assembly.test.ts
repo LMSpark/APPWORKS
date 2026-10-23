@@ -37,7 +37,7 @@ describe('complete formal model schema and view output', () => {
     expect(view.rows[0]).not.toHaveProperty('ordinal')
     await expect(view.queryOptionRows({fields: ['ordinal']})).rejects.toThrow()
    }
-   const catalog = LowcodeDataSpaceViewFields.project(model, 'Orders', undefined, 'detail', {})
+   const catalog = LowcodeDataSpaceViewFields.project({model, tableName: 'Orders', configured: undefined, viewId: 'detail', definition: {}})
    expect(catalog.columns.map(column => column.name)).not.toContain('ordinal')
    expect(catalog.selectionColumns.map(column => column.name)).not.toContain('ordinal')
    expect(catalog.outputProjection?.map(field => field.viewField)).toEqual(['orderId'])
@@ -50,7 +50,7 @@ describe('complete formal model schema and view output', () => {
   try {
    expect(dataSet.getTable('Orders')!.columns.map(column => column.name)).toContain('ordinal')
    expect(dataSet.getView('Orders')!.columns.filter(column => column.name !== '_pk')).toEqual([])
-   expect(LowcodeDataSpaceViewFields.project({...model, primaryKey: '', fields: [internal]}, 'Orders', undefined, 'default', {}).columns
+   expect(LowcodeDataSpaceViewFields.project({model: {...model, primaryKey: '', fields: [internal]}, tableName: 'Orders', configured: undefined, viewId: 'default', definition: {}}).columns
     .filter(column => column.name !== '_pk')).toEqual([])
   } finally {dataSet.destroy()}
  })

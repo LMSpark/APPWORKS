@@ -14,6 +14,7 @@
       "FieldRemoveFlow",
       "FieldRemoveLifecycle",
       "FieldRemoveHost",
+      "FieldRemoveHostInput",
       "FieldRemoveHandle"
     ]
   },
@@ -208,6 +209,38 @@
       ],
       "additionalProperties": false
     },
+    "FieldRemoveHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldRemoveHostInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "fieldId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/FieldRemoveLifecycle"
+        },
+        "fieldViewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "fieldId",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
     "FieldRemoveHandle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -281,7 +314,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T05:42:56.611Z",
+  "generatedAt": "2026-10-23T06:52:20.866Z",
   "models": {
     "FieldRemoveStatus": {
       "name": "FieldRemoveStatus",
@@ -529,6 +562,50 @@
               "name": "flow",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldRemoveHostInput": {
+      "name": "FieldRemoveHostInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    fieldId: string;\n    lifecycle: FieldRemoveLifecycle;\n    fieldViewId?: 'default' | 'modelFields';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    fieldId: string;\n    lifecycle: FieldRemoveLifecycle;\n    fieldViewId?: 'default' | 'modelFields';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldViewId",
+              "readable": true,
+              "writable": false
             }
           ]
         }

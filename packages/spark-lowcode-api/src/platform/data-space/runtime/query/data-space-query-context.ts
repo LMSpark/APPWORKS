@@ -102,7 +102,8 @@ export class DataSpaceQueryContext {
     this.assertIdentity({scenarioId: this.#identity.scenarioId, metaName: model.metaName})
     const key = model.primaryKey === '' ? undefined : DataSpaceDesignApi.resolveOutputFields(model)
       .find(field => field.canonicalName === model.primaryKey && field.primaryKey)
-    if (model.primaryKey !== '' && (!key || ![key.name, key.canonicalName].includes(this.#snapshot.primaryKey))) {
+    // 字典等来源的查询回执不报告主键，此时以正式模型主键为准；只拒绝回执报告了不同主键的情况。
+    if (model.primaryKey !== '' && (!key || this.#snapshot.primaryKey !== '' && ![key.name, key.canonicalName].includes(this.#snapshot.primaryKey))) {
       throw new Error('SPARK_MODEL_PRIMARY_KEY: 原查询主键与正式模型不一致')
     }
     if (this.#model && (JSON.stringify(this.#model) !== JSON.stringify(model)

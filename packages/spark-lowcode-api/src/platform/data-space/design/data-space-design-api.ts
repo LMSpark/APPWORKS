@@ -447,12 +447,15 @@ export class DataSpaceDesignApi {
       return row
     })
     const modelId = formalRowId(model)
-    return this.readFormalModelDetails({designScenarioId, dataSpaceId, metaName, assertCurrent, metadata}, model,
-      this.readFormalRows({ designScenarioId, metaName: FIELD_TABLE, assertCurrent, metadata,
+    return this.readFormalModelDetails({
+      input: {designScenarioId, dataSpaceId, metaName, assertCurrent, metadata},
+      model,
+      fieldsPromise: this.readFormalRows({ designScenarioId, metaName: FIELD_TABLE, assertCurrent, metadata,
         filter: DataViewFilter.group({ logic: 'and', filters: [
           { field: 'dataSetId', operator: 'eq', value: dataSpaceId },
           { field: 'dataModelId', operator: 'eq', value: modelId }, { field: 'type', operator: 'eq', value: 'dataModel' },
-        ] }) }, true))
+        ] }) }, true),
+    })
   }
 
   /** 批量读取一个空间的指定模型及完整字段；来源按数据库/表名精确集合读取，共用主键校验，不缓存完成结果。 */
@@ -498,9 +501,12 @@ export class DataSpaceDesignApi {
     })
     const sourceKeys = this.readFormalSourceKeys({designScenarioId, assertCurrent}, orderedModels.map(({model}) => model))
     const outcomes = await Promise.allSettled(orderedModels.map(({metaName, model}) => {
-      return this.readFormalModelDetails({designScenarioId, dataSpaceId, metaName, assertCurrent}, model,
-        fields.then(fieldRows => fieldRows.filter(row => formalText(row, ['dataModelId', 'DataModelId', 'datamodelid']) === formalRowId(model))),
-        sourceKeys.then(keys => keys.get(formalRowId(model)) ?? ''))
+      return this.readFormalModelDetails({
+        input: {designScenarioId, dataSpaceId, metaName, assertCurrent},
+        model,
+        fieldsPromise: fields.then(fieldRows => fieldRows.filter(row => formalText(row, ['dataModelId', 'DataModelId', 'datamodelid']) === formalRowId(model))),
+        sourceKeyPromise: sourceKeys.then(keys => keys.get(formalRowId(model)) ?? ''),
+      })
     }))
     assertCurrent()
     return Object.freeze(outcomes.map(outcome => {
@@ -510,8 +516,13 @@ export class DataSpaceDesignApi {
   }
 
   /** 单模型和批量读取共用来源主键验证、字段投影及接口/逻辑视图入参读取。 */
-  private async readFormalModelDetails(input: DataSpaceFormalReadInput & Readonly<{metadata?: DataSet | undefined}>, model: DataSpaceFormalRow,
-    fieldsPromise: Promise<readonly DataSpaceFormalRow[]>, sourceKeyPromise?: Promise<string>): Promise<DataSpaceFormalModel> {
+  private async readFormalModelDetails(details: Readonly<{
+    input: DataSpaceFormalReadInput & Readonly<{metadata?: DataSet | undefined}>
+    model: DataSpaceFormalRow
+    fieldsPromise: Promise<readonly DataSpaceFormalRow[]>
+    sourceKeyPromise?: Promise<string>
+  }>): Promise<DataSpaceFormalModel> {
+    const {input, model, fieldsPromise, sourceKeyPromise} = details
     const {designScenarioId, dataSpaceId, metaName, metadata} = input
     const assertCurrent = () => input.assertCurrent?.()
     const modelId = formalRowId(model)

@@ -9,8 +9,36 @@ import {ProjectToolResource} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {ModelNameChange} from './lowcode-data-space-model-rename-references'
 
+export type ModelRenameToolsScopeInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  before: string
+  after: string
+  assertLive: () => void
+  fieldNames: ReadonlyMap<string, string>
+}>
+
+export type ModelRenameToolsPrepareInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  before: string
+  after: string
+  assertLive: () => void
+  fieldNames?: ReadonlyMap<string, string>
+}>
+
+type ModelRenameToolsFileRowInput = Readonly<{view: DataView; pageId: string; fileName: string; versionId?: string}>
+
+type RulePropsWalkInput = Readonly<{value: Record<string, unknown>; path: string; inherited?: string | null; documentChildren?: boolean}>
+
 /** 本次改名的工具工作文件计划；只保存正式声明的静态完整绑定。 */
 export class LowcodeDataSpaceModelRenameTools {
+  private readonly dataSet: DataSet
+  private readonly targetId: string
+  private readonly before: string
+  private readonly after: string
+  private readonly assertLive: () => void
+  private readonly fieldNames: ReadonlyMap<string, string>
   /** 已确认的静态属性变更，供原预览DataView显示。 */
   readonly changes: ModelNameChange[] = []
   /** 本次完整读取的蓝图工具身份，不代表整个服务端工具库。 */
@@ -20,14 +48,19 @@ export class LowcodeDataSpaceModelRenameTools {
   readonly #writes = new Map<string, {view: DataView; next: string; signature: string}>()
 
   /** 固定空间、新旧注册名及同时变化的输出名；字段映射不用于字符串全局替换。 */
-  private constructor(private readonly dataSet: DataSet, private readonly targetId: string,
-    private readonly before: string, private readonly after: string, private readonly assertLive: () => void,
-    private readonly fieldNames: ReadonlyMap<string,string>) {}
+  private constructor(scope: ModelRenameToolsScopeInput) {
+    this.dataSet = scope.dataSet
+    this.targetId = scope.targetId
+    this.before = scope.before
+    this.after = scope.after
+    this.assertLive = scope.assertLive
+    this.fieldNames = scope.fieldNames
+  }
 
   /** 从正式远端蓝图读取去重工具及规则/脚本；任何读取失败或未解析旧名脚本均拒绝预览。 */
-  static async prepare(dataSet: DataSet, targetId: string, before: string, after: string, assertLive: () => void,
-    fieldNames: ReadonlyMap<string,string> = new Map()): Promise<LowcodeDataSpaceModelRenameTools> {
-    const plan = new LowcodeDataSpaceModelRenameTools(dataSet, targetId, before, after, assertLive, fieldNames)
+  static async prepare(input: ModelRenameToolsPrepareInput): Promise<LowcodeDataSpaceModelRenameTools> {
+    const fieldNames = input.fieldNames ?? new Map()
+    const plan = new LowcodeDataSpaceModelRenameTools({dataSet: input.dataSet, targetId: input.targetId, before: input.before, after: input.after, assertLive: input.assertLive, fieldNames})
     plan.#catalog = await plan.inventory()
     plan.pageIds.push(...plan.#catalog.map(item => item.pageId))
     await plan.checkPublished()
@@ -69,14 +102,19 @@ export class LowcodeDataSpaceModelRenameTools {
 
   private async readFile(pageId: string, fileName: string, versionId = ''): Promise<string> {
     const view = await this.query('ProjectToolFile', {pageId, fileName, versionId})
-    try {return this.fileRow(view, pageId, fileName, versionId)['text'] as string}
-    finally {view.dataTable?.destroyView(view.viewId)}
+    try {
+      const row = this.fileRow({view, pageId, fileName, versionId})
+      const text = row['text']
+      if (typeof text !== 'string') throw new Error('工具文件正文无效')
+      return text
+    } finally {view.dataTable?.destroyView(view.viewId)}
   }
 
-  private fileRow(view: DataView, pageId: string, fileName: string, versionId = ''): DataRow {
-    const row = view.rows[0]
-    if (view.rows.length !== 1 || row?.['pageId'] !== pageId || row['fileName'] !== fileName || row['versionId'] !== versionId || typeof row['text'] !== 'string') throw new Error('工具文件查询身份不一致')
-    if (!versionId && row['localDirty'] === true) throw new Error(`工具 ${pageId} 有本地编辑，请先处理`)
+  private fileRow(input: ModelRenameToolsFileRowInput): DataRow {
+    const versionId = input.versionId ?? ''
+    const row = input.view.rows[0]
+    if (input.view.rows.length !== 1 || row?.['pageId'] !== input.pageId || row['fileName'] !== input.fileName || row['versionId'] !== versionId || typeof row['text'] !== 'string') throw new Error('工具文件查询身份不一致')
+    if (!versionId && row['localDirty'] === true) throw new Error(`工具 ${input.pageId} 有本地编辑，请先处理`)
     return row
   }
 
@@ -99,7 +137,7 @@ export class LowcodeDataSpaceModelRenameTools {
     if (!pending) {
       const view = await this.query('ProjectToolFile', {pageId, fileName: 'rule.json', versionId: ''})
       try {
-        const row = this.fileRow(view, pageId, 'rule.json'), text = row['text']
+        const row = this.fileRow({view, pageId, fileName: 'rule.json'}), text = row['text']
         if (text !== expected && text !== next) throw new Error(`工具 ${pageId} 远端原文已变化`)
         if (text === next) {view.dataTable?.destroyView(view.viewId); return}
         const key = view.getPkKey(row)
@@ -139,7 +177,8 @@ export class LowcodeDataSpaceModelRenameTools {
     SparkNodeTree.fromRuleJson(text)
     const root: unknown = JSON.parse(text), changes: ModelNameChange[] = []
     // null表示JSON文档内部字段上下文；不能继承外层正式模型的字段身份。
-    const props = (value: Record<string, unknown>, path: string, inherited?: string|null, documentChildren=false): void => {
+    const props = (walk: RulePropsWalkInput): void => {
+      const {value, path, inherited, documentChildren = false} = walk
       const own=value['dataViewKey'],context=typeof own==='string'?own:inherited,currentBinding=context?parseDataViewKey(context):undefined
       if(context!==null&&this.fieldNames.size&&typeof value['field']==='string'&&this.fieldNames.has(value['field'])&&!currentBinding?.scope)throw new Error(`工具 ${pageId} 的 ${path}.field 缺少可确认的完整视图绑定，须先核查`)
       if(this.fieldNames.size&&currentBinding?.scope===this.targetId&&currentBinding.tableName===this.before){
@@ -163,14 +202,14 @@ export class LowcodeDataSpaceModelRenameTools {
         }
       }
       if (Array.isArray(value['additionalNodeSources'])) value['additionalNodeSources'].forEach((source, index) => {
-        if (isRecord(source)) props(source, `${path}.additionalNodeSources[${index}]`)
+        if (isRecord(source)) props({value: source, path: `${path}.additionalNodeSources[${index}]`})
       })
-      for (const key of ['toolbar', 'actions', 'filter', 'tail']) if (isRecord(value[key])) props(value[key], `${path}.${key}`,context)
+      for (const key of ['toolbar', 'actions', 'filter', 'tail']) if (isRecord(value[key])) props({value: value[key], path: `${path}.${key}`, ...(context !== undefined ? { inherited: context } : {})})
       if(isRecord(value['header'])){
         if(isRecord(value['header']['props']))nodes([value['header']],`${path}.header`,context)
-        else props(value['header'],`${path}.header`,context)
+        else props({value: value['header'], path: `${path}.header`, ...(context !== undefined ? { inherited: context } : {})})
       }
-      if (isRecord(value['then']) && typeof value['then']['action'] === 'string') props(value['then'], `${path}.then`,context)
+      if (isRecord(value['then']) && typeof value['then']['action'] === 'string') props({value: value['then'], path: `${path}.then`, ...(context !== undefined ? { inherited: context } : {})})
       if (Array.isArray(value['children'])) nodes(value['children'], `${path}.children`,documentChildren?null:context)
     }
     const nodes = (values: unknown[], path: string, inherited?: string|null): void => values.forEach((value, index) => {
@@ -178,9 +217,9 @@ export class LowcodeDataSpaceModelRenameTools {
       const address = `${path}[${index}]`
       const own=isRecord(value['props'])?value['props']['dataViewKey']:undefined,context=typeof own==='string'?own:inherited
       if (isRecord(value['props'])) {
-        props(value['props'], `${address}.props`,inherited,value['type']==='r-json')
+        props({value: value['props'], path: `${address}.props`, ...(inherited !== undefined ? { inherited } : {}), documentChildren: value['type'] === 'r-json'})
         // Mention的options是数据绑定配置；其他字段的options可能是普通业务数组。
-        if (value['type'] === 'r-mention' && isRecord(value['props']['options'])) props(value['props']['options'], `${address}.props.options`)
+        if (value['type'] === 'r-mention' && isRecord(value['props']['options'])) props({value: value['props']['options'], path: `${address}.props.options`})
       }
       if (Array.isArray(value['children'])) nodes(value['children'], `${address}.children`,value['type']==='r-json'?null:context)
     })

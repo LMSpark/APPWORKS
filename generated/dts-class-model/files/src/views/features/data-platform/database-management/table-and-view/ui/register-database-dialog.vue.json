@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/table-and-view/ui/register-database-dialog",
+    "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/table-and-view/ui/register-database-dialog",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/register-database-dialog\n职责：登记物理库对话框（_base_dbInfo 模型保存）；未登记库名经只读命令视图提示。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-23T06:52:15.466Z",
+  "models": {}
+}

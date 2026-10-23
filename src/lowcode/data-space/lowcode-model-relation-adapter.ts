@@ -13,6 +13,12 @@ type Relation = Omit<Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>[nu
   filterExpression: DataViewFilter
 }>
 type RelationFilterTranslation = Readonly<{tree: DataViewFilterTree; parent: Model; child: Model; parentTableName: string; childTableName: string}>
+type ReferenceBindingsInput<T extends Pick<Model, 'id' | 'name'>> = Readonly<{
+  formalName: string
+  relation: Relation
+  endpoint: Pick<DataResourceRelation, 'parentTable' | 'childTable'>
+  bindings: ReadonlyMap<string, T>
+}>
 
 function text(value: unknown): string { return value === undefined || value === null ? '' : String(value).trim() }
 
@@ -34,8 +40,17 @@ export class LowcodeModelRelationAdapter {
    * @returns 正式关系ID和父子模型ID；完整filter仅校验语法，不执行或转换字段别名。
    */
   public readMetadataEndpoints(dataSet: DataSet, targetId: string) {
-    return this.metadataRows(dataSet, targetId).map(row => ({sourceRelationId: row['rowid'] as string,
-      parentModelId: row['parentModId'] as string, childModelId: row['childModId'] as string}))
+    return this.metadataRows(dataSet, targetId).map(row => this.relationEndpointIds(row))
+  }
+
+  private relationEndpointIds(row: {readonly [key: string]: unknown}): Readonly<{sourceRelationId: string; parentModelId: string; childModelId: string}> {
+    const sourceRelationId = row['rowid']
+    const parentModelId = row['parentModId']
+    const childModelId = row['childModId']
+    if (typeof sourceRelationId !== 'string' || typeof parentModelId !== 'string' || typeof childModelId !== 'string') {
+      throw new Error('旧关系身份缺失或不唯一')
+    }
+    return {sourceRelationId, parentModelId, childModelId}
   }
 
   /**
@@ -108,7 +123,7 @@ export class LowcodeModelRelationAdapter {
         const formalName = key && typeof value[key] === 'string' ? value[key]
           : value['Type'] === 'GetTableField' ? fieldReference(value['Field'])?.qualifier : undefined
         if (formalName === undefined || formalName === '') return
-        const candidates = this.referenceBindings(formalName, relation, endpoint, bindings)
+        const candidates = this.referenceBindings({formalName, relation, endpoint, bindings})
         for (const table of candidates.length ? candidates.map(([boundTable]) => boundTable) : [formalName]) referencedTables.add(table)
       }
       walk(relation.filterExpression.toJSON())
@@ -116,8 +131,8 @@ export class LowcodeModelRelationAdapter {
     }))
   }
 
-  private referenceBindings<T extends Pick<Model, 'id' | 'name'>>(formalName: string, relation: Relation,
-    endpoint: Pick<DataResourceRelation, 'parentTable' | 'childTable'>, bindings: ReadonlyMap<string, T>): Array<[string, T]> {
+  private referenceBindings<T extends Pick<Model, 'id' | 'name'>>(input: ReferenceBindingsInput<T>): Array<[string, T]> {
+    const {formalName, relation, endpoint, bindings} = input
     const table = formalName === relation.parentResourceName ? endpoint.parentTable
       : formalName === relation.childResourceName ? endpoint.childTable : undefined
     return [...bindings].filter(([key, model]) => table === undefined ? model.name === formalName : key === table)
@@ -146,7 +161,12 @@ export class LowcodeModelRelationAdapter {
         const targetField = child.fields.find(field => field.name === target.field)
         if (!targetField) throw new Error(`正式关系字段未解析: ${relation.sourceRelationId}`)
         const resolveBoundModel = (formalName: string): Readonly<{tableName: string; model?: Model}> => {
-          const candidates = this.referenceBindings(formalName, relation, {parentTable: parentTableName, childTable: childTableName}, bindings)
+          const candidates = this.referenceBindings({
+            formalName,
+            relation,
+            endpoint: {parentTable: parentTableName, childTable: childTableName},
+            bindings,
+          })
           if (candidates.length === 0 && bindings.has(formalName)) {
             throw new Error(`正式关系引用身份冲突: ${formalName}`)
           }

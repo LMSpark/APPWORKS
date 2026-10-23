@@ -2,6 +2,47 @@
 
 > 2026-10-19 起，参考仓 appworks 全量整合按 [plan-appworks-integration.md](plan-appworks-integration.md) 的阶段与整页验收矩阵推进；数据空间各项仍在本记录登记，矩阵只记状态。
 
+## 2026-10-21 一页一循环：服务器管理（service-management-page）
+
+- **节奏**：用户要求以页面为单位逐页闭环；本轮只做服务器管理页。
+- **实页修复**：列表与注册表单此前无字段（未传 `autoColumns`，Vue 布尔缺省 false）→ 页面显式 `:auto-columns="true"`；新增只预置视图实有列（`Password` 正式模型 output=false，原预置触发 `SPARK_MODEL_SAVE_FIELD`）；编辑目标改按主键核对（保存被拒后数据层以新对象恢复同主键行，原对象相等判断使取消失败）；保存后回读无该主键时报错，不再误报「已保存」。夹具 `Password` 对齐线上 output=false。
+- **实页结果**：列表、刷新、编辑取消通过；注册回执 `Code 200` 并回显 rowid，但回读 `Count 5` 不含新行，既有行均带 `entID`、新增无 `entID`（疑后端按企业过滤，未证实）。服务端疑似留有两条不可见 `i5-pilot-discard`（`4490A9FA…`、`4D4FC71D…`），页面无法删除。删除与测试连接未测。
+- **差距**：列表列为模型全部字段原序（含系统字段），未按参考页取舍；密码无法录入（视图无该列）；矩阵实页列保持「部分」。
+- **验证**：`tests/runtime/page/database` 41/41；typecheck；eslint 改动文件。证据 `notes/evidence/database-management-i5/live-pilot-browser-20261021-tier.json` → `serverPageCycle20261021`。
+- **续（16:50）根因**：参考页及后端源码确认注册是 `POST /api/Db/registerServer` 业务命令（测连接、补企业、加密密码），本页直接插表语义错误。spark-data 仅有只读命令视图，缺写命令能力；用户要求走 spark-data 统一链。方案 [`plan-database-server-register-command.md`](plan-database-server-register-command.md)（已并入 v3，superseded）。
+- **续（17:45）v3 实施**：总方案改为 [plan-appworks-integration.md](plan-appworks-integration.md) v3（单页流程、调用分类表、流程改进记录）。spark-data 新增 `bindDataSetCommandSubmit`（写命令：命令视图新增行 → `DataSet.saveChanges` → 回执；结果未知保留待核验，核验不重放；单测 5 例）；服务器页注册改走 `DatabaseServerRegister` 命令视图，**删除**原经 `Base_serverInfo` 插表的注册分支（`createFields`、新增行预置/密码过滤）；连接测试改读命令行；`r-text` 标准组件补 `showPassword`；ClassModel 已刷新。实页反向通过（`127.0.0.1:1` 被后端以连接拒绝驳回、无记录、无插表请求），正向待测试库。证据 `evidence/database-management-i5/live-pilot-browser-20261021-tier.json#serverRegisterCommand20261021`。
+- **仍待**：正向注册（需可达未登记测试库）；删除实页未测；目录列表显示全部 16 列，参考页只列 ServerName/ip_address/Port/Type/createuser/createtime/description（下一轮按参考补列子组件）；两条不可见遗留行待后端清理。
+- **续（11:35）复制表**：`database-catalog-copy-view-ops.ts`（_Base_TblList + Base_TblField 一次 saveChanges）；`copy-table-dialog.vue` + 工具栏「复制」；夹具 maplistadd 按请求分段回执。database 页测 51 例。
+- **续（11:36）**：`compareName` 入参改为 `unknown`（与 `scalar` 一致），typecheck 通过；矩阵/遗留项同步复制与删除接线；表和视图页测补「复制表」对话框闭环（database 页测 52 例）。
+- **续（13:50）统一 DataSet**：表/视图 `loadCatalog` 在同 FormKey 上可选装配 `Base_Desensitization_Rule`（不参与 hub 五表 full 判定）；字段网格 `FieldSelect.optionDataViewKey` 消费规则 DataView，禁止页面直查 HTTP。
+- **续（14:06）**：同 DataSet 可选装配 `Dict_encryption_rule`、`TblField_type`；表/视图设计头（Expression/IsVisible 等）绑定 `_Base_TblList`/`_Base_ViewList` 当前行；`databaseCatalogDesignSavePending` 一次 saveChanges 提交表头+字段。database 页测 55 例。
+- **续（14:12）Base_TblRln**：可选装配 `Base_TblRln@forTable`；`databaseCatalogRelationRefreshForTable` 用 OR 过滤 pktbid/fktbid；表设计对话框「关系」页签 + 删除走 `saveChanges`（非 HTTP remove）。database 页测 57 例。
+- **续（14:16）v3 表设计周期**：按单页七步补语义卡 [`research-database-management-i5-table-design.md`](research-database-management-i5-table-design.md)；`saveTableRelation` 归类为模型保存 → `database-catalog-relation-form-ops` + `table-relation-dialog.vue`（增/编/删均 saveChanges）。database 页测 58 例。下一周期按分类表 #6 数据预览。
+- **续（14:30）hub 布局 + 预览**：表和视图 hub 左侧仅数据库列表，服务器隐式绑定；表设计「数据」页签走 `DatabaseTablePreviewRows`→`POST /api/DataOperation/GetData`（物理表 Type=数据库表，scenarioId=FormKey）。database 页测 59 例。下一周期 #8 工作流。
+- **续（14:55）表设计 #8 工作流**：可选 `Base_WorkflowDefinition@forTable` + `workflowStatus` 字典；`database-catalog-workflow-view-ops`（tblid + 可选 name/key/description/status 过滤）；表设计「数据流」页签；参考「设计」仍为 stub 未接。database 页测 60 例。下一周期 #9 AI 或 view-design parity。
+- **续（15:00）table-design 收束**：数据流顶栏筛选 + 「设计」提示暂未实现；#9 AI 登记 I5 能力缺口（不挂空按钮）。下一页 view-design-dialog v3 周期。
+- **续（15:10）view-design-dialog**：三页签（设计/输出/数据）；`_Base_ViewList` 扩展 sql/modid 等；`DatabaseViewPreviewRows` GetData；`Base_AppSystemList` 可选 + 应用选择对话框。database 页测 62 例。
+- **续（15:30）v3 续做**：add-table 语义卡 `research-database-management-i5-add-table.md`；修复 relation addRow `CrudResult` 与夹具 Filter 索引 typecheck；矩阵/遗留项指向 hub 收束或 register-dialog。
+- **续（16:10）hub + register**：`research-database-management-i5-hub.md`、`research-database-management-i5-register-dialog.md`；page test 注册确认→`registerTable`。database 页测 63 例。
+- **续（16:15）copy/register-db/关系/服务器**：copy-table、register-database v3 research；夹具 T3 同库从表；page 关系保存 + 库注册；service-management 注册确认 vitest。database 页测 66 例。
+- **续（16:30）删除**：delete-v3 research；hub 删表/删视图 + 服务器删确认 vitest（69 例）；修复 hub 删除确认未 import `RendererButton`。
+- **续（16:55）表设计/组合 hub**：SyncMetaData、关系删除 page vitest；management-hub v3 research + hub 默认 catalog 面板测。
+- **续（17:00）表设计关系列表**：补 `on-row-click` 选中行（编辑/删除依赖）；SyncMetaData + 关系删除 page vitest；database 页测 72 例。
+- **续（21:50）设计 save/预览/应用**：表头 save、表/视图预览页签、视图应用选择 page vitest；应用列表补 row-click；database 页测 76 例。
+- **续（22:05）add-table + 服务器编辑**：目录插表确认、服务器编辑 save、注册对话框测连；service-management-v3 research；database 页测 79 例。
+- **续（22:40）表设计字段网格**：cnname 行内编辑 + 设计「保存」；字段元数据 `showCellControl`/`editOnDblclick`；设计对话框字段表 highlight-current-row。
+- **续（23:00）I5 DB v3 一次性收束**：视图输出字段 save、注册视图、工作流「设计」stub vitest；AI 缺口卡；field-view-ops viewFields；database 页测 **84** 例。实页 formal-model-gap、add-table 参考字段批仍登记开放。
+- **续（23:05）I5→I6 交接**：刷新 `research-database-management-i5-entry.md`；gap JSON 附 vitest 84 基线；新建 `research-structured-config-dictionary-i6.md`；字典 vitest **54** 例已绿。
+- **续（23:10）字典目录→数据页**：修复无 tenant 路径时「打开数据维护」静默无效；catalog page vitest（设计对话框、双路径导航）；字典 vitest **57** 例。
+- **续（23:15）字典 I6 布局**：目录/数据页页头（对齐 `vue-pages.json`）、表格 stripe+当前行高亮、设计对话框 footer；三页 list/setting/data v3 语义卡；矩阵行改为 `dictionary-data-page.vue`。
+- **续（00:40）I6 structured-config 全量 MVP**：data-code（8 Vue）+ logic-view（2）+ workflow-definition（3）接通 lowcode catalog 与 design 客户端；`vue-pages.json` 注册；vitest **40**（structured-config）+ 字典 **58**；`live-pilot-dictionary.json` blocked；Code/Workflow 专用 HTTP 见 `api-gaps.json`。
+- **续（11:10）表/视图列表**：显式列（表名/中文名/创建人/创建时间）；工具栏删除走 `databaseCatalogDeleteRow`（remove + saveChanges）；注册对话框增加「为选中项添加默认字段」。database 页测 50 例。
+- **续（00:15）register-dialog 语义对齐**：`register-dialog.vue` 改为登记表/视图（RendererTable 绑定未登记只读命令视图 + confirm 走 `databaseCatalogRegisterTables/Views`）；原登记库 UI 迁至 `register-database-dialog.vue`；主页面工具栏「注册」/「新增」分离（新增仍走 _Base_TblList 模型保存）。database 页测 49 例。
+- **续（00:02）registerTable/registerView**：`DatabaseTableRegister` / `DatabaseViewRegister` 命令视图（`bindDataSetCommandSubmit`）；编排 `database-catalog-register-view-ops.ts`（批量按项提交、回读 _Base_TblList/_Base_ViewList）。未改 register-dialog（语义待决）。catalog-table-view-ops 测 6 例。
+- **续（22:50）I5 能力补齐**：`attachTableSyncMetaDataView`（`bindDataSetCommandSubmit` → `/api/Table/SyncMetaData/{dbid}/{tableid}`）；`GET /api/View/getUnregisteredView/{dbId}` 只读命令视图；表设计对话框工具栏「同步元数据」；`attachCatalogCommandViews` 改为分片幂等 attach。服务器列表改用 `DATABASE_SERVER_LIST_FIELDS`（7 列，不含账号/密码）。database 页测 46 例、typecheck 通过。
+- **续（18:00）表和视图按 v3 开工**：清单 2 命中——页面五个 `RendererTable` 与登记/新增表两表单都缺 `:auto-columns="true"`，网格无字段列；已补，页面测试改为断言表头 `ServerName` 与行值（补前红、补后绿），database 页测 14 文件 44 例与 typecheck 通过。调用分类对照参考 `application-builtin-capabilities.ts`：本仓缺写命令 `POST /Table/SyncMetaData/{dbid}/{tableid}`、只读命令 `GET /View/getUnregisteredView/{dbId}`、表数据编辑（动态模型）、`Base_TblRln` 删除、脱敏规则；实页受 `_base_dbInfo/_Base_TblList/_Base_ViewList/Base_TblField` 未登记正式模型阻塞（`live-pilot-formal-model-gap.json`）。下一断点：后端登记上述模型后实页走查；同步元数据按 `bindDataSetCommandSubmit` 接入。
+- **续（20:10）调用分类纠偏**：读参考 `register-dialog.vue`/`TableAndViewRegister.ts`/`AddTable.ts` 发现：参考「注册」是对选中库登记未注册表/视图（内置能力 `spark.table-register`→`POST /Table/registerTable`、`spark.view-register`→`POST /View/registerView`），「新增」是 `_Base_TblList`+`Base_TblField` 一次模型保存；参考页左侧只有库列表。本仓页额外有服务器列表，`register-dialog` 登记的是数据库（参考在旧 `views/DataBaseManage/DataBaseManage/index.vue`，`POST /Db/OperateDBData`，不在 96 页矩阵）。方案 v3 第 3 步「注册库是写命令」前提不成立，页面结构去留待用户决定，未改代码。
+
 ## 2026-10-21 工作区收敛（Git / 证据 / stash）
 
 - **证据删除**：本地删除 `notes/evidence/data-space-config-storage/`（约 **13196** 文件、**85** 顶层 `e62-*-before` / `i7-*` 快照树）；删前 manifest [`research-evidence-deletion-manifest-20261021.json`](research-evidence-deletion-manifest-20261021.json)。I4 回归 log 副本：`notes/evidence/database-management-i5/native-design-regression-i4-convergence.log`。**DATAFLOW 内链该目录者暂为死链**，结论以台账/正文为准。
@@ -659,3 +700,22 @@
 - 最终独立重开核ordIdx输出1/升序/Order1/Group0，命名视图sortExpression未配置，保存和取消按钮均禁用。原查询可见4行/总数4/Loaded/已选1，恢复原无显式排序次序2、3、4、1；此次刷新后的CDP观察未取得匹配事件，仅以可见DataView/截图证明，不伪造最终原始请求。已有降序查询与3065失败均有各自原始请求/响应摘要。原预览及配置已关闭，网络监听关闭；2次文件定义保存动作完成设置和恢复，数据库定义与业务条目0写入。
 - 本轮生产/测试代码无修改，698源码与上一轮最终构建逐项哈希一致，不重复执行旧2457项回归或将其计入本轮。3份快照本人自审；主合同只补实际限制，文档门禁及最终证据检查续记hidden-sort-verification-20261018.json。没有Java修改、Git暂存/提交/推送或新并行方案。
 - 目标继续active：非输出字段排序仍包含已证实前端丢草稿与实际字典服务DISTINCT冲突，不能算修复；前两项ValueFun/rowid服务差距也保留。当前阶段的后续核对仍包括命名DataView分组/聚合实际消费，并需回到完整整合要求逐项检查未核销的业务页、标准绑定、DataTable.columns归属、旁路删除与参考布局，不能因已修复局部排序推断完整SSOT/1:1达成。
+
+## 2026-10-24 外部API管理统一到SPARK data
+
+- 待删除的旁路入口登记：外部API四个owner（ApiProviderDesign/ApiRequestHeaderDesign/ApiPublicParameterDesign/ApiInterfaceDesign）在DataView之外另持草稿状态与校验；LowcodeApiProvider用四份本地pagedata手工注入modelBinding并另行装配，loadHeaderTypes自行查询与断言，构成标准场景入口loadLowcodeRuntimeScenario之外的第二套装配。四项api-provider失败（DATA_VIEW_UNCONFIRMED_SAVE）即owner显式重读未放弃未确认提交所致。
+- 方案：notes/plan-external-api-owner-removal.md。规则按A现有配置/B补spark-data通用能力/C删除重复守卫处理；页面只经标准入口装配、绑定DataView、事件只调DataView/DataSet API。typecheck基线通过。
+
+## 2026-10-24 现有修改收敛提交与元数据平台完整整合分析
+
+- 用户最新任务：先收敛仓内已有修改并提交，再深度分析 SPARK data 与参考 AppWorks 元数据平台的完整整合计划。本轮后续整合仅分析/计划，不自动实施新页面，不推送。
+- 收敛基线：本仓分支 `10-17`，HEAD `4c87a4940`；初查181个已跟踪文件修改，另有未跟踪资源适配、页面、测试、证据。大量CRLF噪声须与实质差异分开审查，不丢弃任何原有工作。参考仓现HEAD `791c464b8c6b3c7049ea36ab57546c3481e4d889`，元数据平台已位于 `packages/ui/domain/metadata/src`、`packages/data/metadata/src`；旧 `apps/appworks/src` 已不存在。参考仓仅只读。
+- 已验证类型基线通过。根lint初次10项失败，主要为新增保存规则的类型收窄/冗余条件；根全量vitest在运行。外部API显式重读4类旧owner未放弃DataView未确认保存，被正式守卫拒绝；接入现有 `DataView/DataSet.discardAndReload` 后三文件42项回归通过，未移除原查询守卫。
+- 按 requesting-code-review 技能只读审查确认两组当前修改的提交阻断：①共享 `staged-design-file-view` 用提交行伪造成功回执，超时可重放，目标切换后旧行仍可提交，且新资源客户端未判旧Ajax业务失败；②`prepareQuerySave` 选项查询等待期间未核编辑变化，可用旧选项覆盖新编辑。限定收敛范围为既有公共链的异常/身份/回执修复及反例测试，不在页面补第二套状态。
+- 后续完整计划必须合并进本节；`notes/plan-appworks-integration.md` 与子计划中的“implementing/已删”不能作为当前事实（例如11类session文件实际仍存在）。计划将覆盖源页面清单、资源/命令分类、唯一绑定与保存链、存量旁路删除、页面闭环阶段、服务缺口、回读/独立重开/下游/视觉验收。
+
+- 收敛修复及复审：本轮上述四类反例均修复；独立复审进一步发现“本地JSON类型错误被当未知写入”和“多视图预检期间前一视图新编辑未复核”，已补红绿反例并修复。最终限定复审无新P1/P2。未删除仍承载业务的旧owner/session，不把修复当作已完成整合。
+- 本地验证：根全量343文件6057项通过；API包24文件988项单列，不累计为唯一覆盖；最后保存链关联20文件95项通过。新增5项共享适配测试为遵循已有目录基线合并到design-clients.test.ts，合并后15项通过；未扩大目录例外。根类型/lint、正式ClassModel生成、包及前端生产构建通过；最终verify:rules检查结果续记。日志和范围见 [verification.json](evidence/integration-convergence-20261024/verification.json)。
+- 生成器注意：lowcode合同扫描当前会包含packages/dist声明；并行构建导致检查时内容变化，已在构建完成后正式重生成并串行校验，不手改生成产物。此为工具限制，不是后端服务验证。
+- 旧总体与外部API/I6/I7计划已统一标superseded并指向本台账；参考代码逐文件清单本次为102个Vue（含子组件）/77个API，只有32个Vue在本仓同路径存在。Excel/PDF/工作流部分端点仍未实服核定，原JSON编辑器不代表参考完整设计流程。无本轮线上验收或后端修改。
+- 最终 `verify:rules` 全链exit 0（保留2条既有AI模型warning），`git diff --check`通过。现有修改达到本地收敛提交条件；完整产品验收仍按后续draft计划执行。

@@ -53,9 +53,12 @@ import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataSet, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {ApiInterfaceDesign} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, RendererTable, RendererForm, RendererButton, RendererTabs, RendererTabPane, type RToolbarProps, type RTableProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeApiProvider} from '@/lowcode/resources/external-api/lowcode-api-provider'
 import type {ApiInterfaceListPageProps} from './api-interface-list-page.props'
+type RToolbarProps = SparkComponent.RToolbarProps
+type RTableProps = SparkComponent.RTableProps
+const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, RendererTable, RendererForm, RendererButton, RendererTabs, RendererTabPane} = SparkComponent
 const props = defineProps<ApiInterfaceListPageProps>()
 const emit = defineEmits<{close: []}>()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'api-interface-list-page'})
@@ -95,7 +98,7 @@ const headerFields = computed<SparkNode[]>(() => [
   ...[['ParamName', '头部名称'], ['ParamDesc', '头部说明']].map(([field, label]) => ({type: 'r-text', props: {field, label, readonly: locked.value}})),
   {type: 'r-value-function', props: {field: 'ValueFun', label: '头部取值', readonly: locked.value, inputParameterDataViewKey: key('_Base_ParamList', 'references'), publicParameterDataViewKey: key('Base_Interface_PublicParam'), functionContext: {capabilities: ['huoshan']}}},
 ])
-const toolbar = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {label: '新增接口', permAction: 'create', disabled: locked.value || pending.value, onClick: addInterface}}]}))
+const toolbar = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {label: '新增接口', permAction: 'create', disabled: locked.value || pending.value, onClick: addInterfaceRow}}]}))
 const parameterToolbar = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {label: '新增输入定义', permAction: 'create', disabled: locked.value, onClick: () => add('parameters')}}]}))
 const headerToolbar = computed<RToolbarProps>(() => ({children: [
   {type: 'r-button', props: {label: '新增接口头部', permAction: 'create', disabled: locked.value, onClick: () => add('headers')}},
@@ -111,14 +114,15 @@ async function run(action: () => Promise<void>): Promise<void> {
 }
 const keepPointer: NonNullable<RTableProps['onCurrentChange']> = (_row, _old, control) => {control.cancel = true}
 const keepSelection: NonNullable<RTableProps['onSelectionChange']> = (_rows, control) => {control.cancel = true}
-const choose: NonNullable<RTableProps['onRowClick']> = async (row, _column, _event, control) => {
+const choose: NonNullable<RTableProps['onRowClick']> = async (...args) => {
+  const [row, , , control] = args
   control.cancel = true
   const design = owner.value, id = design?.interfaces.getPkKey(row)
   if (design && typeof id === 'string') await run(() => design.select(id))
 }
 function chooseParameter(row: DataRow): void {if (!locked.value) owner.value?.parameters.setCurrentRow(row)}
 function chooseHeader(row: DataRow): void {if (!locked.value) owner.value?.headers.setCurrentRow(row)}
-async function addInterface(): Promise<void> {const design = owner.value; if (design) await run(() => design.addInterface())}
+async function addInterfaceRow(): Promise<void> {const design = owner.value; if (design) await run(() => design.addInterface())}
 async function add(section: 'parameters' | 'headers'): Promise<void> {const design = owner.value; if (design) await run(() => design.add(section))}
 async function save(section: 'definition' | 'parameters' | 'headers'): Promise<void> {const design = owner.value; if (design) await run(() => design.save(section))}
 async function removeHeader(): Promise<void> {const design = owner.value; if (design) await run(() => design.removeHeader())}

@@ -742,6 +742,19 @@
           "additionalProperties": false
         },
         "method.abandonUnconfirmedSaves.return": true,
+        "method.discardAndReload.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "types.ts.json#/$defs/DataSetDiscardAndReloadOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.discardAndReload.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.toJson.params": {
           "type": "object",
           "properties": {},
@@ -776,7 +789,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-19T03:11:24.242Z",
+  "generatedAt": "2026-10-23T18:00:49.355Z",
   "models": {
     "DataSetConfig": {
       "name": "DataSetConfig",
@@ -1947,6 +1960,30 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "discardAndReload",
+              "jsdoc": "明确丢弃指定视图的本地修改并放弃其未确认提交核验，再按给定顺序重新查询；不撤销服务端可能已生效的写入。\n查询级联子视图应一并列出，父视图在前。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetDiscardAndReloadOptions",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
               }
             },
             {

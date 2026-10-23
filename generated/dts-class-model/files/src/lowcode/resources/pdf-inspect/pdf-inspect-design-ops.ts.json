@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/pdf-inspect/pdf-inspect-design-ops",
+    "sourcePath": "src/lowcode/resources/pdf-inspect/pdf-inspect-design-ops.ts",
+    "sourceFile": "src/lowcode/resources/pdf-inspect/pdf-inspect-design-ops.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/pdf-inspect/pdf-inspect-design-ops",
+    "jsdoc": "@module app:lowcode/resources/pdf-inspect/pdf-inspect-design-ops",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-23T17:51:37.177Z",
+  "models": {}
+}

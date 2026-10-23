@@ -70,7 +70,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-20T08:23:40.638Z",
+  "generatedAt": "2026-10-23T00:16:12.858Z",
   "models": {
     "DatabaseCatalogDbEditState": {
       "name": "DatabaseCatalogDbEditState",

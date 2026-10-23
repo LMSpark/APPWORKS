@@ -5,17 +5,29 @@
 AI用途：恢复专题目录时复用正式数据空间和标准组件，分别组织设计和用户数据流程。
 -->
 <template>
-  <p v-if="error" role="alert">{{ error }}</p>
-  <p v-if="loading">正在读取字典目录…</p>
-  <template v-if="ready">
-    <p v-if="hasUnresolvedCreator" role="status">部分创建人在当前可读用户目录中未解析，保留原始标识。</p>
-    <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :filter="filter" :on-row-click="choose" />
-  </template>
-  <RendererDialog :model-value="!!editingId" title="字典方案设计" width="min(1100px, 94vw)" @update:model-value="close">
-    <DictionarySetting v-if="editingId" :key="editingId" :dictionary-id="editingId" :create="creating"
-      @pending="editorPending = $event" @saved="refresh" @deleted="deleted" @cancelled="cancelled" />
-    <RendererButton label="关闭" :disabled="editorPending" @click="close" />
-  </RendererDialog>
+  <section class="dictionary-catalog-page">
+    <header>
+      <h1>数据字典</h1>
+      <p>字典方案设计目录，配置与业务数据分别维护。</p>
+    </header>
+    <p v-if="loading" role="status">正在读取字典目录…</p>
+    <p v-if="error" role="alert">{{ error }}</p>
+    <template v-if="ready">
+      <p v-if="hasUnresolvedCreator" role="status">部分创建人在当前可读用户目录中未解析，保留原始标识。</p>
+      <div :inert="editorPending">
+        <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :filter="filter"
+          :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+      </div>
+    </template>
+    <RendererDialog :model-value="!!editingId" title="字典方案设计" width="min(1100px, 94vw)"
+      :close-disabled="editorPending" @update:model-value="close">
+      <DictionarySetting v-if="editingId" :key="editingId" :dictionary-id="editingId" :create="creating"
+        @pending="editorPending = $event" @saved="refresh" @deleted="deleted" @cancelled="cancelled" />
+      <template #footer>
+        <RendererButton label="关闭" :disabled="editorPending" @click="close" />
+      </template>
+    </RendererDialog>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -78,10 +90,13 @@ const filter = computed<RFilterProps>(() => ({autoFitMinWidth: '230px', children
 useSystemPageDirtySource({get isDirty() {return editorPending.value}})
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function openSelected(): void {if (selected.value && !editorPending.value) {creating.value = false; editingId.value = selected.value}}
+const dictionaryDataPagePath = '/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page'
+
 async function openData(): Promise<void> {
+  if (!selected.value || editorPending.value) return
   const scope = parseTenantScope(route.path)
-  if (!scope || !selected.value || editorPending.value) return
-  await router.push({path: buildTenantPath(scope, '/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page'), query: {dictionaryId: selected.value}})
+  const path = scope ? buildTenantPath(scope, dictionaryDataPagePath) : dictionaryDataPagePath
+  await router.push({path, query: {dictionaryId: selected.value}})
 }
 function createDictionary(): void {
   if (editorPending.value) return
@@ -116,3 +131,10 @@ watch(scenarioId, async id => {
 }, {immediate: true})
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
 </script>
+
+<style scoped>
+.dictionary-catalog-page { display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
+.dictionary-catalog-page header { display: grid; gap: 4px; }
+.dictionary-catalog-page h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+.dictionary-catalog-page header p { margin: 0; color: var(--el-text-color-secondary); }
+</style>

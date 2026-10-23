@@ -10,7 +10,7 @@
     "jsdoc": "数据库元数据目录只读门面：从设计态 dataSpace（FormKey）拉取服务器/库/表/视图/字段快照。\n多 FormKey 时逐源容错合并；单表读取失败记入 `sourceErrors` 而非整包失败，解析资源前须检查对应 source。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "LowcodeDatabaseServer",
+      "LowcodeCatalogServerRecord",
       "LowcodeDatabase",
       "LowcodeDatabaseTable",
       "LowcodeDatabaseView",
@@ -23,10 +23,10 @@
     ]
   },
   "$defs": {
-    "LowcodeDatabaseServer": {
+    "LowcodeCatalogServerRecord": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "LowcodeDatabaseServer",
+      "title": "LowcodeCatalogServerRecord",
       "properties": {
         "id": {
           "type": "string"
@@ -287,7 +287,7 @@
         "servers": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/LowcodeDatabaseServer"
+            "$ref": "#/$defs/LowcodeCatalogServerRecord"
           }
         },
         "databases": {
@@ -475,10 +475,10 @@
       }
     }
   },
-  "generatedAt": "2026-08-10T12:27:53.468Z",
+  "generatedAt": "2026-10-23T07:01:09.838Z",
   "models": {
-    "LowcodeDatabaseServer": {
-      "name": "LowcodeDatabaseServer",
+    "LowcodeCatalogServerRecord": {
+      "name": "LowcodeCatalogServerRecord",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
@@ -797,11 +797,11 @@
       "jsdoc": "一次目录聚合结果；`sourceErrors` 非空表示部分底层表未成功读取，下游解析可能缺项或应 fail-fast。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    servers: readonly LowcodeDatabaseServer[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    views: readonly LowcodeDatabaseView[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    servers: readonly LowcodeCatalogServerRecord[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    views: readonly LowcodeDatabaseView[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    servers: readonly LowcodeDatabaseServer[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    views: readonly LowcodeDatabaseView[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
+            "typeText": "Readonly<{\n    servers: readonly LowcodeCatalogServerRecord[];\n    databases: readonly LowcodeDatabase[];\n    tables: readonly LowcodeDatabaseTable[];\n    views: readonly LowcodeDatabaseView[];\n    fields: readonly LowcodeDatabaseField[];\n    sourceErrors: readonly LowcodeCatalogSourceError[];\n    sourceDataSpaces: Readonly<Record<string, string>>;\n}>",
             "targetName": "Readonly"
           }
         ],

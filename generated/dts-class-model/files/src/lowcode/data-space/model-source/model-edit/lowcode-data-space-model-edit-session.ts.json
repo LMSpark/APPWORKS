@@ -10,9 +10,9 @@
     "jsdoc": "@module lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session\n职责：维护正式模型的描述、主键、业务标志和数组数据，经原元数据视图提交并接纳数据层回执（无独立命令类 FSM）。\n边界：主键联动正式字段标记，不改注册名或来源；不复制真源，未知提交只核验。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "ModelEditSessionInput",
       "ModelEditLifecycle",
-      "ModelEditHost",
-      "ModelEditHandle"
+      "ModelEditSession"
     ]
   },
   "$defs": {
@@ -26,6 +26,32 @@
         "unknown",
         "readback"
       ]
+    },
+    "ModelEditSessionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelEditSessionInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ModelEditLifecycle"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "lifecycle"
+      ],
+      "additionalProperties": false
     },
     "ModelEditLifecycle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -520,7 +546,7 @@
             "fields": {
               "type": "array",
               "items": {
-                "$ref": "../field-edit/lowcode-data-space-field-edit-session.ts.json#/$defs/FieldEditHost"
+                "$ref": "../field-edit/lowcode-data-space-field-edit-session.ts.json#/$defs/FieldEditSession"
               }
             },
             "inputs": {
@@ -569,213 +595,9 @@
           "title": "() => Promise<void>"
         }
       }
-    },
-    "ModelEditHost": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ModelEditHost",
-      "properties": {
-        "#private": true,
-        "dataSet": true,
-        "targetId": true,
-        "modelId": true,
-        "lifecycle": true,
-        "assertOwner": true,
-        "identity": true,
-        "current": true,
-        "snapshot": true,
-        "bindFields": {
-          "type": "object",
-          "title": "(view: DataView) => void"
-        },
-        "fieldView": true,
-        "columns": true,
-        "flowStatus": true,
-        "getState": {
-          "type": "object",
-          "title": "() => { status: ModelEditStatus; pending: boolean; }"
-        },
-        "readRequestScheme": {
-          "type": "object",
-          "title": "() => { fields: { value: string | number; options: { label: string; value: string | number; }[]; unknown: boolean; readable: boolean; writable: boolean; warning: string; name: string; label: string; kind: \"text\" | \"select\" | \"json\"; choices?: ReadonlyArray<readonly [string, string | number]>; }[]; columns: DataColum..."
-        },
-        "read": {
-          "type": "object",
-          "title": "() => { fields: { value: string | number; options: { label: string; value: string | number; }[]; unknown: boolean; readable: boolean; writable: boolean; warning: string; name: string; label: string; kind: \"text\" | \"select\" | \"json\"; choices?: ReadonlyArray<readonly [string, string | number]>; }[]; columns: DataColum..."
-        },
-        "capturePreview": {
-          "type": "object",
-          "title": "() => () => void"
-        },
-        "readPreview": {
-          "type": "object",
-          "title": "(view: DataView) => { filterExpression: DataViewFilterTree | undefined; outputType: string; keyField: string; parentField: string; hasChildrenField: string; treeMode: string; nodeId: string; }"
-        },
-        "readArray": {
-          "type": "object",
-          "title": "() => { headers: { name: string; type: string; label: string; order: number; }[]; readable: boolean; writable: boolean; }"
-        },
-        "validate": true,
-        "assertEditable": true,
-        "stage": {
-          "type": "object",
-          "title": "(field: string, value: string | number) => void"
-        },
-        "discard": {
-          "type": "object",
-          "title": "() => void"
-        },
-        "save": {
-          "type": "object",
-          "title": "(fields?: readonly FieldEditHost[], inputs?: readonly SourceInputHandle[], removals?: readonly FieldRemoveHandle[]) => Promise<void>"
-        },
-        "prepareSave": true,
-        "readback": true,
-        "reload": {
-          "type": "object",
-          "title": "(discardPending: boolean) => Promise<void>"
-        },
-        "prepareReload": {
-          "type": "object",
-          "title": "(discardPending: boolean) => () => Promise<void>"
-        }
-      },
-      "required": [
-        "#private",
-        "dataSet",
-        "targetId",
-        "modelId",
-        "lifecycle",
-        "assertOwner",
-        "identity",
-        "current",
-        "snapshot",
-        "bindFields",
-        "fieldView",
-        "columns",
-        "flowStatus",
-        "getState",
-        "readRequestScheme",
-        "read",
-        "capturePreview",
-        "readPreview",
-        "readArray",
-        "validate",
-        "assertEditable",
-        "stage",
-        "discard",
-        "save",
-        "prepareSave",
-        "readback",
-        "reload",
-        "prepareReload"
-      ],
-      "additionalProperties": false
-    },
-    "ModelEditHandle": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ModelEditHandle",
-      "properties": {
-        "#private": true,
-        "dataSet": true,
-        "targetId": true,
-        "modelId": true,
-        "lifecycle": true,
-        "assertOwner": true,
-        "identity": true,
-        "current": true,
-        "snapshot": true,
-        "bindFields": {
-          "type": "object",
-          "title": "(view: DataView) => void"
-        },
-        "fieldView": true,
-        "columns": true,
-        "flowStatus": true,
-        "getState": {
-          "type": "object",
-          "title": "() => { status: ModelEditStatus; pending: boolean; }"
-        },
-        "readRequestScheme": {
-          "type": "object",
-          "title": "() => { fields: { value: string | number; options: { label: string; value: string | number; }[]; unknown: boolean; readable: boolean; writable: boolean; warning: string; name: string; label: string; kind: \"text\" | \"select\" | \"json\"; choices?: ReadonlyArray<readonly [string, string | number]>; }[]; columns: DataColum..."
-        },
-        "read": {
-          "type": "object",
-          "title": "() => { fields: { value: string | number; options: { label: string; value: string | number; }[]; unknown: boolean; readable: boolean; writable: boolean; warning: string; name: string; label: string; kind: \"text\" | \"select\" | \"json\"; choices?: ReadonlyArray<readonly [string, string | number]>; }[]; columns: DataColum..."
-        },
-        "capturePreview": {
-          "type": "object",
-          "title": "() => () => void"
-        },
-        "readPreview": {
-          "type": "object",
-          "title": "(view: DataView) => { filterExpression: DataViewFilterTree | undefined; outputType: string; keyField: string; parentField: string; hasChildrenField: string; treeMode: string; nodeId: string; }"
-        },
-        "readArray": {
-          "type": "object",
-          "title": "() => { headers: { name: string; type: string; label: string; order: number; }[]; readable: boolean; writable: boolean; }"
-        },
-        "validate": true,
-        "assertEditable": true,
-        "stage": {
-          "type": "object",
-          "title": "(field: string, value: string | number) => void"
-        },
-        "discard": {
-          "type": "object",
-          "title": "() => void"
-        },
-        "save": {
-          "type": "object",
-          "title": "(fields?: readonly FieldEditHost[], inputs?: readonly SourceInputHandle[], removals?: readonly FieldRemoveHandle[]) => Promise<void>"
-        },
-        "prepareSave": true,
-        "readback": true,
-        "reload": {
-          "type": "object",
-          "title": "(discardPending: boolean) => Promise<void>"
-        },
-        "prepareReload": {
-          "type": "object",
-          "title": "(discardPending: boolean) => () => Promise<void>"
-        }
-      },
-      "required": [
-        "#private",
-        "dataSet",
-        "targetId",
-        "modelId",
-        "lifecycle",
-        "assertOwner",
-        "identity",
-        "current",
-        "snapshot",
-        "bindFields",
-        "fieldView",
-        "columns",
-        "flowStatus",
-        "getState",
-        "readRequestScheme",
-        "read",
-        "capturePreview",
-        "readPreview",
-        "readArray",
-        "validate",
-        "assertEditable",
-        "stage",
-        "discard",
-        "save",
-        "prepareSave",
-        "readback",
-        "reload",
-        "prepareReload"
-      ],
-      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-20T05:22:36.106Z",
+  "generatedAt": "2026-10-23T03:15:12.825Z",
   "models": {
     "ModelEditStatus": {
       "name": "ModelEditStatus",
@@ -806,6 +628,45 @@
           }
         ],
         "members": {}
+      }
+    },
+    "ModelEditSessionInput": {
+      "name": "ModelEditSessionInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: ModelEditLifecycle;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: ModelEditLifecycle;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "ModelEditLifecycle": {
@@ -1089,7 +950,7 @@
                   "name": "fields",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly FieldEditHost[]"
+                    "name": "readonly FieldEditSession[]"
                   },
                   "flags": {
                     "isOptional": true
@@ -1185,38 +1046,6 @@
             }
           ]
         }
-      }
-    },
-    "ModelEditHost": {
-      "name": "ModelEditHost",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "ModelEditSession",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "ModelEditSession",
-            "targetName": "ModelEditSession"
-          }
-        ],
-        "members": {}
-      }
-    },
-    "ModelEditHandle": {
-      "name": "ModelEditHandle",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "ModelEditHost",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "ModelEditHost",
-            "targetName": "ModelEditHost"
-          }
-        ],
-        "members": {}
       }
     }
   }

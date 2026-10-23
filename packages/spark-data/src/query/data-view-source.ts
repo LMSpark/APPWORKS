@@ -21,6 +21,12 @@ export type DataViewSourceAdoptOptions = Readonly<{
   discardViews?: readonly DataView[]
 }>
 
+/** 来源采用生命周期钩子；异步校验后须核对调用方仍有效，存储确认可同步应用后调用 beforeApply。 */
+export type DataViewSourceAdoptHooks = Readonly<{
+  assertCurrent(): void
+  beforeApply(): void
+}>
+
 /** 来源存储的已保存版本；身份由适配器解释，与DataSet.version及当前查询代次分开。 */
 export type DataViewSourceVersion = Readonly<{
   /** 原存储中的版本身份。 */ version: string | number
@@ -35,12 +41,7 @@ export type DataViewSourceAdapter = Readonly<{
   /** 读取远端而不改变任何本地基线、查询结果或草稿。 */
   preview(view: DataView): Promise<DataViewSourceSnapshot>
   /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */
-  adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: Readonly<{
-    /** 异步校验后检查调用方仍有效；不得将此检查替代存储冲突核验。 */
-    assertCurrent(): void
-    /** 存储确认可同步应用后调用一次：检查并取消明确允许放弃的原生修改。 */
-    beforeApply(): void
-  }>): Promise<void>
+  adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: DataViewSourceAdoptHooks): Promise<void>
   /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */
   history?: Readonly<{
     /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>

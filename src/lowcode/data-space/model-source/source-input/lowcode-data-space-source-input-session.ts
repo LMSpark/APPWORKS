@@ -31,8 +31,17 @@ export type SourceInputHost = {
 
 const hostByHandle = new WeakMap<SourceInputHandle, SourceInputHost>()
 
-export function createSourceInputHost(dataSet: DataSet, targetId: string, fieldId: string, lifecycle: SourceInputLifecycle,
-  viewId: 'default' | 'sourceInputFields' = 'default'): SourceInputHost {
+export type SourceInputHostInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  fieldId: string
+  lifecycle: SourceInputLifecycle
+  viewId?: 'default' | 'sourceInputFields'
+}>
+
+export function createSourceInputHost(input: SourceInputHostInput): SourceInputHost {
+  const viewId = input.viewId ?? 'default'
+  const {dataSet, targetId, fieldId, lifecycle} = input
   const view = dataSet.getView('Base_DataModel_Field', viewId)
   if (!view) throw new Error('DATA_SPACE_SOURCE_INPUT_CONTEXT: 缺少正式字段视图')
   const queryContext = JSON.stringify(view.queryContext)
@@ -120,7 +129,15 @@ export function sourceInputRead(host: SourceInputHost) {
     writable: host.view.fieldAccess(row, 'ValueFun').write === 'allowed' && host.view.editActionState(row) === 'enabled'}
 }
 
-export function sourceInputValidateValue(dataSet: DataSet, targetId: string, name: string, value: unknown): void {
+export type SourceInputValidateValueInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  name: string
+  value: unknown
+}>
+
+export function sourceInputValidateValue(input: SourceInputValidateValueInput): void {
+  const {dataSet, targetId, name, value} = input
   if (typeof value !== 'string') throw new Error('ValueFun必须是值函数字符串')
   if (value === '') return
   const expression = DataSpaceDesignApi.parseValueFunction(value)
@@ -132,7 +149,7 @@ export function sourceInputValidateValue(dataSet: DataSet, targetId: string, nam
   }
 }
 
-function validateHost(host: SourceInputHost, value: unknown): void {sourceInputValidateValue(host.dataSet, host.targetId, host.name, value)}
+function validateHost(host: SourceInputHost, value: unknown): void {sourceInputValidateValue({dataSet: host.dataSet, targetId: host.targetId, name: host.name, value})}
 
 function assertEditable(host: SourceInputHost, status: 'idle' | 'pending' = 'idle', writable = true): void {
   host.lifecycle.assertEditable?.()
@@ -284,8 +301,7 @@ export type SourceInputHandle = {
 }
 
 export function createSourceInputHandle(host: SourceInputHost): SourceInputHandle {
-  const handle = {} as SourceInputHandle
-  Object.assign(handle, {
+  const handle: SourceInputHandle = {
     getState: () => sourceInputGetState(host),
     read: () => sourceInputRead(host),
     stage: (value: string) => sourceInputStage(host, value),
@@ -294,7 +310,7 @@ export function createSourceInputHandle(host: SourceInputHost): SourceInputHandl
     belongsTo: (modelId: string, viewId: 'default' | 'sourceInputFields') => sourceInputBelongsTo(host, modelId, viewId),
     assertWorkspaceChanges: () => sourceInputAssertWorkspaceChanges(host),
     reload: (discardPending: boolean) => sourceInputReloadBatch([handle], discardPending),
-  })
+  }
   hostByHandle.set(handle, host)
   return handle
 }

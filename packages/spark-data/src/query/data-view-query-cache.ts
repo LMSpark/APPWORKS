@@ -4,6 +4,13 @@
  * 边界：适配器提供完整请求键与有效身份检查；清除后旧在途结果不得回填。
  * AI用途：为数据资源查询适配器复用页面或浏览器会话结果，保持身份检查和存储协议在原适配器内。
  */
+export type DataViewQueryCacheQueryInput<T> = Readonly<{
+  key: string
+  page?: object | undefined
+  load: () => Promise<T>
+  isCurrent: () => boolean
+}>
+
 /** 数据资源适配器持有的结果缓存；页面使用对象身份分区，浏览器缓存仅内存持有。 */
 export class DataViewQueryCache<T> {
   private browser = new Map<string, {value: T}>()
@@ -21,7 +28,8 @@ export class DataViewQueryCache<T> {
   release(page: object): void {this.pages.delete(page)}
 
   /** page省略表示浏览器会话；最多保留每个作用域128个最近查询，失败不缓存。 */
-  async query(key: string, page: object | undefined, load: () => Promise<T>, isCurrent: () => boolean): Promise<T> {
+  async query(input: DataViewQueryCacheQueryInput<T>): Promise<T> {
+    const {key, page, load, isCurrent} = input
     let entries = page === undefined ? this.browser : this.pages.get(page)
     if (!entries) {
       entries = new Map()

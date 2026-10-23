@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/database/database-catalog-list-metadata",
+    "sourcePath": "src/lowcode/resources/database/database-catalog-list-metadata.ts",
+    "sourceFile": "src/lowcode/resources/database/database-catalog-list-metadata.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/database/database-catalog-list-metadata",
+    "jsdoc": "@module app:lowcode/resources/database/database-catalog-list-metadata\n职责：表/视图目录列表显式列子组件（对齐参考页主要列，不展示全部 autoColumns）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-23T06:52:15.619Z",
+  "models": {}
+}

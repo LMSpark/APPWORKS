@@ -36,7 +36,7 @@ type DataSpaceWireTree = Readonly<{
 
 /** 已转换的内部查询选项，供查询表组装 SPARK 封包。 */
 export type DataSpaceWireQueryOptions = Readonly<{
-  filter?: DataSpaceWireFilter
+  filter?: DataViewFilterWire
   sortFields?: readonly DataSpaceWireSort[]
   pageIndex?: number
   pageSize?: number
@@ -48,9 +48,6 @@ export type DataSpaceWireQueryOptions = Readonly<{
   fields?: readonly DataSpaceWireQueryField[]
   inputParams?: readonly DataSpaceWireInput[]
 }>
-
-/** 协议条件使用 ValueFun 且 Value 固定为 null；组以 Filters 递归组合。 */
-export type DataSpaceWireFilter = DataViewFilterWire
 
 /** 查询表内部描述对象，由模型身份与已转换选项构造。 */
 type DataSpaceWireQueryDescriptor = Readonly<Record<string, unknown>>

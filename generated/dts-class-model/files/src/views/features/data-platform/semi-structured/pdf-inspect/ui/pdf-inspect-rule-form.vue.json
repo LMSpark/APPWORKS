@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form",
+    "sourcePath": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue",
+    "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form",
+    "jsdoc": "app 的 views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-23T06:52:19.117Z",
+  "models": {}
+}

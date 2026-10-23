@@ -77,6 +77,36 @@
       ],
       "additionalProperties": false
     },
+    "ViewFieldProjectInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ViewFieldProjectInput",
+      "properties": {
+        "model": {
+          "$ref": "#/$defs/FormalModel"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "configured": true,
+        "viewId": {
+          "type": "string"
+        },
+        "definition": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "model",
+        "tableName",
+        "configured",
+        "viewId",
+        "definition"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeDataSpaceViewFieldCatalog": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -163,19 +193,8 @@
         "method.project.params": {
           "type": "object",
           "properties": {
-            "model": {
-              "$ref": "#/$defs/FormalModel"
-            },
-            "tableName": {
-              "type": "string"
-            },
-            "configured": true,
-            "viewId": {
-              "type": "string"
-            },
-            "definition": {
-              "type": "object",
-              "title": "Record<string, unknown>"
+            "input": {
+              "$ref": "#/$defs/ViewFieldProjectInput"
             }
           },
           "additionalProperties": false
@@ -239,7 +258,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T12:18:49.490Z",
+  "generatedAt": "2026-10-23T06:52:20.137Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -255,6 +274,50 @@
           }
         ],
         "members": {}
+      }
+    },
+    "ViewFieldProjectInput": {
+      "name": "ViewFieldProjectInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    model: FormalModel;\n    tableName: string;\n    configured: unknown;\n    viewId: string;\n    definition: Record<string, unknown>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    model: FormalModel;\n    tableName: string;\n    configured: unknown;\n    viewId: string;\n    definition: Record<string, unknown>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "model",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "configured",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definition",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "LowcodeDataSpaceViewFieldCatalog": {
@@ -387,49 +450,11 @@
               "jsdoc": "Project one view's field catalog with native DataTable semantics; never bind query/save owners or load rows.",
               "parameters": [
                 {
-                  "name": "model",
+                  "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "FormalModel",
+                    "name": "ViewFieldProjectInput",
                     "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts"
-                  }
-                },
-                {
-                  "name": "tableName",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "configured",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "unknown"
-                  }
-                },
-                {
-                  "name": "viewId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "definition",
-                  "type": {
-                    "type": "reference",
-                    "name": "Record",
-                    "typeArguments": [
-                      {
-                        "type": "intrinsic",
-                        "name": "string"
-                      },
-                      {
-                        "type": "intrinsic",
-                        "name": "unknown"
-                      }
-                    ]
                   }
                 }
               ],

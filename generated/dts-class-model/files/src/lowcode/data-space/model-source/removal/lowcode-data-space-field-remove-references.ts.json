@@ -12,6 +12,7 @@
     "symbols": [
       "FieldReferenceUpdate",
       "FieldRename",
+      "FieldRemoveReferencesPrepareRenamesInput",
       "LowcodeDataSpaceFieldRemoveReferences"
     ]
   },
@@ -84,6 +85,38 @@
       ],
       "additionalProperties": false
     },
+    "FieldRemoveReferencesPrepareRenamesInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldRemoveReferencesPrepareRenamesInput",
+      "properties": {
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldRename"
+          }
+        },
+        "primaryReplacement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "views",
+        "modelId",
+        "mappings",
+        "primaryReplacement"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeDataSpaceFieldRemoveReferences": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -116,23 +149,8 @@
         "method.prepareRenames.params": {
           "type": "object",
           "properties": {
-            "views": {
-              "type": "array",
-              "items": {
-                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-              }
-            },
-            "modelId": {
-              "type": "string"
-            },
-            "mappings": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/FieldRename"
-              }
-            },
-            "primaryReplacement": {
-              "type": "string"
+            "input": {
+              "$ref": "#/$defs/FieldRemoveReferencesPrepareRenamesInput"
             }
           },
           "additionalProperties": false
@@ -146,7 +164,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-14T23:01:33.259Z",
+  "generatedAt": "2026-10-23T07:06:49.171Z",
   "models": {
     "FieldReferenceChange": {
       "name": "FieldReferenceChange",
@@ -244,6 +262,45 @@
         }
       }
     },
+    "FieldRemoveReferencesPrepareRenamesInput": {
+      "name": "FieldRemoveReferencesPrepareRenamesInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    views: ReadonlyArray<DataView | undefined>;\n    modelId: string;\n    mappings: readonly FieldRename[];\n    primaryReplacement: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    views: ReadonlyArray<DataView | undefined>;\n    modelId: string;\n    mappings: readonly FieldRename[];\n    primaryReplacement: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "views",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mappings",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primaryReplacement",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeDataSpaceFieldRemoveReferences": {
       "name": "LowcodeDataSpaceFieldRemoveReferences",
       "jsdoc": "只检查当前空间可读定义；不透明或歧义引用必须先处理。",
@@ -302,37 +359,11 @@
               "jsdoc": "同时解析所有字段改名；名称交换不会串行替换，未变属性及常量原样保留。",
               "parameters": [
                 {
-                  "name": "views",
+                  "name": "input",
                   "type": {
-                    "type": "array",
-                    "elementType": {
-                      "type": "optional",
-                      "elementType": {
-                        "type": "reference",
-                        "name": "DataView"
-                      }
-                    }
-                  }
-                },
-                {
-                  "name": "modelId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "mappings",
-                  "type": {
-                    "type": "unknown",
-                    "name": "readonly FieldRename[]"
-                  }
-                },
-                {
-                  "name": "primaryReplacement",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "reference",
+                    "name": "FieldRemoveReferencesPrepareRenamesInput",
+                    "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts"
                   }
                 }
               ],

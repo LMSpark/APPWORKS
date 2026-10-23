@@ -1,6 +1,14 @@
 import {RequestState, type DataView} from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 
+type LayoutAssertModelsInput = Readonly<{
+  base: Readonly<Record<string, unknown>>
+  config: Readonly<Record<string, unknown>>
+  targetId: string
+  models: DataView | undefined
+  files?: DataView
+}>
+
 /** 只转换节点坐标；旧图的边路径及扩展仍由原文件保留。 */
 export class LowcodeDataSpaceViewLayout {
   /** 读取旧图的节点坐标；身份归属由调用方当前正式模型查询校验，不把边转为原生关系。 */
@@ -23,7 +31,8 @@ export class LowcodeDataSpaceViewLayout {
   }
 
   /** 校验本次布局改动引用的正式模型，消费已加载查询，不补查字段或目标空间数据。 */
-  static assertModels(base: Readonly<Record<string, unknown>>, config: Readonly<Record<string, unknown>>, targetId: string, models: DataView | undefined, files?: DataView): void {
+  static assertModels(input: LayoutAssertModelsInput): void {
+    const {base, config, targetId, models, files} = input
     if (!models || models.destroyed || models.requestState !== RequestState.Loaded || models.queryContext['dataSpaceId'] !== targetId) throw new Error('DATA_SPACE_LAYOUT_MODEL: 当前模型查询身份失效')
     const fileKeys = new Set(files?.requestState === RequestState.Loaded && files.queryContext['dataSpaceId'] === targetId
       ? files.rows.filter(row => row['dataSetId'] === targetId && row['resourceType'] === 'file'

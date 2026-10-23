@@ -69,7 +69,7 @@ function fixture(text: string | null = initial) {
         if (!model) throw new Error('missing model')
         return model
       },
-      assemble: async (id, config) => {
+      assemble: async ({scenarioId: id, config}) => {
         entered?.(); await gate
         return assembler.assemble({config, space: {dataSpaceId: id, name: id}, models, relations: current})
       },

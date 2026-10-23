@@ -74,7 +74,7 @@ AI用途：正式模型及命名视图的原生查询预览，数据交互使用
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef} from 'vue'
-import {FieldCheckbox, FieldJson, FieldNumber, FieldRadio, FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, RendererDetail, RendererFilter, RendererForm, RendererSection, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataViewFilter, DataViewLocalQuery, DataViewQuery, RequestState, type DataView, type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
 import {ScenarioDefinitionResource, DataSpaceReferenceLayoutResource, ProjectToolResource} from '@spark-appworks/spark-project-model'
@@ -82,6 +82,7 @@ import type {LowcodeDataSpaceQueryPreview} from '@/lowcode/data-space/view-desig
 import type {DataSpaceQueryPreviewProps} from './DataSpaceQueryPreview.props'
 import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
 
+const {FieldCheckbox, FieldJson, FieldNumber, FieldRadio, FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, RendererDetail, RendererFilter, RendererForm, RendererSection, RendererTable, useSparkComponent} = SparkComponent
 const props = defineProps<DataSpaceQueryPreviewProps>()
 const emit = defineEmits<{close: []}>()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-space-query-preview'})
@@ -136,7 +137,7 @@ async function open(): Promise<void> {
       if (!active || candidate.disposed) {candidate.dispose(); return}
     }
     const parameters: {schema: JsonSchemaObject; warning: string} = props.modelId
-      ? new LowcodeDataSpaceFieldValue(props.session.metadataDataSet, props.session.targetId, props.modelId).readQueryParameters(directInputs.value ? 'direct' : 'mapped')
+      ? new LowcodeDataSpaceFieldValue({dataSet: props.session.metadataDataSet, targetId: props.session.targetId, modelId: props.modelId}).readQueryParameters(directInputs.value ? 'direct' : 'mapped')
       : {schema: {type: 'object', properties: {}}, warning: ''}
     if (props.fileResourceId) {
       const fields = props.fileResourceId === DataSpaceReferenceLayoutResource.resourceId

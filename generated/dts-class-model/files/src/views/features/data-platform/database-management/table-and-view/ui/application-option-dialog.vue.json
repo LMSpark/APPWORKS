@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/table-and-view/ui/application-option-dialog",
+    "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/application-option-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/application-option-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/table-and-view/ui/application-option-dialog",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/application-option-dialog\n职责：视图设计「应用选择」；列表绑定 Base_AppSystemList DataView。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-23T06:52:16.364Z",
+  "models": {}
+}

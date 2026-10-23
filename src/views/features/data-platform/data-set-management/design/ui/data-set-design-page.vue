@@ -303,7 +303,7 @@ import DataSpaceArrayEditor from './node-panel/DataSpaceArrayEditor.vue'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, DisplayText, FieldJson, RendererForm, RendererButton, RendererTree, RendererGraph, RendererSection, RendererTabs, RendererTabPane, RendererDialog, RendererDetail, useSparkComponent, type RGraphProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
@@ -327,6 +327,11 @@ import DataSpaceModelRemoval from '../model/removal/DataSpaceModelRemoval.vue'
 import DataSpaceRelationEditor from './edge-panel/data-set-design-edge-panel.vue'
 import DataSpaceCascadeEditor from './cascades/DataSpaceCascadeEditor.vue'
 import {DataSpaceLayoutEdit} from '../graph/data-space-layout-edit'
+
+type RGraphProps = SparkComponent.RGraphProps
+/** 一个设计记录字段的读取位置；source 省略时使用 table 的默认视图。 */
+type DesignCell = Readonly<{table: string; row: DataRow; field: string; source?: DataView | undefined}>
+const {PAGE_RUNTIME, DisplayText, FieldJson, RendererForm, RendererButton, RendererTree, RendererGraph, RendererSection, RendererTabs, RendererTabPane, RendererDialog, RendererDetail, useSparkComponent} = SparkComponent
 
 type DesignNode = {id: string; label: string; table?: string; viewId?: string; rowKey?: string | number; workspace?: 'views' | 'fields'; description?: string; children?: DesignNode[]; recordIndex?: number; unplacedReason?: string; removalModelId?: string}
 /** 唯一被设计空间 ID 由宿主（数据空间目录对话框）传入；页面不读路由参数，也不接受第二个空间身份。 */
@@ -449,27 +454,28 @@ async function copyApi(): Promise<void> {
   } catch (cause) {if (active && current === session.value) error.value = readError(cause)}
   finally {if (active && current === session.value) busy.value = false}
 }
-function readable(table: string, row: DataRow, field: string, source = view(table)): boolean {
+function readable(cell: DesignCell): boolean {
+  const {table, row, field} = cell, source = cell.source ?? view(table)
   try {return !table.startsWith('Base_') || source?.fieldAccess(row, field).read === 'visible'}
   catch {return false}
 }
-function text(table: string, row: DataRow, field: string, source = view(table)): string {
-  if (!readable(table, row, field, source)) return '不可读'
-  const value = row[field]
+function text(cell: DesignCell): string {
+  if (!readable(cell)) return '不可读'
+  const value = cell.row[cell.field]
   return typeof value === 'string' ? value : value === undefined || value === null ? '—' : JSON.stringify(value)
 }
 function rowNode(table: string, row: DataRow, label: string): DesignNode | null {
   const rowKey = view(table)?.getPkKey(row)
-  if (rowKey === undefined || !readable(table, row, table.startsWith('Base_') ? 'rowid' : 'dataSetId')) return null
+  if (rowKey === undefined || !readable({table, row, field: table.startsWith('Base_') ? 'rowid' : 'dataSetId'})) return null
   return {id: JSON.stringify([table, rowKey]), table, rowKey, label}
 }
 function nodes(table: string, label: string, parentId?: string): DesignNode[] {
   const source = table === 'DataResourceRelationDefinition' ? relationDisplayView() : view(table)
   return (source?.rows ?? []).flatMap(row => {
-    if (parentId !== undefined && (!readable(table, row, 'dataModelId') || row['dataModelId'] !== parentId)) return []
+    if (parentId !== undefined && (!readable({table, row, field: 'dataModelId'}) || row['dataModelId'] !== parentId)) return []
     const title = table === 'DataViewCascadeDefinition' && row['cascadeId'] === undefined
-      ? `${text(table, row, 'parentTable')}@${text(table, row, 'parentViewId')} → ${text(table, row, 'childTable')}@${text(table, row, 'childViewId')}`
-      : text(table, row, label)
+      ? `${text({table, row, field: 'parentTable'})}@${text({table, row, field: 'parentViewId'})} → ${text({table, row, field: 'childTable'})}@${text({table, row, field: 'childViewId'})}`
+      : text({table, row, field: label})
     const node = rowNode(table, row, title)
     return node ? [node] : []
   })
@@ -477,14 +483,14 @@ function nodes(table: string, label: string, parentId?: string): DesignNode[] {
 const title = computed(() => {
   revision.value
   const row = view('Base_DataSet')?.rows[0]
-  return row ? text('Base_DataSet', row, 'Name') : '通过 URL 传入一个目标空间'
+  return row ? text({table: 'Base_DataSet', row, field: 'Name'}) : '通过 URL 传入一个目标空间'
 })
 function unplacedReason(table: string, row: DataRow, source = view(table)): string {
   const identity = table.startsWith('Base_') ? 'rowid' : 'dataSetId'
-  if (!readable(table, row, identity, source)) return '记录身份不可读，无法确定层次位置。'
+  if (!readable({table, row, field: identity, source})) return '记录身份不可读，无法确定层次位置。'
   if (source?.getPkKey(row) === undefined || table === 'Base_DataModel' && typeof row['rowid'] !== 'string') return '记录身份为空或无效，无法确定层次位置。'
   if (table === 'Base_DataModel_Field' || table === 'DataViewDefinition') {
-    if (!readable(table, row, 'dataModelId', source)) return '所属模型身份不可读，无法确定归属。'
+    if (!readable({table, row, field: 'dataModelId', source})) return '所属模型身份不可读，无法确定归属。'
     if (typeof row['dataModelId'] !== 'string' || !row['dataModelId'].trim()) return '所属模型身份为空或无效。'
     return '所属模型未出现在当前可读模型列表；无法据此判断模型不存在或没有读取权限。'
   }
@@ -504,7 +510,7 @@ const hierarchy = computed(() => {
   const current = session.value
   if (!current) return {nodes: [], messages: []}
   const modelNodes = (view('Base_DataModel')?.rows ?? []).flatMap(row => {
-    const node = rowNode('Base_DataModel', row, text('Base_DataModel', row, 'Name'))
+    const node = rowNode('Base_DataModel', row, text({table: 'Base_DataModel', row, field: 'Name'}))
     if (!node || typeof row['rowid'] !== 'string') return []
     const fields = nodes('Base_DataModel_Field', 'Name', row['rowid'])
     // 暂存或未决删除只保留原命令的恢复入口，不把目标重新插入正式字段视图。
@@ -528,7 +534,7 @@ const hierarchy = computed(() => {
     if (!node) continue
     const views = (view('DataViewDefinition')?.rows ?? []).flatMap(item => {
       if (item['dataSetId'] !== current.targetId || item['tableName'] !== tableName || item['dataModelId'] !== undefined || item['dataModelName'] !== undefined) return []
-      const child = rowNode('DataViewDefinition', item, text('DataViewDefinition', item, 'viewId'))
+      const child = rowNode('DataViewDefinition', item, text({table: 'DataViewDefinition', row: item, field: 'viewId'}))
       return child ? [child] : []
     })
     node.children = [{...node, id: `${node.id}:fields`, label: `字段（${Array.isArray(configuration['columns']) ? configuration['columns'].length : 0}）`, workspace: 'fields'},
@@ -566,13 +572,13 @@ const hierarchy = computed(() => {
       if (key !== undefined && placed.get(table)?.has(key)) return []
       // The index only locates this read result; it is never a formal identity or a write target.
       return [{id: `unplaced:${table}:${recordIndex}`, table, recordIndex,
-        label: `记录 ${recordIndex + 1} · ${text(table, row, nameField)} · ${text(table, row, table.startsWith('Base_') ? 'rowid' : 'dataSetId')}`,
+        label: `记录 ${recordIndex + 1} · ${text({table, row, field: nameField})} · ${text({table, row, field: table.startsWith('Base_') ? 'rowid' : 'dataSetId'})}`,
         unplacedReason: unplacedReason(table, row)}]
     })
     if (table === 'Base_DataModel_Field') for (const {view: source, recordIndex} of workbench.value?.unplacedNamedFields() ?? []) {
       const row = source.rows[recordIndex]!
       children.push({id: `unplaced:${table}:${source.viewId}:${recordIndex}`, table, viewId: source.viewId, recordIndex,
-        label: `记录 ${recordIndex + 1} · ${text(table, row, nameField, source)} · ${text(table, row, 'rowid', source)}`,
+        label: `记录 ${recordIndex + 1} · ${text({table, row, field: nameField, source})} · ${text({table, row, field: 'rowid', source})}`,
         unplacedReason: unplacedReason(table, row, source)})
     }
     if (!children.length) continue
@@ -662,9 +668,9 @@ function selectNode(id: string, open = true): void {
   if (modelCreatePending.value || session.value?.hasPendingModelCreate()) {error.value = '请先取消预览、创建或核验本次新增，再切换定义'; return}
   if (findNode(id) || unbound) {selectedId.value = id; error.value = ''; if (open) void openDefinition()}
 }
-const selected = computed(() => unboundSelectedId.value ? {id: selectedId.value,
-  label: String(layoutEdit.value?.nodes.getEditingRow(unboundSelectedId.value)?.['Name'] ?? '待配置模型')} as DesignNode
-  : unboundEdgeSelectedId.value ? {id: selectedId.value, label: '节点关系设置'} as DesignNode : findNode(selectedId.value))
+const selected = computed((): DesignNode | undefined => unboundSelectedId.value ? {id: selectedId.value,
+  label: String(layoutEdit.value?.nodes.getEditingRow(unboundSelectedId.value)?.['Name'] ?? '待配置模型')}
+  : unboundEdgeSelectedId.value ? {id: selectedId.value, label: '节点关系设置'} : findNode(selectedId.value))
 watch(selected, (current, previous) => {
   if (!current && previous?.removalModelId) {
     const model = JSON.stringify(['Base_DataModel', previous.removalModelId])
@@ -980,7 +986,7 @@ const sourceFieldId = computed(() => {
   if (node?.unplacedReason || node?.table !== 'Base_DataModel_Field' || typeof node.rowKey !== 'string') return null
   const fields = view(node.table)
   const row = fields?.rows.find(item => fields.getPkKey(item) === node.rowKey)
-  return row && readable(node.table, row, 'type') && row['type'] === 'inputParams' ? node.rowKey : null
+  return row && readable({table: node.table, row, field: 'type'}) && row['type'] === 'inputParams' ? node.rowKey : null
 })
 const dataFieldId = computed(() => {
   revision.value
@@ -988,7 +994,7 @@ const dataFieldId = computed(() => {
   if (node?.unplacedReason || node?.table !== 'Base_DataModel_Field' || typeof node.rowKey !== 'string') return null
   if (node.removalModelId) return node.rowKey
   const fields = view(node.table), row = fields?.rows.find(item => fields.getPkKey(item) === node.rowKey)
-  return row && readable(node.table, row, 'type') && row['type'] === 'dataModel' ? node.rowKey : null
+  return row && readable({table: node.table, row, field: 'type'}) && row['type'] === 'dataModel' ? node.rowKey : null
 })
 const fieldModelId = computed(() => {
   revision.value
@@ -1000,7 +1006,7 @@ const modelFieldIds = computed(() => {
   const modelId = fieldModelId.value
   if (!modelId) return undefined
   return (view('Base_DataModel_Field')?.rows ?? []).flatMap(row =>
-    ['rowid', 'dataModelId', 'type'].every(key => readable('Base_DataModel_Field', row, key))
+    ['rowid', 'dataModelId', 'type'].every(key => readable({table: 'Base_DataModel_Field', row, field: key}))
       && row['dataModelId'] === modelId && row['type'] === 'dataModel' && typeof row['rowid'] === 'string' ? [row['rowid']] : [])
 })
 const fieldEditorId = computed(() => dataFieldId.value ?? modelFieldIds.value?.[0])
@@ -1010,9 +1016,9 @@ const viewContext = computed(() => {
   if (node?.unplacedReason || !node?.table || node.rowKey === undefined || !['Base_DataModel', 'DataViewDefinition'].includes(node.table)) return null
   const row = view(node.table)?.getEditingRow(node.rowKey)
   const modelId = node.table === 'Base_DataModel' ? row?.['rowid'] : row?.['dataModelId']
-  const models = view('Base_DataModel')?.rows.filter(item => readable('Base_DataModel', item, 'rowid') && item['rowid'] === modelId) ?? []
+  const models = view('Base_DataModel')?.rows.filter(item => readable({table: 'Base_DataModel', row: item, field: 'rowid'}) && item['rowid'] === modelId) ?? []
   const model = models[0]
-  if (models.length !== 1 || !model || typeof modelId !== 'string' || !readable('Base_DataModel', model, 'Name') || typeof model['Name'] !== 'string') return null
+  if (models.length !== 1 || !model || typeof modelId !== 'string' || !readable({table: 'Base_DataModel', row: model, field: 'Name'}) || typeof model['Name'] !== 'string') return null
   return {modelId, modelName: model['Name'], rowKey: node.table === 'DataViewDefinition' ? node.rowKey : undefined}
 })
 const fileContext = computed(() => {
@@ -1076,7 +1082,7 @@ const modelViewKey = computed(() => session.value?.metadataDataSet.scenarioId
 const sourceLabelParts = computed(() => {
   revision.value
   const modelView = view('Base_DataModel'), row = modelView?.currentRow
-  if (!modelView || !row || !readable('Base_DataModel', row, 'rowid') || row['rowid'] !== viewContext.value?.modelId) {
+  if (!modelView || !row || !readable({table: 'Base_DataModel', row, field: 'rowid'}) || row['rowid'] !== viewContext.value?.modelId) {
     return {name: false, database: false, type: false}
   }
   const access = (field: string) => modelView.fieldAccess(row, field).read
@@ -1163,7 +1169,7 @@ const detail = computed(() => {
     : node.rowKey !== undefined ? currentView?.getEditingRow(node.rowKey) : undefined
   if (!currentView || !row) return []
   return currentView.columns.filter(column => column.name !== '_pk' && column.name !== 'inputParams')
-    .map(column => ({name: column.name, value: text(node.table!, row, column.name, currentView)}))
+    .map(column => ({name: column.name, value: text({table: node.table!, row, field: column.name, source: currentView})}))
 })
 const definitionMessages = computed(() => {
   if (definitionLoading.value) return []

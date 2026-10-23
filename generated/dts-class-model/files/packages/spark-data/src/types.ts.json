@@ -16,6 +16,9 @@
       "ColumnTypeMap",
       "InferColumnValue",
       "ComputedColumnFn",
+      "DataColumnOptionSource",
+      "DataColumnOptionsView",
+      "DataColumnValueFunction",
       "DataColumn",
       "TableResourceType",
       "TableBusinessCategory",
@@ -74,6 +77,7 @@
       "DataSetSaveChangesTransactionOptions",
       "DataSetSaveChangesConfig",
       "DataSetSaveChangesOptions",
+      "DataSetDiscardAndReloadOptions",
       "DataSetPhasedSaveResult",
       "DataSetSaveChangesViewResult",
       "DataSetSaveChangesResult",
@@ -392,7 +396,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@196876": {
+            "__@iterator@205499": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -447,7 +451,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@196876"
+            "__@iterator@205499"
           ],
           "additionalProperties": false
         },
@@ -596,6 +600,104 @@
       ],
       "additionalProperties": false
     },
+    "DataColumnOptionSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataColumnOptionSource",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "valueField": {
+          "type": "string"
+        },
+        "labelField": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "valueField"
+      ],
+      "additionalProperties": false
+    },
+    "DataColumnOptionsView": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataColumnOptionsView",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "valueField": {
+          "type": "string"
+        },
+        "labelField": {
+          "type": "string"
+        },
+        "context": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "fill": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "tableName",
+        "valueField"
+      ],
+      "additionalProperties": false
+    },
+    "DataColumnValueFunction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataColumnValueFunction",
+      "properties": {
+        "format": {
+          "enum": [
+            "text",
+            "json",
+            "json-object"
+          ]
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionCapability"
+          }
+        },
+        "sources": {
+          "type": "object",
+          "properties": {
+            "inputParams": {
+              "$ref": "#/$defs/DataColumnOptionSource"
+            },
+            "apiPublicParams": {
+              "$ref": "#/$defs/DataColumnOptionSource"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "format"
+      ],
+      "additionalProperties": false
+    },
     "DataColumn": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -658,6 +760,30 @@
         },
         "patternMessage": {
           "type": "string"
+        },
+        "trim": {
+          "enum": [
+            "reject",
+            "normalize"
+          ]
+        },
+        "unique": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "immutable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "optionsView": {
+          "$ref": "#/$defs/DataColumnOptionsView"
+        },
+        "valueFunction": {
+          "$ref": "#/$defs/DataColumnValueFunction"
         },
         "computeExpression": {
           "type": "string"
@@ -890,7 +1016,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@196876": {
+            "__@iterator@205499": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -945,7 +1071,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@196876"
+            "__@iterator@205499"
           ],
           "additionalProperties": false
         },
@@ -1171,7 +1297,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@196876": {
+            "__@iterator@205499": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1226,7 +1352,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@196876"
+            "__@iterator@205499"
           ],
           "additionalProperties": false
         },
@@ -1464,7 +1590,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1519,7 +1645,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -1749,7 +1875,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1804,7 +1930,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -2740,7 +2866,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2795,7 +2921,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -3025,7 +3151,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3080,7 +3206,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -3496,6 +3622,18 @@
           "enum": [
             "immediate",
             "staged"
+          ]
+        },
+        "allowDelete": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "lockCurrentWhilePending": {
+          "enum": [
+            false,
+            true
           ]
         },
         "aggregates": {
@@ -5575,6 +5713,36 @@
       },
       "additionalProperties": false
     },
+    "DataSetDiscardAndReloadOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetDiscardAndReloadOptions",
+      "properties": {
+        "views": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tableName": {
+                "type": "string"
+              },
+              "viewId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "tableName",
+              "viewId"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "views"
+      ],
+      "additionalProperties": false
+    },
     "DataSetPhasedSaveResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -6005,7 +6173,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-20T08:37:53.039Z",
+  "generatedAt": "2026-10-23T17:03:31.599Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -6431,12 +6599,106 @@
         "members": {}
       }
     },
+    "DataColumnOptionSource": {
+      "name": "DataColumnOptionSource",
+      "jsdoc": "同一 DataSet 内的选项来源视图；viewId 省略为 default。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    tableName: string;\n    viewId?: string;\n    /** 与列值比较的选项字段。 */\n    valueField: string;\n    /** 值函数候选的显示字段，省略用 valueField。 */\n    labelField?: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueField",
+              "jsdoc": "与列值比较的选项字段。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "labelField",
+              "jsdoc": "值函数候选的显示字段，省略用 valueField。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataColumnOptionsView": {
+      "name": "DataColumnOptionsView",
+      "jsdoc": "列值引用核对配置；context 为选项查询参数名到本行字段名，fill 为本行目标字段到选项字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "DataColumnOptionSource & {\n    context?: Record<string, string>;\n    fill?: Record<string, string>;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "DataColumnOptionSource",
+            "targetName": "DataColumnOptionSource"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    context?: Record<string, string>;\n    fill?: Record<string, string>;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "context",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fill",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataColumnValueFunction": {
+      "name": "DataColumnValueFunction",
+      "jsdoc": "值函数列：text 允许普通文本或值函数 JSON；json 须为 JSON 对象或数组，json-object 须为对象，\n其中字符串节点按值函数核对。sources 提供输入参数及接口公共参数候选。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    format: 'text' | 'json' | 'json-object';\n    capabilities?: DataViewFilterFunctionCapability[];\n    sources?: {\n        inputParams?: DataColumnOptionSource;\n        apiPublicParams?: DataColumnOptionSource;\n    };\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "format",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "capabilities",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataColumn": {
       "name": "DataColumn",
       "jsdoc": "数据列定义\n分为两个部分：\n- **数据属性**（name, type, isPrimaryKey, ...）：描述数据结构，供校验 / 计算列 / CRUD 使用\n- **渲染属性**（label, visible, editable, ...）：描述 UI 呈现方式，供表格 / 表单组件消费\n渲染属性均为可选，不影响纯数据层使用。\nUI 组件通过 `DataSource.columns` 或 `DataView.columns` 读取列元数据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 列名称 */\n    name: string;\n    /**\n     * 列值类型。已知类型见 `ColumnType`；未知业务类型按 unknown 处理。\n     *\n     * 常用值：`'string'` | `'number'` | `'boolean'` | `'date'` | `'datetime'`\n     */\n    type: ColumnType;\n    /** 列标题（UI 表头 / 表单标签 / 描述列标题）。未设置时 UI 回退到 `name` */\n    label?: string;\n    /** 是否允许数据库 NULL 值 */\n    allowDBNull?: boolean;\n    /** 默认值 */\n    defaultValue?: unknown;\n    /** 是否为主键字段 */\n    isPrimaryKey?: boolean;\n    /** 是否自增 */\n    autoIncrement?: boolean;\n    /**\n     * 是否为框架计算列（如 `_pk`）。\n     *\n     * 计算列的值由框架自动维护，不参与序列化（`DataTable.toJson()` 自动排除）。\n     * UI 组件可通过 `columns.filter(c => !c.isComputed)` 获取用户定义列。\n     */\n    isComputed?: boolean;\n    /**\n     * UI 必填标记。\n     *\n     * - `true`：表单中必填（生成 required 验证规则）\n     * - 未设置时回退到 `!allowDBNull`（allowDBNull 显式为 false 也视为必填）\n     */\n    required?: boolean;\n    /** 字符串最小长度（仅 type 为 string 系列时生效） */\n    minLength?: number;\n    /** 字符串最大长度（仅 type 为 string 系列时生效） */\n    maxLength?: number;\n    /** 数值最小值（仅 type 为 number 系列时生效） */\n    min?: number;\n    /** 数值最大值（仅 type 为 number 系列时生效） */\n    max?: number;\n    /**\n     * 正则校验模式（字符串形式，运行时编译为 RegExp）。\n     *\n     * @example `\"^[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+$\"`\n     */\n    pattern?: string;\n    /** 正则校验失败时的自定义提示消息。未设置时使用默认提示 */\n    patternMessage?: string;\n    /**\n     * 计算列表达式（JS 表达式字符串）。\n     *\n     * 行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n     * 子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n     * 当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n     * 计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n     *\n     * @example\n     * `\"price * qty\"`\n     * `\"firstName + ' ' + lastName\"`\n     * `\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n     * `\"$sum('OrderItems', 'amount')\"`\n     * `\"$count('OrderItems')\"`\n     * `\"$join('Tags', 'name', ' | ')\"`\n     */\n    computeExpression?: string;\n    /**\n     * 枚举选项（`type` 为 `enum` 时由标准组件 autoColumns 生成 `r-select`）。\n     */\n    enumOptions?: readonly Readonly<{\n        value: string;\n        label: string;\n    }>[];\n}",
+        "declarationTypeText": "{\n    /** 列名称 */\n    name: string;\n    /**\n     * 列值类型。已知类型见 `ColumnType`；未知业务类型按 unknown 处理。\n     *\n     * 常用值：`'string'` | `'number'` | `'boolean'` | `'date'` | `'datetime'`\n     */\n    type: ColumnType;\n    /** 列标题（UI 表头 / 表单标签 / 描述列标题）。未设置时 UI 回退到 `name` */\n    label?: string;\n    /** 是否允许数据库 NULL 值 */\n    allowDBNull?: boolean;\n    /** 默认值 */\n    defaultValue?: unknown;\n    /** 是否为主键字段 */\n    isPrimaryKey?: boolean;\n    /** 是否自增 */\n    autoIncrement?: boolean;\n    /**\n     * 是否为框架计算列（如 `_pk`）。\n     *\n     * 计算列的值由框架自动维护，不参与序列化（`DataTable.toJson()` 自动排除）。\n     * UI 组件可通过 `columns.filter(c => !c.isComputed)` 获取用户定义列。\n     */\n    isComputed?: boolean;\n    /**\n     * UI 必填标记。\n     *\n     * - `true`：表单中必填（生成 required 验证规则）\n     * - 未设置时回退到 `!allowDBNull`（allowDBNull 显式为 false 也视为必填）\n     */\n    required?: boolean;\n    /** 字符串最小长度（仅 type 为 string 系列时生效） */\n    minLength?: number;\n    /** 字符串最大长度（仅 type 为 string 系列时生效） */\n    maxLength?: number;\n    /** 数值最小值（仅 type 为 number 系列时生效） */\n    min?: number;\n    /** 数值最大值（仅 type 为 number 系列时生效） */\n    max?: number;\n    /**\n     * 正则校验模式（字符串形式，运行时编译为 RegExp）。\n     *\n     * @example `\"^[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+$\"`\n     */\n    pattern?: string;\n    /** 正则校验失败时的自定义提示消息。未设置时使用默认提示 */\n    patternMessage?: string;\n    /** 字符串首尾空白：reject 保存时拒绝，normalize 保存前去除；两者都把纯空白视为空值。 */\n    trim?: 'reject' | 'normalize';\n    /** 保存后本视图保留行中的非空值不得重复；只核已加载及待提交行，不替代服务端约束。 */\n    unique?: boolean;\n    /** 仅本视图待新增行可写；既有行字段只读，保存拒绝对其修改。 */\n    immutable?: boolean;\n    /** 保存前核对非空值在选项视图中唯一存在；fill 在本字段新增或变更时把匹配选项写回本行。 */\n    optionsView?: DataColumnOptionsView;\n    /** 值函数字段，保存前按 DataViewFilter 值函数合同校验。 */\n    valueFunction?: DataColumnValueFunction;\n    /**\n     * 计算列表达式（JS 表达式字符串）。\n     *\n     * 行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n     * 子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n     * 当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n     * 计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n     *\n     * @example\n     * `\"price * qty\"`\n     * `\"firstName + ' ' + lastName\"`\n     * `\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n     * `\"$sum('OrderItems', 'amount')\"`\n     * `\"$count('OrderItems')\"`\n     * `\"$join('Tags', 'name', ' | ')\"`\n     */\n    computeExpression?: string;\n    /**\n     * 枚举选项（`type` 为 `enum` 时由标准组件 autoColumns 生成 `r-select`）。\n     */\n    enumOptions?: ReadonlyArray<Readonly<{\n        value: string;\n        label: string;\n    }>>;\n}",
         "members": {
           "attributes": [
             {
@@ -6526,6 +6788,36 @@
             {
               "name": "patternMessage",
               "jsdoc": "正则校验失败时的自定义提示消息。未设置时使用默认提示",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "trim",
+              "jsdoc": "字符串首尾空白：reject 保存时拒绝，normalize 保存前去除；两者都把纯空白视为空值。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "unique",
+              "jsdoc": "保存后本视图保留行中的非空值不得重复；只核已加载及待提交行，不替代服务端约束。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "immutable",
+              "jsdoc": "仅本视图待新增行可写；既有行字段只读，保存拒绝对其修改。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionsView",
+              "jsdoc": "保存前核对非空值在选项视图中唯一存在；fill 在本字段新增或变更时把匹配选项写回本行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFunction",
+              "jsdoc": "值函数字段，保存前按 DataViewFilter 值函数合同校验。",
               "readable": true,
               "writable": false
             },
@@ -7281,7 +7573,7 @@
       "jsdoc": "数据视图元数据\n视图层关注点：行数据、过滤、排序、分页、树配置、聚合、序列化字段。\n当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /**\n     * 查询成功接纳结果后的页面script.js函数名；省略或空字符串禁用。不存脚本体。\n     * 页面宿主以{view, dataViewKey, signal}调用；非页面消费者可订阅requestCompleted。\n     * 失败、过期响应、初始灌入及普通编辑不触发；函数异常不撤销已接纳的查询结果。\n     */\n    onRequestComplete?: string;\n    /** 所属表名 */\n    tableName?: string;\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。 */\n    fieldProjection?: readonly DataViewFieldProjection[];\n    /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */\n    queryContext?: DataViewQueryContext;\n    /** 查询模式、输出字段、服务器节点参数及读取范围；每次刷新沿用，空对象恢复默认。不含结果或权限。 */\n    queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'maxRows' | 'fields' | 'sourceInputMode'> & {\n        /** 结果缓存：省略/none禁用，page随本次DataSet释放，browser仅当前浏览器会话内复用。需查询适配器支持；刷新、保存及身份变化清除。 */\n        cacheType?: 'none' | 'page' | 'browser';\n        /** 父输入及过滤输入变化是否自动查询；缺省true，false等待显式查询，不限制翻页和排序。 */\n        autoQuery?: boolean;\n        /** 文本条件的辅助值查询配置；完整取值并核权限，不修改来源视图状态。仅支持一级辅助查询；来源不得有查询级联依赖。 */\n        filterLookups?: readonly DataViewFilterLookupConfig[];\n    }>;\n    /**\n     * 视图行数据。\n     *\n     * 当前建模约定：仅当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n     * 其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。\n     */\n    rows?: DataRow[];\n    /** 过滤表达式 */\n    filterExpression?: DataViewFilterTree;\n    /** 排序表达式 */\n    sortExpression?: SortExpression;\n    /** 请求成功后自动将 currentRow 设为第一行 */\n    autoCurrentFirst?: boolean;\n    /** 请求成功后自动将 selectedRows 设为第一行 */\n    autoSelectFirst?: boolean;\n    /** 当前页码 */\n    page?: number;\n    /** 每页行数 */\n    pageSize?: number;\n    /** 树结构字段配置（idField/parentIdField/textField/depthLimit/lazy/treeMode），属于视图层关注点 */\n    treeConfig?: TreeConfig;\n    /**\n     * 值字段名（用于 value getter/setter 序列化）。\n     * 未指定时回退到主键字段。\n     *\n     * - 单字段：`'code'` → value 返回各选中行的 code 字段值\n     * - 多字段（复合值）：`['code', 'region']` → value 以 `:` 连接各字段，如 `'A:US'`\n     */\n    valueField?: string | string[];\n    /**\n     * 标签显示字段名（用于 labels / label getter，渲染 tag 时使用）。\n     * 未指定时回退到主键值字符串。\n     */\n    labelField?: string;\n    /**\n     * 值序列化分隔符（默认 ','）。\n     *\n     * - **非空字符串**（`','` / `'|'` / `';'` 等）：多选模式，value 以此分隔多个主键值\n     * - **空字符串 `''`**：单选模式，value 仅保留一个值，赋值时不拆分\n     *\n     * 通过 `isMultiSelect` getter 可读取当前模式。\n     */\n    selectionDelimiter?: string;\n    /**\n     * 是否在 DataSet 初始化后自动加载数据（默认 false）。\n     *\n     * 设为 `true` 时，页面调用渲染层在构建 DataSet 后自动调用 `view.requestData()`，\n     * 业务脚本无需在 `__init__` 中手动编写加载代码。\n     * DataSet.triggerAutoLoad 遍历所有表的视图，仅对空闲且启用 autoLoad 的视图发起请求；\n     * 请求由各视图绑定的数据源执行，父值依赖与在途请求复用由 requestData 处理。\n     */\n    autoLoad?: boolean;\n    /**\n     * 增删改提交模式（默认 `'immediate'`）。\n     *\n     * - `'immediate'`（默认）：`addRow` / `editRowById` / `removeRow` 立即调用对应网络 CRUD（如已配置 API）\n     * - `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交\n     */\n    commitMode?: CommitMode;\n    /**\n     * 视图级聚合配置——输出名 → 聚合列配置。\n     *\n     * `aggregates` 是配置态输出，会被 `DataView.toJson()` 持久化；每个 key 是\n     * `aggregateResult / selectionAggregateResult` 上的结果字段名。`config.field` 只决定从哪一列取源值，\n     * 因而 key 与 field 可以不同。\n     *\n     * 聚合配置与列定义（`DataColumn.computeExpression`）完全独立：\n     * 列负责逐行求值，聚合负责对已求值的行集合做整列汇总。\n     * 正式远程owner禁止该本地算法；原配置保留，读取汇总成员抛出aggregateError，不自动转换为fieldProjection。\n     */\n    aggregates?: Record<string, AggregateColumnConfig>;\n}",
+        "declarationTypeText": "{\n    /**\n     * 查询成功接纳结果后的页面script.js函数名；省略或空字符串禁用。不存脚本体。\n     * 页面宿主以{view, dataViewKey, signal}调用；非页面消费者可订阅requestCompleted。\n     * 失败、过期响应、初始灌入及普通编辑不触发；函数异常不撤销已接纳的查询结果。\n     */\n    onRequestComplete?: string;\n    /** 所属表名 */\n    tableName?: string;\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图对资源字段的稳定投影；viewId 可直接承载外部模型 ID。 */\n    fieldProjection?: readonly DataViewFieldProjection[];\n    /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */\n    queryContext?: DataViewQueryContext;\n    /** 查询模式、输出字段、服务器节点参数及读取范围；每次刷新沿用，空对象恢复默认。不含结果或权限。 */\n    queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'maxRows' | 'fields' | 'sourceInputMode'> & {\n        /** 结果缓存：省略/none禁用，page随本次DataSet释放，browser仅当前浏览器会话内复用。需查询适配器支持；刷新、保存及身份变化清除。 */\n        cacheType?: 'none' | 'page' | 'browser';\n        /** 父输入及过滤输入变化是否自动查询；缺省true，false等待显式查询，不限制翻页和排序。 */\n        autoQuery?: boolean;\n        /** 文本条件的辅助值查询配置；完整取值并核权限，不修改来源视图状态。仅支持一级辅助查询；来源不得有查询级联依赖。 */\n        filterLookups?: readonly DataViewFilterLookupConfig[];\n    }>;\n    /**\n     * 视图行数据。\n     *\n     * 当前建模约定：仅当表的 resourceType = 'static-data' 时，才应在配置中直接声明 rows；\n     * 其他资源类型应把数据视为远端来源，通过 requestData/loadFromServer 等机制获取。\n     */\n    rows?: DataRow[];\n    /** 过滤表达式 */\n    filterExpression?: DataViewFilterTree;\n    /** 排序表达式 */\n    sortExpression?: SortExpression;\n    /** 请求成功后自动将 currentRow 设为第一行 */\n    autoCurrentFirst?: boolean;\n    /** 请求成功后自动将 selectedRows 设为第一行 */\n    autoSelectFirst?: boolean;\n    /** 当前页码 */\n    page?: number;\n    /** 每页行数 */\n    pageSize?: number;\n    /** 树结构字段配置（idField/parentIdField/textField/depthLimit/lazy/treeMode），属于视图层关注点 */\n    treeConfig?: TreeConfig;\n    /**\n     * 值字段名（用于 value getter/setter 序列化）。\n     * 未指定时回退到主键字段。\n     *\n     * - 单字段：`'code'` → value 返回各选中行的 code 字段值\n     * - 多字段（复合值）：`['code', 'region']` → value 以 `:` 连接各字段，如 `'A:US'`\n     */\n    valueField?: string | string[];\n    /**\n     * 标签显示字段名（用于 labels / label getter，渲染 tag 时使用）。\n     * 未指定时回退到主键值字符串。\n     */\n    labelField?: string;\n    /**\n     * 值序列化分隔符（默认 ','）。\n     *\n     * - **非空字符串**（`','` / `'|'` / `';'` 等）：多选模式，value 以此分隔多个主键值\n     * - **空字符串 `''`**：单选模式，value 仅保留一个值，赋值时不拆分\n     *\n     * 通过 `isMultiSelect` getter 可读取当前模式。\n     */\n    selectionDelimiter?: string;\n    /**\n     * 是否在 DataSet 初始化后自动加载数据（默认 false）。\n     *\n     * 设为 `true` 时，页面调用渲染层在构建 DataSet 后自动调用 `view.requestData()`，\n     * 业务脚本无需在 `__init__` 中手动编写加载代码。\n     * DataSet.triggerAutoLoad 遍历所有表的视图，仅对空闲且启用 autoLoad 的视图发起请求；\n     * 请求由各视图绑定的数据源执行，父值依赖与在途请求复用由 requestData 处理。\n     */\n    autoLoad?: boolean;\n    /**\n     * 增删改提交模式（默认 `'immediate'`）。\n     *\n     * - `'immediate'`（默认）：`addRow` / `editRowById` / `removeRow` 立即调用对应网络 CRUD（如已配置 API）\n     * - `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交\n     */\n    commitMode?: CommitMode;\n    /** false 时禁止删除既有记录：删除呈现为 disabled，removeRow 及保存拒绝；撤销本地新增不受影响。 */\n    allowDelete?: boolean;\n    /** 本视图或其查询级联子视图有未提交修改时，拒绝切换当前行与选中行。 */\n    lockCurrentWhilePending?: boolean;\n    /**\n     * 视图级聚合配置——输出名 → 聚合列配置。\n     *\n     * `aggregates` 是配置态输出，会被 `DataView.toJson()` 持久化；每个 key 是\n     * `aggregateResult / selectionAggregateResult` 上的结果字段名。`config.field` 只决定从哪一列取源值，\n     * 因而 key 与 field 可以不同。\n     *\n     * 聚合配置与列定义（`DataColumn.computeExpression`）完全独立：\n     * 列负责逐行求值，聚合负责对已求值的行集合做整列汇总。\n     * 正式远程owner禁止该本地算法；原配置保留，读取汇总成员抛出aggregateError，不自动转换为fieldProjection。\n     */\n    aggregates?: Record<string, AggregateColumnConfig>;\n}",
         "members": {
           "attributes": [
             {
@@ -7395,6 +7687,18 @@
             {
               "name": "commitMode",
               "jsdoc": "增删改提交模式（默认 `'immediate'`）。\n- `'immediate'`（默认）：`addRow` / `editRowById` / `removeRow` 立即调用对应网络 CRUD（如已配置 API）\n- `'staged'`：仅修改内存并标记脏状态，调用 `saveChanges()` 批量提交",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowDelete",
+              "jsdoc": "false 时禁止删除既有记录：删除呈现为 disabled，removeRow 及保存拒绝；撤销本地新增不受影响。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lockCurrentWhilePending",
+              "jsdoc": "本视图或其查询级联子视图有未提交修改时，拒绝切换当前行与选中行。",
               "readable": true,
               "writable": false
             },
@@ -9985,6 +10289,23 @@
               "jsdoc": "事务选项",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetDiscardAndReloadOptions": {
+      "name": "DataSetDiscardAndReloadOptions",
+      "jsdoc": "DataSet.discardAndReload 的目标视图，按顺序丢弃后重新查询。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    views: ReadonlyArray<Readonly<{\n        tableName: string;\n        viewId: string;\n    }>>;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "views",
+              "readable": true,
+              "writable": true
             }
           ]
         }

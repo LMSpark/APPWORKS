@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog",
+    "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog\n职责：复制物理表对话框；提交新表名/描述，由页面调用 spark-data 复制编排。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-23T06:52:15.685Z",
+  "models": {}
+}

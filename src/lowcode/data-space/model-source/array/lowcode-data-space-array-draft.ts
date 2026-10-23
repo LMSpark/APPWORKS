@@ -63,7 +63,12 @@ export class LowcodeDataSpaceArrayDraft {
   private static rows(text:string):Array<Record<string,unknown>> {
     const value=parseJsonDocument(text)
     if(!Array.isArray(value) || value.some(row=>row===null || typeof row!=='object' || Array.isArray(row)))throw new Error('数组数据必须是对象数组')
-    return value as Array<Record<string,unknown>>
+    const rows: Array<Record<string, unknown>> = []
+    for (const row of value) {
+      if (row === null || typeof row !== 'object' || Array.isArray(row)) continue
+      rows.push(row)
+    }
+    return rows
   }
   private static normalize(value:ReadonlyArray<Record<string,unknown>>):Header[] {
     if(!value.length)throw new Error('请至少设置一个字段')

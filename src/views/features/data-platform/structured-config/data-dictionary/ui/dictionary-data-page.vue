@@ -5,16 +5,26 @@
 AI用途：实现用户数据维护页时复用数据空间查询、编辑覆盖、权限和独立保存范围。
 -->
 <template>
-  <p v-if="error" role="alert">{{ error }}</p>
-  <p v-if="loading">正在读取字典数据…</p>
-  <template v-if="ready && workspace">
-    <RendererTable :data-view-key="entryKey" :children="entryFields" :on-row-click="chooseEntry" />
-    <RendererForm v-if="entrySelected" :data-view-key="entryKey" :children="editFields" grid-min-width="220px" :show-data-view-meta="false" />
-    <RendererButton label="新增条目" :data-view-key="entryKey" perm-action="create" :disabled="busy || uncertain" @click="run(() => workspace!.addEntry())" />
-    <RendererButton label="删除当前条目" :data-view-key="entryKey" :disabled="busy || uncertain || !entryRemovable" @click="removeEntry" />
-    <RendererButton label="保存数据" :data-view-key="entryKey" button-type="primary" :disabled="busy || uncertain" @click="run(() => workspace!.saveData())" />
-    <RendererButton :label="uncertain ? '重读核验（放弃本地修改）' : '取消数据修改并重读'" :data-view-key="entryKey" :disabled="busy" @click="run(() => workspace!.load(true))" />
-  </template>
+  <section class="dictionary-data-page">
+    <header>
+      <h1>字典数据维护</h1>
+      <p v-if="ready && workspace">{{ dictionaryHeading }}</p>
+      <p v-else>按 dictionaryId 消费已保存的设计，仅维护业务条目。</p>
+    </header>
+    <p v-if="loading" role="status">正在读取字典数据…</p>
+    <p v-if="error" role="alert">{{ error }}</p>
+    <template v-if="ready && workspace">
+      <RendererTable :data-view-key="entryKey" :children="entryFields" :stripe="true" :highlight-current-row="true"
+        :on-row-click="chooseEntry" :show-data-view-meta="false" />
+      <RendererForm v-if="entrySelected" :data-view-key="entryKey" :children="editFields" grid-min-width="220px" :show-data-view-meta="false" />
+      <div class="dictionary-data-page__actions">
+        <RendererButton label="新增条目" :data-view-key="entryKey" perm-action="create" :disabled="busy || uncertain" @click="run(() => workspace!.addEntry())" />
+        <RendererButton label="删除当前条目" :data-view-key="entryKey" :disabled="busy || uncertain || !entryRemovable" @click="removeEntry" />
+        <RendererButton label="保存数据" :data-view-key="entryKey" button-type="primary" :disabled="busy || uncertain" @click="run(() => workspace!.saveData())" />
+        <RendererButton :label="uncertain ? '重读核验（放弃本地修改）' : '取消数据修改并重读'" :data-view-key="entryKey" :disabled="busy" @click="run(() => workspace!.load(true))" />
+      </div>
+    </template>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -32,6 +42,13 @@ const {workspace, ready, loading, busy, error, revision, uncertain, run} = useDi
   pageId: 'dictionary-data-page',
 })
 const entryKey = buildDataViewKey('_Base_DictData', 'default', LowcodeDictionary.editorScenarioId)
+const dictionaryHeading = computed(() => {
+  revision.value
+  const id = typeof route.query['dictionaryId'] === 'string' ? route.query['dictionaryId'] : ''
+  const name = workspace.value?.definition.currentRow?.['TypeName']
+  const title = typeof name === 'string' && name.trim() ? name.trim() : ''
+  return title ? `当前方案：${title}（${id}）` : `当前方案 ID：${id}`
+})
 const entrySelected = computed(() => {revision.value; return workspace.value?.entries.currentRow != null})
 const entryRemovable = computed(() => {
   revision.value
@@ -54,3 +71,11 @@ async function removeEntry(): Promise<void> {
   if (id !== undefined) await run(() => owner.removeEntry(id))
 }
 </script>
+
+<style scoped>
+.dictionary-data-page { display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
+.dictionary-data-page header { display: grid; gap: 4px; }
+.dictionary-data-page h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+.dictionary-data-page header p { margin: 0; color: var(--el-text-color-secondary); }
+.dictionary-data-page__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+</style>

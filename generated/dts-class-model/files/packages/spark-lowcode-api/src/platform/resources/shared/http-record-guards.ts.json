@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/shared/http-record-guards",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/shared/http-record-guards",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/shared/http-record-guards\n设计资源 HTTP 响应解包与对象校验（无 type assertion）。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DesignResourceRejection"
+    ]
+  },
+  "$defs": {
+    "DesignResourceRejection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DesignResourceRejection",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-23T17:51:12.224Z",
+  "models": {
+    "DesignResourceRejection": {
+      "name": "DesignResourceRejection",
+      "jsdoc": "旧Ajax应答已明确拒绝写入，不能当作传输结果未知。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "旧Ajax应答已明确拒绝写入，不能当作传输结果未知。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

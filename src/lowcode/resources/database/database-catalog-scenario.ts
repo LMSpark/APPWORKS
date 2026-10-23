@@ -7,7 +7,17 @@
 import { getNavTree } from '@spark-appworks/spark-app'
 import type { RuntimeNavigationItem } from '@spark-appworks/spark-app'
 import { DATA_SPACE_DESIGN_FORM_KEY, type LowcodeProjectBlueprintRecord } from '@spark-appworks/spark-lowcode-api'
+import { isRecord } from '@spark-appworks/spark-utils'
 import { lowcodeApi } from '../../lowcode-runtime'
+
+type DatabaseCatalogResolveCacheKey = Readonly<{
+  scopeToken: string
+  applicationId: string
+  preferred: string
+  fingerprint: string
+}>
+
+type DatabaseCatalogResolveCacheWrite = DatabaseCatalogResolveCacheKey & Readonly<{dataSpaceId: string}>
 
 const DATABASE_NAV_PATH_MARKERS = ['database-management', 'DataBaseManage'] as const
 
@@ -36,7 +46,7 @@ function orderCatalogScenarioCandidates(
   const preferred = preferredScenarioId.trim()
   const unique = [...new Set(candidates.map(id => id.trim()).filter(Boolean))]
   const nav = navigationNodeId?.trim()
-  const misboundPreferred = nav && preferred.toUpperCase() === nav.toUpperCase()
+  const misboundPreferred = preferred.toUpperCase() === nav?.toUpperCase()
   const withoutNavDuplicate = nav
     ? unique.filter(id => id.toUpperCase() !== nav.toUpperCase())
     : unique
@@ -69,42 +79,37 @@ export function metaNamesFingerprint(metaNames: readonly string[]): string {
   return [...metaNames].sort().join('|')
 }
 
-function cacheMemoryKey(scopeToken: string, applicationId: string, preferred: string, fingerprint: string): string {
-  return `${scopeToken}\0${applicationId}\0${preferred}\0${fingerprint}`
+function cacheMemoryKey(input: DatabaseCatalogResolveCacheKey): string {
+  return `${input.scopeToken}\0${input.applicationId}\0${input.preferred}\0${input.fingerprint}`
 }
 
-function readResolveCache(scopeToken: string, applicationId: string, preferred: string, fingerprint: string): string | undefined {
-  const mem = memoryResolveCache.get(cacheMemoryKey(scopeToken, applicationId, preferred, fingerprint))
+function readResolveCache(input: DatabaseCatalogResolveCacheKey): string | undefined {
+  const mem = memoryResolveCache.get(cacheMemoryKey(input))
   if (mem) return mem
   if (typeof sessionStorage === 'undefined') return undefined
   try {
-    const raw = sessionStorage.getItem(`${CACHE_STORAGE_PREFIX}${applicationId}:${preferred}`)
+    const raw = sessionStorage.getItem(`${CACHE_STORAGE_PREFIX}${input.applicationId}:${input.preferred}`)
     if (!raw) return undefined
-    const parsed = JSON.parse(raw) as {fingerprint?: string; dataSpaceId?: string; scopeToken?: string}
+    const parsed: unknown = JSON.parse(raw)
+    if (!isRecord(parsed)) return undefined
     if (
-      parsed.fingerprint !== fingerprint
-      || parsed.scopeToken !== scopeToken
-      || typeof parsed.dataSpaceId !== 'string'
+      parsed['fingerprint'] !== input.fingerprint
+      || parsed['scopeToken'] !== input.scopeToken
+      || typeof parsed['dataSpaceId'] !== 'string'
     ) return undefined
-    return parsed.dataSpaceId.trim() || undefined
+    return parsed['dataSpaceId'].trim() || undefined
   } catch {
     return undefined
   }
 }
 
-function writeResolveCache(
-  scopeToken: string,
-  applicationId: string,
-  preferred: string,
-  fingerprint: string,
-  dataSpaceId: string,
-): void {
-  memoryResolveCache.set(cacheMemoryKey(scopeToken, applicationId, preferred, fingerprint), dataSpaceId)
+function writeResolveCache(input: DatabaseCatalogResolveCacheWrite): void {
+  memoryResolveCache.set(cacheMemoryKey(input), input.dataSpaceId)
   if (typeof sessionStorage === 'undefined') return
   try {
     sessionStorage.setItem(
-      `${CACHE_STORAGE_PREFIX}${applicationId}:${preferred}`,
-      JSON.stringify({fingerprint, dataSpaceId, scopeToken}),
+      `${CACHE_STORAGE_PREFIX}${input.applicationId}:${input.preferred}`,
+      JSON.stringify({fingerprint: input.fingerprint, dataSpaceId: input.dataSpaceId, scopeToken: input.scopeToken}),
     )
   } catch {
     /* quota / private mode */
@@ -145,7 +150,7 @@ function resolveDiagnostics(
   candidateCount: number,
 ): DatabaseCatalogResolveDiagnostics {
   const nav = navigationNodeId?.trim()
-  const misboundPreferred = Boolean(nav && preferred.toUpperCase() === nav.toUpperCase())
+  const misboundPreferred = Boolean(preferred.toUpperCase() === nav?.toUpperCase())
   return {candidateCount, misboundPreferred}
 }
 
@@ -155,7 +160,7 @@ export function collectBlueprintDatabaseCatalogScenarioIds(
 ): readonly string[] {
   const result: string[] = []
   for (const record of records) {
-    const scenarioId = record.dataSpace?.scenarioId?.trim()
+    const scenarioId = record.dataSpace?.scenarioId.trim()
     if (!scenarioId) continue
     const title = record.navigation?.title ?? record.capability.name
     const target = record.navigation?.target?.toLowerCase() ?? ''
@@ -170,17 +175,15 @@ export function collectDatabaseCatalogScenarioCandidates(preferredScenarioId: st
   const preferred = preferredScenarioId.trim()
   if (preferred) ordered.push(preferred)
   const root = getNavTree()
-  if (root?.items?.length) walkDatabaseScenarioIds(root.items, ordered)
+  if (root !== null && root.items.length > 0) walkDatabaseScenarioIds(root.items, ordered)
   return [...new Set(ordered)]
 }
 
 /** 仅 identity 探测：从 GetBaseData 聚合结果反推有效 FormKey，不返回目录行给 UI。 */
 async function collectCatalogProbeScenarioIds(candidates: readonly string[]): Promise<readonly string[]> {
   if (candidates.length === 0) return []
-  const readCatalog = lowcodeApi.catalog?.getDatabaseCatalog
-  if (!readCatalog) return []
   try {
-    const catalog = await readCatalog.call(lowcodeApi.catalog, candidates)
+    const catalog = await lowcodeApi.catalog.getDatabaseCatalog.call(lowcodeApi.catalog, candidates)
     const keys = Object.values(catalog.sourceDataSpaces)
       .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
     return [...new Set(keys)]
@@ -196,8 +199,8 @@ async function buildDatabaseCatalogScenarioCandidates(
   const preferred = preferredScenarioId.trim()
   const nav = collectDatabaseCatalogScenarioCandidates(preferredScenarioId)
   const blueprint: string[] = []
-  const application = lowcodeApi.application?.get?.() ?? null
-  if (application !== null && lowcodeApi.blueprint?.readRecords) {
+  const application = lowcodeApi.application.get()
+  if (application !== null) {
     const records = await lowcodeApi.blueprint.readRecords(application.application.id)
     blueprint.push(...collectBlueprintDatabaseCatalogScenarioIds(records))
   }
@@ -234,10 +237,10 @@ export async function resolveDatabaseCatalogScenarioId(input: ResolveDatabaseCat
   if (!preferred) throw formatDatabaseCatalogResolveFailure(new Error('数据库目录缺少导航绑定的 dataSpaceId'))
   const fingerprint = metaNamesFingerprint(input.metaNames)
   const scope = lowcodeApi.readRequestScope()
-  const applicationId = lowcodeApi.application?.get?.()?.application.id ?? ''
-  const cached = applicationId
-    ? readResolveCache(scope.token, applicationId, preferred, fingerprint)
-    : undefined
+  const application = lowcodeApi.application.get()
+  const applicationId = application === null ? '' : application.application.id
+  const cacheKey = {scopeToken: scope.token, applicationId, preferred, fingerprint}
+  const cached = applicationId ? readResolveCache(cacheKey) : undefined
   if (cached) {
     try {
       await verifyCatalogDataSpaceId(cached, input.metaNames, input.assertCurrent)
@@ -258,7 +261,7 @@ export async function resolveDatabaseCatalogScenarioId(input: ResolveDatabaseCat
   for (const dataSpaceId of candidates) {
     try {
       await verifyCatalogDataSpaceId(dataSpaceId, input.metaNames, input.assertCurrent)
-      if (applicationId) writeResolveCache(scope.token, applicationId, preferred, fingerprint, dataSpaceId)
+      if (applicationId) writeResolveCache({...cacheKey, dataSpaceId})
       return dataSpaceId
     } catch (error) {
       lastError = error
@@ -303,18 +306,20 @@ export async function resolveDatabaseCatalogScenarioTiered(
 }
 
 /** loadCatalog 统一解析 dataSpaceId；Hub 已 batch 校验的 resolved 不再探测或二次 batch。 */
-export async function resolveDatabaseCatalogDataSpaceId(
-  preferredScenarioId: string,
-  metaNames: readonly string[],
-  options: DatabaseCatalogLoadOptions,
-  assertCurrent: () => void,
-): Promise<string> {
-  const preset = options.resolvedDataSpaceId?.trim()
+export type ResolveDatabaseCatalogDataSpaceIdInput = Readonly<{
+  preferredScenarioId: string
+  metaNames: readonly string[]
+  options: DatabaseCatalogLoadOptions
+  assertCurrent: () => void
+}>
+
+export async function resolveDatabaseCatalogDataSpaceId(input: ResolveDatabaseCatalogDataSpaceIdInput): Promise<string> {
+  const preset = input.options.resolvedDataSpaceId?.trim()
   if (preset) return preset
   return resolveDatabaseCatalogScenarioId({
-    preferredScenarioId,
-    metaNames,
-    assertCurrent,
-    ...(options.navigationNodeId === undefined ? {} : {navigationNodeId: options.navigationNodeId}),
+    preferredScenarioId: input.preferredScenarioId,
+    metaNames: input.metaNames,
+    assertCurrent: input.assertCurrent,
+    ...(input.options.navigationNodeId === undefined ? {} : {navigationNodeId: input.options.navigationNodeId}),
   })
 }

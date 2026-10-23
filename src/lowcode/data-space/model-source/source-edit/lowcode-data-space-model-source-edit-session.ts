@@ -139,7 +139,16 @@ function createModelSourceEditFlow(): ModelSourceEditFlow {
   }
 }
 
-export function createModelSourceEditHost(dataSet: DataSet, targetId: string, modelId: string, sources: Reader, lifecycle: ModelSourceEditLifecycle): ModelSourceEditHost {
+export type ModelSourceEditHostInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  sources: Reader
+  lifecycle: ModelSourceEditLifecycle
+}>
+
+export function createModelSourceEditHost(input: ModelSourceEditHostInput): ModelSourceEditHost {
+  const {dataSet, targetId, modelId, sources, lifecycle} = input
   const views = ['Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation'].map(name => {
     const view = dataSet.getView(name, 'default')
     if (!view) throw new Error(`缺少正式元数据视图：${name}`)
@@ -298,7 +307,7 @@ function modelSourceEditAssess(host: ModelSourceEditHost, prepared: Prepared) {
     else if (candidates.length !== 1 || !next) result = '来源字段缺失或不唯一'
     else if (!new Set<unknown>([0, 1, '0', '1', false, true]).has(item['IsPKey'])) result = '原字段主键标记无效'
     else if (type === 'inputParams' && (item['FieldType'] !== next.FieldType || Number(item['IsPKey']) !== next.IsPKey)) result = '来源入参类型或主键合同变化，须先明确取值转换'
-    else if (type === 'dataModel') modelSourceEditAssessFieldContract(host, item, next, {contractChanges, problems})
+    else if (type === 'dataModel') modelSourceEditAssessFieldContract({host, row: item, source: next, preview: {contractChanges, problems}})
     const sourceKey = JSON.stringify([type, sourceName])
     if (sourceName !== name && type === 'dataModel') {
       const configured = (value: unknown) => value !== undefined && value !== null && value !== ''
@@ -376,7 +385,15 @@ function modelSourceEditAssess(host: ModelSourceEditHost, prepared: Prepared) {
   return preview
 }
 
-function modelSourceEditAssessFieldContract(host: ModelSourceEditHost, row: DataRow, source: Prepared['fields'][number], preview: Pick<Preview, 'contractChanges' | 'problems'>) {
+type ModelSourceEditAssessFieldContractInput = Readonly<{
+  host: ModelSourceEditHost
+  row: DataRow
+  source: Prepared['fields'][number]
+  preview: Pick<Preview, 'contractChanges' | 'problems'>
+}>
+
+function modelSourceEditAssessFieldContract(input: ModelSourceEditAssessFieldContractInput) {
+  const {host, row, source, preview} = input
   const patch: Record<string, unknown> = {}
   if (typeof row['FieldType'] !== 'string' || row['FieldType'].toLowerCase() !== source.FieldType.toLowerCase()) patch['FieldType'] = source.FieldType
   if (Number(row['IsPKey']) !== source.IsPKey) patch['IsPKey'] = source.IsPKey
@@ -396,7 +413,7 @@ function modelSourceEditAssessInput(host: ModelSourceEditHost, sourceName: strin
   preview.inputChoices.push({sourceName, value})
   try {
     if (!value) throw new Error('新增来源入参须明确配置空间参数引用或JSON常量')
-    sourceInputValidateValue(host.dataSet, host.targetId, sourceName, value)
+    sourceInputValidateValue({dataSet: host.dataSet, targetId: host.targetId, name: sourceName, value})
     preview.differences.push({name: sourceName, result: '新增来源入参；使用明确配置的取值'})
   } catch (error) {
     const result = error instanceof Error ? error.message : String(error)
@@ -424,7 +441,7 @@ function modelSourceEditAssessSynchronization(host: ModelSourceEditHost, prepare
       preview.differences.push({name, result: '保留派生字段及配置'}); continue
     }
     if (source) {
-      const result = modelSourceEditAssessFieldContract(host, row, source, preview) ?? '保留原记录、输出和全部配置'
+      const result = modelSourceEditAssessFieldContract({host, row, source, preview}) ?? '保留原记录、输出和全部配置'
       preview.differences.push({name, result})
     } else {
       preview.removals.push({id: String(row['rowid']), name, type: String(row['type'])})
@@ -506,7 +523,10 @@ function modelSourceEditReassess(host: ModelSourceEditHost, preview: Preview) {
   return result
 }
 
-async function modelSourceEditPrepareContract(host: ModelSourceEditHost, preview: Preview, generation: number, baseline: string) {
+type ModelSourceEditPrepareContractInput = Readonly<{host: ModelSourceEditHost; preview: Preview; generation: number; baseline: string}>
+
+async function modelSourceEditPrepareContract(input: ModelSourceEditPrepareContractInput) {
+  const {host, preview, generation, baseline} = input
   host.flow.contractPlan = null; preview.viewChanges = []
   if (modelSourceEditNeedsSourceContract(host, preview)) {
     try {
@@ -529,7 +549,7 @@ async function modelSourceEditRefreshMapping(host: ModelSourceEditHost, preview:
   host.flow.status = 'previewing'; host.flow.contractPlan = null
   try {
     const result = modelSourceEditAssess(host, preview.prepared)
-    if (await modelSourceEditPrepareContract(host, result, generation, host.flow.baseline)) {host.flow.preview = result; host.flow.status = 'ready'}
+    if (await modelSourceEditPrepareContract({host, preview: result, generation, baseline: host.flow.baseline})) {host.flow.preview = result; host.flow.status = 'ready'}
   } catch (error) {if (generation === host.flow.generation) host.flow.status = 'idle'; throw error}
 }
 
@@ -573,7 +593,7 @@ export async function modelSourceEditPreviewBoundSource(host: ModelSourceEditHos
     if (generation !== host.flow.generation) return
     if (modelSourceEditSnapshot(host) !== baseline) throw new Error('读取来源期间定义已变化，请重新预览')
     const preview = modelSourceEditAssessSynchronization(host, prepared)
-    if (!await modelSourceEditPrepareContract(host, preview, generation, baseline)) return
+    if (!await modelSourceEditPrepareContract({host, preview, generation, baseline})) return
     host.flow.baseline = baseline; host.flow.preview = preview; host.flow.status = 'ready'
   } catch (error) {if (generation === host.flow.generation) host.flow.status = 'idle'; throw error}
 }
@@ -617,7 +637,7 @@ export async function modelSourceEditRemoveField(host: ModelSourceEditHost, inpu
 export function modelSourceEditConfigureInput(host: ModelSourceEditHost, input: Readonly<{sourceName: string; value: string}>) {
   const preview = modelSourceEditSelected(host)
   if (!preview.inputChoices.some(item => item.sourceName === input.sourceName)) throw new Error('参数不是当前新增来源入参')
-  sourceInputValidateValue(host.dataSet, host.targetId, input.sourceName, input.value)
+  sourceInputValidateValue({dataSet: host.dataSet, targetId: host.targetId, name: input.sourceName, value: input.value})
   host.flow.inputs.set(input.sourceName, input.value)
   host.flow.preview = modelSourceEditReassess(host, preview)
 }
@@ -647,7 +667,7 @@ export async function modelSourceEditPreview(host: ModelSourceEditHost, source: 
     if (generation !== host.flow.generation) return
     if (modelSourceEditSnapshot(host) !== baseline) throw new Error('读取来源期间定义已变化，请重新预览')
     const preview = modelSourceEditAssess(host, prepared)
-    if (!await modelSourceEditPrepareContract(host, preview, generation, baseline)) return
+    if (!await modelSourceEditPrepareContract({host, preview, generation, baseline})) return
     host.flow.baseline = baseline; host.flow.preview = preview; host.flow.status = 'ready'
   } catch (error) {if (generation === host.flow.generation) host.flow.status = 'idle'; throw error}
 }
@@ -753,7 +773,7 @@ export async function modelSourceEditSave(host: ModelSourceEditHost) {
     if (modelSourceEditSnapshot(host) !== host.flow.baseline) throw new Error('元数据已变化，请重新预览')
     const assertWritable = () => {
       modelSourceEditAssertOwner(host); assertConfiguration(); assertTransition(); assertContract(); assertRemovals()
-      for (const input of candidate.inputChoices) sourceInputValidateValue(host.dataSet, host.targetId, input.sourceName, input.value)
+      for (const input of candidate.inputChoices) sourceInputValidateValue({dataSet: host.dataSet, targetId: host.targetId, name: input.sourceName, value: input.value})
       if (Object.keys(patch).length && (host.models.editActionState(modelSourceEditCurrent(host)) !== 'enabled' || Object.keys(patch).some(key => host.models.fieldAccess(modelSourceEditCurrent(host), key).write !== 'allowed'))) throw new Error('当前查询不允许修改来源字段')
       for (const item of host.flow.modelEdits) if (host.models.editActionState(modelSourceEditCurrent(host, item.id)) !== 'enabled'
         || Object.keys(item.patch).some(key => host.models.fieldAccess(modelSourceEditCurrent(host, item.id), key).write !== 'allowed')) throw new Error(`当前查询不允许修改依赖模型${item.id}的表达式`)
@@ -986,6 +1006,3 @@ export function createModelSourceEditHandle(host: ModelSourceEditHost): ModelSou
     acceptCurrent: () => modelSourceEditAcceptCurrent(host),
   }
 }
-
-/** @deprecated 兼容旧类名；新代码使用 ModelSourceEditHandle。 */
-export type LowcodeDataSpaceModelSourceEdit = ModelSourceEditHandle

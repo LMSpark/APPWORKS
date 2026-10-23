@@ -46,25 +46,37 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "_getColumns": {
+            "input": {
               "type": "object",
-              "title": "() => DataColumn[]"
-            },
-            "_getColumnMap": {
-              "type": "object",
-              "title": "() => Map<string, DataColumn> | undefined"
-            },
-            "_getRows": {
-              "type": "object",
-              "title": "() => DataRow[]"
-            },
-            "_registerComputed": {
-              "type": "object",
-              "title": "(name: string, fn: (row: DataRow) => unknown) => void"
-            },
-            "_getResultPrimaryKey": {
-              "type": "object",
-              "title": "() => string | undefined"
+              "properties": {
+                "getColumns": {
+                  "type": "object",
+                  "title": "() => DataColumn[]"
+                },
+                "getColumnMap": {
+                  "type": "object",
+                  "title": "() => Map<string, DataColumn> | undefined"
+                },
+                "getRows": {
+                  "type": "object",
+                  "title": "() => DataRow[]"
+                },
+                "registerComputed": {
+                  "type": "object",
+                  "title": "(name: string, fn: (row: DataRow) => unknown) => void"
+                },
+                "getResultPrimaryKey": {
+                  "type": "object",
+                  "title": "() => string | undefined"
+                }
+              },
+              "required": [
+                "getColumns",
+                "getColumnMap",
+                "getRows",
+                "registerComputed"
+              ],
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -187,7 +199,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-12T23:31:29.914Z",
+  "generatedAt": "2026-10-23T06:52:21.553Z",
   "models": {
     "PrimaryKeyDelegate": {
       "name": "PrimaryKeyDelegate",
@@ -195,157 +207,20 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "@param _getColumns 获取当前 DataTable 的列定义（用于推导主键）\n@param _getColumnMap 获取列名→列定义 Map（用于 _coercePkValue O(1) 查找）\n@param _getRows 获取当前行数组（用于主键生成器 / 补计算触发点）\n@param _registerComputed 向 ComputedColumnDelegate 注册计算列（用于合成 _pk）\n@param _getResultPrimaryKey 当前查询结果的行身份；空字符串表示无主键结果，undefined沿用配置。",
-          "signatureText": "constructor(_getColumns: () => DataColumn[], _getColumnMap: () => Map<string, DataColumn> | undefined, _getRows: () => DataRow[], _registerComputed: (name: string, fn: (row: DataRow) => unknown) => void, _getResultPrimaryKey?: (() => string | undefined) | undefined)",
+          "jsdoc": "主键委托构造输入；getResultPrimaryKey 省略时沿用视图配置。",
+          "signatureText": "constructor(input: Readonly<{\n        getColumns: () => DataColumn[];\n        getColumnMap: () => Map<string, DataColumn> | undefined;\n        getRows: () => DataRow[];\n        registerComputed: (name: string, fn: (row: DataRow) => unknown) => void;\n        getResultPrimaryKey?: () => string | undefined;\n    }>)",
           "parameters": [
             {
-              "name": "_getColumns",
+              "name": "input",
               "type": {
-                "type": "reflection",
-                "declaration": {
-                  "signatures": [
-                    {
-                      "parameters": [],
-                      "type": {
-                        "type": "array",
-                        "elementType": {
-                          "type": "reference",
-                          "name": "DataColumn",
-                          "sourcePath": "packages/spark-data/src/types.ts"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "name": "_getColumnMap",
-              "type": {
-                "type": "reflection",
-                "declaration": {
-                  "signatures": [
-                    {
-                      "parameters": [],
-                      "type": {
-                        "type": "optional",
-                        "elementType": {
-                          "type": "reference",
-                          "name": "Map",
-                          "typeArguments": [
-                            {
-                              "type": "intrinsic",
-                              "name": "string"
-                            },
-                            {
-                              "type": "reference",
-                              "name": "DataColumn",
-                              "sourcePath": "packages/spark-data/src/types.ts"
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "name": "_getRows",
-              "type": {
-                "type": "reflection",
-                "declaration": {
-                  "signatures": [
-                    {
-                      "parameters": [],
-                      "type": {
-                        "type": "array",
-                        "elementType": {
-                          "type": "reference",
-                          "name": "DataRow",
-                          "sourcePath": "packages/spark-data/src/types.ts"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "name": "_registerComputed",
-              "type": {
-                "type": "reflection",
-                "declaration": {
-                  "signatures": [
-                    {
-                      "parameters": [
-                        {
-                          "name": "name",
-                          "type": {
-                            "type": "intrinsic",
-                            "name": "string"
-                          }
-                        },
-                        {
-                          "name": "fn",
-                          "type": {
-                            "type": "reflection",
-                            "declaration": {
-                              "signatures": [
-                                {
-                                  "parameters": [
-                                    {
-                                      "name": "row",
-                                      "type": {
-                                        "type": "reference",
-                                        "name": "DataRow",
-                                        "sourcePath": "packages/spark-data/src/types.ts"
-                                      }
-                                    }
-                                  ],
-                                  "type": {
-                                    "type": "intrinsic",
-                                    "name": "unknown"
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        }
-                      ],
-                      "type": {
-                        "type": "intrinsic",
-                        "name": "void"
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "name": "_getResultPrimaryKey",
-              "type": {
-                "type": "optional",
-                "elementType": {
-                  "type": "reflection",
-                  "declaration": {
-                    "signatures": [
-                      {
-                        "parameters": [],
-                        "type": {
-                          "type": "optional",
-                          "elementType": {
-                            "type": "intrinsic",
-                            "name": "string"
-                          }
-                        }
-                      }
-                    ]
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        getColumns: () => DataColumn[];\n        getColumnMap: () => Map<string, DataColumn> | undefined;\n        getRows: () => DataRow[];\n        registerComputed: (name: string, fn: (row: DataRow) => unknown) => void;\n        getResultPrimaryKey?: () => string | undefined;\n    }"
                   }
-                }
-              },
-              "flags": {
-                "isOptional": true
+                ]
               }
             }
           ]

@@ -211,7 +211,7 @@ export class DataViewFilter {
       const error = `模型 ${table.name} 的字段目录无效`
       if (!Array.isArray(fields)) throw new Error(error)
       const snapshot: DataViewFilterFunctionTableField[] = []
-      for (const field of fields as unknown[]) {
+      for (const field of fields) {
         if (!isRecord(field) || typeof field['name'] !== 'string' || field['name'].trim().length === 0
           || field['label'] !== undefined && typeof field['label'] !== 'string') throw new Error(error)
         snapshot.push(Object.freeze({name: field['name'], ...(typeof field['label'] === 'string' ? {label: field['label']} : {})}))

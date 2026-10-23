@@ -141,7 +141,7 @@ function fixture() {
     const formalInput = {designScenarioId: metadataId, dataSpaceId: targetId}
     const service = new LowcodeDataSpaceViewDesign({workspace, assertScope: () => undefined,
       readModel: input => design.readModel({...formalInput, metaName: input.modelName}),
-      assemble: async (id, config) => {
+      assemble: async ({scenarioId: id, config}) => {
         expect(id).toBe(targetId)
         return assembler.assemble({config,
           space: await design.readSpaceDefinition(formalInput),

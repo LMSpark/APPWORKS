@@ -71,7 +71,7 @@ function fixture(text: string | null = initial, withModelCatalog = false) {
         if (!model) throw new Error('model missing')
         return model
       },
-      assemble: async (id, config, _fileExecutors, modelScope) => {
+      assemble: async ({scenarioId: id, config, modelScope}) => {
         const selected = modelScope === undefined ? config : config.selectModelScope(modelScope)
         const names = Object.keys(selected.toJSON()['tables'] as object)
         validationScopes.push(names)

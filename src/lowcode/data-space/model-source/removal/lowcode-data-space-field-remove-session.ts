@@ -40,8 +40,17 @@ export type FieldRemoveHost = {
   flow: FieldRemoveFlow
 }
 
-export function createFieldRemoveHost(dataSet: DataSet, targetId: string, fieldId: string, lifecycle: FieldRemoveLifecycle,
-  fieldViewId: 'default' | 'modelFields' = 'default'): FieldRemoveHost {
+export type FieldRemoveHostInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  fieldId: string
+  lifecycle: FieldRemoveLifecycle
+  fieldViewId?: 'default' | 'modelFields'
+}>
+
+export function createFieldRemoveHost(input: FieldRemoveHostInput): FieldRemoveHost {
+  const fieldViewId = input.fieldViewId ?? 'default'
+  const {dataSet, targetId, fieldId, lifecycle} = input
   const views = ['Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation'].map(name => {
     const view = dataSet.getView(name, name === 'Base_DataModel_Field' ? fieldViewId : 'default')
     if (!view) throw new Error(`缺少正式视图：${name}`)
@@ -118,10 +127,13 @@ export async function fieldRemovePreview(host: FieldRemoveHost): Promise<void> {
         || host.sourceContext !== JSON.stringify(source.queryContext)) throw new Error('计算字段的绑定视图或所属模型不可确认')
       const models = host.dataSet.getView('Base_DataModel')
       if (!models) throw new Error('缺少正式模型视图')
-      host.dependencies = new LowcodeDataSpaceModelDependencies(host.dataSet, host.targetId, original['dataModelId'], `fieldRemove:${host.fieldId}:${source.viewId}`, () => host.lifecycle.assertCurrent(),
-        source.viewId === 'modelFields' ? {view: models, id: original['dataModelId']} : undefined,
-        {view: source, get ids() {return source.viewId === 'modelFields' ? [...source.rows.map(row => String(row['rowid'])), ...[...source.dirtyTracking.pendingDeleteIds].map(String)] : [String(original['rowid'])]}, allowPending: true},
-        () => host.lifecycle.fieldWorkspaces?.(String(original['dataModelId'])) ?? [])
+      host.dependencies = new LowcodeDataSpaceModelDependencies({
+        dataSet: host.dataSet, targetId: host.targetId, modelId: original['dataModelId'], operation: `fieldRemove:${host.fieldId}:${source.viewId}`,
+        assertCurrent: () => host.lifecycle.assertCurrent(),
+        ...(source.viewId === 'modelFields' ? {editing: {view: models, id: original['dataModelId']}} : {}),
+        fieldEditing: {view: source, get ids() {return source.viewId === 'modelFields' ? [...source.rows.map(row => String(row['rowid'])), ...[...source.dirtyTracking.pendingDeleteIds].map(String)] : [String(original['rowid'])]}, allowPending: true},
+        fieldWorkspaces: () => host.lifecycle.fieldWorkspaces?.(String(original['dataModelId'])) ?? [],
+      })
       host.views.splice(0, host.views.length, ...host.dependencies.views)
     }
     await host.dependencies.load()

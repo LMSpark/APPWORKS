@@ -38,7 +38,7 @@ function fixture(initial: string | null = namedText, configureMetadata?: (dataSe
   const readModel = vi.fn(async () => formalModel)
   const http = new DefinitionHttp()
   const assembler = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({http, readScope: () => ({token: scope, headers: {}})}), http)
-  const assemble = vi.fn<ConstructorParameters<typeof LowcodeDataSpaceViewDesign>[0]['assemble']>(async (scenarioId, config, fileExecutors, modelScope) => assembler.assemble({
+  const assemble = vi.fn<ConstructorParameters<typeof LowcodeDataSpaceViewDesign>[0]['assemble']>(async ({scenarioId, config, fileExecutors, modelScope}) => assembler.assemble({
     config: modelScope === undefined ? config : config.selectModelScope(modelScope, []),
     space: {dataSpaceId: scenarioId, name: scenarioId}, models: [formalModel], relations: [], ...(fileExecutors ? {fileExecutors} : {})}))
   const loadMetadata = withDefinitionResources(async () => DataSet.fromJson({scenarioId: 'META', dataSetName: 'metadata', tables: {}}))
@@ -110,7 +110,7 @@ describe('native view definitions through the designer DataSet', () => {
       expect((await session.metadataDataSet.saveChanges(definitionSave)).success).toBe(true)
       const candidate = f.assemble.mock.results[0] && await f.assemble.mock.results[0].value
       expect(candidate?.dataSet.destroyed).toBe(true)
-      expect(Object.keys(f.assemble.mock.calls[0]![1].toJSON()['tables'] as object)).toEqual(['Orders'])
+      expect(Object.keys(f.assemble.mock.calls[0]![0].config.toJSON()['tables'] as object)).toEqual(['Orders'])
       expect(JSON.parse(f.getRemote()!)).toEqual({...initial, tables: {...initial.tables, Orders: {
         modelBinding: {modelId: 'MODEL', modelName: 'OrdersModel'}, views: {summary: {pageSize: 11}, default: {}}
       }}})
@@ -155,7 +155,7 @@ describe('native view definitions through the designer DataSet', () => {
       expect(JSON.parse(f.getRemote()!)).toEqual({...initial, tables: {...initial.tables, Orders: {...initial.tables.Orders,
         views: {...initial.tables.Orders.views, summary: {...initial.tables.Orders.views.summary, pageSize: 25}}}}})
       expect(f.assemble).toHaveBeenCalledOnce()
-      expect(Object.keys(f.assemble.mock.calls[0]![1].toJSON()['tables'] as object)).toEqual(['Orders'])
+      expect(Object.keys(f.assemble.mock.calls[0]![0].config.toJSON()['tables'] as object)).toEqual(['Orders'])
       expect(f.writeText).toHaveBeenCalledOnce()
       expect(session.definitionStatus).toBe('unloaded')
     } finally {session.dispose()}
@@ -173,7 +173,8 @@ describe('native view definitions through the designer DataSet', () => {
       autoCurrentFirst: false, autoSelectFirst: false, autoLoad: false,
       filterExpression: {field: 'id', operator: 'eq' as const, value: '1'}, sortExpression: [{field: 'label', direction: 'asc' as const}],
       treeConfig: {idField: 'id', textField: 'label', treeMode: 'flat' as const},
-      aggregates: {recordCount: {type: 'count' as const, field: 'id'}}, selectionDelimiter: '|', commitMode: 'staged' as const
+      aggregates: {recordCount: {type: 'count' as const, field: 'id'}}, selectionDelimiter: '|', commitMode: 'staged' as const,
+      allowDelete: false, lockCurrentWhilePending: true,
     } satisfies Required<Omit<ViewMetadata, 'tableName' | 'viewId' | 'rows'>>
     try {
       const identity = {dataSetId: 'SPACE', dataModelId: 'MODEL', dataModelName: 'OrdersModel', tableName: 'Orders'}
@@ -316,10 +317,10 @@ describe('shared data-space view design owner', () => {
     const preview = await f.service.openPreview(selection)
     const {dataSet} = await f.assemble.mock.results[0]!.value
     try {
-      const config = f.assemble.mock.calls[0]![1]
+      const config = f.assemble.mock.calls[0]![0].config
       expect(config).toBeInstanceOf(ScenarioViewConfig)
       expect(config.toJSON()).toEqual(JSON.parse(initial))
-      expect(f.assemble.mock.calls[0]?.[3]).toBe('Orders')
+      expect(f.assemble.mock.calls[0]?.[0].modelScope).toBe('Orders')
       expect(dataSet.getTable('Ignored')).toBeUndefined()
       expect(preview.dataViewKey).toBe('SPACE@OrdersModel@summary')
       expect(f.workspace.getScenarioViews('SPACE')!.getText()).toBe(initial)

@@ -10,10 +10,45 @@
     "jsdoc": "@module @spark-appworks/spark-data:query/data-view-query-cache\n职责：查询适配器共用的有界内存结果缓存；不解释后端权限，不序列化结果。\n边界：适配器提供完整请求键与有效身份检查；清除后旧在途结果不得回填。\nAI用途：为数据资源查询适配器复用页面或浏览器会话结果，保持身份检查和存储协议在原适配器内。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "DataViewQueryCacheQueryInput",
       "DataViewQueryCache"
     ]
   },
   "$defs": {
+    "DataViewQueryCacheQueryInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewQueryCacheQueryInput",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "page": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.load.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<T>"
+        },
+        "method.isCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isCurrent.return": {
+          "type": "boolean"
+        }
+      }
+    },
     "DataViewQueryCache": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -44,20 +79,8 @@
         "method.query.params": {
           "type": "object",
           "properties": {
-            "key": {
-              "type": "string"
-            },
-            "page": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "load": {
-              "type": "object",
-              "title": "() => Promise<T>"
-            },
-            "isCurrent": {
-              "type": "object",
-              "title": "() => boolean"
+            "input": {
+              "$ref": "#/$defs/DataViewQueryCacheQueryInput"
             }
           },
           "additionalProperties": false
@@ -69,8 +92,62 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T05:56:20.516Z",
+  "generatedAt": "2026-10-23T06:57:32.740Z",
   "models": {
+    "DataViewQueryCacheQueryInput": {
+      "name": "DataViewQueryCacheQueryInput",
+      "jsdoc": "@module\n@spark-appworks /spark-data:query/data-view-query-cache\n职责：查询适配器共用的有界内存结果缓存；不解释后端权限，不序列化结果。\n边界：适配器提供完整请求键与有效身份检查；清除后旧在途结果不得回填。\nAI用途：为数据资源查询适配器复用页面或浏览器会话结果，保持身份检查和存储协议在原适配器内。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    key: string;\n    page?: object | undefined;\n    load: () => Promise<T>;\n    isCurrent: () => boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    key: string;\n    page?: object | undefined;\n    load: () => Promise<T>;\n    isCurrent: () => boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "key",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "page",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "T",
+                    "refersToTypeParameter": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "isCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    },
     "DataViewQueryCache": {
       "name": "DataViewQueryCache",
       "jsdoc": "数据资源适配器持有的结果缓存；页面使用对象身份分区，浏览器缓存仅内存持有。",
@@ -114,61 +191,18 @@
               "jsdoc": "page省略表示浏览器会话；最多保留每个作用域128个最近查询，失败不缓存。",
               "parameters": [
                 {
-                  "name": "key",
+                  "name": "input",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "page",
-                  "type": {
-                    "type": "optional",
-                    "elementType": {
-                      "type": "intrinsic",
-                      "name": "object"
-                    }
-                  }
-                },
-                {
-                  "name": "load",
-                  "type": {
-                    "type": "reflection",
-                    "declaration": {
-                      "signatures": [
-                        {
-                          "parameters": [],
-                          "type": {
-                            "type": "reference",
-                            "name": "Promise",
-                            "typeArguments": [
-                              {
-                                "type": "reference",
-                                "name": "T",
-                                "refersToTypeParameter": true
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "name": "isCurrent",
-                  "type": {
-                    "type": "reflection",
-                    "declaration": {
-                      "signatures": [
-                        {
-                          "parameters": [],
-                          "type": {
-                            "type": "intrinsic",
-                            "name": "boolean"
-                          }
-                        }
-                      ]
-                    }
+                    "type": "reference",
+                    "name": "DataViewQueryCacheQueryInput",
+                    "sourcePath": "packages/spark-data/src/query/data-view-query-cache.ts",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "T",
+                        "refersToTypeParameter": true
+                      }
+                    ]
                   }
                 }
               ],

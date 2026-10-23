@@ -1,0 +1,51 @@
+{
+  "updated": "2026-10-23",
+  "dataChain": "页面仅消费 DataView；HTTP 在 lowcode *-design-ops / *-content-ops + spark-lowcode-api 客户端",
+  "jsonData": {
+    "clientEndpoints": [
+      "/api/JsonData/GetJson",
+      "/api/JsonData/SaveJsonData"
+    ],
+    "formalModel": "Base_JsonData",
+    "navigationScenarioId": "见 LowcodeJsonData.navigationScenarioId（待蓝图实服对齐）",
+    "vitest": "tests/runtime/page/semi-structured/json-data-page.test.ts",
+    "livePilot": "blocked"
+  },
+  "excelImport": {
+    "clientEndpoints": [
+      "/api/ExcelImport/ReadDesign",
+      "/api/ExcelImport/WriteDesign"
+    ],
+    "formalModel": "_Base_ImportConfig",
+    "referenceModules": [
+      "ExcelImportConfig.ts",
+      "ExcelImportConfigConfigSet.ts"
+    ],
+    "gaps": [
+      "模板上传、Sheet 查找、转换规则对话框仍为 MVP 占位",
+      "Read/WriteDesign 路径与响应 envelope 未实服核对"
+    ],
+    "vitest": [
+      "excel-import-list.test.ts",
+      "excel-import-editor.test.ts"
+    ],
+    "livePilot": "blocked"
+  },
+  "pdfInspect": {
+    "clientEndpoints": [
+      "/api/PdfInspect/ReadRule",
+      "/api/PdfInspect/WriteRule"
+    ],
+    "formalModel": "_Base_PdfInspectRule",
+    "inventory": "reference-inventory.json 未含 pdf 路径（2026-10-23）",
+    "gaps": [
+      "无参考页 OCR/画布；规则 JSON 表单 MVP",
+      "Read/WriteRule 未实服核对"
+    ],
+    "vitest": [
+      "pdf-inspect-list.test.ts",
+      "pdf-inspect-editor.test.ts"
+    ],
+    "livePilot": "blocked"
+  }
+}

@@ -9,6 +9,7 @@ import {
   DATABASE_UNREGISTERED_DB_NAMES_TABLE,
 } from './lowcode-database-table-view'
 import {DATABASE_SERVER_MODEL} from './lowcode-database-server'
+import {databaseCatalogDbSelectedId} from './database-catalog-table-view-ops'
 
 const createFields = ['serverId', 'Name', 'Type', 'ServerName', 'SchemaName', 'State', 'Remark'] as const
 
@@ -154,5 +155,29 @@ export async function databaseCatalogQueryUnregisteredDbNames(dataSet: DataSet, 
   if (!view) throw new Error('未登记库查询视图缺失')
   await view.refresh()
   if (view.loadingError) throw view.loadingError
-  return view.rows.map(row => scalar(row['name'])).filter(Boolean)
+  return view.rows.map(item => scalar(item['name'])).filter(Boolean)
+}
+
+/** 表和视图 hub 不展示服务器列表；隐式绑定当前环境唯一（或首个）服务器。 */
+export function databaseCatalogEnsureImplicitServer(serverView: DataView): void {
+  if (serverView.rows.length === 0) {
+    throw new Error('未配置数据库服务器，请先在「服务器管理」登记连接')
+  }
+  if (serverView.getSelectedValues().length === 0) {
+    const first = serverView.rows[0]
+    if (!first) throw new Error('未配置数据库服务器，请先在「服务器管理」登记连接')
+    serverView.setSelectedRows([first])
+  }
+}
+
+/** 同步命令视图输入（未登记库/表/视图查询、同步元数据等）与当前服务器/库选择。 */
+export function databaseCatalogSyncCommandInput(dataSet: DataSet, serverView: DataView, dbView?: DataView): void {
+  const inputRow = dataSet.getTable(DATABASE_CATALOG_COMMAND_INPUT_TABLE)?.rows[0]
+  if (!inputRow) return
+  const serverId = databaseCatalogServerSelectedId(serverView)
+  if (serverId) inputRow['serverId'] = serverId
+  if (dbView) {
+    const dbId = databaseCatalogDbSelectedId(dbView)
+    if (dbId) inputRow['dbId'] = dbId
+  }
 }

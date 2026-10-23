@@ -1,0 +1,15 @@
+{
+  "updated": "2026-10-23",
+  "dataCode": {
+    "unverifiedEndpoints": ["/api/Codeing/* beyond CodeInitDataList in backend-api-contracts"],
+    "note": "规则 save 以 DataCodeEdit 参考为准；实页须核对正式服务"
+  },
+  "logicView": {
+    "verified": ["/api/ViewData/GetView", "/api/ViewData/SaveView"],
+    "mvpSkipped": ["previewNode", "previewOutput", "createTableDesignFromSource"]
+  },
+  "dataWorkflow": {
+    "unverifiedEndpoints": ["DataWorkFlow/DataWorkFlowDesign 全链"],
+    "note": "目录可用 GetData；设计 save 使用本仓 command 适配 + vitest mock"
+  }
+}

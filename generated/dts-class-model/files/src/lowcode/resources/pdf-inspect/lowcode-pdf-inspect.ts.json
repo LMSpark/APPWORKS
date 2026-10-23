@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/pdf-inspect/lowcode-pdf-inspect",
+    "sourcePath": "src/lowcode/resources/pdf-inspect/lowcode-pdf-inspect.ts",
+    "sourceFile": "src/lowcode/resources/pdf-inspect/lowcode-pdf-inspect.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/pdf-inspect/lowcode-pdf-inspect",
+    "jsdoc": "@module app:lowcode/resources/pdf-inspect/lowcode-pdf-inspect",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodePdfInspect"
+    ]
+  },
+  "$defs": {
+    "LowcodePdfInspect": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodePdfInspect",
+      "properties": {
+        "navigationScenarioId": true,
+        "catalogMetaName": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadCatalog.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadCatalog.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        },
+        "method.loadEditor.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadEditor.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-10-23T06:52:18.747Z",
+  "models": {
+    "LowcodePdfInspect": {
+      "name": "LowcodePdfInspect",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "navigationScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogMetaName",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadCatalog",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadEditor",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

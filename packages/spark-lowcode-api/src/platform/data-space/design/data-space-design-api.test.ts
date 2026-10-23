@@ -1,7 +1,6 @@
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
-import { DataViewFilter, DataViewFilterCodec } from '@spark-appworks/spark-data'
-import { DataViewFilterLocal } from '../../../../../spark-data/src/query/filter/data-view-filter-local.js'
+import { DataViewFilter, DataViewFilterCodec, DataViewFilterLocal } from '@spark-appworks/spark-data'
 import { describe, expect, it, vi } from 'vitest'
 
 import { LowcodeApi } from '../../../lowcode-api.js'

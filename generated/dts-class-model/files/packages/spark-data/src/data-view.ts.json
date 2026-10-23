@@ -1017,6 +1017,12 @@
         "commitMode": {
           "$ref": "types.ts.json#/$defs/CommitMode"
         },
+        "allowDelete": {
+          "type": "boolean"
+        },
+        "lockCurrentWhilePending": {
+          "type": "boolean"
+        },
         "aggregates": {
           "type": "object",
           "title": "Record<string, AggregateColumnConfig>"
@@ -1168,6 +1174,8 @@
         "autoLoad",
         "autoLoadConfigured",
         "commitMode",
+        "allowDelete",
+        "lockCurrentWhilePending",
         "treeMode",
         "logger"
       ],
@@ -2243,6 +2251,28 @@
           "type": "object",
           "title": "Promise<Array<CrudResult<SaveChangesData>>>"
         },
+        "method.prepareQuerySave.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataViewQuerySaveValidationInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareQuerySave.return": {
+          "type": "object",
+          "title": "Promise<() => void>"
+        },
+        "method.discardAndReload.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardAndReload.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.getQuerySaveRowKeys.params": {
           "type": "object",
           "properties": {
@@ -2572,7 +2602,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T08:56:04.435Z",
+  "generatedAt": "2026-10-23T18:00:49.352Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -3901,6 +3931,18 @@
             {
               "name": "commitMode",
               "jsdoc": "增删改提交模式（默认 `'immediate'`）。\n- `'immediate'`：每次 addRow/editRowById/removeRow 立即调用网络 CRUD（如已配置 API）\n- `'staged'`：仅修改内存并标脏，调用 saveChanges() 批量提交",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "allowDelete",
+              "jsdoc": "false 时禁止删除既有记录；通过 applyViewConfig 配置。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "lockCurrentWhilePending",
+              "jsdoc": "本视图或查询级联子视图有未提交修改时锁定当前行与选中行；通过 applyViewConfig 配置。",
               "readable": true,
               "writable": true
             },
@@ -5942,6 +5984,58 @@
                         }
                       ]
                     }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareQuerySave",
+              "jsdoc": "@internal 保存前按列声明写回：normalize 去除首尾空白，optionsView.fill 同步匹配选项字段。\n写入沿编辑覆盖或脏追踪通道并核当次字段写权限；随后的预检与捕获照常校验全部规则。\n@param input 限定选中行及写回目标是否为编辑覆盖。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQuerySaveValidationInput",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Promise",
+                  "typeArguments": [
+                    {
+                      "type": "reflection",
+                      "declaration": {
+                        "signatures": [
+                          {
+                            "parameters": [],
+                            "type": {
+                              "type": "intrinsic",
+                              "name": "void"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "discardAndReload",
+              "jsdoc": "明确丢弃本视图全部本地修改，放弃未确认提交的核验后按当前输入重新查询。\n不撤销服务端可能已生效的写入；执行器不支持放弃未确认提交时抛错，须经原保存入口核验。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
                   }
                 ]
               }

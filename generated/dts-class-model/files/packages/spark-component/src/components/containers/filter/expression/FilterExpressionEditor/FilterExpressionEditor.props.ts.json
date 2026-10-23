@@ -254,20 +254,30 @@
         "method.summarize.params": {
           "type": "object",
           "properties": {
-            "tree": {
-              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
-            },
-            "columns": {
-              "type": "array",
-              "items": {
-                "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
-              }
-            },
-            "context": {
-              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
-            },
-            "root": {
-              "type": "boolean"
+            "input": {
+              "type": "object",
+              "properties": {
+                "tree": {
+                  "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                },
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
+                  }
+                },
+                "context": {
+                  "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+                },
+                "root": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "tree",
+                "columns"
+              ],
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -376,7 +386,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-12T12:21:50.598Z",
+  "generatedAt": "2026-10-23T06:52:21.404Z",
   "models": {
     "FilterExpressionEditorProps": {
       "name": "FilterExpressionEditorProps",
@@ -668,40 +678,16 @@
               "jsdoc": "参考组件的递归摘要；括号保留组关系，字段标题不替换字段身份，不执行表达式。",
               "parameters": [
                 {
-                  "name": "tree",
-                  "type": {
-                    "type": "optional",
-                    "elementType": {
-                      "type": "reference",
-                      "name": "Data.DataViewFilterTree"
-                    }
-                  }
-                },
-                {
-                  "name": "columns",
-                  "type": {
-                    "type": "unknown",
-                    "name": "readonly Data.DataColumn[]"
-                  }
-                },
-                {
-                  "name": "context",
+                  "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "Data.DataViewFilterFunctionContext"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                },
-                {
-                  "name": "root",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "boolean"
-                  },
-                  "flags": {
-                    "isOptional": true
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        tree: Data.DataViewFilterTree | undefined;\n        columns: readonly Data.DataColumn[];\n        context?: Data.DataViewFilterFunctionContext;\n        root?: boolean;\n    }"
+                      }
+                    ]
                   }
                 }
               ],

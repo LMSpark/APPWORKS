@@ -31,13 +31,13 @@ describe('SPARK model query flight cache', () => {
     const http = new DataSpaceRequestFixtureHttp()
     const cache = new DataSpaceQueryCache({ http, readScope: () => ({ token: 'S1', headers: {} }) })
     const identity = { scenarioId: 'SCENE', metaName: 'Orders' }
-    const first = cache.query(identity, { page: { index: 1, size: 20 }, singleFlight: false })
-    const second = cache.query(identity, { singleFlight: false, page: { size: 20, index: 1 } })
-    const third = cache.query(identity, { page: { index: 1, size: 20 } })
+    const first = cache.query({identity, options: { page: { index: 1, size: 20 }, singleFlight: false }})
+    const second = cache.query({identity, options: { singleFlight: false, page: { size: 20, index: 1 } }})
+    const third = cache.query({identity, options: { page: { index: 1, size: 20 } }})
     expect(await first).toBe(await second)
     expect(await first).toBe(await third)
     expect(http.calls).toHaveLength(1)
-    await cache.query(identity, { page: { index: 1, size: 20 }, singleFlight: false })
+    await cache.query({identity, options: { page: { index: 1, size: 20 }, singleFlight: false }})
     expect(http.calls).toHaveLength(2)
   })
 
@@ -46,10 +46,10 @@ describe('SPARK model query flight cache', () => {
     const cache = new DataSpaceQueryCache({ http, readScope: () => ({ token: 'S1', headers: {} }) })
     const identity = { scenarioId: 'SCENE', metaName: 'Orders' }
     await Promise.all([
-      cache.query(identity, { filter: DataViewFilter.condition({ field: 'active', operator: 'eq', value: false }) }),
-      cache.query(identity, { filter: DataViewFilter.condition({ field: 'active', operator: 'eq', value: true }) }),
-      cache.query({ ...identity, scenarioId: 'OTHER' }),
-      cache.query({ ...identity, metaName: 'OtherModel' }),
+      cache.query({identity, options: { filter: DataViewFilter.condition({ field: 'active', operator: 'eq', value: false }) }}),
+      cache.query({identity, options: { filter: DataViewFilter.condition({ field: 'active', operator: 'eq', value: true }) }}),
+      cache.query({identity: { ...identity, scenarioId: 'OTHER' }}),
+      cache.query({identity: { ...identity, metaName: 'OtherModel' }}),
     ])
     expect(http.calls).toHaveLength(4)
   })
@@ -59,11 +59,11 @@ describe('SPARK model query flight cache', () => {
     http.response = { Code: 403, Message: 'denied' }
     const cache = new DataSpaceQueryCache({ http, readScope: () => ({ token: 'S1', headers: {} }) })
     const identity = { scenarioId: 'SCENE', metaName: 'Orders' }
-    const results = await Promise.allSettled([cache.query(identity), cache.query(identity)])
+    const results = await Promise.allSettled([cache.query({identity}), cache.query({identity})])
     expect(results.map(result => result.status)).toEqual(['rejected', 'rejected'])
     expect(http.calls).toHaveLength(1)
     http.response = { Result: { data: [], allowAdd: false } }
-    await cache.query(identity)
+    await cache.query({identity})
     expect(http.calls).toHaveLength(2)
   })
 
@@ -77,13 +77,13 @@ describe('SPARK model query flight cache', () => {
     http.beforeResponse = () => http.calls.length === 1 ? oldGate : newGate
     const cache = new DataSpaceQueryCache({ http, readScope: () => ({ token, headers: {} }) })
     const identity = { scenarioId: 'SCENE', metaName: 'Orders' }
-    const old = cache.query(identity)
+    const old = cache.query({identity})
     const oldRejected = expect(old).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     token = 'S2'
-    const next = cache.query(identity)
+    const next = cache.query({identity})
     releaseOld()
     await oldRejected
-    const joined = cache.query(identity)
+    const joined = cache.query({identity})
     releaseNew()
     expect(await next).toBe(await joined)
     expect(http.calls).toHaveLength(2)
@@ -92,14 +92,14 @@ describe('SPARK model query flight cache', () => {
   it('invalidates every retained scenario context and rejects calls after disposal', async () => {
     const http = new DataSpaceRequestFixtureHttp()
     const cache = new DataSpaceQueryCache({ http, readScope: () => ({ token: 'S1', headers: {} }) })
-    const first = await cache.query({ scenarioId: 'SCENE', metaName: 'Orders' })
-    const other = await cache.query({ scenarioId: 'OTHER', metaName: 'Orders' })
+    const first = await cache.query({identity: { scenarioId: 'SCENE', metaName: 'Orders' }})
+    const other = await cache.query({identity: { scenarioId: 'OTHER', metaName: 'Orders' }})
     cache.invalidate()
     expect(() => first.rows).toThrow('SPARK_QUERY_CONTEXT_STALE')
     expect(() => other.rows).toThrow('SPARK_QUERY_CONTEXT_STALE')
-    await cache.query({ scenarioId: 'SCENE', metaName: 'Orders' })
+    await cache.query({identity: { scenarioId: 'SCENE', metaName: 'Orders' }})
     cache.dispose()
-    await expect(cache.query({ scenarioId: 'SCENE', metaName: 'Orders' })).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    await expect(cache.query({identity: { scenarioId: 'SCENE', metaName: 'Orders' }})).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(http.calls).toHaveLength(3)
   })
 })

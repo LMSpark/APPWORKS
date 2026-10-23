@@ -52,17 +52,20 @@ export type UsePermissionReturn = {
     config?: Omit<FieldRenderConfig, 'field'>,
   ): FieldRenderState | null}
 
+/** 显式字段绑定时传入的数据源与策略继承选项。 */
+export type UsePermissionBinding = Readonly<{
+  /** 动态数据源；与字段值绑定使用同一解析结果。 */
+  dataSource: () => DataView | null
+  /** 显式字段绑定不得借用父子树的本地输入放行策略。 */
+  inheritFieldPolicy: () => boolean
+}>
+
 /**
  * 权限 API composable — 在 Vue 组件 setup 中调用。
  *
  * 内部自动消费 PAGE_PERMISSION_MODE 能力，返回绑定了当前模式的权限 API。
  */
-export function usePermission(binding?: {
-  /** 动态数据源；与字段值绑定使用同一解析结果。 */
-  dataSource: () => DataView | null
-  /** 显式字段绑定不得借用父子树的本地输入放行策略。 */
-  inheritFieldPolicy: () => boolean
-}): UsePermissionReturn {
+export function usePermission(binding?: UsePermissionBinding): UsePermissionReturn {
   const { sparkConsume } = useSparkConsume()
   const mode = sparkConsume(PAGE_PERMISSION_MODE) ?? undefined
   const subtreeFieldPolicy = sparkConsume(SUBTREE_FIELD_POLICY) ?? undefined

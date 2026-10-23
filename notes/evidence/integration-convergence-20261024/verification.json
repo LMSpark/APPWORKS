@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-24",
+  "scope": "Existing worktree convergence only; full metadata platform integration remains a draft plan.",
+  "baseCommit": "4c87a4940",
+  "referenceCommit": "791c464b8c6b3c7049ea36ab57546c3481e4d889",
+  "results": [
+    {
+      "command": "pnpm exec vitest run --maxWorkers=2",
+      "exitCode": 0,
+      "files": 343,
+      "tests": 6057,
+      "log": "node_modules/.cache/integration-convergence-20261024/tests-root-final.log",
+      "note": "Executed before merging the new 5 adapter tests into the existing design-clients file; focused rerun below covers the unchanged tests at their final location."
+    },
+    {
+      "command": "pnpm exec vitest run --maxWorkers=2 (packages/spark-lowcode-api)",
+      "exitCode": 0,
+      "files": 24,
+      "tests": 988,
+      "log": "node_modules/.cache/integration-convergence-20261024/tests-lowcode-api-final.log",
+      "note": "Separate package configuration; do not add to root count as unique coverage."
+    },
+    {
+      "command": "Final save-rule, structured-config, semi-structured and submission regressions",
+      "exitCode": 0,
+      "files": 20,
+      "tests": 95,
+      "log": "node_modules/.cache/integration-convergence-20261024/convergence-final-regressions.log",
+      "note": "Includes latest batch preflight and local JSON validation corrections; overlaps root suite."
+    },
+    {
+      "command": "Final merged design-clients tests",
+      "exitCode": 0,
+      "files": 1,
+      "tests": 15,
+      "log": "node_modules/.cache/integration-convergence-20261024/merged-design-tests.log"
+    },
+    {
+      "command": "pnpm run typecheck && pnpm run lint",
+      "exitCode": 0,
+      "logs": [
+        "node_modules/.cache/integration-convergence-20261024/typecheck-submit.log",
+        "node_modules/.cache/integration-convergence-20261024/lint-submit.log"
+      ],
+      "note": "Final merged test file additionally passed eslint."
+    },
+    {
+      "command": "pnpm run generate:class-model-surface",
+      "exitCode": 0,
+      "log": "node_modules/.cache/integration-convergence-20261024/class-model-submit.log"
+    },
+    {
+      "command": "pnpm run build",
+      "exitCode": 0,
+      "log": "node_modules/.cache/integration-convergence-20261024/build-submit.log"
+    }
+  ],
+  "rulesVerification": {"command": "pnpm run verify:rules", "exitCode": 0, "log": "node_modules/.cache/integration-convergence-20261024/verify-rules-delivery.log"},
+  "review": {
+    "mode": "read-only independent review, memory fixtures only",
+    "initialFindings": 4,
+    "followupFindings": 2,
+    "final": "All six demonstrated issues closed; no further P1/P2 in the bounded follow-up."
+  },
+  "realServiceValidation": "Not performed in this convergence; existing historical pilots are not current acceptance.",
+  "limitations": [
+    "Unverified design endpoints and incomplete reference workflows remain in the integration ledger.",
+    "Directory/page-thin baselines inherited from existing modifications are debt, not integration completion.",
+    "Contract generator scans built declarations; generation/check were serialized after package build for stable results.",
+    "Existing AI model warnings and build dynamic-import warnings remain."
+  ]
+}

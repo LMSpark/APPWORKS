@@ -26,7 +26,7 @@ describe('formal primary key configuration', () => {
       ...source.filterExpression ? [source.filterExpression] : [], {field: 'Name', operator: 'ne', value: 'EXCLUDED'},
     ]}
     const before = [models, fields].map(view => JSON.stringify(view.filterExpression)), start = f.requests.length
-    await LowcodeDataSpacePrimaryKey.prepare(session.metadataDataSet, 'A', 'M1', 'code', () => {})
+    await LowcodeDataSpacePrimaryKey.prepare({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', name: 'code', assertLive: () => {}})
     const queries = f.requests.slice(start).map(request => request.data).filter(isRecord)
       .flatMap(data => Array.isArray(data['Table']) ? data['Table'].filter(isRecord) : [])
     expect(queries).toHaveLength(2)
@@ -91,12 +91,12 @@ describe('formal primary key configuration', () => {
       })
       return fresh
     })
-    await expect(LowcodeDataSpacePrimaryKey.prepare(session.metadataDataSet, 'A', 'M1', 'code', () => {})).rejects.toThrow('查询已变化')
+    await expect(LowcodeDataSpacePrimaryKey.prepare({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', name: 'code', assertLive: () => {}})).rejects.toThrow('查询已变化')
     expect(fields.hasEditingChanges()).toBe(false); expect(writes()).toEqual([])
   })
   it('prepares the native key from fresh formal metadata without mutating original rows', async () => {
     const {session, fields, writes} = await setup()
-    const plan = await LowcodeDataSpacePrimaryKey.prepare(session.metadataDataSet, 'A', 'M1', 'code', () => {})
+    const plan = await LowcodeDataSpacePrimaryKey.prepare({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', name: 'code', assertLive: () => {}})
     expect(plan.candidate.primaryKey).toBe('businessCode')
     expect(plan.changes).toEqual([{id: 'F1', patch: {IsPKey: 0}}, {id: 'F2', patch: {IsPKey: 1, IsOutput: 1}}])
     expect(fields.rows.find(r => r['rowid'] === 'F2')?.['IsOutput']).toBe(0)
@@ -234,7 +234,7 @@ describe('formal primary key configuration', () => {
   })
   it('refuses stale query context even when the target parameter remains unchanged', async () => {
     const {session, fields, writes} = await setup()
-    const plan = await LowcodeDataSpacePrimaryKey.prepare(session.metadataDataSet, 'A', 'M1', 'code', () => {})
+    const plan = await LowcodeDataSpacePrimaryKey.prepare({dataSet: session.metadataDataSet, targetId: 'A', modelId: 'M1', name: 'code', assertLive: () => {}})
     fields.queryContext = {...fields.queryContext, anotherInput: 'changed'}
     expect(() => plan.assertCurrent()).toThrow('查询已变化'); expect(writes()).toHaveLength(0)
   })

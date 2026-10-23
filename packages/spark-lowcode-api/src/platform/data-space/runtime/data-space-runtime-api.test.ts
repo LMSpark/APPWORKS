@@ -1056,6 +1056,25 @@ describe('DataView original query execution boundary', () => {
     ds.destroy()
   })
 
+  it('filters on a non-output model field without requesting it as output', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const { api, ds, view } = connectedView(http)
+    const field = (name: string, output: boolean, order: number) => ({ id: name.toUpperCase(), modelId: 'MODEL-1', name,
+      canonicalName: name, type: 'string', primaryKey: name === 'rowid', description: '', output, computed: false, order, orderType: '', raw: {} })
+    api.dataSpace.runtime.bindModelView(view, { id: 'MODEL-1', metaName: 'Payroll', name: 'Payroll', sourceName: 'PayrollSalary',
+      sourceId: 'RESOURCE-1', sourceType: 'table', primaryKey: 'rowid', businessMain: true, raw: {},
+      fields: [field('rowid', true, 0), field('salary', true, 1), field('dept', false, 2)] })
+
+    await view.loadFromServer({ fields: ['salary'], filter: { field: 'dept', operator: 'eq', value: 'D1' } })
+    const request = JSON.stringify(http.queryRequests[0]?.data)
+    expect(request).toContain('"Field":"dept"')
+    expect(http.queryRequests[0]?.data).toMatchObject({ Table: [{ Fields: [{ Name: 'salary' }, { Name: 'rowid' }] }] })
+
+    await expect(view.loadFromServer({ filter: { field: 'missing', operator: 'eq', value: 'x' } }))
+      .rejects.toThrow('SPARK_MODEL_FIELD_UNRESOLVED: missing')
+    ds.destroy()
+  })
+
   it.each(['update', 'delete'])('keeps %s pending instead of using a legacy CRUD endpoint', async operation => {
     const http = new DataSpaceFixtureHttpClient()
     const { ds, view } = connectedView(http)

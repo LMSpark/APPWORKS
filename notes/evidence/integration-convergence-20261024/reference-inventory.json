@@ -1,0 +1,1990 @@
+{
+  "summary": {
+    "referenceHead": "791c464b8c6b3c7049ea36ab57546c3481e4d889",
+    "pageCount": 102,
+    "localSamePath": 32,
+    "missing": 70,
+    "apiCount": 77,
+    "groups": {
+      "application/application-context": {
+        "total": 2,
+        "present": 0
+      },
+      "application/application-function-management": {
+        "total": 1,
+        "present": 0
+      },
+      "application/application-manager": {
+        "total": 5,
+        "present": 0
+      },
+      "application/data-menu": {
+        "total": 3,
+        "present": 0
+      },
+      "application/enterprise-app-auth-application": {
+        "total": 7,
+        "present": 0
+      },
+      "application/enterprise-regist-manager": {
+        "total": 6,
+        "present": 0
+      },
+      "data-platform/data-set-management": {
+        "total": 5,
+        "present": 4
+      },
+      "data-platform/database-management": {
+        "total": 6,
+        "present": 6
+      },
+      "data-platform/semi-structured": {
+        "total": 10,
+        "present": 8
+      },
+      "data-platform/structured-config": {
+        "total": 18,
+        "present": 11
+      },
+      "governance/desensitization-rule": {
+        "total": 1,
+        "present": 0
+      },
+      "governance/navigation-permission": {
+        "total": 1,
+        "present": 0
+      },
+      "governance/role-management": {
+        "total": 3,
+        "present": 0
+      },
+      "governance/user-app-authorization": {
+        "total": 1,
+        "present": 0
+      },
+      "integration/api-management": {
+        "total": 3,
+        "present": 3
+      },
+      "integration/report": {
+        "total": 5,
+        "present": 0
+      },
+      "organization/job-management": {
+        "total": 1,
+        "present": 0
+      },
+      "organization/leave-management": {
+        "total": 3,
+        "present": 0
+      },
+      "organization/organization-structure": {
+        "total": 1,
+        "present": 0
+      },
+      "organization/user-management": {
+        "total": 4,
+        "present": 0
+      },
+      "system/bug-manage": {
+        "total": 1,
+        "present": 0
+      },
+      "system/cache-management": {
+        "total": 1,
+        "present": 0
+      },
+      "system/data-recovery": {
+        "total": 1,
+        "present": 0
+      },
+      "system/flow-monitor": {
+        "total": 1,
+        "present": 0
+      },
+      "system/login": {
+        "total": 1,
+        "present": 0
+      },
+      "workflow/flow-append-user": {
+        "total": 1,
+        "present": 0
+      },
+      "workflow/flow-model": {
+        "total": 4,
+        "present": 0
+      },
+      "workflow/flow-runtime": {
+        "total": 4,
+        "present": 0
+      },
+      "workflow/flow-workbench": {
+        "total": 2,
+        "present": 0
+      }
+    }
+  },
+  "pages": [
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/application-context/ui/application-database-relations-page.vue",
+      "target": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
+      "referenceSha256": "aa4a747bc123a5a4469206d98ec3c9b9a445475e498476d990379940683468ec",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/application-context",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/application-context/ui/application-function-route.vue",
+      "target": "src/views/features/application/application-context/ui/application-function-route.vue",
+      "referenceSha256": "e7359d745881fa3925abb36695c30836c2ea21e80d9174f68a14e89627f99b60",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/application-context",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/application-function-management/ui/application-function-page.vue",
+      "target": "src/views/features/application/application-function-management/ui/application-function-page.vue",
+      "referenceSha256": "fd67eec307178bd9759463e489a3eaa42e625a0bf98ee4c31e6451cb93037f06",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/application-function-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/application-manager/ui/application-database-dialog.vue",
+      "target": "src/views/features/application/application-manager/ui/application-database-dialog.vue",
+      "referenceSha256": "67f15a69181f102c7eac0d500f82e78a032cca9735b4ea4726a6cea9c279e8d7",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/application-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/application-manager/ui/application-manager-form-dialog.vue",
+      "target": "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue",
+      "referenceSha256": "56147712af482b60083575f1bee0beee9e609ad8490c8c86b96ed75e14d821db",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/application-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/application-manager/ui/application-manager-list.vue",
+      "target": "src/views/features/application/application-manager/ui/application-manager-list.vue",
+      "referenceSha256": "7656088527e208c007d255694f45073165e2601cc5bc54bf53194bbcf221f391",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/application-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/application-manager/ui/application-manager-page.vue",
+      "target": "src/views/features/application/application-manager/ui/application-manager-page.vue",
+      "referenceSha256": "474393587aa30a20f5ce45221e79ec1794b8950ad3a21d828b23a84b9433c48c",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/application-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/application-manager/ui/application-relation-dialogs.vue",
+      "target": "src/views/features/application/application-manager/ui/application-relation-dialogs.vue",
+      "referenceSha256": "0475a200b1b8b56a32e8747dfa68fa19a8601fa0ff3ff442556c1a1ded090993",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/application-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/data-menu/ui/data-menu-dialog.vue",
+      "target": "src/views/features/application/data-menu/ui/data-menu-dialog.vue",
+      "referenceSha256": "3ea67dd5c504f9ab2420f0055e1231a19fad7666a7cd8f9e7bc139577b9594c5",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/data-menu",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/data-menu/ui/data-menu-list.vue",
+      "target": "src/views/features/application/data-menu/ui/data-menu-list.vue",
+      "referenceSha256": "abb6d665fe24254add12a750be0c5a554a075b970c0f441d48a933f7afdff3ee",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/data-menu",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/data-menu/ui/data-menu-page.vue",
+      "target": "src/views/features/application/data-menu/ui/data-menu-page.vue",
+      "referenceSha256": "9719966d8c553fee8661e0792e17bbf98ec15ebae712337171babd15b94352d0",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/data-menu",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
+      "target": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
+      "referenceSha256": "923505d60678f59478af1db428bbdc81c6e685177efd41534a76e5d679227bce",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-app-auth-application",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+      "target": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+      "referenceSha256": "83ddf960c8696a2e8537dfa8fcee85462507812aede30ea942ad6e3e291c546f",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-app-auth-application",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
+      "target": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
+      "referenceSha256": "54d4f3ba1f62cf1e0f2b214996a6eee7c65f643424ad736b40ea54500aef1e64",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-app-auth-application",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-list.vue",
+      "target": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-list.vue",
+      "referenceSha256": "d7afe25468fbc7d6f9a02030b4b39d13861abcaec7a72f6346510cbd1c3f9075",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-app-auth-application",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
+      "target": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
+      "referenceSha256": "e36a3f99784376b1955175ef178d72f8298936d3305cb8009b323c22c144de65",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-app-auth-application",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-app-auth-application/ui/my-app-auth-request-list.vue",
+      "target": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-list.vue",
+      "referenceSha256": "8690b70f834bee48646819970c476344f4cccaa85ad97f5f9c5ad1394a0eb723",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-app-auth-application",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+      "target": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+      "referenceSha256": "3a0827c1f03ec75820beac63e8b864a96805e236f149bdcf0bc85410c205cdf2",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-app-auth-application",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
+      "target": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
+      "referenceSha256": "76eadfc3d0ad32bb0cd71f704e77d28a2a3977e0533051fc44b901f2e31c5a4d",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-regist-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue",
+      "target": "src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue",
+      "referenceSha256": "ac224e6875c6dee7ba79cfda9826c26158448552eb5c12a872c8954fa9077d49",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-regist-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue",
+      "target": "src/views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue",
+      "referenceSha256": "5a3836c6cc687efb182acb0960b7638acfaf08fa565f794bec17c76979b3c585",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-regist-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-regist-manager/ui/enterprise-password-dialog.vue",
+      "target": "src/views/features/application/enterprise-regist-manager/ui/enterprise-password-dialog.vue",
+      "referenceSha256": "be87f9b1a7b71ade001e0b08c598045cba00531f4f79800717086d4117b98259",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-regist-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-list.vue",
+      "target": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-list.vue",
+      "referenceSha256": "fcfb80ead8721946e389089ea91aa89b5d08977fa25bbccf917a0be8f0328035",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-regist-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
+      "target": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
+      "referenceSha256": "f4457be6ff7d4fdd401d4160ab66d2133fc476d6685090b74838855757fe1022",
+      "exists": false,
+      "localSha256": null,
+      "group": "application/enterprise-regist-manager",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
+      "target": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
+      "referenceSha256": "2f19409ea0bf8f7c57d08e6045d1f098c77e2f831cf5fe210c3c1d8fe660ebb6",
+      "exists": true,
+      "localSha256": "ef50e0930ecd7378f4bd1c239ea6b60367f42374086f62a8e69e524de5b717d7",
+      "group": "data-platform/data-set-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": true
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue",
+      "target": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue",
+      "referenceSha256": "067be87ca432495976fd96ba1660f09e7fd139d359076851114fbf759c5e0c38",
+      "exists": true,
+      "localSha256": "e50fc329c9ef5ab11939bbca2ba2b79bcf439b2a3626669107c0a18a72948700",
+      "group": "data-platform/data-set-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": true
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue",
+      "target": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue",
+      "referenceSha256": "116c2a356587f652d33b9c3072e28a070e79285b265e1e70de4b6f313e4fd11c",
+      "exists": true,
+      "localSha256": "ad5f20240adfc44672997d3a8cc5c83ffd3c751e0826bfa2b27fcdec62f1b091",
+      "group": "data-platform/data-set-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": true
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/data-set-management/ui/data-set-auth-page.vue",
+      "target": "src/views/features/data-platform/data-set-management/ui/data-set-auth-page.vue",
+      "referenceSha256": "1e129a248ca79f1305d3868d2a03fa384e8aa302b25b446c166ef3765f5cf343",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/data-set-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/data-set-management/ui/data-set-list-page.vue",
+      "target": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
+      "referenceSha256": "fb8afa686cf0dc998161109deed4fa854ba011d0d051260a97f738317acf3b18",
+      "exists": true,
+      "localSha256": "5394eb4bfd720ca8e9b927abb78bcff36e1a24fb5c1076e094ee6069119ffbe0",
+      "group": "data-platform/data-set-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": true
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+      "target": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+      "referenceSha256": "e1ad845824b404ee62f2c16b581e517ccc780119feac52fb542b2306f6ca719c",
+      "exists": true,
+      "localSha256": "7f30ddd8ed56f8920254aa12cd18a96c386e0e43d45aa603dddb5b77cc28f050",
+      "group": "data-platform/database-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "target": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "referenceSha256": "e296f5871828958d5762fc050eeb8253d9623d318f1fde81892b45d0ccb65d26",
+      "exists": true,
+      "localSha256": "cd63121efd700d8bc3f6af1a6e4336b306ec7e5ea30c991f4b035607c5cf397f",
+      "group": "data-platform/database-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "target": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "referenceSha256": "106a3182c767876953dc8296a1a86ca818cac9dbd8ae96f3011667a570bc2309",
+      "exists": true,
+      "localSha256": "17e15fc13f49e0f0d2ab131af629e3d83ac5e65dee36cd1bc482b49f38daae33",
+      "group": "data-platform/database-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
+      "target": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
+      "referenceSha256": "e835bf3d19b14aaef6aa7bdb41a7602f33ef180daf1046bb59774c77ae4e4dc2",
+      "exists": true,
+      "localSha256": "a3d66cfa57942fa724d091a45a7cb78ea49bd0d14c57bc9d9363b82cf47e2c1d",
+      "group": "data-platform/database-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": true
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+      "target": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+      "referenceSha256": "367b07e208f98cda4249d376a4ad62d8690e72fce37f3794ba6582b60d5fb883",
+      "exists": true,
+      "localSha256": "25019774143859595dbafdd1f63c72452582b606038a369b38198b03c08e9f03",
+      "group": "data-platform/database-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": true
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/database-management/ui/service-management-page.vue",
+      "target": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+      "referenceSha256": "0d988f7d287e843b2ade09716f8962012c80ef1c44470257910f23b5d934e32d",
+      "exists": true,
+      "localSha256": "bb57fffe74e13fca03edadd675d774e7ac1e689828b86f6d30edc51191048ab9",
+      "group": "data-platform/database-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+      "target": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+      "referenceSha256": "f158b4b792f15409c92caf47e6d0e1b1e66bb779a5273860ba49a9ef554abeb8",
+      "exists": true,
+      "localSha256": "2aa48152b3e9735a8fdd20329ba3e05e55d8b7670b7e07aa3aee161c03592075",
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "target": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "referenceSha256": "799d6808f3b3e95d2cf1b0f47d2f846231bf042b2e539ac32b230c95e00e928d",
+      "exists": true,
+      "localSha256": "61616c14befbd11c95b443cca5036f34b47516d3324cefaeb4c3f1f8b6b77a1d",
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-lookup-dialog.vue",
+      "target": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-lookup-dialog.vue",
+      "referenceSha256": "1934ac321b777d0e430ca36898dcdbfd0352ccbaa19ccdf931769d9c7a7063bb",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
+      "target": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
+      "referenceSha256": "00dbe611badcec09d6352b8f766a77315adc964f009befe4364e720e157acd7c",
+      "exists": true,
+      "localSha256": "a43d2fac806754f23978033dad94390452530dbdc8b98549a2ea22a640c3ec78",
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue",
+      "target": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue",
+      "referenceSha256": "d806a4700378c41cc22d6273c8c7b091382b2732d7ee07780eb90268ca5455e0",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue",
+      "target": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue",
+      "referenceSha256": "d9fb16677cb29668779ae1c7de716b3219040cc09595e3280199533f85d6a43a",
+      "exists": true,
+      "localSha256": "7c53252c9c9c73cabca7618fa338cb63715fd68c5b99ba47be5c496cfd4b0351",
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "target": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "referenceSha256": "ae4351cec7449ce818d9e4f6217ddc8f243369aa3a4353bf349fc4da67dca58d",
+      "exists": true,
+      "localSha256": "bf9733be9531103de16684106c17db66a2e81e7850e9fbad90bb8c6565e4688e",
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
+      "target": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
+      "referenceSha256": "88d16f87088b144254d566173f3679ac6e1207916c8aa6e0e600aae0d452bea1",
+      "exists": true,
+      "localSha256": "6df0c90d46a5b399144800ee8a10083af89e88343ea34415179249f51f02f407",
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+      "target": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+      "referenceSha256": "c96196d9954816c32c306c6be232fa2f7a1d4be0593b32adb84ae5879c6d0f6b",
+      "exists": true,
+      "localSha256": "8b03a4a6b69e424ed13ae748806adbd461767a24bdbc528887ebb98bb94c362a",
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue",
+      "target": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-rule-form.vue",
+      "referenceSha256": "f0ce8e3bef2b191228e0464e59cc66e3031aa73b3c0ab4412be8060fbf6b0b2b",
+      "exists": true,
+      "localSha256": "4053db412359763737ae16677c6643e864fd804ae7d7aa461d4df76acae49687",
+      "group": "data-platform/semi-structured",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
+      "target": "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
+      "referenceSha256": "fa292243a7400a599999dde384c23161a074d1e18eda608fe8fea47d21d62791",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
+      "target": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
+      "referenceSha256": "fe44a5733568b3fe221d6fa367cb8f2a2b8fef54c54738b170ab1eb1f034017a",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+      "target": "src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+      "referenceSha256": "3671cb9ae7adafeb9ff244757b0cb0e2b76b58f72eb8138565e96994558626f0",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
+      "target": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
+      "referenceSha256": "8ce43c68ae99051e47605399a30293ca455a0a9712d4433e485488c64b1a1efc",
+      "exists": true,
+      "localSha256": "5495f72c093937ecabd3b6523cbd501bdf9b74ff2d33a5ab4bd4e61beca570b2",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
+      "target": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
+      "referenceSha256": "78c250e0158bad1cd159da870b550a0df8079e0c1e24fcb2b034ae81f97e0d90",
+      "exists": true,
+      "localSha256": "b45ab026a605c430c4f8cf06fa16d83ae72922c1cff2265c53bae350c904f81c",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": true
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
+      "target": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
+      "referenceSha256": "a1c61d24ae7fc786730c851aadfa17f4ef3c48630e6e1c325de604364b940248",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue",
+      "target": "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue",
+      "referenceSha256": "c30dc29babe24a2297760f7433beefbdadaa1609b9f4abe640dc5215c98e9b92",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
+      "target": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
+      "referenceSha256": "7b78cab41b70f0b7e8d40268c40ed1626716bccde83b4aedfb3554289b3f1f1a",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "target": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "referenceSha256": "b429a866b28b0adc9241a9ae8d87a2137dd846114a3335f856548f887c33d9bc",
+      "exists": true,
+      "localSha256": "d7c68eec7995b0fcfbd654c26b56f25609018003524de9ae59287269ce78068e",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": true
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-editor.vue",
+      "target": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-editor.vue",
+      "referenceSha256": "94c5fea987e3c8fafa81850ddf4c720b8287d63ea54671a157950cab9cf89874",
+      "exists": false,
+      "localSha256": null,
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
+      "target": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
+      "referenceSha256": "6b6691b9d29692b176d461a62ff1e26e8c72bc911510228f792cd33e47950340",
+      "exists": true,
+      "localSha256": "5e802a226cb065e1e1f366873d6b7ba1d242096d0fa27c3c5e00bcad1974426a",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
+      "target": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
+      "referenceSha256": "5ee6a2fb3ded1f50060f8fc064888962ef30720accbf6c5501492ff28d5c960e",
+      "exists": true,
+      "localSha256": "0fdac56e123fb5e4b7e45126e2499b4034f1c7f54caa2e3beb01c4a9a8df0c5d",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "target": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "referenceSha256": "083cbbf8e7e79da75cb7fc740dbbbf198cf83c566eb2e50e911576687191d19d",
+      "exists": true,
+      "localSha256": "dc20dccac25f4aa49b0aadce8c8d580b39a510c37b18837e1ee8dec0d258038f",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": true
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
+      "target": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
+      "referenceSha256": "f4db548f35e7adef4d3c5f106da1e0bd7482b6f493bf2b1198883a430d373756",
+      "exists": true,
+      "localSha256": "e898b091766a5cbeffbffba2274832f006aa589507096367d83b7d3cc035f7b5",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
+      "target": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
+      "referenceSha256": "2d2b95776c75647689a8171c46c80825e73c6543d41d7ba54f103f4b949216fc",
+      "exists": true,
+      "localSha256": "bcf5eb325198f7fb94c98a227b42acedc25a0126c80287e78c6c0c145a38fc72",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "target": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "referenceSha256": "4874b7f8ad56ea063f7f0a047ef3b74355ecb7bf9cdcd985ce69e22236ac4f4f",
+      "exists": true,
+      "localSha256": "73e9bd7963176db2f3240934e729ab70561b452a0454992e5426aafd5458291c",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "target": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "referenceSha256": "48230612c4f9df318c814313f1b32c1deedde45fffde8a6699f3e4c83677b137",
+      "exists": true,
+      "localSha256": "3b3ddae7df8b5b1c72b891a40b1e54600416146d2c43ee41756f99d7f8373338",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
+      "target": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
+      "referenceSha256": "c05af8015be42a0cf36b090e13f846c7f12c39af6db3d884306ca19cebb41d85",
+      "exists": true,
+      "localSha256": "7372ed838fc84d130a97d34214734d02fcb2eee891480f4a0fd9c9305135f943",
+      "group": "data-platform/structured-config",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/governance/desensitization-rule/ui/desensitization-rule-page.vue",
+      "target": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-page.vue",
+      "referenceSha256": "3c95abf90620f96904e18a16b974031fc75585086afbce3b521c3059f1928adf",
+      "exists": false,
+      "localSha256": null,
+      "group": "governance/desensitization-rule",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/governance/navigation-permission/ui/navigation-permission-page.vue",
+      "target": "src/views/features/governance/navigation-permission/ui/navigation-permission-page.vue",
+      "referenceSha256": "78ce6472ffff7550ad1385d82ffd628ec97bdb7faca54856bf4b9e28834a68a6",
+      "exists": false,
+      "localSha256": null,
+      "group": "governance/navigation-permission",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/governance/role-management/ui/role-auth-page.vue",
+      "target": "src/views/features/governance/role-management/ui/role-auth-page.vue",
+      "referenceSha256": "173702c166cbb53ccc9102d84e2e528965f717c783b18574200b9bf0bee7a537",
+      "exists": false,
+      "localSha256": null,
+      "group": "governance/role-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/governance/role-management/ui/role-management-page.vue",
+      "target": "src/views/features/governance/role-management/ui/role-management-page.vue",
+      "referenceSha256": "7cc43008ee2e41b6598c7ca59d0fb4e01303312a832e4f909dab532ee27f964b",
+      "exists": false,
+      "localSha256": null,
+      "group": "governance/role-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/governance/role-management/ui/role-user-page.vue",
+      "target": "src/views/features/governance/role-management/ui/role-user-page.vue",
+      "referenceSha256": "bf177c2b15ec30aa8e434c31c401cc990214f272400b3e2c317eb6e0d24d9f92",
+      "exists": false,
+      "localSha256": null,
+      "group": "governance/role-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/governance/user-app-authorization/ui/user-app-authorization-page.vue",
+      "target": "src/views/features/governance/user-app-authorization/ui/user-app-authorization-page.vue",
+      "referenceSha256": "6cedb4cb23b780fb64ccaed2ebe5b0d9139f4ea1e7c8b808ae0a642e7a00a082",
+      "exists": false,
+      "localSha256": null,
+      "group": "governance/user-app-authorization",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/integration/api-management/ui/api-config-page.vue",
+      "target": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "referenceSha256": "5067cb43b0e12d494a2551ae2b3ab073fb6d82a509f8bd7fc4c8385772d3cb25",
+      "exists": true,
+      "localSha256": "07ac37fa3d25b50d64aee26543d57154b85b90572be984bbb7a4e5d953c5ee34",
+      "group": "integration/api-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/integration/api-management/ui/api-interface-list-page.vue",
+      "target": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
+      "referenceSha256": "d4bef7e659a3b130a4d9c8b3c6ff0b48a1639c768ceb129d72f9ef047536283e",
+      "exists": true,
+      "localSha256": "21d91db45605b57073c935e4fb33d880bcb705c810b8e7016f9c3c6a5391183e",
+      "group": "integration/api-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/integration/api-management/ui/api-management-page.vue",
+      "target": "src/views/features/integration/api-management/ui/api-management-page.vue",
+      "referenceSha256": "79777f558cb9f495a5ba582d015264c650f6464e8f7a163364750b0c4c7040c3",
+      "exists": true,
+      "localSha256": "a3f46ad65e9f45e0c0256ff9e46f40179008a5cdad5c111a05ba2a11c6aa393a",
+      "group": "integration/api-management",
+      "hasDataViewBinding": true,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/integration/report/ui/report-form-dialog.vue",
+      "target": "src/views/features/integration/report/ui/report-form-dialog.vue",
+      "referenceSha256": "f9f133a8edbbc33a682d3bb6ee70405b48e2833f2c5fe846fbf514939bb77b00",
+      "exists": false,
+      "localSha256": null,
+      "group": "integration/report",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/integration/report/ui/report-management-list.vue",
+      "target": "src/views/features/integration/report/ui/report-management-list.vue",
+      "referenceSha256": "edbcafdd0442f597a674e2b2b5553ba95b3be7bfab1b82b1e896c99c15cb07c4",
+      "exists": false,
+      "localSha256": null,
+      "group": "integration/report",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/integration/report/ui/report-management-page.vue",
+      "target": "src/views/features/integration/report/ui/report-management-page.vue",
+      "referenceSha256": "eed57c34569a5aecceb1d9f9da121d60ca2f31d48a797707452a1d2c9f6d15bf",
+      "exists": false,
+      "localSha256": null,
+      "group": "integration/report",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/integration/report/ui/report-model-dialog.vue",
+      "target": "src/views/features/integration/report/ui/report-model-dialog.vue",
+      "referenceSha256": "15b4c08cc86b2d7cd68f9bda8297e9c1324bc1960044bb1911b2f4d832f4a93f",
+      "exists": false,
+      "localSha256": null,
+      "group": "integration/report",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/integration/report/ui/report-version-dialog.vue",
+      "target": "src/views/features/integration/report/ui/report-version-dialog.vue",
+      "referenceSha256": "a055c04b43333da52b396ba28509995da24d3caa8d13ab502d3b33c02b8b7651",
+      "exists": false,
+      "localSha256": null,
+      "group": "integration/report",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/organization/job-management/ui/job-management-page.vue",
+      "target": "src/views/features/organization/job-management/ui/job-management-page.vue",
+      "referenceSha256": "1c53c2f04df091bc41ee02d6e074f3ef19a2019e8c9c0614075ff81cf9f8e2f2",
+      "exists": false,
+      "localSha256": null,
+      "group": "organization/job-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/organization/leave-management/ui/leave-form-aside.vue",
+      "target": "src/views/features/organization/leave-management/ui/leave-form-aside.vue",
+      "referenceSha256": "353bd826d163425b6ed63314ee8848e556391a4d4dfcb2ccbd7edb7ed8c3532d",
+      "exists": false,
+      "localSha256": null,
+      "group": "organization/leave-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/organization/leave-management/ui/leave-form-page.vue",
+      "target": "src/views/features/organization/leave-management/ui/leave-form-page.vue",
+      "referenceSha256": "914aca6ff7040b18386e3c429b3937aa884cd7242419c1f6079d184e45f50f55",
+      "exists": false,
+      "localSha256": null,
+      "group": "organization/leave-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/organization/leave-management/ui/leave-management-page.vue",
+      "target": "src/views/features/organization/leave-management/ui/leave-management-page.vue",
+      "referenceSha256": "f5d49fb0fa75566ea16708298151d9094aeed043211f2e62ee7cf43a1a8a4adc",
+      "exists": false,
+      "localSha256": null,
+      "group": "organization/leave-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/organization/organization-structure/ui/organization-structure-page.vue",
+      "target": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
+      "referenceSha256": "bf29da3ffe1a0285a3ab33f0856e7c5c66ffdaa3ef1bd093d28be8c0b3eb0978",
+      "exists": false,
+      "localSha256": null,
+      "group": "organization/organization-structure",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/organization/user-management/ui/user-form-dialog.vue",
+      "target": "src/views/features/organization/user-management/ui/user-form-dialog.vue",
+      "referenceSha256": "e70745fb12ac0000a005a8545301490479948bae52a58c673c1de0bb60d36fb1",
+      "exists": false,
+      "localSha256": null,
+      "group": "organization/user-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/organization/user-management/ui/user-management-list.vue",
+      "target": "src/views/features/organization/user-management/ui/user-management-list.vue",
+      "referenceSha256": "3fd0e437894ce778dc91dde5390d8ca83e5f00b958b29886c5f464f9a8d18c9e",
+      "exists": false,
+      "localSha256": null,
+      "group": "organization/user-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/organization/user-management/ui/user-management-page.vue",
+      "target": "src/views/features/organization/user-management/ui/user-management-page.vue",
+      "referenceSha256": "5bd07b1df9b98d2b2adc7f0c071c235788c82467dfed9c1a8b6a8e0f7b947229",
+      "exists": false,
+      "localSha256": null,
+      "group": "organization/user-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/organization/user-management/ui/user-permission-dialog.vue",
+      "target": "src/views/features/organization/user-management/ui/user-permission-dialog.vue",
+      "referenceSha256": "8aec5d1d1a3429739fc4522a72791695c9e82e2b85f7eafcd0cb8f63b5bac4e6",
+      "exists": false,
+      "localSha256": null,
+      "group": "organization/user-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/system/bug-manage/ui/bug-manage-page.vue",
+      "target": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
+      "referenceSha256": "765cdc36ef5b0de0d19c57c918708664e48220bf89b8d70b30abfd18d45f8049",
+      "exists": false,
+      "localSha256": null,
+      "group": "system/bug-manage",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/system/cache-management/ui/cache-management-page.vue",
+      "target": "src/views/features/system/cache-management/ui/cache-management-page.vue",
+      "referenceSha256": "cc1183e1c9b33f8b08f0da23fe196a0228f3a51c84948461b7c37351db1dc5b6",
+      "exists": false,
+      "localSha256": null,
+      "group": "system/cache-management",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/system/data-recovery/ui/data-recovery-page.vue",
+      "target": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
+      "referenceSha256": "d5d7255834c0bb50a98efdb36cb43a10b0e9360f5a692ceedf4dd8307b293f6b",
+      "exists": false,
+      "localSha256": null,
+      "group": "system/data-recovery",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/system/flow-monitor/ui/flow-monitor-page.vue",
+      "target": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
+      "referenceSha256": "5178d7d3ea73c42d413246e290deed6bfcbcc5554028da181193fbfc87909feb",
+      "exists": false,
+      "localSha256": null,
+      "group": "system/flow-monitor",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/system/login/ui/login-page.vue",
+      "target": "src/views/features/system/login/ui/login-page.vue",
+      "referenceSha256": "9f1f77637c9befc55a97bd0f9f153ba805a30b02e5f25c217cc471b4a0882fb9",
+      "exists": false,
+      "localSha256": null,
+      "group": "system/login",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-append-user/ui/flow-append-user.vue",
+      "target": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
+      "referenceSha256": "8a193718c3a35b9f684abd443d88b062bc37d19d7681c398d92a8c13585988d4",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-append-user",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
+      "target": "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
+      "referenceSha256": "5f888a26332b7ff0f11c5c97bec4732639e736f4756c46248f636dd2576728e7",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-model",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-model/design/ui/flow-design-page.vue",
+      "target": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
+      "referenceSha256": "6e2f24f8e331235910d7ef35f516d8a429dc03804808312b9c93df0f9540ded8",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-model",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue",
+      "target": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue",
+      "referenceSha256": "2592920b01f53e2c8a8058067cee436f80082d3e9cbc71348dc4220fac44f27c",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-model",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-model/ui/flow-model-list-page.vue",
+      "target": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
+      "referenceSha256": "5c92e17ff9af0fee52c56228a540ff979a2cb6053f0a69eb4d3e047981906eb5",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-model",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
+      "target": "src/views/features/workflow/flow-runtime/bus-detail/ui/bus-flow-detail-page.vue",
+      "referenceSha256": "11399dacd57333a77ed1f3e1bf87ba5065f04ff2f9fca7e49a83d34784885fed",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-runtime",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+      "target": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+      "referenceSha256": "c17ca48d3f39646bdb8a446f2895e3b5452d09b6c1399ae71deb32dd9daf2190",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-runtime",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+      "target": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+      "referenceSha256": "33310f7f459ede997fcd30ea85b1dd4cf3bf9f8a2777245b63b70ceb77271ead",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-runtime",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
+      "target": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
+      "referenceSha256": "506f21d53675417e1469fe66065a30cdbd7a08b6d2d07c5c29d06cf8d6d573a5",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-runtime",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue",
+      "target": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-mobile.vue",
+      "referenceSha256": "c0f76a106a8df0f5fa9e18b0be8fa93473ea5b4609215f24bd45ad118cf4e903",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-workbench",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    },
+    {
+      "reference": "packages/ui/domain/metadata/src/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue",
+      "target": "src/views/features/workflow/flow-workbench/ui/flow-workbench-todo-panel.vue",
+      "referenceSha256": "3e80d4c754248e51a5d8f62120bafd3d529c96574384db85427c3ef64b64be5a",
+      "exists": false,
+      "localSha256": null,
+      "group": "workflow/flow-workbench",
+      "hasDataViewBinding": false,
+      "hasLowLevelControls": false,
+      "hasPlaceholder": false
+    }
+  ],
+  "apis": [
+    {
+      "path": "packages/data/metadata/src/api/APIManage/APIManage.ts",
+      "sha256": "6d79a4a8266c4c184d8c03257385cf6babb2d4ed5223913012fc7be09c904273",
+      "operations": [
+        "query",
+        "save",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/APIManage/APIManageConfigSet.ts",
+      "sha256": "d10dbca0da2ee1efa3dbdad91167e9e5d444264519f1092c57661b081aafdd10",
+      "operations": [
+        "query",
+        "update",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/APIManage/APIManageInterfaceList.ts",
+      "sha256": "1a26feed8a72b7ae5354c403a7b36f7506513abfcdc14534f4299f8ac462e9f5",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove",
+        "save"
+      ],
+      "builtinNames": [
+        "apiCall"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/ApplicationFunMan/ApplicationFunMan.ts",
+      "sha256": "cd94ed18b52b8f99da9b2bb8063ebfc7ee3da7d1efcd75a21b053b703347ca6f",
+      "operations": [
+        "query",
+        "save",
+        "update",
+        "create",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/ApplicationFunMan/project-blueprint.ts",
+      "sha256": "68a0aac64290b097eefde967ebd467a5d2f14e64e057425fac82d996d6144346",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/ApplicationManager/ApplicationManager.ts",
+      "sha256": "b371966931ee2ae54842ef2f5a0a84bdfdf1fe3318dada3d2ce466ac79000da9",
+      "operations": [
+        "query",
+        "save",
+        "create",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/ApplicationManager/DataMenu.ts",
+      "sha256": "1d5d3aa36345e4f0e8956a2e4fd48243ba1abe4c6b34dbb100517b3c8a02fd04",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/ApplicationManager/EnterpriseAppAuthApplication.ts",
+      "sha256": "2285dbba0d462ff80ec581b28dcffe0384023d0e47c6aca6df44ca07af41095c",
+      "operations": [
+        "query",
+        "create"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/ApplicationManager/EnterpriseRegistManager.ts",
+      "sha256": "e7b8cf44d3d928fa6fa88808c2e3ba10b7ed664a27688933ec27f41f5f5e4594",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/common/tokenStore.ts",
+      "sha256": "d8173cc678dda83b986c5bbefddb1f34f00512820f858153a02556590a32660d",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/apiInfo.ts",
+      "sha256": "2c42830146e22507cdd5319472bb1467ee65f344f0303c4c439ab7322c7424ba",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/auth.ts",
+      "sha256": "2cdc405e82e11c0cef6d7fbaa946e076b1f386e58439e0550a775a98902256fb",
+      "operations": [
+        "query",
+        "update",
+        "create",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/design/contracts.ts",
+      "sha256": "ccb74c1243c8937f24f326be86271349b734566e7c01eee6e99f3660d62d6dee",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/design/designFile.ts",
+      "sha256": "e64dd9438ba29d872dcaf2392649513aedea4fb4400e928d48db83e5ff3cc212",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/design/model.ts",
+      "sha256": "6ffae3aab9b0d0f55f409772cec595309be00518dd0a51b4ecf156f3f3f9ebcb",
+      "operations": [
+        "create",
+        "update",
+        "save",
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/design/preview.ts",
+      "sha256": "1274ff83c61756360cc322464331393ca81ab079c46fb6ba823406c17a7e48b1",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/design/records.ts",
+      "sha256": "b30bf9fd8e39b8077909df196aa28fde54ae505900463740f5660085af8502da",
+      "operations": [
+        "query",
+        "update"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/design/relation.ts",
+      "sha256": "6c23b6c6fe1c40128e02e17a4b6369f240a46d8f20fcde2418585172a57f17d8",
+      "operations": [
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/design/source.ts",
+      "sha256": "7de943cc66cdb7031d6e444bd18e7c845958c8ca77dee18a554b46550401c84c",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/data-set/list.ts",
+      "sha256": "56fd78807d6c1c5d6181280335681bbb2ca1ad451d6fcfb2bd5c93c2ee929752",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/DataBaseManage/AddTable.ts",
+      "sha256": "ca7dca08f7f561e603648475f0a65a31060c80fc8ff1f3c5e113311303560ea2",
+      "operations": [
+        "query",
+        "save",
+        "create"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/DataBaseManage/DataBaseManage.ts",
+      "sha256": "08cad890f996fd4f95c1ae3391c906e4cc2edcc3228647094bdfb7f812706c61",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": [
+        "dbUnregistered",
+        "dbOperateData"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/DataBaseManage/db-test-connection.ts",
+      "sha256": "fa51eb9976522eacc5434f4c13570d1018c687ee084a11ca96083d1406e2bac5",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": [
+        "dbTestConnection"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/DataBaseManage/ServiceManager.ts",
+      "sha256": "5ef0a4360f83f2eab40400d20441c711637037da23e7dabaeecd0072a4ff49f9",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": [
+        "serverRegister"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/DataBaseManage/TableAndView.ts",
+      "sha256": "63d7987f8bed0dd247aa1fc2286a5544ba8e7496ba7c335d32f64d55f6dc640d",
+      "operations": [
+        "query",
+        "remove",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/DataBaseManage/TableAndViewRegister.ts",
+      "sha256": "92e975b99051c27d55750d8ac7ea867d96383c7af0f423481039633311c64bdb",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": [
+        "dbUnregisteredTable",
+        "viewUnregistered"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/DataBaseManage/TableDesign.ts",
+      "sha256": "968dccb70a2087206292ef81e57cd43361a91a247a77b9370c7be1861f77c276",
+      "operations": [
+        "query",
+        "update",
+        "create",
+        "remove",
+        "save"
+      ],
+      "builtinNames": [
+        "tableData",
+        "tableSyncMetaData"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/DataBaseManage/ViewDesign.ts",
+      "sha256": "ce607a1174ae928325f5bf86e726d4d9b58e95856e181b963bb7302887fed332",
+      "operations": [
+        "query",
+        "update",
+        "create",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/FileDataManager/FileManager.ts",
+      "sha256": "e136b689c87426bb990497069a7f371e4c5046fb0c91253d57a94abfad024d88",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/FlowManage/flow-workbench-filters.ts",
+      "sha256": "7d98cb9fbeafda62fb7b138d354ca76b56a26fad6a1aa4eed13fa0539d7d25ad",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/FlowManage/flow-workbench-normalize.ts",
+      "sha256": "d7e96cda915ac4441a8db528880c154433936ede4893c751fe0af2a41b112a1f",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/FlowManage/FlowAppendUser.ts",
+      "sha256": "e045280aa1fd60a3afb700130a5cf7661b52a349e7f9487ff6d5e13db73f83e3",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/FlowManage/FlowDesign.ts",
+      "sha256": "e6b4cd9bef92e8af1801ea59a880ab643317e8f388592c33eb47bede3d57c725",
+      "operations": [
+        "query",
+        "save",
+        "update"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/FlowManage/FlowModel.ts",
+      "sha256": "1ff10d9c080ba9ea1dfc3770a3d7e573b52a38259fb882711a523d26bbceab67",
+      "operations": [
+        "query",
+        "update",
+        "create",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/FlowManage/FlowRunDetail.ts",
+      "sha256": "242e7c199b4cabf750d7ed279bf366f9f793d6404046cf2c295c85d619b013ea",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/FlowManage/FlowRunPage.ts",
+      "sha256": "5f50f0ca97a4590a8aa07da875765dad12934cab497b5ae0739c1aff1f93d403",
+      "operations": [
+        "query",
+        "update"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/FlowManage/FlowWorkbench.ts",
+      "sha256": "a7e014cd2b1e9914bb1f215877c47b0ca972eecba047cab3735a5b34c5797380",
+      "operations": [
+        "query",
+        "update"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/hrManagement/qjgl/add/qjglAdd.ts",
+      "sha256": "9dc778364cc6efe3c139485662a2df2a17e396f1173e9ce6392641ef3a2a3885",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/hrManagement/qjgl/qjgl.ts",
+      "sha256": "2e1b6ca6a3dd54b10ee6d1a1c01f855f533580ce438f86444a962c44a66aac24",
+      "operations": [
+        "query",
+        "update",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/lookup.ts",
+      "sha256": "e700786b17fd2e66b871f62efe7b0898ea4aaf020abdac10737a65666c186e01",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/ReportManage/ReportManage.ts",
+      "sha256": "9d1b6dfa28e2acfc70207a2bb6cca1952e8fdaf723d4d546aa64bf695b45e871",
+      "operations": [
+        "query",
+        "save",
+        "update",
+        "remove",
+        "create"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/role-host-table-query.ts",
+      "sha256": "bdd93101d41ace9e6f852efd5838347bd35a02ed1cdde54247505e02fcb921a0",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": [
+        "tableData"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/SafetyProtectionManager/DesensitizationRuleConfig.ts",
+      "sha256": "f87a5488aaaa327570cc2cd9112dfd1a97165a70e608a9738a9815e5afe7c40c",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SafetyProtectionManager/NavigationPermissionConfig.ts",
+      "sha256": "947bab637ca0f7894def2aab51351e1d7c6b83181b02b8ca5114b2addf3e09c7",
+      "operations": [
+        "query",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SafetyProtectionManager/RoleAndUserManagement.ts",
+      "sha256": "c85e3d560ff980b409a4546bfc8180bfabd42e4e4036d0f486744bfe7534d212",
+      "operations": [
+        "query",
+        "save",
+        "update",
+        "create",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SafetyProtectionManager/RoleAuthManagement.ts",
+      "sha256": "a7cc10b05e469bde7ba87451c70c4acd8b4e4b53e519947a2ac6f30bacd7ffe1",
+      "operations": [
+        "query",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SafetyProtectionManager/RoleClassManagement.ts",
+      "sha256": "7e00f972cd34a059f9d6028462507e49ba8d3d0a40a6214af07494b59c2fcfab",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SafetyProtectionManager/UserAppAuth.ts",
+      "sha256": "02eb60084ca9076dde515e4e4e9513a1d6967a893da9df5530fa5beda0208721",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": [
+        "menusWithPermissions"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/SemiStructuredDataManager/ExcelImportConfig.ts",
+      "sha256": "5e6459781a8fb67e2835ada34baa4bf08ddeb68b4a546a11da40d9107ded3c65",
+      "operations": [
+        "query",
+        "update",
+        "create",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SemiStructuredDataManager/ExcelImportConfigConfigSet.ts",
+      "sha256": "aa5cd2754110eb4e7713c3f54638cefdb66e40fe23441e0a51613f748868cc7c",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SemiStructuredDataManager/ExcelImportSheetLayout.ts",
+      "sha256": "31a2ce0c7f647cdaa2dc9b9ce1f316f0e83b19969b4e9ffdfad390c41bccf31b",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SemiStructuredDataManager/ExcelImportTransformRule.ts",
+      "sha256": "4c94718adf907514ecbdc215cd2d8501c687f1c474e89b055e4bf468cbb6efdc",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SemiStructuredDataManager/FileInspectConfig.ts",
+      "sha256": "4ff55c86b14bf98e0b1aa5e90b1e42f970380d0d80a18c6df3bd532e0053feaf",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SemiStructuredDataManager/JsonDataManager.ts",
+      "sha256": "b83665512814793d6b8eafdeab58eedf64c60043d6bb680ba9d289932dd2da48",
+      "operations": [
+        "query",
+        "create",
+        "save",
+        "remove",
+        "update"
+      ],
+      "builtinNames": [
+        "file",
+        "jsonData"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/services/coding.ts",
+      "sha256": "92df0371863013578ca1afa9adc550aee63d1965c5f75c0dbc255cef63a1a1ba",
+      "operations": [
+        "create"
+      ],
+      "builtinNames": [
+        "businessCode"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/services/dictionary.ts",
+      "sha256": "afa24667dd1af660a37d33d2cb677a3401cdbe4fcea43816b71486a5e5707f6d",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/services/flow-utils.ts",
+      "sha256": "47560f97705827cdd491b0fa3f6828fe70ce9ea522935d59659f607c4c5834d6",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/services/platform-file.ts",
+      "sha256": "4f83654c18ed9401f35e89cb5f7c3527a88741b8b8f7760e8d5eef06325a3662",
+      "operations": [],
+      "builtinNames": [
+        "file",
+        "textFile"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/services/source-record.ts",
+      "sha256": "c5733f37d8c361ab5bf7edca8e37a41137a34ef1a4a02184c79d6e91ba42a5a5",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/StructuredConfig/DataCode.ts",
+      "sha256": "ea743ceb41afbc5a4130d122f7e7ae849291ed47cd74ee006495d7a14b3e4d6e",
+      "operations": [
+        "query",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/StructuredConfig/DataCodeEdit.ts",
+      "sha256": "1f97603576893253ef70437cee712aba752a3059fa546cd8c62c200af633833c",
+      "operations": [
+        "query",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/StructuredConfig/DataDictionary.ts",
+      "sha256": "d4b64861c397b7c00eddbbe897652d465e23e375037025af9900e0091dc63ca7",
+      "operations": [
+        "query",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/StructuredConfig/DataDictionaryDataEdit.ts",
+      "sha256": "7d09a183a4cf34381860f12e000d4678a22aa4254cf2ed42f00ea3616bbfdc0f",
+      "operations": [
+        "query",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/StructuredConfig/DataDictionarySet.ts",
+      "sha256": "a53eaaf356931cf02c68ce0408776135a582ac34fbe7d9a3837658976e0c887f",
+      "operations": [
+        "query",
+        "update"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/StructuredConfig/DataWorkFlow.ts",
+      "sha256": "3baccec49cf7b03b70c4d62b100eb44938a29ea8b190ba6fe0caeb99b9f75629",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/StructuredConfig/DataWorkFlowDesign.ts",
+      "sha256": "801da49a4460bc199dd5676ad4887e5b32ff81612189335dd2b8ae6a5d6fd96d",
+      "operations": [
+        "query",
+        "create",
+        "update",
+        "save",
+        "remove"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/StructuredConfig/LogicView.ts",
+      "sha256": "01b3aa0e0d55d5cd14c3b644dc4b74cfb474f7dea6282bf3cd0260e3d360337d",
+      "operations": [
+        "query",
+        "save"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/StructuredConfig/LogicViewDesign.ts",
+      "sha256": "676aab5627a887c363acd67cde36083f4b6dc78f2b2c43d1651d453d1e8e2625",
+      "operations": [
+        "query",
+        "save",
+        "update"
+      ],
+      "builtinNames": [
+        "viewDesign",
+        "viewData"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/system/BusinessTableSelector.ts",
+      "sha256": "ab06bb3c8f400b0f28862101c8980b73b73fd699909f126e33a1f7620c0782e0",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/system/PersonSelector.ts",
+      "sha256": "aea3e67b517d97e1450981c11463df2c9793a9dad718af4171506db2b8f14aa7",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/system/ReportComp.ts",
+      "sha256": "813da51f1b1eecfc6d981e4d8936120759b07e331cd7e95496b96efd70a99563",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SystemSupportManager/BugManage.ts",
+      "sha256": "3230fb90d2f0c257bacd93490130774ffc74b142d8dee3180f795373af196f92",
+      "operations": [
+        "query",
+        "update"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/SystemSupportManager/CatchManager.ts",
+      "sha256": "9a803d4adfabf1e2400d2b2538c1edbe317ba5da13eebd430d14ead76d4be998",
+      "operations": [
+        "query",
+        "remove"
+      ],
+      "builtinNames": [
+        "cacheFindByPattern",
+        "cacheDelete"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/SystemSupportManager/DataRecover.ts",
+      "sha256": "1fe7dfaf1fffbd6942121531e9da1b3224a14ac61c51b72751f54c9dd79b5cb9",
+      "operations": [
+        "query",
+        "create",
+        "update"
+      ],
+      "builtinNames": [
+        "recoveryGetDelData"
+      ]
+    },
+    {
+      "path": "packages/data/metadata/src/api/SystemSupportManager/FlowMonitor.ts",
+      "sha256": "fa15e84a24e766ec55a3467c851e2ffd667325953c713a6a796a079dbb956775",
+      "operations": [
+        "query"
+      ],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/_spark-crud.ts",
+      "sha256": "86840701592931ee17578a98258da6c788c1e0cb01ffd369530da812fe617c4c",
+      "operations": [],
+      "builtinNames": []
+    },
+    {
+      "path": "packages/data/metadata/src/api/_wire-filters.ts",
+      "sha256": "fce0f4e701510520f5a87a496ebe724a123754bf6a4ef9b10922f22cb9e8e967",
+      "operations": [],
+      "builtinNames": []
+    }
+  ]
+}

@@ -47,8 +47,16 @@ export type ModelRemoveHost = {
   flow: ModelRemoveFlow
 }
 
-export function createModelRemoveHost(dataSet: DataSet, targetId: string, modelId: string, lifecycle: ModelRemoveLifecycle): ModelRemoveHost {
-  const dependencies = new LowcodeDataSpaceModelDependencies(dataSet, targetId, modelId, 'remove', () => lifecycle.assertCurrent())
+export type ModelRemoveHostInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  lifecycle: ModelRemoveLifecycle
+}>
+
+export function createModelRemoveHost(input: ModelRemoveHostInput): ModelRemoveHost {
+  const {dataSet, targetId, modelId, lifecycle} = input
+  const dependencies = new LowcodeDataSpaceModelDependencies({dataSet, targetId, modelId, operation: 'remove', assertCurrent: () => lifecycle.assertCurrent()})
   return {dataSet, targetId, modelId, lifecycle, dependencies, views: dependencies.views,
     flow: {status: 'idle', entries: [], staged: new Set(), baseline: '', name: '', confirmed: false, databaseComplete: false, filePlan: null, verification: []}}
 }

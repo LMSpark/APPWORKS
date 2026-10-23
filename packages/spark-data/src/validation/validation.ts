@@ -116,7 +116,8 @@ constructor(private schema: DataSchema) {}
 
     // 1. 必填校验（required 优先，回退到 allowDBNull）
     const isRequired = col.required === true || (col.required === undefined && col.allowDBNull === false)
-    if (isRequired && (value === null || value === undefined || value === '')) {
+    const blank = value === '' || (col.trim !== undefined && typeof value === 'string' && value.trim() === '')
+    if (isRequired && (value === null || value === undefined || blank)) {
       errors.push({
         field: col.name,
         message: `${label} 不能为空`,
@@ -135,6 +136,9 @@ constructor(private schema: DataSchema) {}
 
       // 3. 字符串长度校验
       if (typeof value === 'string') {
+        if (col.trim === 'reject' && value !== value.trim()) {
+          errors.push({ field: col.name, message: `${label} 不能包含首尾空白`, code: 'TRIM', value })
+        }
         if (col.minLength !== undefined && value.length < col.minLength) {
           errors.push({ field: col.name, message: `${label} 至少${col.minLength}个字符`, code: 'MIN_LENGTH', value })
         }

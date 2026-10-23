@@ -86,7 +86,12 @@ function visible({context, row, fieldName, optionalPresentation}: VisibleField):
 /** 正式来源合同目录，与精确读取共用。 */
 export class LowcodeDataSpaceSourceCatalog {
   /** 来源类型目录；控件值保持正式枚举。 */
-  static readonly types = Object.freeze(Object.entries(sourceConfigs).map(([value, spec]) => ({value: value as PageDataSpaceModelSourceType, label: spec.label})))
+  static readonly types = Object.freeze(([
+    'table', 'dict', 'interface', 'json', 'logicView', 'databaseView',
+  ] satisfies readonly PageDataSpaceModelSourceType[]).map(value => ({
+    value,
+    label: sourceConfigs[value].label,
+  })))
   /** 校验来源类型并返回既有模型字段映射。 */
   static config(type: PageDataSpaceModelSourceType): SourceConfig {
     const value = Object.hasOwn(sourceConfigs, type) ? sourceConfigs[type] : undefined

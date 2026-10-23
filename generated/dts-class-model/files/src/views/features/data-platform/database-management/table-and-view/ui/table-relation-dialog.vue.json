@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog",
+    "sourcePath": "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog\n职责：表关系新增/编辑；提交草稿由页面写入 Base_TblRln staged 并 saveChanges。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-23T06:52:16.117Z",
+  "models": {}
+}

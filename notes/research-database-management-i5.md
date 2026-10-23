@@ -142,6 +142,20 @@ I5 service-management **必须走 B**。A 仅可作对照或 DBMS 只读聚合�
 - [ ] 连接测试：后端合同 + 是否允许非 DataView 门面（用户：DataSet 唯一通道 **指持久化 CRUD**，连接测试单独登记）。
 - [ ] P1b：`hasUnconfirmedSave` / 核验顺序若涉及服务器表，与数据空间设计页同链。
 
+### 7b. 注册服务器是后端业务命令（2026-10-21 核对）
+
+- **参考仓**：`ServiceManager.ts` 新增走 `registerServer` → `POST /Db/registerServer`（`SPARK_BUILTIN_META.serverRegister`），入参 Type/ServerName/ip_address/Port/UserName/Password/description，`entID` 可选且页面不传；编辑走 `Base_serverInfo` update（不含密码），删除走 remove。
+- **后端源码（`E:\lowcode-jdk17\...\DbInfoController.java:103`，仅参考）**：先测连接；连接重复拒绝；未传 rowid 后端生成；企业所有者由登录上下文写入；密码按字段加密规则持久化，响应清空密码。
+- **本仓现状**：注册直接 `Base_serverInfo` CRUD Added，实页回执 200 但回读不见（无 entID），且无法录入密码。语义错误，须改为命令。
+- **能力缺口**：spark-data 仅有 `bindDataSetReadonlyCommandQuery`（只读命令视图）；写命令（输入行 → 提交 → 回执 → 刷新目标视图）尚无公共能力，用只读命令承载写入会使刷新重复注册，禁止。
+
+### 7b. 注册服务器是后端业务命令（2026-10-21 核对）
+
+- **参考仓**：`ServiceManager.ts` 新增走 `registerServer` → `POST /Db/registerServer`（`SPARK_BUILTIN_META.serverRegister`），入参 Type/ServerName/ip_address/Port/UserName/Password/description，`entID` 可选且页面不传；编辑走 `Base_serverInfo` update（不含密码），删除走 remove。
+- **后端源码（`E:\lowcode-jdk17\...\DbInfoController.java:103`，仅参考）**：先测连接；连接重复拒绝；未传 rowid 后端生成；企业所有者由登录上下文写入；密码按字段加密规则持久化，响应清空密码。
+- **本仓现状**：注册直接 `Base_serverInfo` CRUD Added，实页回执 200 但回读不见（无 entID），且无法录入密码。语义错误，须改为命令。
+- **能力缺口**：spark-data 仅有 `bindDataSetReadonlyCommandQuery`（只读命令视图）；写命令（输入行 → 提交 → 回执 → 刷新目标视图）尚无公共能力，用只读命令承载写入会使刷新重复注册，禁止。
+
 ### 8. 仍待参考仓/在线补证（不阻塞写研读）
 
 - 参考 `ServiceManager.ts` 各操作对应 HTTP 与字段映射（inventory 仅有路径，无源码在本仓）。

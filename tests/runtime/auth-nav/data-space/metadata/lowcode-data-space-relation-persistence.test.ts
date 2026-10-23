@@ -88,7 +88,7 @@ function fixture(relations: FormalRelations = [], text = initial) {
         if (!found) throw new Error('model missing')
         return found
       },
-      assemble: async (id, config) => assembler.assemble({config,
+      assemble: async ({scenarioId: id, config}) => assembler.assemble({config,
         space: {dataSpaceId: id, name: id}, models, relations: currentRelations}),
     })
     return {service, http}

@@ -40,25 +40,41 @@ export type FieldRename = {
   name:string
 }
 
+export type FieldRemoveReferencesPrepareRenamesInput = Readonly<{
+  views: ReadonlyArray<DataView | undefined>
+  modelId: string
+  mappings: readonly FieldRename[]
+  primaryReplacement: string
+}>
+
+type FieldRemoveReferencesInspectInput = Readonly<{
+  views: ReadonlyArray<DataView | undefined>
+  field: DataRow
+  change?: FieldReferenceChange
+  renames?: ReadonlyMap<string, string>
+}>
+
 /** 只检查当前空间可读定义；不透明或歧义引用必须先处理。 */
 export class LowcodeDataSpaceFieldRemoveReferences {
   /** 核对模型过滤、树字段、值函数及关系；rename同时检查自身取值。dataModel输出GetRefData引用物理表列，元字段删除/改名保留其原文；种类不可读拒绝推断。 */
-  static validate(views: ReadonlyArray<DataView | undefined>, field: DataRow, change:FieldReferenceChange = {}): void {
-    this.inspect(views,field,change)
+  static validate(views: ReadonlyArray<DataView | undefined>, field: DataRow, change: FieldReferenceChange = {}): void {
+    this.inspect({views, field, change})
   }
 
   /** 同时解析所有字段改名；名称交换不会串行替换，未变属性及常量原样保留。 */
-  static prepareRenames(views:ReadonlyArray<DataView | undefined>,modelId:string,mappings:readonly FieldRename[],primaryReplacement:string):FieldReferenceUpdate[] {
-    if(!mappings.length)return []
-    const view=views[1],fields=view?.rows.filter(row=>row['dataModelId']===modelId&&row['type']==='dataModel')??[]
-    const first=fields.find(row=>row['rowid']===mappings[0]?.id)
-    if(!first||new Set(mappings.map(item=>item.id)).size!==mappings.length||mappings.some(item=>!item.name||fields.filter(row=>row['rowid']===item.id).length!==1))throw new Error('字段改名身份或名称无效')
-    const names=fields.map(row=>mappings.find(item=>item.id===row['rowid'])?.name??row['Name'])
-    if(new Set(names).size!==names.length)throw new Error('改名后的正式字段名称不唯一')
-    return this.inspect(views,first,{operation:'rename',primaryKeyReplacement:primaryReplacement},new Map(mappings.map(item=>[item.id,item.name])))
+  static prepareRenames(input: FieldRemoveReferencesPrepareRenamesInput): FieldReferenceUpdate[] {
+    const {views, modelId, mappings, primaryReplacement} = input
+    if (!mappings.length) return []
+    const view = views[1], fields = view?.rows.filter(row => row['dataModelId'] === modelId && row['type'] === 'dataModel') ?? []
+    const first = fields.find(row => row['rowid'] === mappings[0]?.id)
+    if (!first || new Set(mappings.map(item => item.id)).size !== mappings.length || mappings.some(item => !item.name || fields.filter(row => row['rowid'] === item.id).length !== 1)) throw new Error('字段改名身份或名称无效')
+    const names = fields.map(row => mappings.find(item => item.id === row['rowid'])?.name ?? row['Name'])
+    if (new Set(names).size !== names.length) throw new Error('改名后的正式字段名称不唯一')
+    return this.inspect({views, field: first, change: {operation: 'rename', primaryKeyReplacement: primaryReplacement}, renames: new Map(mappings.map(item => [item.id, item.name]))})
   }
 
-  private static inspect(views:ReadonlyArray<DataView | undefined>,field:DataRow,change:FieldReferenceChange,renames:ReadonlyMap<string,string>=new Map()):FieldReferenceUpdate[] {
+  private static inspect(input: FieldRemoveReferencesInspectInput): FieldReferenceUpdate[] {
+    const {views, field, change = {}, renames = new Map<string, string>()} = input
     const {operation = 'remove', primaryKeyReplacement} = change
     const [models, fields, relations] = views
     if (!models || !fields || !relations) throw new Error('缺少字段依赖视图')
@@ -78,13 +94,14 @@ export class LowcodeDataSpaceFieldRemoveReferences {
     const modelName = model && read(models, model, 'Name')
     if (typeof modelId !== 'string' || typeof modelName !== 'string' || !modelName
       || models.rows.filter(row => read(models, row, 'Name') === modelName).length !== 1) throw new Error('字段所属模型注册名不唯一')
-    const updates:FieldReferenceUpdate[]=[]
-    const add=(view:DataView,row:DataRow,property:string,before:string,after:string):void=>{
-      if(before!==after)updates.push({table:view.tableName,id:String(row['rowid']),property,before,after})
+    const updates: FieldReferenceUpdate[] = []
+    const add = (entry: Readonly<{view: DataView; row: DataRow; property: string; before: string; after: string}>): void => {
+      if (entry.before !== entry.after) updates.push({table: entry.view.tableName, id: String(entry.row['rowid']), property: entry.property, before: entry.before, after: entry.after})
     }
     const used = (path: string): never => {throw new Error(`字段仍有配置依赖，请先处理：${path}`)}
-    type Qualifier={name:unknown;id:unknown}
-    const reference = (value: unknown, owner: unknown, path: string,qualifiers:readonly Qualifier[]=[]): string => {
+    type Qualifier = {name: unknown; id: unknown}
+    const reference = (entry: Readonly<{value: unknown; owner: unknown; path: string; qualifiers?: readonly Qualifier[]}>): string => {
+      const {value, owner, path, qualifiers = []} = entry
       if (typeof value !== 'string' || !value) throw new Error(`${path}字段引用无法核验`)
       const candidates = fieldRows.filter(row => read(fields, row, 'type') === 'dataModel'
         && read(fields, row, 'dataModelId') === owner && read(fields, row, 'Name') === value)
@@ -104,26 +121,32 @@ export class LowcodeDataSpaceFieldRemoveReferences {
       if (resolved['rowid'] === field['rowid']) used(path)
       return value
     }
-    const fn = (value: Record<string, unknown>, owner: unknown, path: string,qualifiers:readonly Qualifier[]=[]): Record<string, unknown> => {
+    const fn = (entry: Readonly<{value: Record<string, unknown>; owner: unknown; path: string; qualifiers?: readonly Qualifier[]}>): Record<string, unknown> => {
+      const {value, owner, path, qualifiers = []} = entry
       const type = value['Type']
       if (type === 'GetConstValue' || type === 'GetInputParam' || type === 'SystemData' || type === 'GetUserMasterId') return value
-      if (type === 'GetTableField') return {...value,Field:reference(value['Field'], owner, `${path}.Field`,qualifiers)}
+      if (type === 'GetTableField') return {...value, Field: reference({value: value['Field'], owner, path: `${path}.Field`, qualifiers})}
       if (type === 'GetRefData' || type === 'GetGroupData') {
         const table = value[type === 'GetRefData' ? 'RefTableName' : 'GroupTableName']
         const owners = models.rows.filter(row => read(models, row, 'Name') === table)
         if (typeof table !== 'string' || !table || owners.length !== 1) throw new Error(`${path}引用模型无法唯一确认`)
-        const next={...value}
-        for (const key of type === 'GetRefData' ? ['RefFieldName', 'FkFieldName'] : ['GroupField', 'Field']) next[key]=reference(value[key], owners[0]?.['rowid'], `${path}.${key}`,qualifiers)
+        const next = {...value}
+        for (const key of type === 'GetRefData' ? ['RefFieldName', 'FkFieldName'] : ['GroupField', 'Field']) {
+          next[key] = reference({value: value[key], owner: owners[0]?.['rowid'], path: `${path}.${key}`, qualifiers})
+        }
         return next
       }
       throw new Error(`${path}值函数${String(type)}的字段引用不能完整核验，请先处理`)
     }
-    const filter = (view:DataView,row:DataRow,property:string,context: Readonly<{child: unknown; parent: unknown; path: string;qualifiers?:readonly Qualifier[]}>): void => {
+    const filter = (entry: Readonly<{view: DataView; row: DataRow; property: string; context: Readonly<{child: unknown; parent: unknown; path: string; qualifiers?: readonly Qualifier[]}>}>): void => {
+      const {view, row, property, context} = entry
       const {child, parent, path} = context
-      const value=read(view,row,property)
+      const value = read(view, row, property)
       if (value === undefined || value === null || value === '') return
       if (typeof value !== 'string') throw new Error(`${path}过滤原文无法核验`)
-      add(view,row,property,value,LowcodeDataSpaceFilterMigration.rewrite(value, name => reference(name, child, `${path}.Field`,context.qualifiers), valueFunction => fn(valueFunction, parent, `${path}.ValueFun`,context.qualifiers)))
+      add({view, row, property, before: value, after: LowcodeDataSpaceFilterMigration.rewrite(value,
+        name => reference({value: name, owner: child, path: `${path}.Field`, ...(context.qualifiers ? {qualifiers: context.qualifiers} : {})}),
+        valueFunction => fn({value: valueFunction, owner: parent, path: `${path}.ValueFun`, ...(context.qualifiers ? {qualifiers: context.qualifiers} : {})}))})
     }
     for (const row of models.rows) {
       const path = `Base_DataModel(${String(row['rowid'])})`
@@ -134,13 +157,13 @@ export class LowcodeDataSpaceFieldRemoveReferences {
         if(renames.size&&row['rowid']===modelId&&typeof value==='string') {
           const mapped=names.map(name=>{const matches=fields.rows.filter(item=>item['dataModelId']===modelId&&item['type']==='dataModel'&&read(fields,item,'Name')===name)
             return matches.length===1?renames.get(String(matches[0]?.['rowid']))??name:name})
-          add(models,row,key,value,mapped.join(key==='PrimaryKeyFields'?',':''));continue
+          add({view: models, row, property: key, before: value, after: mapped.join(key === 'PrimaryKeyFields' ? ',' : '')}); continue
         }
         if (row['rowid'] === modelId && names.some(name => name !== ''
           && (operation === 'rename' ? [field['Name']] : [field['Name'], field['AsName']]).includes(name))) used(`${path}.${key}`)
       }
-      filter(models,row,'Filter', {child: row['rowid'], parent: row['rowid'], path: `${path}.Filter`})
-      filter(models,row,'JoinFilter', {child: row['rowid'], parent: read(models, row, 'PId'), path: `${path}.JoinFilter`})
+      filter({view: models, row, property: 'Filter', context: {child: row['rowid'], parent: row['rowid'], path: `${path}.Filter`}})
+      filter({view: models, row, property: 'JoinFilter', context: {child: row['rowid'], parent: read(models, row, 'PId'), path: `${path}.JoinFilter`}})
       const foreignKeys = read(models, row, 'ForeignKeyFields')
       if (foreignKeys !== undefined && foreignKeys !== null && foreignKeys !== '') throw new Error(`${path}.ForeignKeyFields的引用语义无法核验，请先处理`)
       const complete = read(models, row, 'RequestComplete')
@@ -157,15 +180,22 @@ export class LowcodeDataSpaceFieldRemoveReferences {
         if (!value) throw new Error(`${path}.ValueFun无法核验`)
         // 此处改变的是元字段定义，不改变GetRefData所指物理资源及其字段。
         if (value.Type === 'GetRefData' && read(fields, row, 'type') === 'dataModel') continue
-        const next=fn(value, owner, `${path}.ValueFun`)
-        if(JSON.stringify(next)!==JSON.stringify(value))add(fields,row,'ValueFun',raw,JSON.stringify(next))
+        const next = fn({value: {...value}, owner, path: `${path}.ValueFun`})
+        if (JSON.stringify(next) !== JSON.stringify(value)) add({view: fields, row, property: 'ValueFun', before: raw, after: JSON.stringify(next)})
       }
       // Expression 是脱敏规则 ID；同名规则不构成对被删/改名字段的引用。
     }
-    for (const row of relations.rows) filter(relations,row,'filter', {child: read(relations, row, 'childModId'),
-      parent: read(relations, row, 'parentModId'), path: `Base_DataModel_Relation(${String(row['rowid'])}).filter`,qualifiers:[
-        {name:read(relations,row,'parentTable'),id:read(relations,row,'parentModId')},{name:read(relations,row,'childTable'),id:read(relations,row,'childModId')},
-      ]})
+    for (const row of relations.rows) {
+      filter({
+        view: relations, row, property: 'filter', context: {
+          child: read(relations, row, 'childModId'), parent: read(relations, row, 'parentModId'),
+          path: `Base_DataModel_Relation(${String(row['rowid'])}).filter`, qualifiers: [
+            {name: read(relations, row, 'parentTable'), id: read(relations, row, 'parentModId')},
+            {name: read(relations, row, 'childTable'), id: read(relations, row, 'childModId')},
+          ],
+        },
+      })
+    }
     return updates
   }
 }

@@ -21,4 +21,6 @@ export type RTextProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
   maxlength?: number
   /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */
   emptyText?: string
+  /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */
+  showPassword?: boolean
 }

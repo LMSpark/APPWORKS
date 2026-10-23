@@ -8,7 +8,7 @@ import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
 import type { DataSpaceDatabaseResourceType } from '../platform/data-space/data-space.js'
 
-export type LowcodeDatabaseServer = Readonly<{
+export type LowcodeCatalogServerRecord = Readonly<{
   id: string
   type: string
   name: string
@@ -69,7 +69,7 @@ export type LowcodeDatabaseField = Readonly<{
 
 /** 一次目录聚合结果；`sourceErrors` 非空表示部分底层表未成功读取，下游解析可能缺项或应 fail-fast。 */
 export type LowcodeDatabaseCatalog = Readonly<{
-  servers: readonly LowcodeDatabaseServer[]
+  servers: readonly LowcodeCatalogServerRecord[]
   databases: readonly LowcodeDatabase[]
   tables: readonly LowcodeDatabaseTable[]
   views: readonly LowcodeDatabaseView[]

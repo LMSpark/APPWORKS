@@ -118,12 +118,14 @@ AI用途：数据空间设计的字段配置入口，保留数据权限、取消
 </template>
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import {DisplayText, RendererButton} from '@spark-appworks/spark-component'
-import {FieldCheckbox, FieldNumber, FieldSelect, FieldText, FieldTextarea, FieldValueFunction, RendererDialog, RendererForm, RendererTable, RendererSection, type RTableProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import type {DataSpaceFieldEditorProps} from './DataSpaceFieldEditor.props'
 import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
 import {fieldEditPrepareReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
+
+type RTableProps = SparkComponent.RTableProps
+const {DisplayText, RendererButton, FieldCheckbox, FieldNumber, FieldSelect, FieldText, FieldTextarea, FieldValueFunction, RendererDialog, RendererForm, RendererTable, RendererSection} = SparkComponent
 
 const props = defineProps<DataSpaceFieldEditorProps>()
 const groupHelp = '0 表示不参与分组，正整数表示参与分组；数值大小不决定顺序。分组查询的普通输出字段须参与分组，聚合输出通过值函数配置。'
@@ -325,7 +327,7 @@ const selectTableField: NonNullable<RTableProps['onCurrentChange']> = (row, _pre
   }
   if (typeof row?.['rowid'] === 'string') selectField(row['rowid'])
 }
-const selectTableRow: NonNullable<RTableProps['onRowClick']> = (row, _column, _event, control) => selectTableField(row, undefined, control)
+const selectTableRow: NonNullable<RTableProps['onRowClick']> = (...args) => selectTableField(args[0], undefined, args[3])
 async function stageOutput(mode: 'all' | 'invert'): Promise<void> {
   if (!active || blocked.value || dialogOpen.value || !outputWritable.value) return
   busy.value = true; error.value = ''; message.value = ''

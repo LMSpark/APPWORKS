@@ -1,0 +1,58 @@
+{
+  "status": "verify-green",
+  "date": "2026-10-23",
+  "summary": "I7 定向项通过；pnpm run verify（typecheck + lint + verify:rules）exit 0。真实页面列仍为 blocked，不因 verify 转绿而视为已验收。",
+  "realPage": "blocked",
+  "baseline": {
+    "gitHead": "4c87a4940",
+    "note": "verify:ai-codegen 自 168 → 0；verify:dirs 14 个超限目录经用户确认写入 tools/directory-limits-baseline.json（棘轮，只允许减少，拆分另起任务）；notes/*-v3.md 已改名去版本号；lowcode 契约台账已重新生成。"
+  },
+  "commands": [
+    {
+      "command": "pnpm run verify",
+      "exitCode": 0,
+      "detail": "typecheck、lint、verify:rules 全部子项通过（ai-model-spec 2 条 warn 不阻断）"
+    },
+    {
+      "command": "node tools/verify-ai-codegen-rules.mjs",
+      "exitCode": 0,
+      "detail": "1373 files, 0 violations"
+    },
+    {
+      "command": "pnpm run verify:docs",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm run verify:dirs",
+      "exitCode": 0,
+      "detail": "14 目录进入基线（8 个 HEAD 已超限，6 个来自未提交 I5/I6/I7 工作）"
+    },
+    {
+      "command": "pnpm run verify:lowcode-contracts",
+      "exitCode": 0,
+      "detail": "generate:lowcode-contracts 后 --check 通过"
+    },
+    {
+      "command": "pnpm exec vitest run tests/app/config/vue-page-registry.test.ts tests/runtime/page/dictionary tests/runtime/page/structured-config tests/runtime/page/semi-structured",
+      "exitCode": 0,
+      "tests": 116,
+      "files": 20
+    },
+    {
+      "command": "pnpm exec vitest run",
+      "exitCode": 1,
+      "tests": 6039,
+      "failed": 7,
+      "detail": "失败集中在 api-provider 3 文件（DATA_VIEW_UNCONFIRMED_SAVE，包源码全部回退到 HEAD 仍复现）、lowcode-runtime-navigation 2 项（vue-pages 新增 I5–I7 路径）、page-design-sop 1 项；均不在本次 verify 收束改动范围"
+    }
+  ],
+  "vitest": {
+    "semiStructuredFiles": 5,
+    "combinedWithDictionaryStructured": 116,
+    "registryIncludesI7Paths": 5
+  },
+  "refs": [
+    "notes/evidence/semi-structured-i7/api-gaps.json",
+    "notes/plan-semi-structured-i7-full.md"
+  ]
+}

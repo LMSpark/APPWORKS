@@ -11,7 +11,6 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DataSpaceWireQueryOptions",
-      "DataSpaceWireFilter",
       "DataSpaceWireQueryRequest"
     ]
   },
@@ -282,81 +281,6 @@
       },
       "additionalProperties": false
     },
-    "DataSpaceWireFilter": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "DataSpaceWireFilter",
-      "anyOf": [
-        {
-          "type": "object",
-          "properties": {
-            "Type": {
-              "const": "cond"
-            },
-            "Field": {
-              "type": "string"
-            },
-            "Operator": {
-              "enum": [
-                "contains",
-                "in",
-                "equal",
-                "notequal",
-                "greaterthan",
-                "greaterthanorequal",
-                "lessthan",
-                "lessthanorequal",
-                "isnull",
-                "isnotnull",
-                "nolike",
-                "startswith",
-                "nostartswith",
-                "endswith",
-                "notendswith",
-                "notin",
-                "isempty",
-                "isnotempty"
-              ]
-            },
-            "Value": {
-              "type": "null"
-            },
-            "ValueFun": {
-              "$ref": "../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterValueFunction"
-            }
-          },
-          "required": [
-            "Type",
-            "Field",
-            "Operator",
-            "Value",
-            "ValueFun"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "Type": {
-              "enum": [
-                "and",
-                "or"
-              ]
-            },
-            "Filters": {
-              "type": "array",
-              "items": {
-                "$ref": "../../../../../../spark-data/src/query/filter/data-view-filter-codec.ts.json#/$defs/DataViewFilterWire"
-              }
-            }
-          },
-          "required": [
-            "Type",
-            "Filters"
-          ],
-          "additionalProperties": false
-        }
-      ]
-    },
     "DataSpaceWireQueryDescriptor": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -422,7 +346,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-14T20:34:23.238Z",
+  "generatedAt": "2026-10-23T06:59:03.913Z",
   "models": {
     "DataSpaceValueFunction": {
       "name": "DataSpaceValueFunction",
@@ -619,11 +543,11 @@
       "jsdoc": "已转换的内部查询选项，供查询表组装 SPARK 封包。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    filter?: DataSpaceWireFilter;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
+        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    filter?: DataSpaceWireFilter;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
+            "typeText": "Readonly<{\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -686,22 +610,6 @@
             }
           ]
         }
-      }
-    },
-    "DataSpaceWireFilter": {
-      "name": "DataSpaceWireFilter",
-      "jsdoc": "协议条件使用 ValueFun 且 Value 固定为 null；组以 Filters 递归组合。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "DataViewFilterWire",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "DataViewFilterWire",
-            "targetName": "DataViewFilterWire"
-          }
-        ],
-        "members": {}
       }
     },
     "DataSpaceWireQueryDescriptor": {

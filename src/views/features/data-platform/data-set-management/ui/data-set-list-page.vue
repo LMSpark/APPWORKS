@@ -60,10 +60,14 @@ import {computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, toRaw,
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm, FieldText, FieldTextarea,
-  FieldSelect, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-catalog'
 import {parseTenantScope} from '@/services/tenant-scope'
+
+type RFilterProps = SparkComponent.RFilterProps
+type RToolbarProps = SparkComponent.RToolbarProps
+const DATA_SET_TYPE_LABELS: Readonly<Record<string, string>> = {datasource: '数据源', workflow: '工作流', form: '表单'}
+const {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm, FieldText, FieldTextarea, FieldSelect, useSparkComponent} = SparkComponent
 
 const DataSetDesign = defineAsyncComponent(() => import('../design/ui/data-set-design-page.vue'))
 const route = useRoute()
@@ -122,7 +126,7 @@ const fields = computed<SparkNode[]>(() => {
     {type: 'r-text', props: {field: 'Name', label: '名称', width: 220, readonly: true}},
     {type: 'r-text', props: {field: 'Type', label: '类型', width: 120, readonly: true,
       displayFormatter: (value: unknown) => typeof value === 'string'
-        ? ({datasource: '数据源', workflow: '工作流', form: '表单'} as Record<string, string>)[value] ?? value : ''}},
+        ? DATA_SET_TYPE_LABELS[value] ?? value : ''}},
     {type: 'r-text', props: {field: 'description', label: '描述', width: 320, readonly: true}},
     {type: 'r-text', props: {field: 'createuser', label: '创建人', width: 140, readonly: true,
       displayFormatter: (value: unknown) => owner.value?.creatorLabel(value) ?? ''}},

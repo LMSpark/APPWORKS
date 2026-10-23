@@ -66,7 +66,8 @@ export class ApiInterfaceDesign {
     if (this.#busy || this.pending && !discard) throw new Error('请先处理接口修改或等待核验')
     this.#busy = true
     try {
-      if (discard) for (const view of this.writable) view.discardPendingChanges()
+      if (discard) await this.#input.dataSet.discardAndReload({views: this.writable
+        .map(view => ({tableName: view.tableName, viewId: view.viewId}))})
       this.interfaces.setSelectedRows([]); this.interfaces.setCurrentRow(null)
       await this.read(this.provider); this.assertScope()
       for (const view of [this.accounts, this.publicParameters, this.interfaces, ...['request', 'ContentType', '接口参数类型', 'ParamType'].map(name => this.view(name))]) await this.read(view)

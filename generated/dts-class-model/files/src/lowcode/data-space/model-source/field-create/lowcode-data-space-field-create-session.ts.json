@@ -14,6 +14,7 @@
       "FieldCreateFlow",
       "FieldCreateLifecycle",
       "FieldCreateHost",
+      "FieldCreateHostInput",
       "FieldCreateHandle"
     ]
   },
@@ -184,6 +185,38 @@
       ],
       "additionalProperties": false
     },
+    "FieldCreateHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FieldCreateHostInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/FieldCreateLifecycle"
+        },
+        "viewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
     "FieldCreateHandle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -271,7 +304,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T05:10:25.772Z",
+  "generatedAt": "2026-10-23T07:01:13.766Z",
   "models": {
     "FieldCreateStatus": {
       "name": "FieldCreateStatus",
@@ -508,6 +541,50 @@
               "name": "lifecycle",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "FieldCreateHostInput": {
+      "name": "FieldCreateHostInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: FieldCreateLifecycle;\n    viewId?: 'default' | 'modelFields';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: FieldCreateLifecycle;\n    viewId?: 'default' | 'modelFields';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "readable": true,
+              "writable": false
             }
           ]
         }

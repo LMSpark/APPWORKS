@@ -16,6 +16,7 @@
       "ArraySessionLifecycle",
       "ArraySessionFlow",
       "ArraySessionHost",
+      "ArraySessionHostInput",
       "ArrayEditHandle"
     ]
   },
@@ -334,6 +335,38 @@
       ],
       "additionalProperties": false
     },
+    "ArraySessionHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ArraySessionHostInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ArraySessionLifecycle"
+        },
+        "fieldViewId": {
+          "enum": [
+            "default",
+            "modelFields"
+          ]
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
     "ArrayEditHandle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -418,7 +451,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T05:21:45.289Z",
+  "generatedAt": "2026-10-23T06:52:20.906Z",
   "models": {
     "ArrayFieldChange": {
       "name": "ArrayFieldChange",
@@ -768,6 +801,50 @@
               "name": "flow",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ArraySessionHostInput": {
+      "name": "ArraySessionHostInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: ArraySessionLifecycle;\n    fieldViewId?: 'default' | 'modelFields';\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    lifecycle: ArraySessionLifecycle;\n    fieldViewId?: 'default' | 'modelFields';\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldViewId",
+              "readable": true,
+              "writable": false
             }
           ]
         }

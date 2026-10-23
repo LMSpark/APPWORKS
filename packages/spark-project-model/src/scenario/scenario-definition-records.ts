@@ -8,6 +8,24 @@ import type {DataRow, DataResourceRelation} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {ScenarioViewConfig} from './scenario-view-config'
 
+type ScenarioDefinitionProjectInput = Readonly<{
+  value: Readonly<Record<string, unknown>>
+  resource: string
+  native: boolean
+  resolved?: readonly DataResourceRelation[]
+}>
+
+/**
+ * 一次定义域写入：config 为已校验基线，rows 为已合并的完整定义集合；
+ * legacyResolved 表示旧关系来源已完整读取并显式转换，默认 false。
+ */
+export type ScenarioDefinitionWriteInput = Readonly<{
+  config: ScenarioViewConfig
+  resource: string
+  rows: readonly DataRow[]
+  legacyResolved?: boolean
+}>
+
 /** 文件定义资源的稳定身份；不是后端注册模型，也不是运行DataView的身份。 */
 export class ScenarioDefinitionRecords {
   readonly #previous: ScenarioViewConfig
@@ -51,7 +69,7 @@ export class ScenarioDefinitionRecords {
 
   /** 由已校验配置投影定义记录；记录不包含目标空间的运行数据。 */
   static read(config: ScenarioViewConfig, resource: string, resolved?: readonly DataResourceRelation[]): DataRow[] {
-    return this.project(config.toJSON(), resource, config.usesNativeResourceRelations, resolved)
+    return this.project({value: config.toJSON(), resource, native: config.usesNativeResourceRelations, ...(resolved ? {resolved} : {})})
   }
 
   /**
@@ -61,10 +79,11 @@ export class ScenarioDefinitionRecords {
    * @returns 与候选隔离的定义记录，不包含运行数据或编辑状态。
    */
   readRows(resource: string, resolved?: readonly DataResourceRelation[]): DataRow[] {
-    return ScenarioDefinitionRecords.project(this.#value, resource, this.#native, resolved)
+    return ScenarioDefinitionRecords.project({value: this.#value, resource, native: this.#native, ...(resolved ? {resolved} : {})})
   }
 
-  private static project(value: Readonly<Record<string, unknown>>, resource: string, native: boolean, resolved?: readonly DataResourceRelation[]): DataRow[] {
+  private static project(input: ScenarioDefinitionProjectInput): DataRow[] {
+    const {value, resource, native, resolved} = input
     if (resource === this.resources.DataSpaceLayoutDefinition) {
       return [{dataSetId: value['scenarioId'], ...structuredClone(isRecord(value['layout']) ? value['layout'] : {})}]
     }
@@ -109,9 +128,9 @@ export class ScenarioDefinitionRecords {
   }
 
   /** 映射完整的已合并定义集合；合并、变更捕获和回执由DataView及资源适配负责。 */
-  static write(config: ScenarioViewConfig, resource: string, rows: readonly DataRow[], legacyResolved = false): ScenarioViewConfig {
-    const candidate = new ScenarioDefinitionRecords(config)
-    candidate.applyRows(resource, rows, legacyResolved)
+  static write(input: ScenarioDefinitionWriteInput): ScenarioViewConfig {
+    const candidate = new ScenarioDefinitionRecords(input.config)
+    candidate.applyRows(input.resource, input.rows, input.legacyResolved ?? false)
     return candidate.toConfig()
   }
 

@@ -10,7 +10,8 @@
     "jsdoc": "@module @spark-appworks/spark-component:permission/usePermission\n职责：提供 use Permission 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "UsePermissionReturn"
+      "UsePermissionReturn",
+      "UsePermissionBinding"
     ]
   },
   "$defs": {
@@ -89,9 +90,39 @@
           ]
         }
       }
+    },
+    "UsePermissionBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "UsePermissionBinding",
+      "$defs": {
+        "method.dataSource.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dataSource.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.inheritFieldPolicy.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.inheritFieldPolicy.return": {
+          "type": "boolean"
+        }
+      }
     }
   },
-  "generatedAt": "2026-10-10T11:02:50.845Z",
+  "generatedAt": "2026-10-23T06:52:21.475Z",
   "models": {
     "UsePermissionReturn": {
       "name": "UsePermissionReturn",
@@ -226,6 +257,52 @@
                     "value": null
                   }
                 ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "UsePermissionBinding": {
+      "name": "UsePermissionBinding",
+      "jsdoc": "显式字段绑定时传入的数据源与策略继承选项。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 动态数据源；与字段值绑定使用同一解析结果。 */\n    dataSource: () => DataView | null;\n    /** 显式字段绑定不得借用父子树的本地输入放行策略。 */\n    inheritFieldPolicy: () => boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 动态数据源；与字段值绑定使用同一解析结果。 */\n    dataSource: () => DataView | null;\n    /** 显式字段绑定不得借用父子树的本地输入放行策略。 */\n    inheritFieldPolicy: () => boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "dataSource",
+              "jsdoc": "动态数据源；与字段值绑定使用同一解析结果。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            {
+              "name": "inheritFieldPolicy",
+              "jsdoc": "显式字段绑定不得借用父子树的本地输入放行策略。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
               }
             }
           ]

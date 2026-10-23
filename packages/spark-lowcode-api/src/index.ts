@@ -12,7 +12,7 @@ export type {
   LowcodeDatabaseField,
   LowcodeDatabaseResource,
   LowcodeDatabaseResourceSelector,
-  LowcodeDatabaseServer,
+  LowcodeCatalogServerRecord,
   LowcodeDatabaseTable,
   LowcodeDatabaseView,
   LowcodeCatalogSourceError,
@@ -105,6 +105,17 @@ export type {
 export type { SendCodeType, SendCodeScene } from './contracts/lowcode-send-code.js'
 export { DictionarySchema } from './platform/resources/dictionary/dictionary-schema.js'
 export { DictionaryWorkspace } from './platform/resources/dictionary/dictionary-workspace.js'
+export { DataCodeDesignClient } from './platform/resources/data-code/data-code-design-client.js'
+export { DesignResourceRejection } from './platform/resources/shared/http-record-guards.js'
+export { LogicViewDesignClient } from './platform/resources/logic-view/logic-view-design-client.js'
+export { WorkflowDesignClient } from './platform/resources/workflow-definition/workflow-design-client.js'
+export { JsonDataContentClient } from './platform/resources/json-data/json-data-content-client.js'
+export { ExcelImportDesignClient } from './platform/resources/excel-import/excel-import-design-client.js'
+export { PdfInspectDesignClient } from './platform/resources/pdf-inspect/pdf-inspect-design-client.js'
+export type { LogicViewDesignPayload } from './platform/resources/logic-view/logic-view-design-client.js'
+export type { WorkflowDefinitionDesignPayload } from './platform/resources/workflow-definition/workflow-design-client.js'
+export type { ExcelImportDesignDocument } from './platform/resources/excel-import/excel-import-design-client.js'
+export type { PdfInspectRuleDocument } from './platform/resources/pdf-inspect/pdf-inspect-design-client.js'
 export { ApiProviderDesign } from './platform/resources/external-api/api-provider-design.js'
 export { ApiPublicParameterDesign } from './platform/resources/external-api/api-public-parameter-design.js'
 export { ApiRequestHeaderDesign } from './platform/resources/external-api/api-request-header-design.js'

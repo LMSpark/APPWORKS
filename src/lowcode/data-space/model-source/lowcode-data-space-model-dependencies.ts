@@ -8,8 +8,27 @@ import {RequestState, type DataRow, type DataSet, type DataView, type DataViewFi
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {isRecord} from '@spark-appworks/spark-utils'
 
+export type ModelDependenciesInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  operation: 'rename' | 'remove' | 'sourceRemoval' | `fieldRemove:${string}` | `fieldOutput:${string}` | `array:${string}`
+  assertCurrent: () => void
+  editing?: Readonly<{view: DataView; id: string}>
+  fieldEditing?: Readonly<{view: DataView; ids: readonly string[]; allowPending?: boolean}>
+  fieldWorkspaces?: () => ReadonlyArray<Readonly<{view: DataView; ids: readonly string[]; allowPending?: boolean}>>
+}>
+
 /** 当前空间模型结构命令的按需依赖；生命周期归元数据DataSet。 */
 export class LowcodeDataSpaceModelDependencies {
+  private readonly dataSet: DataSet
+  private readonly targetId: string
+  private readonly modelId: string
+  private readonly assertCurrent: () => void
+  private readonly editing: Readonly<{view: DataView; id: string}> | undefined
+  private readonly fieldEditing: Readonly<{view: DataView; ids: readonly string[]; allowPending?: boolean}> | undefined
+  private readonly fieldWorkspaces: (() => ReadonlyArray<Readonly<{view: DataView; ids: readonly string[]; allowPending?: boolean}>>) | undefined
+
   /** 模型目录、所属字段及旧关系；均为正式数据视图。 */
   readonly views: [DataView, DataView, DataView]
   readonly #expressions: DataView
@@ -19,11 +38,15 @@ export class LowcodeDataSpaceModelDependencies {
   readonly #names = new Set<string>()
 
   /** 从C派生命令视图；editing指定须保留的本模型编辑行，依赖使用独立模型查询。 */
-  constructor(private readonly dataSet: DataSet, private readonly targetId: string, private readonly modelId: string,
-    operation: 'rename' | 'remove' | 'sourceRemoval' | `fieldRemove:${string}` | `fieldOutput:${string}` | `array:${string}`, private readonly assertCurrent: () => void,
-    private readonly editing?: Readonly<{view: DataView; id: string}>,
-    private readonly fieldEditing?: Readonly<{view: DataView; ids: readonly string[]; allowPending?: boolean}>,
-    private readonly fieldWorkspaces?: () => ReadonlyArray<Readonly<{view: DataView; ids: readonly string[]; allowPending?: boolean}>>) {
+  constructor(input: ModelDependenciesInput) {
+    const {dataSet, targetId, modelId, operation, assertCurrent, editing, fieldEditing, fieldWorkspaces} = input
+    this.dataSet = dataSet
+    this.targetId = targetId
+    this.modelId = modelId
+    this.assertCurrent = assertCurrent
+    this.editing = editing
+    this.fieldEditing = fieldEditing
+    this.fieldWorkspaces = fieldWorkspaces
     const models = dataSet.getView('Base_DataModel', 'default'), fields = dataSet.getView('Base_DataModel_Field', 'modelInputFields')
     const relations = dataSet.getView('Base_DataModel_Relation', 'default'), allFields = dataSet.getView('Base_DataModel_Field', 'default')
     if (!models || !fields || !relations || !allFields) throw new Error('缺少模型结构命令的正式查询配置modelInputFields')

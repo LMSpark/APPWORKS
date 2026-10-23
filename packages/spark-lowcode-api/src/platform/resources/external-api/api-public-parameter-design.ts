@@ -45,7 +45,7 @@ export class ApiPublicParameterDesign {
     if (this.#busy || this.pending && !discard) throw new Error('请先处理公共参数修改或等待核验')
     this.#busy = true
     try {
-      if (discard) this.parameters.discardPendingChanges()
+      if (discard) await this.parameters.discardAndReload()
       const result = await this.provider.loadFromServer({singleFlight: false})
       if (!result.success) throw new Error(result.message ?? '服务商读取失败')
       this.assertProvider()

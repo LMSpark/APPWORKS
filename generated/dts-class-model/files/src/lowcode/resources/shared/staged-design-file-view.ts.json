@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/shared/staged-design-file-view",
+    "sourcePath": "src/lowcode/resources/shared/staged-design-file-view.ts",
+    "sourceFile": "src/lowcode/resources/shared/staged-design-file-view.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/shared/staged-design-file-view",
+    "jsdoc": "@module app:lowcode/resources/shared/staged-design-file-view\n专用设计/内容：单 file 资源 DataView（staged + refresh/save），HTTP 仅在 load/persist 回调内。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "StagedDesignColumn",
+      "StagedDesignAttachOptions",
+      "SetDesignScopeValueInput"
+    ]
+  },
+  "$defs": {
+    "StagedDesignColumn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StagedDesignColumn",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "primary": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "StagedDesignAttachOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "StagedDesignAttachOptions",
+      "properties": {
+        "scopeInputTable": {
+          "type": "string"
+        },
+        "scopeField": {
+          "type": "string"
+        },
+        "designViewTable": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StagedDesignColumn"
+          }
+        },
+        "jsonFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.loadRow.params": {
+          "type": "object",
+          "properties": {
+            "scopeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadRow.return": {
+          "type": "object",
+          "title": "Promise<Record<string, unknown>>"
+        },
+        "method.persistRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.persistRow.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    },
+    "SetDesignScopeValueInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SetDesignScopeValueInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "tableName": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "tableName",
+        "field",
+        "scopeId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-10-23T18:00:24.261Z",
+  "models": {
+    "StagedDesignColumn": {
+      "name": "StagedDesignColumn",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    name: string;\n    primary?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    name: string;\n    primary?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "primary",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "StagedDesignAttachOptions": {
+      "name": "StagedDesignAttachOptions",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    resourceId: string;\n    columns: readonly StagedDesignColumn[];\n    /** JSON文本字段按解析后的结构核验，其他字段逐值比较。 */\n    jsonFields?: readonly string[];\n    loadRow: (scopeId: string) => Promise<Record<string, unknown>>;\n    persistRow: (row: Readonly<DataRow>) => Promise<void>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    resourceId: string;\n    columns: readonly StagedDesignColumn[];\n    /** JSON文本字段按解析后的结构核验，其他字段逐值比较。 */\n    jsonFields?: readonly string[];\n    loadRow: (scopeId: string) => Promise<Record<string, unknown>>;\n    persistRow: (row: Readonly<DataRow>) => Promise<void>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scopeInputTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeField",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "designViewTable",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "jsonFields",
+              "jsdoc": "JSON文本字段按解析后的结构核验，其他字段逐值比较。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadRow",
+              "parameters": [
+                {
+                  "name": "scopeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "persistRow",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "SetDesignScopeValueInput": {
+      "name": "SetDesignScopeValueInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    tableName: string;\n    field: string;\n    scopeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    tableName: string;\n    field: string;\n    scopeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tableName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "field",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scopeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

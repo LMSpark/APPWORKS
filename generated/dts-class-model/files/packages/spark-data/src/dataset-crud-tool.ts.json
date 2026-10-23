@@ -219,7 +219,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -274,7 +274,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -504,7 +504,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -559,7 +559,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -845,7 +845,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@196876": {
+                    "__@iterator@205499": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -900,7 +900,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@196876"
+                    "__@iterator@205499"
                   ],
                   "additionalProperties": false
                 },
@@ -990,6 +990,30 @@
             },
             "patternMessage": {
               "type": "string"
+            },
+            "trim": {
+              "enum": [
+                "reject",
+                "normalize"
+              ]
+            },
+            "unique": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "immutable": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "optionsView": {
+              "$ref": "types.ts.json#/$defs/DataColumnOptionsView"
+            },
+            "valueFunction": {
+              "$ref": "types.ts.json#/$defs/DataColumnValueFunction"
             },
             "computeExpression": {
               "type": "string"
@@ -1269,7 +1293,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1324,7 +1348,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -1557,7 +1581,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1612,7 +1636,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -1962,7 +1986,7 @@
                       "type": "object",
                       "title": "(index: number) => string | undefined"
                     },
-                    "__@iterator@196876": {
+                    "__@iterator@205499": {
                       "type": "object",
                       "title": "() => StringIterator<string>"
                     }
@@ -2017,7 +2041,7 @@
                     "matchAll",
                     "replaceAll",
                     "at",
-                    "__@iterator@196876"
+                    "__@iterator@205499"
                   ],
                   "additionalProperties": false
                 },
@@ -2107,6 +2131,30 @@
             },
             "patternMessage": {
               "type": "string"
+            },
+            "trim": {
+              "enum": [
+                "reject",
+                "normalize"
+              ]
+            },
+            "unique": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "immutable": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "optionsView": {
+              "$ref": "types.ts.json#/$defs/DataColumnOptionsView"
+            },
+            "valueFunction": {
+              "$ref": "types.ts.json#/$defs/DataColumnValueFunction"
             },
             "computeExpression": {
               "type": "string"
@@ -2412,7 +2460,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2467,7 +2515,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -2700,7 +2748,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@196876": {
+                "__@iterator@205499": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2755,7 +2803,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@196876"
+                "__@iterator@205499"
               ],
               "additionalProperties": false
             },
@@ -2991,6 +3039,18 @@
               "enum": [
                 "immediate",
                 "staged"
+              ]
+            },
+            "allowDelete": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "lockCurrentWhilePending": {
+              "enum": [
+                false,
+                true
               ]
             },
             "aggregates": {

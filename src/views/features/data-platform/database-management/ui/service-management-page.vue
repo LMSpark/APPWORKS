@@ -1,6 +1,7 @@
 <!--
 @module app:views/features/data-platform/database-management/ui/service-management-page
 职责：服务器目录；字段元信息只在 Base_serverInfo 的 DataTable.columns，列表/表单由绑定 DataView 的 autoColumns 消费列链，编排只调用 spark-data。
+注册表单绑定 DatabaseServerRegister 写命令视图（/Db/registerServer），编辑表单绑定目录视图。
 -->
 <template>
   <section class="database-server-page">
@@ -12,6 +13,7 @@
       <p v-if="listError" role="alert">{{ listError }}</p>
       <div :inert="busy || !!editing">
         <RendererTable :data-view-key="catalogKey" :toolbar="toolbar" :filter="listFilter"
+          :children="DATABASE_SERVER_LIST_FIELDS"
           :stripe="true" :on-row-click="choose" :highlight-current-row="true" :show-data-view-meta="false" />
       </div>
       <RendererDialog v-if="editing" :model-value="true"
@@ -19,7 +21,8 @@
         <p v-if="actionError" role="alert">{{ actionError }}</p>
         <p v-if="editing.unconfirmed" role="status">保存结果尚未确认。核验只确认原提交结果，不会再次写入。</p>
         <p v-else-if="editing.readbackFailed" role="status">已保存，但目录尚未重新读取成功，请重新读取。</p>
-        <RendererForm :data-view-key="catalogKey" context-data-member="currentRow"
+        <RendererForm :key="editing.mode" :data-view-key="editing.mode === 'add' ? registerKey : catalogKey" context-data-member="currentRow" :auto-columns="true"
+          :children="editing.mode === 'add' ? DATABASE_SERVER_REGISTER_FORM_FIELDS : []"
           :show-data-view-meta="false" :grid-columns="1"
           :form-props="{disabled: busy || editing.unconfirmed || editing.readbackFailed}" />
         <template #footer>
@@ -50,7 +53,8 @@ import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spar
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm,
   useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
-import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL} from '@/lowcode/resources/database/lowcode-database-server'
+import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL, DATABASE_SERVER_REGISTER_TABLE} from '@/lowcode/resources/database/lowcode-database-server'
+import {DATABASE_SERVER_LIST_FIELDS, DATABASE_SERVER_REGISTER_FORM_FIELDS} from '@/lowcode/resources/database/database-server-catalog-metadata'
 import {
   databaseServerBeginCreate,
   databaseServerBeginEdit,
@@ -77,6 +81,7 @@ const busy = ref(false), actionError = ref(''), message = ref(''), deleteOpen = 
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
 const catalogScenarioId = computed(() => dataSet.value?.scenarioId ?? scenarioId.value)
 const catalogKey = computed(() => buildDataViewKey(DATABASE_SERVER_MODEL, 'default', catalogScenarioId.value))
+const registerKey = computed(() => buildDataViewKey(DATABASE_SERVER_REGISTER_TABLE, 'default', catalogScenarioId.value))
 const listFilter = computed<RFilterProps>(() => ({
   autoQuery: true,
   collapsible: true,
@@ -113,9 +118,10 @@ async function act(operation: () => void | Promise<void>, success = ''): Promise
 }
 async function beginCreate(): Promise<void> {
   await act(async () => {
+    const ds = dataSet.value
     const v = view.value
-    if (!v) return
-    edit.value = await databaseServerBeginCreate(v)
+    if (!ds || !v) return
+    edit.value = await databaseServerBeginCreate(ds, v)
   })
 }
 async function beginEdit(): Promise<void> {
@@ -140,16 +146,14 @@ async function saveEdit(): Promise<void> {
     const current = edit.value
     if (!ds || !v || !current) return
     edit.value = await databaseServerSaveEdit(ds, v, current) ?? undefined
-  }, '服务器已保存')
+  }, edit.value?.mode === 'add' ? '服务器已注册' : '服务器已保存')
 }
 async function testConnection(): Promise<void> {
   await act(async () => {
-    const v = view.value
-    const current = edit.value
-    if (!v || !current || current.mode !== 'add') return
     const ds = dataSet.value
-    if (!ds) return
-    const ok = await databaseServerTestConnection(ds, v, current)
+    const current = edit.value
+    if (!ds || !current || current.mode !== 'add') return
+    const ok = await databaseServerTestConnection(ds, current)
     if (!ok) throw new Error('连接失败')
   }, '连接成功')
 }

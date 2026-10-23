@@ -77,7 +77,7 @@
         },
         "adopt": {
           "type": "object",
-          "title": "(view: DataView, snapshot: DataViewSourceSnapshot, hooks: Readonly<{ assertCurrent(): void; beforeApply(): void; }>) => Promise<void>"
+          "title": "(view: DataView, snapshot: DataViewSourceSnapshot, hooks: DataViewSourceAdoptHooks) => Promise<void>"
         },
         "history": {
           "$ref": "#/$defs/History"
@@ -486,7 +486,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T12:28:06.116Z",
+  "generatedAt": "2026-10-23T06:54:15.038Z",
   "models": {
     "Executor": {
       "name": "Executor",

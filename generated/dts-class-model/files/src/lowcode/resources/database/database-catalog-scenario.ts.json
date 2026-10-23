@@ -13,7 +13,8 @@
       "DatabaseCatalogLoadOptions",
       "DatabaseCatalogFormalTier",
       "DatabaseCatalogTieredResolve",
-      "DatabaseCatalogResolveDiagnostics"
+      "DatabaseCatalogResolveDiagnostics",
+      "ResolveDatabaseCatalogDataSpaceIdInput"
     ]
   },
   "$defs": {
@@ -135,9 +136,37 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "ResolveDatabaseCatalogDataSpaceIdInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ResolveDatabaseCatalogDataSpaceIdInput",
+      "properties": {
+        "preferredScenarioId": {
+          "type": "string"
+        },
+        "metaNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "options": {
+          "$ref": "#/$defs/DatabaseCatalogLoadOptions"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     }
   },
-  "generatedAt": "2026-10-21T02:22:19.874Z",
+  "generatedAt": "2026-10-23T06:59:43.775Z",
   "models": {
     "DatabaseCatalogLoadOptions": {
       "name": "DatabaseCatalogLoadOptions",
@@ -323,6 +352,50 @@
             },
             {
               "name": "navigationNodeId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ResolveDatabaseCatalogDataSpaceIdInput": {
+      "name": "ResolveDatabaseCatalogDataSpaceIdInput",
+      "jsdoc": "loadCatalog 统一解析 dataSpaceId；Hub 已 batch 校验的 resolved 不再探测或二次 batch。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    preferredScenarioId: string;\n    metaNames: readonly string[];\n    options: DatabaseCatalogLoadOptions;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    preferredScenarioId: string;\n    metaNames: readonly string[];\n    options: DatabaseCatalogLoadOptions;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "preferredScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metaNames",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
               "readable": true,
               "writable": false
             }

@@ -139,9 +139,11 @@ function reset(): void {
   try {
     const parsed = props.modelValue.trim() ? parseJsonDocument(props.modelValue) : []
     if (!Array.isArray(parsed) || parsed.some(row => row === null || typeof row !== 'object' || Array.isArray(row))) throw new Error('JSON必须是对象数组')
-    const rows = (parsed as DataRow[]).map((row, index) => {
-      originals.set(String(index), row)
-      return props.rowAdapter ? object(props.rowAdapter.read(object(row))) : row
+    const rows = parsed.map((row, index) => {
+      if (row === null || typeof row !== 'object' || Array.isArray(row)) throw new Error('JSON必须是对象数组')
+      const dataRow: DataRow = row
+      originals.set(String(index), dataRow)
+      return props.rowAdapter ? object(props.rowAdapter.read(object(dataRow))) : dataRow
     })
     if (rows.some(row => Object.hasOwn(row, rowKey))) throw new Error('JSON内部行标识冲突')
     names = [...new Set([...rows.flatMap(row => Object.keys(row)), ...fields.value.map(node => String(node.props?.['field']))])]

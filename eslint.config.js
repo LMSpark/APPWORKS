@@ -15,6 +15,7 @@ export default [
       'notes/evidence/**',     // 历史验证快照，不属于当前源码工程
       '**/*.example.ts',
       'dist/**',
+      'artifacts/**',
       'node_modules/**',
       'vite.config.ts',
       'vitest.config.ts',
@@ -53,35 +54,18 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.vue'],
     rules: {
+      // 能力系统符号用选择器限制具名导入，不限制包根命名空间导入（包根已不再导出这些符号）。
+      'no-restricted-syntax': ['error',
+        {
+          selector: "ImportDeclaration[source.value='@spark-appworks/spark-component'] > ImportSpecifier[imported.name=/^(defineCapability|sparkProvide|sparkRemove|sparkConsume|createSparkCapabilityContext|consumeSparkCapability|createSparkCapabilityConsumer|getSparkCapabilityProvider)$/]",
+          message: '能力系统 core 位于 @spark-appworks/spark-utils，请从 @spark-appworks/spark-utils 导入对应符号。'
+        },
+        {
+          selector: "ImportDeclaration[importKind!='type'][source.value='@spark-appworks/spark-component'] > ImportSpecifier[importKind!='type'][imported.name=/^(CapabilityKey|CapabilityName|ICapabilityContext|SparkCapabilityConsumer|CapabilityTypeMap)$/]",
+          message: '能力系统 core 类型位于 @spark-appworks/spark-utils，请从 @spark-appworks/spark-utils 导入对应类型。'
+        }
+      ],
       'no-restricted-imports': ['error', {
-        paths: [
-          {
-            name: '@spark-appworks/spark-component',
-            importNames: [
-              'defineCapability',
-              'sparkProvide',
-              'sparkRemove',
-              'sparkConsume',
-              'createSparkCapabilityContext',
-              'consumeSparkCapability',
-              'createSparkCapabilityConsumer',
-              'getSparkCapabilityProvider',
-            ],
-            message: '能力系统 core 位于 @spark-appworks/spark-utils，请从 @spark-appworks/spark-utils 导入对应符号。'
-          },
-          {
-            name: '@spark-appworks/spark-component',
-            allowTypeImports: true,
-            importNames: [
-              'CapabilityKey',
-              'CapabilityName',
-              'ICapabilityContext',
-              'SparkCapabilityConsumer',
-              'CapabilityTypeMap',
-            ],
-            message: '能力系统 core 类型位于 @spark-appworks/spark-utils，请从 @spark-appworks/spark-utils 导入对应类型。'
-          }
-        ],
         patterns: [
           {
             group: [

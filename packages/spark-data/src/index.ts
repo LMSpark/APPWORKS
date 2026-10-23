@@ -28,6 +28,7 @@ export { DataSet } from './dataset'
 export { DataTable } from './data-table'
 export { DataView } from './data-view'
 export { DataViewFilter } from './query/filter/data-view-filter'
+export { DataViewFilterLocal } from './query/filter/data-view-filter-local'
 export { DataViewFilterCodec } from './query/filter/data-view-filter-codec'
 export type { DataViewFilterWire } from './query/filter/data-view-filter-codec'
 export { DataViewQuery } from './query/data-view-query'
@@ -35,12 +36,14 @@ export { DataViewQueryCache } from './query/data-view-query-cache'
 export { DataViewArrayQuery } from './query/data-view-array-query'
 export { DataViewLocalQuery } from './query/data-view-local-query'
 export {
+  bindDataSetCommandSubmit,
   bindDataSetReadonlyCommandQuery,
   dataSetCommandQueryResultFromLocalRows,
   ensureDataSetFileCommandView,
   ensureDataSetStaticInputTable,
 } from './data-set-command/data-set-command-view'
 export type {
+  BindCommandSubmitOptions,
   BindReadonlyCommandQueryOptions,
   DataSetCommandColumnSpec,
   DataSetCommandResourceIdentity,

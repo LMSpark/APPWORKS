@@ -225,7 +225,7 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import {FieldJson, FieldNumber, FieldSelect, FieldCheckbox, FieldText, RendererButton, RendererDialog, RendererForm, RendererFilterExpression, RendererSection, RendererTabs, RendererTabPane} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {buildDataViewKey, DataViewFilter, DataViewLocalQuery, DataViewQuery, RequestState, type DataViewFieldCascadeState, type DataViewFilterFunctionContext, type SparkNodeChildren} from '@spark-appworks/spark-data'
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
 import {ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource} from '@spark-appworks/spark-project-model'
@@ -235,6 +235,7 @@ import type {DataSpaceViewEditorProps} from './DataSpaceViewEditor.props'
 import DataSpaceQueryPreview from './preview/DataSpaceQueryPreview.vue'
 import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value'
 
+const {FieldJson, FieldNumber, FieldSelect, FieldCheckbox, FieldText, RendererButton, RendererDialog, RendererForm, RendererFilterExpression, RendererSection, RendererTabs, RendererTabPane} = SparkComponent
 const props = defineProps<DataSpaceViewEditorProps>()
 const emit = defineEmits<{changed: []; pending: [value: boolean]; select: [key: string | number | undefined]}>()
 const busy = ref(false)
@@ -304,7 +305,7 @@ const parameterCatalog = computed(() => {
     return {schema, warning: ''}
   }
   if (!props.modelId) throw new Error('视图参数目录缺少模型身份')
-  return new LowcodeDataSpaceFieldValue(dataSet, props.session.targetId, props.modelId)
+  return new LowcodeDataSpaceFieldValue({dataSet: dataSet, targetId: props.session.targetId, modelId: props.modelId})
     .readQueryParameters(sourceInputMode.value)
 })
 const filterParameterNames = computed(() => JSON.stringify(Object.entries(parameterCatalog.value.schema.properties ?? {})
@@ -566,7 +567,7 @@ async function editProperty(name: string): Promise<void> {
     if (name === 'queryContext') {
       if (sourceInputMode.value === 'direct' && props.modelId) {
         await props.session.loadSourceInputFields(props.modelId)
-        const parameters = new LowcodeDataSpaceFieldValue(dataSet, props.session.targetId, props.modelId).readQueryParameters('direct')
+        const parameters = new LowcodeDataSpaceFieldValue({dataSet: dataSet, targetId: props.session.targetId, modelId: props.modelId}).readQueryParameters('direct')
         if (parameters.warning) throw new Error(parameters.warning)
       }
       tick.value++
@@ -673,14 +674,16 @@ async function previewBindingRemoval(): Promise<void> {
   if (blocked.value || viewInputDirty.value || !bindings.value.includes(binding.value)) return
   const file = state.value.file, tables = file?.config['tables']
   const table = isRecord(tables) ? tables[binding.value] : undefined
-  if (!file || !isRecord(table) || !isRecord(table['views'])) return
+  const views = isRecord(table) ? table['views'] : undefined
+  if (!file || !isRecord(views)) return
+  const viewIds = Object.keys(views)
   const identity = props.fileResource ? {resourceId: props.fileResource.resourceId}
     : props.modelId && props.modelName ? {modelId: props.modelId, modelName: props.modelName} : undefined
   if (!identity) return
   return run(async () => {
     const config = new ScenarioViewConfig(props.session.targetId, file.text)
     bindingRemoval.value = {tableName: binding.value, ...identity, expectedText: file.text,
-      viewIds: Object.keys(table['views'] as Record<string, unknown>), references: config.getTableRemovalReferences(binding.value)}
+      viewIds, references: config.getTableRemovalReferences(binding.value)}
     remotePreview.value = null
   })
 }

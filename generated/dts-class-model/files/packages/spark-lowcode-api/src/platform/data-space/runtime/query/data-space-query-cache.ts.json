@@ -67,6 +67,29 @@
       ],
       "additionalProperties": false
     },
+    "DataSpaceQueryCacheQueryInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryCacheQueryInput",
+      "properties": {
+        "identity": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+        },
+        "options": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+        },
+        "config": {
+          "$ref": "../protocol/data-space-request-config.ts.json#/$defs/DataSpaceRequestConfig"
+        },
+        "cache": {
+          "$ref": "#/$defs/ResultCacheRequest"
+        }
+      },
+      "required": [
+        "identity"
+      ],
+      "additionalProperties": false
+    },
     "DataSpaceQueryCache": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -113,17 +136,8 @@
         "method.query.params": {
           "type": "object",
           "properties": {
-            "identity": {
-              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
-            },
-            "options": {
-              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
-            },
-            "config": {
-              "$ref": "../protocol/data-space-request-config.ts.json#/$defs/DataSpaceRequestConfig"
-            },
-            "cache": {
-              "$ref": "#/$defs/ResultCacheRequest"
+            "input": {
+              "$ref": "#/$defs/DataSpaceQueryCacheQueryInput"
             }
           },
           "additionalProperties": false
@@ -135,7 +149,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T05:56:20.517Z",
+  "generatedAt": "2026-10-23T06:52:21.370Z",
   "models": {
     "ResultCacheRequest": {
       "name": "ResultCacheRequest",
@@ -206,6 +220,45 @@
         "members": {}
       }
     },
+    "DataSpaceQueryCacheQueryInput": {
+      "name": "DataSpaceQueryCacheQueryInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    options?: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    cache?: ResultCacheRequest;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    options?: DataSpaceQueryOptions;\n    config?: DataSpaceRequestConfig;\n    cache?: ResultCacheRequest;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "identity",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "cache",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataSpaceQueryCache": {
       "name": "DataSpaceQueryCache",
       "jsdoc": "请求owner内的执行器、在途请求及显式配置的结果复用；保留原权限上下文。",
@@ -273,44 +326,11 @@
               "name": "query",
               "parameters": [
                 {
-                  "name": "identity",
+                  "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "DataSpaceQueryIdentity",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
-                  }
-                },
-                {
-                  "name": "options",
-                  "type": {
-                    "type": "reference",
-                    "name": "DataSpaceQueryOptions",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                },
-                {
-                  "name": "config",
-                  "type": {
-                    "type": "reference",
-                    "name": "DataSpaceRequestConfig",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                },
-                {
-                  "name": "cache",
-                  "type": {
-                    "type": "reference",
-                    "name": "ResultCacheRequest",
+                    "name": "DataSpaceQueryCacheQueryInput",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts"
-                  },
-                  "flags": {
-                    "isOptional": true
                   }
                 }
               ],

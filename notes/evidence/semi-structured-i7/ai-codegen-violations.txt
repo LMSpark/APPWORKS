@@ -1,0 +1,300 @@
+node : AI codegen rule scan failed: 143 violation(s).
+所在位置 行:1 字符: 23
++ ... :\SPARK_AppWorks; node tools/verify-ai-codegen-rules.mjs 2>&1 | Out-F ...
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (AI codegen rule...3 violation(s).:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+  packages/spark-component/src/components/containers/data-views/RendererGraph/GraphLayout.ts:43 type assertion is forbi
+dden: [] as GraphKey[]
+  packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.pr
+ops.ts:77 signature has too many positional parameters: summarize has 4, limit is 3; use a named options object or doma
+in command object
+  packages/spark-component/src/components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.vue:
+143 type assertion is forbidden: value as DataViewFilterOperator
+  packages/spark-component/src/components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.vue:
+144 type assertion is forbidden: value as DataViewFilterOperator
+  packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayRows.vue:142 type assertion is
+ forbidden: parsed as DataRow[]
+  packages/spark-component/src/permission/usePermission.ts:60 parameter JSDoc is forbidden; move the comment to the opt
+ions type, class field, or function JSDoc
+  packages/spark-data/src/data-set-command/data-set-command-view.ts:48 signature has too many positional parameters: en
+sureDataSetFileCommandView has 4, limit is 3; use a named options object or domain command object
+  packages/spark-data/src/query/data-view-query-cache.ts:24 signature has too many positional parameters: query has 4,
+limit is 3; use a named options object or domain command object
+  packages/spark-data/src/query/data-view-source.ts:38 parameter JSDoc is forbidden; move the comment to the options ty
+pe, class field, or function JSDoc
+  packages/spark-data/src/query/filter/data-view-filter.ts:214 type assertion is forbidden: fields as unknown[]
+  packages/spark-data/src/strategies/cascade/query-cascade-inputs.ts:47 type assertion is forbidden: input as NonNullab
+le<DataViewQueryCascade['when']>
+  packages/spark-data/src/strategies/cascade/query-cascade-inputs.ts:69 type assertion is forbidden: input as DataViewQ
+ueryCascade['filterBindings']
+  packages/spark-data/src/strategies/cascade/query-cascade-inputs.ts:98 type assertion is forbidden: input as readonly
+DataViewCascadeInputBinding[]
+  packages/spark-data/src/strategies/primary-key-delegate.ts:112 signature has too many positional parameters: construc
+tor has 5, limit is 4; use a named options object or domain command object
+  packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts:513 signature has too many positio
+nal parameters: readFormalModelDetails has 4, limit is 3; use a named options object or domain command object
+  packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts:20 type assertion is forbidd
+en: globalThis as {crypto?: Crypto}
+  packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts:8 too many named imports from @s
+park-appworks/spark-data: 9; use a module facade or main object instead of a flat import list
+  packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts:109 signature has too many posit
+ional parameters: queryWithConfig has 6, limit is 3; use a named options object or domain command object
+  packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts:53 thin type alias is
+ forbidden: DataSpaceWireFilter = DataViewFilterWire; use the original type or define a real domain shape
+  packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts:61 signature has too many
+positional parameters: query has 4, limit is 3; use a named options object or domain command object
+  packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts:75 signature has too many
+positional parameters: load has 5, limit is 3; use a named options object or domain command object
+  packages/spark-lowcode-api/src/platform/resources/data-code/data-code-design-client.ts:18 type assertion is forbidden
+: result as Record<string, unknown>
+  packages/spark-lowcode-api/src/platform/resources/excel-import/excel-import-design-client.ts:20 type assertion is for
+bidden: result as Record<string, unknown>
+  packages/spark-lowcode-api/src/platform/resources/pdf-inspect/pdf-inspect-design-client.ts:20 type assertion is forbi
+dden: result as Record<string, unknown>
+  packages/spark-lowcode-api/src/platform/resources/workflow-definition/workflow-design-client.ts:20 type assertion is
+forbidden: result as Record<string, unknown>
+  packages/spark-project-model/src/project/project-workspace.ts:519 parameter JSDoc is forbidden; move the comment to t
+he options type, class field, or function JSDoc
+  packages/spark-project-model/src/scenario/scenario-definition-document.ts:22 signature has too many positional parame
+ters: constructor has 5, limit is 4; use a named options object or domain command object
+  packages/spark-project-model/src/scenario/scenario-definition-records.ts:67 signature has too many positional paramet
+ers: project has 4, limit is 3; use a named options object or domain command object
+  packages/spark-project-model/src/scenario/scenario-definition-records.ts:112 signature has too many positional parame
+ters: write has 4, limit is 3; use a named options object or domain command object
+  packages/spark-project-model/src/scenario/scenario-definition-resource.ts:388 type assertion is forbidden: previous.t
+oJSON()['tables'] as object
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:7 too many named imports from @spark-appworks/spark
+-data: 9; use a module facade or main object instead of a flat import list
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:439 signature has too many positional parameters: s
+electTables has 4, limit is 3; use a named options object or domain command object
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:189 type assertion is forbidden: (this.#config['vie
+wCascades'] ?? []) as ScenarioConfigObject[]
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:192 type assertion is forbidden: value['parents'] a
+s ScenarioConfigObject[]
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:205 type assertion is forbidden: (view['fieldProjec
+tion'] ?? []) as ScenarioConfigObject[]
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:269 type assertion is forbidden: (this.#config['vie
+wCascades'] ?? []) as ScenarioConfigObject[]
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:270 type assertion is forbidden: (previous.#config[
+'viewCascades'] ?? []) as ScenarioConfigObject[]
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:422 type assertion is forbidden: (this.#config['vie
+wCascades'] ?? []) as ScenarioConfigObject[]
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:423 type assertion is forbidden: (previous.#config[
+'viewCascades'] ?? []) as ScenarioConfigObject[]
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:443 type assertion is forbidden: (this.#config['vie
+wCascades'] ?? []) as ScenarioConfigObject[]
+  packages/spark-project-model/src/scenario/scenario-view-config.ts:495 type assertion is forbidden: cascade['parents']
+ as ScenarioConfigObject[]
+  src/lowcode/data-space/lowcode-data-space-design.ts:39 signature has too many positional parameters: assemble has 4,
+limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/lowcode-data-space-runtime.ts:101 signature has too many positional parameters: definitionExec
+utors has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/lowcode-model-relation-adapter.ts:119 signature has too many positional parameters: referenceB
+indings has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/lowcode-model-relation-adapter.ts:37 type assertion is forbidden: row['rowid'] as string
+  src/lowcode/data-space/lowcode-model-relation-adapter.ts:38 type assertion is forbidden: row['parentModId'] as string
+  src/lowcode/data-space/lowcode-model-relation-adapter.ts:38 type assertion is forbidden: row['childModId'] as string
+  src/lowcode/data-space/model-source/array/lowcode-data-space-array-draft.ts:66 type assertion is forbidden: value as
+Array<Record<string,unknown>>
+  src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts:81 signature has too many positional pa
+rameters: createArrayHost has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts:251 signature has too many positional p
+arameters: arrayPlan has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts:330 signature has too many positional p
+arameters: arrayUpdate has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts:43 signature has too many
+ positional parameters: createFieldCreateHost has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts:54 signature has too many pos
+itional parameters: constructor has 5, limit is 4; use a named options object or domain command object
+  src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts:258 signature has too many po
+sitional parameters: assertEditable has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts:496 thin type alias is forbid
+den: FieldEditHost = FieldEditSession; use the original type or define a real domain shape
+  src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts:498 signature has too many po
+sitional parameters: createFieldEditHost has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts:503 thin type alias is forbid
+den: FieldEditHandle = FieldEditHost; use the original type or define a real domain shape
+  src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts:57 parameter JSDoc is forbidden;
+move the comment to the options type, class field, or function JSDoc
+  src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts:126 parameter JSDoc is forbidden;
+ move the comment to the options type, class field, or function JSDoc
+  src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts:17 signature has too many positiona
+l parameters: constructor has 5, limit is 4; use a named options object or domain command object
+  src/lowcode/data-space/model-source/field-value/lowcode-data-space-field-value.ts:21 signature has too many positiona
+l parameters: rows has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/lowcode-data-space-model-create-session.ts:41 signature has too many positional p
+arameters: createModelCreateHost has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/lowcode-data-space-model-dependencies.ts:22 signature has too many positional par
+ameters: constructor has 8, limit is 4; use a named options object or domain command object
+  src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts:89 type assertion is forbidden: value as Pag
+eDataSpaceModelSourceType
+  src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts:461 thin type alias is forbid
+den: ModelEditHost = ModelEditSession; use the original type or define a real domain shape
+  src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts:463 signature has too many po
+sitional parameters: createModelEditHost has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts:467 thin type alias is forbid
+den: ModelEditHandle = ModelEditHost; use the original type or define a real domain shape
+  src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts:40 signature has too many positiona
+l parameters: constructor has 7, limit is 4; use a named options object or domain command object
+  src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts:110 signature has too many position
+al parameters: prepare has 6, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts:51 signature has too many p
+ositional parameters: prepareRenames has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts:61 signature has too many p
+ositional parameters: inspect has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts:82 signature has too many p
+ositional parameters: add has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts:87 signature has too many p
+ositional parameters: reference has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts:107 signature has too many
+positional parameters: fn has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts:121 signature has too many
+positional parameters: filter has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts:43 signature has too many posi
+tional parameters: createFieldRemoveHost has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts:50 signature has too many posi
+tional parameters: createModelRemoveHost has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts:29 signature has too many po
+sitional parameters: prepare has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts:47 signature has too many po
+sitional parameters: add has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts:89 signature has too many po
+sitional parameters: filter has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts:51 signature has too many posit
+ional parameters: createModelRenameHost has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts:23 signature has too many positio
+nal parameters: constructor has 6, limit is 4; use a named options object or domain command object
+  src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts:28 signature has too many positio
+nal parameters: prepare has 6, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts:76 signature has too many positio
+nal parameters: fileRow has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts:142 signature has too many positi
+onal parameters: props has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts:72 type assertion is forbidden: t
+his.fileRow(view, pageId, fileName, versionId)['text'] as string
+  src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts:142 signature has too
+ many positional parameters: createModelSourceEditHost has 5, limit is 3; use a named options object or domain command
+object
+  src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts:379 signature has too
+ many positional parameters: modelSourceEditAssessFieldContract has 4, limit is 3; use a named options object or domain
+ command object
+  src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts:509 signature has too
+ many positional parameters: modelSourceEditPrepareContract has 4, limit is 3; use a named options object or domain com
+mand object
+  src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts:991 thin type alias i
+s forbidden: LowcodeDataSpaceModelSourceEdit = ModelSourceEditHandle; use the original type or define a real domain sha
+pe
+  src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts:34 signature has too many
+ positional parameters: createSourceInputHost has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts:123 signature has too man
+y positional parameters: sourceInputValidateValue has 4, limit is 3; use a named options object or domain command objec
+t
+  src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts:287 type assertion is for
+bidden: {} as SourceInputHandle
+  src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:3 too many named imports from @spark-appworks/sp
+ark-data: 13; use a module facade or main object instead of a flat import list
+  src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:161 signature has too many positional parameters
+: constructor has 5, limit is 4; use a named options object or domain command object
+  src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:1478 signature has too many positional parameter
+s: prepareModelConfigurationChange has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:659 type assertion is forbidden: binding['modelI
+d'] as string
+  src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:659 type assertion is forbidden: binding['modelN
+ame'] as string
+  src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:1083 type assertion is forbidden: model['rowid']
+ as string
+  src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts:2213 type assertion is forbidden: initial.treeMo
+de as 'child' | 'parent'
+  src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts:87 signature has too many positional parameters:
+ project has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/data-space/view-design/lowcode-data-space-view-layout.ts:26 signature has too many positional parameters:
+ assertModels has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-field-metadata.ts:37 signature has too many positional parameters: bu
+ildOptionSelectField has 7, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-field-view-ops.ts:53 signature has too many positional parameters: da
+tabaseCatalogDesignSavePending has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-preview-view-ops.ts:98 signature has too many positional parameters:
+readonlyQueryResult has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-preview-view-ops.ts:131 signature has too many positional parameters:
+ fetchPhysicalPreviewPage has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-preview-view-ops.ts:234 signature has too many positional parameters:
+ fetchViewPreviewPage has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-relation-form-ops.ts:164 signature has too many positional parameters
+: databaseCatalogRelationSaveDraft has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-scenario.ts:72 signature has too many positional parameters: cacheMem
+oryKey has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-scenario.ts:76 signature has too many positional parameters: readReso
+lveCache has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-scenario.ts:95 signature has too many positional parameters: writeRes
+olveCache has 5, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-scenario.ts:305 signature has too many positional parameters: resolve
+DatabaseCatalogDataSpaceId has 4, limit is 3; use a named options object or domain command object
+  src/lowcode/resources/database/database-catalog-scenario.ts:83 type assertion is forbidden: JSON.parse(raw) as {finge
+rprint?: string; dataSpaceId?: string; scopeToken?: string}
+  src/lowcode/resources/database/database-catalog-sync-view-ops.ts:45 signature has too many positional parameters: dat
+abaseCatalogSyncTableMetadata has 4, limit is 3; use a named options object or domain command object
+  src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts:126 type assertion is for
+bidden: this.file().config['layout'] as DataSetMetadata['layout']
+  src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts:309 type assertion is for
+bidden: field as keyof typeof loaded
+  src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts:105 type asser
+tion is forbidden: this.read('type') as PageDataSpaceModelSourceType
+  src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts:110 type asser
+tion is forbidden: this.read('type') as PageDataSpaceModelSourceType
+  src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts:124 type asser
+tion is forbidden: this.read('type') as PageDataSpaceModelSourceType
+  src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue:306 too many named imports fr
+om @spark-appworks/spark-component: 14; use a module facade or main object instead of a flat import list
+  src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue:452 signature has too many po
+sitional parameters: readable has 4, limit is 3; use a named options object or domain command object
+  src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue:456 signature has too many po
+sitional parameters: text has 4, limit is 3; use a named options object or domain command object
+  src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue:665 type assertion is forbidd
+en: {id: selectedId.value, label: String(layoutEdit.value?.nodes.getEditingRow(unboundSelectedId.value)?.['Name'] ?? '寰
+呴厤缃ā鍨?)} as DesignNode
+  src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue:667 type assertion is forbidd
+en: {id: selectedId.value, label: '鑺傜偣鍏崇郴璁剧疆'} as DesignNode
+  src/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.v
+ue:210 signature has too many positional parameters: selectBinding has 4, limit is 3; use a named options object or dom
+ain command object
+  src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue:121 too man
+y named imports from @spark-appworks/spark-component: 13; use a module facade or main object instead of a flat import l
+ist
+  src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue:328 signatu
+re has too many positional parameters: selectTableRow has 4, limit is 3; use a named options object or domain command o
+bject
+  src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue:228 too many named imports
+from @spark-appworks/spark-component: 12; use a module facade or main object instead of a flat import list
+  src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue:683 type assertion is forbi
+dden: table['views'] as Record<string, unknown>
+  src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue:77 too many named
+ imports from @spark-appworks/spark-component: 14; use a module facade or main object instead of a flat import list
+  src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue:63 too many named imports from @spark-
+appworks/spark-component: 11; use a module facade or main object instead of a flat import list
+  src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue:125 type assertion is forbidden: {data
+source: '鏁版嵁婧?, workflow: '宸ヤ綔娴?, form: '琛ㄥ崟'} as Record<string, string>
+  src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue:114 too many named imp
+orts from @spark-appworks/spark-component: 9; use a module facade or main object instead of a flat import list
+  src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue:114 type assertion is
+forbidden: event.target as HTMLInputElement
+  src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-pane
+l.vue:13 type assertion is forbidden: event.target as HTMLTextAreaElement
+  src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-pane
+l.vue:14 type assertion is forbidden: JSON.parse(raw) as unknown
+  src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-pane
+l.vue:13 type assertion is forbidden: event.target as HTMLTextAreaElement
+  src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-pane
+l.vue:14 type assertion is forbidden: JSON.parse(raw) as unknown
+  src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue:42 type ass
+ertion is forbidden: JSON.parse(String(designView.value?.rows[0]?.['designJson'] ?? '{}')) as {nodes?: unknown; connect
+ors?: unknown}
+  src/views/features/integration/api-management/ui/api-config-page.vue:43 too many named imports from @spark-appworks/s
+park-component: 9; use a module facade or main object instead of a flat import list
+  src/views/features/integration/api-management/ui/api-interface-list-page.vue:56 too many named imports from @spark-ap
+pworks/spark-component: 11; use a module facade or main object instead of a flat import list
+  src/views/features/integration/api-management/ui/api-interface-list-page.vue:114 signature has too many positional pa
+rameters: choose has 4, limit is 3; use a named options object or domain command object
+  src/views/features/integration/api-management/ui/api-interface-list-page.vue:121 mechanical Interface/Impl name is fo
+rbidden: addInterface

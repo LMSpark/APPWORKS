@@ -157,7 +157,7 @@ describe('joint native definition validation scope', () => {
       .map(row => ({...row, parentViewId: 'new'}))
     const changes = [{resource: resources.DataViewDefinition, rows: views}, {resource: resources.DataViewCascadeDefinition, rows: cascades}]
     if (cascadeFirst) changes.reverse()
-    expect(() => ScenarioDefinitionRecords.write(before, changes[0]!.resource, changes[0]!.rows)).toThrow()
+    expect(() => ScenarioDefinitionRecords.write({config: before, resource: changes[0]!.resource, rows: changes[0]!.rows})).toThrow()
     for (const change of changes) candidate.applyRows(change.resource, change.rows)
     const saved = candidate.toConfig().toJSON()
     expect(saved['tables']).toMatchObject({Orders: {views: {new: {pageSize: 17}}}})
@@ -363,7 +363,7 @@ describe('explicit file resource configuration', () => {
     const resource = ScenarioDefinitionRecords.resources.DataTableBindingDefinition
     const retained = ScenarioDefinitionRecords.read(before, resource).filter(row => row['tableName'] !== 'Parent')
     expect(before.getTableRemovalReferences('Parent').length).toBeGreaterThan(0)
-    expect(() => ScenarioDefinitionRecords.write(before, resource, retained)).toThrow('SCENARIO_DEFINITION_REFERENCES')
+    expect(() => ScenarioDefinitionRecords.write({config: before, resource, rows: retained})).toThrow('SCENARIO_DEFINITION_REFERENCES')
   })
 
   it('does not waive validation when a file deletion also changes another model', () => {

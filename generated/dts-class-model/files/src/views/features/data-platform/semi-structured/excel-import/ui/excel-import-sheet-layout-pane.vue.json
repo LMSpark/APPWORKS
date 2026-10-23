@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane",
+    "sourcePath": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
+    "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane",
+    "jsdoc": "app 的 views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
+    "jsdocSource": "inferred",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-10-23T06:52:18.886Z",
+  "models": {}
+}

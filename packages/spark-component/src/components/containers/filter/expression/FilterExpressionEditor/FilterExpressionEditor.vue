@@ -61,7 +61,7 @@ const functionValue = ref<DataViewFilterValueFunction>()
 const baseline = ref('')
 const originalJson = ref('')
 const fields = computed(() => FilterExpressionEditorDraft.fields(props.columns))
-const summary = computed(() => FilterExpressionEditorDraft.summarize(props.modelValue, props.columns, props.functionContext))
+const summary = computed(() => FilterExpressionEditorDraft.summarize({tree: props.modelValue, columns: props.columns, context: props.functionContext}))
 const writeLocked = computed(() => props.disabled || props.readonly)
 const checking = ref(false)
 let checkRevision = 0, alive = true

@@ -4,16 +4,16 @@
  * 边界：后端模型真源与运行数据不属于此文件，显式文件资源须由已有owner承接。
  * AI用途：校验模型绑定或文件资源、命名视图与显式级联。
  */
-import { DataViewFilter, DataViewQuery, DataViewQueryCascadeInputs, DataViewFieldCascadeDefinition, FormalTableRequestConfig, parseDataViewKey, type DataResourceRelation, type DataViewFilterTree, type ViewMetadata } from '@spark-appworks/spark-data'
+import * as SparkData from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
 
 /** 只读JSON配置对象，构造时校验并递归冻结。 */
 type ScenarioConfigObject = Readonly<Record<string, unknown>>
 /** 旧来源扩展仅供导入；原生结构保留完整关系，来源标识只用于追踪。 */
-type ScenarioResourceRelation = Readonly<Pick<DataResourceRelation, 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'> & {sourceRelationId: string}>
-  | Readonly<DataResourceRelation & {relationId: string}>
+type ScenarioResourceRelation = Readonly<Pick<SparkData.DataResourceRelation, 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'> & {sourceRelationId: string}>
+  | Readonly<SparkData.DataResourceRelation & {relationId: string}>
 /** 目录依赖只消费关系身份与端点；不代表完整运行关系或过滤表达式已转换。 */
-type ScenarioRelationEndpoint = Pick<DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'>
+type ScenarioRelationEndpoint = Pick<SparkData.DataResourceRelation, 'relationId' | 'sourceRelationId' | 'parentTable' | 'childTable' | 'relationName' | 'cascadeUpdate'>
 /** 已读正式关系的依赖投影；仅用于选取运行范围，不是可保存的关系配置。 */
 type ScenarioRelationDependency = Readonly<ScenarioRelationEndpoint & {
   /** 关系值函数明确引用的配置表键；未解析的原引用保留以便范围校验报错，不作模型字段或保存数据。 */
@@ -45,13 +45,27 @@ function freezeJson(value: unknown): void {
   Object.freeze(value)
 }
 
+function configObjects(value: unknown): ScenarioConfigObject[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is ScenarioConfigObject => isRecord(item))
+}
+
+/** reverseLookups省略时随viewValidation；inheritedGroups省略时使用本配置的模型关系。 */
+type SelectTablesInput = Readonly<{
+  tableNames: readonly string[]
+  viewValidation: boolean
+  reverseLookups?: boolean
+  inheritedGroups?: ReadonlyArray<readonly string[]>
+}>
+
 /** 场景配置：后端模型仅保存绑定和字段约束；显式文件资源保存列定义，由资源owner提供查询与保存，配置不授予权限或包含运行数据。 */
 export class ScenarioViewConfig {
-  static readonly #viewProperties = Object.freeze<Record<keyof Omit<ViewMetadata, 'tableName' | 'viewId' | 'rows'>, true>>({
+  static readonly #viewProperties = Object.freeze<Record<keyof Omit<SparkData.ViewMetadata, 'tableName' | 'viewId' | 'rows'>, true>>({
     onRequestComplete: true,
     fieldProjection: true, queryContext: true, queryConfig: true, filterExpression: true, sortExpression: true,
     autoCurrentFirst: true, autoSelectFirst: true, page: true, pageSize: true, treeConfig: true,
     valueField: true, labelField: true, selectionDelimiter: true, autoLoad: true, commitMode: true, aggregates: true,
+    allowDelete: true, lockCurrentWhilePending: true,
   })
   readonly #scenarioId: string
   readonly #config: ScenarioConfigObject
@@ -151,9 +165,9 @@ export class ScenarioViewConfig {
         const cascade = record(item, 'viewCascades')
         if (cascade['kind'] !== 'field') this.validateCascade(cascade, tables)
       }
-      const fields = DataViewFieldCascadeDefinition.validateAll(config['viewCascades'])
-      DataViewQueryCascadeInputs.validateAll(config['viewCascades'])
-      DataViewFieldCascadeDefinition.validateViews(fields, (tableName, viewId) => {
+      const fields = SparkData.DataViewFieldCascadeDefinition.validateAll(config['viewCascades'])
+      SparkData.DataViewQueryCascadeInputs.validateAll(config['viewCascades'])
+      SparkData.DataViewFieldCascadeDefinition.validateViews(fields, (tableName, viewId) => {
         const table = tables[tableName]
         return isRecord(table) && isRecord(table['views']) && Object.hasOwn(table['views'], viewId)
       })
@@ -179,17 +193,17 @@ export class ScenarioViewConfig {
     const references = new Set<string>()
     const filter = (value: unknown, path: string): void => {
       if (value === undefined) return
-      const parsed = DataViewFilter.parse(value)
+      const parsed = SparkData.DataViewFilter.parse(value)
       if (!parsed.ok) throw new Error(`${path} 无法检查引用`)
       if (parsed.value.referencedTableNames().includes(String(modelName))) references.add(path)
     }
     this.#resourceRelations.forEach((relation, index) => {
       if (this.relationTables(relation).includes(tableName)) references.add(`resourceRelations[${index}]`)
     })
-    for (const [index, value] of ((this.#config['viewCascades'] ?? []) as ScenarioConfigObject[]).entries()) {
+    for (const [index, value] of configObjects(this.#config['viewCascades']).entries()) {
       const endpoints = value['kind'] === 'field'
         ? [value['tableName'], record(value['optionsView'], 'optionsView')['tableName'],
-          ...(value['parents'] as ScenarioConfigObject[]).map(parent => parent['tableName'])]
+          ...configObjects(value['parents']).map(parent => parent['tableName'])]
         : [value['parentTable'], value['childTable']]
       if (endpoints.includes(tableName)) references.add(`viewCascades[${index}]`)
     }
@@ -198,11 +212,11 @@ export class ScenarioViewConfig {
       for (const [id, inputView] of Object.entries(record(record(input, owner)['views'], `${owner}.views`))) {
         const view = record(inputView, `${owner}@${id}`), path = `tables.${owner}.views.${id}`
         filter(view['filterExpression'], `${path}.filterExpression`)
-        for (const lookup of view['queryConfig'] === undefined ? [] : DataViewQuery.parse(view['queryConfig']).filterLookups ?? []) {
-          const binding = parseDataViewKey(lookup.sourceViewKey)
+        for (const lookup of view['queryConfig'] === undefined ? [] : SparkData.DataViewQuery.parse(view['queryConfig']).filterLookups ?? []) {
+          const binding = SparkData.parseDataViewKey(lookup.sourceViewKey)
           if (binding?.scope === this.scenarioId && binding.tableName === modelName) references.add(`${path}.queryConfig.filterLookups`)
         }
-        for (const field of (view['fieldProjection'] ?? []) as ScenarioConfigObject[]) {
+        for (const field of configObjects(view['fieldProjection'])) {
           if (typeof field['valueFunction'] === 'string' && field['valueFunction'].trim()) {
             const value: unknown = JSON.parse(field['valueFunction'])
             filter({field: '_', operator: 'eq', value}, `${path}.fieldProjection.${String(field['viewField'])}.valueFunction`)
@@ -230,8 +244,10 @@ export class ScenarioViewConfig {
     if (!this.#usesNativeResourceRelations && inherited === undefined) return this
     const dependencies = this.#usesNativeResourceRelations ? undefined : this.resolveRelations(inherited ?? [],
       relation => ({...relation, referencedTables: this.relationTables(relation)}))
-    return this.selectTables([tableName], false, false, dependencies?.map(relation =>
-      [relation.parentTable, relation.childTable, ...relation.referencedTables]))
+    const inheritedGroups = dependencies?.map(relation => [relation.parentTable, relation.childTable, ...relation.referencedTables])
+    return this.selectTables(inheritedGroups === undefined
+      ? {tableNames: [tableName], viewValidation: false}
+      : {tableNames: [tableName], viewValidation: false, inheritedGroups})
   }
 
   /**
@@ -252,7 +268,7 @@ export class ScenarioViewConfig {
     }
     const changed = Object.keys(tables).filter(key => !Object.hasOwn(before, key) || JSON.stringify(record(tables[key], key)['views'])
       !== JSON.stringify(record(before[key], key)['views']))
-    return changed.length ? this.selectTables(changed, true) : null
+    return changed.length ? this.selectTables({tableNames: changed, viewValidation: true}) : null
   }
 
   /**
@@ -266,9 +282,9 @@ export class ScenarioViewConfig {
     if (this.scenarioId !== previous.scenarioId || JSON.stringify(without(this.#config)) !== JSON.stringify(without(previous.#config))) {
       throw new Error('级联校验不能提交模型、视图、关系或其他结构变更')
     }
-    const changed = this.addedOrChanged((this.#config['viewCascades'] ?? []) as ScenarioConfigObject[],
-      (previous.#config['viewCascades'] ?? []) as ScenarioConfigObject[])
-    return changed.length ? this.selectTables(changed.flatMap(cascade => this.cascadeTables(cascade)), true) : null
+    const changed = this.addedOrChanged(configObjects(this.#config['viewCascades']),
+      configObjects(previous.#config['viewCascades']))
+    return changed.length ? this.selectTables({tableNames: changed.flatMap(cascade => this.cascadeTables(cascade)), viewValidation: true}) : null
   }
 
   /**
@@ -353,7 +369,7 @@ export class ScenarioViewConfig {
     const withoutTables = (config: ScenarioConfigObject) => Object.fromEntries(Object.entries(config).filter(([key]) => key !== 'tables'))
     if (JSON.stringify(withoutTables(this.#config)) !== JSON.stringify(withoutTables(previous.#config))) return this
     const changed = [...new Set([...Object.keys(tables), ...Object.keys(before)])].filter(key => JSON.stringify(tables[key]) !== JSON.stringify(before[key]))
-    // 接口和调用策略已由构造边界的FormalTableRequestConfig校验，不依赖模型字段或关系。
+    // 接口和调用策略已由构造边界的SparkData.FormalTableRequestConfig校验，不依赖模型字段或关系。
     if (!removed.length && Object.keys(tables).length === Object.keys(before).length && changed.every(key => {
       const next = tables[key], prior = before[key]
       if (!isRecord(next) || !isRecord(prior)) return false
@@ -373,7 +389,7 @@ export class ScenarioViewConfig {
         }
         return JSON.stringify(current) === JSON.stringify(original)
       })
-    if (sameModels && changed.length) return this.selectTables(changed, true)
+    if (sameModels && changed.length) return this.selectTables({tableNames: changed, viewValidation: true})
     if (!native) return this
     if (!changed.length) return null
     if (changed.some(key => {
@@ -386,7 +402,7 @@ export class ScenarioViewConfig {
         .filter(([property]) => !['columns', 'views', 'api', 'crudConfig'].includes(property)))
       return JSON.stringify(identity(next)) !== JSON.stringify(identity(prior))
     })) return this
-    return this.selectTables(changed, false, true)
+    return this.selectTables({tableNames: changed, viewValidation: false, reverseLookups: true})
   }
 
   /**
@@ -419,11 +435,11 @@ export class ScenarioViewConfig {
     for (const relation of this.addedOrChanged(this.#resourceRelations, previous.#resourceRelations)) {
       for (const table of this.relationTables(relation)) changed.add(table)
     }
-    for (const cascade of this.addedOrChanged((this.#config['viewCascades'] ?? []) as ScenarioConfigObject[],
-      (previous.#config['viewCascades'] ?? []) as ScenarioConfigObject[])) {
+    for (const cascade of this.addedOrChanged(configObjects(this.#config['viewCascades']),
+      configObjects(previous.#config['viewCascades']))) {
       for (const table of this.cascadeTables(cascade)) changed.add(table)
     }
-    return changed.size ? this.selectTables([...changed], false, true) : null
+    return changed.size ? this.selectTables({tableNames: [...changed], viewValidation: false, reverseLookups: true}) : null
   }
 
   private addedOrChanged<T>(current: readonly T[], prior: readonly T[]): T[] {
@@ -436,11 +452,12 @@ export class ScenarioViewConfig {
     })
   }
 
-  private selectTables(tableNames: readonly string[], viewValidation: boolean, reverseLookups = viewValidation,
-    inheritedGroups?: ReadonlyArray<readonly string[]>): ScenarioViewConfig {
+  private selectTables(input: SelectTablesInput): ScenarioViewConfig {
+    const {tableNames, viewValidation, inheritedGroups} = input
+    const reverseLookups = input.reverseLookups ?? viewValidation
     const tables = record(this.#config['tables'], 'tables')
     const relationGroups = viewValidation ? [] : inheritedGroups ?? this.#resourceRelations.map(relation => this.relationTables(relation))
-    const cascades = (this.#config['viewCascades'] ?? []) as ScenarioConfigObject[]
+    const cascades = configObjects(this.#config['viewCascades'])
     const cascadeGroups = cascades.map(cascade => this.cascadeTables(cascade))
     const included = new Set(tableNames)
     let previousSize = 0
@@ -457,8 +474,8 @@ export class ScenarioViewConfig {
         const views = record(record(tables[includedTable], includedTable)['views'], `${includedTable}.views`)
         for (const view of Object.values(views)) {
           const config = record(view, 'view')['queryConfig']
-          for (const lookup of config === undefined ? [] : DataViewQuery.parse(config).filterLookups ?? []) {
-            const binding = parseDataViewKey(lookup.sourceViewKey)
+          for (const lookup of config === undefined ? [] : SparkData.DataViewQuery.parse(config).filterLookups ?? []) {
+            const binding = SparkData.parseDataViewKey(lookup.sourceViewKey)
             const matches = Object.entries(tables).filter(([key, value]) => {
               const table = record(value, 'table')
               return (table['resourceType'] === 'file' ? key : record(table['modelBinding'], 'modelBinding')['modelName']) === binding?.tableName
@@ -492,13 +509,13 @@ export class ScenarioViewConfig {
     return cascade['kind'] === 'field'
       ? [name(cascade['tableName'], 'viewCascades.tableName'),
         name(record(cascade['optionsView'], 'optionsView')['tableName'], 'optionsView.tableName'),
-        ...(cascade['parents'] as ScenarioConfigObject[]).map(parent => name(parent['tableName'], 'parents.tableName'))]
+        ...configObjects(cascade['parents']).map(parent => name(parent['tableName'], 'parents.tableName'))]
       : [name(cascade['parentTable'], 'parentTable'), name(cascade['childTable'], 'childTable')]
   }
 
-  private relationTables(relation: Pick<DataResourceRelation, 'parentTable' | 'childTable'> & Partial<Pick<DataResourceRelation, 'filterExpression'>>): string[] {
+  private relationTables(relation: Pick<SparkData.DataResourceRelation, 'parentTable' | 'childTable'> & Partial<Pick<SparkData.DataResourceRelation, 'filterExpression'>>): string[] {
     const tables = [relation.parentTable, relation.childTable]
-    const walk = (node: DataViewFilterTree): void => {
+    const walk = (node: SparkData.DataViewFilterTree): void => {
       if ('logic' in node) {node.filters.forEach(walk); return}
       const value = node.value
       if (!isRecord(value)) return
@@ -515,7 +532,7 @@ export class ScenarioViewConfig {
   public get usesNativeResourceRelations(): boolean { return this.#usesNativeResourceRelations }
 
   /** 原生配置直接提供完整关系（包括空集合）；旧格式才合并当次来源，来源引用须唯一匹配ID及端点。不修改输入或旧库记录。 */
-  public resolveResourceRelations(inherited: readonly DataResourceRelation[]): DataResourceRelation[] {
+  public resolveResourceRelations(inherited: readonly SparkData.DataResourceRelation[]): SparkData.DataResourceRelation[] {
     return this.resolveRelations(inherited, relation => structuredClone(relation))
   }
 
@@ -532,7 +549,7 @@ export class ScenarioViewConfig {
       ...(relation.cascadeUpdate === undefined ? {} : {cascadeUpdate: relation.cascadeUpdate})}))
   }
 
-  private resolveRelations<T extends ScenarioRelationEndpoint>(inherited: readonly T[], project: (relation: DataResourceRelation) => T): T[] {
+  private resolveRelations<T extends ScenarioRelationEndpoint>(inherited: readonly T[], project: (relation: SparkData.DataResourceRelation) => T): T[] {
     if (this.#usesNativeResourceRelations) return this.#resourceRelations.map(relation => {
       if (!('filterExpression' in relation)) throw new Error('resourceRelations 原生关系必须包含完整过滤表达式')
       return project(relation)
@@ -589,7 +606,7 @@ export class ScenarioViewConfig {
       if (fromSource) return {sourceRelationId: id, parentTable, childTable, ...extensions}
       optionalBoolean(item, 'cascadeDelete', path)
       if (!Object.hasOwn(item, 'filterExpression')) throw new Error(`${path}.filterExpression 必须存在`)
-      const filter = DataViewFilter.parse(item['filterExpression'])
+      const filter = SparkData.DataViewFilter.parse(item['filterExpression'])
       if (!filter.ok) throw new Error(`${path}.filterExpression: ${filter.issues.map(issue => issue.message).join('; ')}`)
       return {relationId: id, parentTable, childTable, filterExpression: filter.value.toJSON(), ...extensions,
         ...('sourceRelationId' in item ? {sourceRelationId: identifier('sourceRelationId')} : {}),
@@ -598,7 +615,7 @@ export class ScenarioViewConfig {
   }
 
   private validateRequests(table: ScenarioConfigObject, path: string): void {
-    FormalTableRequestConfig.parse({api: table['api'], crudConfig: table['crudConfig']}, path)
+    SparkData.FormalTableRequestConfig.parse({api: table['api'], crudConfig: table['crudConfig']}, path)
   }
 
   private validateColumns(input: unknown, path: string, file = false): void {
@@ -609,6 +626,7 @@ export class ScenarioViewConfig {
       const column = record(item, columnPath)
       const local = Object.hasOwn(column, 'computeExpression')
       keys(column, ['name', 'required', 'minLength', 'maxLength', 'min', 'max', 'pattern', 'patternMessage',
+        'trim', 'unique', 'immutable', 'optionsView', 'valueFunction',
         ...(local || file ? ['type', 'label', 'computeExpression'] : []),
         ...(file ? ['allowDBNull', 'defaultValue', 'isPrimaryKey', 'autoIncrement'] : [])], columnPath)
       const columnName = name(column['name'], `${columnPath}.name`)
@@ -642,13 +660,49 @@ export class ScenarioViewConfig {
       if (typeof column['pattern'] === 'string') {
         try { new RegExp(column['pattern']) } catch { throw new Error(`${columnPath}.pattern 正则表达式无效`) }
       }
+      for (const key of ['unique', 'immutable']) optionalBoolean(column, key, columnPath)
+      if ('trim' in column && column['trim'] !== 'reject' && column['trim'] !== 'normalize') throw new Error(`${columnPath}.trim 无效`)
+      if ('optionsView' in column) {
+        const options = this.validateOptionSource(column['optionsView'], `${columnPath}.optionsView`, ['context', 'fill'])
+        for (const key of ['context', 'fill']) {
+          if (!(key in options)) continue
+          for (const [target, source] of Object.entries(record(options[key], `${columnPath}.optionsView.${key}`))) {
+            name(target, `${columnPath}.optionsView.${key}`)
+            name(source, `${columnPath}.optionsView.${key}.${target}`)
+          }
+        }
+      }
+      if ('valueFunction' in column) {
+        const definitionPath = `${columnPath}.valueFunction`
+        const definition = record(column['valueFunction'], definitionPath)
+        keys(definition, ['format', 'capabilities', 'sources'], definitionPath)
+        if (!['text', 'json', 'json-object'].includes(String(definition['format']))) throw new Error(`${definitionPath}.format 无效`)
+        if ('capabilities' in definition && !(Array.isArray(definition['capabilities'])
+          && definition['capabilities'].every(capability => ['huoshan', 'api-account', 'coze-auth'].includes(String(capability))))) {
+          throw new Error(`${definitionPath}.capabilities 无效`)
+        }
+        if ('sources' in definition) {
+          const sources = record(definition['sources'], `${definitionPath}.sources`)
+          keys(sources, ['inputParams', 'apiPublicParams'], `${definitionPath}.sources`)
+          for (const [key, source] of Object.entries(sources)) this.validateOptionSource(source, `${definitionPath}.sources.${key}`, [])
+        }
+      }
     })
+  }
+
+  private validateOptionSource(input: unknown, path: string, extra: readonly string[]): ScenarioConfigObject {
+    const source = record(input, path)
+    keys(source, ['tableName', 'viewId', 'valueField', 'labelField', ...extra], path)
+    name(source['tableName'], `${path}.tableName`)
+    name(source['valueField'], `${path}.valueField`)
+    for (const key of ['viewId', 'labelField']) if (key in source) name(source[key], `${path}.${key}`)
+    return source
   }
 
   private validateView(view: ScenarioConfigObject, path: string): void {
     keys(view, Object.keys(ScenarioViewConfig.#viewProperties), path)
-    if ('onRequestComplete' in view) DataViewQuery.parseCompletionHandler(view['onRequestComplete'], `${path}.onRequestComplete`)
-    for (const key of ['autoCurrentFirst', 'autoSelectFirst', 'autoLoad']) optionalBoolean(view, key, path)
+    if ('onRequestComplete' in view) SparkData.DataViewQuery.parseCompletionHandler(view['onRequestComplete'], `${path}.onRequestComplete`)
+    for (const key of ['autoCurrentFirst', 'autoSelectFirst', 'autoLoad', 'allowDelete', 'lockCurrentWhilePending']) optionalBoolean(view, key, path)
     for (const key of ['labelField', 'selectionDelimiter']) {
       if (key in view && typeof view[key] !== 'string') throw new Error(`${path}.${key} 必须是字符串`)
     }
@@ -660,9 +714,9 @@ export class ScenarioViewConfig {
     if ('valueField' in view && typeof view['valueField'] !== 'string'
       && !(Array.isArray(view['valueField']) && view['valueField'].every(item => typeof item === 'string'))) throw new Error(`${path}.valueField 无效`)
     if ('queryContext' in view) record(view['queryContext'], `${path}.queryContext`)
-    if ('queryConfig' in view) DataViewQuery.parse(view['queryConfig'], `${path}.queryConfig`)
+    if ('queryConfig' in view) SparkData.DataViewQuery.parse(view['queryConfig'], `${path}.queryConfig`)
     if ('filterExpression' in view) {
-      const parsed = DataViewFilter.parse(view['filterExpression'])
+      const parsed = SparkData.DataViewFilter.parse(view['filterExpression'])
       if (!parsed.ok) throw new Error(`${path}.filterExpression: ${parsed.issues.map(issue => issue.message).join('; ')}`)
     }
     if ('sortExpression' in view) {
@@ -740,9 +794,9 @@ export class ScenarioViewConfig {
     for (const key of ['cascadeId', 'sourceRelationId']) if (key in cascade) name(cascade[key], `viewCascades.${key}`)
     optionalBoolean(cascade, 'autoLoad', 'viewCascades')
     if (!Array.isArray(cascade['filterBindings'])) throw new Error('viewCascades.filterBindings 必须是数组')
-    const inputs = DataViewQueryCascadeInputs.parse(cascade['inputBindings'])
-    DataViewQueryCascadeInputs.parseWhen(cascade['when'])
-    DataViewQueryCascadeInputs.parseFilters(cascade['filterBindings'])
+    const inputs = SparkData.DataViewQueryCascadeInputs.parse(cascade['inputBindings'])
+    SparkData.DataViewQueryCascadeInputs.parseWhen(cascade['when'])
+    SparkData.DataViewQueryCascadeInputs.parseFilters(cascade['filterBindings'])
     if (!cascade['filterBindings'].length && !inputs.length) throw new Error('viewCascades必须声明过滤或查询输入')
     for (const input of cascade['filterBindings']) {
       const binding = record(input, 'viewCascades.filterBindings')

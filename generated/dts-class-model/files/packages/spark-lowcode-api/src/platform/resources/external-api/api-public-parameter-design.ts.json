@@ -101,7 +101,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-10T18:23:04.929Z",
+  "generatedAt": "2026-10-23T17:44:50.543Z",
   "models": {
     "ApiPublicParameterDesignInput": {
       "name": "ApiPublicParameterDesignInput",

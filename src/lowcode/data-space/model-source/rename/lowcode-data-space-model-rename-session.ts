@@ -48,8 +48,16 @@ export type ModelRenameHost = {
   flow: ModelRenameFlow
 }
 
-export function createModelRenameHost(dataSet: DataSet, targetId: string, modelId: string, lifecycle: ModelRenameLifecycle): ModelRenameHost {
-  const dependencies = new LowcodeDataSpaceModelDependencies(dataSet, targetId, modelId, 'rename', () => lifecycle.assertCurrent())
+export type ModelRenameHostInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  lifecycle: ModelRenameLifecycle
+}>
+
+export function createModelRenameHost(hostInput: ModelRenameHostInput): ModelRenameHost {
+  const {dataSet, targetId, modelId, lifecycle} = hostInput
+  const dependencies = new LowcodeDataSpaceModelDependencies({dataSet, targetId, modelId, operation: 'rename', assertCurrent: () => lifecycle.assertCurrent()})
   const prefix = `ModelRename_${crypto.randomUUID().replaceAll('-', '')}`
   const local = (name: string, columns: string[]) => {
     const table = dataSet.addTable(name, columns.map(column => ({name: column, type: 'string', isPrimaryKey: column === 'id'})))
@@ -127,7 +135,7 @@ export async function modelRenamePreview(host: ModelRenameHost): Promise<void> {
     const name = inputName(host)
     assertClean(host)
     const baseline = snapshot(host)
-    const changes = LowcodeDataSpaceModelRenameReferences.prepare(host.views, host.modelId, name)
+    const changes = LowcodeDataSpaceModelRenameReferences.prepare({views: host.views, modelId: host.modelId, nextName: name})
     const oldName = changes.find(change => change.table === 'Base_DataModel' && change.id === host.modelId && change.property === 'Name')?.before
     if (!oldName) throw new Error('注册名变更缺失')
     const file = await host.lifecycle.prepareFile(oldName, name)
@@ -168,7 +176,7 @@ export async function modelRenameSave(host: ModelRenameHost): Promise<void> {
     if (host.flow.baseline !== snapshot(host) || host.flow.name !== inputName(host)) throw new Error('定义或名称已变化，请重新预览')
     await host.dependencies.load(true); assertClean(host)
     if (host.flow.baseline !== snapshot(host) || host.flow.name !== inputName(host)) throw new Error('正式定义或名称已变化，请重新预览')
-    const changes = LowcodeDataSpaceModelRenameReferences.prepare(host.views, host.modelId, host.flow.name)
+    const changes = LowcodeDataSpaceModelRenameReferences.prepare({views: host.views, modelId: host.modelId, nextName: host.flow.name})
     if (JSON.stringify(changes) !== JSON.stringify(host.flow.changes)) throw new Error('改名引用已变化，请重新预览')
     const rows = modelRenameRows(host)
     const expected = JSON.stringify(host.views.map(view => view.rows.map(row => ({...row,
@@ -215,7 +223,7 @@ async function modelRenameReadback(host: ModelRenameHost): Promise<boolean> {
   })
   const before = host.flow.changes.find(change => change.table === 'Base_DataModel' && change.id === host.modelId && change.property === 'Name')?.before
   if (!before) throw new Error('原注册名预览已丢失')
-  const remaining = LowcodeDataSpaceModelRenameReferences.prepare(host.views, host.modelId, host.flow.name, before)
+  const remaining = LowcodeDataSpaceModelRenameReferences.prepare({views: host.views, modelId: host.modelId, nextName: host.flow.name, previousName: before})
   host.flow.verification.push(...remaining.map(change => ({table: change.table, id: change.id, property: change.property, result: '当前仍有旧注册名或引用；未自动补写'})))
   host.flow.verified = snapshot(host)
   if (host.flow.verification.every(item => item.result === '回读一致')) {

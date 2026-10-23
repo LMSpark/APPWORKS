@@ -5,8 +5,8 @@
 import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {
   DATABASE_CATALOG_FIELD_MODEL,
-  DATABASE_CATALOG_FIELD_TABLE_VIEW,
-  DATABASE_CATALOG_FIELD_VIEW_VIEW,
+  type DATABASE_CATALOG_FIELD_TABLE_VIEW,
+  type DATABASE_CATALOG_FIELD_VIEW_VIEW,
 } from './lowcode-database-table-view'
 
 export type DatabaseCatalogFieldViewId = typeof DATABASE_CATALOG_FIELD_TABLE_VIEW | typeof DATABASE_CATALOG_FIELD_VIEW_VIEW
@@ -18,9 +18,19 @@ export function requireDatabaseCatalogFieldView(dataSet: DataSet, viewId: Databa
   return view
 }
 
-export function databaseCatalogFieldCanSave(view: DataView): boolean {
+export function databaseCatalogStagedViewCanSave(view: DataView): boolean {
   return view.requestState === RequestState.Loaded && !view.loadingError && !view.mutating && !view.hasUnconfirmedSave
     && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
+}
+
+export function databaseCatalogFieldCanSave(view: DataView): boolean {
+  return databaseCatalogStagedViewCanSave(view)
+}
+
+export function databaseCatalogDesignCanSave(fieldView: DataView, objectView?: DataView, extraViews: readonly DataView[] = []): boolean {
+  if (databaseCatalogStagedViewCanSave(fieldView)) return true
+  if (objectView && databaseCatalogStagedViewCanSave(objectView)) return true
+  return extraViews.some(view => databaseCatalogStagedViewCanSave(view))
 }
 
 async function commit(dataSet: DataSet, view: DataView): Promise<void> {
@@ -38,4 +48,38 @@ export async function databaseCatalogFieldSavePending(dataSet: DataSet, view: Da
   }
   if (!databaseCatalogFieldCanSave(view)) return
   await commit(dataSet, view)
+}
+
+export type DatabaseCatalogDesignSavePendingInput = Readonly<{
+  dataSet: DataSet
+  fieldView: DataView
+  objectView?: DataView
+  extraViews?: readonly DataView[]
+}>
+
+export async function databaseCatalogDesignSavePending(input: DatabaseCatalogDesignSavePendingInput): Promise<void> {
+  const {dataSet, fieldView, objectView} = input
+  const extraViews = input.extraViews ?? []
+  const stagedExtras = extraViews.filter(view => databaseCatalogStagedViewCanSave(view))
+  if (fieldView.mutating || objectView?.mutating || stagedExtras.some(view => view.mutating)) throw new Error('设计保存进行中')
+  if (fieldView.hasUnconfirmedSave || objectView?.hasUnconfirmedSave || extraViews.some(view => view.hasUnconfirmedSave)) {
+    if (fieldView.hasUnconfirmedSave) await commit(dataSet, fieldView)
+    if (objectView?.hasUnconfirmedSave) await commit(dataSet, objectView)
+    for (const view of extraViews) {
+      if (view.hasUnconfirmedSave) await commit(dataSet, view)
+    }
+    return
+  }
+  const targets = [
+    ...(databaseCatalogStagedViewCanSave(fieldView) ? [fieldView] : []),
+    ...(objectView && databaseCatalogStagedViewCanSave(objectView) ? [objectView] : []),
+    ...stagedExtras,
+  ]
+  if (targets.length === 0) return
+  const result = await dataSet.saveChanges({views: targets.map(view => ({tableName: view.tableName, viewId: view.viewId}))})
+  if (!result.success) throw new Error(result.message ?? '设计保存失败')
+  for (const view of targets) {
+    await view.refresh()
+    if (view.loadingError) throw view.loadingError
+  }
 }

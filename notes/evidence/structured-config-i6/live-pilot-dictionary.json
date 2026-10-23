@@ -1,0 +1,14 @@
+{
+  "scope": "structured-config-i6-dictionary",
+  "recordedAt": "2026-10-22",
+  "status": "blocked",
+  "chain": [
+    "data-dictionary-list-page → dictionary-setting (design) → dictionary-data-page"
+  ],
+  "vitestBaseline": "tests/runtime/page/dictionary — 58 passed (2026-10-22 I6 close)",
+  "blockedReason": "实页需运行 HTTP 与正式模型；本迭代以 vitest + 合同 mock 验收，实页走查待授权浏览器 pilot",
+  "contractRefs": [
+    "notes/research-structured-config-dictionary-i6.md",
+    "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts"
+  ]
+}

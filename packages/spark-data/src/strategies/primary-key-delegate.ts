@@ -102,20 +102,26 @@ export class PrimaryKeyDelegate {
   /** 主键生成器（可选，用于自动生成新记录的主键） */
   private _primaryKeyGenerator?: PrimaryKeyGenerator | undefined
 
-  /**
-   * @param _getColumns        获取当前 DataTable 的列定义（用于推导主键）
-   * @param _getColumnMap      获取列名→列定义 Map（用于 _coercePkValue O(1) 查找）
-   * @param _getRows           获取当前行数组（用于主键生成器 / 补计算触发点）
-   * @param _registerComputed  向 ComputedColumnDelegate 注册计算列（用于合成 _pk）
-   * @param _getResultPrimaryKey 当前查询结果的行身份；空字符串表示无主键结果，undefined沿用配置。
-   */
-  constructor(
-    private readonly _getColumns: () => DataColumn[],
-    private readonly _getColumnMap: () => Map<string, DataColumn> | undefined,
-    private readonly _getRows: () => DataRow[],
-    private readonly _registerComputed: (name: string, fn: (row: DataRow) => unknown) => void,
-    private readonly _getResultPrimaryKey?: () => string | undefined,
-  ) {}
+  /** 主键委托构造输入；getResultPrimaryKey 省略时沿用视图配置。 */
+  constructor(input: Readonly<{
+    getColumns: () => DataColumn[]
+    getColumnMap: () => Map<string, DataColumn> | undefined
+    getRows: () => DataRow[]
+    registerComputed: (name: string, fn: (row: DataRow) => unknown) => void
+    getResultPrimaryKey?: () => string | undefined
+  }>) {
+    this._getColumns = input.getColumns
+    this._getColumnMap = input.getColumnMap
+    this._getRows = input.getRows
+    this._registerComputed = input.registerComputed
+    this._getResultPrimaryKey = input.getResultPrimaryKey
+  }
+
+  private readonly _getColumns: () => DataColumn[]
+  private readonly _getColumnMap: () => Map<string, DataColumn> | undefined
+  private readonly _getRows: () => DataRow[]
+  private readonly _registerComputed: (name: string, fn: (row: DataRow) => unknown) => void
+  private readonly _getResultPrimaryKey: (() => string | undefined) | undefined
 
   // ─────────────────────────────────────────────
   // _pk 统一计算列

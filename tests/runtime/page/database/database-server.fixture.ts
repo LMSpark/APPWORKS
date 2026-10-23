@@ -43,7 +43,7 @@ export const databaseServerModel = {
     primaryKey: field === 'rowid',
     description,
     type: 'string',
-    output: true,
+    output: field !== 'Password',
     computed: false,
     order,
     orderType: '',
@@ -58,18 +58,32 @@ export class DatabaseServerHttp extends HttpClientBase {
   requests: RequestConfig[] = []
   rows = [{rowid: 'S1', Type: 'MYSQL', ServerName: '主库', ip_address: '10.0.0.1', Port: '3306', description: ''}]
   allowAdd = true
+  hideAddedOnRead = false
+  /** ok：后端测连通过并写入；rejected：AjaxResult 业务拒绝；lost：写入后连接中断（结果未知）；dropped：请求未到达即中断。 */
+  registerMode: 'ok' | 'rejected' | 'lost' | 'dropped' = 'ok'
 
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
     if (config.url === '/api/Db/testConnection') {
       return {data: true, status: 200, statusText: 'OK', headers: {}}
     }
+    if (config.url === '/api/Db/registerServer') {
+      const body = config.data as Record<string, string>
+      if (this.registerMode === 'rejected') {
+        return {data: {Code: 500, Message: '数据库连接失败', Result: null, Type: 'error'}, status: 200, statusText: 'OK', headers: {}}
+      }
+      if (this.registerMode === 'dropped') throw new Error('socket hang up')
+      const {Password: _password, UserName: _user, ...stored} = body
+      if (!this.hideAddedOnRead) this.rows.push({...stored, rowid: body['rowid'] ?? 'S-GEN'} as typeof this.rows[number])
+      if (this.registerMode === 'lost') throw new Error('socket hang up')
+      return {data: {Code: 200, Message: 'OK', Result: {...stored, Password: ''}, Type: 'success'}, status: 200, statusText: 'OK', headers: {}}
+    }
     if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
       const payload = config.data as Array<{CrudModel?: {Added?: Record<string, unknown>[]; Changed?: Record<string, unknown>[]; Deleted?: Record<string, unknown>[]}}>
       const added = payload.flatMap(item => item.CrudModel?.Added ?? [])
       const changed = payload.flatMap(item => item.CrudModel?.Changed ?? [])
       const deleted = payload.flatMap(item => item.CrudModel?.Deleted ?? [])
-      for (const row of added) this.rows.push({rowid: 'S-NEW', Type: 'MYSQL', ServerName: '', ip_address: '', Port: '3306', description: '', ...row})
+      if (!this.hideAddedOnRead) for (const row of added) this.rows.push({rowid: 'S-NEW', Type: 'MYSQL', ServerName: '', ip_address: '', Port: '3306', description: '', ...row})
       for (const row of changed) {
         const id = row['rowid']
         const index = this.rows.findIndex(item => item['rowid'] === id)

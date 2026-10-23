@@ -1,1 +1,58 @@
-{}
+{
+  "packages/spark-data/src": {
+    "files": 9,
+    "dirs": 9
+  },
+  "packages/spark-data/src/tests/data-view": {
+    "files": 12,
+    "dirs": 0
+  },
+  "packages/spark-data/src/tests/dataset": {
+    "files": 11,
+    "dirs": 0
+  },
+  "packages/spark-lowcode-api/src/platform/resources": {
+    "files": 0,
+    "dirs": 9
+  },
+  "src/lowcode/data-space/model-source": {
+    "files": 8,
+    "dirs": 13
+  },
+  "src/lowcode/resources": {
+    "files": 0,
+    "dirs": 11
+  },
+  "src/lowcode/resources/database": {
+    "files": 23,
+    "dirs": 0
+  },
+  "src/views/features/data-platform/data-set-management/design": {
+    "files": 0,
+    "dirs": 8
+  },
+  "tests/runtime/page": {
+    "files": 11,
+    "dirs": 8
+  },
+  "tests/runtime/page/database": {
+    "files": 19,
+    "dirs": 0
+  },
+  "tests/runtime/page/design/native": {
+    "files": 26,
+    "dirs": 5
+  },
+  "tests/runtime/page/structured-config": {
+    "files": 13,
+    "dirs": 0
+  },
+  "tests/ui/field/choice": {
+    "files": 15,
+    "dirs": 0
+  },
+  "tests/ui/renderer": {
+    "files": 11,
+    "dirs": 2
+  }
+}

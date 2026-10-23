@@ -10,6 +10,13 @@ import {ScenarioDefinitionRecords} from './scenario-definition-records'
 import {ScenarioViewConfig} from './scenario-view-config'
 
 type DefinitionView = Readonly<{resource: string; view: DataView}>
+type DocumentOptions = Readonly<{
+  dataSet: DataSet
+  scenarioId: string
+  baseline: ScenarioViewConfig
+  definitions: readonly DefinitionView[]
+  persisted: boolean
+}>
 
 /** 完整定义文档的交互命令；不持有另一份可编辑文本、行集合或保存通道。 */
 export class ScenarioDefinitionDocument {
@@ -19,8 +26,14 @@ export class ScenarioDefinitionDocument {
   #persisted: boolean
   readonly #release: Array<() => void> = []
 
-  private constructor(readonly dataSet: DataSet, readonly scenarioId: string,
-    private readonly baseline: ScenarioViewConfig, private readonly definitions: readonly DefinitionView[], persisted: boolean) {
+  readonly dataSet: DataSet
+  readonly scenarioId: string
+  private readonly baseline: ScenarioViewConfig
+  private readonly definitions: readonly DefinitionView[]
+
+  private constructor(options: DocumentOptions) {
+    const {dataSet, scenarioId, baseline, definitions, persisted} = options
+    this.dataSet = dataSet; this.scenarioId = scenarioId; this.baseline = baseline; this.definitions = definitions
     this.#persisted = persisted
     for (const {view} of definitions) {
       const invalidate = () => {this.#invalid = true}
@@ -55,7 +68,7 @@ export class ScenarioDefinitionDocument {
     if (!source) throw new Error('SCENARIO_DOCUMENT_IDENTITY: 定义资源缺失')
     const snapshot = await source.view.previewSource()
     const baseline = new ScenarioViewConfig(scenarioId, snapshot.content ?? JSON.stringify({scenarioId, tables: {}, viewCascades: []}))
-    const document = new ScenarioDefinitionDocument(dataSet, scenarioId, baseline, definitions, snapshot.content !== null)
+    const document = new ScenarioDefinitionDocument({dataSet, scenarioId, baseline, definitions, persisted: snapshot.content !== null})
     try {for (const {view, resource} of definitions) {
       const expected = new Set(ScenarioDefinitionRecords.read(baseline, resource).map(row => document.key(view, row)))
       const original = view.rows.filter(row => !view.dirtyTracking.isPendingCreate(view.getPkKey(row) ?? ''))

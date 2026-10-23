@@ -14,6 +14,37 @@ import {LowcodeDataSpaceFieldValue} from '../field-value/lowcode-data-space-fiel
 /** 正式读取的模型定义，包含来源主键及完整字段输出合同。 */
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 
+/** 同批模型声明；省略仍按原正式主键保护，不能单独改变字段标记。 */
+export type FieldOutputValidateInput = Readonly<{
+  model: FormalModel
+  original: DataRow
+  patch: Readonly<Record<string, unknown>>
+  primaryKeyName?: string
+  operation?: 'update' | 'remove'
+  /** 实际读取的模型、字段、旧关系视图；不隐式要求全目录预载。 */
+  definitionViews?: ReadonlyArray<DataView | undefined>
+  /** 本次字段编辑的正式查询视图，用于对照原始定义及同批草稿。 */
+  fieldView?: DataView
+  changes?: ReadonlyArray<{original: DataRow; patch: Readonly<Record<string, unknown>>}>
+  config: ScenarioViewConfig | null
+  metadata: DataSet
+  targetId: string
+}>
+
+/** 已完成范围与权限检查的命令视图，顺序为模型、字段、旧关系。 */
+export type FieldOutputValidateReferencesInput = Readonly<{
+  model: FormalModel
+  original: DataRow
+  patch: Readonly<Record<string, unknown>>
+  operation?: 'update' | 'remove'
+  config: ScenarioViewConfig | null
+  metadata: DataSet
+  targetId: string
+  definitionViews?: ReadonlyArray<DataView | undefined>
+  /** 同一正式批次已解析的引用变更，仅用于确认对应数据库依赖已一起处理。 */
+  definitionChanges?: readonly FieldReferenceUpdate[]
+}>
+
 /** 单次检查，不持有另一份元数据或权限。 */
 export class LowcodeDataSpaceFieldOutput {
   /** 新增与旧字段修改共用最终模型投影；新增没有正式行修改权限，不能伪装成已有字段。 */
@@ -38,7 +69,7 @@ export class LowcodeDataSpaceFieldOutput {
       for (const key of ['Name', 'AsName']) if (typeof row[key] !== 'string' || key === 'Name' && !row[key].trim() || row[key] !== row[key].trim()
         || row[key] === '_pk' || row[key].length > 100 || /[\u0000-\u001f\u007f]/.test(row[key])) throw new Error('新增字段名称和规范别名无效')
       if (typeof row['description'] !== 'string' || row['description'].length > 200) throw new Error('新增字段描述无效')
-      new LowcodeDataSpaceFieldValue(metadata, targetId, model.id, 'modelFields').validate(row['ValueFun'])
+      new LowcodeDataSpaceFieldValue({dataSet: metadata, targetId, modelId: model.id, viewId: 'modelFields'}).validate(row['ValueFun'])
     }
     const rows = [...model.fields.filter(field => !directory.dirtyTracking.pendingDeleteIds.has(field.id)).map(field => ({...field.raw, ...changes.find(change => !change.creating && change.original['rowid'] === field.id)?.patch})), ...additions]
     if (new Set(rows.map(row => row['Name'])).size !== rows.length) throw new Error('字段名称已存在')
@@ -54,16 +85,7 @@ export class LowcodeDataSpaceFieldOutput {
   }
 
   /** 按同批最终配置校验完整列唯一性，逐个原字段检查引用；operation省略时按修改检查，remove也覆盖未输出的来源字段。 */
-  static validate(input: Readonly<{model: FormalModel; original: DataRow; patch: Readonly<Record<string, unknown>>;
-    /** 同批模型声明；省略仍按原正式主键保护，不能单独改变字段标记。 */
-    primaryKeyName?: string;
-    operation?: 'update' | 'remove';
-    /** 实际读取的模型、字段、旧关系视图；不隐式要求全目录预载。 */
-    definitionViews?: ReadonlyArray<DataView | undefined>;
-    /** 本次字段编辑的正式查询视图，用于对照原始定义及同批草稿。 */
-    fieldView?: DataView;
-    changes?: ReadonlyArray<{original: DataRow; patch: Readonly<Record<string, unknown>>}>;
-    config: ScenarioViewConfig | null; metadata: DataSet; targetId: string}>): void {
+  static validate(input: FieldOutputValidateInput): void {
     const {model, original, patch, config, metadata, targetId} = input
     const matches = model.fields.filter(field => field.id === original['rowid']), field = matches[0]
     const alias = (value: unknown, fallback: string): string => typeof value === 'string' && value.trim() ? value.trim() : fallback
@@ -123,12 +145,7 @@ export class LowcodeDataSpaceFieldOutput {
   }
 
   /** 分别核对模型列与输出引用；结构批次须先自行校验最终字段集合、主键和名称，不能以此替代定义校验。 */
-  static validateReferences(input: Readonly<{model: FormalModel; original: DataRow; patch: Readonly<Record<string, unknown>>;
-    operation?: 'update' | 'remove'; config: ScenarioViewConfig | null; metadata: DataSet; targetId: string;
-    /** 已完成范围与权限检查的命令视图，顺序为模型、字段、旧关系。 */
-    definitionViews?: ReadonlyArray<DataView | undefined>;
-    /** 同一正式批次已解析的引用变更，仅用于确认对应数据库依赖已一起处理。 */
-    definitionChanges?:readonly FieldReferenceUpdate[]}>): void {
+  static validateReferences(input: FieldOutputValidateReferencesInput): void {
     const {model, original, patch, config, metadata, targetId} = input
     const field = model.fields.find(item => item.id === original['rowid'])
     if (!field) throw new Error('字段正式身份无法确认')

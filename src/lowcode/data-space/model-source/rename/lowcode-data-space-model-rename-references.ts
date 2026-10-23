@@ -23,10 +23,19 @@ export type ModelNameChange = Readonly<{
   after: string
 }>
 
+export type ModelRenameReferencesPrepareInput = Readonly<{
+  views: readonly DataView[]
+  modelId: string
+  nextName: string
+  previousName?: string
+  projected?: readonly ModelNameChange[]
+}>
+
 /** 结构化引用解析只在当前正式元数据范围内运行。 */
 export class LowcodeDataSpaceModelRenameReferences {
   /** 返回Name及实际引用变更；previousName仅供回读，projected为同批已明确的字段改名候选，不持有运行草稿。 */
-  static prepare(views: readonly DataView[], modelId: string, nextName: string, previousName?: string,projected:readonly ModelNameChange[]=[]): ModelNameChange[] {
+  static prepare(input: ModelRenameReferencesPrepareInput): ModelNameChange[] {
+    const {views, modelId, nextName, previousName, projected = []} = input
     const [models, fields, relations] = views
     if (!models || !fields || !relations) throw new Error('改名所需正式视图不完整')
     const read = (view: DataView, row: DataRow, property: string): unknown => {
@@ -44,12 +53,14 @@ export class LowcodeDataSpaceModelRenameReferences {
     if (models.rows.some(row => row !== target && read(models, row, 'Name') === nextName)) throw new Error(`模型注册名“${nextName}”已存在`)
     const referenceModels = models.rows.map(row => previousName && row === target ? {...row, Name: previousName} : row)
     const changes: ModelNameChange[] = []
-    const add = (view: DataView, row: DataRow, property: string, before: string, after: string): void => {
-      if (before === after) return
-      if (!previousName && (view.editActionState(row) !== 'enabled' || view.fieldAccess(row, property).write !== 'allowed')) throw new Error(`${view.tableName}(${String(row['rowid'])}).${property}当前不可写`)
-      changes.push({table: view.tableName, id: String(row['rowid']), property, before, after})
+    const add = (entry: Readonly<{view: DataView; row: DataRow; property: string; before: string; after: string}>): void => {
+      if (entry.before === entry.after) return
+      if (!previousName && (entry.view.editActionState(entry.row) !== 'enabled' || entry.view.fieldAccess(entry.row, entry.property).write !== 'allowed')) {
+        throw new Error(`${entry.view.tableName}(${String(entry.row['rowid'])}).${entry.property}当前不可写`)
+      }
+      changes.push({table: entry.view.tableName, id: String(entry.row['rowid']), property: entry.property, before: entry.before, after: entry.after})
     }
-    add(models, target, 'Name', currentName, nextName)
+    add({view: models, row: target, property: 'Name', before: currentName, after: nextName})
     const opaque = (value: unknown, path: string): void => {
       if (value !== undefined && value !== null && value !== '' && (typeof value !== 'string' || value.includes(oldName))) {
         throw new Error(`${path}包含尚不能可靠改写的引用，请先核查；原文保留`)
@@ -86,20 +97,21 @@ export class LowcodeDataSpaceModelRenameReferences {
       opaque(JSON.stringify(value), `值函数${String(type)}`)
       return value
     }
-    const filter = (view: DataView, row: DataRow, property: string, owner: unknown, preserved: readonly unknown[] = []): void => {
+    const filter = (entry: Readonly<{view: DataView; row: DataRow; property: string; owner: unknown; preserved?: readonly unknown[]}>): void => {
+      const {view, row, property, owner, preserved = []} = entry
       const before = read(view, row, property)
       if (before === undefined || before === null || before === '') return
       if (typeof before !== 'string') throw new Error(`${view.tableName}.${property}过滤原文无效`)
       const after = LowcodeDataSpaceFilterMigration.rewrite(before, value => reference(value, owner, preserved), value => fn(value, owner, preserved))
-      add(view, row, property, before, after)
+      add({view, row, property, before, after})
     }
     for (const row of models.rows) {
       for (const property of ['addApi', 'updateApi', 'deleteApi']) {
         const before = read(models, row, property)
-        if (before === oldName) add(models, row, property, before, nextName)
+        if (before === oldName) add({view: models, row, property, before, after: nextName})
       }
-      filter(models, row, 'Filter', row['rowid'])
-      filter(models, row, 'JoinFilter', row['rowid'], [read(models, row, 'MetaName')])
+      filter({view: models, row, property: 'Filter', owner: row['rowid']})
+      filter({view: models, row, property: 'JoinFilter', owner: row['rowid'], preserved: [read(models, row, 'MetaName')]})
       opaque(read(models, row, 'RequestComplete'), `模型${String(row['rowid'])}.RequestComplete`)
     }
     for (const row of fields.rows) {
@@ -114,14 +126,16 @@ export class LowcodeDataSpaceModelRenameReferences {
           const after = fn(raw, read(fields, row, 'dataModelId'), [])
           if (JSON.stringify(after) !== JSON.stringify(raw)) {
             const text = JSON.stringify(after); DataSpaceDesignApi.parseValueFunction(text)
-            add(fields, row, 'ValueFun', before, text)
+            add({view: fields, row, property: 'ValueFun', before, after: text})
           }
         }
       }
       // Expression 保存脱敏规则 ID，模型改名不能重写或据此阻断。
     }
-    for (const row of relations.rows) filter(relations, row, 'filter', read(relations, row, 'childModId'),
-      [read(relations, row, 'parentTable'), read(relations, row, 'childTable')])
+    for (const row of relations.rows) filter({
+      view: relations, row, property: 'filter', owner: read(relations, row, 'childModId'),
+      preserved: [read(relations, row, 'parentTable'), read(relations, row, 'childTable')],
+    })
     return changes
   }
 }

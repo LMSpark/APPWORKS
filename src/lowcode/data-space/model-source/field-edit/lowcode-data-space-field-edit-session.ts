@@ -13,6 +13,21 @@ import {LowcodeDataSpacePrimaryKey} from '../primary-key/lowcode-data-space-prim
 
 type FieldEditStatus = 'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback'
 
+export type FieldEditSessionInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  fieldId: string
+  lifecycle: FieldEditLifecycle
+  viewId?: 'default' | 'modelFields'
+}>
+
+type AssertEditableInput = Readonly<{
+  expected?: 'idle' | 'pending'
+  replacingValueFunction?: boolean
+  fieldIds?: readonly string[]
+  patch?: Readonly<Partial<DataRow>>
+}>
+
 export type FieldEditLifecycle = Readonly<{
   assertCurrent(): void
   onDispatch(): void
@@ -25,7 +40,12 @@ export type FieldEditLifecycle = Readonly<{
 }>
 
 /** 正式字段配置流程；所有数据、delta及权限留在原元数据视图。 */
-class FieldEditSession {
+export class FieldEditSession {
+  readonly dataSet: DataSet
+  readonly targetId: string
+  readonly fieldId: string
+  readonly lifecycle: FieldEditLifecycle
+  readonly viewId: 'default' | 'modelFields'
   /** 这些列属性不改变字段身份、输出结构或查询语义，直接消费原数据层字段回执。 */
   private static readonly receiptFields = new Set(['description', 'Expression', 'allowAIAdd'])
   private static readonly fields = [
@@ -51,12 +71,17 @@ class FieldEditSession {
   #status: FieldEditStatus = 'idle'
 
   /** 捕获当前字段及所属模型；派发提交后通知会话废弃旧目标投影。 */
-  constructor(private readonly dataSet: DataSet, private readonly targetId: string, private readonly fieldId: string,
-    private readonly lifecycle: FieldEditLifecycle, private readonly viewId: 'default' | 'modelFields' = 'default') {
-    const view = dataSet.getView('Base_DataModel_Field', viewId)
+  constructor(input: FieldEditSessionInput) {
+    const viewId = input.viewId ?? 'default'
+    this.dataSet = input.dataSet
+    this.targetId = input.targetId
+    this.fieldId = input.fieldId
+    this.lifecycle = input.lifecycle
+    this.viewId = viewId
+    const view = input.dataSet.getView('Base_DataModel_Field', viewId)
     if (!view) throw new Error('DATA_SPACE_FIELD_CONTEXT: 缺少正式字段视图')
     this.#view = view; this.#context = JSON.stringify(view.queryContext)
-    this.#created = view.dirtyTracking.isPendingCreate(fieldId)
+    this.#created = view.dirtyTracking.isPendingCreate(input.fieldId)
     const row = this.current()
     this.#modelId = String(row['dataModelId'])
     this.#identity = this.identity(row); this.#baseline = this.snapshot(row)
@@ -188,7 +213,7 @@ class FieldEditSession {
         if (typeof value === 'string') patch[field] = value.trim()
       }
     }
-    this.assertEditable('idle', false, fieldIds, patch)
+    this.assertEditable({fieldIds, patch})
     for (const field of ['Name', 'description', 'FieldType', 'AsName']) {
       if (!Object.hasOwn(patch, field)) continue
       const value = patch[field]
@@ -211,7 +236,7 @@ class FieldEditSession {
 
   /** 复选框选中后在原编辑域自动输出；局部检查点可同时撤销两个标记。 */
   ensurePrimaryOutput(fieldIds: readonly string[] = [this.fieldId]): void {
-    this.assertEditable('idle', false, fieldIds)
+    this.assertEditable({fieldIds})
     const row = this.#view.getEditingRow(this.fieldId) ?? this.current()
     if (Number(row['IsPKey']) !== 1 || row['IsOutput'] === 1) return
     this.validate('IsPKey', 1); this.validate('IsOutput', 1)
@@ -248,15 +273,23 @@ class FieldEditSession {
           || matches.length !== 1 || ['rowid', 'name'].some(key => rules.fieldAccess(rule, key).read !== 'visible')) throw new Error('脱敏规则不存在或当前不可读取')
       }
     }
-    if (field === 'ValueFun') new LowcodeDataSpaceFieldValue(this.dataSet, this.targetId, String(row['dataModelId']), this.viewId === 'modelFields' ? 'modelFields' : 'default').validate(value)
+    if (field === 'ValueFun') new LowcodeDataSpaceFieldValue({
+      dataSet: this.dataSet,
+      targetId: this.targetId,
+      modelId: String(row['dataModelId']),
+      viewId: this.viewId === 'modelFields' ? 'modelFields' : 'default',
+    }).validate(value)
     if (field === 'OrderType' && (typeof value !== 'string' || !['', 'ascending', 'descending'].includes(value))) throw new Error('排序方向必须是未配置、升序或降序')
     if ((field === 'Order' || field === 'Group') && (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0)) {
       throw new Error('排序及分组顺序必须是非负安全整数')
     }
   }
 
-  private assertEditable(expected: 'idle' | 'pending' = 'idle', replacingValueFunction = false, fieldIds: readonly string[] = [this.fieldId],
-    patch: Readonly<Partial<DataRow>> = this.#view.getEditingPatch(this.fieldId) ?? {}): void {
+  private assertEditable(input: AssertEditableInput = {}): void {
+    const expected = input.expected ?? 'idle'
+    const replacingValueFunction = input.replacingValueFunction ?? false
+    const fieldIds = input.fieldIds ?? [this.fieldId]
+    const patch = input.patch ?? this.#view.getEditingPatch(this.fieldId) ?? {}
     this.lifecycle.assertEditable?.()
     if (this.flowStatus() !== expected || this.#view.dirtyTracking.dirtyRowIds.size
       || [...this.#view.dirtyTracking.pendingCreateIds].some(id => !fieldIds.includes(String(id)))) throw new Error('请先核验未决字段修改')
@@ -275,13 +308,18 @@ class FieldEditSession {
     const row = this.current(), access = this.#view.fieldAccess(row, 'ValueFun')
     if (access.read !== 'visible') return {value: null, context: {}, warning: ''}
     const value = (this.#view.getEditingRow(this.fieldId) ?? row)['ValueFun']
-    const context = new LowcodeDataSpaceFieldValue(this.dataSet, this.targetId, String(row['dataModelId']), this.viewId === 'modelFields' ? 'modelFields' : 'default').read(this.lifecycle.readDefinition)
+    const context = new LowcodeDataSpaceFieldValue({
+      dataSet: this.dataSet,
+      targetId: this.targetId,
+      modelId: String(row['dataModelId']),
+      viewId: this.viewId === 'modelFields' ? 'modelFields' : 'default',
+    }).read(this.lifecycle.readDefinition)
     return {value: typeof value === 'string' ? value : null, ...context}
   }
 
   /** 专业编辑器确认后只更新原字段视图的编辑覆盖。 */
   stageValueFunction(value: string, fieldIds: readonly string[] = [this.fieldId]): void {
-    this.assertEditable('idle', true, fieldIds); this.validate('ValueFun', value)
+    this.assertEditable({replacingValueFunction: true, fieldIds}); this.validate('ValueFun', value)
     this.#view.updateEditingValue(this.fieldId, 'ValueFun', value)
   }
 
@@ -317,7 +355,7 @@ class FieldEditSession {
   static async stageOutputBatch(owners: readonly FieldEditSession[], mode: 'all' | 'invert'): Promise<{changedCount: number; primaryCount: number}> {
     if (!['all', 'invert'].includes(mode)) throw new Error('未知批量输出操作')
     const first = this.batch(owners), view = first.#view, ids = owners.map(owner => owner.fieldId)
-    owners.forEach(owner => owner.assertEditable('idle', false, ids))
+    owners.forEach(owner => owner.assertEditable({fieldIds: ids}))
     const snapshot = () => JSON.stringify(owners.map(owner => [owner.identity(owner.current()), view.getEditingPatch(owner.fieldId)]))
     const before = snapshot()
     const modelRow = first.dataSet.getView('Base_DataModel', 'default')?.rows.find(row => row['rowid'] === first.#modelId)
@@ -325,7 +363,7 @@ class FieldEditSession {
     owners.forEach(owner => {owner.#status = 'pending'})
     try {
       const model = await first.lifecycle.readModel(first.#modelId, modelRow['Name'])
-      owners.forEach(owner => owner.assertEditable('pending', false, ids))
+      owners.forEach(owner => owner.assertEditable({expected: 'pending', fieldIds: ids}))
       if (snapshot() !== before) throw new Error('读取正式模型期间字段草稿已变化')
       if (model.id !== first.#modelId || model.metaName !== modelRow['Name'] || model.sourceName !== modelRow['MetaName']) throw new Error('正式模型身份或来源已变化')
       let primaryCount = 0
@@ -364,7 +402,7 @@ class FieldEditSession {
     const first = this.batch(owners), view = first.#view, ids = owners.map(owner => owner.fieldId)
     if (first.dataSet !== scope.dataSet || first.targetId !== scope.targetId || first.#modelId !== scope.modelId) throw new Error('主键字段批次必须属于当前数据空间实例和模型')
     if (first.viewId !== 'modelFields' || view.rows.some(row => !ids.includes(String(row['rowid'])))) throw new Error('主键与字段修改必须在完整模型工作区统一保存')
-    owners.forEach(owner => owner.assertEditable('idle', false, ids))
+    owners.forEach(owner => owner.assertEditable({fieldIds: ids}))
     const selected = owners.filter(owner => owner.current()['Name'] === name)
     if (name && selected.length !== 1) throw new Error('主键必须是当前模型唯一正式字段')
     const changes = owners.flatMap(owner => {
@@ -386,7 +424,7 @@ class FieldEditSession {
     if (!owners.length) return
     if (owners.some(owner => owner.flowStatus() !== 'idle')) throw new Error('请先核验未决字段修改')
     const first = this.batch(owners), view = first.#view, ids = owners.map(owner => owner.fieldId)
-    owners.forEach(owner => owner.assertEditable('idle', false, ids))
+    owners.forEach(owner => owner.assertEditable({fieldIds: ids}))
     if ([...view.dirtyTracking.pendingDeleteIds].some(id => !removedIds.includes(String(id)))) throw new Error('字段删除必须与同一工作区统一保存')
     const changes = owners.map(owner => ({owner, creating: view.dirtyTracking.isPendingCreate(owner.fieldId),
       original: {...owner.current()}, patch: {...view.getEditingPatch(owner.fieldId)}})).filter(item => item.creating || Object.keys(item.patch).length > 0)
@@ -401,12 +439,12 @@ class FieldEditSession {
         owners.forEach(owner => {owner.#status = 'pending'})
         const outputs = changes.filter(({patch, creating}) => creating || 'Name' in patch || 'AsName' in patch || 'IsOutput' in patch || 'IsPKey' in patch || 'ValueFun' in patch || 'FieldType' in patch)
         assertOutputs = outputs.length ? await first.lifecycle.validateOutputs(changes.map(({original, patch, creating}) => ({original, patch, creating})), modelPatch) : undefined
-        owners.forEach(owner => owner.assertEditable('pending', false, ids))
+        owners.forEach(owner => owner.assertEditable({expected: 'pending', fieldIds: ids}))
         for (const {owner, patch} of changes) if (JSON.stringify(patch) !== JSON.stringify(view.getEditingPatch(owner.fieldId) ?? {})) throw new Error('验证期间字段草稿已变化')
         assertOutputs?.()
       },
       apply: async () => {
-        owners.forEach(owner => owner.assertEditable('pending', false, ids))
+        owners.forEach(owner => owner.assertEditable({expected: 'pending', fieldIds: ids}))
         for (const {owner, patch} of changes) if (JSON.stringify(patch) !== JSON.stringify(view.getEditingPatch(owner.fieldId) ?? {})) throw new Error('应用前字段草稿已变化')
         const editingIds = changes.filter(item => Object.keys(item.patch).length).map(item => item.owner.fieldId)
         const applied = await view.applyEditingRows(editingIds)
@@ -493,40 +531,35 @@ class FieldEditSession {
   }
 }
 
-export type FieldEditHost = FieldEditSession
-
-export function createFieldEditHost(dataSet: DataSet, targetId: string, fieldId: string, lifecycle: FieldEditLifecycle,
-  viewId: 'default' | 'modelFields' = 'default'): FieldEditHost {
-  return new FieldEditSession(dataSet, targetId, fieldId, lifecycle, viewId)
+export function createFieldEditHost(input: FieldEditSessionInput): FieldEditSession {
+  return new FieldEditSession(input)
 }
 
-export type FieldEditHandle = FieldEditHost
-
 /** 页面与测试沿用的句柄；委托同一 host，不单独持有命令类 FSM。 */
-export function createFieldEditHandle(host: FieldEditHost): FieldEditHandle {
+export function createFieldEditHandle(host: FieldEditSession): FieldEditSession {
   return host
 }
 
-export async function fieldEditStageOutputBatch(owners: readonly FieldEditHost[], mode: 'all' | 'invert') {
+export async function fieldEditStageOutputBatch(owners: readonly FieldEditSession[], mode: 'all' | 'invert') {
   return FieldEditSession.stageOutputBatch(owners, mode)
 }
 
-export async function fieldEditSaveBatch(owners: readonly FieldEditHost[], removals: readonly FieldRemoveHandle[] = []) {
+export async function fieldEditSaveBatch(owners: readonly FieldEditSession[], removals: readonly FieldRemoveHandle[] = []) {
   return FieldEditSession.saveBatch(owners, removals)
 }
 
-export function fieldEditStagePrimaryKey(owners: readonly FieldEditHost[], name: string, scope: Readonly<{dataSet: DataSet; targetId: string; modelId: string}>) {
+export function fieldEditStagePrimaryKey(owners: readonly FieldEditSession[], name: string, scope: Readonly<{dataSet: DataSet; targetId: string; modelId: string}>) {
   return FieldEditSession.stagePrimaryKey(owners, name, scope)
 }
 
-export function fieldEditPrepareSave(owners: readonly FieldEditHost[], modelPatch?: Readonly<Record<string, unknown>>, removedIds: readonly string[] = []) {
+export function fieldEditPrepareSave(owners: readonly FieldEditSession[], modelPatch?: Readonly<Record<string, unknown>>, removedIds: readonly string[] = []) {
   return FieldEditSession.prepareSave(owners, modelPatch, removedIds)
 }
 
-export async function fieldEditReloadBatch(owners: readonly FieldEditHost[], discardPending: boolean) {
+export async function fieldEditReloadBatch(owners: readonly FieldEditSession[], discardPending: boolean) {
   return FieldEditSession.reloadBatch(owners, discardPending)
 }
 
-export function fieldEditPrepareReloadBatch(owners: readonly FieldEditHost[], discardPending: boolean) {
+export function fieldEditPrepareReloadBatch(owners: readonly FieldEditSession[], discardPending: boolean) {
   return FieldEditSession.prepareReloadBatch(owners, discardPending)
 }

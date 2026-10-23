@@ -11,6 +11,7 @@
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "ModelNameChange",
+      "ModelRenameReferencesPrepareInput",
       "LowcodeDataSpaceModelRenameReferences"
     ]
   },
@@ -45,6 +46,40 @@
       ],
       "additionalProperties": false
     },
+    "ModelRenameReferencesPrepareInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelRenameReferencesPrepareInput",
+      "properties": {
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "nextName": {
+          "type": "string"
+        },
+        "previousName": {
+          "type": "string"
+        },
+        "projected": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ModelNameChange"
+          }
+        }
+      },
+      "required": [
+        "views",
+        "modelId",
+        "nextName"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeDataSpaceModelRenameReferences": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -58,26 +93,8 @@
         "method.prepare.params": {
           "type": "object",
           "properties": {
-            "views": {
-              "type": "array",
-              "items": {
-                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-              }
-            },
-            "modelId": {
-              "type": "string"
-            },
-            "nextName": {
-              "type": "string"
-            },
-            "previousName": {
-              "type": "string"
-            },
-            "projected": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/ModelNameChange"
-              }
+            "input": {
+              "$ref": "#/$defs/ModelRenameReferencesPrepareInput"
             }
           },
           "additionalProperties": false
@@ -91,7 +108,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-13T06:06:29.496Z",
+  "generatedAt": "2026-10-23T06:52:21.176Z",
   "models": {
     "ModelNameChange": {
       "name": "ModelNameChange",
@@ -142,6 +159,50 @@
         }
       }
     },
+    "ModelRenameReferencesPrepareInput": {
+      "name": "ModelRenameReferencesPrepareInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    views: readonly DataView[];\n    modelId: string;\n    nextName: string;\n    previousName?: string;\n    projected?: readonly ModelNameChange[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    views: readonly DataView[];\n    modelId: string;\n    nextName: string;\n    previousName?: string;\n    projected?: readonly ModelNameChange[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "views",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previousName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projected",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeDataSpaceModelRenameReferences": {
       "name": "LowcodeDataSpaceModelRenameReferences",
       "jsdoc": "结构化引用解析只在当前正式元数据范围内运行。",
@@ -159,44 +220,11 @@
               "jsdoc": "返回Name及实际引用变更；previousName仅供回读，projected为同批已明确的字段改名候选，不持有运行草稿。",
               "parameters": [
                 {
-                  "name": "views",
+                  "name": "input",
                   "type": {
-                    "type": "unknown",
-                    "name": "readonly DataView[]"
-                  }
-                },
-                {
-                  "name": "modelId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "nextName",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "previousName",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                },
-                {
-                  "name": "projected",
-                  "type": {
-                    "type": "unknown",
-                    "name": "readonly ModelNameChange[]"
-                  },
-                  "flags": {
-                    "isOptional": true
+                    "type": "reference",
+                    "name": "ModelRenameReferencesPrepareInput",
+                    "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts"
                   }
                 }
               ],

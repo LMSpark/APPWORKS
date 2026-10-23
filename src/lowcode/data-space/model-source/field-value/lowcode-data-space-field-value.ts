@@ -11,32 +11,60 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
 import {LowcodeModelRelationAdapter} from '../../lowcode-model-relation-adapter'
 
+/** 元数据实例、目标空间及正式模型 ID；modelFields 消费本模型工作区。 */
+export type FieldValueScope = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  modelId: string
+  viewId?: 'default' | 'modelFields'
+  /** field-output 引用数据库资源；operation-input 保留操作映射的模型引用合同。 */
+  usage?: 'field-output' | 'operation-input'
+}>
+
+type FieldValueRowsInput = Readonly<{
+  table: string
+  keys: readonly string[]
+  select?: (row: DataRow) => boolean
+  complete?: boolean
+}>
+
 /** 按当前可读定义构建目录，不缓存查询结果或权限。 */
 export class LowcodeDataSpaceFieldValue {
-  /** 元数据实例、目标空间及正式模型ID；modelFields消费本模型工作区。字段输出引用数据库资源，operation-input保留操作映射的模型引用合同。 */
-  constructor(private readonly dataSet: DataSet, private readonly targetId: string, private readonly modelId: string,
-    private readonly viewId: 'default' | 'modelFields' = 'default',
-    private readonly usage: 'field-output' | 'operation-input' = 'field-output') {}
+  private readonly dataSet: DataSet
+  private readonly targetId: string
+  private readonly modelId: string
+  private readonly viewId: 'default' | 'modelFields'
+  private readonly usage: 'field-output' | 'operation-input'
 
-  private rows(table: string, keys: readonly string[], select: (row: DataRow) => boolean = () => true, complete = true) {
-    const view = this.dataSet.getView(table, 'default')
+  constructor(scope: FieldValueScope) {
+    this.dataSet = scope.dataSet
+    this.targetId = scope.targetId
+    this.modelId = scope.modelId
+    this.viewId = scope.viewId ?? 'default'
+    this.usage = scope.usage ?? 'field-output'
+  }
+
+  private rows(input: FieldValueRowsInput): DataRow[] {
+    const select = input.select ?? (() => true)
+    const complete = input.complete ?? true
+    const view = this.dataSet.getView(input.table, 'default')
     if (!view || view.destroyed || view.requestState !== RequestState.Loaded || complete && view.total !== view.rows.length || view.mutating
-      || view.dataTable?.modelBinding?.modelName !== table || view.queryContext['dataSpaceId'] !== this.targetId) throw new Error(`${table}未完整读取`)
+      || view.dataTable?.modelBinding?.modelName !== input.table || view.queryContext['dataSpaceId'] !== this.targetId) throw new Error(`${input.table}未完整读取`)
     const rows = view.rows.filter(select)
-    if (table !== 'Base_DataModel_Field') {
+    if (input.table !== 'Base_DataModel_Field') {
       const valid = rows.every(row => {
           const id = view.getPkKey(row)
           if (id === undefined) return false
           const changed = [...Object.keys(view.getEditingPatch(id) ?? {}), ...Object.keys(view.dirtyTracking.getDiff(id, row))]
           return !view.dirtyTracking.isPendingCreate(id) && !view.dirtyTracking.pendingDeleteIds.has(id)
-            && (!changed.length || table === 'Base_DataModel' && changed.every(key => !['rowid', 'dataSetId', 'Name', 'MetaName', 'Type'].includes(key)))
+            && (!changed.length || input.table === 'Base_DataModel' && changed.every(key => !['rowid', 'dataSetId', 'Name', 'MetaName', 'Type'].includes(key)))
         })
-      if (!valid) throw new Error(`${table}引用对象有未保存修改`)
+      if (!valid) throw new Error(`${input.table}引用对象有未保存修改`)
     }
     for (const row of rows) {
-      const identity = table === 'Base_DataSet' ? 'rowid' : 'dataSetId'
+      const identity = input.table === 'Base_DataSet' ? 'rowid' : 'dataSetId'
       if (view.fieldAccess(row, identity).read !== 'visible' || row[identity] !== this.targetId
-        || keys.some(key => view.fieldAccess(row, key).read !== 'visible')) throw new Error(`${table}引用身份不可读或范围不符`)
+        || input.keys.some(key => view.fieldAccess(row, key).read !== 'visible')) throw new Error(`${input.table}引用身份不可读或范围不符`)
     }
     return rows
   }
@@ -65,7 +93,7 @@ export class LowcodeDataSpaceFieldValue {
     const verify = (name: string): string => {
       const binding = entries.find(([table]) => table === name)?.[1]
       if (!binding || entries.filter(([, candidate]) => candidate?.modelId === binding.modelId).length !== 1) throw new Error('上游关系端点无法唯一解析')
-      const models = this.rows('Base_DataModel', ['rowid', 'Name'], row => row['rowid'] === binding.modelId, false)
+      const models = this.rows({table: 'Base_DataModel', keys: ['rowid', 'Name'], select: row => row['rowid'] === binding.modelId, complete: false})
       if (models.length !== 1 || models[0]?.['Name'] !== binding.modelName) throw new Error('上游模型身份不可确认')
       return binding.modelId
     }
@@ -97,8 +125,10 @@ export class LowcodeDataSpaceFieldValue {
       if (rows.some(row => keys.some(key => upstream.fieldAccess(row, key).read !== 'visible'))) throw new Error('上游字段引用不可读')
       return rows
     }
-    if (modelId !== this.modelId || this.viewId === 'default') return this.rows('Base_DataModel_Field', keys,
-      row => row['dataModelId'] === modelId && row['type'] === 'dataModel' && (names === undefined || names.includes(row['Name'])))
+    if (modelId !== this.modelId || this.viewId === 'default') return this.rows({
+      table: 'Base_DataModel_Field', keys,
+      select: row => row['dataModelId'] === modelId && row['type'] === 'dataModel' && (names === undefined || names.includes(row['Name'])),
+    })
     const view = this.dataSet.getView('Base_DataModel_Field', this.viewId)
     if (!view || view.destroyed || view.requestState !== RequestState.Loaded || view.loadingError || view.mutating
       || view.commitMode !== 'staged' || view.dataTable?.modelBinding?.modelName !== 'Base_DataModel_Field'
@@ -118,7 +148,7 @@ export class LowcodeDataSpaceFieldValue {
   }
 
   private table(modelId: string, names?: readonly unknown[]) {
-    const models = this.rows('Base_DataModel', ['rowid', 'Name'], row => row['rowid'] === modelId, false), model = models[0]
+    const models = this.rows({table: 'Base_DataModel', keys: ['rowid', 'Name'], select: row => row['rowid'] === modelId, complete: false}), model = models[0]
     if (!model || models.length !== 1 || typeof model['Name'] !== 'string' || !model['Name'].trim()) throw new Error('模型引用身份不唯一')
     const fields = names?.length === 0 ? [] : this.fields(modelId, names).map(row => row['Name'])
     if (fields.some(name => typeof name !== 'string' || !name.trim()) || new Set(fields).size !== fields.length) throw new Error('字段引用身份不唯一')
@@ -127,8 +157,8 @@ export class LowcodeDataSpaceFieldValue {
 
   private referenceTable(modelId: string, names?: readonly unknown[]) {
     const keys = ['rowid', 'Name', 'MetaName', 'Type', 'DbId', 'DbName']
-    const own = this.rows('Base_DataModel', keys, row => row['rowid'] === this.modelId, false)[0]
-    const models = this.rows('Base_DataModel', keys, row => row['rowid'] === modelId, false), model = models[0]
+    const own = this.rows({table: 'Base_DataModel', keys, select: row => row['rowid'] === this.modelId, complete: false})[0]
+    const models = this.rows({table: 'Base_DataModel', keys, select: row => row['rowid'] === modelId, complete: false}), model = models[0]
     if (!own || !model || models.length !== 1) throw new Error('引用资源所属模型不唯一')
     const resource = (row: DataRow) => {
       if (typeof row['Type'] !== 'string' || typeof row['MetaName'] !== 'string') throw new Error('数据库来源身份不可确认')
@@ -169,7 +199,7 @@ export class LowcodeDataSpaceFieldValue {
   readInputParameters(): {options: NonNullable<DataViewFilterFunctionContext['inputParams']>; warning: string} {
     let inputParams: NonNullable<DataViewFilterFunctionContext['inputParams']> = []
     try {
-      const spaces = this.rows('Base_DataSet', ['rowid', 'inputParams'])
+      const spaces = this.rows({table: 'Base_DataSet', keys: ['rowid', 'inputParams']})
       const space = spaces[0]
       if (!space || spaces.length !== 1) throw new Error('空间参数定义不唯一')
       inputParams = DataSpaceDesignApi.readInputParameters({value: space['inputParams'], editable: true}).map(item => {
@@ -197,7 +227,7 @@ export class LowcodeDataSpaceFieldValue {
       if (!view || view.destroyed || view.requestState !== RequestState.Loaded || view.loadingError || view.mutating
         || view.total !== view.rows.length || view.dataTable?.modelBinding?.modelName !== 'Base_DataModel_Field'
         || view.queryContext['dataSpaceId'] !== this.targetId || view.queryContext['modelId'] !== this.modelId) throw new Error('来源参数未完整读取或范围已变化')
-      const models = this.rows('Base_DataModel', ['rowid', 'Type'], row => row['rowid'] === this.modelId, false)
+      const models = this.rows({table: 'Base_DataModel', keys: ['rowid', 'Type'], select: row => row['rowid'] === this.modelId, complete: false})
       if (models.length !== 1 || !['接口', '视图'].includes(String(models[0]?.['Type']))) throw new Error('来源参数所属模型不可确认')
       const properties: Array<[string, JsonSchemaObject]> = []
       for (const row of view.rows) {
@@ -273,7 +303,7 @@ export class LowcodeDataSpaceFieldValue {
       const parameters = this.readInputParameters()
       context = {inputParams: parameters.options}; warning = parameters.warning
     } else if (expression.Type === 'GetRefData' && this.usage === 'field-output') {
-      const models = this.rows('Base_DataModel', ['rowid', 'MetaName'], row => row['MetaName'] === expression['RefTableName'])
+      const models = this.rows({table: 'Base_DataModel', keys: ['rowid', 'MetaName'], select: row => row['MetaName'] === expression['RefTableName']})
       const tables: Array<NonNullable<DataViewFilterFunctionContext['tables']>[number]> = [], diagnostics: string[] = []
       for (const model of models) {
         try {
@@ -286,7 +316,11 @@ export class LowcodeDataSpaceFieldValue {
     } else if (['GetRefData', 'GetExpData'].includes(expression.Type)) {
       const name = expression.Type === 'GetRefData' ? expression['RefTableName']
         : expression['refTableName']
-      const models = this.rows('Base_DataModel', ['rowid', 'Name'], row => row['Name'] === name), model = models[0]
+      const models = this.rows({
+        table: 'Base_DataModel',
+        keys: ['rowid', 'Name'],
+        select: row => row['Name'] === name,
+      }), model = models[0]
       if (!model || models.length !== 1 || typeof model['rowid'] !== 'string') throw new Error('引用模型不存在或身份不唯一')
       context = {tables: [this.table(model['rowid'], expression.Type === 'GetExpData' ? []
         : [expression['RefFieldName'], expression['FkFieldName']])]}

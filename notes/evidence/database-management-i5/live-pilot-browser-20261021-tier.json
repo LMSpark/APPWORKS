@@ -63,7 +63,12 @@
     "hubWarning": "当前 FormKey 下仅 Base_serverInfo 正式模型可用，库/表/视图五表 readModelBatch 未齐",
     "serverTab": {
       "loaded": true,
-      "toolbar": ["注册服务器", "编辑", "删除", "刷新"],
+      "toolbar": [
+        "注册服务器",
+        "编辑",
+        "删除",
+        "刷新"
+      ],
       "serverRowCountObserved": 5
     },
     "catalogTab": {
@@ -73,6 +78,77 @@
     },
     "screenshot": "browser temp page-2026-10-21T06-16-38-816Z.png（未入库）",
     "matrix实页列": "服务器 Tab 部分成立；表和视图仍 blocked（元数据五表未齐）"
+  },
+  "serverPageCycle20261021": {
+    "checkedAt": "2026-10-21T14:41+08:00",
+    "page": "database-management/ui/service-management-page.vue（hub 服务器 Tab）",
+    "operator": "wangtao（领码科技；密码不入库）",
+    "dataSpaceId": "62DB03B06A489600FFF86F3640D5C0E7",
+    "steps": {
+      "1_list": {
+        "result": "修复后通过",
+        "beforeFix": "5 行仅勾选列、0 个字段列；注册对话框 0 个输入框",
+        "cause": "RendererTable/RendererForm 未传 autoColumns，Vue 布尔 prop 缺省为 false",
+        "afterFix": "16 个字段列，5 台服务器名称可见"
+      },
+      "2_refresh": {
+        "result": "通过",
+        "rowsBeforeAfter": 5
+      },
+      "3_editCancel": {
+        "result": "通过",
+        "target": "LM数据库服务器（627F43C1…）",
+        "dialogFieldValue": "LM数据库服务器",
+        "afterCancel": "列表不变、对话框关闭、无报错"
+      },
+      "4_register": {
+        "result": "未通过（服务端回读缺口）",
+        "firstAttempt": "SPARK_MODEL_SAVE_FIELD: Password，组请求阶段拒绝、未发出 HTTP；随后取消亦报『编辑目标或查询已变化』",
+        "firstAttemptCause": "编排预置 Password（正式模型 output=false）；取消用行对象相等判断，保存被拒后同主键行被换成新对象",
+        "afterFix": {
+          "request": "BatchTableOperateRequestByCRUD Added 1 行（Type/ServerName/ip_address/Port/description/UserName/rowid/lingma_sys_key），无 entID",
+          "receipt": "Code 200 操作成功；mapListAdd 键 QYVirtualPlat@Base_serverInfo 原样回显 rowid 4D4FC71D801B874E05983F4B49B02DEF",
+          "readback": "GetData Count 5，新行不在；整页重载后仍不在",
+          "existingRowsEntID": "均为 6B04423CC7AB4A68B08090FF6D4B20B1",
+          "hypothesis": "后端回读按企业过滤，新增未补 entID；未验证，前端不猜填 entID"
+        },
+        "probableInvisibleRows": [
+          "4490A9FA7F944B9C9308136227C167C1（14:38，UI 当时误报已保存）",
+          "4D4FC71D801B874E05983F4B49B02DEF（14:40）"
+        ],
+        "pageNow": "保存回执成功但回读无该主键时报错，不再提示『服务器已保存』"
+      },
+      "5_delete": {
+        "result": "未执行",
+        "reason": "新增行不可见，不能删除既有服务器代替"
+      },
+      "6_testConnection": {
+        "result": "未测",
+        "note": "Password 不在视图列中，表单无法输入密码"
+      }
+    },
+    "automated": "tests/runtime/page/database 41/41；typecheck；eslint 改动文件",
+    "matrix实页列": "保持部分"
+  },
+  "serverRegisterCommand20261021": {
+    "checkedAt": "2026-10-21T17:41+08:00",
+    "change": "注册改走 DatabaseServerRegister 写命令视图（spark-data bindDataSetCommandSubmit → POST /api/Db/registerServer），不再经 Base_serverInfo 插表",
+    "operator": "wangtao（领码科技；密码不入库）",
+    "dataSpaceId": "62DB03B06A489600FFF86F3640D5C0E7",
+    "registerDialog": "字段：类型/服务器名称/服务器IP地址/端口(默认3306)/账号/密码(遮盖)/描述；无 rowid",
+    "negative": {
+      "result": "通过",
+      "input": "ServerName i5-pilot-neg-register，127.0.0.1:1，MYSQL",
+      "request": "POST /api/Db/registerServer 1 次；body 键 rowid(前端生成 83258B7FA12F48D7809A3D04FFEDF0B0)/Type/ServerName/ip_address/Port/UserName/description（密码未记录）",
+      "response": "HTTP 200，{Code:500, Message:'[500] 数据库连接失败；根因：Connection refused', Type:'error'}",
+      "page": "对话框内显示后端原因，输入保留，未提示成功；取消后关闭",
+      "readback": "刷新 GetData 后仍 5 行，无该服务器名；全程无 BatchTableOperateRequestByCRUD"
+    },
+    "positive": {
+      "result": "未测",
+      "reason": "缺可达且未登记的测试库；连接重复会被后端拒绝"
+    },
+    "automated": "tests/runtime/page/database + spark-data dataset 207/207；typecheck 通过；改动行 eslint 无新增"
   },
   "priorEvidence": "live-pilot-browser-20261020.json"
 }

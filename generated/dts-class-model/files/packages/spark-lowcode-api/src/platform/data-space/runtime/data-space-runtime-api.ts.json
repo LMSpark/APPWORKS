@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
     "modulePath": "platform/data-space/runtime/data-space-runtime-api",
-    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-runtime-api\n职责：拥有模型查询与统一保存的运行入口。\n边界：只接受当前 scope 中本 owner 登记的原查询基线。\nAI用途：把 DataView 查询与同场景模型保存接入实际运行 owner。\n\n数据空间运行态 API；按场景与模型 Name 拥有原查询、权限基线和统一保存。",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-runtime-api\n职责：拥有模型查询与统一保存的运行入口。\n边界：只接受当前 scope 中本 owner 登记的原查询基线。\nAI用途：把 SparkData.DataView 查询与同场景模型保存接入实际运行 owner。\n\n数据空间运行态 API；按场景与模型 Name 拥有原查询、权限基线和统一保存。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DataSpaceRuntimeApi"
@@ -353,7 +353,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-19T03:11:24.248Z",
+  "generatedAt": "2026-10-23T06:52:19.719Z",
   "models": {
     "DataSpaceRuntimeApiOptions": {
       "name": "DataSpaceRuntimeApiOptions",
@@ -395,7 +395,7 @@
       "jsdoc": "统一保存命令；每个目标携带本 owner 的原查询上下文与候选变更。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Parameters<DataSpaceRequest['save']>[0]['changes'][number] & Readonly<{\n    tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>;\n}>",
+        "declarationTypeText": "Parameters<DataSpaceRequest['save']>[0]['changes'][number] & Readonly<{\n    tableConfig?: Pick<SparkData.TableMetadata, 'api' | 'crudConfig'>;\n}>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -403,7 +403,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "Readonly<{\n    tableConfig?: Pick<TableMetadata, 'api' | 'crudConfig'>;\n}>",
+            "typeText": "Readonly<{\n    tableConfig?: Pick<SparkData.TableMetadata, 'api' | 'crudConfig'>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -468,11 +468,11 @@
       "jsdoc": "来源类型改变时须仍成立的查询特征；由运行请求或持久视图配置提供。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** mapped按模型取值定义解析；direct仅接口和逻辑视图接收来源实参。 */\n    sourceInputMode?: QueryParams['sourceInputMode'];\n    /** 本次输出包含显式聚合或分组。 */\n    aggregate?: boolean;\n    /** 查询树参数或结果树组织实际参与查询。 */\n    tree?: boolean;\n    /** 省略时沿用单表查询。 */\n    outputType?: QueryParams['outputType'];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** mapped按模型取值定义解析；direct仅接口和逻辑视图接收来源实参。 */\n    sourceInputMode?: SparkData.QueryParams['sourceInputMode'];\n    /** 本次输出包含显式聚合或分组。 */\n    aggregate?: boolean;\n    /** 查询树参数或结果树组织实际参与查询。 */\n    tree?: boolean;\n    /** 省略时沿用单表查询。 */\n    outputType?: SparkData.QueryParams['outputType'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** mapped按模型取值定义解析；direct仅接口和逻辑视图接收来源实参。 */\n    sourceInputMode?: QueryParams['sourceInputMode'];\n    /** 本次输出包含显式聚合或分组。 */\n    aggregate?: boolean;\n    /** 查询树参数或结果树组织实际参与查询。 */\n    tree?: boolean;\n    /** 省略时沿用单表查询。 */\n    outputType?: QueryParams['outputType'];\n}>",
+            "typeText": "Readonly<{\n    /** mapped按模型取值定义解析；direct仅接口和逻辑视图接收来源实参。 */\n    sourceInputMode?: SparkData.QueryParams['sourceInputMode'];\n    /** 本次输出包含显式聚合或分组。 */\n    aggregate?: boolean;\n    /** 查询树参数或结果树组织实际参与查询。 */\n    tree?: boolean;\n    /** 省略时沿用单表查询。 */\n    outputType?: SparkData.QueryParams['outputType'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -524,7 +524,7 @@
     },
     "DataSpaceRuntimeApi": {
       "name": "DataSpaceRuntimeApi",
-      "jsdoc": "拥有原查询缓存、保存基线归属和同模型读写串行化；DataView 与 DataSet 消费同一实际保存 owner。",
+      "jsdoc": "拥有原查询缓存、保存基线归属和同模型读写串行化；SparkData.DataView 与 DataSet 消费同一实际保存 owner。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -579,7 +579,7 @@
             },
             {
               "name": "query",
-              "jsdoc": "查询后端注册模型；原结果上下文只供 DataView 的执行边界持有。",
+              "jsdoc": "查询后端注册模型；原结果上下文只供 SparkData.DataView 的执行边界持有。",
               "parameters": [
                 {
                   "name": "identity",
@@ -624,7 +624,7 @@
             },
             {
               "name": "releaseQueryCache",
-              "jsdoc": "页面释放沿DataView生命周期清理页面级结果。",
+              "jsdoc": "页面释放沿SparkData.DataView生命周期清理页面级结果。",
               "parameters": [
                 {
                   "name": "page",
@@ -641,13 +641,13 @@
             },
             {
               "name": "bindModelView",
-              "jsdoc": "将正式模型及当前请求scope绑定到DataTable，所属派生视图复用同一身份；scope失效须重新装配。\n正式数组可提供已解析且投影的items；仅本地读取，元数据保存仍走正式模型查询。",
+              "jsdoc": "将正式模型及当前请求scope绑定到SparkData.DataTable，所属派生视图复用同一身份；scope失效须重新装配。\n正式数组可提供已解析且投影的items；仅本地读取，元数据保存仍走正式模型查询。",
               "parameters": [
                 {
                   "name": "view",
                   "type": {
                     "type": "reference",
-                    "name": "DataView"
+                    "name": "SparkData.DataView"
                   }
                 },
                 {
@@ -673,7 +673,7 @@
                   "name": "arrayRows",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly DataRow[]"
+                    "name": "readonly SparkData.DataRow[]"
                   },
                   "flags": {
                     "isOptional": true
@@ -693,7 +693,7 @@
                   "name": "view",
                   "type": {
                     "type": "reference",
-                    "name": "DataView"
+                    "name": "SparkData.DataView"
                   }
                 },
                 {
@@ -713,7 +713,7 @@
                   "name": "queryTree",
                   "type": {
                     "type": "unknown",
-                    "name": "QueryParams['tree']"
+                    "name": "SparkData.QueryParams['tree']"
                   },
                   "flags": {
                     "isOptional": true
@@ -733,19 +733,19 @@
             },
             {
               "name": "queryColumns",
-              "jsdoc": "从本运行owner绑定的正式模型解析查询字段，供DataView.queryColumns统一消费。\n字段名为规范输出名；不受命名视图显示投影限制，不包含非输出或本地计算列，也不授予数据权限。\n未绑定正式模型的既有原生查询仍使用其DataTable字段，生命周期由DataView保护。",
+              "jsdoc": "从本运行owner绑定的正式模型解析查询字段，供SparkData.DataView.queryColumns统一消费。\n字段名为规范输出名；不受命名视图显示投影限制，不包含非输出或本地计算列，也不授予数据权限。\n未绑定正式模型的既有原生查询仍使用其SparkData.DataTable字段，生命周期由SparkData.DataView保护。",
               "parameters": [
                 {
                   "name": "view",
                   "type": {
                     "type": "reference",
-                    "name": "DataView"
+                    "name": "SparkData.DataView"
                   }
                 }
               ],
               "type": {
                 "type": "unknown",
-                "name": "readonly DataColumn[]"
+                "name": "readonly SparkData.DataColumn[]"
               }
             },
             {
@@ -756,14 +756,14 @@
                   "name": "view",
                   "type": {
                     "type": "reference",
-                    "name": "DataView"
+                    "name": "SparkData.DataView"
                   }
                 },
                 {
                   "name": "params",
                   "type": {
                     "type": "reference",
-                    "name": "QueryParams"
+                    "name": "SparkData.QueryParams"
                   }
                 }
               ],
@@ -781,7 +781,7 @@
             },
             {
               "name": "hasUnconfirmedSave",
-              "jsdoc": "原保存请求已发出但结果未确认；DataView 据此只允许经原保存入口核验。",
+              "jsdoc": "原保存请求已发出但结果未确认；SparkData.DataView 据此只允许经原保存入口核验。",
               "parameters": [
                 {
                   "name": "context",

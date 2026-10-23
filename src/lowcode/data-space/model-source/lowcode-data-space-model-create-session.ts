@@ -38,7 +38,15 @@ export type ModelCreateHost = {
   lifecycle: ModelCreateLifecycle
 }
 
-export function createModelCreateHost(dataSet: DataSet, targetId: string, sources: ModelCreateSources, lifecycle: ModelCreateLifecycle): ModelCreateHost {
+export type ModelCreateHostInput = Readonly<{
+  dataSet: DataSet
+  targetId: string
+  sources: ModelCreateSources
+  lifecycle: ModelCreateLifecycle
+}>
+
+export function createModelCreateHost(input: ModelCreateHostInput): ModelCreateHost {
+  const {dataSet, targetId, sources, lifecycle} = input
   const models = dataSet.getView('Base_DataModel', 'default'), fields = dataSet.getView('Base_DataModel_Field', 'modelInputFields')
   if (!models || !fields) throw new Error('缺少正式模型或所属字段视图配置 modelInputFields')
   const host: ModelCreateHost = {

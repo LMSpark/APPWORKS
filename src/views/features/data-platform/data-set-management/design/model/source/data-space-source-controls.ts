@@ -8,10 +8,10 @@ import {RequestState, buildDataViewKey, type DataColumn, type DataRow, type Data
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 type PageDataSpaceModelSourceType = Parameters<typeof LowcodeDataSpaceSourceCatalog.config>[0]
 import type {ModelCreateHandle} from '@/lowcode/data-space/model-source/lowcode-data-space-model-create-session'
-import type {LowcodeDataSpaceModelSourceEdit} from '@/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session'
+import type {ModelSourceEditHandle} from '@/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session'
 
 /** 原操作owner提供的展示状态。 */
-type SourceState = ReturnType<ModelCreateHandle['getState'] | LowcodeDataSpaceModelSourceEdit['getState']>
+type SourceState = ReturnType<ModelCreateHandle['getState'] | ModelSourceEditHandle['getState']>
 /** 组件输入事件；不携带正式权限或保存指令。 */
 type ControlChange = {
   /** 搜索输入、首次注册名、已有字段映射或新增输出选择。 */
@@ -102,12 +102,13 @@ export class DataSpaceSourceControls {
 
   /** 当前类型只定位所属正式模型的独立候选视图。 */
   get results(): DataView {
-    const view = this.#candidates.get(this.read('type') as PageDataSpaceModelSourceType)
+    const type = this.sourceType()
+    const view = type === undefined ? undefined : this.#candidates.get(type)
     if (!view) throw new Error('请选择有效来源类型')
     return view
   }
   /** 当前类型的字段映射只供标准子组件绑定。 */
-  get specification() {return LowcodeDataSpaceSourceCatalog.config(this.read('type') as PageDataSpaceModelSourceType)}
+  get specification() {return LowcodeDataSpaceSourceCatalog.config(this.requireSourceType())}
   /** 弹窗开关也是父输入，关闭使查询和旧选择失效。 */
   setOpen(value: boolean): void {
     if (value) this.resetSearch()
@@ -121,7 +122,18 @@ export class DataSpaceSourceControls {
     } finally {this.#syncing = false}
   }
   /** 消费列表选择值，随后仍由业务owner精确读取。 */
-  selected() {return LowcodeDataSpaceSourceCatalog.selected(this.read('type') as PageDataSpaceModelSourceType, this.results)}
+  selected() {return LowcodeDataSpaceSourceCatalog.selected(this.requireSourceType(), this.results)}
+
+  private sourceType(): PageDataSpaceModelSourceType | undefined {
+    const value = this.read('type')
+    return LowcodeDataSpaceSourceCatalog.types.find(type => type.value === value)?.value
+  }
+
+  private requireSourceType(): PageDataSpaceModelSourceType {
+    const type = this.sourceType()
+    if (type === undefined) throw new Error('模型来源类型不受支持')
+    return type
+  }
   /** 只有本次查询存在唯一可读选择值才可确认。 */
   get canSelect(): boolean {
     if (this.results.requestState !== RequestState.Loaded) return false

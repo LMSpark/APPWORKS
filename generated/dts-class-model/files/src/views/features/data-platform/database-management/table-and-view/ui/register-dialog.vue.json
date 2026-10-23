@@ -7,11 +7,42 @@
     "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/database-management/table-and-view/ui/register-dialog",
-    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/register-dialog\n职责：注册物理库对话框；表单 autoColumns，未登记库名经数据层加载后提示，不直调 HTTP。",
+    "jsdoc": "@module app:views/features/data-platform/database-management/table-and-view/ui/register-dialog\n职责：注册未登记物理表/视图（写命令 registerTable/registerView）；列表绑定只读命令 DataView。",
     "jsdocSource": "source-file-jsdoc",
-    "symbols": []
+    "symbols": [
+      "RegisterObjectType"
+    ]
   },
-  "$defs": {},
-  "generatedAt": "2026-10-20T08:30:17.362Z",
-  "models": {}
+  "$defs": {
+    "RegisterObjectType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "RegisterObjectType",
+      "enum": [
+        "table",
+        "view"
+      ]
+    }
+  },
+  "generatedAt": "2026-10-23T06:52:15.509Z",
+  "models": {
+    "RegisterObjectType": {
+      "name": "RegisterObjectType",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'table' | 'view'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'table'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'view'"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
 }

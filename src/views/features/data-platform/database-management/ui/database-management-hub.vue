@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, KeepAlive, onBeforeUnmount, provide, ref, shallowRef, watch} from 'vue'
+import {computed, onBeforeUnmount, provide, ref, shallowRef, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {DATABASE_CATALOG_CONTEXT} from '@/lowcode/resources/database/database-catalog-context'
 import {

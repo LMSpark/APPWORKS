@@ -9,6 +9,13 @@ import {DataSpaceDesignApi, DataSpaceRuntimeApi, DataSpaceQueryAggregation} from
 import {isRecord} from '@spark-appworks/spark-utils'
 
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
+type ViewFieldProjectInput = Readonly<{
+  model: FormalModel
+  tableName: string
+  configured: unknown
+  viewId: string
+  definition: Record<string, unknown>
+}>
 
 /** 单个原生视图的只读字段目录；仅用于设计候选，不包含业务行或持久编辑。 */
 export type LowcodeDataSpaceViewFieldCatalog = {
@@ -84,7 +91,8 @@ export class LowcodeDataSpaceViewFields {
   }
 
   /** Project one view's field catalog with native DataTable semantics; never bind query/save owners or load rows. */
-  static project(model: FormalModel, tableName: string, configured: unknown, viewId: string, definition: Record<string, unknown>): LowcodeDataSpaceViewFieldCatalog {
+  static project(input: ViewFieldProjectInput): LowcodeDataSpaceViewFieldCatalog {
+    const {model, tableName, configured, viewId, definition} = input
     this.validateProjection(definition, model, `${tableName}@${viewId}`)
     const projection = DataSpaceDesignApi.createFieldProjection(model)
     const viewConfig = {fieldProjection: projection, ...Object.fromEntries(['fieldProjection', 'treeConfig', 'queryConfig']

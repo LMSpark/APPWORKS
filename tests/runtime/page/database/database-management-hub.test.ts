@@ -151,6 +151,16 @@ describe('database-management-hub', () => {
     await flushPromises()
   })
 
+  it('loads table-and-view catalog panel on default catalog tab when tier is full', async () => {
+    const wrapper = await openHub(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    await flushPromises()
+    await flushPromises()
+    expect(wrapper.text()).toContain('表和视图管理')
+    expect(wrapper.text()).toContain('数据库列表')
+    wrapper.unmount()
+    await flushPromises()
+  })
+
   it('defaults to catalog tab and loads server panel on tab switch with shared FormKey', async () => {
     const wrapper = await openHub(DATABASE_TABLE_VIEW_SCENARIO_ID)
     expect(wrapper.text()).toContain('表和视图')

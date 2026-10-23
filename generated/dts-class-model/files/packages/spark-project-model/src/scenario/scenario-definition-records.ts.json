@@ -10,10 +10,42 @@
     "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-definition-records\n职责：在场景配置与定义资源记录之间转换语义，合并一次捕获后校验最终配置，不维护UI编辑态或执行存储。\n边界：数据库模型及字段仍只保存引用；旧关系须先显式转换。\nAI用途：文件资源通过DataView查询与提交时复用同一映射。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "ScenarioDefinitionWriteInput",
       "ScenarioDefinitionRecords"
     ]
   },
   "$defs": {
+    "ScenarioDefinitionWriteInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScenarioDefinitionWriteInput",
+      "properties": {
+        "config": {
+          "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "resource": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "legacyResolved": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "config",
+        "resource",
+        "rows"
+      ],
+      "additionalProperties": false
+    },
     "ScenarioDefinitionRecords": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -135,20 +167,8 @@
         "method.write.params": {
           "type": "object",
           "properties": {
-            "config": {
-              "$ref": "scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
-            },
-            "resource": {
-              "type": "string"
-            },
-            "rows": {
-              "type": "array",
-              "items": {
-                "$ref": "../../../spark-data/src/types.ts.json#/$defs/DataRow"
-              }
-            },
-            "legacyResolved": {
-              "type": "boolean"
+            "input": {
+              "$ref": "#/$defs/ScenarioDefinitionWriteInput"
             }
           },
           "additionalProperties": false
@@ -196,8 +216,47 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T11:19:12.247Z",
+  "generatedAt": "2026-10-23T06:53:46.325Z",
   "models": {
+    "ScenarioDefinitionWriteInput": {
+      "name": "ScenarioDefinitionWriteInput",
+      "jsdoc": "一次定义域写入：config 为已校验基线，rows 为已合并的完整定义集合；\nlegacyResolved 表示旧关系来源已完整读取并显式转换，默认 false。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    resource: string;\n    rows: readonly DataRow[];\n    legacyResolved?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    resource: string;\n    rows: readonly DataRow[];\n    legacyResolved?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "rows",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "legacyResolved",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "ScenarioDefinitionRecords": {
       "name": "ScenarioDefinitionRecords",
       "jsdoc": "文件定义资源的稳定身份；不是后端注册模型，也不是运行DataView的身份。",
@@ -343,35 +402,11 @@
               "jsdoc": "映射完整的已合并定义集合；合并、变更捕获和回执由DataView及资源适配负责。",
               "parameters": [
                 {
-                  "name": "config",
+                  "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "ScenarioViewConfig",
-                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-view-config.ts"
-                  }
-                },
-                {
-                  "name": "resource",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "rows",
-                  "type": {
-                    "type": "unknown",
-                    "name": "readonly DataRow[]"
-                  }
-                },
-                {
-                  "name": "legacyResolved",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "boolean"
-                  },
-                  "flags": {
-                    "isOptional": true
+                    "name": "ScenarioDefinitionWriteInput",
+                    "sourcePath": "packages/spark-project-model/src/scenario/scenario-definition-records.ts"
                   }
                 }
               ],

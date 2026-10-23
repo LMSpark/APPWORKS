@@ -180,7 +180,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-08T13:04:33.357Z",
+  "generatedAt": "2026-10-23T16:58:37.427Z",
   "models": {
     "ValidationError": {
       "name": "ValidationError",

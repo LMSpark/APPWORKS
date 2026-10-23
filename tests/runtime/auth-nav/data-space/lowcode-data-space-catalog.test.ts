@@ -20,11 +20,15 @@ const disposals:Array<()=>void>=[],originalStubs=config.global.stubs
 const models={Base_DataSet:['rowid','Name','Type','description','sysid','createuser','createtime'],
   Base_AppSystemList:['rowid','AppDesc','AppName'],Base_UserInfo:['ID','ROWID','rowid','UserName'],
   Base_NavigationInfo:['rowid','SysId','conid','prowid','FunName','name','NavigationUrl']}
+// 与线上导航模型一致：conid 只能作服务端过滤（output=false），查询结果不返回。
+const navigationProjection=models.Base_NavigationInfo.map((field,index)=>({fieldId:field.toUpperCase(),source:'resource',resourceFieldId:field.toUpperCase(),
+  resourceField:field,viewField:field,type:'string',label:field,output:field!=='conid',sortOrder:index,sortDirection:null,group:0,distinct:false,
+  primaryKey:index===0,value:'',valueFunction:'',expression:''}))
 function dataset(scenarioId='SCENE') {
   return DataSet.fromJson({scenarioId,dataSetName:scenarioId,tables:Object.fromEntries(Object.entries(models).map(([name,fields])=>[name,{
     modelBinding:{modelId:`M-${name}`,modelName:name},resourceType:'database-table',resourceId:name,
     columns:fields.map((field,index)=>({name:field,type:'string',isPrimaryKey:index===0})),
-    views:{default:{autoLoad:false},[name==='Base_DataSet'?'catalog':name==='Base_UserInfo'?'catalogUsers':'catalogApps']:{autoLoad:false,
+    views:{default:{autoLoad:false,...(name==='Base_NavigationInfo'?{fieldProjection:navigationProjection}:{})},[name==='Base_DataSet'?'catalog':name==='Base_UserInfo'?'catalogUsers':'catalogApps']:{autoLoad:false,
       ...(name==='Base_DataSet'?{commitMode:'staged',pageSize:10,sortExpression:[{field:'createtime',direction:'desc'}]}:{})}},
   }]))})
 }
@@ -264,8 +268,8 @@ describe('catalog original-view mutations',()=>{
 })
 
 describe('catalog navigation bindings and API information',()=>{
-  const parent={rowid:'PARENT',SysId:'APP',conid:'',prowid:'000000',FunName:'Folder',name:'folder',NavigationUrl:''}
-  const leaf={rowid:'LEAF',SysId:'APP',conid:'TARGET',prowid:'PARENT',FunName:'Feature',name:'feature',NavigationUrl:'/feature'}
+  const parent={rowid:'PARENT',SysId:'APP',prowid:'000000',FunName:'Folder',name:'folder',NavigationUrl:''}
+  const leaf={rowid:'LEAF',SysId:'APP',prowid:'PARENT',FunName:'Feature',name:'feature',NavigationUrl:'/feature'}
   function navigation(nodes:Record<string,unknown>[]=[parent,leaf],bound:Record<string,unknown>[]=[leaf]) {
     executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_NavigationInfo'
       ?view.viewId==='catalogBindings'?bound:nodes:defaults[view.tableName]??[]))
@@ -286,9 +290,9 @@ describe('catalog navigation bindings and API information',()=>{
     navigation([],[]);const value=await selected();await value.queryBindings()
     expect(value.bindings?.rows).toEqual([]);expect(calls('Base_NavigationInfo')).toHaveLength(1)
   })
-  it.each(['missing','cycle','hidden','wrong-app','wrong-target'] as const)('rejects %s without publishing a partial binding view',async kind=>{
+  it.each(['missing','cycle','hidden','wrong-app'] as const)('rejects %s without publishing a partial binding view',async kind=>{
     navigation(kind==='missing'?[leaf]:kind==='cycle'?[{...parent,prowid:'LEAF'},leaf]:[parent,leaf],
-      [{...leaf,...kind==='wrong-app'?{SysId:'OTHER'}:kind==='wrong-target'?{conid:'OTHER'}:kind==='hidden'?{lingma_sys_params:{h:['prowid']}}:{}}])
+      [{...leaf,...kind==='wrong-app'?{SysId:'OTHER'}:kind==='hidden'?{lingma_sys_params:{h:['prowid']}}:{}}])
     const value=await selected();await expect(value.queryBindings()).rejects.toThrow();expect(value.bindings).toBeUndefined()
   })
   it('rejects incomplete page counts instead of treating a truncated ancestor list as complete',async()=>{
@@ -371,7 +375,7 @@ describe('catalog page entry',()=>{
     expect(server.writes).toBe(1);expect(wrapper.text()).toContain('Applied once')
   })
   it('renders navigation paths from a bound standard table and releases the views on close',async()=>{
-    const leaf={rowid:'NODE',SysId:'APP',conid:'TARGET',prowid:'000000',FunName:'Bound feature',name:'node',NavigationUrl:'/bound'}
+    const leaf={rowid:'NODE',SysId:'APP',prowid:'000000',FunName:'Bound feature',name:'node',NavigationUrl:'/bound'}
     executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_NavigationInfo'?[leaf]:defaults[view.tableName]??[]))
     const {wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()
     await button(wrapper,'查询绑定').trigger('click');await flushPromises()

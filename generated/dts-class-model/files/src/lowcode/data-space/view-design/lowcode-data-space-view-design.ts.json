@@ -7,9 +7,10 @@
     "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
     "packageName": "app",
     "modulePath": "lowcode/data-space/view-design/lowcode-data-space-view-design",
-    "jsdoc": "app 的 lowcode/data-space/view-design/lowcode-data-space-view-design 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeDataSpaceDesignSession, LowcodeDataSpaceViewDesign（共 2 个 symbol）。",
+    "jsdoc": "app 的 lowcode/data-space/view-design/lowcode-data-space-view-design 模块。\n导出 DtsTypeDeclarationModel symbol: ViewDesignAssembleInput, LowcodeDataSpaceDesignSession, LowcodeDataSpaceViewDesign（共 3 个 symbol）。",
     "jsdocSource": "inferred",
     "symbols": [
+      "ViewDesignAssembleInput",
       "LowcodeDataSpaceDesignSession",
       "LowcodeDataSpaceViewDesign"
     ]
@@ -186,6 +187,35 @@
       ],
       "additionalProperties": false
     },
+    "ViewDesignAssembleInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ViewDesignAssembleInput",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "config": {
+          "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "fileExecutors": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "Executor"
+          }
+        },
+        "modelScope": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "config"
+      ],
+      "additionalProperties": false
+    },
     "ViewDesignOptions": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -220,18 +250,8 @@
         "method.assemble.params": {
           "type": "object",
           "properties": {
-            "scenarioId": {
-              "type": "string"
-            },
-            "config": {
-              "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
-            },
-            "fileExecutors": {
-              "type": "object",
-              "title": "Record<string, Parameters<DataView['bindQueryExecutor']>[0]>"
-            },
-            "modelScope": {
-              "type": "string"
+            "input": {
+              "$ref": "#/$defs/ViewDesignAssembleInput"
             }
           },
           "additionalProperties": false
@@ -248,14 +268,14 @@
             },
             "fileExecutors": {
               "type": "object",
-              "title": "Record<string, Parameters<DataView['bindQueryExecutor']>[0]>"
+              "title": "Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>"
             }
           },
           "additionalProperties": false
         },
         "method.loadMetadata.return": {
           "type": "object",
-          "title": "Promise<DataSet>"
+          "title": "Promise<SparkData.DataSet>"
         },
         "method.readLegacyLayout.params": {
           "type": "object",
@@ -437,6 +457,36 @@
         }
       ]
     },
+    "DesignSessionConstruction": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DesignSessionConstruction",
+      "properties": {
+        "targetId": {
+          "type": "string"
+        },
+        "metadataDataSet": {
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "design": {
+          "$ref": "#/$defs/LowcodeDataSpaceViewDesign"
+        },
+        "options": {
+          "$ref": "#/$defs/ViewDesignOptions"
+        },
+        "definitionResource": {
+          "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-definition-resource.ts.json#/$defs/ScenarioDefinitionResource"
+        }
+      },
+      "required": [
+        "targetId",
+        "metadataDataSet",
+        "design",
+        "options",
+        "definitionResource"
+      ],
+      "additionalProperties": false
+    },
     "LowcodeDataSpaceDesignSession": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -499,20 +549,8 @@
         "constructor.params": {
           "type": "object",
           "properties": {
-            "targetId": {
-              "type": "string"
-            },
-            "metadataDataSet": {
-              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
-            },
-            "design": {
-              "$ref": "#/$defs/LowcodeDataSpaceViewDesign"
-            },
-            "options": {
-              "$ref": "#/$defs/ViewDesignOptions"
-            },
-            "definitionResource": {
-              "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-definition-resource.ts.json#/$defs/ScenarioDefinitionResource"
+            "input": {
+              "$ref": "#/$defs/DesignSessionConstruction"
             }
           },
           "additionalProperties": false
@@ -535,7 +573,7 @@
         },
         "method.loadRelationFields.return": {
           "type": "object",
-          "title": "Promise<Readonly<{\n        columns: readonly DataColumn[];\n        context: DataViewFilterFunctionContext;\n    }>>"
+          "title": "Promise<Readonly<{\n        columns: readonly SparkData.DataColumn[];\n        context: SparkData.DataViewFilterFunctionContext;\n    }>>"
         },
         "method.getViewFields.params": {
           "type": "object",
@@ -578,7 +616,7 @@
         },
         "method.loadViewFilterContext.return": {
           "type": "object",
-          "title": "Promise<DataViewFilterFunctionContext>"
+          "title": "Promise<SparkData.DataViewFilterFunctionContext>"
         },
         "method.loadPreviewFilterContext.params": {
           "type": "object",
@@ -591,7 +629,7 @@
         },
         "method.loadPreviewFilterContext.return": {
           "type": "object",
-          "title": "Promise<DataViewFilterFunctionContext>"
+          "title": "Promise<SparkData.DataViewFilterFunctionContext>"
         },
         "method.loadCascadeFields.params": {
           "type": "object",
@@ -778,7 +816,7 @@
         },
         "method.loadSourceInputFields.return": {
           "type": "object",
-          "title": "Promise<DataView>"
+          "title": "Promise<SparkData.DataView>"
         },
         "method.getModelSourceInputs.params": {
           "type": "object",
@@ -814,7 +852,7 @@
         },
         "method.loadModelInputFields.return": {
           "type": "object",
-          "title": "Promise<DataView>"
+          "title": "Promise<SparkData.DataView>"
         },
         "method.loadModelFields.params": {
           "type": "object",
@@ -827,7 +865,7 @@
         },
         "method.loadModelFields.return": {
           "type": "object",
-          "title": "Promise<DataView>"
+          "title": "Promise<SparkData.DataView>"
         },
         "method.getFieldEdit.params": {
           "type": "object",
@@ -845,7 +883,7 @@
           "additionalProperties": false
         },
         "method.getFieldEdit.return": {
-          "$ref": "../model-source/field-edit/lowcode-data-space-field-edit-session.ts.json#/$defs/FieldEditHandle"
+          "$ref": "../model-source/field-edit/lowcode-data-space-field-edit-session.ts.json#/$defs/FieldEditSession"
         },
         "method.getFieldCreate.params": {
           "type": "object",
@@ -956,7 +994,7 @@
           "additionalProperties": false
         },
         "method.getModelEdit.return": {
-          "$ref": "../model-source/model-edit/lowcode-data-space-model-edit-session.ts.json#/$defs/ModelEditHandle"
+          "$ref": "../model-source/model-edit/lowcode-data-space-model-edit-session.ts.json#/$defs/ModelEditSession"
         },
         "method.getArrayEdit.params": {
           "type": "object",
@@ -1068,7 +1106,7 @@
           "additionalProperties": false
         },
         "method.getModelSourceEdit.return": {
-          "$ref": "../model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json#/$defs/LowcodeDataSpaceModelSourceEdit"
+          "$ref": "../model-source/source-edit/lowcode-data-space-model-source-edit-session.ts.json#/$defs/ModelSourceEditHandle"
         },
         "method.hasPendingModelSourceEdits.params": {
           "type": "object",
@@ -1295,12 +1333,12 @@
         },
         "method.preview.return": {
           "type": "object",
-          "title": "Promise<{\n        total: number;\n        fields: string[];\n        rows: DataRow[];\n    }>"
+          "title": "Promise<{\n        total: number;\n        fields: string[];\n        rows: SparkData.DataRow[];\n    }>"
         }
       }
     }
   },
-  "generatedAt": "2026-10-20T05:22:45.725Z",
+  "generatedAt": "2026-10-23T07:04:51.308Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -1455,16 +1493,55 @@
         }
       }
     },
+    "ViewDesignAssembleInput": {
+      "name": "ViewDesignAssembleInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    config: ScenarioViewConfig;\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    modelScope?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    config: ScenarioViewConfig;\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    modelScope?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileExecutors",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelScope",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "ViewDesignOptions": {
       "name": "ViewDesignOptions",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * @param scenarioId 运行空间身份，必须与config一致。\n     * @param config 已校验的场景配置；预览只消费，不写回范围投影。\n     * @param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n     * @param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n     * @returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(scenarioId: string, config: ScenarioViewConfig, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>, modelScope?: string): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 为文件资源既有查询适配；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * @param scenarioId 运行空间身份，必须与config一致。\n     * @param config 已校验的场景配置；预览只消费，不写回范围投影。\n     * @param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n     * @param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n     * @returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(scenarioId: string, config: ScenarioViewConfig, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>, modelScope?: string): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
+            "typeText": "Readonly<{\n    workspace: ProjectWorkspace;\n    readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>;\n    /**\n     * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n     * scenarioId 必须与 config 一致；fileExecutors 为文件资源既有查询适配；modelScope 可选表键。\n     * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。\n     */\n    assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>;\n    loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>): Promise<SparkData.DataSet>;\n    readLegacyLayout?(targetId: string): Promise<string | null>;\n    /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */\n    modelSources?: ModelCreateSources;\n    assertScope(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1498,7 +1575,7 @@
                   "name": "metadata",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
+                    "name": "SparkData.DataSet"
                   }
                 }
               ],
@@ -1516,56 +1593,14 @@
             },
             {
               "name": "assemble",
-              "jsdoc": "装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\n@param scenarioId 运行空间身份，必须与config一致。\n@param config 已校验的场景配置；预览只消费，不写回范围投影。\n@param fileExecutors 文件资源的既有查询适配，不从声明本身推导存储能力。\n@param modelScope 可选模型表键；公共装配器先确认原生或旧关系依赖后读取必要模型，省略则完整装配。\n@returns 独立DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。",
+              "jsdoc": "装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。\nscenarioId 必须与 config 一致；fileExecutors 为文件资源既有查询适配；modelScope 可选表键。\n@returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。",
               "parameters": [
                 {
-                  "name": "scenarioId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "config",
+                  "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "ScenarioViewConfig"
-                  }
-                },
-                {
-                  "name": "fileExecutors",
-                  "type": {
-                    "type": "reference",
-                    "name": "Readonly",
-                    "typeArguments": [
-                      {
-                        "type": "reference",
-                        "name": "Record",
-                        "typeArguments": [
-                          {
-                            "type": "intrinsic",
-                            "name": "string"
-                          },
-                          {
-                            "type": "unknown",
-                            "name": "Parameters<DataView['bindQueryExecutor']>[0]"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "flags": {
-                    "isOptional": true
-                  }
-                },
-                {
-                  "name": "modelScope",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  },
-                  "flags": {
-                    "isOptional": true
+                    "name": "ViewDesignAssembleInput",
+                    "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
                   }
                 }
               ],
@@ -1607,7 +1642,7 @@
                           },
                           {
                             "type": "unknown",
-                            "name": "Parameters<DataView['bindQueryExecutor']>[0]"
+                            "name": "Parameters<SparkData.DataView['bindQueryExecutor']>[0]"
                           }
                         ]
                       }
@@ -1624,7 +1659,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "DataSet"
+                    "name": "SparkData.DataSet"
                   }
                 ]
               }
@@ -1714,11 +1749,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    expectedRevision: number;\n    previewText: string | null;\n    /** 仅在远端核对成功后允许取消的文件定义视图；未列出的脏视图保持并阻止接纳。 */\n    discardViews?: ReadonlyArray<Pick<DataView, 'tableName' | 'viewId'>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    expectedRevision: number;\n    previewText: string | null;\n    /** 仅在远端核对成功后允许取消的文件定义视图；未列出的脏视图保持并阻止接纳。 */\n    discardViews?: ReadonlyArray<Pick<SparkData.DataView, 'tableName' | 'viewId'>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    expectedRevision: number;\n    previewText: string | null;\n    /** 仅在远端核对成功后允许取消的文件定义视图；未列出的脏视图保持并阻止接纳。 */\n    discardViews?: ReadonlyArray<Pick<DataView, 'tableName' | 'viewId'>>;\n}>",
+            "typeText": "Readonly<{\n    expectedRevision: number;\n    previewText: string | null;\n    /** 仅在远端核对成功后允许取消的文件定义视图；未列出的脏视图保持并阻止接纳。 */\n    discardViews?: ReadonlyArray<Pick<SparkData.DataView, 'tableName' | 'viewId'>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1794,49 +1829,64 @@
         }
       }
     },
+    "DesignSessionConstruction": {
+      "name": "DesignSessionConstruction",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    targetId: string;\n    metadataDataSet: SparkData.DataSet;\n    design: LowcodeDataSpaceViewDesign;\n    options: ViewDesignOptions;\n    definitionResource: ScenarioDefinitionResource;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    targetId: string;\n    metadataDataSet: SparkData.DataSet;\n    design: LowcodeDataSpaceViewDesign;\n    options: ViewDesignOptions;\n    definitionResource: ScenarioDefinitionResource;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "metadataDataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "design",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definitionResource",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "LowcodeDataSpaceDesignSession": {
       "name": "LowcodeDataSpaceDesignSession",
       "jsdoc": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(targetId: string, metadataDataSet: DataSet, design: LowcodeDataSpaceViewDesign, options: ViewDesignOptions, definitionResource: ScenarioDefinitionResource)",
+          "signatureText": "constructor(input: DesignSessionConstruction)",
           "parameters": [
             {
-              "name": "targetId",
-              "type": {
-                "type": "intrinsic",
-                "name": "string"
-              }
-            },
-            {
-              "name": "metadataDataSet",
+              "name": "input",
               "type": {
                 "type": "reference",
-                "name": "DataSet"
-              }
-            },
-            {
-              "name": "design",
-              "type": {
-                "type": "reference",
-                "name": "LowcodeDataSpaceViewDesign",
+                "name": "DesignSessionConstruction",
                 "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-              }
-            },
-            {
-              "name": "options",
-              "type": {
-                "type": "reference",
-                "name": "ViewDesignOptions",
-                "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
-              }
-            },
-            {
-              "name": "definitionResource",
-              "type": {
-                "type": "reference",
-                "name": "ScenarioDefinitionResource"
               }
             }
           ]
@@ -1860,7 +1910,7 @@
             },
             {
               "name": "relationDefinitionsReady",
-              "jsdoc": "当前文件的关系定义已可交给默认DataView编辑；不代表整个目标DataSet已经装配。\n原生文件直接就绪，旧格式须有完整投影或同文件/代次/正式来源的成功转换记录。\n@returns 关系工作区是否就绪；源查询或身份不再成立时拒绝复用。",
+              "jsdoc": "当前文件的关系定义已可交给默认SparkData.DataView编辑；不代表整个目标SparkData.DataSet已经装配。\n原生文件直接就绪，旧格式须有完整投影或同文件/代次/正式来源的成功转换记录。\n@returns 关系工作区是否就绪；源查询或身份不再成立时拒绝复用。",
               "readable": true,
               "writable": false
             },
@@ -1891,7 +1941,7 @@
           "methods": [
             {
               "name": "loadRelationFields",
-              "jsdoc": "为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。\n@param rowKey 当前元数据DataView中关系定义的主键；不接受另一空间或无读取许可的行。\n@returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。\n@throws 模型/关系身份、字段读取权限、文件或会话发生变化时拒绝旧目录。",
+              "jsdoc": "为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。\n@param rowKey 当前元数据SparkData.DataView中关系定义的主键；不接受另一空间或无读取许可的行。\n@returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。\n@throws 模型/关系身份、字段读取权限、文件或会话发生变化时拒绝旧目录。",
               "parameters": [
                 {
                   "name": "rowKey",
@@ -1920,7 +1970,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        columns: readonly DataColumn[];\n        context: DataViewFilterFunctionContext;\n    }"
+                        "name": "{\n        columns: readonly SparkData.DataColumn[];\n        context: SparkData.DataViewFilterFunctionContext;\n    }"
                       }
                     ]
                   }
@@ -1945,7 +1995,7 @@
                 "types": [
                   {
                     "type": "unknown",
-                    "name": "readonly DataColumn[]"
+                    "name": "readonly SparkData.DataColumn[]"
                   },
                   {
                     "type": "literal",
@@ -1956,7 +2006,7 @@
             },
             {
               "name": "getViewOutputProjection",
-              "jsdoc": "当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。\n@param input 精确模型与命名视图身份。\n@returns 目录尚未加载或文件资源返回null；用户显式初始化后才由原定义DataView记录变更。\n@throws 目标、模型、视图或会话身份失效时拒绝读取。",
+              "jsdoc": "当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。\n@param input 精确模型与命名视图身份。\n@returns 目录尚未加载或文件资源返回null；用户显式初始化后才由原定义SparkData.DataView记录变更。\n@throws 目标、模型、视图或会话身份失效时拒绝读取。",
               "parameters": [
                 {
                   "name": "input",
@@ -1972,7 +2022,7 @@
                 "types": [
                   {
                     "type": "unknown",
-                    "name": "readonly DataViewFieldProjection[]"
+                    "name": "readonly SparkData.DataViewFieldProjection[]"
                   },
                   {
                     "type": "literal",
@@ -2000,14 +2050,14 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "DataViewFilterFunctionContext"
+                    "name": "SparkData.DataViewFilterFunctionContext"
                   }
                 ]
               }
             },
             {
               "name": "loadPreviewFilterContext",
-              "jsdoc": "为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。\n@param preview 本空间仍有效的模型或命名视图预览；当前字段复用原DataView查询来源合同。\n@returns 正式模型名称及字段目录；仅补读尚未缓存的上游模型，不装配目标或修改预览与持久定义。\n@throws 预览关闭、模型/文件/会话身份变化或上游字段不可读取时拒绝过期目录。",
+              "jsdoc": "为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。\n@param preview 本空间仍有效的模型或命名视图预览；当前字段复用原SparkData.DataView查询来源合同。\n@returns 正式模型名称及字段目录；仅补读尚未缓存的上游模型，不装配目标或修改预览与持久定义。\n@throws 预览关闭、模型/文件/会话身份变化或上游字段不可读取时拒绝过期目录。",
               "parameters": [
                 {
                   "name": "preview",
@@ -2024,14 +2074,14 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "DataViewFilterFunctionContext"
+                    "name": "SparkData.DataViewFilterFunctionContext"
                   }
                 ]
               }
             },
             {
               "name": "loadCascadeFields",
-              "jsdoc": "为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。\n@param tableName 当前文件内的模型表键；正式模型身份从已核定绑定读取，不接受模型名或首表回退。\n@param viewId 所属模型的命名视图；输出投影和主键/计算字段只读约束沿原生视图合同。\n@returns 候选DataView已刷新；不装配整个目标、不查询业务行、不修改定义或持久化。\n@throws 不可读身份、失效作用域或读取期间的绑定/投影变化拒绝发布候选。",
+              "jsdoc": "为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。\n@param tableName 当前文件内的模型表键；正式模型身份从已核定绑定读取，不接受模型名或首表回退。\n@param viewId 所属模型的命名视图；输出投影和主键/计算字段只读约束沿原生视图合同。\n@returns 候选SparkData.DataView已刷新；不装配整个目标、不查询业务行、不修改定义或持久化。\n@throws 不可读身份、失效作用域或读取期间的绑定/投影变化拒绝发布候选。",
               "parameters": [
                 {
                   "name": "tableName",
@@ -2061,7 +2111,7 @@
             },
             {
               "name": "loadViewFields",
-              "jsdoc": "Read only the selected formal model and project its named-view fields without assembling the target DataSet.\n@param input Exact table binding, model identity and view name in the current metadata definition view.\n@returns Populates the existing field-option DataView; no business query, definition edit or persistence occurs.\n@throws Missing/read-restricted identity, changed file/scope or obsolete request prevents publication.",
+              "jsdoc": "Read only the selected formal model and project its named-view fields without assembling the target SparkData.DataSet.\n@param input Exact table binding, model identity and view name in the current metadata definition view.\n@returns Populates the existing field-option SparkData.DataView; no business query, definition edit or persistence occurs.\n@throws Missing/read-restricted identity, changed file/scope or obsolete request prevents publication.",
               "parameters": [
                 {
                   "name": "input",
@@ -2085,7 +2135,7 @@
             },
             {
               "name": "loadMetadataViews",
-              "jsdoc": "工作区按需读取字段或来源关系，复用正式 DataView；不是保存前的全量检查。",
+              "jsdoc": "工作区按需读取字段或来源关系，复用正式 SparkData.DataView；不是保存前的全量检查。",
               "parameters": [
                 {
                   "name": "names",
@@ -2342,7 +2392,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "DataView"
+                    "name": "SparkData.DataView"
                   }
                 ]
               }
@@ -2395,7 +2445,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "DataView"
+                    "name": "SparkData.DataView"
                   }
                 ]
               }
@@ -2418,7 +2468,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "DataView"
+                    "name": "SparkData.DataView"
                   }
                 ]
               }
@@ -2456,7 +2506,7 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "FieldEditHandle",
+                "name": "FieldEditSession",
                 "sourcePath": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts"
               }
             },
@@ -2580,7 +2630,7 @@
             },
             {
               "name": "getModelFieldRemovals",
-              "jsdoc": "当前模型原绑定视图的待删除或未决流程；记录数据仍仅在DataView。",
+              "jsdoc": "当前模型原绑定视图的待删除或未决流程；记录数据仍仅在SparkData.DataView。",
               "parameters": [
                 {
                   "name": "modelId",
@@ -2611,7 +2661,7 @@
             },
             {
               "name": "getFieldRemove",
-              "jsdoc": "计算字段删除复用原DataView；恢复入口不依赖待删行仍存在。",
+              "jsdoc": "计算字段删除复用原SparkData.DataView；恢复入口不依赖待删行仍存在。",
               "parameters": [
                 {
                   "name": "fieldId",
@@ -2660,7 +2710,7 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "ModelEditHandle",
+                "name": "ModelEditSession",
                 "sourcePath": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts"
               }
             },
@@ -2829,7 +2879,7 @@
             },
             {
               "name": "getModelSourceEdit",
-              "jsdoc": "保留字段合同的来源替换或当前来源同步；共用正式来源读取与原DataView保存。",
+              "jsdoc": "保留字段合同的来源替换或当前来源同步；共用正式来源读取与原SparkData.DataView保存。",
               "parameters": [
                 {
                   "name": "modelId",
@@ -2841,7 +2891,7 @@
               ],
               "type": {
                 "type": "reference",
-                "name": "LowcodeDataSpaceModelSourceEdit",
+                "name": "ModelSourceEditHandle",
                 "sourcePath": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts"
               }
             },
@@ -2906,7 +2956,7 @@
             },
             {
               "name": "openModelPreview",
-              "jsdoc": "按正式模型及已保存初值创建预览DataView；请求调整留在预览实例，不保存模型请求草稿。",
+              "jsdoc": "按正式模型及已保存初值创建预览SparkData.DataView；请求调整留在预览实例，不保存模型请求草稿。",
               "parameters": [
                 {
                   "name": "input",
@@ -3016,7 +3066,7 @@
             },
             {
               "name": "removeModelBinding",
-              "jsdoc": "将精确模型绑定及所属配置的删除记入原生DataView；提交和取消仍由DataSet/DataView执行。",
+              "jsdoc": "将精确模型绑定及所属配置的删除记入原生SparkData.DataView；提交和取消仍由SparkData.DataSet/SparkData.DataView执行。",
               "parameters": [
                 {
                   "name": "input",
@@ -3165,7 +3215,7 @@
             },
             {
               "name": "openPreview",
-              "jsdoc": "装配可供标准组件绑定的独立预览实例；调用方关闭时必须dispose。\n@param subscribe 调用方定义/会话失效订阅；与文件订阅共同释放已绑定的DataView，预览关闭时解除。",
+              "jsdoc": "装配可供标准组件绑定的独立预览实例；调用方关闭时必须dispose。\n@param subscribe 调用方定义/会话失效订阅；与文件订阅共同释放已绑定的SparkData.DataView，预览关闭时解除。",
               "parameters": [
                 {
                   "name": "input",
@@ -3376,7 +3426,7 @@
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "{\n        total: number;\n        fields: string[];\n        rows: DataRow[];\n    }"
+                    "name": "{\n        total: number;\n        fields: string[];\n        rows: SparkData.DataRow[];\n    }"
                   }
                 ]
               }

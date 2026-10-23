@@ -314,7 +314,14 @@
             "type": "object",
             "properties": {
               "value": {
-                "$ref": "#/$defs/PageDataSpaceModelSourceType"
+                "enum": [
+                  "json",
+                  "table",
+                  "interface",
+                  "dict",
+                  "logicView",
+                  "databaseView"
+                ]
               },
               "label": {
                 "type": "string"
@@ -383,7 +390,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-13T21:27:32.461Z",
+  "generatedAt": "2026-10-23T06:52:20.402Z",
   "models": {
     "PageDataSpaceModelSourceType": {
       "name": "PageDataSpaceModelSourceType",

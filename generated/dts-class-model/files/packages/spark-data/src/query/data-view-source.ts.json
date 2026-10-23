@@ -12,6 +12,7 @@
     "symbols": [
       "DataViewSourceSnapshot",
       "DataViewSourceAdoptOptions",
+      "DataViewSourceAdoptHooks",
       "DataViewSourceVersion",
       "DataViewSourceAdapter",
       "DataViewSource"
@@ -62,6 +63,25 @@
         }
       },
       "additionalProperties": false
+    },
+    "DataViewSourceAdoptHooks": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSourceAdoptHooks",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.beforeApply.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeApply.return": true
+      }
     },
     "DataViewSourceVersion": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -145,8 +165,7 @@
               "$ref": "#/$defs/DataViewSourceSnapshot"
             },
             "hooks": {
-              "type": "object",
-              "additionalProperties": false
+              "$ref": "#/$defs/DataViewSourceAdoptHooks"
             }
           },
           "additionalProperties": false
@@ -244,7 +263,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-15T10:33:47.196Z",
+  "generatedAt": "2026-10-23T06:52:21.819Z",
   "models": {
     "DataViewSourceSnapshot": {
       "name": "DataViewSourceSnapshot",
@@ -302,6 +321,41 @@
         }
       }
     },
+    "DataViewSourceAdoptHooks": {
+      "name": "DataViewSourceAdoptHooks",
+      "jsdoc": "来源采用生命周期钩子；异步校验后须核对调用方仍有效，存储确认可同步应用后调用 beforeApply。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n    beforeApply(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n    beforeApply(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "beforeApply",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
     "DataViewSourceVersion": {
       "name": "DataViewSourceVersion",
       "jsdoc": "来源存储的已保存版本；身份由适配器解释，与DataSet.version及当前查询代次分开。",
@@ -344,11 +398,11 @@
       "jsdoc": "查询执行器可选的来源适配；具体存储保留冲突、作用域及未知结果核验责任。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: Readonly<{\n        /** 异步校验后检查调用方仍有效；不得将此检查替代存储冲突核验。 */\n        assertCurrent(): void;\n        /** 存储确认可同步应用后调用一次：检查并取消明确允许放弃的原生修改。 */\n        beforeApply(): void;\n    }>): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 为干净已保存的来源创建快照；每次异步边界、写入前及回读后核对hooks。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<void>;\n    }>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: DataViewSourceAdoptHooks): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 为干净已保存的来源创建快照；每次异步边界、写入前及回读后核对hooks。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<void>;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: Readonly<{\n        /** 异步校验后检查调用方仍有效；不得将此检查替代存储冲突核验。 */\n        assertCurrent(): void;\n        /** 存储确认可同步应用后调用一次：检查并取消明确允许放弃的原生修改。 */\n        beforeApply(): void;\n    }>): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 为干净已保存的来源创建快照；每次异步边界、写入前及回读后核对hooks。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<void>;\n    }>;\n}>",
+            "typeText": "Readonly<{\n    /** 当前同一存储来源的全部视图，不只包含已查询视图；不同目标不能混入。 */\n    views(view: DataView): readonly DataView[];\n    /** 读取远端而不改变任何本地基线、查询结果或草稿。 */\n    preview(view: DataView): Promise<DataViewSourceSnapshot>;\n    /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */\n    adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: DataViewSourceAdoptHooks): Promise<void>;\n    /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */\n    history?: Readonly<{\n        /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>;\n        /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>;\n        /** 为干净已保存的来源创建快照；每次异步边界、写入前及回读后核对hooks。 */\n        create(view: DataView, hooks: Readonly<{\n            assertCurrent(): void;\n        }>): Promise<void>;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -429,13 +483,8 @@
                   "name": "hooks",
                   "type": {
                     "type": "reference",
-                    "name": "Readonly",
-                    "typeArguments": [
-                      {
-                        "type": "unknown",
-                        "name": "{\n        /** 异步校验后检查调用方仍有效；不得将此检查替代存储冲突核验。 */\n        assertCurrent(): void;\n        /** 存储确认可同步应用后调用一次：检查并取消明确允许放弃的原生修改。 */\n        beforeApply(): void;\n    }"
-                      }
-                    ]
+                    "name": "DataViewSourceAdoptHooks",
+                    "sourcePath": "packages/spark-data/src/query/data-view-source.ts"
                   }
                 }
               ],

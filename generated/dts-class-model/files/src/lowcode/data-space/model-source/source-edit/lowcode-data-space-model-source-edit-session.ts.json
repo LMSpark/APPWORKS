@@ -16,8 +16,8 @@
       "ModelSourceEditLifecycle",
       "ModelSourceEditFlow",
       "ModelSourceEditHost",
-      "ModelSourceEditHandle",
-      "LowcodeDataSpaceModelSourceEdit"
+      "ModelSourceEditHostInput",
+      "ModelSourceEditHandle"
     ]
   },
   "$defs": {
@@ -954,6 +954,36 @@
       ],
       "additionalProperties": false
     },
+    "ModelSourceEditHostInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ModelSourceEditHostInput",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "sources": {
+          "$ref": "../lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceReader"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/ModelSourceEditLifecycle"
+        }
+      },
+      "required": [
+        "dataSet",
+        "targetId",
+        "modelId",
+        "sources",
+        "lifecycle"
+      ],
+      "additionalProperties": false
+    },
     "ModelSourceEditHandle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -1143,79 +1173,9 @@
         },
         "method.acceptCurrent.return": true
       }
-    },
-    "LowcodeDataSpaceModelSourceEdit": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "LowcodeDataSpaceModelSourceEdit",
-      "properties": {
-        "getState": {
-          "type": "object",
-          "title": "() => ReturnType<typeof modelSourceEditGetState>"
-        },
-        "confirmFieldContract": {
-          "type": "object",
-          "title": "(input: Readonly<{ fieldId: string; accepted: boolean; }>) => void"
-        },
-        "previewBoundSource": {
-          "type": "object",
-          "title": "() => Promise<void>"
-        },
-        "mapField": {
-          "type": "object",
-          "title": "(input: Readonly<{ fieldId: string; sourceName: string; }>) => Promise<void>"
-        },
-        "includeField": {
-          "type": "object",
-          "title": "(input: Readonly<{ sourceName: string; included: boolean; }>) => Promise<void>"
-        },
-        "removeField": {
-          "type": "object",
-          "title": "(input: Readonly<{ fieldId: string; removed: boolean; }>) => Promise<void>"
-        },
-        "configureInput": {
-          "type": "object",
-          "title": "(input: Readonly<{ sourceName: string; value: string; }>) => void"
-        },
-        "preview": {
-          "type": "object",
-          "title": "(source: Parameters<Reader[\"prepare\"]>[0]) => Promise<void>"
-        },
-        "discard": {
-          "type": "object",
-          "title": "() => void"
-        },
-        "save": {
-          "type": "object",
-          "title": "() => Promise<string>"
-        },
-        "verify": {
-          "type": "object",
-          "title": "() => Promise<Readonly<{ confirmed: boolean; modelId: string | null; }>>"
-        },
-        "acceptCurrent": {
-          "type": "object",
-          "title": "() => void"
-        }
-      },
-      "required": [
-        "getState",
-        "confirmFieldContract",
-        "previewBoundSource",
-        "mapField",
-        "includeField",
-        "removeField",
-        "configureInput",
-        "preview",
-        "discard",
-        "save",
-        "verify",
-        "acceptCurrent"
-      ],
-      "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-20T05:22:25.789Z",
+  "generatedAt": "2026-10-23T03:15:12.839Z",
   "models": {
     "Reader": {
       "name": "Reader",
@@ -1955,6 +1915,50 @@
         }
       }
     },
+    "ModelSourceEditHostInput": {
+      "name": "ModelSourceEditHostInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "ModelSourceEditHandle": {
       "name": "ModelSourceEditHandle",
       "jsdoc": "",
@@ -2193,22 +2197,6 @@
             }
           ]
         }
-      }
-    },
-    "LowcodeDataSpaceModelSourceEdit": {
-      "name": "LowcodeDataSpaceModelSourceEdit",
-      "jsdoc": "@deprecated 兼容旧类名；新代码使用 ModelSourceEditHandle。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "ModelSourceEditHandle",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "ModelSourceEditHandle",
-            "targetName": "ModelSourceEditHandle"
-          }
-        ],
-        "members": {}
       }
     }
   }

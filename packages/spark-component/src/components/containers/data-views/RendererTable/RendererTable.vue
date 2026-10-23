@@ -142,7 +142,7 @@ import {
 } from '../../../internal'
 import type { RTableProps, TableRowClassContext } from './RendererTable.props'
 import * as SparkData from '@spark-appworks/spark-data'
-import type { SparkNode, DataColumn, DataRow, DataView } from '@spark-appworks/spark-data'
+import type { SparkNode, DataRow, DataView } from '@spark-appworks/spark-data'
 import { createRendererTableZeroCode, type NativeTableLike } from './zero-code'
 import { toSortDirection, type ElementPlusTableSortOrder } from './types'
 import { useContainerDataSource } from '../view-data-source'

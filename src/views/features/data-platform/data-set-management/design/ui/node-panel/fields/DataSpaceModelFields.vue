@@ -9,11 +9,13 @@ AI用途：统一模型字段列表、输出及字段规则编辑、批量保存
     <p v-if="loading" role="status">正在读取当前模型字段…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <RendererButton v-if="error" label="重新读取模型字段" :disabled="loading || disabled || pending" @click="load" />
+    <DataSpaceFieldCreate v-if="loadedOnce && workspaceActions" ref="fieldCreator" workspace-actions :session="session" :model-id="modelId" :revision="revision"
+      :disabled="createDisabled" @changed="emit('changed')" @pending="emit('createPending', $event)" />
     <DataSpaceFieldEditor v-if="loadedOnce" ref="editor" :session="session" :field-id="firstId ?? ''" :field-ids="ids" view-id="modelFields" :workspace-model-id="workspaceActions ? modelId : undefined"
+      :create-action="createAction"
       :revision="revision" :disabled="disabled || loading || !ready" @changed="emit('changed')" @pending="pending = $event" @remove="emit('remove', $event)">
       <template v-if="$slots['model-name']" #model-name><slot name="model-name" /></template>
       <template v-if="$slots['model-actions']" #model-actions><slot name="model-actions" /></template>
-      <template v-if="$slots['field-create']" #field-create><slot name="field-create" /></template>
     </DataSpaceFieldEditor>
     <p v-if="ready && !firstId">此模型尚无字段定义，可新增计算字段或从来源更新字段。</p>
   </section>
@@ -24,11 +26,14 @@ import {RendererButton} from '@spark-appworks/spark-component'
 import {RequestState} from '@spark-appworks/spark-data'
 import type {DataSpaceModelFieldsProps} from './DataSpaceModelFields.props'
 import DataSpaceFieldEditor from './DataSpaceFieldEditor.vue'
+import DataSpaceFieldCreate from './create/DataSpaceFieldCreate.vue'
 
 const props = defineProps<DataSpaceModelFieldsProps>()
-const emit = defineEmits<{changed: []; pending: [value: boolean]; remove: [fieldId: string]}>()
+const emit = defineEmits<{changed: []; pending: [value: boolean]; createPending: [value: boolean]; remove: [fieldId: string]}>()
 const loading = ref(false), ready = ref(false), loadedOnce = ref(false), pending = ref(false), error = ref(''), tick = ref(0)
 const editor = ref<InstanceType<typeof DataSpaceFieldEditor>>()
+const fieldCreator = ref<InstanceType<typeof DataSpaceFieldCreate>>()
+const createAction = computed(() => fieldCreator.value?.getToolbarAction())
 const canSave = computed(() => editor.value?.canSave === true)
 const busy = computed(() => loading.value || editor.value?.busy === true)
 const hasEditor = computed(() => !!editor.value && ready.value)

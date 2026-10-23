@@ -6,7 +6,7 @@ AI用途：计算字段新增、取消及未知结果核验。
 -->
 <template>
   <section aria-label="新增计算字段">
-    <RendererButton v-if="state" :data-view-key="state.dataViewKey" data-action="create-field" label="添加计算字段" button-type="primary"
+    <RendererButton v-if="state && !workspaceActions" :data-view-key="state.dataViewKey" data-action="create-field" label="添加计算字段" button-type="primary"
       :disabled="disabled || busy || !state.canAdd || state.pending" @click="begin" />
     <p v-if="error" role="alert">{{ error }}</p>
     <p v-if="message" role="status">{{ message }}</p>
@@ -50,6 +50,7 @@ AI用途：计算字段新增、取消及未知结果核验。
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {FieldText, FieldTextarea, FieldSelect, FieldValueFunction, RendererButton, RendererDialog, RendererForm} from '@spark-appworks/spark-component'
+import type {SparkNode} from '@spark-appworks/spark-data'
 import type {DataSpaceFieldCreateProps} from './DataSpaceFieldCreate.props'
 const props = defineProps<DataSpaceFieldCreateProps>()
 const emit = defineEmits<{changed: []; pending: [value: boolean]; created: [id: string]}>()
@@ -60,6 +61,14 @@ let active = true
 const describe = (cause: unknown) => cause instanceof Error ? cause.message : String(cause)
 const state = computed(() => {props.revision; tick.value; try {return owner.getState()} catch {return null}})
 const locked = computed(() => busy.value || props.disabled || state.value?.status !== 'editing')
+const toolbarAction = computed<SparkNode | undefined>(() => {
+  const current = state.value
+  if (!props.workspaceActions || !current) return undefined
+  return {type: 'r-button', id: 'field-create-workspace-action', props: {
+    'data-action': 'create-field', dataViewKey: current.dataViewKey, label: '添加计算字段', buttonType: 'primary',
+    disabled: props.disabled || busy.value || !current.canAdd || current.pending, onClick: begin,
+  }}
+})
 const functionState = computed(() => {props.revision; tick.value; try {return state.value?.pending ? owner.readValueFunction() : null} catch {return null}})
 watch(() => busy.value || dialogOpen.value || state.value?.pending === true, value => emit('pending', value), {immediate: true, flush: 'sync'})
 function changed(): void {tick.value++; emit('changed')}
@@ -84,6 +93,8 @@ function accept(): void {
   if (props.disabled || busy.value) return
   try {owner.acceptCurrent(); message.value = '已采用核验的正式状态；原新增未确认为成功'; error.value = ''; changed()} catch (cause) {error.value = describe(cause)}
 }
+function getToolbarAction(): SparkNode | undefined {return toolbarAction.value}
+defineExpose({getToolbarAction})
 onBeforeUnmount(() => {active = false; props.session.releaseFieldCreate(props.modelId, fieldViewId); emit('pending', false)})
 </script>
 <style scoped>

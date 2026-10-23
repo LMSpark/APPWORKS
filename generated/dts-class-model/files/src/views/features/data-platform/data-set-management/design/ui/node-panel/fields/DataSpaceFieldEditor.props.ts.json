@@ -48,6 +48,9 @@
         },
         "workspaceModelId": {
           "type": "string"
+        },
+        "createAction": {
+          "$ref": "../../../../../../../../../packages/spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
         }
       },
       "required": [
@@ -58,7 +61,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-10T23:40:44.219Z",
+  "generatedAt": "2026-10-23T21:52:40.633Z",
   "models": {
     "DataSpaceFieldEditorProps": {
       "name": "DataSpaceFieldEditorProps",
@@ -68,7 +71,7 @@
         "name": "DataSpaceFieldEditor"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前目标空间的元数据会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** Base_DataModel_Field的正式主键；批量空模型传空串，仅保留模型级入口，不创建字段编辑流程。 */\n    fieldId: string;\n    /** 批量模式下同一模型的正式字段主键；草稿仍在原DataView。 */\n    fieldIds?: readonly string[] | undefined;\n    /** 元模型列表与表单共同绑定modelFields；独立字段入口使用default。 */\n    viewId?: 'default' | 'modelFields';\n    /** 原生视图事件触发的呈现修订。 */\n    revision: number;\n    /** 页面操作只收紧交互，不授予数据权限。 */\n    disabled?: boolean;\n    /** 模型窗口合并保存时的模型ID；省略时只维护当前字段批次。 */\n    workspaceModelId?: string | undefined;\n}",
+        "declarationTypeText": "{\n    /** 当前目标空间的元数据会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** Base_DataModel_Field的正式主键；批量空模型传空串，仅保留模型级入口，不创建字段编辑流程。 */\n    fieldId: string;\n    /** 批量模式下同一模型的正式字段主键；草稿仍在原DataView。 */\n    fieldIds?: readonly string[] | undefined;\n    /** 元模型列表与表单共同绑定modelFields；独立字段入口使用default。 */\n    viewId?: 'default' | 'modelFields';\n    /** 原生视图事件触发的呈现修订。 */\n    revision: number;\n    /** 页面操作只收紧交互，不授予数据权限。 */\n    disabled?: boolean;\n    /** 模型窗口合并保存时的模型ID；省略时只维护当前字段批次。 */\n    workspaceModelId?: string | undefined;\n    /** 所属模型字段创建 owner 暴露的标准按钮节点；创建 dialog 生命周期仍由原组件持有。 */\n    createAction?: SparkNode | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -110,6 +113,12 @@
             {
               "name": "workspaceModelId",
               "jsdoc": "模型窗口合并保存时的模型ID；省略时只维护当前字段批次。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createAction",
+              "jsdoc": "所属模型字段创建 owner 暴露的标准按钮节点；创建 dialog 生命周期仍由原组件持有。",
               "readable": true,
               "writable": false
             }

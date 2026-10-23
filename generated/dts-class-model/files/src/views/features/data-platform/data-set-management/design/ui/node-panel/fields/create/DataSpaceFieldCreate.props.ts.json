@@ -49,7 +49,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-10T23:29:14.392Z",
+  "generatedAt": "2026-10-23T21:52:28.937Z",
   "models": {
     "DataSpaceFieldCreateProps": {
       "name": "DataSpaceFieldCreateProps",
@@ -59,7 +59,7 @@
         "name": "DataSpaceFieldCreate"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前元数据空间会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 目标空间内的正式模型记录ID。 */\n    modelId: string;\n    /** 原DataView事件推进的呈现修订。 */\n    revision: number;\n    /** 只收紧交互，不授予新增权限。 */\n    disabled?: boolean;\n    /** 在元模型紧凑工作区显示原操作入口，保留同一绑定和编辑实例。 */\n    workspaceActions?: boolean;\n}",
+        "declarationTypeText": "{\n    /** 当前元数据空间会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 目标空间内的正式模型记录ID。 */\n    modelId: string;\n    /** 原DataView事件推进的呈现修订。 */\n    revision: number;\n    /** 只收紧交互，不授予新增权限。 */\n    disabled?: boolean;\n    /** 由所属字段表格标准工具栏呈现创建入口，同时保留同一绑定、owner和编辑实例。 */\n    workspaceActions?: boolean;\n}",
         "members": {
           "attributes": [
             {
@@ -88,7 +88,7 @@
             },
             {
               "name": "workspaceActions",
-              "jsdoc": "在元模型紧凑工作区显示原操作入口，保留同一绑定和编辑实例。",
+              "jsdoc": "由所属字段表格标准工具栏呈现创建入口，同时保留同一绑定、owner和编辑实例。",
               "readable": true,
               "writable": false
             }

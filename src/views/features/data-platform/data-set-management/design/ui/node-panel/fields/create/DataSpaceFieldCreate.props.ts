@@ -16,6 +16,6 @@ export type DataSpaceFieldCreateProps = {
   revision: number
   /** 只收紧交互，不授予新增权限。 */
   disabled?: boolean
-  /** 在元模型紧凑工作区显示原操作入口，保留同一绑定和编辑实例。 */
+  /** 由所属字段表格标准工具栏呈现创建入口，同时保留同一绑定、owner和编辑实例。 */
   workspaceActions?: boolean
 }

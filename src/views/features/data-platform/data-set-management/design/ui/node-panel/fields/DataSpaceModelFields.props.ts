@@ -20,4 +20,6 @@ export type DataSpaceModelFieldsProps = {
   disabled?: boolean
   /** 使用模型窗口顶部保存；字段属性与当前模型记录的修改同批提交。 */
   workspaceActions?: boolean
+  /** 只收紧创建 owner 的外部操作范围；与字段工作区 disabled 分开，避免创建弹窗自锁。 */
+  createDisabled?: boolean
 }

@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-24",
+  "baseCommit": "a9d3a60931bf04be8818e6a0e684de398994557a",
+  "spaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "spaceName": "LivePilot_T_20261017",
+  "modelName": "SourceScope_20261018",
+  "workspace": "3 字段呈现",
+  "toolbarLabels": ["添加计算字段", "编辑", "删除"],
+  "localCreateCancel": {"confirmEnabled": true, "cancelEnabled": true, "reopenedFieldsEmpty": true},
+  "localFieldEditCancel": {"field": "ordIdx", "originalDescription": "排序字段", "restored": true},
+  "independentDesignReopen": {"originalDescriptionPresent": true, "testFieldAbsent": true, "saveEnabled": false, "closeEnabled": true},
+  "persistentSaveActions": 0,
+  "onlineUnknownFaultInjected": false,
+  "screenshot": "field-toolbar-reopened.png",
+  "limitation": "Local cancel and independent reread smoke; create confirmation staging and model-switch owner release are covered by component tests. No new online persistence claim."
+}

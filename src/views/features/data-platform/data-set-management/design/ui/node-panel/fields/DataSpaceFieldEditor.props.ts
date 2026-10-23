@@ -5,6 +5,7 @@
  * AI用途：在已确认所属模型的字段节点挂载编辑器。
  */
 import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+import type {SparkNode} from '@spark-appworks/spark-data'
 
 /** 正式字段配置编辑器的当前调用范围。 */
 export type DataSpaceFieldEditorProps = {
@@ -22,4 +23,6 @@ export type DataSpaceFieldEditorProps = {
   disabled?: boolean
   /** 模型窗口合并保存时的模型ID；省略时只维护当前字段批次。 */
   workspaceModelId?: string | undefined
+  /** 所属模型字段创建 owner 暴露的标准按钮节点；创建 dialog 生命周期仍由原组件持有。 */
+  createAction?: SparkNode | undefined
 }

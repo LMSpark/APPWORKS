@@ -231,7 +231,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@205915": {
+                "__@iterator@205946": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -286,7 +286,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@205915"
+                "__@iterator@205946"
               ],
               "additionalProperties": false
             },
@@ -516,7 +516,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@205915": {
+                "__@iterator@205946": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -571,7 +571,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@205915"
+                "__@iterator@205946"
               ],
               "additionalProperties": false
             },

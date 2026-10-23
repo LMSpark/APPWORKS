@@ -47,6 +47,12 @@
             true
           ]
         },
+        "createDisabled": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "section": {
           "enum": [
             "columns",

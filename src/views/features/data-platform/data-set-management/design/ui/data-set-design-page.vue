@@ -210,14 +210,10 @@
               <RendererTabPane :index="2" name="fields" label="3 字段呈现" lazy :disabled="processEditor?.interactionLocked === true">
                 <DataSpaceModelFields ref="metaFieldsEditor" workspace-actions :key="viewContext.modelId" :session="session" :model-id="viewContext.modelId" :field-ids="modelFieldIds ?? []"
                   :revision="revision" :disabled="busy || arrayEditorPending || workspaceBusy || computedConfigPending || layoutPending || viewEditorPending || modelRenamePending || dataProcessPending || modelSourcePending || modelRemovalPending || fieldCreatePending || !!activeFieldRemovalId || modelRequestPending"
-                  @changed="changed" @pending="fieldEditorPending = $event" @remove="beginFieldRemoval($event, 'modelFields')">
-                  <template #field-create>
-                    <DataSpaceFieldCreate :key="viewContext.modelId" workspace-actions :session="session" :model-id="viewContext.modelId" :revision="revision"
-                      :disabled="busy || computedConfigPending || layoutPending || viewEditorPending || modelRenamePending || arrayEditorPending || dataProcessPending || modelRequestPending
-                        || modelSourcePending || modelRemovalPending || workspaceBusy || metaFieldsEditor?.interactionLocked === true || modelEditor?.dialogOpen === true"
-                      @changed="changed" @pending="fieldCreatePending = $event" />
-                  </template>
-                </DataSpaceModelFields>
+                  :create-disabled="busy || computedConfigPending || layoutPending || viewEditorPending || modelRenamePending || arrayEditorPending || dataProcessPending || modelRequestPending
+                    || modelSourcePending || modelRemovalPending || workspaceBusy || metaFieldsEditor?.interactionLocked === true || modelEditor?.dialogOpen === true"
+                  @changed="changed" @pending="fieldEditorPending = $event" @create-pending="fieldCreatePending = $event"
+                  @remove="beginFieldRemoval($event, 'modelFields')" />
               </RendererTabPane>
               <RendererTabPane :index="3" name="dataProcess" label="4 数据处理" lazy>
                 <DataSpaceTableConfiguration ref="processEditor" workspace-actions :key="viewContext.modelId" :session="session" :model-id="viewContext.modelId" :field-ids="modelFieldIds ?? []"

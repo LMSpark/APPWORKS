@@ -4404,7 +4404,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-10-23T20:38:21.962Z"
+      "sourceModifiedAt": "2026-10-23T21:53:02.049Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",
@@ -4464,32 +4464,32 @@
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props.ts",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.props.ts.json",
-      "sourceModifiedAt": "2026-10-10T23:29:14.392Z"
+      "sourceModifiedAt": "2026-10-23T21:52:28.937Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue.json",
-      "sourceModifiedAt": "2026-10-15T03:40:09.709Z"
+      "sourceModifiedAt": "2026-10-23T21:52:26.745Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props.ts",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props.ts.json",
-      "sourceModifiedAt": "2026-10-10T23:40:44.219Z"
+      "sourceModifiedAt": "2026-10-23T21:52:40.633Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue.json",
-      "sourceModifiedAt": "2026-10-23T20:16:12.170Z"
+      "sourceModifiedAt": "2026-10-23T21:52:57.095Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts.json",
-      "sourceModifiedAt": "2026-10-12T02:31:31.156Z"
+      "sourceModifiedAt": "2026-10-23T21:52:30.925Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue.json",
-      "sourceModifiedAt": "2026-10-18T03:54:55.343Z"
+      "sourceModifiedAt": "2026-10-23T21:52:38.211Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.props.ts",

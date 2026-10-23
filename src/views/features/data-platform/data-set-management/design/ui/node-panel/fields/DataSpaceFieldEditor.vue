@@ -25,15 +25,9 @@ AI用途：数据空间设计的字段配置入口，保留数据权限、取消
           </div>
         </div>
       </RendererSection>
-      <div class="field-toolbar" aria-label="字段操作">
-        <slot name="field-create" />
-        <RendererButton :data-view-key="dataViewKey" data-action="edit-field" :label="workspaceModelId ? '编辑' : '编辑字段'"
-          :disabled="blocked || !state.data || dialogOpen || editOpen" @click="openContract" />
-        <RendererButton :data-view-key="dataViewKey" button-type="danger" data-action="preview-remove-field" :label="workspaceModelId ? '删除' : '删除计算字段'"
-          :disabled="blocked || dialogOpen || editOpen || !computedField || !canRemove" @click="requestRemoval" />
-      </div>
       <RendererTable class="model-fields-table" :class="{'hide-system-fields': !showSystemFields}" :row-class-name="fieldRowClass"
         :data-view-key="dataViewKey" :auto-columns="false" :show-data-view-meta="false" :show-pagination="false"
+        :toolbar="{children: fieldToolbar}"
         :highlight-current-row="true" :max-height="520" :on-current-change="selectTableField" :on-row-click="selectTableRow">
         <FieldText field="Name" label="名称" :min-width="180" readonly />
         <FieldText field="description" label="描述" :min-width="180" edit-on-dblclick :readonly="!canEdit('description')" />
@@ -278,6 +272,14 @@ const canRemove = computed(() => {
   return !!row && (pendingCreate.value || view.value?.deleteActionState(row) === 'enabled')
 })
 const pendingCreate = computed(() => {props.revision; tick.value; return view.value?.dirtyTracking.isPendingCreate(activeId.value) === true})
+const fieldToolbar = computed<SparkNode[]>(() => [
+  ...(props.createAction ? [props.createAction] : []),
+  {type: 'r-button', id: 'edit-field-action', props: {'data-action': 'edit-field', dataViewKey: dataViewKey.value,
+    label: props.workspaceModelId ? '编辑' : '编辑字段', disabled: blocked.value || !state.value.data || dialogOpen.value || editOpen.value, onClick: openContract}},
+  {type: 'r-button', id: 'remove-field-action', props: {'data-action': 'preview-remove-field', dataViewKey: dataViewKey.value,
+    buttonType: 'danger', label: props.workspaceModelId ? '删除' : '删除计算字段',
+    disabled: blocked.value || dialogOpen.value || editOpen.value || !computedField.value || !canRemove.value, onClick: requestRemoval}},
+])
 function requestRemoval(): void {
   if (blocked.value || dialogOpen.value || editOpen.value || !computedField.value || !canRemove.value) return
   if (pendingCreate.value) {
@@ -406,8 +408,7 @@ section:not(.workspace-fields) {border-top:1px solid var(--el-border-color); mar
 .meta-name :deep(.field-display) {display:flex; justify-content:flex-start; gap:8px;}
 .meta-name :deep(.field-label) {flex:0 0 74px; min-width:0;}
 .meta-name :deep(.field-value) {flex:1; min-width:0; overflow-wrap:anywhere; text-align:left;}
-.field-toolbar {display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin:16px 0;}
-.meta-actions :deep(.el-button + .el-button), .field-toolbar :deep(.el-button + .el-button) {margin-left:0;}
+.meta-actions :deep(.el-button + .el-button) {margin-left:0;}
 .model-fields-table.hide-system-fields :deep(.data-space-system-field) {display:none;}
 @media (max-width:1100px) {
   .meta-header {align-items:flex-start; flex-wrap:wrap;}

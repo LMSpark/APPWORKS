@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-24",
+  "target": "944DEE5A0E5170F903E0E008172C4CD2",
+  "modelName": "SourceScope_20261018",
+  "fieldName": "ordIdx",
+  "sourceTabUiSaveActions": 2,
+  "modelOriginal": "来源替换后连续保存已验证 20261018",
+  "fieldOriginal": "排序字段",
+  "marker": "；A2 smoke 20261024",
+  "independentReopenSavedModelConfirmed": true,
+  "independentReopenSavedFieldConfirmed": true,
+  "independentReopenRestoredModel": true,
+  "independentReopenRestoredField": true,
+  "finalSaveEnabled": false,
+  "finalCloseEnabled": true,
+  "httpWriteCountMeasured": false,
+  "unknownOrPartialInjected": false
+}

@@ -3181,6 +3181,140 @@ describe('native data-space design entry', () => {
     expect(view.rows.find(row => row['rowid'] === 'F1')).toMatchObject({IsPKey: 1, IsOutput: 1, description: '新主键'})
   })
 
+  it('keeps a mixed native primary workspace capture unknown through the field recovery button', async () => {
+    const f = fixture({partialFieldWriteId: 'F1', allowSourceEdit: true, allowFieldEdit: true,
+      editableFieldProperties: ['IsPKey', 'IsOutput'], sourceFields: [
+        {rowid: 'PK', dataModelId: 'M1', Name: 'rowid', AsName: 'rowid', type: 'dataModel', FieldType: 'string', IsPKey: 1, IsOutput: 1},
+        {rowid: 'F1', dataModelId: 'M1', Name: 'code', AsName: 'businessCode', type: 'dataModel', FieldType: 'string', IsPKey: 0, IsOutput: 0},
+      ]})
+    f.setModelValues({Type: 'JSON', PrimaryKeyFields: 'rowid'})
+    const {wrapper, instance} = await page('?scenarioId=A', true); await select(wrapper, 'Orders'); await openModelFieldsTab(wrapper)
+    const editor = wrapper.get('[aria-label="字段配置编辑"]'), view = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    editor.getComponent(RendererTable).getComponent(ElTable).vm.$emit('current-change', view.rows.find(row => row['rowid'] === 'PK')); await flushPromises()
+    await editor.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+    await fieldContractDom().get('[data-field-property="IsPKey"] input').setValue(false); await flushPromises()
+    await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
+    editor.getComponent(RendererTable).getComponent(ElTable).vm.$emit('current-change', view.rows.find(row => row['rowid'] === 'F1')); await flushPromises()
+    await editor.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+    await fieldContractDom().get('[data-field-property="IsPKey"] input').setValue(true); await flushPromises()
+    await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
+    f.loseNextResponse()
+    await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
+    expect(writes(f), wrapper.findAll('[role="alert"]').map(item => item.text()).join('\n')).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(true)
+    const modelView = f.sessions[0]!.metadataDataSet.getView('Base_DataModel')!
+    expect(modelView.hasUnconfirmedSave).toBe(true)
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(modelView.hasUnconfirmedSave).toBe(true)
+    expect(instance.isDirty).toBe(true)
+    expect(writes(f)).toHaveLength(1)
+    expect(wrapper.findAll('[role="alert"]').map(item => item.text()).join('\n')).toMatch(/SPARK_SAVE_UNVERIFIABLE|未能确认|无法确认/)
+  }, 30_000)
+
+  it('offers explicit discard only after the original primary workspace batch is not applied', async () => {
+    const f = fixture({omitModelWrite: true, omitAllFieldChanges: true, allowSourceEdit: true, allowFieldEdit: true,
+      editableFieldProperties: ['IsPKey', 'IsOutput'], sourceFields: [
+        {rowid: 'PK', dataModelId: 'M1', Name: 'rowid', AsName: 'rowid', type: 'dataModel', FieldType: 'string', IsPKey: 1, IsOutput: 1},
+        {rowid: 'F1', dataModelId: 'M1', Name: 'code', AsName: 'businessCode', type: 'dataModel', FieldType: 'string', IsPKey: 0, IsOutput: 0},
+      ]})
+    f.setModelValues({Type: 'JSON', PrimaryKeyFields: 'rowid'})
+    const {wrapper, instance} = await page(); await select(wrapper, 'Orders'); await openModelFieldsTab(wrapper)
+    const editor = wrapper.get('[aria-label="字段配置编辑"]'), dataSet = f.sessions[0]!.metadataDataSet
+    const view = dataSet.getView('Base_DataModel_Field', 'modelFields')!, modelView = dataSet.getView('Base_DataModel')!
+    editor.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', view.rows.find(row => row['rowid'] === 'PK')); await flushPromises()
+    await editor.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+    await fieldContractDom().get('[data-field-property="IsPKey"] input').setValue(false); await flushPromises()
+    await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
+    editor.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', view.rows.find(row => row['rowid'] === 'F1')); await flushPromises()
+    await editor.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+    await fieldContractDom().get('[data-field-property="IsPKey"] input').setValue(true); await flushPromises()
+    await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
+    f.loseNextResponse(); await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
+    expect(writes(f)).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(true); expect(modelView.hasUnconfirmedSave).toBe(true)
+    await wrapper.get('[data-action="verify-model"]').trigger('click'); await flushPromises()
+    expect(wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toContain('3 字段呈现')
+    expect(view.hasUnconfirmedSave).toBe(true); expect(modelView.hasUnconfirmedSave).toBe(true)
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+    expect(view.hasUnconfirmedSave).toBe(false); expect(modelView.hasUnconfirmedSave).toBe(false)
+    expect(view.rows.find(row => row['rowid'] === 'F1')?.['IsPKey']).toBe(0)
+    expect(modelView.rows.find(row => row['rowid'] === 'M1')?.['PrimaryKeyFields']).toBe('rowid')
+    expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toBe(false); expect(writes(f)).toHaveLength(1)
+  }, 30_000)
+
+  it('recovers an invalid native receipt from the field workspace by adopting current formal rows', async () => {
+    const f = fixture({allowSourceEdit: true, allowFieldEdit: true, editableFieldProperties: ['description'], sourceFields: [
+      {rowid: 'F1', dataModelId: 'M1', Name: 'amount', type: 'dataModel', FieldType: 'number', IsOutput: 1, description: '金额'},
+    ]})
+    const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
+    const session = f.sessions[0]!, dataSet = session.metadataDataSet
+    await openModelFieldsTab(wrapper)
+    const fieldView = dataSet.getView('Base_DataModel_Field', 'modelFields')!
+    fieldView.updateEditingValue('F1', 'description', '最终字段值')
+    await writeBound(wrapper.getComponent(DataSpaceModelEditor), 'description', '最终模型值')
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async (...args) => {
+      const result = await nativeSave(...args)
+      return result.data ? {...result, data: {...result.data, viewResults: []}} : result
+    })
+    await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
+    expect(writes(f)).toHaveLength(1)
+    expect(fieldView.hasUnconfirmedSave).toBe(false)
+    expect(dataSet.getView('Base_DataModel')?.hasUnconfirmedSave).toBe(false)
+    expect(instance.isDirty).toBe(true)
+
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+
+    expect(writes(f)).toHaveLength(1)
+    expect(fieldView.rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('最终字段值')
+    expect(dataSet.getView('Base_DataModel')?.rows.find(row => row['rowid'] === 'M1')?.['description']).toBe('最终模型值')
+    expect(instance.isDirty).toBe(false)
+    expect(wrapper.text()).toContain('已读取并采用当前正式结果')
+  }, 30_000)
+
+  it('preserves a second-view edit while adopting an invalid receipt across the original workspace', async () => {
+    const f = fixture({allowSourceEdit: true, allowFieldEdit: true, editableFieldProperties: ['description'], sourceFields: [
+      {rowid: 'F1', dataModelId: 'M1', Name: 'amount', type: 'dataModel', FieldType: 'number', IsOutput: 1, description: '金额'},
+    ]})
+    const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
+    const dataSet = f.sessions[0]!.metadataDataSet
+    await openModelFieldsTab(wrapper)
+    const fieldView = dataSet.getView('Base_DataModel_Field', 'modelFields')!
+    fieldView.updateEditingValue('F1', 'description', '最终字段值')
+    await writeBound(wrapper.getComponent(DataSpaceModelEditor), 'description', '最终模型值')
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async (...args) => {
+      const result = await nativeSave(...args)
+      return result.data ? {...result, data: {...result.data, viewResults: []}} : result
+    })
+    await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
+    expect(writes(f)).toHaveLength(1)
+    const modelView = dataSet.getView('Base_DataModel')!
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const load = modelView.loadFromServer.bind(modelView), held = vi.fn()
+    vi.spyOn(modelView, 'loadFromServer').mockImplementationOnce(async options => {
+      held(); const result = await load(options); await gate; return result
+    })
+
+    expect(wrapper.get('[data-action="verify-field"]').text()).toBe('读取并采用当前正式结果')
+    await wrapper.get('[data-action="verify-field"]').trigger('click')
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    fieldView.updateEditingValue('F1', 'description', '回读期间新修改')
+    release(); await flushPromises()
+    expect(fieldView.getEditingRow('F1')?.['description']).toBe('回读期间新修改')
+    expect(instance.isDirty).toBe(true)
+    expect(writes(f)).toHaveLength(1)
+    expect(wrapper.text()).toContain('读取当前正式结果期间出现新草稿')
+
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+    expect(fieldView.rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('最终字段值')
+    expect(modelView.rows.find(row => row['rowid'] === 'M1')?.['description']).toBe('最终模型值')
+    expect(instance.isDirty).toBe(false)
+    expect(writes(f)).toHaveLength(1)
+  }, 30_000)
+
   it('binds the model field table and editor to one scoped view and saves back into the full directory', async () => {
     const f = fixture({allowFieldEdit: true, editableFieldProperties: ['description', 'IsOutput'], sourceFields: [
       {rowid: 'PK', dataModelId: 'M1', Name: 'rowid', type: 'dataModel', FieldType: 'string', IsPKey: 1, IsOutput: 1},
@@ -3382,6 +3516,114 @@ describe('native data-space design entry', () => {
     expect(fresh.getModelEdit('M1').read().fields.find(item => item.name === 'description')?.value).toBe('模型统一保存')
   })
 
+  it('saves model and field drafts from the source tab in one unified workspace batch', async () => {
+    const f = fixture({allowFieldEdit: true, editableFieldProperties: ['description'], sourceFields: [
+      {rowid: 'F1', dataModelId: 'M1', Name: 'ordIdx', type: 'dataModel', FieldType: 'int', IsOutput: 1, description: '排序字段'},
+    ]})
+    const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
+    const tabs = wrapper.getComponent(RendererTabs), session = f.sessions[0]!
+    await openModelFieldsTab(wrapper)
+    const fieldView = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    const fieldTable = wrapper.get('[aria-label="字段配置编辑"]')
+    fieldTable.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', fieldView.rows[0]); await flushPromises()
+    await fieldTable.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+    await writeBound(fieldContractDom(), 'description', 'ordIdx描述')
+    await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
+    expect(fieldView.getEditingPatch('F1'), 'field editor must stage its contract into the native field view').toMatchObject({description: 'ordIdx描述'})
+    await tabs.get('#tab-source').trigger('click'); await flushPromises()
+    const modelEditor = wrapper.getComponent(DataSpaceModelEditor), modelView = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    await writeBound(modelEditor, 'description', 'SourceScope模型说明')
+    expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeUndefined()
+
+    await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
+
+    expect(writes(f), wrapper.findAll('[role="alert"]').map(item => item.text()).join(';')).toHaveLength(1)
+    expect(writes(f)[0]?.data).toEqual(expect.arrayContaining([
+      expect.objectContaining({TableName: 'Base_DataModel', CrudModel: expect.objectContaining({Changed: [expect.objectContaining({rowid: 'M1', description: 'SourceScope模型说明'})]})}),
+      expect.objectContaining({TableName: 'Base_DataModel_Field', CrudModel: expect.objectContaining({Changed: [expect.objectContaining({rowid: 'F1', description: 'ordIdx描述'})]})}),
+    ]))
+    expect(modelView.hasEditingChanges() || modelView.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(fieldView.hasEditingChanges() || fieldView.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(instance.isDirty).toBe(false)
+    const reopened = await f.open('A')
+    expect(reopened.metadataDataSet.getView('Base_DataModel')?.rows.find(row => row['rowid'] === 'M1')?.['description']).toBe('SourceScope模型说明')
+    expect((await reopened.loadModelFields('M1')).rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('ordIdx描述')
+    expect(writes(f)).toHaveLength(1)
+  })
+
+  it('saves a field-only draft from the source tab without loading sibling field views', async () => {
+    const f = fixture({allowFieldEdit: true, editableFieldProperties: ['description'], sourceFields: [
+      {rowid: 'F1', dataModelId: 'M1', Name: 'ordIdx', type: 'dataModel', FieldType: 'int', IsOutput: 1, description: '排序字段'},
+    ]})
+    const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
+    const tabs = wrapper.getComponent(RendererTabs), session = f.sessions[0]!
+    await openModelFieldsTab(wrapper)
+    const fieldView = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    const fieldTable = wrapper.get('[aria-label="字段配置编辑"]')
+    fieldTable.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', fieldView.rows[0]); await flushPromises()
+    await fieldTable.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+    await writeBound(fieldContractDom(), 'description', 'ordIdx独立修改')
+    await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
+    await tabs.get('#tab-source').trigger('click'); await flushPromises()
+    const dataSet = session.metadataDataSet, inputFields = dataSet.getView('Base_DataModel_Field', 'modelInputFields')
+    expect(inputFields?.requestState ?? RequestState.Idle).toBe(RequestState.Idle)
+    const fieldReadsBeforeSave = f.requests.filter(request => request.url === '/api/DataOperation/GetData'
+      && isRecord(request.data) && JSON.stringify(request.data).includes('modelInputFields')).length
+
+    expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeUndefined()
+    await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
+
+    expect(writes(f), wrapper.findAll('[role="alert"]').map(item => item.text()).join(';')).toHaveLength(1)
+    expect(writes(f)[0]?.data).toEqual([expect.objectContaining({TableName: 'Base_DataModel_Field', CrudModel: expect.objectContaining({
+      Added: [], Deleted: [], Changed: [expect.objectContaining({rowid: 'F1', description: 'ordIdx独立修改'})],
+    })})])
+    expect(inputFields?.requestState ?? RequestState.Idle).toBe(RequestState.Idle)
+    expect(f.requests.filter(request => request.url === '/api/DataOperation/GetData'
+      && isRecord(request.data) && JSON.stringify(request.data).includes('modelInputFields'))).toHaveLength(fieldReadsBeforeSave)
+    expect(fieldView.hasEditingChanges() || fieldView.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(instance.isDirty).toBe(false)
+    expect((await f.open('A').then(reopened => reopened.loadModelFields('M1'))).rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('ordIdx独立修改')
+    expect(writes(f)).toHaveLength(1)
+  })
+
+  it('keeps a combined native capture unknown when source-tab save loses its response and recovers it once from fields', async () => {
+    const f = fixture({allowFieldEdit: true, editableFieldProperties: ['description'], sourceFields: [
+      {rowid: 'F1', dataModelId: 'M1', Name: 'ordIdx', type: 'dataModel', FieldType: 'int', IsOutput: 1, description: '排序字段'},
+    ]})
+    const {wrapper, instance} = await page(); await select(wrapper, 'Orders')
+    const tabs = wrapper.getComponent(RendererTabs), session = f.sessions[0]!
+    await openModelFieldsTab(wrapper)
+    const fieldView = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    const fieldTable = wrapper.get('[aria-label="字段配置编辑"]')
+    fieldTable.getComponent(RendererTable).getComponent(SourceTable).vm.$emit('current-change', fieldView.rows[0]); await flushPromises()
+    await fieldTable.get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+    await writeBound(fieldContractDom(), 'description', 'unknown联合字段')
+    await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
+    await tabs.get('#tab-source').trigger('click'); await flushPromises()
+    await writeBound(wrapper.getComponent(DataSpaceModelEditor), 'description', 'unknown联合模型')
+    f.loseNextResponse()
+
+    await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
+
+    const modelView = session.metadataDataSet.getView('Base_DataModel', 'default')!
+    expect(writes(f)).toHaveLength(1)
+    expect(writes(f)[0]?.data).toEqual(expect.arrayContaining([
+      expect.objectContaining({TableName: 'Base_DataModel'}),
+      expect.objectContaining({TableName: 'Base_DataModel_Field'}),
+    ]))
+    expect(modelView.hasUnconfirmedSave).toBe(true)
+    expect(fieldView.hasUnconfirmedSave).toBe(true)
+    expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
+    await tabs.get('#tab-fields').trigger('click'); await flushPromises()
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+    expect(modelView.hasUnconfirmedSave).toBe(false)
+    expect(fieldView.hasUnconfirmedSave).toBe(false)
+    expect(modelView.rows.find(row => row['rowid'] === 'M1')?.['description']).toBe('unknown联合模型')
+    expect(fieldView.rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('unknown联合字段')
+    expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(item => item.text()).join(';')).toBe(false)
+    expect(writes(f)).toHaveLength(1)
+  }, 30_000)
+
   it('closes a view configuration without measuring hidden request labels or creating edits',async()=>{
     fixture()
     const warnings=vi.spyOn(console,'warn').mockImplementation(()=>{})
@@ -3481,24 +3723,27 @@ describe('native data-space design entry', () => {
     const held = vi.spyOn(models, 'loadFromServer').mockImplementationOnce(async options => {
       const result = await load(options); await gate; return result
     })
-    if (button === 'verify-field') await openModelFieldsTab(wrapper)
-    await wrapper.get(`[data-action="${button}"]`).trigger('click'); await flushPromises()
-    expect(held).toHaveBeenCalledTimes(1)
+    if (button === 'verify-model') {
+      await wrapper.get('[data-action="verify-model"]').trigger('click'); await flushPromises()
+      expect(wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toContain('3 字段呈现')
+      await openModelFieldsTab(wrapper)
+    } else await openModelFieldsTab(wrapper)
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+    expect(held, wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toHaveBeenCalledTimes(1)
     inputs.updateEditingValue('I1', 'ValueFun', later)
-    if (button === 'verify-field') fields.updateEditingValue('F1', 'description', '等待期间新字段')
+    fields.updateEditingValue('F1', 'description', '等待期间新字段')
     if (staged) {
       expect((await inputs.applyEditingRows(['I1'])).success).toBe(true)
-      if (button === 'verify-field') expect((await fields.applyEditingRows(['F1'])).success).toBe(true)
+      expect((await fields.applyEditingRows(['F1'])).success).toBe(true)
     }
     release(); await flushPromises()
     expect(inputs.getEditingRow('I1')?.['ValueFun']).toBe(later)
-    if (button === 'verify-field') expect(fields.getEditingRow('F1')?.['description']).toBe('等待期间新字段')
+    expect(fields.getEditingRow('F1')?.['description']).toBe('等待期间新字段')
     expect(instance.isDirty).toBe(true)
     expect(wrapper.findAll('[role="alert"]').some(alert => /草稿|修改/.test(alert.text()))).toBe(true)
     expect(writes(f)).toHaveLength(1)
     // Only a new explicit choice may discard these later changes and verify the original write.
-    if (button === 'verify-field') await openModelFieldsTab(wrapper)
-    await wrapper.get(`[data-action="${button}"]`).trigger('click'); await flushPromises()
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
     expect(inputs.getEditingRow('I1')?.['ValueFun']).toBe(original)
     expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toBe(false)
     inputs.updateEditingValue('I1', 'ValueFun', later); await flushPromises()
@@ -3508,6 +3753,39 @@ describe('native data-space design entry', () => {
     expect(reopened.getEditingRow('I1')?.['ValueFun']).toBe(later)
     expect(fresh.getModelEdit('M1').read().fields.find(field => field.name === 'description')?.value).toBe('已提交模型')
   }, 15_000)
+
+  it.each(['field-only', 'source-input-only'] as const)('recovers a %s capture without a model owner capture', async participant => {
+    const f = fixture({allowFieldEdit: true, allowSourceEdit: true, editableFieldProperties: ['description'], sourceFields: [
+      {rowid: 'F1', dataModelId: 'M1', Name: 'rowid', type: 'dataModel', FieldType: 'string', IsPKey: 1, IsOutput: 1, description: ''},
+      {rowid: 'I1', dataModelId: 'M1', Name: 'customerArg', type: 'inputParams', FieldType: 'string', ValueFun: ''},
+    ]})
+    if (participant === 'source-input-only') f.setModelValues({Type: '接口'})
+    const {wrapper, instance} = await page('?scenarioId=A', true); await select(wrapper, 'Orders'); await openModelFieldsTab(wrapper)
+    const session = f.sessions[0]!, dataSet = session.metadataDataSet, model = session.getModelEdit('M1')
+    if (participant === 'field-only') {
+      await wrapper.get('[aria-label="字段配置编辑"]').get('[data-action="edit-field"]').trigger('click'); await flushPromises()
+      await writeBound(fieldContractDom(), 'description', '字段单独保存')
+      await fieldContractDom().get('[data-action="close-field-editor"]').trigger('click'); await flushPromises()
+    }
+    else {
+      await session.loadSourceInputFields('M1')
+      session.getModelSourceInputs('M1')[0]!.stage('{"Type":"GetConstValue","Value":"参数单独保存"}')
+    }
+    f.loseNextResponse()
+    if (participant === 'field-only') {
+      expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeUndefined()
+      await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
+    } else await expect(session.getModelSourceInputs('M1')[0]!.save()).rejects.toThrow()
+    expect(model.getRecoveryCapture()).toBeUndefined()
+    const capture = participant === 'field-only' ? session.getFieldEdit('F1', 'modelFields').getRecoveryCapture() : session.getModelSourceInputs('M1')[0]!.getRecoveryCapture()
+    expect(capture).toBeDefined(); expect(capture!.targets.some(target => target.tableName === 'Base_DataModel')).toBe(false)
+    expect(writes(f)).toHaveLength(1)
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+    expect(instance.isDirty).toBe(false)
+    expect(writes(f)).toHaveLength(1)
+    if (participant === 'field-only') expect(dataSet.getView('Base_DataModel_Field', 'modelFields')?.rows.find(row => row['rowid'] === 'F1')?.['description']).toBe('字段单独保存')
+    else expect(dataSet.getView('Base_DataModel_Field', 'sourceInputFields')?.rows.find(row => row['rowid'] === 'I1')?.['ValueFun']).toContain('参数单独保存')
+  })
 
   it('keeps a lost combined receipt locked and verifies both parts without another write', async () => {
     const f = fixture({allowSourceEdit: true, allowFieldEdit: true, editableFieldProperties: ['description'], sourceFields: [
@@ -3525,7 +3803,7 @@ describe('native data-space design entry', () => {
     expect(wrapper.get('[data-action="save-model-workspace"]').attributes('disabled')).toBeDefined()
     await openModelFieldsTab(wrapper)
     await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
-    expect(instance.isDirty).toBe(false); expect(writes(f)).toHaveLength(1)
+    expect(instance.isDirty, wrapper.findAll('[role="alert"]').map(alert => alert.text()).join(';')).toBe(false); expect(writes(f)).toHaveLength(1)
     expect(session.getModelEdit('M1').getState()).toEqual({pending: false, status: 'idle'})
     expect(session.getFieldEdit('F1', 'modelFields').getState()).toEqual({pending: false, status: 'idle'})
   })

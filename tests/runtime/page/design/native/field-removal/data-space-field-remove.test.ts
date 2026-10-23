@@ -8,6 +8,7 @@ import {dataSpacePageFixture, designPageHost} from '../data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {fieldEditReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
 import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
+import {verifyAndDiscardDataSpaceDefinitionCapture} from '@/lowcode/data-space/model-source/save/data-space-definition-save'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
 import {createDynamicRouter} from '../../../../../../packages/spark-app/src/router/dynamic'
 
@@ -171,8 +172,11 @@ describe('computed field removal', () => {
       await expect(model.save(owners, inputs, [removal])).rejects.toThrow()
       await expect(model.save(owners, inputs, [removal])).rejects.toThrow()
       expect(writes(f)).toHaveLength(1)
+      const capture = removal.getRecoveryCapture()
+      expect(capture).toBeDefined(); expect(model.getRecoveryCapture()).toBe(capture)
+      if (outcome !== 'readback') await expect(model.reload(true)).rejects.toThrow('3 字段呈现')
+      expect(await verifyAndDiscardDataSpaceDefinitionCapture(session.metadataDataSet, capture!)).toMatch(/confirmed|already-confirmed/)
       await model.reload(true)
-      view.discardPendingChanges([...view.rows.map(row => String(row['rowid'])), 'CALC'])
       await fieldEditReloadBatch(owners, true)
       await LowcodeDataSpaceSourceInputEdit.reloadBatch(inputs, true)
       expect(await removal.verify()).toBe(outcome === 'readback')
@@ -446,6 +450,76 @@ describe('computed field removal', () => {
     expect(restored.rows.some(row => row['rowid'] === 'CALC')).toBe(outcome === 'surviving')
     if (outcome !== 'surviving') expect(reopened.getModelEdit('M1').read().fields.find(field => field.name === 'description')?.value).toBe('删除恢复后继续编辑')
   })
+
+  it('keeps a delete-only capture and pending-delete intent until the native result is known', async () => {
+    const f = fixture({omitDeleteWrite: 'Base_DataModel_Field'}), wrapper = await page(true), body = new DOMWrapper(document.body)
+    const session = f.sessions[0]!, view = session.metadataDataSet.getView('Base_DataModel_Field')!, removal = session.getFieldRemove('CALC')
+    await wrapper.get('[data-action="preview-remove-field"]').trigger('click'); await flushPromises()
+    await body.get('[data-action="confirm-remove-field"]').trigger('click'); await flushPromises()
+    f.loseNextResponse()
+    await wrapper.get('[data-action="save-field"]').trigger('click'); await flushPromises()
+    const capture = removal.getRecoveryCapture()
+    expect(capture).toBeDefined(); expect(session.getModelEdit('M1').getRecoveryCapture()).toBeUndefined()
+    expect(view.hasUnconfirmedSave).toBe(true); expect(view.dirtyTracking.isPendingDelete('CALC')).toBe(true)
+    expect(writes(f)).toHaveLength(1)
+
+    f.failNextQuery()
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+    expect(removal.getRecoveryCapture()).toBe(capture)
+    expect(view.hasUnconfirmedSave).toBe(true); expect(view.dirtyTracking.isPendingDelete('CALC')).toBe(true)
+    expect(writes(f)).toHaveLength(1)
+
+    await wrapper.get('[data-action="verify-field"]').trigger('click'); await flushPromises()
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(view.dirtyTracking.isPendingDelete('CALC')).toBe(false)
+    expect(view.rows.some(row => row['rowid'] === 'CALC')).toBe(true)
+    expect(wrapper.find('[data-action="accept-field-removals"]').exists()).toBe(true)
+    await wrapper.get('[data-action="accept-field-removals"]').trigger('click'); await flushPromises()
+    expect(writes(f)).toHaveLength(1); expect(removal.getState().status).toBe('idle')
+  })
+
+  it('preserves a later field patch when delete-only native verification is delayed', async () => {
+    const f = fixture(), wrapper = await page(true), body = new DOMWrapper(document.body)
+    const session = f.sessions[0]!, view = session.metadataDataSet.getView('Base_DataModel_Field')!, removal = session.getFieldRemove('CALC')
+    await wrapper.get('[data-action="preview-remove-field"]').trigger('click'); await flushPromises()
+    await body.get('[data-action="confirm-remove-field"]').trigger('click'); await flushPromises()
+    f.loseNextResponse()
+    await wrapper.get('[data-action="save-field"]').trigger('click'); await flushPromises()
+    expect(writes(f)).toHaveLength(1)
+    const release = f.holdNextQuery(true)
+    await wrapper.get('[data-action="verify-field"]').trigger('click')
+    await vi.waitFor(() => expect(view.requestState).toBe(3))
+    const lateEdit = await view.editRowById('PARENT', {description: '核验期间新草稿'})
+    expect(lateEdit).toBe(true)
+    release(); await flushPromises()
+    expect(removal.getRecoveryCapture()).toBeDefined()
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(view.dirtyTracking.isPendingDelete('CALC')).toBe(true)
+    expect(view.getEditingRow('PARENT')?.['description']).toBe('核验期间新草稿')
+    expect(writes(f)).toHaveLength(1)
+  })
+
+  it('preserves an applied late native diff on an original target during full-batch verification', async () => {
+    const f = fixture({overviewOnly: true, allowFieldEdit: true, editableFieldProperties: ['ValueFun']})
+    const session = await f.open('A'); await session.loadModelFields('M1')
+    const view = session.metadataDataSet.getView('Base_DataModel_Field', 'modelFields')!
+    const field = session.getFieldEdit('CALC', 'modelFields')
+    view.updateEditingValue('CALC', 'ValueFun', '{"Type":"GetConstValue","Value":7}')
+    f.loseNextResponse(); await expect(session.getModelEdit('M1').save([field])).rejects.toThrow()
+    const batch = field.getRecoveryCapture()!
+    expect(batch).toBeDefined()
+    const release = f.holdNextQuery()
+    const verification = verifyAndDiscardDataSpaceDefinitionCapture(session.metadataDataSet, batch)
+    await vi.waitFor(() => expect(view.requestState).toBe(3))
+    expect(await view.editRowById('CALC', {ValueFun: '{"Type":"GetConstValue","Value":8}'})).toBe(true)
+    release()
+    await expect(verification).rejects.toThrow('原目标出现新草稿')
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(view.getDirtyChanges('CALC')).toMatchObject({ValueFun: {from: '{"Type":"GetConstValue","Value":7}', to: '{"Type":"GetConstValue","Value":8}'}})
+    expect(view.rows.find(row => row['rowid'] === 'CALC')?.['ValueFun']).toBe('{"Type":"GetConstValue","Value":8}')
+    expect(writes(f)).toHaveLength(1)
+  })
+
   it('keeps the page recovery dialog after the field disappears and does not replay', async () => {
     const f = fixture({overviewOnly: true, deferDefinition: true}), wrapper = await page(), body = new DOMWrapper(document.body)
     await wrapper.get('[data-action="preview-remove-field"]').trigger('click'); await flushPromises()

@@ -1098,7 +1098,9 @@ const activeSave = computed(() => activeModelSection.value === 'dataProcess' ? p
     : activeModelSection.value === 'request' ? modelRequestEditor.value
       : activeModelSection.value === 'fields' ? metaFieldsEditor.value
         : activeModelSection.value === 'source'
-          ? (computedConfigPending.value ? computedEditor.value : modelEditor.value) : undefined)
+            ? (computedConfigPending.value ? computedEditor.value
+              : metaFieldsEditor.value?.hasEditor === true && (metaFieldsEditor.value.canSave === true || fieldEditorPending.value)
+                ? metaFieldsEditor.value : modelEditor.value) : undefined)
 const modelToolbar = computed(() => ({wrap: true, children: [
   {type: 'r-button', props: {'data-action': 'open-model-preview', label: '预览', buttonType: 'primary',
     visible: activeModelSection.value !== 'views',

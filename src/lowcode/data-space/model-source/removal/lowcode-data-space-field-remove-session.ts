@@ -4,7 +4,7 @@
  * 边界：不删除物理字段或自动改写引用；数据权限、暂存及写入归原DataView/DataSet。
  */
 import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {DataSpaceDefinitionSave, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
+import {DataSpaceDefinitionSave, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
 import {LowcodeDataSpaceModelDependencies} from '../lowcode-data-space-model-dependencies'
 import {LowcodeDataSpaceFieldRemoveReferences} from './lowcode-data-space-field-remove-references'
 
@@ -37,6 +37,7 @@ export type FieldRemoveHost = {
   readonly source: DataView
   readonly sourceContext: string
   dependencies: LowcodeDataSpaceModelDependencies | undefined
+  recoveryCapture?: DataSpaceDefinitionCaptureBatch
   flow: FieldRemoveFlow
 }
 
@@ -194,12 +195,13 @@ export function fieldRemovePrepareSave(host: FieldRemoveHost): DataSpaceDefiniti
     apply: async () => {if (!host.flow.staged) await fieldRemoveStage(host)},
     check: () => {check?.(); assertPermission(host); if (snapshot(host) !== host.flow.baseline) throw new Error('提交前字段或依赖已变化')},
     targets: () => [{tableName: host.source.tableName, viewId: host.source.viewId, ids: [host.fieldId]}],
-    dispatched: () => {host.flow.status = 'saving'; host.lifecycle.onDispatch()},
+    dispatched: capture => {host.recoveryCapture = capture; host.flow.status = 'saving'; host.lifecycle.onDispatch()},
     confirm: async () => {
       host.flow.confirmed = true; host.flow.staged = false
       if (!await fieldRemoveReadback(host)) throw new Error(host.flow.verification)
       fieldRemoveFinish(host)
     },
+    settled: () => {delete host.recoveryCapture},
     failed: stage => {
       if (!host.flow.row) return
       if (stage === 'confirmed') {host.flow.confirmed = true; host.flow.staged = false}
@@ -250,10 +252,19 @@ async function fieldRemoveReadback(host: FieldRemoveHost): Promise<boolean> {
 export async function fieldRemoveVerify(host: FieldRemoveHost): Promise<boolean> {
   const recovery = flowStatus(host)
   if (!['unknown', 'readback', 'different'].includes(recovery)) throw new Error('没有待核验的字段删除')
-  host.dataSet.abandonUnconfirmedSaves()
-  fieldRemoveDiscardOwned(host); host.flow.status = 'saving'
+  const capture = host.recoveryCapture
+  if (capture && !capture.verified && capture.targets.some(target => target.tableName !== host.source.tableName
+    || target.viewId !== host.source.viewId || target.ids.length !== 1 || target.ids[0] !== host.fieldId)) {
+    throw new Error('原删除属于联合定义批次；请从完整字段工作区统一核验')
+  }
+  host.flow.status = 'saving'
   try {
+    if (capture && !capture.verified && (capture.receiptInvalid || capture.targets.some(target => target.view.hasUnconfirmedSave))) {
+      await verifyDataSpaceDefinitionCapture(host.dataSet, capture, capture.receiptInvalid === true)
+    }
+    if (!capture?.discarded) fieldRemoveDiscardOwned(host)
     const confirmed = await fieldRemoveReadback(host)
+    delete host.recoveryCapture
     if (confirmed) fieldRemoveFinish(host); else host.flow.status = 'different'
     return confirmed
   } catch (error) {host.flow.status = 'readback'; throw error}
@@ -267,6 +278,8 @@ export function fieldRemoveAcceptCurrent(host: FieldRemoveHost): void {
 
 export type FieldRemoveHandle = {
   getState(): ReturnType<typeof fieldRemoveGetState>
+  hasInvalidReceipt(): boolean
+  getRecoveryCapture(): DataSpaceDefinitionCaptureBatch | undefined
   preview(): Promise<void>
   cancel(): void
   stage(): Promise<void>
@@ -279,6 +292,8 @@ export type FieldRemoveHandle = {
 export function createFieldRemoveHandle(host: FieldRemoveHost): FieldRemoveHandle {
   return {
     getState: () => fieldRemoveGetState(host),
+    hasInvalidReceipt: () => host.recoveryCapture?.receiptInvalid === true,
+    getRecoveryCapture: () => host.recoveryCapture,
     preview: () => fieldRemovePreview(host),
     cancel: () => fieldRemoveCancel(host),
     stage: () => fieldRemoveStage(host),

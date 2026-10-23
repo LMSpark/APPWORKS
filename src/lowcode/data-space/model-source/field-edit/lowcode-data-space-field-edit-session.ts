@@ -7,7 +7,7 @@ import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-ap
 import type {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceFieldValue} from '../field-value/lowcode-data-space-field-value'
-import {DataSpaceDefinitionSave, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
+import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
 import type {FieldRemoveHandle} from '../removal/lowcode-data-space-field-remove-session'
 import {LowcodeDataSpacePrimaryKey} from '../primary-key/lowcode-data-space-primary-key'
 
@@ -69,6 +69,7 @@ export class FieldEditSession {
   #baseline: string
   #created: boolean
   #status: FieldEditStatus = 'idle'
+  #recoveryCapture: DataSpaceDefinitionCaptureBatch | undefined
 
   /** 捕获当前字段及所属模型；派发提交后通知会话废弃旧目标投影。 */
   constructor(input: FieldEditSessionInput) {
@@ -148,6 +149,8 @@ export class FieldEditSession {
 
   /** 状态仅描述流程；未决提交即使没有delta仍需保留核验入口。 */
   getState() {return {status: this.flowStatus(), pending: this.#view.hasEditingChanges(this.fieldId) || this.#view.dirtyTracking.hasPendingChanges(this.fieldId)}}
+  hasInvalidReceipt(): boolean {return this.#recoveryCapture?.receiptInvalid === true}
+  getRecoveryCapture(): DataSpaceDefinitionCaptureBatch | undefined {return this.#recoveryCapture}
 
   /**
    * 读取可由正式查询消费的字段配置；不保存或改变模型定义。
@@ -463,7 +466,7 @@ export class FieldEditSession {
         assertOutputs?.()
       },
       targets: () => [{tableName: view.tableName, viewId: view.viewId, ids: changedIds}],
-      dispatched: () => first.lifecycle.onDispatch(),
+      dispatched: capture => {owners.forEach(owner => {owner.#recoveryCapture = capture}); first.lifecycle.onDispatch()},
       confirm: async () => {
         if (requiresReadback) await first.readback()
         else await first.lifecycle.refreshDirectory?.()
@@ -479,6 +482,7 @@ export class FieldEditSession {
         }
         owners.forEach(owner => {owner.#baseline = owner.snapshot(owner.current()); owner.#created = false; owner.#status = 'idle'})
       },
+      settled: () => {owners.forEach(owner => {owner.#recoveryCapture = undefined})},
       failed: stage => {owners.forEach(owner => {
         owner.#status = stage === 'confirmed' ? 'readback'
           : stage === 'dispatched' ? (owner.#view.hasUnconfirmedSave ? 'unsubmitted' : 'unknown')
@@ -488,8 +492,6 @@ export class FieldEditSession {
   }
 
   private async readback(): Promise<void> {
-
-    this.dataSet.abandonUnconfirmedSaves()
     this.assertOwner()
     if (this.#view.hasEditingChanges() || this.#view.dirtyTracking.hasPendingChanges()) throw new Error('字段草稿仍未处理，不能用回读覆盖')
     const result = await this.#view.loadFromServer({filter: this.#view.filterExpression ?? {field: 'dataSetId', operator: 'eq', value: this.targetId}, sort: 'rowid:asc', allPages: true, maxRows: 50000})
@@ -507,7 +509,7 @@ export class FieldEditSession {
     await this.prepareReloadBatch(owners, discardPending)()
   }
 
-  /** 同步放弃本次明确选择的字段差异，返回原视图只读核验；先准备联合目标，异步等待中新增的草稿不得再次取消。 */
+  /** 按原捕获范围核验；等待期间字段草稿变化时拒绝迟到丢弃。 */
   static prepareReloadBatch(owners: readonly FieldEditSession[], discardPending: boolean): () => Promise<void> {
     owners = [...owners]
     const first = this.batch(owners, false), view = first.#view, ids = owners.map(owner => owner.fieldId)
@@ -515,11 +517,24 @@ export class FieldEditSession {
     if (owners.some(owner => owner.getState().pending) && !discardPending) throw new Error('本地字段修改尚未明确放弃')
     if (view.rows.some(row => !ids.includes(String(view.getPkKey(row)))
       && (view.hasEditingChanges(view.getPkKey(row)) || view.dirtyTracking.hasPendingChanges(view.getPkKey(row))))) throw new Error('请先处理其他字段草稿，避免完整回读覆盖')
-    if (discardPending) view.discardPendingChanges(ids)
+    const capture = first.#recoveryCapture
+    if (capture && !capture.verified && capture.targets.some(target => target.tableName !== view.tableName || target.viewId !== view.viewId
+      || target.ids.some(id => !ids.includes(id)))) {
+      throw new Error('原保存包含模型或其他字段目标；请从完整字段工作区统一核验')
+    }
+    const discardIds = capture ? capture.targets.filter(target => target.view === view).flatMap(target => target.ids) : ids
+    const snapshot = () => definitionTargetDraftSignature(view, ids)
+    const before = snapshot()
     return async () => {
       if (owners.some(owner => owner.#status === 'pending') || view.mutating || view.requestState === RequestState.Loading) throw new Error('字段请求仍在进行')
       owners.forEach(owner => {owner.#status = 'pending'})
       try {
+        if (snapshot() !== before) throw new Error('准备回读后字段草稿已变化；保留修改，请重新核验')
+        if (capture && !capture.verified && (capture.receiptInvalid || capture.targets.some(target => target.view.hasUnconfirmedSave))) {
+          await verifyDataSpaceDefinitionCapture(first.dataSet, capture, discardPending)
+        }
+        if (discardPending && !(capture?.acceptedCurrent)) view.discardPendingChanges(discardIds)
+        owners.forEach(owner => {owner.#recoveryCapture = undefined})
         await first.readback()
         owners.forEach(owner => {
           // 显式放弃并回读后，未落库的新增已撤销；不能把缺失当成新增成功，也不重放请求。

@@ -2,6 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
+import {verifyAndDiscardDataSpaceDefinitionCapture} from '@/lowcode/data-space/model-source/save/data-space-definition-save'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {vi.restoreAllMocks(); fixtures.splice(0).forEach(f => f.dispose())})
@@ -109,6 +110,10 @@ describe('source parameters in the model workspace batch', () => {
     await expect(model.save([], inputs)).rejects.toThrow()
     expect(inputs.map(owner => owner.getState().status)).toEqual(['unknown', 'unknown'])
     await expect(model.save([], inputs)).rejects.toThrow()
+    const capture = inputs[0]!.getRecoveryCapture()
+    expect(capture).toBeDefined(); expect(model.getRecoveryCapture()).toBe(capture)
+    await expect(model.reload(true)).rejects.toThrow('3 字段呈现')
+    expect(await verifyAndDiscardDataSpaceDefinitionCapture(f.sessions[0]!.metadataDataSet, capture!)).toBe('confirmed')
     await model.reload(true); await LowcodeDataSpaceSourceInputEdit.reloadBatch(inputs, true)
     expect(inputs.every(owner => owner.getState().status === 'idle')).toBe(true)
     expect(writes()).toHaveLength(1)

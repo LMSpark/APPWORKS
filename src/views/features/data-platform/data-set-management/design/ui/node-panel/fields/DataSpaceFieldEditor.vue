@@ -50,6 +50,7 @@ AI用途：数据空间设计的字段配置入口，保留数据权限、取消
       <p v-if="activeFieldHidden" role="status">当前字段在列表中已隐藏，编辑和草稿继续保留；勾选“显示系统字段”可重新显示，或点击“编辑字段”继续维护。</p>
     </template>
     <p v-if="state.error || workspaceState.error || error" role="alert">{{ error || state.error || workspaceState.error }}</p>
+    <p v-if="invalidReceipt" role="alert">原保存回执无效。点击“读取并采用当前正式结果”会放弃本批目标的本地修改并回读正式数据，不表示原提交已确认成功。</p>
     <p v-if="fieldIds && functionState?.warning" role="status">{{ functionState.warning }}</p>
     <p v-if="message" role="status">{{ message }}</p>
     <component :is="fieldIds ? RendererDialog : 'div'" v-if="(!fieldIds || editOpen) && state.data && view && !view.destroyed"
@@ -110,7 +111,7 @@ AI用途：数据空间设计的字段配置入口，保留数据权限、取消
       <RendererButton v-if="removalOwners().some(item => item.getState().status === 'different')" data-action="accept-field-removals" label="采用当前正式结果" :disabled="busy || disabled" @click="acceptRemovals" />
       <RendererButton v-if="!workspaceModelId" button-type="primary" data-action="save-field" :disabled="blocked || !(state.pending || workspaceState.pending) || dialogOpen" @click="save" :label="fieldIds ? '批量保存字段配置' : '保存字段配置'" />
       <RendererButton data-action="cancel-field" :disabled="busy || disabled || editOpen || state.status !== 'idle' || workspaceState.status !== 'idle' || !(state.pending || workspaceState?.pending) || dialogOpen" @click="discard" label="放弃本地修改" />
-      <RendererButton v-if="state.status !== 'idle' || state.error || workspaceState.status !== 'idle'" data-action="verify-field" :disabled="busy || disabled || dialogOpen" @click="verify" :label="state.pending || workspaceState.pending ? '放弃本地修改并核验' : '重新核验字段配置'" />
+      <RendererButton v-if="state.status !== 'idle' || state.error || workspaceState.status !== 'idle'" data-action="verify-field" :disabled="busy || disabled || dialogOpen" @click="verify" :label="invalidReceipt ? '读取并采用当前正式结果' : state.pending || workspaceState.pending ? '放弃本地修改并核验' : '重新核验字段配置'" />
       <RendererButton v-if="!fieldIds && computedField" :data-view-key="dataViewKey" button-type="danger" data-action="preview-remove-field" label="删除计算字段"
         :disabled="blocked || dialogOpen || !canRemove" @click="requestRemoval" />
     </div>
@@ -123,6 +124,7 @@ import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@sp
 import type {DataSpaceFieldEditorProps} from './DataSpaceFieldEditor.props'
 import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session'
 import {fieldEditPrepareReloadBatch, fieldEditSaveBatch, fieldEditStageOutputBatch} from '@/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session'
+import {verifyAndDiscardDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/save/data-space-definition-save'
 
 type RTableProps = SparkComponent.RTableProps
 const {DisplayText, RendererButton, FieldCheckbox, FieldNumber, FieldSelect, FieldText, FieldTextarea, FieldValueFunction, RendererDialog, RendererForm, RendererTable, RendererSection} = SparkComponent
@@ -197,6 +199,7 @@ const state = computed(() => {
   }
 })
 const workspaceModel = computed(() => {props.revision; tick.value; return props.workspaceModelId ? props.session.getModelEdit(props.workspaceModelId) : undefined})
+const invalidReceipt = computed(() => {try {return workspaceModel.value?.hasInvalidReceipt() === true || owners().some(owner => owner.hasInvalidReceipt()) || sourceOwners().some(owner => owner.hasInvalidReceipt()) || removalOwners().some(owner => owner.hasInvalidReceipt())} catch {return false}})
 const contractFields = computed(() => {
   props.revision; tick.value
   try {
@@ -213,6 +216,14 @@ function removalOwners() {
   return typeof modelId === 'string' ? props.session.getModelFieldRemovals(modelId, props.viewId ?? 'default') : []
 }
 function sourceOwners() {return props.workspaceModelId ? props.session.getModelSourceInputs(props.workspaceModelId) : []}
+function recoveryCapture(): DataSpaceDefinitionCaptureBatch | undefined {
+  const candidates = [workspaceModel.value?.getRecoveryCapture(), ...owners().map(item => item.getRecoveryCapture()),
+    ...sourceOwners().map(item => item.getRecoveryCapture()), ...removalOwners().map(item => item.getRecoveryCapture())].filter(
+      (capture): capture is DataSpaceDefinitionCaptureBatch => capture !== undefined)
+  const captures = [...new Set(candidates)]
+  if (captures.length > 1) throw new Error('字段工作区参与者持有不同的原定义批次；不能合并猜测恢复')
+  return captures[0]
+}
 const workspaceState = computed(() => {
   props.revision; tick.value
   try {
@@ -344,18 +355,21 @@ async function stageOutput(mode: 'all' | 'invert'): Promise<void> {
 async function run(action: 'save' | 'verify'): Promise<void> {
   if (busy.value || props.disabled || dialogOpen.value || editOpen.value) return
   busy.value = true; error.value = ''; message.value = ''
+  let recoveryOutcome: 'adopted-current' | 'verified' | undefined
   try {
     if (action === 'save') {
       if (workspaceModel.value) await workspaceModel.value.save(owners(), sourceOwners(), removalOwners())
       else await fieldEditSaveBatch(owners(), removalOwners())
     } else {
       const removals = removalOwners(), fields = owners(), inputs = sourceOwners()
-      if (removals.length) view.value?.discardPendingChanges([...ids.value, ...removals.map(item => item.getState().preview!.id)])
+      const capture = recoveryCapture(), recoveredWorkspace = capture !== undefined
+      if (capture) recoveryOutcome = await verifyAndDiscardDataSpaceDefinitionCapture(props.session.metadataDataSet, capture) === 'accepted-current'
+        ? 'adopted-current' : 'verified'
       const reloadModel = workspaceModel.value && (workspaceModel.value.getState().pending || workspaceModel.value.getState().status !== 'idle')
-        ? workspaceModel.value.prepareReload(workspaceModel.value.getState().pending) : undefined
+        ? workspaceModel.value.prepareReload(recoveredWorkspace || workspaceModel.value.getState().pending) : undefined
       const reloadFields = fields.length && (!removals.length || fields.some(item => item.getState().pending || item.getState().status !== 'idle'))
-        ? fieldEditPrepareReloadBatch(fields, fields.some(item => item.getState().pending)) : undefined
-      const reloadInputs = LowcodeDataSpaceSourceInputEdit.prepareReloadBatch(inputs, inputs.some(item => item.getState().pending))
+        ? fieldEditPrepareReloadBatch(fields, recoveredWorkspace || fields.some(item => item.getState().pending)) : undefined
+      const reloadInputs = LowcodeDataSpaceSourceInputEdit.prepareReloadBatch(inputs, recoveredWorkspace || inputs.some(item => item.getState().pending))
       await reloadModel?.()
       await reloadFields?.()
       await reloadInputs()
@@ -363,7 +377,7 @@ async function run(action: 'save' | 'verify'): Promise<void> {
     }
     if (active) message.value = action === 'save'
       ? `${props.fieldIds ? '本次字段配置已批量保存' : '本次字段配置已保存'}${ids.value.some(id => view.value?.hasEditingChanges(id) || view.value?.dirtyTracking.hasPendingChanges(id)) || sourceOwners().some(owner => owner.getState().pending) || workspaceModel.value?.getState().pending ? '；仍有后续修改待保存' : ''}`
-      : '已重新读取字段配置；未重复提交'
+      : recoveryOutcome === 'adopted-current' ? '原回执无效；已读取并采用当前正式结果，未重复提交' : '已重新读取字段配置；未重复提交'
   } catch (cause) {if (active) error.value = describe(cause)}
   finally {if (active) {busy.value = false; changed()}}
 }

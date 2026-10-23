@@ -10,7 +10,7 @@ import {LowcodeDataSpacePrimaryKey} from '../primary-key/lowcode-data-space-prim
 import type {FieldRemoveHandle} from '../removal/lowcode-data-space-field-remove-session'
 import {fieldEditPrepareSave, fieldEditStagePrimaryKey, type FieldEditSession} from '../field-edit/lowcode-data-space-field-edit-session'
 import {sourceInputPrepareSave, type SourceInputHandle} from '../source-input/lowcode-data-space-source-input-session'
-import {DataSpaceDefinitionSave, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
+import {DataSpaceDefinitionSave, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
 
 type ModelEditStatus = 'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback'
 
@@ -56,6 +56,7 @@ export class ModelEditSession {
   #primaryRows = new Map<string, string>()
   #primaryWorkspace = false
   #fields: DataView | undefined
+  #recoveryCapture: DataSpaceDefinitionCaptureBatch | undefined
 
   /** 捕获目标、正式查询和来源身份；派发写入时通知会话废弃此前目标投影。 */
   constructor(private readonly dataSet: DataSet, private readonly targetId: string, private readonly modelId: string,
@@ -394,7 +395,7 @@ export class ModelEditSession {
       },
       targets: () => [{tableName: this.#view.tableName, viewId: this.#view.viewId, ids: [this.modelId]},
         ...!workspace && this.#primary?.changes.length ? [{tableName: this.#primary.fields.tableName, viewId: this.#primary.fields.viewId, ids: this.#primary.changes.map(change => change.id)}] : []],
-      dispatched: () => this.lifecycle.onDispatch(),
+      dispatched: capture => {this.#recoveryCapture = capture; this.lifecycle.onDispatch()},
       confirm: async () => {
       // Ordinary edits already have an accepted field-level DataSet receipt.
       // A primary-key migration additionally verifies its coupled field markers.
@@ -409,14 +410,13 @@ export class ModelEditSession {
       this.#primaryRows.clear()
       this.#status = 'idle'
       },
+      settled: () => {this.#recoveryCapture = undefined},
       failed: stage => {this.#status = stage === 'confirmed' ? 'readback'
         : stage === 'dispatched' ? (this.#view.hasUnconfirmedSave ? 'unsubmitted' : 'unknown') : 'unsubmitted'},
     }
   }
 
   private async readback(): Promise<void> {
-
-    this.dataSet.abandonUnconfirmedSaves()
     this.assertOwner()
     if (this.#view.hasEditingChanges() || this.#view.dirtyTracking.hasPendingChanges()) throw new Error('模型草稿仍未处理，不能用回读覆盖')
     const result = await this.#view.loadFromServer({filter: {field: 'dataSetId', operator: 'eq', value: this.targetId}, sort: 'rowid:asc', allPages: true, maxRows: 50000})
@@ -434,12 +434,42 @@ export class ModelEditSession {
 
   /** 显式处理待提交或未知状态，只读取正式结果，绝不自动重放写入。 */
   async reload(discardPending: boolean): Promise<void> {
+    const capture = this.#recoveryCapture
+    if (capture && (capture.receiptInvalid || capture.targets.some(target => target.view.hasUnconfirmedSave))) {
+      if (capture.targets.some(target => target.tableName !== this.#view.tableName || target.viewId !== this.#view.viewId
+        || target.ids.length !== 1 || target.ids[0] !== this.modelId)) throw new Error('原联合批次包含字段目标；请切换到“3 字段呈现”并使用“重新核验字段配置”核验完整批次')
+      await this.verifyRecovery(discardPending)
+    }
     await this.prepareReload(discardPending)()
+  }
+
+  /** 工作区先核验一次原联合批次，再按原参与selector显式放弃；绝不猜当前dirty行。 */
+  hasRecoveryCapture(): boolean {return this.#recoveryCapture !== undefined}
+  getRecoveryCapture(): DataSpaceDefinitionCaptureBatch | undefined {return this.#recoveryCapture}
+  hasInvalidReceipt(): boolean {return this.#recoveryCapture?.receiptInvalid === true}
+  requiresWorkspaceRecovery(): boolean {return this.#recoveryCapture?.targets.some(target => target.tableName !== this.#view.tableName
+    || target.viewId !== this.#view.viewId || target.ids.length !== 1 || target.ids[0] !== this.modelId) === true}
+
+  async verifyRecovery(discardPending: boolean): Promise<'adopted-current' | 'verified'> {
+    this.assertOwner()
+    if (!this.#recoveryCapture) throw new Error('缺少原联合批次身份；请从字段工作区统一核验')
+    const capture = this.#recoveryCapture
+    const previous = this.#status
+    if (previous === 'pending' || capture.targets.some(target => target.view.mutating || target.view.requestState === RequestState.Loading)) throw new Error('原定义批次仍在进行')
+    this.#status = 'pending'
+    try {
+      const outcome = await verifyDataSpaceDefinitionCapture(this.dataSet, capture, discardPending)
+      if (discardPending && outcome !== 'accepted-current') for (const target of capture.targets) target.view.discardPendingChanges([...target.ids])
+      this.#recoveryCapture = undefined
+      this.#status = previous
+      return outcome === 'accepted-current' ? 'adopted-current' : 'verified'
+    } catch (cause) {this.#status = previous; throw cause}
   }
 
   /** 同步确认并放弃本次模型差异，返回只读核验动作；联合核验须先准备全部目标再执行，后续编辑仍由原视图保护。 */
   prepareReload(discardPending: boolean): () => Promise<void> {
     this.assertOwner()
+    if (this.#recoveryCapture?.targets.some(target => target.view.hasUnconfirmedSave)) throw new Error('原联合批次包含字段目标；请切换到“3 字段呈现”并使用“重新核验字段配置”核验完整批次')
     if (this.#status === 'pending' || this.#view.mutating || this.#view.requestState === RequestState.Loading) throw new Error('模型请求仍在进行')
     if (this.getState().pending && !discardPending) throw new Error('本地模型修改尚未明确放弃')
     if (discardPending) {
@@ -458,7 +488,7 @@ export class ModelEditSession {
       this.assertOwner()
       if (this.#status === 'pending' || this.#view.mutating || this.#view.requestState === RequestState.Loading) throw new Error('模型请求仍在进行')
       this.#status = 'pending'
-      try {await this.readback(); if (this.#primary) this.lifecycle.primaryKeyChanged?.(this.#primaryWorkspace ? this.#primary.fields.viewId : undefined); this.#primary = undefined; this.#primaryWorkspace = false; this.#primaryRows.clear(); this.#status = 'idle'} catch (cause) {this.#status = 'readback'; throw cause}
+      try {await this.readback(); if (this.#primary) this.lifecycle.primaryKeyChanged?.(this.#primaryWorkspace ? this.#primary.fields.viewId : undefined); this.#primary = undefined; this.#primaryWorkspace = false; this.#primaryRows.clear(); this.#recoveryCapture = undefined; this.#status = 'idle'} catch (cause) {this.#status = 'readback'; throw cause}
     }
   }
 }

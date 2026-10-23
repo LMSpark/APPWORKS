@@ -66,10 +66,11 @@ AI用途：模型节点的配置编辑、取消、保存回读与未知结果核
     </RendererSection>
     </div>
     <p v-if="(state.status !== 'idle' || sourceState.status !== 'idle')" role="alert">提交尚未完全确认，请先核验；不会自动重复写入。</p>
+    <p v-if="owner.requiresWorkspaceRecovery()" role="alert">原批次还包含字段或来源参数；模型页核验不会处理联合提交。请进入“3 字段呈现”页签，使用“重新核验字段配置”完成全批次核验与回读。</p>
     <div class="actions">
       <RendererButton v-if="!workspaceActions" button-type="primary" data-action="save-model" :disabled="blocked || !(state.pending || sourceState.pending) || dialogOpen" @click="save" label="保存模型配置" />
       <RendererButton data-action="cancel-model" :disabled="busy || disabled || state.status !== 'idle' || !(state.pending || sourceState.pending) || dialogOpen" @click="discard" label="放弃本地修改" />
-      <RendererButton v-if="state.status !== 'idle' || state.error || sourceState.status !== 'idle'" data-action="verify-model" :disabled="busy || disabled || dialogOpen" @click="verify" :label="state.pending || sourceState.pending ? '放弃本地修改并核验' : '重新核验模型'" />
+      <RendererButton v-if="state.status !== 'idle' || state.error || sourceState.status !== 'idle'" data-action="verify-model" :disabled="busy || disabled || dialogOpen" @click="verify" :label="owner.requiresWorkspaceRecovery() ? '查看联合批次核验入口' : owner.hasInvalidReceipt() ? '读取并采用当前正式结果' : state.pending || sourceState.pending ? '放弃本地修改并核验' : '重新核验模型'" />
     </div>
   </section>
 </template>
@@ -233,9 +234,9 @@ async function run(action: 'save' | 'verify'): Promise<void> {
     if (action === 'save') await owner.value.save([], sourceOwners())
     else {
       const inputs = sourceOwners()
-      const reloadModel = owner.value.prepareReload(owner.value.getState().pending)
+      if (owner.value.hasRecoveryCapture()) await owner.value.reload(true)
+      else await owner.value.prepareReload(owner.value.getState().pending)()
       const reloadInputs = LowcodeDataSpaceSourceInputEdit.prepareReloadBatch(inputs, inputs.some(item => item.getState().pending))
-      await reloadModel()
       await reloadInputs()
     }
     if (active) message.value = action === 'save' ? '模型配置已保存并回读；重新打开可重建目标定义' : '已读取当前模型配置；未重复提交'

@@ -4,7 +4,7 @@
  */
 import {DataViewFilter, RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
-import {DataSpaceDefinitionSave, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
+import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionSavePart} from '../save/data-space-definition-save'
 
 export type SourceInputStatus = 'idle' | 'pending' | 'unsubmitted' | 'unknown' | 'readback'
 
@@ -26,6 +26,7 @@ export type SourceInputHost = {
   readonly targetId: string
   readonly viewId: 'default' | 'sourceInputFields'
   flow: {status: SourceInputStatus}
+  recoveryCapture?: DataSpaceDefinitionCaptureBatch
   lifecycle: SourceInputLifecycle
 }
 
@@ -238,12 +239,13 @@ function sourceInputPrepareSaveHosts(owners: readonly SourceInputHost[]): DataSp
       }
     },
     targets: () => [{tableName: view.tableName, viewId: view.viewId, ids: changedIds}],
-    dispatched: () => first.lifecycle.onDispatch(),
+    dispatched: capture => {owners.forEach(owner => {owner.recoveryCapture = capture}); first.lifecycle.onDispatch()},
     confirm: async () => {
       await first.lifecycle.refreshDirectory?.()
       for (const {owner, value} of changes) if (sourceInputRow(owner, false)['ValueFun'] !== value) throw new Error('来源入参确认结果与提交值不一致')
       owners.forEach(owner => {owner.baseline = sourceInputRow(owner, false)['ValueFun']; owner.flow.status = 'idle'})
     },
+    settled: () => {owners.forEach(owner => {delete owner.recoveryCapture})},
     failed: stage => {owners.forEach(owner => {
       owner.flow.status = stage === 'confirmed' ? 'readback'
         : stage === 'dispatched' ? (owner.view.hasUnconfirmedSave ? 'unsubmitted' : 'unknown')
@@ -253,7 +255,6 @@ function sourceInputPrepareSaveHosts(owners: readonly SourceInputHost[]): DataSp
 }
 
 async function readbackHost(host: SourceInputHost): Promise<void> {
-  host.dataSet.abandonUnconfirmedSaves()
   assertOwner(host)
   if (host.view.hasEditingChanges() || host.view.dirtyTracking.hasPendingChanges()) throw new Error('请先明确处理字段草稿，不能用回读覆盖修改')
   const result = await host.view.loadFromServer({filter: host.view.filterExpression ?? {field: 'dataSetId', operator: 'eq', value: host.targetId}, sort: 'rowid:asc', allPages: true, maxRows: 50000})
@@ -278,11 +279,22 @@ export function sourceInputPrepareReloadBatch(owners: readonly SourceInputHandle
   if (hosts.some(owner => sourceInputGetState(owner).pending) && !discardPending) throw new Error('本地修改尚未明确放弃')
   if (view.rows.some(row => !ids.includes(String(view.getPkKey(row)))
     && (view.hasEditingChanges(view.getPkKey(row)) || view.dirtyTracking.hasPendingChanges(view.getPkKey(row))))) throw new Error('请先处理其他字段草稿，不能用回读覆盖修改')
-  if (discardPending) view.discardPendingChanges(ids)
+  const capture = first.recoveryCapture
+  if (capture && !capture.verified && capture.targets.some(target => target.tableName !== view.tableName || target.viewId !== view.viewId
+    || target.ids.some(id => !ids.includes(id)))) throw new Error('原联合批次包含来源入参以外目标；请从完整字段工作区统一核验')
+  const discardIds = capture ? capture.targets.filter(target => target.view === view).flatMap(target => target.ids) : ids
+  const snapshot = () => definitionTargetDraftSignature(view, ids)
+  const before = snapshot()
   return async () => {
     if (hosts.some(owner => owner.flow.status === 'pending') || view.mutating || view.requestState === RequestState.Loading) throw new Error('来源入参请求仍在进行')
     hosts.forEach(owner => {owner.flow.status = 'pending'})
     try {
+      if (snapshot() !== before) throw new Error('准备回读后来源入参草稿已变化；保留修改，请重新核验')
+      if (capture && !capture.verified && (capture.receiptInvalid || capture.targets.some(target => target.view.hasUnconfirmedSave))) {
+        await verifyDataSpaceDefinitionCapture(first.dataSet, capture, discardPending)
+      }
+      if (discardPending && !capture?.acceptedCurrent) view.discardPendingChanges(discardIds)
+      hosts.forEach(owner => {delete owner.recoveryCapture})
       await readbackHost(first)
       hosts.forEach(owner => {owner.baseline = sourceInputRow(owner, false)['ValueFun']; owner.flow.status = 'idle'})
     } catch (cause) {hosts.forEach(owner => {owner.flow.status = 'readback'}); throw cause}
@@ -291,6 +303,8 @@ export function sourceInputPrepareReloadBatch(owners: readonly SourceInputHandle
 
 export type SourceInputHandle = {
   getState(): ReturnType<typeof sourceInputGetState>
+  hasInvalidReceipt(): boolean
+  getRecoveryCapture(): DataSpaceDefinitionCaptureBatch | undefined
   read(): ReturnType<typeof sourceInputRead>
   stage(value: string): void
   discard(): void
@@ -303,6 +317,8 @@ export type SourceInputHandle = {
 export function createSourceInputHandle(host: SourceInputHost): SourceInputHandle {
   const handle: SourceInputHandle = {
     getState: () => sourceInputGetState(host),
+    hasInvalidReceipt: () => host.recoveryCapture?.receiptInvalid === true,
+    getRecoveryCapture: () => host.recoveryCapture,
     read: () => sourceInputRead(host),
     stage: (value: string) => sourceInputStage(host, value),
     discard: () => sourceInputDiscard(host),

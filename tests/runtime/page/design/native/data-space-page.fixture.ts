@@ -39,7 +39,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
   pageFiles?: ProjectWorkspaceOptions['pageFiles']; blueprint?: ProjectWorkspaceOptions['blueprint'];
   modelSources?: NonNullable<ConstructorParameters<typeof LowcodeDataSpaceViewDesign>[0]['modelSources']>; allowModelAdd?: boolean; allowFieldAdd?: boolean; omitFieldReceipt?: boolean; omitFieldWrite?: boolean;
   allowSourceEdit?: boolean; allowModelRename?: boolean; allowFieldEdit?: boolean; allowRelationEdit?: boolean; omitRelationWrite?: boolean; omitRelationReceipt?: boolean;
-  sourceFields?: Record<string, unknown>[]; hiddenFieldProperties?: string[]; hiddenModelProperties?: string[]; editableFieldProperties?: string[]; relationRows?: Record<string, unknown>[]; omitModelProperties?: string[]; omitFieldProperties?: string[];
+  sourceFields?: Record<string, unknown>[]; hiddenFieldProperties?: string[]; hiddenModelProperties?: string[]; editableFieldProperties?: string[]; relationRows?: Record<string, unknown>[]; omitModelProperties?: string[]; omitFieldProperties?: string[]; partialFieldWriteId?: string; omitModelWrite?: boolean; omitAllFieldChanges?: boolean;
   businessRows?: Record<string, Record<string, unknown>[]>; queryEndpoint?: string; formalPrimaryKey?: string; inputParameters?: string; deniedFieldOutputIds?: string[];
   desensitizationRules?: Record<string, unknown>[]; allowDataProcess?: boolean; allowArrayEdit?: boolean;
   allowDelete?: boolean; denyDeleteIds?: string[]; omitDeleteWrite?: string; omitDeleteReceipt?: string} = {}) {
@@ -164,7 +164,12 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
           if (loseResponse) {loseResponse = false; throw new Error('response lost after write')}
           return {data: {Code: 200, Result: {maplistdelete: receipts}}, status: 200, statusText: 'OK', headers: {}}
         }
-        if ((options.allowSourceEdit || options.allowModelRename || options.allowArrayEdit || options.allowDelete && config.data.some(command => isRecord(command) && isRecord(command['CrudModel']) && Array.isArray(command['CrudModel']['Deleted']) && command['CrudModel']['Deleted'].length)
+        const combinedModelAndFieldChanges = options.allowFieldEdit === true
+          && config.data.some(command => isRecord(command) && command['TableName'] === 'Base_DataModel'
+            && isRecord(command['CrudModel']) && Array.isArray(command['CrudModel']['Changed']) && command['CrudModel']['Changed'].length > 0)
+          && config.data.some(command => isRecord(command) && command['TableName'] === 'Base_DataModel_Field'
+            && isRecord(command['CrudModel']) && Array.isArray(command['CrudModel']['Changed']) && command['CrudModel']['Changed'].length > 0)
+        if (combinedModelAndFieldChanges || (options.allowSourceEdit || options.allowModelRename || options.allowArrayEdit || options.allowDelete && config.data.some(command => isRecord(command) && isRecord(command['CrudModel']) && Array.isArray(command['CrudModel']['Deleted']) && command['CrudModel']['Deleted'].length)
           || options.allowFieldAdd && options.editableFieldProperties
           && config.data.some(command => isRecord(command) && isRecord(command['CrudModel']) && Array.isArray(command['CrudModel']['Added'])
             && command['CrudModel']['Added'].length)
@@ -184,7 +189,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
                 const patch = Object.fromEntries(Object.entries(change).filter(([key]) => key !== 'rowid' && !key.startsWith('lingma_sys_')))
                 const key = `${target}:${String(change['rowid'])}`
                 const storedPatch = Object.fromEntries(Object.entries(patch).filter(([property]) => !options.omitModelProperties?.includes(property)))
-                modelValues.set(key, {...modelValues.get(key), ...storedPatch, updatetime: '2026-10-09T19:30:00', updateuser: 'CURRENT_USER'})
+                if (!options.omitModelWrite) modelValues.set(key, {...modelValues.get(key), ...storedPatch, updatetime: '2026-10-09T19:30:00', updateuser: 'CURRENT_USER'})
                 modelChanges.push({rowid: change['rowid'], ...patch})
               }
               continue
@@ -220,7 +225,10 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
               }
               const key = `${target}:${String(change['rowid'])}`
               const storedPatch = Object.fromEntries(Object.entries(patch).filter(([property]) => !options.omitFieldProperties?.includes(property)))
-              fieldValues.set(key, {...fieldValues.get(key), ...storedPatch}); changed.push({rowid: change['rowid'], ...patch})
+              if (!options.omitAllFieldChanges && (options.partialFieldWriteId === undefined || change['rowid'] === options.partialFieldWriteId)) {
+                fieldValues.set(key, {...fieldValues.get(key), ...storedPatch})
+              }
+              changed.push({rowid: change['rowid'], ...patch})
             }
             for (const row of crud['Added']) {
               if (!isRecord(row) || typeof row['dataSetId'] !== 'string' || row['dataModelId'] !== 'M1' || !options.allowFieldAdd) throw new Error('invalid field addition')

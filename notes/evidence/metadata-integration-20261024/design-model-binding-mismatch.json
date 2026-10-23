@@ -1,0 +1,206 @@
+{
+  "capturedAt": "2026-10-23T18:34:04.822Z",
+  "baseHead": "5297c9b37786d9e3d82713d74c2a76a95a6bc2a0",
+  "tenant": "NewApp",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "metadataScenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "body": {
+        "Table": [
+          {
+            "Name": "Base_DataSet",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true
+              }
+            ]
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 2
+        }
+      }
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "body": {
+        "Table": [
+          {
+            "Name": "Base_DataModel",
+            "OutputType": "Table",
+            "Filter": {
+              "Type": "and",
+              "Filters": [
+                {
+                  "Type": "cond",
+                  "Field": "dataSetId",
+                  "Operator": "equal",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": "8D1AB14DD8277F3E7017CD38F77B09FD"
+                  }
+                },
+                {
+                  "Type": "cond",
+                  "Field": "Name",
+                  "Operator": "in",
+                  "Value": null,
+                  "ValueFun": {
+                    "Type": "GetConstValue",
+                    "Value": [
+                      "Base_DataModel",
+                      "Base_DataModel_Field",
+                      "Base_DataModel_Relation",
+                      "Base_DataServiceInterface",
+                      "Base_DataSet",
+                      "Base_DataSet（1）",
+                      "Base_DataViewList",
+                      "Base_Desensitization_Rule",
+                      "Base_JsonData",
+                      "Base_TblField",
+                      "View_TblList",
+                      "View_ViewList",
+                      "_Base_DictType",
+                      "_Base_ParamList"
+                    ]
+                  }
+                }
+              ]
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1
+          }
+        ],
+        "PageParam": {
+          "index": 1,
+          "size": 500
+        }
+      }
+    }
+  ],
+  "responses": [
+    {
+      "id": "28484.1677",
+      "code": 200,
+      "count": 1,
+      "hasNextPage": null,
+      "rows": [
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FD",
+          "Name": "数据空间设计"
+        }
+      ]
+    },
+    {
+      "id": "28484.1678",
+      "code": 200,
+      "count": 13,
+      "hasNextPage": null,
+      "rows": [
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+          "Name": "Base_DataSet",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+          "Name": "Base_DataModel",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp002",
+          "Name": "Base_DataModel_Field",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp003",
+          "Name": "Base_DataModel_Relation",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+          "Name": "View_TblList",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp005",
+          "Name": "_Base_DictType",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp006",
+          "Name": "Base_DataServiceInterface",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp007",
+          "Name": "Base_JsonData",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp008",
+          "Name": "Base_DataViewList",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp009",
+          "Name": "View_ViewList",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp010",
+          "Name": "Base_TblField",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp011",
+          "Name": "_Base_ParamList",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        },
+        {
+          "rowid": "8D1AB14DD8277F3E7017CD38F77B09FDp013",
+          "Name": "Base_Desensitization_Rule",
+          "dataSetId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+        }
+      ]
+    }
+  ],
+  "unresolvedBinding": {
+    "key": "E62ResourceProbe",
+    "modelBinding": {
+      "modelId": "6332CB93FEBF5C920957B5F02D1DCCFF",
+      "modelName": "Base_DataSet（1）"
+    },
+    "views": [
+      "default",
+      "probeEmpty"
+    ]
+  },
+  "result": "blocked_before_target_design_load",
+  "mutation": false
+}

@@ -6541,6 +6541,38 @@ describe('native data-space design entry', () => {
     expect(fresh.metadataDataSet.getView('Base_DataSet')!.rows[0]?.['inputParams']).toContain('回读期间新修改')
   })
 
+  it('explicitly discards a later parameter patch to recover a confirmed write after readback failure', async () => {
+    const f = fixture({missing: true}), {wrapper, instance} = await page('?scenarioId=A', true)
+    const view = f.sessions[0]!.metadataDataSet.getView('Base_DataSet')!
+    await select(wrapper, '输入参数')
+    await editParameter(wrapper, '描述 1', '确认写入值')
+    const queryCount = f.requests.filter(request => request.url === '/api/DataOperation/GetData').length
+    const release = f.holdNextQuery(true)
+
+    await sourceButton(wrapper, 'save-parameters').trigger('click')
+    await vi.waitFor(() => expect(f.requests.filter(request => request.url === '/api/DataOperation/GetData')).toHaveLength(queryCount + 1))
+    expect(f.parameters).toContain('确认写入值')
+    const later = JSON.parse(String(view.rows[0]?.['inputParams']))
+    later[0].Description = '明确放弃的新修改'
+    view.updateEditingValue('A', 'inputParams', JSON.stringify(later))
+    release()
+    await flushPromises()
+
+    expect(writes(f)).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(f.sessions[0]!.getInputParameterState()).toEqual({status: 'readback', pending: true})
+    const verify = sourceButton(wrapper, 'verify-parameters')
+    expect(verify.text()).toBe('放弃本地新修改并核验')
+    await verify.trigger('click'); await flushPromises()
+
+    expect(writes(f)).toHaveLength(1)
+    expect(view.rows[0]?.['inputParams']).toContain('确认写入值')
+    expect(view.rows[0]?.['inputParams']).not.toContain('明确放弃的新修改')
+    expect(view.hasEditingChanges('A')).toBe(false)
+    expect(instance.isDirty).toBe(false)
+    expect(f.sessions[0]!.getInputParameterState()).toEqual({status: 'idle', pending: false})
+  })
+
   it.each(['cancel', 'save'] as const)('retains parameter edits made before confirmation and can %s them without replaying the first write', async next => {
     const f = fixture({overviewOnly: true}), {wrapper, instance} = await page('?scenarioId=A', true)
     const dataSet = f.sessions[0]!.metadataDataSet, view = dataSet.getView('Base_DataSet')!
@@ -6589,6 +6621,142 @@ describe('native data-space design entry', () => {
     expect(writes(f)).toHaveLength(1)
     expect(instance.isDirty).toBe(false)
     expect(wrapper.text()).toContain('已重新读取')
+  })
+
+  it('keeps an unknown save in another Base_DataSet view isolated from parameter reload', async () => {
+    const f = fixture({missing: true}), {wrapper} = await page('?scenarioId=A', true)
+    const session = f.sessions[0]!, dataSet = session.metadataDataSet
+    const parameters = dataSet.getView('Base_DataSet', 'default')!
+    const unrelated = parameters.createQueryView('unrelatedParameterView')
+    await unrelated.loadFromServer({allPages: true})
+    unrelated.updateEditingValue('A', 'inputParams', '[{"rowid":"OTHER","Name":"isolated"}]')
+    f.loseNextResponse()
+    await expect(dataSet.saveChanges({views: [{tableName: 'Base_DataSet', viewId: unrelated.viewId, ids: ['A']}]}))
+      .rejects.toThrow(/response lost/)
+    expect(unrelated.hasUnconfirmedSave).toBe(true)
+
+    await session.reloadInputParameters({discardPending: false})
+
+    expect(unrelated.hasUnconfirmedSave).toBe(true)
+    expect(unrelated.getEditingRow('A')?.['inputParams']).toContain('isolated')
+    expect(writes(f)).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it.each(['not-applied', 'still-unknown'] as const)('uses the original capture receipt for %s parameter recovery', async outcome => {
+    const f = fixture({missing: true}), {wrapper} = await page('?scenarioId=A', true)
+    const session = f.sessions[0]!, view = session.metadataDataSet.getView('Base_DataSet', 'default')!
+    const original = f.parameters
+    await select(wrapper, '输入参数'); await editParameter(wrapper, '描述 1', '待核验值')
+    f.loseNextResponse()
+    await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(writes(f)).toHaveLength(1)
+    if (outcome === 'not-applied') f.setParameters(original)
+    else f.failNextQuery()
+
+    await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
+
+    if (outcome === 'not-applied') {
+      expect(view.hasUnconfirmedSave).toBe(false)
+      expect(session.getInputParameterState().status).toBe('unsubmitted')
+      await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
+      expect(session.getInputParameterState().status).toBe('idle')
+      expect(view.rows[0]?.['inputParams']).toBe(original)
+      expect(view.hasEditingChanges('A')).toBe(false)
+    } else {
+      expect(view.hasUnconfirmedSave).toBe(true)
+      expect(session.getInputParameterState().status).toBe('unknown')
+      expect(view.getEditingRow('A')?.['inputParams']).toContain('待核验值')
+      await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
+      expect(view.hasUnconfirmedSave).toBe(false)
+      expect(session.getInputParameterState().status).toBe('idle')
+      expect(view.rows[0]?.['inputParams']).toContain('待核验值')
+    }
+    expect(writes(f)).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it('rejects parameter commands after the session owner query context changes', async () => {
+    const f = fixture({missing: true}), {wrapper} = await page('?scenarioId=A', true)
+    const session = f.sessions[0]!, view = session.metadataDataSet.getView('Base_DataSet', 'default')!
+    view.queryContext = {dataSpaceId: 'OTHER'}
+
+    expect(() => session.stageInputParameters({expectedValue: view.rows[0]?.['inputParams'], value: []}))
+      .toThrow(/DATA_SPACE_INPUT_PARAMETERS_CONTEXT/)
+    expect(writes(f)).toHaveLength(0)
+    wrapper.unmount()
+  })
+
+  it('preserves a newer parameter patch when discard waits for capture verification', async () => {
+    const f = fixture({missing: true}), {wrapper} = await page('?scenarioId=A', true)
+    const session = f.sessions[0]!, view = session.metadataDataSet.getView('Base_DataSet', 'default')!
+    const original = f.parameters
+    await select(wrapper, '输入参数'); await editParameter(wrapper, '描述 1', '待核验值')
+    f.loseNextResponse()
+    await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
+    f.setParameters(original)
+    const previousQueries = f.requests.filter(request => request.url === '/api/DataOperation/GetData').length
+    const release = f.holdNextQuery()
+    const reload = session.reloadInputParameters({discardPending: true})
+    await vi.waitFor(() => expect(f.requests.filter(request => request.url === '/api/DataOperation/GetData')).toHaveLength(previousQueries + 1))
+    view.updateEditingValue('A', 'inputParams', '[{"rowid":"P1","Name":"稍后编辑"}]')
+    release()
+    await expect(reload).rejects.toThrow(/草稿已变化|DATA_VIEW_UNSAVED_CHANGES/)
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(view.getEditingRow('A')?.['inputParams']).toContain('稍后编辑')
+    expect(session.getInputParameterState().pending).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('keeps a native save with an invalid receipt in verification state', async () => {
+    const f = fixture({missing: true}), {wrapper} = await page('?scenarioId=A', true)
+    const session = f.sessions[0]!, dataSet = session.metadataDataSet
+    const view = dataSet.getView('Base_DataSet', 'default')!
+    await select(wrapper, '输入参数'); await editParameter(wrapper, '描述 1', '回执待核验')
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async (...args) => {
+      const result = await nativeSave(...args)
+      if (!result.data || !args[0]?.views?.some(item => item.tableName === 'Base_DataSet')) return result
+      return {...result, data: {...result.data, viewResults: []}}
+    })
+
+    await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
+
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(session.getInputParameterState().status).toBe('readback')
+    expect(writes(f)).toHaveLength(1)
+    await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
+    expect(session.getInputParameterState().status).toBe('idle')
+    expect(view.rows[0]?.['inputParams']).toContain('回执待核验')
+    expect(writes(f)).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it('keeps native capture recovery with an invalid receipt in verification state', async () => {
+    const f = fixture({missing: true}), {wrapper} = await page('?scenarioId=A', true)
+    const session = f.sessions[0]!, dataSet = session.metadataDataSet
+    const view = dataSet.getView('Base_DataSet', 'default')!
+    await select(wrapper, '输入参数'); await editParameter(wrapper, '描述 1', '恢复回执待核验')
+    f.loseNextResponse()
+    await sourceButton(wrapper, 'save-parameters').trigger('click'); await flushPromises()
+    expect(view.hasUnconfirmedSave).toBe(true)
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    vi.spyOn(dataSet, 'saveChanges').mockImplementation(async (...args) => {
+      const result = await nativeSave(...args)
+      if (!result.data || !args[0]?.views?.some(item => item.tableName === 'Base_DataSet')) return result
+      return {...result, data: {...result.data, viewResults: []}}
+    })
+
+    await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
+
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(session.getInputParameterState().status).toBe('readback')
+    await sourceButton(wrapper, 'verify-parameters').trigger('click'); await flushPromises()
+    expect(session.getInputParameterState().status).toBe('idle')
+    expect(view.rows[0]?.['inputParams']).toContain('恢复回执待核验')
+    expect(writes(f)).toHaveLength(1)
+    wrapper.unmount()
   })
 
   it('keeps metadata and relation editing available without invoking unrelated target assembly', async () => {

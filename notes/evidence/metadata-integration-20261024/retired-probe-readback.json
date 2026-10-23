@@ -1,0 +1,16 @@
+{
+  "kind": "independent-readback",
+  "status": "applied",
+  "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "beforeHash": "f89f57a0f030cf30ee8d5c94cab202eb090a0c9149ff32055f8aa3cef863f927",
+  "candidateHash": "c9e34c935edf05f5ae5384ac5e61866399b57503cf96c477579afacb5834e5ba",
+  "actualHash": "c9e34c935edf05f5ae5384ac5e61866399b57503cf96c477579afacb5834e5ba",
+  "targetRows": {
+    "binding": 0,
+    "layout": 1,
+    "modelPosition": 0,
+    "tablePosition": 0
+  },
+  "readOnly": true,
+  "verifiedAt": "2026-10-23T19:09:13.214Z"
+}

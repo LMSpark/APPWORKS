@@ -58,6 +58,9 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
   let fileResponse: Promise<void> | undefined
   let sourceResponse: Promise<void> | undefined
   let failFieldRead = false
+  let failQuery = false
+  let failQueryAfterGate = false
+  let nextQueryGate: Promise<void> | null = null
   const sourceTargets = new Map<string, string>()
   const modelTargets = new Map<string, string>()
   const modelValues = new Map<string, Record<string, unknown>>()
@@ -298,6 +301,11 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
       } else {
         if (config.url !== '/api/DataOperation/GetData' && config.url !== options.queryEndpoint || !isRecord(config.data) || !Array.isArray(config.data['Table'])
           || !isRecord(config.data['Table'][0])) throw new Error('unexpected query')
+        if (failQuery) {failQuery = false; throw new Error('query unavailable')}
+        const queryGate = nextQueryGate
+        nextQueryGate = null
+        if (queryGate) await queryGate
+        if (failQueryAfterGate) {failQueryAfterGate = false; throw new Error('query unavailable after hold')}
         const query = config.data['Table'][0]
         if (query['Name'] === 'Base_Desensitization_Rule') {
           const rows = (options.desensitizationRules ?? []).map(row => ({...row, lingma_sys_key: row['rowid'], lingma_sys_params: {r: [], e: [], h: [], m: [], d: false}}))
@@ -497,6 +505,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
     return session
   }
   return {open, sessions, workspaces, requests, stored, fileWrites, created, sourceValue, modelRow, modelReads, assemblyScopes, get parameters() {return parameters},
+    setParameters(value: string) {parameters = value},
     setModelValues(values: Record<string, unknown>, target = 'A', id = 'M1') {modelValues.set(`${target}:${id}`, {...modelValues.get(`${target}:${id}`), ...values})},
     denyModelField(field: string) {deniedModelFields.add(field)},
     denyFieldProperty(field: string) {deniedFieldProperties.add(field)},
@@ -508,6 +517,13 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
     denySourceWrite() {sourceWritable = false},
     denyFieldAdd() {fieldAddAllowed = false},
     failNextFieldRead() {failFieldRead = true},
+    failNextQuery() {failQuery = true},
+    holdNextQuery(failAfterRelease = false) {
+      let release = () => {}
+      nextQueryGate = new Promise<void>(resolve => {release = resolve})
+      failQueryAfterGate = failAfterRelease
+      return release
+    },
     holdSourceResponse() {
       let release = () => {}
       sourceResponse = new Promise<void>(resolve => {release = resolve})

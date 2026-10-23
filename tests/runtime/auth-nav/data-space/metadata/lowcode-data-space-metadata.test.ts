@@ -844,15 +844,16 @@ describe('data-space metadata DataSet', () => {
     expect((await openMetadataSession()).view.rows[0]?.['inputParams']).toBe('[]')
   })
 
-  it.each(['lost-response', 'server-rejection'])('requires explicit recovery and never replays a %s', async failure => {
+  it.each(['lost-response', 'server-rejection'])('resolves native recovery without replaying a %s', async failure => {
     const {rows, raw, space} = declarationRows()
     installRows(rows, {loseSaveResponse: failure === 'lost-response', rejectSave: failure === 'server-rejection'})
     const {session, view} = await openMetadataSession()
     session.stageInputParameters({expectedValue: raw, value: []})
     await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/response lost|server rejected/)
-    expect(session.getInputParameterState()).toMatchObject({status: 'unknown', pending: true})
+    expect(session.getInputParameterState()).toMatchObject({status: failure === 'lost-response' ? 'unknown' : 'unsubmitted', pending: true})
     await expect(session.saveInputParameters({expectedValue: raw})).rejects.toThrow(/核验|PENDING/)
-    await expect(session.reloadInputParameters({discardPending: false})).rejects.toThrow(/本地|PENDING/)
+    if (failure === 'lost-response') await expect(session.reloadInputParameters({discardPending: false})).resolves.toEqual([])
+    else await expect(session.reloadInputParameters({discardPending: false})).rejects.toThrow(/本地|PENDING/)
     expect(saveRequests()).toHaveLength(1)
     expect(view.getEditingRow('SPACE')?.['inputParams']).toBe('[]')
     await session.reloadInputParameters({discardPending: true})
@@ -892,16 +893,15 @@ describe('data-space metadata DataSet', () => {
     expect(saveRequests()).toEqual([])
   })
 
-  it('does not accept a recovery callback that did not perform a fresh formal query', async () => {
+  it('reloads the original declaration view directly through SPARK data', async () => {
     const {rows} = declarationRows()
     installRows(rows)
     const {session, view} = await openMetadataSession()
-    await expect(session.reloadInputParameters({discardPending: false}, async () => {})).rejects.toThrow(/新的声明查询/)
-    expect(session.getInputParameterState().status).toBe('readback')
     const before = mocks.request.mock.calls.length
-    await session.reloadInputParameters({discardPending: false}, async () => {await view.loadFromServer({allPages: true})})
+    await session.reloadInputParameters({discardPending: false})
     expect(mocks.request.mock.calls).toHaveLength(before + 1)
     expect(session.getInputParameterState().status).toBe('idle')
+    expect(view.rows).toHaveLength(1)
     expect(saveRequests()).toEqual([])
   })
 

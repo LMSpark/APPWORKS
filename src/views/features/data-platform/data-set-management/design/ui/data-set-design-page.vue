@@ -106,7 +106,7 @@
                 :on-editing-change="value => parameterRowEditing = value" />
               <p v-if="actionError" role="alert">{{ actionError }}</p>
               <p v-if="parameterState.status === 'unknown'" role="alert">提交结果未知，请核验后再编辑；不会自动重复提交。</p>
-              <p v-else-if="parameterState.status === 'readback'" role="alert">回读尚未确认，请重新核验。</p>
+              <p v-else-if="parameterState.status === 'readback'" role="alert">回读尚未确认，请重新核验。若存在本地新修改，可明确放弃后核验。</p>
               <p v-else-if="parameterState.status === 'unsubmitted'" role="alert">修改尚未提交，请先处理本地修改。</p>
               <details class="references"><summary>参数引用检查</summary>
                 <p v-if="inspection.error" role="alert">{{ inspection.error }}</p>
@@ -124,7 +124,7 @@
                 <RendererButton button-type="primary" data-action="save-parameters" :disabled="busy || layoutPending || parameterRowEditing || !parameterState.writable || parameterState.status !== 'idle'"
                   @click="saveParameters" label="确定" />
                 <RendererButton v-if="parameterState.status !== 'idle'" data-action="verify-parameters" :disabled="busy"
-                  @click="verifyParameters" :label="parameterState.pending ? '放弃本地修改并核验' : '重新核验'" />
+                  @click="verifyParameters" :label="parameterState.status === 'unsubmitted' ? '放弃本地修改并重新读取' : parameterState.status === 'unknown' ? '核验提交结果' : parameterState.status === 'readback' && parameterState.pending ? '放弃本地新修改并核验' : '重新核验'" />
                 </div>
               </template>
             </RendererDialog>
@@ -1303,14 +1303,15 @@ async function parameterAction(action: 'save' | 'verify'): Promise<void> {
   busy.value = true; actionError.value = ''; actionMessage.value = ''
   try {
     if (action === 'save') await current.saveInputParameters({expectedValue: parameterBaseline})
-    else await current.reloadInputParameters({discardPending: current.getInputParameterState().pending})
+    else await current.reloadInputParameters({discardPending: parameterState.value.status === 'unsubmitted'
+      || (parameterState.value.status === 'readback' && parameterState.value.pending)})
     if (!active || session.value !== current) return
     parameterBaseline = view('Base_DataSet')?.rows[0]?.['inputParams']
     const parameterFlow = current.getInputParameterState()
     if (parameterFlow.pending) actionMessage.value = '原输入参数提交已回读确认；仍有未保存修改，请继续保存或放弃'
     else {
       if (action === 'save') parameterOpen.value = false
-      actionMessage.value = action === 'save' ? '输入参数已保存并回读确认' : '已重新读取当前声明；未重复提交'
+      actionMessage.value = action === 'save' ? '输入参数已保存并回读确认' : '已重新读取当前原生声明；未重复提交'
     }
   } catch (cause) {if (active && session.value === current) actionError.value = readError(cause)}
   finally {if (active && session.value === current) {busy.value = false; changed()}}

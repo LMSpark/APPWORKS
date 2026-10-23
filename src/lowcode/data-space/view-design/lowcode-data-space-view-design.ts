@@ -794,8 +794,8 @@ export class LowcodeDataSpaceDesignSession {
     return inputParameterSave(this.inputParameterHost(), input)
   }
 
-  async reloadInputParameters(input: Readonly<{discardPending: boolean}>, refresh?: () => Promise<void>): Promise<Array<Record<string, unknown>>> {
-    return inputParameterReload(this.inputParameterHost(), input, refresh)
+  async reloadInputParameters(input: Readonly<{discardPending: boolean}>): Promise<Array<Record<string, unknown>>> {
+    return inputParameterReload(this.inputParameterHost(), input)
   }
 
   private assertFieldViewEditable(fieldId: string, viewId: string): void {

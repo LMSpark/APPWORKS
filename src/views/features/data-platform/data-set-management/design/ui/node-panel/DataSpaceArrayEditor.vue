@@ -35,6 +35,7 @@ import {buildDataViewKey, RequestState, type SparkNode} from '@spark-appworks/sp
 import {FieldText, FieldJson, RendererButton, RendererDialog, RendererForm, RendererToolbar, type RToolbarProps} from '@spark-appworks/spark-component'
 import type {ArrayDefinition, LowcodeDataSpaceArrayDraft} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-draft'
 import type {ArrayEditHandle} from '@/lowcode/data-space/model-source/array/lowcode-data-space-array-session'
+import type {DataSpaceDefinitionRecoveryOptions} from '@/lowcode/data-space/model-source/save/data-space-definition-save'
 import DataSpaceArrayHeaders from './DataSpaceArrayHeaders.vue'
 import type {DataSpaceModelEditorProps} from './data-set-design-node-panel.props'
 const props=defineProps<DataSpaceModelEditorProps>()
@@ -45,7 +46,7 @@ const dataViewKey=buildDataViewKey('Base_DataModel','default',props.session.meta
 const owner=shallowRef<ArrayEditHandle>(),headerDraft=shallowRef<LowcodeDataSpaceArrayDraft>()
 const isArray=computed(()=>{props.revision;tick.value;const row=view.rows.find(row=>row['rowid']===props.modelId)
   return !!row && view.fieldAccess(row,'Type').read==='visible' && row['Type']==='数组'})
-const state=computed(()=>{props.revision;tick.value;return owner.value?.getState()??{status:'idle',pending:false,verification:[]}})
+const state=computed(()=>{props.revision;tick.value;return owner.value?.getState()??{status:'idle',pending:false,verification:[],discardLocalChanges:false}})
 const definition=computed(()=>{props.revision;tick.value;const row=view.rows.find(r=>r['rowid']===props.modelId)
   return row&&owner.value?{headers:owner.value.headers(),readable:view.fieldAccess(row,'items').read==='visible',writable:view.fieldAccess(row,'items').write==='allowed'&&view.editActionState(row)==='enabled'}:null})
 const locked=computed(()=>busy.value||state.value.status!=='idle'||!!headerDraft.value)
@@ -57,7 +58,8 @@ const toolbar=computed<RToolbarProps>(()=>({dataViewKey,children:[{type:'r-butto
 const footer=computed<SparkNode[]>(()=>[
   {type:'r-button',props:{label:'取消','data-action':'cancel-array',disabled:locked.value||rowEditing.value,onClick:cancel}},
   {type:'r-button',props:{label:'保存',buttonType:'primary','data-action':'save-array',disabled:locked.value||rowEditing.value||!state.value.pending,onClick:save}},
-  ...state.value.status!=='idle'?[{type:'r-button',props:{label:'重新核验','data-action':'verify-array',disabled:busy.value||rowEditing.value,onClick:verify}}]:[],
+    ...state.value.status!=='idle'?[{type:'r-button',props:{label:state.value.status==='different'?'重新核验':'核验原提交（未生效时放弃本次草稿）','data-action':'verify-array',disabled:busy.value||rowEditing.value,onClick:verify}}]:[],
+  ...state.value.discardLocalChanges?[{type:'r-button',props:{label:'放弃本地新修改并核验','data-action':'discard-local-array-changes',disabled:busy.value||rowEditing.value,onClick:()=>verify({discardLocalChanges:true})}}]:[],
   ...state.value.status==='different'?[{type:'r-button',props:{label:'接受当前正式结果，结束本次操作','data-action':'accept-array',disabled:busy.value,onClick:accept}}]:[],
 ])
 function changed():void{tick.value++;emit('changed')}
@@ -86,10 +88,10 @@ async function save():Promise<void>{
   busy.value=true;error.value=''
   try{await owner.value?.save();if(!owner.value?.getState().pending)close()}catch(cause){error.value=String(cause)}finally{busy.value=false;changed()}
 }
-async function verify():Promise<void>{
+async function verify(options?:DataSpaceDefinitionRecoveryOptions):Promise<void>{
   if(busy.value || rowEditing.value)return
   busy.value=true;error.value=''
-  try{if(await owner.value?.verify())close()}catch(cause){error.value=String(cause)}finally{busy.value=false;changed()}
+  try{if(await owner.value?.verify(options))close()}catch(cause){error.value=String(cause)}finally{busy.value=false;changed()}
 }
 function accept():void{try{owner.value?.acceptCurrent();close()}catch(cause){error.value=String(cause)}}
 view.events.on('editingFieldChanged',changed)

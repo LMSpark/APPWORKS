@@ -2656,6 +2656,58 @@ describe('native data-space design entry', () => {
     const fresh=await f.open('A');expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']==='M1')?.['items']).toBe('[{"name":"after","count":2}]')
     expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(r=>r['rowid']==='M1')?.['description']).toBe('数组保存后的模型编辑')
   }, 15_000)
+  it('labels unknown array recovery with its not-applied discard consequence and completes through the same UI action', async () => {
+    const f=fixture({overviewOnly:true,allowArrayEdit:true,sourceFields:[
+      {rowid:'F1',dataModelId:'M1',Name:'code',description:'编码',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:1},
+      {rowid:'F2',dataModelId:'M1',Name:'name',description:'名称',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:0},
+    ]})
+    f.setModelValues({Type:'数组',PrimaryKeyFields:'code',items:'[ {"code":"before","name":"one"} ]'})
+    const {wrapper}=await page('?scenarioId=A',true);await select(wrapper,'Orders')
+    await wrapper.get('[data-action="edit-array"]').trigger('click');await flushPromises()
+    const editor=wrapper.getComponent({name:'DataSpaceArrayEditor'}),rows=editor.getComponent({name:'JsonArrayRows'}),body=new DOMWrapper(document.body)
+    await rows.get('tbody tr').trigger('click');await flushPromises()
+    await rows.get('[data-json-edit]').trigger('click');await flushPromises()
+    const input=rows.getComponent(FieldText).get('input')
+    await input.setValue('after');await input.trigger('change');await flushPromises()
+    await rows.get('[data-json-save-row]').trigger('click');await flushPromises();f.loseNextResponse()
+    await body.get('[data-action="save-array"]').trigger('click');await flushPromises()
+    expect(writes(f)).toHaveLength(1)
+    expect(body.get('[data-action="verify-array"]').text()).toContain('未生效时放弃本次草稿')
+    await body.get('[data-action="verify-array"]').trigger('click');await flushPromises()
+    expect(writes(f)).toHaveLength(1)
+    expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='编辑前端数组'&&dialog.props('modelValue'))).toBe(false)
+    expect((f.modelRow() as Record<string,unknown>)['items']).toBe('[{"code":"after","name":"one"}]')
+  }, 15_000)
+  it('requires a separate explicit UI action to discard drafts after confirmed array recovery', async () => {
+    const f=fixture({overviewOnly:true,allowArrayEdit:true,sourceFields:[
+      {rowid:'F1',dataModelId:'M1',Name:'code',description:'编码',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:1},
+      {rowid:'F2',dataModelId:'M1',Name:'name',description:'名称',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:0},
+    ]})
+    f.setModelValues({Type:'数组',PrimaryKeyFields:'code',items:'[{"code":"before","name":"one"}]'})
+    const {wrapper}=await page('?scenarioId=A',true);await select(wrapper,'Orders')
+    await wrapper.get('[data-action="edit-array"]').trigger('click');await flushPromises()
+    const body=new DOMWrapper(document.body),models=f.sessions[0]!.metadataDataSet.getView('Base_DataModel')!
+    vi.spyOn(models,'loadFromServer').mockImplementationOnce(async()=>{throw new Error('array readback unavailable')})
+    const rows=wrapper.getComponent({name:'DataSpaceArrayEditor'}).getComponent({name:'JsonArrayRows'})
+    await rows.get('tbody tr').trigger('click');await flushPromises();await rows.get('[data-json-edit]').trigger('click');await flushPromises()
+    const input=rows.getComponent(FieldText).get('input')
+    await input.setValue('after');await input.trigger('change');await flushPromises()
+    await rows.get('[data-json-save-row]').trigger('click');await flushPromises();f.loseNextResponse()
+    await body.get('[data-action="save-array"]').trigger('click');await flushPromises()
+    expect(writes(f)).toHaveLength(1)
+    await body.get('[data-action="verify-array"]').trigger('click');await flushPromises()
+    expect(body.text()).toContain('array readback unavailable')
+    models.updateEditingValue('M1','description','点击前的本地新修改');await flushPromises()
+    expect(body.get('[data-action="discard-local-array-changes"]').text()).toBe('放弃本地新修改并核验')
+    await body.get('[data-action="verify-array"]').trigger('click');await flushPromises()
+    expect(models.getEditingPatch('M1')).toEqual({description:'点击前的本地新修改'})
+    await body.get('[data-action="discard-local-array-changes"]').trigger('click');await flushPromises()
+    expect(writes(f)).toHaveLength(1)
+    expect(wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='编辑前端数组'&&dialog.props('modelValue'))).toBe(false)
+    const fresh=await f.open('A')
+    expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')?.['description']).not.toBe('点击前的本地新修改')
+    expect(fresh.metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')?.['items']).toBe('[{"code":"after","name":"one"}]')
+  }, 15_000)
   it('keeps a later bound array draft available after the earlier save completes',async()=>{
     const f=fixture({overviewOnly:true,allowArrayEdit:true,sourceFields:[{rowid:'F1',dataModelId:'M1',Name:'name',description:'名称',type:'dataModel',FieldType:'string',IsOutput:1,IsPKey:0}]})
     f.setModelValues({Type:'数组',items:'[{"name":"before"}]'})

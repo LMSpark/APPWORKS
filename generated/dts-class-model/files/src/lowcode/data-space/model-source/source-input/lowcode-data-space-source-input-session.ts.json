@@ -109,6 +109,9 @@
           ],
           "additionalProperties": false
         },
+        "recoveryCapture": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+        },
         "lifecycle": {
           "$ref": "#/$defs/SourceInputLifecycle"
         }
@@ -198,6 +201,22 @@
           "type": "object",
           "title": "ReturnType<typeof sourceInputGetState>"
         },
+        "method.hasInvalidReceipt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasInvalidReceipt.return": {
+          "type": "boolean"
+        },
+        "method.getRecoveryCapture.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRecoveryCapture.return": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+        },
         "method.read.params": {
           "type": "object",
           "properties": {},
@@ -272,7 +291,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T07:01:14.594Z",
+  "generatedAt": "2026-10-23T20:01:45.689Z",
   "models": {
     "SourceInputStatus": {
       "name": "SourceInputStatus",
@@ -367,7 +386,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    readonly fieldId: string;\n    readonly view: DataView;\n    readonly queryContext: string;\n    readonly modelId: string;\n    readonly name: string;\n    baseline: unknown;\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly viewId: 'default' | 'sourceInputFields';\n    flow: {\n        status: SourceInputStatus;\n    };\n    lifecycle: SourceInputLifecycle;\n}",
+        "declarationTypeText": "{\n    readonly fieldId: string;\n    readonly view: DataView;\n    readonly queryContext: string;\n    readonly modelId: string;\n    readonly name: string;\n    baseline: unknown;\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly viewId: 'default' | 'sourceInputFields';\n    flow: {\n        status: SourceInputStatus;\n    };\n    recoveryCapture?: DataSpaceDefinitionCaptureBatch;\n    lifecycle: SourceInputLifecycle;\n}",
         "members": {
           "attributes": [
             {
@@ -419,6 +438,11 @@
               "name": "flow",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "recoveryCapture",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "lifecycle",
@@ -517,7 +541,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    getState(): ReturnType<typeof sourceInputGetState>;\n    read(): ReturnType<typeof sourceInputRead>;\n    stage(value: string): void;\n    discard(): void;\n    save(): Promise<void>;\n    belongsTo(modelId: string, viewId: 'default' | 'sourceInputFields'): boolean;\n    assertWorkspaceChanges(): void;\n    reload(discardPending: boolean): Promise<void>;\n}",
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof sourceInputGetState>;\n    hasInvalidReceipt(): boolean;\n    getRecoveryCapture(): DataSpaceDefinitionCaptureBatch | undefined;\n    read(): ReturnType<typeof sourceInputRead>;\n    stage(value: string): void;\n    discard(): void;\n    save(): Promise<void>;\n    belongsTo(modelId: string, viewId: 'default' | 'sourceInputFields'): boolean;\n    assertWorkspaceChanges(): void;\n    reload(discardPending: boolean): Promise<void>;\n}",
         "members": {
           "methods": [
             {
@@ -532,6 +556,26 @@
                     "name": "typeof sourceInputGetState"
                   }
                 ]
+              }
+            },
+            {
+              "name": "hasInvalidReceipt",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getRecoveryCapture",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSpaceDefinitionCaptureBatch",
+                  "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+                }
               }
             },
             {

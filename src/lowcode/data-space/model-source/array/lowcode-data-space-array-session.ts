@@ -6,7 +6,7 @@
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDataSpaceArrayDraft, type ArrayDefinition} from './lowcode-data-space-array-draft'
-import {DataSpaceDefinitionSave} from '../save/data-space-definition-save'
+import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyAndDiscardDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch, type DataSpaceDefinitionRecoveryOptions} from '../save/data-space-definition-save'
 import {LowcodeDataSpaceModelRenameReferences, type ModelNameChange} from '../rename/lowcode-data-space-model-rename-references'
 import type {ModelRenameFilePlan} from '../rename/lowcode-data-space-model-rename-session'
 import {LowcodeDataSpaceFieldRemoveReferences, type FieldRename} from '../removal/lowcode-data-space-field-remove-references'
@@ -55,6 +55,7 @@ export type ArraySessionFlow = {
   baseline: string
   fieldIds: Set<string>
   staged: Array<{view: DataView; id: string; after: string; values: Record<string, unknown> | null; created?: true}>
+  capture: DataSpaceDefinitionCaptureBatch | undefined
   confirmed: boolean
   verified: string
   verification: string[]
@@ -100,7 +101,7 @@ export function createArrayHost(input: ArraySessionHostInput): ArraySessionHost 
     dataSet, targetId, modelId, fieldViewId, models, fields, views, contexts, lifecycle, dependencies: undefined,
     flow: {
       status: 'idle', identity: '', renamedIdentity: undefined, rename: undefined, baseline: '', fieldIds: new Set(),
-      staged: [], confirmed: false, verified: '', verification: [], fieldRenames: [], referenceSnapshot: '',
+      staged: [], capture: undefined, confirmed: false, verified: '', verification: [], fieldRenames: [], referenceSnapshot: '',
     },
   }
   host.flow.identity = arrayIdentity(host)
@@ -190,7 +191,11 @@ function arrayClean(host: ArraySessionHost, owned?: boolean, readback?: boolean)
   }
 }
 /** 流程状态；数组名称、值与描述始终在原正式模型视图。 */
-export function arrayGetState(host: ArraySessionHost) {const status=arrayFlowStatus(host);return{status,pending:status!=='idle'||arrayFieldPending(host)||host.models.hasEditingChanges(host.modelId),verification:[...host.flow.verification]}}
+export function arrayGetState(host: ArraySessionHost) {const status=arrayFlowStatus(host),batch=host.flow.capture
+  const discardLocalChanges=batch?.resolution==='confirmed'&&!batch.targets.some(target=>target.view.hasUnconfirmedSave)
+    &&batch.targets.some(target=>target.ids.some(id=>target.view.hasEditingChanges(id)||target.view.dirtyTracking.hasPendingChanges(id)))===true
+  return{status,pending:status!=='idle'||arrayFieldPending(host)||host.models.hasEditingChanges(host.modelId),verification:[...host.flow.verification],discardLocalChanges}
+}
 /** 已确认表头包含正式字段身份；已有类型用于标准字段子组件渲染。 */
 export function arrayHeaders(host: ArraySessionHost) {
   const rows=arrayRows(host).map(row=>host.fields.getEditingRow(String(row['rowid']))??row)
@@ -395,7 +400,7 @@ export async function arraySave(host: ArraySessionHost): Promise<void> {
     if(existing)existing.patch[reference.property]=reference.after
     else updates.push({view,id:reference.id,patch:{[reference.property]:reference.after}})
   }
-  host.flow.status='saving';host.flow.staged=[];host.flow.confirmed=false;host.flow.rename=undefined;host.flow.renamedIdentity=undefined;host.flow.fieldRenames=plan.fieldRenames;host.flow.referenceSnapshot=''
+  host.flow.status='saving';host.flow.staged=[];host.flow.capture=undefined;host.flow.confirmed=false;host.flow.rename=undefined;host.flow.renamedIdentity=undefined;host.flow.fieldRenames=plan.fieldRenames;host.flow.referenceSnapshot=''
   let guard=()=>{}
   await DataSpaceDefinitionSave.run([{
     dataSet:host.dataSet,targetId:host.targetId,modelId:host.modelId,
@@ -442,9 +447,10 @@ export async function arraySave(host: ArraySessionHost): Promise<void> {
       if(plan.fieldRenames.length)host.flow.referenceSnapshot=arrayReferenceSnapshot(host, true)
     },
     targets:()=>host.views.map(view=>({tableName:view.tableName,viewId:view.viewId,ids:host.flow.staged.filter(s=>s.view===view).map(s=>s.id)})).filter(v=>v.ids.length),
-    dispatched:()=>host.lifecycle.onDispatch(),
+    dispatched:capture=>{host.flow.capture=capture;host.lifecycle.onDispatch()},
     confirm:async()=>{
       host.flow.confirmed=true
+      if(host.flow.capture){host.flow.capture.verified=true;host.flow.capture.resolution='confirmed'}
       if(structural){if(!await arrayReadback(host))throw new Error('数组正式回读与提交定义不一致')}
       else {
         const row=arrayModel(host)
@@ -478,22 +484,23 @@ function arrayAssertStaged(host: ArraySessionHost): void {
     else arrayPermissions(item.view,row,item.values)
   }
 }
-function arrayDiscardOwned(host: ArraySessionHost, readback?: boolean): void {
-  arrayClean(host, true,readback)
-  for(const item of host.flow.staged) {
-    const row=item.values===null?item.view.dirtyTracking.getPendingDeleteSnapshot(item.id):item.view.rows.find(r=>item.view.getPkKey(r)===item.id)
-    if(item.view.hasEditingChanges(item.id)||item.view.dirtyTracking.hasPendingChanges(item.id)&&JSON.stringify(row)!==item.after)throw new Error('数组未决草稿已变化，不能覆盖')
-  }
-  for(const item of host.flow.staged)item.view.discardPendingChanges([item.id])
-}
 async function arrayReadback(host: ArraySessionHost): Promise<boolean> {
   arrayClean(host, true,true)
-  for(const view of [host.models,host.fields]) {
-    if(view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw new Error('数组定义仍有未决草稿，不能覆盖')
-    const result=await view.loadFromServer(view===host.fields?{filter:arrayQueryFilter(host, view),sort:'rowid:asc',allPages:true,maxRows:50000}:{})
-    arrayAssertOwner(host);if(!result.success||view.loadingError)throw new Error('数组定义回读失败')
-  }
-  await host.dependencies?.load(true)
+  const checkpoint = arrayCaptureCheckpoint(host)
+  try {
+    for(const view of [host.models,host.fields]) {
+      if(view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw new Error('数组定义仍有未决草稿，不能覆盖')
+      const capturedIds=host.flow.capture?.targets.filter(target=>target.view===view).flatMap(target=>target.ids)??[]
+      const signature=definitionTargetDraftSignature(view,capturedIds)
+      const result=await view.loadFromServer(view===host.fields?{filter:arrayQueryFilter(host, view),sort:'rowid:asc',allPages:true,maxRows:50000}:{})
+      arrayAssertOwner(host);if(!result.success||view.loadingError)throw new Error('数组定义回读失败')
+      if(capturedIds.some(id=>view.hasEditingChanges(id)||view.dirtyTracking.hasPendingChanges(id))
+        &&definitionTargetDraftSignature(view,capturedIds)!==signature)throw new Error('数组回读期间出现新的本地修改；已保留修改，请重新核验')
+      arrayAssertCaptureCheckpoint(host,checkpoint,'数组回读')
+    }
+    await host.dependencies?.load(true)
+    arrayAssertCaptureCheckpoint(host, checkpoint, '依赖回读')
+  } finally {checkpoint.dispose()}
   arrayClean(host, true)
   host.flow.verification=host.flow.staged.flatMap(item=>{
     const rows=item.view.rows.filter(r=>r['rowid']===item.id),row=rows[0]
@@ -508,28 +515,95 @@ async function arrayReadback(host: ArraySessionHost): Promise<boolean> {
   host.dependencies?.invalidate(host.flow.staged.map(item=>({table:item.view.tableName,id:item.id})),[host.models,host.fields])
   host.flow.verified=arraySnapshot(host);return host.flow.verification.length===0
 }
+type ArrayCaptureCheckpoint = Readonly<{
+  signatures: ReadonlyArray<Readonly<{target: DataSpaceDefinitionCaptureBatch['targets'][number]; signature: string}>>
+  editedViews: Set<DataView>
+  dispose(): void
+}>
+function arrayCaptureCheckpoint(host: ArraySessionHost): ArrayCaptureCheckpoint {
+  const batch=host.flow.capture
+  if(!batch)throw new Error('缺少数组原始捕获，不能核对异步恢复')
+  const editedViews=new Set<DataView>(),listeners=new Map<DataView,()=>void>()
+  for(const view of new Set(batch.targets.map(target=>target.view))) {
+    const listener=()=>editedViews.add(view)
+    view.events.on('editingChanged',listener)
+    listeners.set(view,listener)
+  }
+  return {signatures:batch.targets.map(target=>({target,signature:definitionTargetDraftSignature(target.view,target.ids)})),editedViews,
+    dispose:()=>listeners.forEach((listener,view)=>view.events.off('editingChanged',listener))}
+}
+function arrayAssertCaptureCheckpoint(host: ArraySessionHost, checkpoint: ArrayCaptureCheckpoint, phase: string): void {
+  arrayAssertOwner(host)
+  for(const {target,signature} of checkpoint.signatures) {
+    if(host.dataSet.getView(target.tableName,target.viewId)!==target.view||target.view.destroyed
+      ||JSON.stringify(target.view.queryContext)!==target.queryContext)throw new Error(`${phase}期间原数组视图或查询上下文已变化；核验状态仍保留`)
+    const pending=target.ids.some(id=>target.view.hasEditingChanges(id)||target.view.dirtyTracking.hasPendingChanges(id))
+    if(checkpoint.editedViews.has(target.view)||pending&&definitionTargetDraftSignature(target.view,target.ids)!==signature) {
+      throw new Error(`${phase}期间原数组目标出现新草稿或应用修改；保留修改，核验状态仍保留`)
+    }
+  }
+}
 async function arrayCompleteRename(host: ArraySessionHost, reconcile: boolean): Promise<void> {
   if(host.flow.rename){host.flow.status='configuration';await host.flow.rename.plan.complete(reconcile)}
 }
-function arrayFinish(host: ArraySessionHost): void {host.flow.fieldIds.clear();host.flow.identity=arrayIdentity(host);host.flow.baseline=arraySnapshot(host);host.flow.staged=[];host.flow.status='idle';host.flow.verification=[];host.flow.verified='';host.flow.rename=undefined;host.flow.renamedIdentity=undefined;host.flow.fieldRenames=[];host.flow.referenceSnapshot='';host.lifecycle.completed()}
+function arrayFinish(host: ArraySessionHost): void {host.flow.fieldIds.clear();host.flow.identity=arrayIdentity(host);host.flow.baseline=arraySnapshot(host);host.flow.staged=[];host.flow.capture=undefined;host.flow.status='idle';host.flow.verification=[];host.flow.verified='';host.flow.rename=undefined;host.flow.renamedIdentity=undefined;host.flow.fieldRenames=[];host.flow.referenceSnapshot='';host.lifecycle.completed()}
 /** 只重新查询，不重放未知批次；删除缺失时仍须正式回执才能确认。 */
-export async function arrayVerify(host: ArraySessionHost): Promise<boolean> {
+export async function arrayVerify(host: ArraySessionHost, options: DataSpaceDefinitionRecoveryOptions = {}): Promise<boolean> {
   const recovery = arrayFlowStatus(host)
   if (!['unknown', 'readback', 'different', 'configuration'].includes(recovery)) throw new Error('没有待核验的数组提交')
   const reconcile = recovery === 'configuration'
-  host.dataSet.abandonUnconfirmedSaves()
-  arrayDiscardOwned(host, true); host.flow.status = 'saving'
+  const batch=host.flow.capture
+  if(!batch)throw new Error('缺少数组原始保存捕获，不能核验或清理本地修改')
+  arrayAssertOwner(host);host.flow.status='saving'
   try {
+    const pendingCapture=batch.targets.some(target=>target.view.hasUnconfirmedSave)
+    if(batch.receiptInvalid&&!pendingCapture) {
+      // An invalid outer receipt is not proof of the write. Read current rows for the
+      // explicit adopt-current action, but never report the original batch confirmed.
+      if(batch.targets.some(target=>target.view.hasEditingChanges()||target.view.dirtyTracking.hasPendingChanges())) {
+        throw new Error('原定义回执无效且仍有本地修改；不能覆盖，请先明确处理当前正式结果')
+      }
+      host.flow.confirmed=false
+      await arrayReadback(host)
+      host.flow.status='different'
+      host.flow.verification.unshift('原DataSet回执无效；当前正式结果未被视为原批次确认')
+      return false
+    }
+    const outcome=await verifyAndDiscardDataSpaceDefinitionCapture(host.dataSet,batch,{
+      ...options,acceptCurrentOnInvalidReceipt:false,discardLocalChanges:options.discardLocalChanges??false,
+    })
+    if(outcome==='confirmed'||outcome==='already-confirmed')host.flow.confirmed=true
+    else if(outcome==='not-applied')host.flow.confirmed=false
+    arrayAssertOwner(host)
     const confirmed = await arrayReadback(host)
-    if (confirmed) {await arrayCompleteRename(host, reconcile); arrayFinish(host)} else host.flow.status = 'different'
+    if(outcome==='not-applied') {
+      host.flow.status='different'
+      host.flow.verification.unshift('原提交已确认未生效；原目标草稿已按本次明确操作丢弃，当前正式结果仍需明确采用')
+      return false
+    }
+    if (confirmed) {
+      const checkpoint=arrayCaptureCheckpoint(host)
+      try {await arrayCompleteRename(host,reconcile);arrayAssertCaptureCheckpoint(host,checkpoint,'文件完成')}
+      finally {checkpoint.dispose()}
+      arrayFinish(host)
+    } else host.flow.status = 'different'
     return confirmed
   } catch (cause) {
-    if (arrayGetState(host).status !== 'configuration') host.flow.status = 'readback'
+    if(batch.resolution==='confirmed')host.flow.confirmed=true
+    if (arrayGetState(host).status !== 'configuration') {
+      host.flow.status=batch.targets.some(target=>target.view.hasUnconfirmedSave)?'unknown':'readback'
+    }
     throw cause
   }
 }
 /** 显式接受刚回读的实际定义，不补写、补删或宣称原批次成功。 */
-export function arrayAcceptCurrent(host: ArraySessionHost): void {arrayClean(host, true);if(host.flow.status!=='different'||arraySnapshot(host)!==host.flow.verified)throw new Error('请先核验当前正式结果');arrayFinish(host)}
+export function arrayAcceptCurrent(host: ArraySessionHost): void {
+  arrayClean(host, true)
+  if(host.flow.status!=='different'||arraySnapshot(host)!==host.flow.verified)throw new Error('请先核验当前正式结果')
+  if(host.flow.capture?.targets.some(target=>target.view.hasUnconfirmedSave))throw new Error('原数组提交仍未核验，不能采用当前结果')
+  if(host.flow.rename&&!host.flow.confirmed)throw new Error('数据库提交尚未确认，不能丢弃待完成的配置计划')
+  arrayFinish(host)
+}
 /** 关闭已完成或已取消的窗口，释放独立依赖查询；未决提交保留原入口。 */
 export function arrayRelease(host: ArraySessionHost): void {
   if(arrayGetState(host).pending)throw new Error('数组修改尚未结束，不能释放')
@@ -542,7 +616,7 @@ export type ArrayEditHandle = {
   applyHeaders(definition: ArrayDefinition): Promise<void>
   discard(): void
   save(): Promise<void>
-  verify(): Promise<boolean>
+  verify(options?: DataSpaceDefinitionRecoveryOptions): Promise<boolean>
   acceptCurrent(): void
   release(): void
 }
@@ -555,7 +629,7 @@ export function createArrayHandle(host: ArraySessionHost): ArrayEditHandle {
     applyHeaders: definition => arrayApplyHeaders(host, definition),
     discard: () => arrayDiscard(host),
     save: () => arraySave(host),
-    verify: () => arrayVerify(host),
+    verify: (options?: DataSpaceDefinitionRecoveryOptions) => arrayVerify(host, options),
     acceptCurrent: () => arrayAcceptCurrent(host),
     release: () => arrayRelease(host),
   }

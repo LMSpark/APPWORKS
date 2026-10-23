@@ -581,6 +581,51 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.hasRecoveryCapture.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasRecoveryCapture.return": {
+          "type": "boolean"
+        },
+        "method.getRecoveryCapture.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRecoveryCapture.return": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+        },
+        "method.hasInvalidReceipt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasInvalidReceipt.return": {
+          "type": "boolean"
+        },
+        "method.requiresWorkspaceRecovery.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.requiresWorkspaceRecovery.return": {
+          "type": "boolean"
+        },
+        "method.verifyRecovery.params": {
+          "type": "object",
+          "properties": {
+            "discardPending": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyRecovery.return": {
+          "type": "object",
+          "title": "Promise<'adopted-current' | 'verified'>"
+        },
         "method.prepareReload.params": {
           "type": "object",
           "properties": {
@@ -597,7 +642,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T03:15:12.825Z",
+  "generatedAt": "2026-10-23T20:01:41.031Z",
   "models": {
     "ModelEditStatus": {
       "name": "ModelEditStatus",
@@ -1007,6 +1052,74 @@
                   {
                     "type": "intrinsic",
                     "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hasRecoveryCapture",
+              "jsdoc": "工作区先核验一次原联合批次，再按原参与selector显式放弃；绝不猜当前dirty行。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getRecoveryCapture",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSpaceDefinitionCaptureBatch",
+                  "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+                }
+              }
+            },
+            {
+              "name": "hasInvalidReceipt",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "requiresWorkspaceRecovery",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "verifyRecovery",
+              "parameters": [
+                {
+                  "name": "discardPending",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "adopted-current"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "verified"
+                      }
+                    ]
                   }
                 ]
               }

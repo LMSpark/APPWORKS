@@ -231,6 +231,9 @@
             "additionalProperties": false
           }
         },
+        "capture": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+        },
         "confirmed": {
           "enum": [
             false,
@@ -264,6 +267,7 @@
         "baseline",
         "fieldIds",
         "staged",
+        "capture",
         "confirmed",
         "verified",
         "verification",
@@ -429,7 +433,11 @@
         },
         "method.verify.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "options": {
+              "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionRecoveryOptions"
+            }
+          },
           "additionalProperties": false
         },
         "method.verify.return": {
@@ -451,7 +459,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T06:52:20.906Z",
+  "generatedAt": "2026-10-23T21:37:59.027Z",
   "models": {
     "ArrayFieldChange": {
       "name": "ArrayFieldChange",
@@ -672,7 +680,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    status: ArrayEditStatus;\n    identity: string;\n    renamedIdentity: string | undefined;\n    rename: {\n        plan: ModelRenameFilePlan;\n        before: string;\n        after: string;\n    } | undefined;\n    baseline: string;\n    fieldIds: Set<string>;\n    staged: Array<{\n        view: DataView;\n        id: string;\n        after: string;\n        values: Record<string, unknown> | null;\n        created?: true;\n    }>;\n    confirmed: boolean;\n    verified: string;\n    verification: string[];\n    fieldRenames: FieldRename[];\n    referenceSnapshot: string;\n}",
+        "declarationTypeText": "{\n    status: ArrayEditStatus;\n    identity: string;\n    renamedIdentity: string | undefined;\n    rename: {\n        plan: ModelRenameFilePlan;\n        before: string;\n        after: string;\n    } | undefined;\n    baseline: string;\n    fieldIds: Set<string>;\n    staged: Array<{\n        view: DataView;\n        id: string;\n        after: string;\n        values: Record<string, unknown> | null;\n        created?: true;\n    }>;\n    capture: DataSpaceDefinitionCaptureBatch | undefined;\n    confirmed: boolean;\n    verified: string;\n    verification: string[];\n    fieldRenames: FieldRename[];\n    referenceSnapshot: string;\n}",
         "members": {
           "attributes": [
             {
@@ -707,6 +715,11 @@
             },
             {
               "name": "staged",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "capture",
               "readable": true,
               "writable": true
             },
@@ -855,7 +868,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    getState(): ReturnType<typeof arrayGetState>;\n    headers(): ReturnType<typeof arrayHeaders>;\n    beginHeaders(): ReturnType<typeof arrayBeginHeaders>;\n    applyHeaders(definition: ArrayDefinition): Promise<void>;\n    discard(): void;\n    save(): Promise<void>;\n    verify(): Promise<boolean>;\n    acceptCurrent(): void;\n    release(): void;\n}",
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof arrayGetState>;\n    headers(): ReturnType<typeof arrayHeaders>;\n    beginHeaders(): ReturnType<typeof arrayBeginHeaders>;\n    applyHeaders(definition: ArrayDefinition): Promise<void>;\n    discard(): void;\n    save(): Promise<void>;\n    verify(options?: DataSpaceDefinitionRecoveryOptions): Promise<boolean>;\n    acceptCurrent(): void;\n    release(): void;\n}",
         "members": {
           "methods": [
             {
@@ -947,7 +960,19 @@
             },
             {
               "name": "verify",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceDefinitionRecoveryOptions",
+                    "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",

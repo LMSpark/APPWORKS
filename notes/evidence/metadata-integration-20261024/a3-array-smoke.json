@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-24",
+  "environment": "Existing localhost:5273 UI with authorized NewApp session and actual backend service",
+  "spaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "spaceName": "LivePilot_T_20261017",
+  "modelName": "ArrayScope_20261018",
+  "originalDescription": "模型改名后连续保存已验证 20261018",
+  "originalHeaderDescriptions": ["主键", "验收值（已核验）"],
+  "preservedRow": ["probe-1", "after"],
+  "marker": "；A3 smoke 20261024",
+  "cancelAndReopenVerified": true,
+  "saveAndIndependentDesignReopenVerified": true,
+  "restoreAndIndependentDesignReopenVerified": true,
+  "finalArraySaveEnabled": false,
+  "finalModelCloseEnabled": true,
+  "arrayDialogPersistenceActions": 2,
+  "actionCountMeaning": "One array-dialog save of description plus header description; one array-dialog save restoring both originals. Header-row and header-dialog confirmation buttons only accept local draft and are not counted as backend persistence actions. No HTTP request count is claimed.",
+  "onlineUnknownOrPartialFaultInjected": false,
+  "screenshots": ["a3-array-reopened.png", "a3-array-restored.png"]
+}

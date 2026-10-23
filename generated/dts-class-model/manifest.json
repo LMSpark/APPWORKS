@@ -12808,6 +12808,9 @@
         "jsdoc": "@module app:lowcode/data-space/model-source/save/data-space-definition-save\n职责：组合模型和字段的原有保存阶段，统一通过DataSet提交。\n边界：不持有业务数据、权限或请求实现；各定义owner负责领域校验，原数据层负责提交回执。\nAI用途：模型工作区统一保存，所有阶段预检通过后才应用并派发一个批次。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "DataSpaceDefinitionCapture",
+          "DataSpaceDefinitionCaptureBatch",
+          "DataSpaceDefinitionRecoveryOptions",
           "DataSpaceDefinitionSavePart",
           "DataSpaceDefinitionSave"
         ]
@@ -17729,6 +17732,18 @@
     "DataSpaceDatabaseResourceType": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/data-space.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/data-space.ts.json"
+    },
+    "DataSpaceDefinitionCapture": {
+      "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
+      "file": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json"
+    },
+    "DataSpaceDefinitionCaptureBatch": {
+      "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
+      "file": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json"
+    },
+    "DataSpaceDefinitionRecoveryOptions": {
+      "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
+      "file": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json"
     },
     "DataSpaceDefinitionSave": {
       "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",

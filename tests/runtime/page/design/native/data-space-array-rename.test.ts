@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 const fixtures: ReturnType<typeof dataSpacePageFixture>[]=[]
-afterEach(()=>fixtures.splice(0).forEach(f=>f.dispose()))
+afterEach(()=>{vi.restoreAllMocks();fixtures.splice(0).forEach(f=>f.dispose())})
 async function setupForView(options:Parameters<typeof dataSpacePageFixture>[0],fieldViewId:'default'|'modelFields') {
   const f=dataSpacePageFixture({allowArrayEdit:true,allowModelRename:true,formalProjection:true,allowFieldEdit:true,editableFieldProperties:['description','Order'],
     sourceFields:[{rowid:'F1',dataModelId:'M1',type:'dataModel',Name:'id',description:'编码',FieldType:'string',IsPKey:1,IsOutput:1,AsName:'',Expression:'',ValueFun:'',Order:0},
@@ -40,6 +40,84 @@ describe.each(['default','modelFields'] as const)('array dialog registered name 
     const {owner,f,view,writes}=await setup();view.updateEditingValue('M1','Name','LocalOrders');f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown')
     expect(await owner.verify()).toBe(true);expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(1)
+  })
+  it('keeps a late captured-target draft while dependency readback is awaiting',async()=>{
+    const {owner,f,session,writes}=await setup({allowDelete:true,sourceFields:[
+      {rowid:'F1',dataModelId:'M1',type:'dataModel',Name:'id',description:'编码',FieldType:'string',IsPKey:1,IsOutput:1,AsName:'',Expression:'',ValueFun:'',Order:0},
+      {rowid:'F2',dataModelId:'M1',type:'dataModel',Name:'name',description:'名称',FieldType:'string',IsPKey:0,IsOutput:1,AsName:'',Expression:'',ValueFun:'',Order:1},
+      {rowid:'F3',dataModelId:'M1',type:'dataModel',Name:'obsolete',description:'旧字段',FieldType:'number',IsPKey:0,IsOutput:1,AsName:'',Expression:'',ValueFun:'',Order:2},
+    ]})
+    const fields=session.metadataDataSet.getView('Base_DataModel_Field',fieldViewId)!
+    const dataSet=session.metadataDataSet,save=dataSet.saveChanges.bind(dataSet)
+    let capturedTargets:NonNullable<Parameters<typeof dataSet.saveChanges>[0]>['views']
+    vi.spyOn(dataSet,'saveChanges').mockImplementation(options=>{capturedTargets=options?.views;return save(options)})
+    const draft=owner.beginHeaders();draft.beginHeaders()
+    draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().filter(header=>header.id!=='F3').map(header=>({...header,label:header.id==='F2'?'新名称':header.label}))))
+    draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose()
+    const dependencyFields=session.metadataDataSet.getView('Base_DataModel_Field','modelInputFields')!
+    let hold=false,release!:()=>void,entered!:()=>void
+    const gate=new Promise<void>(resolve=>{release=resolve}),waiting=new Promise<void>(resolve=>{entered=resolve})
+    const create=dependencyFields.createQueryView.bind(dependencyFields)
+    vi.spyOn(dependencyFields,'createQueryView').mockImplementation(id=>{
+      const query=create(id),load=query.loadFromServer.bind(query)
+      vi.spyOn(query,'loadFromServer').mockImplementation(async options=>{
+        if(hold){hold=false;entered();await gate}
+        return load(options)
+      })
+      return query
+    })
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown');expect(writes()).toHaveLength(1)
+    expect(capturedTargets).toContainEqual(expect.objectContaining({tableName:'Base_DataModel_Field',viewId:fieldViewId,ids:expect.arrayContaining(['F2','F3'])}))
+    hold=true
+    const verifying=owner.verify()
+    await waiting
+    fields.updateEditingValue('F2','description','依赖回读等待期间的新草稿')
+    release()
+    await expect(verifying).rejects.toThrow(/回读期间|新草稿|修改已保留|其他模型或字段草稿/)
+    expect(fields.hasUnconfirmedSave).toBe(false)
+    expect(fields.getEditingPatch('F2')).toEqual({description:'依赖回读等待期间的新草稿'})
+    expect(owner.getState().status).not.toBe('idle');expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
+  })
+  it('checks every original target when a later view readback is still pending',async()=>{
+    const {owner,f,session,writes}=await setup({allowDelete:true,sourceFields:[
+      {rowid:'F1',dataModelId:'M1',type:'dataModel',Name:'id',description:'编码',FieldType:'string',IsPKey:1,IsOutput:1,AsName:'',Expression:'',ValueFun:'',Order:0},
+      {rowid:'F2',dataModelId:'M1',type:'dataModel',Name:'name',description:'名称',FieldType:'string',IsPKey:0,IsOutput:1,AsName:'',Expression:'',ValueFun:'',Order:1},
+      {rowid:'F3',dataModelId:'M1',type:'dataModel',Name:'obsolete',description:'旧字段',FieldType:'number',IsPKey:0,IsOutput:1,AsName:'',Expression:'',ValueFun:'',Order:2},
+    ]})
+    const models=session.metadataDataSet.getView('Base_DataModel')!,fields=session.metadataDataSet.getView('Base_DataModel_Field',fieldViewId)!
+    models.updateEditingValue('M1','items','[]')
+    const draft=owner.beginHeaders();draft.beginHeaders()
+    draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().filter(header=>header.id!=='F3').map(header=>({...header,label:header.id==='F2'?'新名称':header.label}))))
+    draft.applyHeaders();await owner.applyHeaders(draft.definition());draft.dispose()
+    f.loseNextResponse();await expect(owner.save()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown');expect(writes()).toHaveLength(1)
+    const load=fields.loadFromServer.bind(fields)
+    let release!:()=>void,entered!:()=>void
+    const gate=new Promise<void>(resolve=>{release=resolve}),waiting=new Promise<void>(resolve=>{entered=resolve})
+    const held=vi.spyOn(fields,'loadFromServer').mockImplementationOnce(async options=>{const result=await load(options);entered();await gate;return result})
+    const verifying=owner.verify()
+    await waiting
+    await models.editRowById('M1',{description:'第二视图等待时的新应用修改'})
+    release()
+    await expect(verifying).rejects.toThrow(/数组回读期间|新草稿|应用修改/)
+    expect(held).toHaveBeenCalledOnce();expect(models.hasUnconfirmedSave).toBe(false)
+    expect(models.getDirtyChanges('M1')).toMatchObject({description:{from:'',to:'第二视图等待时的新应用修改'}})
+    expect(owner.getState().status).not.toBe('idle');expect(owner.getState().pending).toBe(true)
+    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(0)
+  })
+  it('keeps confirmed recovery open when a captured target changes during file completion',async()=>{
+    const {owner,f,view,writes}=await setup();view.updateEditingValue('M1','Name','LocalOrders');f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow();expect(owner.getState().status).toBe('unknown');expect(writes()).toHaveLength(1)
+    const release=f.holdFileResponse(),verifying=owner.verify()
+    await vi.waitFor(()=>expect(f.fileWrites).toHaveLength(1))
+    view.updateEditingValue('M1','description','文件完成等待期间的新草稿')
+    release()
+    await expect(verifying).rejects.toThrow(/完成期间|新草稿|修改已保留|正式注册名未确认/)
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(view.getEditingPatch('M1')).toEqual({description:'文件完成等待期间的新草稿'})
+    expect(owner.getState().status).not.toBe('idle');expect(owner.getState().pending).toBe(true)
+    expect(writes()).toHaveLength(1);expect(f.fileWrites).toHaveLength(1)
   })
   it('recovers an unknown scene file receipt without resending the database or confirmed file',async()=>{
     const {owner,f,view,writes,session}=await setup();view.updateEditingValue('M1','Name','LocalOrders');f.loseNextFileResponse()

@@ -233,6 +233,22 @@
           ],
           "additionalProperties": false
         },
+        "method.hasInvalidReceipt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasInvalidReceipt.return": {
+          "type": "boolean"
+        },
+        "method.getRecoveryCapture.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRecoveryCapture.return": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+        },
         "method.readPreview.params": {
           "type": "object",
           "properties": {},
@@ -973,7 +989,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T03:04:28.907Z",
+  "generatedAt": "2026-10-23T20:01:42.854Z",
   "models": {
     "FieldEditStatus": {
       "name": "FieldEditStatus",
@@ -1296,6 +1312,26 @@
               "type": {
                 "type": "unknown",
                 "name": "{\n        status: FieldEditStatus;\n        pending: boolean;\n    }"
+              }
+            },
+            {
+              "name": "hasInvalidReceipt",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getRecoveryCapture",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSpaceDefinitionCaptureBatch",
+                  "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+                }
               }
             },
             {
@@ -1649,7 +1685,7 @@
             },
             {
               "name": "prepareReloadBatch",
-              "jsdoc": "同步放弃本次明确选择的字段差异，返回原视图只读核验；先准备联合目标，异步等待中新增的草稿不得再次取消。",
+              "jsdoc": "按原捕获范围核验；等待期间字段草稿变化时拒绝迟到丢弃。",
               "parameters": [
                 {
                   "name": "owners",

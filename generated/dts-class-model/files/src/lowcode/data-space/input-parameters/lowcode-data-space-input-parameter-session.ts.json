@@ -27,23 +27,16 @@
         "readback"
       ]
     },
-    "ParameterRecovery": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "ParameterRecovery",
-      "enum": [
-        "none",
-        "unsubmitted",
-        "unknown",
-        "readback"
-      ]
-    },
     "InputParameterEditFlow": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "InputParameterEditFlow",
       "properties": {
-        "recovery": {
-          "$ref": "#/$defs/ParameterRecovery"
+        "verificationRequired": {
+          "enum": [
+            false,
+            true
+          ]
         },
         "inFlight": {
           "enum": [
@@ -56,7 +49,7 @@
         }
       },
       "required": [
-        "recovery",
+        "verificationRequired",
         "inFlight",
         "queryContext"
       ],
@@ -94,7 +87,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-20T05:42:56.618Z",
+  "generatedAt": "2026-10-23T19:02:25.963Z",
   "models": {
     "ParameterEditStatus": {
       "name": "ParameterEditStatus",
@@ -127,43 +120,16 @@
         "members": {}
       }
     },
-    "ParameterRecovery": {
-      "name": "ParameterRecovery",
-      "jsdoc": "",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'none' | 'unsubmitted' | 'unknown' | 'readback'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'none'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'unsubmitted'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'unknown'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'readback'"
-          }
-        ],
-        "members": {}
-      }
-    },
     "InputParameterEditFlow": {
       "name": "InputParameterEditFlow",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    recovery: ParameterRecovery;\n    inFlight: boolean;\n    queryContext: string;\n}",
+        "declarationTypeText": "{\n    verificationRequired: boolean;\n    inFlight: boolean;\n    queryContext: string;\n}",
         "members": {
           "attributes": [
             {
-              "name": "recovery",
+              "name": "verificationRequired",
               "readable": true,
               "writable": true
             },

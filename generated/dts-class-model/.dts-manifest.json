@@ -3609,7 +3609,7 @@
     "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts": {
       "sourceFile": "src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts",
       "shardFile": "files/src/lowcode/data-space/input-parameters/lowcode-data-space-input-parameter-session.ts.json",
-      "sourceModifiedAt": "2026-10-20T05:42:56.618Z"
+      "sourceModifiedAt": "2026-10-23T19:02:25.963Z"
     },
     "src/lowcode/data-space/lowcode-data-space-assembler.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
@@ -3659,7 +3659,7 @@
     "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:20.906Z"
+      "sourceModifiedAt": "2026-10-23T21:37:59.027Z"
     },
     "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
@@ -3669,7 +3669,7 @@
     "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts.json",
-      "sourceModifiedAt": "2026-10-23T03:04:28.907Z"
+      "sourceModifiedAt": "2026-10-23T20:01:42.854Z"
     },
     "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field-output/lowcode-data-space-field-output.ts",
@@ -3724,7 +3724,7 @@
     "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/model-edit/lowcode-data-space-model-edit-session.ts.json",
-      "sourceModifiedAt": "2026-10-23T03:15:12.825Z"
+      "sourceModifiedAt": "2026-10-23T20:01:41.031Z"
     },
     "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/primary-key/lowcode-data-space-primary-key.ts",
@@ -3739,7 +3739,7 @@
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts.json",
-      "sourceModifiedAt": "2026-10-23T06:52:20.866Z"
+      "sourceModifiedAt": "2026-10-23T20:01:53.465Z"
     },
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts",
@@ -3769,7 +3769,7 @@
     "src/lowcode/data-space/model-source/save/data-space-definition-save.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/save/data-space-definition-save.ts.json",
-      "sourceModifiedAt": "2026-10-18T01:10:34.479Z"
+      "sourceModifiedAt": "2026-10-23T21:33:45.774Z"
     },
     "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts",
@@ -3779,7 +3779,7 @@
     "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts.json",
-      "sourceModifiedAt": "2026-10-23T07:01:14.594Z"
+      "sourceModifiedAt": "2026-10-23T20:01:45.689Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-cascade-metadata.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-cascade-metadata.ts",
@@ -3794,7 +3794,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-10-23T07:04:51.308Z"
+      "sourceModifiedAt": "2026-10-23T19:01:45.317Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -4404,7 +4404,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-10-23T06:55:57.966Z"
+      "sourceModifiedAt": "2026-10-23T20:38:21.962Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",
@@ -4434,7 +4434,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue.json",
-      "sourceModifiedAt": "2026-10-20T05:17:47.136Z"
+      "sourceModifiedAt": "2026-10-23T19:39:39.906Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-space-array-headers.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-space-array-headers.props.ts",
@@ -4449,7 +4449,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue.json",
-      "sourceModifiedAt": "2026-10-20T05:22:00.038Z"
+      "sourceModifiedAt": "2026-10-23T21:34:03.524Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayHeaders.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayHeaders.vue",
@@ -4479,7 +4479,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue.json",
-      "sourceModifiedAt": "2026-10-23T06:56:05.599Z"
+      "sourceModifiedAt": "2026-10-23T20:16:12.170Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts",

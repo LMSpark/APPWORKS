@@ -775,10 +775,6 @@
                 "discardPending"
               ],
               "additionalProperties": false
-            },
-            "refresh": {
-              "type": "object",
-              "title": "() => Promise<void>"
             }
           },
           "additionalProperties": false
@@ -1338,7 +1334,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T07:04:51.308Z",
+  "generatedAt": "2026-10-23T19:01:45.317Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -2284,32 +2280,6 @@
                         "name": "{\n        discardPending: boolean;\n    }"
                       }
                     ]
-                  }
-                },
-                {
-                  "name": "refresh",
-                  "type": {
-                    "type": "reflection",
-                    "declaration": {
-                      "signatures": [
-                        {
-                          "parameters": [],
-                          "type": {
-                            "type": "reference",
-                            "name": "Promise",
-                            "typeArguments": [
-                              {
-                                "type": "intrinsic",
-                                "name": "void"
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "flags": {
-                    "isOptional": true
                   }
                 }
               ],

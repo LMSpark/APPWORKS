@@ -20,10 +20,17 @@ export type DataSpaceDefinitionCapture = Readonly<{
 export type DataSpaceDefinitionCaptureBatch = {
   readonly targets: readonly DataSpaceDefinitionCapture[]
   verified: boolean
+  /** Proof of how the original operation was resolved; capture disappearance alone proves nothing. */
+  resolution?: 'confirmed' | 'not-applied' | 'accepted-current'
   receiptInvalid?: boolean
   acceptedCurrent?: boolean
   discarded?: boolean
 }
+
+export type DataSpaceDefinitionRecoveryOptions = Readonly<{
+  acceptCurrentOnInvalidReceipt?: boolean
+  discardLocalChanges?: boolean
+}>
 
 /** 同一模型定义owner提供的单次保存阶段，不能跨实例拼接。 */
 export type DataSpaceDefinitionSavePart = {
@@ -96,6 +103,8 @@ export class DataSpaceDefinitionSave {
       stage = 'dispatched'; parts.forEach(part => part.dispatched(batch))
       const saved = await first.dataSet.saveChanges({applyEditingRows: false, views})
       try {assertDefinitionReceipt(saved, batch)} catch (cause) {batch.receiptInvalid = true; throw cause}
+      batch.verified = true
+      batch.resolution = 'confirmed'
       stage = 'confirmed'
       for (const part of parts) await part.confirm()
       parts.forEach(part => part.settled?.())
@@ -182,42 +191,54 @@ export async function verifyDataSpaceDefinitionCapture(dataSet: DataSet, batch: 
     batch.discarded = true
     delete batch.receiptInvalid
     batch.verified = true
+    batch.resolution = 'accepted-current'
     return 'accepted-current'
   }
-  if (batch.verified) return 'already-confirmed'
-  if (!hasCapture()) {batch.verified = true; return 'already-confirmed'}
+  if (batch.resolution === 'confirmed') {batch.verified = true; return 'already-confirmed'}
+  if (batch.resolution === 'not-applied') return 'not-applied'
+  if (batch.resolution === 'accepted-current') return 'accepted-current'
+  if (batch.verified || !hasCapture()) throw new Error('原定义捕获已消失但没有有效回执证明；未知结果仍保留')
   const guard = watchEdits()
   try {
     const result = await dataSet.saveChanges({applyEditingRows: false, views: capture.map(({tableName, viewId, ids}) => ({tableName, viewId, ids: [...ids]}))})
-    if (guard.edited.size) throw new Error('原定义核验期间出现新字段编辑；修改已保留，请重新核验')
     try {assertDefinitionReceipt(result, batch)} catch (cause) {batch.receiptInvalid = true; throw cause}
     if (hasCapture()) throw new Error(result.message ?? '原定义批次尚未完整核验')
     delete batch.receiptInvalid
     batch.verified = true
+    batch.resolution = 'confirmed'
+    if (guard.edited.size) throw new Error('原定义核验期间出现新字段编辑；修改已保留，请重新核验')
     return 'confirmed'
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause)
-    if (message.includes('SPARK_SAVE_NOT_APPLIED') && !hasCapture()) {batch.verified = true; return 'not-applied'}
+    if (message.startsWith('SPARK_SAVE_NOT_APPLIED:') && !hasCapture()) {
+      batch.verified = true
+      batch.resolution = 'not-applied'
+      return 'not-applied'
+    }
     throw cause
   } finally {guard.dispose()}
 }
 
 /** Complete workspace recovery: verify the original batch first, then synchronously discard only its captured ids. */
-export async function verifyAndDiscardDataSpaceDefinitionCapture(dataSet: DataSet, batch: DataSpaceDefinitionCaptureBatch): Promise<'already-confirmed' | 'confirmed' | 'not-applied' | 'accepted-current'> {
+export async function verifyAndDiscardDataSpaceDefinitionCapture(dataSet: DataSet, batch: DataSpaceDefinitionCaptureBatch,
+  options: DataSpaceDefinitionRecoveryOptions = {}): Promise<'already-confirmed' | 'confirmed' | 'not-applied' | 'accepted-current'> {
   const signatures = batch.targets.map(target => [target, definitionTargetDraftSignature(target.view, target.ids)] as const)
-  const outcome = await verifyDataSpaceDefinitionCapture(dataSet, batch, batch.receiptInvalid === true)
+  const outcome = await verifyDataSpaceDefinitionCapture(dataSet, batch,
+    (options.acceptCurrentOnInvalidReceipt ?? true) && batch.receiptInvalid === true)
+  const discardLocalChanges = options.discardLocalChanges ?? true
   if (outcome !== 'accepted-current') {
+    const hasTargetChanges = batch.targets.some(target => target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id)))
+    if ((outcome === 'confirmed' || outcome === 'already-confirmed') && hasTargetChanges && !discardLocalChanges) {
+      throw new Error('原定义提交已确认，但目标仍有本地新修改；请明确选择放弃本地新修改并核验')
+    }
     for (const [target, signature] of signatures) {
       const currentSignature = definitionTargetDraftSignature(target.view, target.ids)
       if (outcome === 'not-applied' && currentSignature !== signature) {
         throw new Error('完整批次核验期间原目标草稿发生变化；保留修改，请重新核验')
       }
-      if ((outcome === 'confirmed' || outcome === 'already-confirmed') && currentSignature !== signature
+      if ((outcome === 'confirmed' || outcome === 'already-confirmed') && hasTargetChanges && currentSignature !== signature
         && target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id))) {
-        // A confirmed owner may clear the captured diff. Drafts already present when this
-        // explicit discard was requested are authorized; only a changed residual draft
-        // indicates that a new target edit arrived while verification was awaiting.
-        throw new Error('完整批次核验后原目标出现新草稿；保留修改，请重新核验')
+        throw new Error('完整批次核验后原目标出现新草稿；保留修改，请重新选择放弃本地新修改并核验')
       }
     }
     const byView = new Map<DataView, Set<string>>()

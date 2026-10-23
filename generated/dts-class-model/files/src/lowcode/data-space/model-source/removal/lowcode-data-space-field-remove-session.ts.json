@@ -191,6 +191,9 @@
         "dependencies": {
           "$ref": "../lowcode-data-space-model-dependencies.ts.json#/$defs/LowcodeDataSpaceModelDependencies"
         },
+        "recoveryCapture": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+        },
         "flow": {
           "$ref": "#/$defs/FieldRemoveFlow"
         }
@@ -255,6 +258,22 @@
           "type": "object",
           "title": "ReturnType<typeof fieldRemoveGetState>"
         },
+        "method.hasInvalidReceipt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasInvalidReceipt.return": {
+          "type": "boolean"
+        },
+        "method.getRecoveryCapture.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getRecoveryCapture.return": {
+          "$ref": "../save/data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+        },
         "method.preview.params": {
           "type": "object",
           "properties": {},
@@ -314,7 +333,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T06:52:20.866Z",
+  "generatedAt": "2026-10-23T20:01:53.465Z",
   "models": {
     "FieldRemoveStatus": {
       "name": "FieldRemoveStatus",
@@ -510,7 +529,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly fieldId: string;\n    readonly fieldViewId: 'default' | 'modelFields';\n    readonly lifecycle: FieldRemoveLifecycle;\n    views: DataView[];\n    readonly source: DataView;\n    readonly sourceContext: string;\n    dependencies: LowcodeDataSpaceModelDependencies | undefined;\n    flow: FieldRemoveFlow;\n}",
+        "declarationTypeText": "{\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly fieldId: string;\n    readonly fieldViewId: 'default' | 'modelFields';\n    readonly lifecycle: FieldRemoveLifecycle;\n    views: DataView[];\n    readonly source: DataView;\n    readonly sourceContext: string;\n    dependencies: LowcodeDataSpaceModelDependencies | undefined;\n    recoveryCapture?: DataSpaceDefinitionCaptureBatch;\n    flow: FieldRemoveFlow;\n}",
         "members": {
           "attributes": [
             {
@@ -557,6 +576,11 @@
               "name": "dependencies",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "recoveryCapture",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "flow",
@@ -616,7 +640,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    getState(): ReturnType<typeof fieldRemoveGetState>;\n    preview(): Promise<void>;\n    cancel(): void;\n    stage(): Promise<void>;\n    prepareSave(): DataSpaceDefinitionSavePart;\n    save(): Promise<boolean>;\n    verify(): Promise<boolean>;\n    acceptCurrent(): void;\n}",
+        "declarationTypeText": "{\n    getState(): ReturnType<typeof fieldRemoveGetState>;\n    hasInvalidReceipt(): boolean;\n    getRecoveryCapture(): DataSpaceDefinitionCaptureBatch | undefined;\n    preview(): Promise<void>;\n    cancel(): void;\n    stage(): Promise<void>;\n    prepareSave(): DataSpaceDefinitionSavePart;\n    save(): Promise<boolean>;\n    verify(): Promise<boolean>;\n    acceptCurrent(): void;\n}",
         "members": {
           "methods": [
             {
@@ -631,6 +655,26 @@
                     "name": "typeof fieldRemoveGetState"
                   }
                 ]
+              }
+            },
+            {
+              "name": "hasInvalidReceipt",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "getRecoveryCapture",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSpaceDefinitionCaptureBatch",
+                  "sourcePath": "src/lowcode/data-space/model-source/save/data-space-definition-save.ts"
+                }
               }
             },
             {

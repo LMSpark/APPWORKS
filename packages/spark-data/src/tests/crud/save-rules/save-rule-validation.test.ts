@@ -239,6 +239,7 @@ describe('declared view operations', () => {
       expect(draft).toMatchObject({ ProviderID: 'P1' })
       apis.setCurrentRow(draft); apis.setSelectedRows([draft])
       expect(params.addActionState()).toBe('disabled')
+      expect(params.newRowFieldAccess('parname').write).toBe('denied')
       await expect(params.addRow({})).rejects.toThrow('DATA_VIEW_ADD_PARENT_PENDING')
     } finally { dataSet.destroy() }
   })

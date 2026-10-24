@@ -1294,6 +1294,18 @@
           "type": "object",
           "title": "Promise<DataRow[]>"
         },
+        "method.newRowFieldAccess.params": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.newRowFieldAccess.return": {
+          "$ref": "#/$defs/DataViewFieldAccess"
+        },
         "method.fieldAccess.params": {
           "type": "object",
           "properties": {
@@ -2602,7 +2614,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T18:00:49.352Z",
+  "generatedAt": "2026-10-24T14:28:27.057Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -4313,6 +4325,24 @@
                     }
                   }
                 ]
+              }
+            },
+            {
+              "name": "newRowFieldAccess",
+              "jsdoc": "读取尚未加入视图的新行字段访问合同，不读业务值、不创建行、不查询或保存。\n仅沿当前正式查询上下文呈现已有新增字段权限；不会授予额外权限。\n查询输入变化、结果失效或视图销毁后拒绝旧权限；addRow/save 仍独立执行原守卫。\n@param field 正式 DataTable 中待输入的字段名。\n@returns 该字段对当前查询新行的只读呈现/写入合同；未知或不可写字段返回拒绝结果。",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFieldAccess",
+                "sourcePath": "packages/spark-data/src/data-view.ts"
               }
             },
             {

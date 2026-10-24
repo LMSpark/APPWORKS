@@ -2579,7 +2579,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-10-23T18:00:49.352Z"
+      "sourceModifiedAt": "2026-10-24T14:28:27.057Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",

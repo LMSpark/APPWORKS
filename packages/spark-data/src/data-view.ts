@@ -403,6 +403,7 @@ rows: DataRow[] = []
   validateQueryResult: ((result: DataViewQueryResult) => void | Promise<void>) | undefined
   #resourceIdentity: DataViewResourceIdentity | undefined
   #queryResult: DataViewQueryResult | undefined
+  #queryResultRefreshIdentity: string | undefined
   #computedQueryToken: object | undefined
   #queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
   #ingestingQueryResult = false
@@ -427,7 +428,7 @@ rows: DataRow[] = []
       this.queryIdentity()
       this.#queryExecutor = executor
       if (options?.initialResult) {
-        this.ingestQueryResult(options.initialResult)
+        this.ingestQueryResult(options.initialResult, this.refreshIdentity())
         this.setRequestState(RequestState.Loaded)
       }
       if (this.rows.length) this.recomputeColumns()
@@ -616,6 +617,21 @@ rows: DataRow[] = []
     return JSON.stringify(context)
   }
 
+  /**
+   * 读取尚未加入视图的新行字段访问合同，不读业务值、不创建行、不查询或保存。
+   * 仅沿当前正式查询上下文呈现已有新增字段权限；不会授予额外权限。
+   * 查询输入变化、结果失效或视图销毁后拒绝旧权限；addRow/save 仍独立执行原守卫。
+   * @param field 正式 DataTable 中待输入的字段名。
+   * @returns 该字段对当前查询新行的只读呈现/写入合同；未知或不可写字段返回拒绝结果。
+   */
+  newRowFieldAccess(field: string): DataViewFieldAccess {
+    const context = this.currentQueryResult()
+    if (!context || context.resultPrimaryKey === '' || context.prepareNewRow === undefined || this.queryParentPendingCreate()) {
+      return DENIED_FIELD_ACCESS
+    }
+    return this.queryNewRowFieldAccess(context, field)
+  }
+
   /** 返回字段双通道呈现；本视图新增草稿按当次新增可用性编辑声明字段，既有行仍消费原字段权限。查询失效暂停写入。 */
   fieldAccess(row: DataRow | null, field: string): DataViewFieldAccess {
     const context = this.currentQueryResult()
@@ -634,14 +650,7 @@ rows: DataRow[] = []
     const draftKey = this.getPkKey(row)
     if (draftKey !== undefined && this.dirtyTrackingDelegate.pendingCreateIds.has(draftKey)
       && this.getRowById(draftKey) && !context.rows.some(original => context.rowKey(original) === draftKey)) {
-      const column = this.getColumn(field)
-      if (!column || this._computedDelegate.isConfigured(field) || column.isComputed) return DENIED_FIELD_ACCESS
-      // 只呈现本地新增输入；没有服务端原行权限可借用，持久化仍由原查询owner核新增凭据。
-      const editable = context.addActionState(!this._resultStale) === 'enabled'
-        && !this.effectivePkFields.includes(field) && !column.autoIncrement && context.isFieldReadOnly?.(field) !== true
-      const required = column.required ?? column.allowDBNull === false
-      return {read: 'visible', write: editable ? 'allowed' : 'denied', required,
-        component: editable ? 'editable' : 'readonly', writeMode: editable ? required ? 'required' : 'editable' : 'readonly'}
+      return this.queryNewRowFieldAccess(context, field)
     }
     if (this._computedDelegate.isConfigured(field)) {
       const read = this.#computedQueryToken && this._computedDelegate.configuredReadAccess(row, field, this.#computedQueryToken)
@@ -657,6 +666,19 @@ rows: DataRow[] = []
     if (!this._resultStale && this.getColumn(field)?.immutable !== true) return access
     return { ...access, write: 'denied', writeMode: 'readonly',
       component: access.read === 'invisible' ? 'hidden' : 'readonly' }
+  }
+
+  private queryNewRowFieldAccess(context: DataViewQueryResult, field: string): DataViewFieldAccess {
+    const column = this.getColumn(field)
+    if (!column || this._computedDelegate.isConfigured(field) || column.isComputed) return DENIED_FIELD_ACCESS
+    // 新行只呈现正式查询新增输入；查询身份或输入变化时不得借用旧权限。
+    const sameQueryInputs = this.#queryResultRefreshIdentity === this.refreshIdentity()
+    const editable = sameQueryInputs && !this._resultStale
+      && context.addActionState(!this._resultStale) === 'enabled'
+      && !this.effectivePkFields.includes(field) && !column.autoIncrement && context.isFieldReadOnly?.(field) !== true
+    const required = column.required ?? column.allowDBNull === false
+    return {read: 'visible', write: editable ? 'allowed' : 'denied', required,
+      component: editable ? 'editable' : 'readonly', writeMode: editable ? required ? 'required' : 'editable' : 'readonly'}
   }
 
   /** @internal Configured calculations consume only fields visible in this view's current query. */
@@ -1820,6 +1842,7 @@ protected logger = Logger('DataView')
       const loadParams = this.buildTreeModeParams({...DataViewQuery.capture(this.queryConfig), ...params})
       Object.assign(loadParams, DataViewQuery.capture(loadParams))
       this.withViewQueryDefaults(loadParams)
+      const resultRefreshIdentity = this.refreshIdentity()
       if (this.queryConfig.cacheType && this.queryConfig.cacheType !== 'none' && !this.#queryExecutor?.invalidateQueryCache) {
         throw new Error('DATA_VIEW_QUERY_CACHE_UNSUPPORTED: 当前数据资源未接入结果缓存')
       }
@@ -1848,7 +1871,7 @@ protected logger = Logger('DataView')
           queryResult.assertIdentity(this.queryIdentity())
           if (this.validateQueryResult) await this.validateQueryResult(queryResult)
           if (requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
-          this.ingestQueryResult(queryResult)
+          this.ingestQueryResult(queryResult, resultRefreshIdentity)
         } else {
           this.updateFromServer(normalizeServerRowsData(result.data, `DataView.loadFromServer ${this.tableName}@${this.viewId}`))
         }
@@ -1873,7 +1896,7 @@ protected logger = Logger('DataView')
     }
   }
 
-  private ingestQueryResult(context: DataViewQueryResult): void {
+  private ingestQueryResult(context: DataViewQueryResult, refreshIdentity: string): void {
     context.assertIdentity(this.queryIdentity())
     this.assertResultReplacementAllowed()
     const originalRows = new WeakMap<DataRow, DataViewQueryRow>()
@@ -1884,12 +1907,14 @@ protected logger = Logger('DataView')
     })
     const total = context.total
     const previousContext = this.#queryResult
+    const previousRefreshIdentity = this.#queryResultRefreshIdentity
     const previousComputedToken = this.#computedQueryToken
     const previousOriginalRows = this.#queryOriginalRows
     const previousRows = this.rows
     const previousTotal = this.total
     try {
       this.#queryResult = context
+      this.#queryResultRefreshIdentity = refreshIdentity
       this._primaryKeyDelegate.ensurePkColumn()
       this.#computedQueryToken = {}
       this.#queryOriginalRows = originalRows
@@ -1897,6 +1922,7 @@ protected logger = Logger('DataView')
       this.updateFromServer({ rows, total })
     } catch (error) {
       this.#queryResult = previousContext
+      this.#queryResultRefreshIdentity = previousRefreshIdentity
       this._primaryKeyDelegate.ensurePkColumn()
       this.#computedQueryToken = previousComputedToken
       this.#queryOriginalRows = previousOriginalRows
@@ -3209,6 +3235,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   private resetStateInternal(options: { emitEvents: boolean }): void {
     this.currentLoadRequestId++
     this.#queryResult = undefined
+    this.#queryResultRefreshIdentity = undefined
     this.#computedQueryToken = undefined
     this.#queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
     const selectionChanged = this._currentRowId !== null || this._keylessCurrentRow !== null || this._selectedRowIds.length > 0 || this._keylessSelectedRows.length > 0

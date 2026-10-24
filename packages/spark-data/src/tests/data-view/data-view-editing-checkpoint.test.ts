@@ -13,6 +13,46 @@ function setup() {
   return view
 }
 
+async function setupNewRowQuery(options: {
+  isFieldReadOnly?: (field: string, scope: string) => boolean
+  addEnabled?: boolean
+  keyless?: boolean
+  omitPrepareNewRow?: boolean
+} = {}) {
+  const dataSet = SparkData.createDataSet({scenarioId: 'SPACE', dataSetName: 'Candidate', tables: {Items: {
+    tableName: 'Items', modelBinding: {modelId: 'ITEMS', modelName: 'Items'},
+    columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'title', type: 'string', required: true},
+      {name: 'restricted', type: 'string'}, {name: 'computed', type: 'string', isComputed: true},
+      {name: 'expression', type: 'string', computeExpression: "title + ' computed'"},
+      {name: 'generated', type: 'number', autoIncrement: true}],
+    views: {default: {commitMode: 'staged'}},
+  }}})
+  instances.push(dataSet)
+  const view = dataSet.getView('Items')!
+  let shouldFail = false
+  view.bindQueryExecutor({executeQuery: async (_view, params) => {
+    if (shouldFail) throw new Error('query failed for stale-context check')
+    const scope = String(params.context?.['scope'] ?? 'default')
+    return {
+      rows: [{id: '1', title: 'original', restricted: 'original'}], total: 1,
+      assertIdentity: identity => {
+        if (identity.scenarioId !== 'SPACE' || identity.metaName !== 'Items') throw new Error('identity mismatch')
+      },
+      rowKey: row => row['id'],
+      ...(options.keyless ? {resultPrimaryKey: ''} : {}),
+      ...(options.omitPrepareNewRow ? {} : {prepareNewRow: (row: Record<string, unknown>) => ({...row, id: '2'})}),
+      isFieldReadOnly: field => options.isFieldReadOnly?.(field, scope) ?? false,
+      fieldAccess: () => ({read: 'visible', write: 'allowed', component: 'editable', required: false, writeMode: 'editable'}),
+      readFieldAccess: () => 'visible',
+      addActionState: available => options.addEnabled === false || available === false ? 'disabled' : 'enabled',
+      editActionState: () => 'enabled', deleteActionState: () => 'enabled',
+      createChildActionState: () => 'enabled', viewActionState: () => 'enabled',
+    }
+  }})
+  await view.loadFromServer()
+  return {dataSet, view, failNextQuery: () => { shouldFail = true }}
+}
+
 describe('DataView editing checkpoints', () => {
   it('cancels a dialog overlay on a stable staged new row without dropping the creation', async () => {
     const view = setup()
@@ -89,5 +129,115 @@ describe('DataView editing checkpoints', () => {
     expect(() => view.createEditingCheckpoint(1, [])).toThrow(/CHECKPOINT_SCOPE/)
     expect(() => view.createEditingCheckpoint(1, ['missing'])).toThrow(/CHECKPOINT_SCOPE/)
     expect(() => view.createEditingCheckpoint(1, ['id'])).toThrow(/CHECKPOINT_SCOPE/)
+  })
+
+  it('preflights a not-yet-added row through the current query before creating a pending row', async () => {
+    const dataSet = SparkData.createDataSet({scenarioId: 'SPACE', dataSetName: 'Candidate', tables: {Items: {
+      tableName: 'Items', modelBinding: {modelId: 'ITEMS', modelName: 'Items'},
+      columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'title', type: 'string', required: true},
+        {name: 'restricted', type: 'string'}], views: {default: {commitMode: 'staged'}},
+    }}})
+    instances.push(dataSet)
+    const view = dataSet.getView('Items')!
+    const readOnlyFields: string[] = []
+    view.bindQueryExecutor({executeQuery: async () => ({
+      rows: [{id: '1', title: 'original', restricted: 'original'}], total: 1,
+      assertIdentity: identity => {
+        if (identity.scenarioId !== 'SPACE' || identity.metaName !== 'Items') throw new Error('identity mismatch')
+      },
+      rowKey: row => row['id'],
+      prepareNewRow: row => ({...row, id: '2'}),
+      isFieldReadOnly: field => { readOnlyFields.push(field); return field === 'restricted' },
+      fieldAccess: () => ({read: 'visible', write: 'allowed', component: 'editable', required: false, writeMode: 'editable'}),
+      readFieldAccess: () => 'visible',
+      addActionState: available => available === false ? 'disabled' : 'enabled',
+      editActionState: () => 'enabled', deleteActionState: () => 'enabled',
+      createChildActionState: () => 'enabled', viewActionState: () => 'enabled',
+    })})
+    await view.loadFromServer()
+    view.updateEditingValue('1', 'title', 'preserve this existing edit')
+    const rowsBefore = structuredClone(view.rows)
+    const patchBefore = view.getEditingPatch('1')
+
+    const access = view.newRowFieldAccess('title')
+
+    expect(access).toMatchObject({read: 'visible', write: 'allowed', required: true, component: 'editable', writeMode: 'required'})
+    expect(view.rows).toEqual(rowsBefore)
+    expect(view.getEditingPatch('1')).toEqual(patchBefore)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(readOnlyFields).toEqual(['title'])
+
+    const added = await view.addRow({title: 'new', restricted: 'candidate'})
+    expect(view.fieldAccess(added, 'title')).toEqual(access)
+    expect(view.fieldAccess(added, 'restricted').write).toBe('denied')
+  })
+
+  it('denies a later query-context read-only field before addRow and leaves no pending create', async () => {
+    const {view} = await setupNewRowQuery({isFieldReadOnly: field => field === 'restricted'})
+    const rowsBefore = structuredClone(view.rows)
+    const access = view.newRowFieldAccess('restricted')
+    expect(access.write).toBe('denied')
+    expect(view.rows).toEqual(rowsBefore)
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect([...view.dirtyTracking.pendingCreateIds]).toEqual([])
+  })
+
+  it.each(['computed', 'expression', 'id', 'generated', 'missing'] as const)(
+    'denies a declared non-input or unknown new-row field: %s', async field => {
+      const {view} = await setupNewRowQuery()
+      expect(view.newRowFieldAccess(field).write).toBe('denied')
+    },
+  )
+
+  it('denies new-row input when the current query says adding is unavailable', async () => {
+    const {view} = await setupNewRowQuery({addEnabled: false})
+    expect(view.newRowFieldAccess('title').write).toBe('denied')
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('denies new-row input for a keyless query result, matching addRow read-only behavior', async () => {
+    const {view} = await setupNewRowQuery({keyless: true})
+    expect(view.newRowFieldAccess('title').write).toBe('denied')
+    await expect(view.addRow({title: 'candidate'})).rejects.toThrow('DATA_VIEW_KEYLESS_READONLY')
+  })
+
+  it('does not preflight writable when the query owner cannot prepare a new row', async () => {
+    const {view} = await setupNewRowQuery({omitPrepareNewRow: true})
+    expect(view.newRowFieldAccess('title').write).toBe('denied')
+    await expect(view.addRow({title: 'candidate'})).rejects.toThrow('DATA_VIEW_NEW_ROW_OWNER')
+  })
+
+  it('uses the refreshed query context after query inputs change', async () => {
+    const {view} = await setupNewRowQuery({
+      isFieldReadOnly: (field, scope) => scope === 'second' && field === 'restricted',
+    })
+    view.queryContext = {scope: 'first'}
+    await view.refresh()
+    expect(view.newRowFieldAccess('restricted').write).toBe('allowed')
+    view.queryContext = {scope: 'second'}
+    expect(view.newRowFieldAccess('restricted').write).toBe('denied')
+    await view.refresh()
+    expect(view.newRowFieldAccess('restricted').write).toBe('denied')
+  })
+
+  it('denies new-row access after the current query becomes stale', async () => {
+    const {view, failNextQuery} = await setupNewRowQuery()
+    failNextQuery()
+    await view.refresh()
+    expect(view.loadingError?.message).toBe('query failed for stale-context check')
+    expect(view.newRowFieldAccess('title').write).toBe('denied')
+    expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  })
+
+  it('keeps fieldAccess(null, field) and unbound new-row access denied', () => {
+    const view = setup()
+    expect(view.fieldAccess(null, 'name').write).toBe('denied')
+    expect(view.newRowFieldAccess('name').write).toBe('denied')
+  })
+
+  it('rejects new-row access after the DataView is destroyed', () => {
+    const view = setup()
+    view.destroy()
+    expect(() => view.newRowFieldAccess('name')).toThrow(/destroy/i)
   })
 })

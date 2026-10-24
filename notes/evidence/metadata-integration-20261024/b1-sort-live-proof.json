@@ -1,0 +1,660 @@
+{
+  "kind": "real-spa-sort-acceptance",
+  "dictionary": {
+    "id": "327D74EC0ABC4196AA75C56D944B8201",
+    "name": "B1Sort_20261024_1925F4C2",
+    "retained": true
+  },
+  "authorizedCorrection": {
+    "modelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+    "fieldId": "6DEED3F0B04C4AD1B369843C4AD35FD5",
+    "name": "typeid",
+    "before": "{\"ParamName\":\"rowid\",\"Value\":null,\"Type\":\"SystemData\"}",
+    "after": null,
+    "saveRequest": "22092.32737",
+    "changedFields": [
+      "ValueFun",
+      "updateuser",
+      "updatetime"
+    ],
+    "independentInstanceReadback": true
+  },
+  "initialOrder": [
+    {
+      "id": "5A11E56C5FC8DD593828899C11828DF0",
+      "val": "C",
+      "ordIdx": 1
+    },
+    {
+      "id": "34E15E3BC4E87AF9CB885BD58696EA80",
+      "val": "A",
+      "ordIdx": 2
+    },
+    {
+      "id": "E2FF72AC90D0BE968E613A3F545CA2F8",
+      "val": "B",
+      "ordIdx": 3
+    }
+  ],
+  "cancelledOrder": [
+    {
+      "val": "A",
+      "ordIdx": 2
+    },
+    {
+      "val": "B",
+      "ordIdx": 3
+    },
+    {
+      "val": "C",
+      "ordIdx": 1
+    }
+  ],
+  "sortSubmission": {
+    "requestId": "22092.32759",
+    "body": [
+      {
+        "TableName": "_Base_DictData",
+        "CrudModel": {
+          "Added": [],
+          "Changed": [
+            {
+              "rowid": "34E15E3BC4E87AF9CB885BD58696EA80",
+              "ordIdx": 1
+            },
+            {
+              "rowid": "E2FF72AC90D0BE968E613A3F545CA2F8",
+              "ordIdx": 2
+            },
+            {
+              "rowid": "5A11E56C5FC8DD593828899C11828DF0",
+              "ordIdx": 3
+            }
+          ],
+          "Deleted": []
+        }
+      }
+    ]
+  },
+  "otherDictionary": {
+    "id": "D39BC0D2B65836CD7D80AC84C53C5B99",
+    "count": 7,
+    "readOnly": true
+  },
+  "reopened": {
+    "requestId": "22092.32777",
+    "sort": [
+      {
+        "Name": "rowid",
+        "IsOutput": true,
+        "Group": 0,
+        "Order": 1,
+        "OrderType": "ascending"
+      },
+      {
+        "Name": "ordIdx",
+        "IsOutput": true,
+        "Group": 0,
+        "Order": 2,
+        "OrderType": "ascending"
+      }
+    ],
+    "rows": [
+      {
+        "id": "34E15E3BC4E87AF9CB885BD58696EA80",
+        "val": "A",
+        "txt": "排序验收 A",
+        "exVal_1": "B1-A",
+        "ordIdx": 1
+      },
+      {
+        "id": "E2FF72AC90D0BE968E613A3F545CA2F8",
+        "val": "B",
+        "txt": "排序验收 B",
+        "exVal_1": "B1-B",
+        "ordIdx": 2
+      },
+      {
+        "id": "5A11E56C5FC8DD593828899C11828DF0",
+        "val": "C",
+        "txt": "排序验收 C",
+        "exVal_1": "B1-C",
+        "ordIdx": 3
+      }
+    ],
+    "otherFieldsPreserved": true
+  },
+  "windows": [
+    {
+      "label": "field-baseline",
+      "from": 178138,
+      "to": 178178,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32729",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_Desensitization_Rule"
+        },
+        {
+          "id": "22092.32730",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Field"
+        },
+        {
+          "id": "22092.32731",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Field"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "typeid-valuefun-save-and-readback",
+      "from": 178178,
+      "to": 178252,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32732",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel"
+        },
+        {
+          "id": "22092.32733",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Field"
+        },
+        {
+          "id": "22092.32734",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "View_TblList"
+        },
+        {
+          "id": "22092.32735",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_TblField"
+        },
+        {
+          "id": "22092.32736",
+          "path": "/api/File/content/text",
+          "method": "POST",
+          "status": 200
+        },
+        {
+          "id": "22092.32737",
+          "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+          "method": "POST",
+          "status": 200,
+          "code": 200
+        },
+        {
+          "id": "22092.32738",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Field"
+        },
+        {
+          "id": "22092.32739",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Field"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "reopen-retained-dictionary-after-field-correction",
+      "from": 178252,
+      "to": 178426,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32740",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataSet"
+        },
+        {
+          "id": "22092.32741",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_UserInfo"
+        },
+        {
+          "id": "22092.32742",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataSet"
+        },
+        {
+          "id": "22092.32743",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel"
+        },
+        {
+          "id": "22092.32744",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Relation"
+        },
+        {
+          "id": "22092.32745",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Field"
+        },
+        {
+          "id": "22092.32746",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "View_TblList"
+        },
+        {
+          "id": "22092.32747",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_TblField"
+        },
+        {
+          "id": "22092.32748",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictType"
+        },
+        {
+          "id": "22092.32749",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "three-entry-drafts",
+      "from": 178426,
+      "to": 178454,
+      "truncated": false,
+      "requests": [],
+      "failures": []
+    },
+    {
+      "label": "three-entry-save-and-readback",
+      "from": 178454,
+      "to": 178479,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32750",
+          "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+          "method": "POST",
+          "status": 200,
+          "code": 200
+        },
+        {
+          "id": "22092.32751",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictType"
+        },
+        {
+          "id": "22092.32752",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "header-sort-before-staging",
+      "from": 178479,
+      "to": 178499,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32753",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        },
+        {
+          "id": "22092.32754",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "header-sort-third-query",
+      "from": 178499,
+      "to": 178509,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32755",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "header-ascending-ready",
+      "from": 178509,
+      "to": 178522,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32756",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "displayed-order-draft",
+      "from": 178522,
+      "to": 178522,
+      "truncated": false,
+      "requests": [],
+      "failures": []
+    },
+    {
+      "label": "cancel-order-and-readback",
+      "from": 178522,
+      "to": 178540,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32757",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictType"
+        },
+        {
+          "id": "22092.32758",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "displayed-order-save-and-readback",
+      "from": 178540,
+      "to": 178562,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32759",
+          "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+          "method": "POST",
+          "status": 200,
+          "code": 200
+        },
+        {
+          "id": "22092.32760",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictType"
+        },
+        {
+          "id": "22092.32761",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "switch-to-other-dictionary",
+      "from": 178562,
+      "to": 178637,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32762",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataSet"
+        },
+        {
+          "id": "22092.32763",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel"
+        },
+        {
+          "id": "22092.32764",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Relation"
+        },
+        {
+          "id": "22092.32765",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Field"
+        },
+        {
+          "id": "22092.32766",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "View_TblList"
+        },
+        {
+          "id": "22092.32767",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_TblField"
+        },
+        {
+          "id": "22092.32768",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictType"
+        },
+        {
+          "id": "22092.32769",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "reopen-default-order-abc",
+      "from": 178637,
+      "to": 178700,
+      "truncated": false,
+      "requests": [
+        {
+          "id": "22092.32770",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataSet"
+        },
+        {
+          "id": "22092.32771",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel"
+        },
+        {
+          "id": "22092.32772",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Relation"
+        },
+        {
+          "id": "22092.32773",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_DataModel_Field"
+        },
+        {
+          "id": "22092.32774",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "View_TblList"
+        },
+        {
+          "id": "22092.32775",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "Base_TblField"
+        },
+        {
+          "id": "22092.32776",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictType"
+        },
+        {
+          "id": "22092.32777",
+          "path": "/api/DataOperation/GetData",
+          "method": "POST",
+          "status": 200,
+          "code": 200,
+          "table": "_Base_DictData"
+        }
+      ],
+      "failures": []
+    },
+    {
+      "label": "close-finished-workspace",
+      "from": 178700,
+      "to": 178710,
+      "truncated": false,
+      "requests": [],
+      "failures": []
+    }
+  ],
+  "requestCount": 49,
+  "saveCount": 3,
+  "documentCount": 0,
+  "deletedCount": 0,
+  "closeProtection": {
+    "draftFooterDisabled": true,
+    "headerCloseRetainsWorkspace": true,
+    "afterSaveCloseAllowed": true,
+    "finalWorkspaceReleased": true
+  },
+  "screenshots": [
+    "b1-typeid-corrected.png",
+    "b1-sort-staged-abc.png",
+    "b1-sort-reopened-abc.png"
+  ],
+  "notes": [
+    "UI actions use original directory and standard DataView-bound components. No full-page refresh.",
+    "Separate authorized metadata correction precedes entry work; sorting payload does not include definitions.",
+    "Server readback normalizes ValueFun empty string to null.",
+    "No resource deletion; all three test entries retained for future B1."
+  ]
+}

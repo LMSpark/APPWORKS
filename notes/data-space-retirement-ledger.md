@@ -725,7 +725,7 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前执行阶段A，B/C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
-**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏、A3.2—A3.4已提交；A3.5模型/数组新增已通过本组验收、待提交，随后A3.6字段新增。阶段A完整生命周期持久烟测、双空间真实组件绑定、未加载保存、跨实例未知恢复及整页对照仍未完成。
+**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏、A3.2—A3.5已提交；A3.6独立字段新增已通过审查、门禁与取消/重开烟测，进入本地提交。阶段A完整生命周期持久烟测、双空间真实组件绑定、未加载保存、跨实例未知恢复及整页对照仍未完成。
 
 ### 1. 目标、边界与完成口径
 
@@ -986,3 +986,9 @@ flowchart TD
 - A3.5首次冻结报告为create46、UI5及静态通过；主控预检未接受完成：创建核验默认保留晚编辑，UI却仍说放弃副本；缺少brief要求的confirmed后明确丢弃原目标新编辑并接续核验动作，可能把创建恢复锁在readback。create acceptCurrent只改成恒抛错的死API，须删除被替代入口并保留source-edit合法分支。主控保留首次冻结5文件快照，回派同实施者仅补这批已有范围的接口/按钮/行为证据；增加直接数据库来源2例与source-edit共享UI保护，非另开计划。not-applied点击后编辑已有新证据先核报告，不误判为尚无覆盖；两种明确丢弃语义仍须区分。
 - A3.5既有消费者范围补核：typecheck定位DataSpaceArrayCreate.vue:76及原array-create测试:82仍调用已删除的create acceptCurrent。主控读源码确认其复用getModelCreate().createArray同一模型/字段批次，旧partial adoption会提前清未决创建，不能因旧测试存在而恢复数组特判。批准仅扩至该UI、原array-create测试及现有设计页直接数组新增用例；两文件修改前快照已留。沿同一创建核验、明确未生效放弃及confirmed后明确丢弃接口接线，保留表头/JSON输入语义与正常生命周期，不改A3.1数组编辑owner、不另建恢复体系。完整创建及受影响UI复验后再独立审查。
 - A3.5最终冻结及验收：普通模型与数组新增沿同一原capture恢复，删除全DataSet abandon/重复回执/partial acceptCurrent；明确未生效放弃与confirmed后丢弃分开，派生字段视图保留未决捕获及草稿。父级拒绝临时isReadback规避门禁，最终实际复用canDiscardLocalChanges资格并删除重复判断和薄alias，未改基线。独立审查Spec/Task quality PASS、0 open P1/P2；7文件hash一致。最终create55、array-create7、UI15/340skip、其他owner fixture影响7/329skip通过，各套件不叠加；typecheck/scoped/full lint、ai-codegen、完整rules、build通过。正式ClassModel生成963文件，12外围产物仅编译符号数字ID变化，semantic gaps3108仍保留。真实来源选中取消、数组草稿/表头取消重开空值、取消布局节点后整个设计器独立重开原三模型与SourceScope原值通过，0次UI持久化；a3-5-acceptance.md/JSON/三截图已归档。本组可提交，实际创建到删除联合闭环与阶段A其余验收未核销。
+- A3.5提交核实：2f43753c200019d9b240e9236cc3198559184704，父cb08072ab9，31个明确暂存文件；提交后工作区干净、ahead 10，未推送。当前全局abandon仅field-create-session:278残留。继续A3.6独立字段新增，先只开放原测试反例与raw输出，主控核后再授权产品/UI。modelFields工作区只暂存并由A2联合保存的路径保持原样；同一捕获、后编辑保护及明确结束意图标准继续适用，不恢复generic accept旁路。
+- A3.6第一阶段断点恢复：原低价派工会话中断，报告未收尾；主控核仅原field-create测试有修改、无产品/UI/fixture改动且无残留测试进程。raw旧套件30绿；修订套件29绿/2真实失败（14:00:00、exit1）：缺失精确字段回读仍可接受结束、真实同DataSet sibling unknown capture被全局清除。前者是纠正一条旧测试，后者新增一例，不叠加计数。主控恢复证据记录并开放第二阶段给新低价实施者，不重跑已保存反例；完整原调用shell未留存，不伪造。继续原brief及同一台账。
+- 阶段A并行只读准备：独立低价助手核普通保存的未加载视图保留路径（overview-only→最小模型/参数/视图配置修改），仅形成源码/既有测试与实际烟测观测点，不跑服务、不编辑产品。A3.6仍是唯一写者；未加载保存验收不因该准备或UI视觉而记通过。A3.6的not-applied经原fixture omitFieldWrite+丢回执和真实RuntimeApi核验即可表达，未批准新增伪造错误码hook。
+- A3.6最终冻结待审：field-create全套48/48，定向UI2项是同套件子集、不叠加；主控核raw起始14:16:57/14:17:18及exit0。typecheck、3文件scoped lint、ai-codegen1375、page-thin均0。删除无消费者verifiedSnapshot后JSON基线3→1，由父级正式--update收紧（a3-6-parent-page-thin-update.log、a3-6-page-thin-delta.json），无规则放宽。三文件及基线冻结快照/hash已留，独立审查进行中；真实烟测尚未完成。未加载保存只读准备已确认普通模型说明可单目标保存，但必须记录实际保存窗口网络请求，不能把A2已加载字段联合保存或页面显示当作该项通过。
+- A3.6独立审查Spec/Task quality PASS，0 P1/P2，4文件冻结hash一致。正式ClassModel963文件、semantic gaps3110；12外围产物经归一化核仅编译符号数字ID变化。全lint/build及工作区UI3/352skip通过。首次完整rules在lowcode-contracts因外部参考源码目录新增两条NoticeSourceController路由而失败，已保留原始exit1；按正式生成器刷新派生台账609→611，仅记录source-characterized静态事实，未修改/启动Java，也不证明实际服务新增接口可用。刷新后重验进行中。
+- A3.6验收完成可提交：最终field-create48、独立UI子集2、工作区UI3/352skip，独立审查PASS，typecheck/scoped/full lint、正式生成963、AI-codegen、完整rules刷新后及build均通过。原同DataSet全局abandon残留已清，not-applied与confirmed明确丢弃语义分开；page-thin3→1。真实独立字段填写/取消/重开空值、整个设计器独立重开原3模型/9字段通过，32条API仅查询/文件读取、0次UI持久化。a3-6-acceptance.md/JSON/三截图归档；真实创建删除、未加载保存等阶段A余项仍未核销。

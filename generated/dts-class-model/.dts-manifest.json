@@ -3664,7 +3664,7 @@
     "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts.json",
-      "sourceModifiedAt": "2026-10-23T07:01:13.766Z"
+      "sourceModifiedAt": "2026-10-24T06:15:47.794Z"
     },
     "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts",
@@ -4469,7 +4469,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue.json",
-      "sourceModifiedAt": "2026-10-23T21:52:26.745Z"
+      "sourceModifiedAt": "2026-10-24T06:11:02.587Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.props.ts",

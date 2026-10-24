@@ -10,7 +10,7 @@
   },
   "src/lowcode/data-space/model-source/field-create/lowcode-data-space-field-create-session.ts": {
     "command-status": 5,
-    "json-baseline": 3,
+    "json-baseline": 1,
     "static-copy": 1
   },
   "src/lowcode/data-space/model-source/field-edit/lowcode-data-space-field-edit-session.ts": {

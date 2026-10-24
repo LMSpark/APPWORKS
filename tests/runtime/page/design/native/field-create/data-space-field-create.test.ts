@@ -125,6 +125,7 @@ describe('computed field creation', () => {
     expect(session.hasPendingFieldEdits()).toBe(true)
     const id = await owner.save()
     expect(writes()).toHaveLength(1)
+    expect(writes()[0]?.data).toMatchObject([{TableName: 'Base_DataModel_Field', CrudModel: {Added: [expect.objectContaining({rowid: id, dataSetId: 'A', dataModelId: 'M1'})]}}])
     expect(f.created.get('Base_DataModel_Field')).toEqual([expect.objectContaining({rowid: id, dataSetId: 'A', dataModelId: 'M1', type: 'dataModel', FieldType: '计算字段', IsPKey: 0, IsOutput: 1, ValueFun: '{"Type":"GetConstValue","Value":0}'})])
     expect(session.hasPendingFieldEdits()).toBe(false)
     expect(owner.input.rows).toEqual([])
@@ -198,9 +199,9 @@ describe('computed field creation', () => {
     expect(fields.dirtyTracking.pendingCreateIds.size).toBe(0)
     expect(writes()).toEqual([])
   })
-  it.each([{}, {omitFieldReceipt: true}])('verifies an unknown create without replay: %j', async options => {
-    const {f, owner, writes} = await setup(options)
-    if (!options.omitFieldReceipt) f.loseNextResponse()
+  it('verifies an unknown create without replay', async () => {
+    const {f, owner, writes} = await setup()
+    f.loseNextResponse()
     await expect(owner.save()).rejects.toThrow()
     expect(owner.getState().status).toBe('unknown')
     await expect(owner.save()).rejects.toThrow('不能重复提交')
@@ -210,15 +211,211 @@ describe('computed field creation', () => {
     expect(owner.getState().status).toBe('idle')
     expect(writes()).toHaveLength(1)
   })
-  it('retains missing readback as a difference, explicitly accepts it and never retries', async () => {
+  it('recovers an omitted receipt through a complete native confirmation before domain readback', async () => {
+    const {f, owner, writes} = await setup({omitFieldReceipt: true})
+    await expect(owner.save()).rejects.toThrow(/回执/)
+    expect(owner.getState().status).toBe('unknown')
+    expect(await owner.verify()).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
+    expect(owner.getState().pending).toBe(false)
+    expect(owner).not.toHaveProperty('acceptCurrent')
+    expect(writes()).toHaveLength(1)
+  })
+  it('keeps a duplicate native receipt unresolved and retains the generated field identity', async () => {
+    const {owner, session, f, writes} = await setup(), dataSet = session.metadataDataSet
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    const intercepted = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await nativeSave(options), data = result.data
+      return data ? {...result, data: {...data, viewCount: data.viewCount + 1, viewResults: [...data.viewResults, ...data.viewResults]}} : result
+    })
+    await expect(owner.save()).rejects.toThrow(/回执/)
+    const id = owner.getState().fieldId
+    expect(intercepted).toHaveBeenCalledTimes(1)
+    expect(id).toBeTruthy()
+    expect(f.created.get('Base_DataModel_Field')?.some(row => row['rowid'] === id)).toBe(true)
+    expect(owner.getState()).toMatchObject({pending: true, status: 'unknown', fieldId: id})
+    expect(writes()).toHaveLength(1)
+    await expect(owner.verify()).rejects.toThrow()
+    expect(owner.getState()).toMatchObject({pending: true, fieldId: id})
+    expect(writes()).toHaveLength(1)
+  })
+  it('does not let a missing exact-field readback finish through generic accept-current', async () => {
     const {owner, writes} = await setup({omitFieldWrite: true})
     await expect(owner.save()).rejects.toThrow('未读取到新增字段')
     expect(owner.getState().status).toBe('readback')
     expect(await owner.verify()).toBeNull()
     expect(owner.getState().status).toBe('different')
-    owner.acceptCurrent()
-    expect(owner.getState().pending).toBe(false)
+    expect(owner).not.toHaveProperty('acceptCurrent')
+    expect(owner.getState().canAbandonNotApplied).toBe(false)
+    expect(owner.getState().pending).toBe(true)
     expect(writes()).toHaveLength(1)
+  })
+  it('keeps a sibling DataView native unknown capture when recovering this one-field create', async () => {
+    const {f, owner, session, writes} = await setup()
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown')
+
+    const sibling = session.metadataDataSet.getView('Base_DataSet', 'default')!
+    sibling.updateEditingValue('A', 'inputParams', '[]')
+    f.loseNextResponse()
+    await expect(session.metadataDataSet.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})).rejects.toThrow()
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+
+    const id = await owner.verify()
+    expect(id).toBe(f.created.get('Base_DataModel_Field')?.[0]?.['rowid'])
+    expect(owner.getState().status).toBe('idle')
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+    expect(writes()).toHaveLength(2)
+  })
+  it('ends an authoritative not-applied intent only through the explicit abandon action', async () => {
+    const {f, owner, writes} = await setup({omitFieldWrite: true})
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    expect(owner.getState().status).toBe('unknown')
+    expect(await owner.verify()).toBeNull()
+    expect(owner.getState()).toMatchObject({status: 'different', canAbandonNotApplied: true})
+    owner.abandonNotApplied()
+    expect(owner.getState()).toMatchObject({status: 'idle', pending: false})
+    expect(writes()).toHaveLength(1)
+    owner.begin()
+    expect(owner.getState().status).toBe('editing')
+    owner.cancel()
+  })
+  it.each(['overlay', 'applied'] as const)('preserves a later %s target edit through the first native await until explicit discard', async kind => {
+    const {f, owner, fields, session, writes} = await setup(), dataSet = session.metadataDataSet
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await nativeSave(options); await gate; return result
+    })
+    const saving = owner.save(), rejected = expect(saving).rejects.toThrow()
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    const id = owner.getState().fieldId!
+    fields.updateEditingValue(id, 'description', `late ${kind} edit`)
+    if (kind === 'applied') expect((await fields.applyEditingRows([id])).success).toBe(true)
+    release(); await rejected
+    expect(fields.getEditingRow(id)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === id)?.['description']).toBe(`late ${kind} edit`)
+    expect(owner.getState().canDiscardLocalChanges).toBe(true)
+    expect(await owner.verify()).toBeNull()
+    expect(fields.getEditingRow(id)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === id)?.['description']).toBe(`late ${kind} edit`)
+    expect(owner.getState().canDiscardLocalChanges).toBe(true)
+    expect(await owner.discardLocalChangesAndVerify()).toBe(id)
+    expect(fields.hasEditingChanges(id)).toBe(false)
+    expect(writes()).toHaveLength(1)
+  })
+  it.each(['overlay', 'applied'] as const)('preserves a later %s edit during native unknown verification and retry', async kind => {
+    const {f, owner, fields, session, writes} = await setup(), dataSet = session.metadataDataSet
+    f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await nativeSave(options); await gate; return result
+    })
+    const verifying = owner.verify()
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    expect(owner.getState().status).toBe('saving')
+    await expect(owner.verify()).rejects.toThrow(/没有待核验/)
+    const id = owner.getState().fieldId!
+    fields.updateEditingValue(id, 'description', `verify ${kind} edit`)
+    if (kind === 'applied') expect((await fields.applyEditingRows([id])).success).toBe(true)
+    release(); await expect(verifying).rejects.toThrow()
+    expect(fields.getEditingRow(id)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === id)?.['description']).toBe(`verify ${kind} edit`)
+    expect(await owner.verify()).toBeNull()
+    expect(owner.getState().canDiscardLocalChanges).toBe(true)
+    expect(await owner.discardLocalChangesAndVerify()).toBe(id)
+    expect(writes()).toHaveLength(1)
+  })
+  it('does not abandon an original not-applied intent after a later edit changes its signature', async () => {
+    const {f, owner, fields, session, writes} = await setup({omitFieldWrite: true}), dataSet = session.metadataDataSet
+    f.loseNextResponse(); await expect(owner.save()).rejects.toThrow()
+    const nativeSave = dataSet.saveChanges.bind(dataSet)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const held = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {await gate; return nativeSave(options)})
+    const verifying = owner.verify()
+    await vi.waitFor(() => expect(held).toHaveBeenCalledTimes(1))
+    const id = owner.getState().fieldId!
+    fields.updateEditingValue(id, 'description', 'late edit')
+    release()
+    await expect(verifying).resolves.toBeNull()
+    expect(owner.getState()).toMatchObject({status: 'different', canAbandonNotApplied: false})
+    expect(fields.getEditingPatch(id)).toEqual({description: 'late edit'})
+    expect(await owner.verify()).toBeNull()
+    expect(owner.getState().canAbandonNotApplied).toBe(false)
+    expect(writes()).toHaveLength(1)
+  })
+  it('refuses missing original native capture without replaying the generated field', async () => {
+    const {f, owner, session, writes} = await setup(); f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    session.metadataDataSet.abandonUnconfirmedSaves()
+    await expect(owner.verify()).rejects.toThrow(/捕获|回执/)
+    expect(owner.getState().pending).toBe(true)
+    expect(writes()).toHaveLength(1)
+  })
+  it('rejects duplicate actions while formal validation is busy without clearing the input or sticking', async () => {
+    const {f, owner, writes} = await setup(), release = f.holdDefinitionRead()
+    const saving = owner.save()
+    await flushPromises()
+    expect(owner.getState().status).toBe('saving')
+    await expect(owner.verify()).rejects.toThrow(/没有待核验/)
+    await expect(owner.save()).rejects.toThrow(/不能重复提交/)
+    expect(owner.input.getEditingRow('draft')?.['Name']).toBe('total')
+    expect(writes()).toEqual([])
+    release()
+    expect(await saving).toBeTypeOf('string')
+    expect(owner.getState().status).toBe('idle')
+    expect(writes()).toHaveLength(1)
+  })
+  it('does not retry creation when native addRow leaves multiple possible generated identities', async () => {
+    const {fields, owner, writes} = await setup(), add = fields.addRow.bind(fields)
+    vi.spyOn(fields, 'addRow').mockImplementationOnce(async value => {await add(value); await add(value); throw new Error('ambiguous staged identity')})
+    await expect(owner.save()).rejects.toThrow('ambiguous staged identity')
+    expect(fields.dirtyTracking.pendingCreateRows).toHaveLength(2)
+    await expect(owner.save()).rejects.toThrow(/草稿/)
+    expect(writes()).toEqual([])
+  })
+  it.each(['overlay', 'applied'] as const)('preserves edits made after the explicit discard click during domain readback (%s)', async kind => {
+    const {f, owner, fields} = await setup(), releaseSave = f.holdModelResponse()
+    const saving = owner.save(), rejected = expect(saving).rejects.toThrow()
+    await flushPromises()
+    const id = fields.dirtyTracking.pendingCreateRows[0]?.['rowid'] as string
+    fields.updateEditingValue(id, 'description', 'before-click edit')
+    releaseSave(); await rejected
+    expect(owner.getState().status).toBe('readback')
+    fields.updateEditingValue(id, 'description', 'click-time edit')
+    const releaseQuery = f.holdNextQuery()
+    const verifying = owner.discardLocalChangesAndVerify(), failed = expect(verifying).rejects.toThrow()
+    await flushPromises()
+    fields.updateEditingValue(id, 'description', 'after-click edit')
+    if (kind === 'applied') expect((await fields.applyEditingRows([id])).success).toBe(true)
+    releaseQuery(); await failed
+    expect(fields.getEditingRow(id)?.['description'] ?? fields.rows.find(row => fields.getPkKey(row) === id)?.['description']).toBe('after-click edit')
+    expect(owner.getState().status).toBe('readback')
+  })
+  it('does not finish a confirmed create when a target edit arrives during its initial domain readback', async () => {
+    const {f, owner, fields, writes} = await setup(), release = f.holdNextQuery()
+    const saving = owner.save(), rejected = expect(saving).rejects.toThrow()
+    await flushPromises()
+    const id = owner.getState().fieldId!
+    fields.updateEditingValue(id, 'description', 'readback edit')
+    release(); await rejected
+    expect(fields.getEditingPatch(id)).toEqual({description: 'readback edit'})
+    expect(owner.getState()).toMatchObject({status: 'readback', canDiscardLocalChanges: true})
+    expect(await owner.verify()).toBeNull()
+    expect(fields.getEditingPatch(id)).toEqual({description: 'readback edit'})
+    expect(await owner.discardLocalChangesAndVerify()).toBe(id)
+    expect(writes()).toHaveLength(1)
+  })
+  it.each(['context', 'view'] as const)('refuses verification after the original field %s changes', async kind => {
+    const {f, owner, session} = await setup(); f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    const table = session.metadataDataSet.getTable('Base_DataModel_Field')!
+    if (kind === 'context') session.metadataDataSet.getView('Base_DataModel_Field', 'default')!.queryContext = {dataSpaceId: 'B'}
+    else {table.destroyView('default'); table.addView('default')}
+    await expect(owner.verify()).rejects.toThrow(/变化|失效/)
+    expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
   })
   it('cleans only its staged new row after interruption before dispatch', async () => {
     const {fields, owner, writes} = await setup(), add = fields.addRow.bind(fields)
@@ -287,6 +484,44 @@ describe('computed field creation', () => {
     expect(f.sessions[0]!.hasPendingFieldEdits()).toBe(true)
     await wrapper.get('[data-action="cancel-field-create"]').trigger('click'); await flushPromises()
     expect(f.sessions[0]!.hasPendingFieldEdits()).toBe(false)
+  })
+  it('shows the explicit abandon action only after native not-applied confirmation', async () => {
+    const f = fixture({missing: true, sourceFields: [], omitFieldWrite: true}), wrapper = await page()
+    const model = wrapper.findAll('[data-design-node]').find(item => item.text() === 'Orders')!
+    const arrow = model.element.closest('.el-tree-node__content')?.querySelector('.el-tree-node__expand-icon')
+    await new DOMWrapper(arrow!).trigger('click'); await flushPromises()
+    await wrapper.findAll('[data-design-node]').find(item => item.text() === '字段（0）')!.trigger('click'); await flushPromises()
+    await wrapper.get('[data-action="create-field"]').trigger('click'); await flushPromises()
+    const form = wrapper.findAllComponents(RendererForm).find(item => item.props('dataViewKey')?.includes('@FieldCreate_'))!
+    await form.findAllComponents(FieldText).find(item => item.props('field') === 'Name')!.get('input').setValue('notApplied')
+    f.loseNextResponse()
+    await new DOMWrapper(document.body).get('[data-action="save-field-create"]').trigger('click'); await flushPromises()
+    await new DOMWrapper(document.body).get('[data-action="verify-field-create"]').trigger('click'); await flushPromises()
+    expect(new DOMWrapper(document.body).find('[data-action="abandon-field-create"]').exists()).toBe(true)
+    await new DOMWrapper(document.body).get('[data-action="abandon-field-create"]').trigger('click'); await flushPromises()
+    expect(wrapper.text()).toContain('本次新增意图已结束，未再次提交')
+    expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
+  })
+  it('shows the separate confirmed-later-edit discard action in the native page', async () => {
+    const f = fixture({missing: true, sourceFields: []}), wrapper = await page()
+    const model = wrapper.findAll('[data-design-node]').find(item => item.text() === 'Orders')!
+    const arrow = model.element.closest('.el-tree-node__content')?.querySelector('.el-tree-node__expand-icon')
+    await new DOMWrapper(arrow!).trigger('click'); await flushPromises()
+    await wrapper.findAll('[data-design-node]').find(item => item.text() === '字段（0）')!.trigger('click'); await flushPromises()
+    await wrapper.get('[data-action="create-field"]').trigger('click'); await flushPromises()
+    const form = wrapper.findAllComponents(RendererForm).find(item => item.props('dataViewKey')?.includes('@FieldCreate_'))!
+    await form.findAllComponents(FieldText).find(item => item.props('field') === 'Name')!.get('input').setValue('laterEdit')
+    const release = f.holdModelResponse()
+    await new DOMWrapper(document.body).get('[data-action="save-field-create"]').trigger('click'); await flushPromises()
+    const fields = f.sessions[0]!.metadataDataSet.getView('Base_DataModel_Field', 'default')!
+    const id = fields.dirtyTracking.pendingCreateRows[0]?.['rowid'] as string
+    fields.updateEditingValue(id, 'description', 'kept until explicit action')
+    release(); await flushPromises()
+    expect(new DOMWrapper(document.body).find('[data-action="discard-field-create-changes"]').exists()).toBe(true)
+    await new DOMWrapper(document.body).get('[data-action="discard-field-create-changes"]').trigger('click'); await flushPromises()
+    expect(wrapper.text()).toContain('后续字段修改已放弃并精确核验')
+    expect(fields.hasEditingChanges(id)).toBe(false)
+    expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(1)
   })
 })
 

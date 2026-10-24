@@ -1,0 +1,346 @@
+{
+  "date": "2026-10-24",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "modelId": "A7199374E11E24BB0FB6938407224304",
+  "entry": "model directory -> SourceScope_20261018 -> fields -> standalone add calculated field",
+  "results": {
+    "draftEntered": true,
+    "cancelled": true,
+    "reopenedInputsEmpty": true,
+    "wholeDesignerClosedAndReopened": true,
+    "originalModels": 3,
+    "originalSourceFields": 9,
+    "persistActions": 0
+  },
+  "network": {
+    "fromCursor": 228,
+    "toCursor": 900,
+    "hasMore": false,
+    "truncated": false,
+    "requests": [
+      {
+        "sequence": 495,
+        "id": "9000.1494",
+        "path": "/api/File/content/text",
+        "method": "POST",
+        "fileName": "pagedata.json",
+        "contentPresent": false
+      },
+      {
+        "sequence": 500,
+        "id": "9000.1495",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataSet"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 501,
+        "id": "9000.1496",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 510,
+        "id": "9000.1497",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Field"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 511,
+        "id": "9000.1498",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "View_TblList"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 523,
+        "id": "9000.1499",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_TblField"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 542,
+        "id": "9000.1500",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataSet"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 543,
+        "id": "9000.1501",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 556,
+        "id": "9000.1502",
+        "path": "/api/File/content/text",
+        "method": "POST",
+        "fileName": "pagedata.json",
+        "contentPresent": false
+      },
+      {
+        "sequence": 563,
+        "id": "9000.1503",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Relation"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 614,
+        "id": "9000.1504",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Field"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 621,
+        "id": "9000.1505",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_Desensitization_Rule"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 627,
+        "id": "9000.1506",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Field"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 654,
+        "id": "9000.1507",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_Desensitization_Rule"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 659,
+        "id": "9000.1508",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Field"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 677,
+        "id": "9000.1509",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_Desensitization_Rule"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 682,
+        "id": "9000.1510",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Field"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 750,
+        "id": "9000.1511",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataSet"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 757,
+        "id": "9000.1512",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_UserInfo"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 768,
+        "id": "9000.1513",
+        "path": "/api/File/content/text",
+        "method": "POST",
+        "fileName": "pagedata.json",
+        "contentPresent": false
+      },
+      {
+        "sequence": 773,
+        "id": "9000.1514",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataSet"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 774,
+        "id": "9000.1515",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 787,
+        "id": "9000.1516",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Field"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 788,
+        "id": "9000.1517",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "View_TblList"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 796,
+        "id": "9000.1518",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_TblField"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 813,
+        "id": "9000.1519",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataSet"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 814,
+        "id": "9000.1520",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 827,
+        "id": "9000.1521",
+        "path": "/api/File/content/text",
+        "method": "POST",
+        "fileName": "pagedata.json",
+        "contentPresent": false
+      },
+      {
+        "sequence": 834,
+        "id": "9000.1522",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Relation"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 879,
+        "id": "9000.1523",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Field"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 884,
+        "id": "9000.1524",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_Desensitization_Rule"
+        ],
+        "contentPresent": false
+      },
+      {
+        "sequence": 890,
+        "id": "9000.1525",
+        "path": "/api/DataOperation/GetData",
+        "method": "POST",
+        "tables": [
+          "Base_DataModel_Field"
+        ],
+        "contentPresent": false
+      }
+    ]
+  },
+  "limits": [
+    "No real creation or deletion executed",
+    "No online unknown-result injection",
+    "Native sibling isolation and recovery remain fixture evidence"
+  ],
+  "screenshots": [
+    "a3-6-field-draft.png",
+    "a3-6-field-reopened-empty.png",
+    "a3-6-independent-fields.png"
+  ]
+}

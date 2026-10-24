@@ -41,8 +41,10 @@ AI用途：计算字段新增、取消及未知结果核验。
         <RendererButton :data-view-key="state.dataViewKey" data-action="save-field-create" :label="workspaceActions ? '确定' : '保存计算字段'" button-type="primary" :disabled="locked || dialogOpen" @click="run('save')" />
         <RendererButton v-if="['unknown', 'readback', 'different'].includes(state.status)" :data-view-key="state.dataViewKey"
           data-action="verify-field-create" label="核验新增结果" :disabled="busy || disabled || dialogOpen" @click="run('verify')" />
-        <RendererButton v-if="state.status === 'different'" :data-view-key="state.dataViewKey" data-action="accept-field-create"
-          label="接受当前正式结果" :disabled="busy || disabled" @click="accept" />
+        <RendererButton v-if="state.canAbandonNotApplied" :data-view-key="state.dataViewKey" data-action="abandon-field-create"
+          label="结束未应用的新增" :disabled="busy || disabled || dialogOpen" @click="run('abandon')" />
+        <RendererButton v-if="state.canDiscardLocalChanges" :data-view-key="state.dataViewKey" data-action="discard-field-create-changes"
+          label="放弃后续字段修改并核验" :disabled="busy || disabled || dialogOpen" @click="run('discard')" />
       </template>
     </RendererDialog>
   </section>
@@ -80,18 +82,16 @@ function cancel(): void {
   if (locked.value || dialogOpen.value) return
   try {owner.cancel(); error.value = ''; changed()} catch (cause) {error.value = describe(cause)}
 }
-async function run(action: 'save' | 'verify'): Promise<void> {
+async function run(action: 'save' | 'verify' | 'abandon' | 'discard'): Promise<void> {
   if (props.disabled || busy.value || dialogOpen.value) return
   busy.value = true; error.value = ''
   try {
-    const id = action === 'save' ? props.workspaceActions ? await owner.stage() : await owner.save() : await owner.verify()
-    if (active && id) {message.value = props.workspaceActions ? '' : '计算字段已保存并精确回读'; emit('created', id)}
+    const id = action === 'save' ? props.workspaceActions ? await owner.stage() : await owner.save()
+      : action === 'verify' ? await owner.verify() : action === 'abandon' ? (owner.abandonNotApplied(), null) : await owner.discardLocalChangesAndVerify()
+    if (active && id) {message.value = action === 'discard' ? '后续字段修改已放弃并精确核验' : props.workspaceActions ? '' : '计算字段已保存并精确回读'; emit('created', id)}
+    else if (active && action === 'abandon') message.value = '本次新增意图已结束，未再次提交'
   } catch (cause) {if (active) error.value = describe(cause)}
   finally {if (active) {busy.value = false; changed()}}
-}
-function accept(): void {
-  if (props.disabled || busy.value) return
-  try {owner.acceptCurrent(); message.value = '已采用核验的正式状态；原新增未确认为成功'; error.value = ''; changed()} catch (cause) {error.value = describe(cause)}
 }
 function getToolbarAction(): SparkNode | undefined {return toolbarAction.value}
 defineExpose({getToolbarAction})

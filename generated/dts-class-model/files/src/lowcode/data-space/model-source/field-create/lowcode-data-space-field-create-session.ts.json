@@ -61,7 +61,14 @@
         "verification": {
           "type": "string"
         },
-        "verifiedSnapshot": {
+        "capture": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSpaceDefinitionCaptureBatch"
+        },
+        "captureSignature": {
           "type": "string"
         }
       },
@@ -72,7 +79,8 @@
         "expected",
         "stagedSnapshot",
         "verification",
-        "verifiedSnapshot"
+        "capture",
+        "captureSignature"
       ],
       "additionalProperties": false
     },
@@ -295,16 +303,25 @@
           "type": "object",
           "title": "Promise<string | null>"
         },
-        "method.acceptCurrent.params": {
+        "method.abandonNotApplied.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.acceptCurrent.return": true
+        "method.abandonNotApplied.return": true,
+        "method.discardLocalChangesAndVerify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardLocalChangesAndVerify.return": {
+          "type": "object",
+          "title": "Promise<string | null>"
+        }
       }
     }
   },
-  "generatedAt": "2026-10-23T07:01:13.766Z",
+  "generatedAt": "2026-10-24T06:15:47.794Z",
   "models": {
     "FieldCreateStatus": {
       "name": "FieldCreateStatus",
@@ -346,7 +363,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    status: FieldCreateStatus;\n    modelIdentity: string;\n    id: string | null;\n    expected: DataRow | null;\n    stagedSnapshot: string;\n    verification: string;\n    verifiedSnapshot: string;\n}",
+        "declarationTypeText": "{\n    status: FieldCreateStatus;\n    modelIdentity: string;\n    id: string | null;\n    expected: DataRow | null;\n    stagedSnapshot: string;\n    verification: string;\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureSignature: string;\n}",
         "members": {
           "attributes": [
             {
@@ -380,7 +397,12 @@
               "writable": true
             },
             {
-              "name": "verifiedSnapshot",
+              "name": "capture",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "captureSignature",
               "readable": true,
               "writable": true
             }
@@ -595,7 +617,7 @@
       "jsdoc": "页面与测试沿用的句柄；方法委托会话 host，不单独持有命令类 FSM。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    readonly input: DataView;\n    begin(): void;\n    cancel(): void;\n    getState(): ReturnType<typeof fieldCreateGetState>;\n    readValueFunction(): ReturnType<typeof fieldCreateReadValueFunction>;\n    stageValueFunction(value: string): void;\n    stage(): Promise<string>;\n    save(): Promise<string>;\n    verify(): Promise<string | null>;\n    acceptCurrent(): void;\n}",
+        "declarationTypeText": "{\n    readonly input: DataView;\n    begin(): void;\n    cancel(): void;\n    getState(): ReturnType<typeof fieldCreateGetState>;\n    readValueFunction(): ReturnType<typeof fieldCreateReadValueFunction>;\n    stageValueFunction(value: string): void;\n    stage(): Promise<string>;\n    save(): Promise<string>;\n    verify(): Promise<string | null>;\n    abandonNotApplied(): void;\n    discardLocalChangesAndVerify(): Promise<string | null>;\n}",
         "members": {
           "attributes": [
             {
@@ -717,11 +739,34 @@
               }
             },
             {
-              "name": "acceptCurrent",
+              "name": "abandonNotApplied",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "discardLocalChangesAndVerify",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                ]
               }
             }
           ]

@@ -7,7 +7,7 @@
     "ANY means RequestMapping did not declare a single HTTP method.",
     "Authentication, transaction, database and response semantics require linked source or behavior fixtures."
   ],
-  "endpointCount": 609,
+  "endpointCount": 611,
   "endpoints": [
     {
       "method": "GET",
@@ -4167,6 +4167,26 @@
       "sourceFile": "lowcode-framework/lowcode-base-service/src/main/java/com/htong/gm/controller/Sm2Controller.java",
       "sourceLine": 50,
       "evidence": "@PostMapping(\"/api/sm2/public-key\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "GET",
+      "path": "/api/smart-bid/v1/notice-sources/approved",
+      "controller": "NoticeSourceController",
+      "handler": "approved",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/smartbid/NoticeSourceController.java",
+      "sourceLine": 23,
+      "evidence": "@GetMapping(\"/approved\")",
+      "confidence": "source-characterized"
+    },
+    {
+      "method": "POST",
+      "path": "/api/smart-bid/v1/notice-sources/page",
+      "controller": "NoticeSourceController",
+      "handler": "page",
+      "sourceFile": "lowcode-mainbody/src/main/java/com/htong/smartbid/NoticeSourceController.java",
+      "sourceLine": 28,
+      "evidence": "@PostMapping(\"/page\")",
       "confidence": "source-characterized"
     },
     {

@@ -6,6 +6,7 @@
 import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceFieldValue} from '../field-value/lowcode-data-space-field-value'
+import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture, verifyAndDiscardDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '../save/data-space-definition-save'
 
 export type FieldCreateStatus = 'idle' | 'editing' | 'saving' | 'unknown' | 'readback' | 'different'
 
@@ -16,7 +17,8 @@ export type FieldCreateFlow = {
   expected: DataRow | null
   stagedSnapshot: string
   verification: string
-  verifiedSnapshot: string
+  capture: DataSpaceDefinitionCaptureBatch | null
+  captureSignature: string
 }
 
 export type FieldCreateLifecycle = Readonly<{
@@ -63,7 +65,7 @@ export function createFieldCreateHost(hostInput: FieldCreateHostInput): FieldCre
   const input = table.getOrCreateView('default')
   input.commitMode = 'staged'
   return {input, fields, models, dataSet, targetId, modelId, viewId, contexts,
-    flow: {status: 'idle', modelIdentity: '', id: null, expected: null, stagedSnapshot: '', verification: '', verifiedSnapshot: ''},
+    flow: {status: 'idle', modelIdentity: '', id: null, expected: null, stagedSnapshot: '', verification: '', capture: null, captureSignature: ''},
     lifecycle}
 }
 
@@ -74,6 +76,12 @@ function assertOwner(host: FieldCreateHost): void {
     view.destroyed || dataSet.getView(view.tableName, view.viewId) !== view || view.dataTable?.modelBinding?.modelName !== view.tableName
     || view.queryContext['dataSpaceId'] !== targetId) || JSON.stringify([models.queryContext, fields.queryContext]) !== contexts) {
     throw new Error('字段新增查询或目标已变化')
+  }
+}
+
+function assertCaptureIdle(batch: DataSpaceDefinitionCaptureBatch): void {
+  if (batch.targets.some(({view}) => view.mutating || view.requestState === RequestState.Loading)) {
+    throw new Error('原字段新增视图仍有请求，不能核验或放弃本地修改')
   }
 }
 
@@ -115,8 +123,15 @@ function assertClean(host: FieldCreateHost, forReadback = false): void {
 export function fieldCreateGetState(host: FieldCreateHost) {
   assertOwner(host)
   const status = flowStatus(host)
+  const capture = host.flow.capture
+  const canAbandonNotApplied = capture?.resolution === 'not-applied' && !!host.flow.id
+    && definitionTargetDraftSignature(host.fields, [host.flow.id]) === host.flow.captureSignature
+  const canDiscardLocalChanges = capture?.resolution === 'confirmed' && capture.targets.every(({view}) => !view.mutating && view.requestState !== RequestState.Loading)
+    && capture.targets.some(target =>
+    target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id)))
   return {status, pending: status !== 'idle', fieldId: host.flow.id, verification: host.flow.verification,
-    canAdd: host.fields.addActionState() === 'enabled', dataViewKey: buildDataViewKey(host.input.tableName, host.input.viewId, host.dataSet.scenarioId)}
+    canAdd: host.fields.addActionState() === 'enabled', canAbandonNotApplied, canDiscardLocalChanges,
+    dataViewKey: buildDataViewKey(host.input.tableName, host.input.viewId, host.dataSet.scenarioId)}
 }
 
 export function fieldCreateBegin(host: FieldCreateHost): void {
@@ -163,7 +178,7 @@ function fieldCreateValues(host: FieldCreateHost): DataRow {
 function fieldCreateFinish(host: FieldCreateHost): void {
   host.input.discardEditingRows(); host.input.replaceRows([])
   host.flow.id = null; host.flow.expected = null; host.flow.stagedSnapshot = ''; host.flow.modelIdentity = ''
-  host.flow.verification = ''; host.flow.verifiedSnapshot = ''; host.flow.status = 'idle'
+  host.flow.verification = ''; host.flow.capture = null; host.flow.captureSignature = ''; host.flow.status = 'idle'
 }
 
 export function fieldCreateCancel(host: FieldCreateHost): void {
@@ -215,7 +230,6 @@ export async function fieldCreateSave(host: FieldCreateHost): Promise<string> {
   assertClean(host)
   const values = fieldCreateValues(host), snapshot = JSON.stringify(host.input.getEditingRow('draft'))
   host.flow.status = 'saving'
-  let dispatched = false, confirmed = false
   try {
     const check = await host.lifecycle.validate(values)
     assertClean(host); check()
@@ -232,20 +246,39 @@ export async function fieldCreateSave(host: FieldCreateHost): Promise<string> {
     check()
     if (!host.flow.id || !host.flow.expected || host.fields.addActionState() !== 'enabled'
       || JSON.stringify(host.input.getEditingRow('draft')) !== snapshot || !fieldCreateMatches(host.fields.rows.find(row => row['rowid'] === host.flow.id), values)) throw new Error('新增暂存或权限未确认')
-    host.lifecycle.onDispatch(); dispatched = true
-    const saved = await host.dataSet.saveChanges({applyEditingRows: false, views: [{tableName: host.fields.tableName, viewId: host.fields.viewId, ids: [host.flow.id]}]})
-    assertOwner(host)
-    const result = saved.data?.viewResults[0]
-    if (!saved.success || saved.data?.viewResults.length !== 1 || saved.data.failedEditingRows !== 0 || result?.createdCount !== 1
-      || result.savedCount !== 0 || result.deletedCount !== 0 || result.failedCount !== 0) throw new Error('字段新增回执未确认，请核验')
-    confirmed = true
-    if (!await fieldCreateReadback(host)) throw new Error(host.flow.verification)
-    const id = host.flow.id; fieldCreateFinish(host); return id
+    const id = host.flow.id
+    const part = {
+      dataSet: host.dataSet, targetId: host.targetId, modelId: host.modelId,
+      prepare: () => Promise.resolve().then(() => {assertClean(host); check()}),
+      apply: async () => {},
+      check: () => {
+        assertClean(host); check()
+        if (!host.flow.id || host.flow.id !== id || !host.flow.expected || !fieldCreateMatches(host.fields.rows.find(row => row['rowid'] === id), host.flow.expected)
+          || JSON.stringify(host.input.getEditingRow('draft')) !== snapshot || host.fields.addActionState() !== 'enabled') throw new Error('新增目标、输入或权限已变化')
+      },
+      targets: () => [{tableName: host.fields.tableName, viewId: host.fields.viewId, ids: [id]}],
+      dispatched: (capture: DataSpaceDefinitionCaptureBatch) => {
+        host.lifecycle.onDispatch()
+        host.flow.capture = capture
+        host.flow.captureSignature = definitionTargetDraftSignature(host.fields, [id])
+      },
+      confirm: async () => {
+        assertOwner(host)
+        if (!await fieldCreateReadback(host)) throw new Error(host.flow.verification)
+      },
+      settled: () => fieldCreateFinish(host),
+      failed: (stage: 'preparing' | 'applying' | 'dispatched' | 'confirmed') => {
+        host.flow.status = stage === 'confirmed' ? 'readback' : stage === 'dispatched' ? 'unknown' : 'editing'
+      },
+    }
+    await DataSpaceDefinitionSave.run([part])
+    return id
   } catch (error) {
-    host.flow.status = confirmed ? 'readback' : dispatched ? (host.fields.hasUnconfirmedSave ? 'editing' : 'unknown') : 'editing'
-    if (!dispatched && host.flow.id) {
+    if (!host.flow.capture) host.flow.status = 'editing'
+    if (!host.flow.capture && host.flow.id) {
       try {fieldCreateDiscardStaged(host); host.flow.id = null; host.flow.expected = null} catch {host.flow.status = 'readback'}
     }
+    if (!host.flow.capture) host.flow.captureSignature = ''
     throw error
   }
 }
@@ -260,14 +293,20 @@ function fieldCreateDiscardStaged(host: FieldCreateHost): void {
 
 async function fieldCreateReadback(host: FieldCreateHost): Promise<boolean> {
   assertClean(host, true)
-  const loaded = await host.fields.loadFromServer({filter: {field: 'dataSetId', operator: 'eq', value: host.targetId}, sort: 'rowid:asc', allPages: true, maxRows: 50000})
-  assertClean(host)
+  const editState = {edited: false}
+  const onEdit = () => {editState.edited = true}
+  host.fields.events.on('editingFieldChanged', onEdit)
+  let loaded: Awaited<ReturnType<DataView['loadFromServer']>>
+  try {
+    loaded = await host.fields.loadFromServer({filter: {field: 'dataSetId', operator: 'eq', value: host.targetId}, sort: 'rowid:asc', allPages: true, maxRows: 50000})
+    assertClean(host)
+    if (editState.edited) throw new Error('正式字段回读期间出现后续修改；保留修改，请重新核验')
+  } finally {host.fields.events.off('editingFieldChanged', onEdit)}
   if (!loaded.success || host.fields.loadingError) throw new Error('新增字段回读失败')
   const matches = host.fields.rows.filter(row => row['rowid'] === host.flow.id), row = matches[0]
   const equal = !!row && matches.length === 1 && !!host.flow.expected && Object.keys(host.flow.expected).every(key => host.fields.fieldAccess(row, key).read === 'visible')
     && fieldCreateMatches(row, host.flow.expected)
   host.flow.verification = equal ? '已精确回读计算字段' : row ? '新增字段回读值或权限与提交不一致' : '未读取到新增字段，不能确认写入结果'
-  host.flow.verifiedSnapshot = JSON.stringify(host.fields.rows)
   return equal
 }
 
@@ -275,18 +314,50 @@ export async function fieldCreateVerify(host: FieldCreateHost): Promise<string |
   assertOwner(host)
   const recovery = flowStatus(host)
   if (!['unknown', 'readback', 'different'].includes(recovery)) throw new Error('没有待核验的字段新增')
-  host.dataSet.abandonUnconfirmedSaves()
-  fieldCreateDiscardStaged(host); host.flow.status = 'saving'
+  const capture = host.flow.capture
+  if (!capture) throw new Error('缺少字段新增原始提交捕获，未知结果仍保留')
+  assertCaptureIdle(capture)
+  if (capture.resolution === 'not-applied') {
+    host.flow.status = 'different'; host.flow.verification = '服务已确认本次新增未应用；请明确结束本次新增意图'; return null
+  }
+  host.flow.status = 'saving'
   try {
+    const outcome = await verifyDataSpaceDefinitionCapture(host.dataSet, capture)
+    assertOwner(host)
+    if (outcome === 'not-applied') {
+      host.flow.status = 'different'; host.flow.verification = '服务已确认本次新增未应用；请明确结束本次新增意图'; return null
+    }
+    if (outcome !== 'confirmed' && outcome !== 'already-confirmed') throw new Error('字段新增原始提交尚未确认')
+    if (capture.targets.some(target => target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id)))) {
+      host.flow.status = 'different'; host.flow.verification = '原新增已确认，但字段存在后续修改；请选择保留修改或明确放弃并核验'; return null
+    }
+    if (!await fieldCreateReadback(host)) {host.flow.status = 'different'; return null}
+    const id = host.flow.id; fieldCreateFinish(host); return id
+  } catch (error) {host.flow.status = capture.resolution === 'confirmed' ? 'readback' : 'unknown'; throw error}
+}
+
+export function fieldCreateAbandonNotApplied(host: FieldCreateHost): void {
+  assertOwner(host)
+  const capture = host.flow.capture
+  if (host.flow.status !== 'different' || capture?.resolution !== 'not-applied' || !host.flow.id
+    || definitionTargetDraftSignature(host.fields, [host.flow.id]) !== host.flow.captureSignature) throw new Error('只能结束已确认未应用且未变化的原新增意图')
+  assertCaptureIdle(capture)
+  fieldCreateDiscardStaged(host)
+  fieldCreateFinish(host)
+}
+
+export async function fieldCreateDiscardLocalChangesAndVerify(host: FieldCreateHost): Promise<string | null> {
+  assertOwner(host)
+  const capture = host.flow.capture
+  if (capture?.resolution !== 'confirmed' || !host.flow.id) throw new Error('只有原新增已确认后才能放弃后续字段修改')
+  assertCaptureIdle(capture)
+  host.flow.status = 'saving'
+  try {
+    await verifyAndDiscardDataSpaceDefinitionCapture(host.dataSet, capture, {discardLocalChanges: true, acceptCurrentOnInvalidReceipt: false})
+    assertOwner(host)
     if (!await fieldCreateReadback(host)) {host.flow.status = 'different'; return null}
     const id = host.flow.id; fieldCreateFinish(host); return id
   } catch (error) {host.flow.status = 'readback'; throw error}
-}
-
-export function fieldCreateAcceptCurrent(host: FieldCreateHost): void {
-  assertClean(host)
-  if (host.flow.status !== 'different' || host.flow.verifiedSnapshot !== JSON.stringify(host.fields.rows)) throw new Error('请先核验正式状态')
-  fieldCreateFinish(host)
 }
 
 /** 页面与测试沿用的句柄；方法委托会话 host，不单独持有命令类 FSM。 */
@@ -300,7 +371,8 @@ export type FieldCreateHandle = {
   stage(): Promise<string>
   save(): Promise<string>
   verify(): Promise<string | null>
-  acceptCurrent(): void
+  abandonNotApplied(): void
+  discardLocalChangesAndVerify(): Promise<string | null>
 }
 
 export function createFieldCreateHandle(host: FieldCreateHost): FieldCreateHandle {
@@ -314,6 +386,7 @@ export function createFieldCreateHandle(host: FieldCreateHost): FieldCreateHandl
     stage: () => fieldCreateStage(host),
     save: () => fieldCreateSave(host),
     verify: () => fieldCreateVerify(host),
-    acceptCurrent: () => fieldCreateAcceptCurrent(host),
+    abandonNotApplied: () => fieldCreateAbandonNotApplied(host),
+    discardLocalChangesAndVerify: () => fieldCreateDiscardLocalChangesAndVerify(host),
   }
 }

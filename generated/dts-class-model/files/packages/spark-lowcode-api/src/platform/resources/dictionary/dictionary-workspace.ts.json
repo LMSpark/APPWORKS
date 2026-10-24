@@ -180,7 +180,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-19T03:11:24.244Z",
+  "generatedAt": "2026-10-24T10:26:37.688Z",
   "models": {
     "DictionaryWorkspaceInput": {
       "name": "DictionaryWorkspaceInput",
@@ -286,7 +286,7 @@
           "methods": [
             {
               "name": "load",
-              "jsdoc": "首次读取或显式放弃本地修改后重读；失败不宣称保存成功或服务器回滚。",
+              "jsdoc": "首次读取；显式重读先核验未知提交，只有无未知提交时才丢弃本地修改。",
               "parameters": [
                 {
                   "name": "discard",

@@ -1,0 +1,265 @@
+{
+  "window": {
+    "from": 6278,
+    "to": 6504,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "22092.2345",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2346",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2347",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2348",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2349",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 26,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2350",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2351",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 26,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2352",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2353",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 14,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2354",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2355",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 43,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2356",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 15,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2357",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 27,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2358",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_StructureType",
+        "rows": 8,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2359",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_UserInfo",
+        "rows": 20,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2360",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 4,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2361",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_UserInfo",
+        "rows": 12,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2362",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2363",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2364",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2365",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2366",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2367",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 49,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2368",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.2369",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictData",
+        "rows": 3,
+        "code": 200,
+        "httpStatus": 200
+      }
+    ],
+    "failures": 0
+  },
+  "original": {
+    "definition": [
+      {
+        "rowid": "1F475ECA5D144E3B8FC9F04FF980B344",
+        "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+        "TypeName": "页面类型",
+        "dictionaryType": null,
+        "functiondesc": "页面类型",
+        "val": null,
+        "txt": null,
+        "secondValue": null,
+        "thirdValue": null,
+        "fourthvalue": null,
+        "fiveValue": null
+      }
+    ],
+    "entries": [
+      {
+        "rowid": "28869181694B4FF5AD7932A5CA363E35",
+        "typeid": "1F475ECA5D144E3B8FC9F04FF980B344",
+        "ordIdx": 1,
+        "val": "html",
+        "txt": "html",
+        "exVal_1": "",
+        "exVal_2": "",
+        "exVal_3": "",
+        "exVal_4": ""
+      },
+      {
+        "rowid": "1C50EE3635824A5DBD14516BCC85663B",
+        "typeid": "1F475ECA5D144E3B8FC9F04FF980B344",
+        "ordIdx": 2,
+        "val": "vue",
+        "txt": "vue",
+        "exVal_1": "",
+        "exVal_2": "",
+        "exVal_3": "",
+        "exVal_4": ""
+      },
+      {
+        "rowid": "1F3A75D749B34BA98121281E4B6A6586",
+        "typeid": "1F475ECA5D144E3B8FC9F04FF980B344",
+        "ordIdx": 3,
+        "val": "tsx",
+        "txt": "tsx",
+        "exVal_1": "",
+        "exVal_2": "",
+        "exVal_3": "",
+        "exVal_4": ""
+      }
+    ]
+  },
+  "error": "Vue Router: No match found for dictionary-data-page",
+  "scope": "read-only catalog and design; data page failed to mount"
+}

@@ -20,12 +20,20 @@ export class DictionaryHttp extends HttpClientBase {
   masked: string[] = []
   denyDeleteIds: string[] = []
   allowAdd = true
+  failBeforeWrite = false
   failAfterWrite = false
+  rejectWrite?: {code: number; message: string}
+  failReads = false
+  failReadAt?: number
+  beforeRead?: (config: RequestConfig) => Promise<void>
+  afterWriteBeforeFailure?: (config: RequestConfig) => void
   afterResponse?: (config: RequestConfig) => Promise<void>
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     let result: unknown
     if (config.url === '/api/DataOperation/GetData') {
       this.reads.push(config)
+      await this.beforeRead?.(config)
+      if (this.failReads || this.failReadAt === this.reads.length) throw new Error('读取失败')
       const body = config.data as {Table: Array<{Name: string}>}
       const name = body.Table[0]!.Name
       const rows = this.records[name] ?? []
@@ -36,6 +44,9 @@ export class DictionaryHttp extends HttpClientBase {
         }})), Count: rows.length}}
     } else if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
       this.saves.push(config)
+      if (this.rejectWrite) return {data: {Code: this.rejectWrite.code, Message: this.rejectWrite.message}, status: 200,
+        statusText: 'OK', headers: {}}
+      if (this.failBeforeWrite) throw new Error('请求发出前失败')
       const buckets: Record<string, Array<Record<string, Row[]>>> = {maplistadd: [], maplistedit: [], maplistdelete: []}
       for (const group of config.data as Array<{TableName: string; CrudModel: {Added: Row[]; Changed: Row[]; Deleted: Row[]}}>) {
         const rows = this.records[group.TableName] ?? []
@@ -53,14 +64,14 @@ export class DictionaryHttp extends HttpClientBase {
         }
         this.records[group.TableName] = rows
       }
-      if (this.failAfterWrite) throw new Error('回执中断')
+      if (this.failAfterWrite) {this.afterWriteBeforeFailure?.(config); throw new Error('回执中断')}
       result = buckets
     } else throw new Error(`Unexpected ${config.url}`)
     await this.afterResponse?.(config)
     return {data: {Code: 200, Result: result}, status: 200, statusText: 'OK', headers: {}}
   }
 }
-export function fixture(http = new DictionaryHttp(), create = false, scenarioId = 'SCENE') {
+export function fixture(http = new DictionaryHttp(), create = false, scenarioId = 'SCENE', requiredFields: readonly string[] = []) {
   const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}})})
   const models = Object.entries({_Base_DictType: definitionFields, _Base_DictData: entryFields}).map(([name, fields]) => ({
     id: `${name}-id`, name, metaName: name, sourceType: 'table', sourceId: 'DB', sourceName: name,
@@ -70,7 +81,8 @@ export function fixture(http = new DictionaryHttp(), create = false, scenarioId 
   })) satisfies Array<Awaited<ReturnType<DataSpaceDesignApi['readModel']>>>
   const dataSet = DataSet.fromJson({scenarioId, tables: Object.fromEntries(models.map(model => [model.metaName, {
     modelBinding: {modelId: model.id, modelName: model.metaName},
-    columns: model.fields.map(field => ({name: field.name, type: field.type, isPrimaryKey: field.primaryKey})),
+    columns: model.fields.map(field => ({name: field.name, type: field.type, isPrimaryKey: field.primaryKey,
+      ...(requiredFields.includes(`${model.metaName}.${field.name}`) ? {required: true} : {})})),
     views: {default: {autoCurrentFirst: false, autoSelectFirst: false}},
   }]))})
   for (const model of models) runtime.bindModelView(dataSet.getView(model.metaName, 'default')!, model)

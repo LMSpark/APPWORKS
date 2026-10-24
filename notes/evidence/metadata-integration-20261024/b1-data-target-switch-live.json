@@ -1,0 +1,155 @@
+{
+  "date": "2026-10-24",
+  "scope": "Catalog host D1 close then D2 readonly reopen; not save proof",
+  "fromDictionaryId": "1F475ECA5D144E3B8FC9F04FF980B344",
+  "targetDictionaryId": "1F32C3EAC9834E87A9692B0D0CD101F8",
+  "network": {
+    "from": 47779,
+    "to": 47879,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "22092.8908",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8909",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8910",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8911",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8912",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8913",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 49,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8914",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8915",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictData",
+        "rows": 5,
+        "code": 200,
+        "httpStatus": 200
+      }
+    ],
+    "failures": 0
+  },
+  "business": {
+    "definition": [
+      {
+        "rowid": "1F32C3EAC9834E87A9692B0D0CD101F8",
+        "AppId": "D99A1DCE9894698799101EFD70F8FC76",
+        "TypeName": "数据目录参数处理方式",
+        "dictionaryType": null,
+        "functiondesc": "数据目录参数处理方式",
+        "val": null,
+        "txt": null,
+        "secondValue": null,
+        "thirdValue": null,
+        "fourthvalue": null,
+        "fiveValue": null
+      }
+    ],
+    "entries": [
+      {
+        "rowid": "44E8F72902314AA996666E44383C6BD4",
+        "typeid": "1F32C3EAC9834E87A9692B0D0CD101F8",
+        "ordIdx": 1,
+        "val": "query",
+        "txt": "URL Query 参数",
+        "exVal_1": "",
+        "exVal_2": "",
+        "exVal_3": "",
+        "exVal_4": ""
+      },
+      {
+        "rowid": "68927BCA22844A7CAA215D9CE2DAAC6D",
+        "typeid": "1F32C3EAC9834E87A9692B0D0CD101F8",
+        "ordIdx": 2,
+        "val": "piniastore",
+        "txt": "Pinia Store",
+        "exVal_1": "",
+        "exVal_2": "",
+        "exVal_3": "",
+        "exVal_4": ""
+      },
+      {
+        "rowid": "599AEEC73F1543CCBBD7D2DE6B7974D1",
+        "typeid": "1F32C3EAC9834E87A9692B0D0CD101F8",
+        "ordIdx": 3,
+        "val": "inject",
+        "txt": "Provide / Inject",
+        "exVal_1": "",
+        "exVal_2": "",
+        "exVal_3": "",
+        "exVal_4": ""
+      },
+      {
+        "rowid": "7FC60B4E8113430DBD266561CBACC04F",
+        "typeid": "1F32C3EAC9834E87A9692B0D0CD101F8",
+        "ordIdx": 4,
+        "val": "sessionstorage",
+        "txt": "sessionStorage",
+        "exVal_1": "",
+        "exVal_2": "",
+        "exVal_3": "",
+        "exVal_4": ""
+      },
+      {
+        "rowid": "7974D20FFAF14AF58E6049286051C445",
+        "typeid": "1F32C3EAC9834E87A9692B0D0CD101F8",
+        "ordIdx": 5,
+        "val": "localstorage",
+        "txt": "localStorage",
+        "exVal_1": "",
+        "exVal_2": "",
+        "exVal_3": "",
+        "exVal_4": ""
+      }
+    ]
+  },
+  "businessHash": "f542a905ab4a969af58d199523ab49cae014abc92637832078629fba56b03961",
+  "writes": 0
+}

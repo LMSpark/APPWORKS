@@ -1,7 +1,7 @@
 <!--
 @module app:views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page
-职责：保留原生导航URL的字典方案目录，提供设计入口及独立数据页导航。
-边界：列表绑定正式DataView，选中值来自视图；不复制行数组，不合并设计与数据编辑。
+职责：保留原生导航URL的字典方案目录，在同一正式宿主内承载独立设计与数据工作区。
+边界：列表绑定正式DataView，选中值来自视图；不复制行数组，不合并设计与数据编辑，也不给隐藏子页伪造导航身份。
 AI用途：恢复专题目录时复用正式数据空间和标准组件，分别组织设计和用户数据流程。
 -->
 <template>
@@ -19,10 +19,12 @@ AI用途：恢复专题目录时复用正式数据空间和标准组件，分别
           :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
       </div>
     </template>
-    <RendererDialog :model-value="!!editingId" title="字典方案设计" width="min(1100px, 94vw)"
+    <RendererDialog :model-value="!!editingId" :title="workspaceKind === 'design' ? '字典方案设计' : '字典数据维护'" width="min(1100px, 94vw)"
       :close-disabled="editorPending" @update:model-value="close">
-      <DictionarySetting v-if="editingId" :key="editingId" :dictionary-id="editingId" :create="creating"
+      <DictionarySetting v-if="editingId && workspaceKind === 'design'" :key="`${workspaceKind}:${editingId}`" :dictionary-id="editingId" :create="creating"
         @pending="editorPending = $event" @saved="refresh" @deleted="deleted" @cancelled="cancelled" />
+      <DictionaryData v-else-if="editingId && workspaceKind === 'data'" :key="`${workspaceKind}:${editingId}`" :dictionary-id="editingId"
+        @pending="editorPending = $event" />
       <template #footer>
         <RendererButton label="关闭" :disabled="editorPending" @click="close" />
       </template>
@@ -32,20 +34,20 @@ AI用途：恢复专题目录时复用正式数据空间和标准组件，分别
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
+import {useRoute} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataView, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import DictionarySetting from './dictionary-setting.vue'
-import {buildTenantPath, parseTenantScope} from '@/services/tenant-scope'
+import DictionaryData from './dictionary-data-page.vue'
 
 const route = useRoute()
-const router = useRouter()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-dictionary-list-page'})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const editingId = ref(''), creating = ref(false), editorPending = ref(false)
+const workspaceKind = ref<'design' | 'data'>('design')
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selected = computed(() => {
   revision.value
@@ -89,20 +91,17 @@ const filter = computed<RFilterProps>(() => ({autoFitMinWidth: '230px', children
 ]}))
 useSystemPageDirtySource({get isDirty() {return editorPending.value}})
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
-function openSelected(): void {if (selected.value && !editorPending.value) {creating.value = false; editingId.value = selected.value}}
-const dictionaryDataPagePath = '/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page'
-
-async function openData(): Promise<void> {
-  if (!selected.value || editorPending.value) return
-  const scope = parseTenantScope(route.path)
-  const path = scope ? buildTenantPath(scope, dictionaryDataPagePath) : dictionaryDataPagePath
-  await router.push({path, query: {dictionaryId: selected.value}})
+function openSelected(): void {
+  if (selected.value && !editorPending.value) {workspaceKind.value = 'design'; creating.value = false; editingId.value = selected.value}
+}
+function openData(): void {
+  if (selected.value && !editorPending.value) {workspaceKind.value = 'data'; creating.value = false; editingId.value = selected.value}
 }
 function createDictionary(): void {
   if (editorPending.value) return
-  creating.value = true; editingId.value = crypto.randomUUID().replaceAll('-', '').toUpperCase()
+  workspaceKind.value = 'design'; creating.value = true; editingId.value = crypto.randomUUID().replaceAll('-', '').toUpperCase()
 }
-function close(): void {if (!editorPending.value) editingId.value = ''}
+function close(): void {if (!editorPending.value) {editingId.value = ''; creating.value = false}}
 function cancelled(): void {editorPending.value = false; close()}
 async function refresh(): Promise<void> {
   view.value?.setSelectedRows([])
@@ -133,7 +132,8 @@ onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemov
 </script>
 
 <style scoped>
-.dictionary-catalog-page { display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
+.dictionary-catalog-page { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
+.dictionary-catalog-page > * { min-width: 0; }
 .dictionary-catalog-page header { display: grid; gap: 4px; }
 .dictionary-catalog-page h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
 .dictionary-catalog-page header p { margin: 0; color: var(--el-text-color-secondary); }

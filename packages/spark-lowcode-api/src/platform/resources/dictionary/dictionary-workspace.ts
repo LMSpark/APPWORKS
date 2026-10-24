@@ -28,6 +28,7 @@ export class DictionaryWorkspace {
   readonly #input: DictionaryWorkspaceInput
   #busy = false
   #uncertain = false
+  #verificationCaptureLost = false
   #creating: boolean
   #deleting = false
   #removed = false
@@ -63,12 +64,33 @@ export class DictionaryWorkspace {
   /** 删除后重新查询，定义和条目均不再返回；宿主结束本次维护实例。 */
   get removed(): boolean { return this.#removed }
 
-  /** 首次读取或显式放弃本地修改后重读；失败不宣称保存成功或服务器回滚。 */
+  /** 首次读取；显式重读先核验未知提交，只有无未知提交时才丢弃本地修改。 */
   async load(discard = false): Promise<void> {
     if (this.#busy || this.pending && !discard) throw new Error('请先保存或明确放弃字典修改')
     this.#busy = true
     try {
-      if (discard) for (const view of [this.definition, this.entries]) {view.abandonUnconfirmedSave(); view.discardPendingChanges()}
+      const recoveryViews = [this.entries, this.definition]
+      const hasUnknown = recoveryViews.some(view => view.hasUnconfirmedSave)
+      if (!hasUnknown && this.#verificationCaptureLost) throw new Error('字典提交结果缺少可核验的原捕获，不能安全重读')
+      if (hasUnknown) {
+        try {
+          const receipts = await DataView.saveQueryViews(recoveryViews.map(view => ({view})))
+          if (recoveryViews.some(view => view.hasUnconfirmedSave) || receipts.some(receipt => !receipt.success)) {
+            throw new Error('字典原提交仍未能核验')
+          }
+        } catch (error) {
+          const notApplied = error instanceof Error && error.message.startsWith('SPARK_SAVE_NOT_APPLIED:')
+          this.#uncertain = !notApplied
+          this.#verificationCaptureLost = !notApplied && !recoveryViews.some(view => view.hasUnconfirmedSave)
+          throw error
+        }
+        this.#uncertain = false
+        this.#verificationCaptureLost = false
+        this.#creating = false
+        if (this.pending) throw new Error('原提交已确认，仍有随后发生的编辑，请保留并处理')
+      } else if (discard) {
+        for (const view of recoveryViews) if (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()) view.discardPendingChanges()
+      }
       const result = await this.definition.loadFromServer({singleFlight: false})
       if (!result.success) throw new Error(result.message ?? '字典定义读取失败')
       const absentAfterDelete = this.#deleting && this.definition.rows.length === 0
@@ -89,6 +111,7 @@ export class DictionaryWorkspace {
       this.assertScope()
       this.definition.setCurrentRow(this.definition.rows[0] ?? null)
       this.#uncertain = false
+      this.#verificationCaptureLost = false
       this.#deleting = false
     } finally { this.#busy = false }
   }
@@ -138,7 +161,7 @@ export class DictionaryWorkspace {
     if (this.#busy || this.#uncertain) throw new Error('字典提交或结果核验尚未结束')
     if (this.#deleting) {
       await this.commit(this.definition)
-      try {await this.load()} catch (error) {this.#uncertain = true; throw error}
+      await this.load()
       return
     }
     const other = target === this.definition ? this.entries : this.definition
@@ -206,7 +229,12 @@ export class DictionaryWorkspace {
       }
       const saved = await this.#input.dataSet.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId}]})
       if (!saved.success) throw new Error(saved.message ?? '字典保存未完整确认')
-    } catch (error) { this.#uncertain = true; throw error }
+    } catch (error) {
+      const hasNativeCapture = [this.definition, this.entries].some(view => view.hasUnconfirmedSave)
+      this.#uncertain = hasNativeCapture
+      this.#verificationCaptureLost = false
+      throw error
+    }
     finally { this.#busy = false }
   }
 

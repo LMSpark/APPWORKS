@@ -88,7 +88,7 @@
 | --- | --- |
 | 原理 | DictionarySchema：val/txt加四个exVal输出；六项标题来自val/txt/secondValue/thirdValue/fourthvalue/fiveValue；val输出类型消费已保存且可读的编码方案，其他业务输出保持文本 |
 | 方案设计 | 原路径目录及dictionary-setting，只维护名称、类型、标题等定义；saveDesign只提交定义，资源删除独立核完整性 |
-| 数据维护 | 独立dictionary-data-page，URL传dictionaryId；按已保存标题显示六字段，saveData只提交条目 |
+| 数据维护 | 目录宿主打开独立dictionary-data-page工作区，通过唯一dictionaryId prop传入；按已保存标题显示六字段，标准表格工具栏触发操作，saveData只提交条目 |
 | 公共承载 | 已有字典场景的DataSet、两个正式模型及DataView；DictionaryWorkspace组织领域约束，标准组件直接绑定 |
 
 样板验收使用实际Vue、标准组件、PageRuntime及正式查询/保存owner，只在装配入口及HTTP边界提供夹具。用例见[独立页面流程](../../tests/runtime/page/dictionary/dictionary-workflow.test.ts)与[领域约束](../../packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts)：设计标题保存后由新数据页消费、两个提交范围隔离、新建先设计后数据、取消、权限、参数/目标切换与未知回执。HTTP夹具结果不等于线上写入验收；当前证据及未闭合项仍以唯一台账为准。

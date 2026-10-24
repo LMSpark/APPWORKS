@@ -1,7 +1,7 @@
 <!--
 @module app:views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page
 职责：按已保存的字典设计维护六字段业务数据。
-边界：URL输入dictionaryId，标准组件绑定正式条目DataView，不编辑或保存设计配置。
+边界：宿主通过唯一dictionaryId prop提供目标；标准组件绑定正式条目DataView，不编辑或保存设计配置。
 AI用途：实现用户数据维护页时复用数据空间查询、编辑覆盖、权限和独立保存范围。
 -->
 <template>
@@ -14,37 +14,38 @@ AI用途：实现用户数据维护页时复用数据空间查询、编辑覆盖
     <p v-if="loading" role="status">正在读取字典数据…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <template v-if="ready && workspace">
-      <RendererTable :data-view-key="entryKey" :children="entryFields" :stripe="true" :highlight-current-row="true"
+      <RendererTable :data-view-key="entryKey" :children="entryFields" :toolbar="entryToolbar" :stripe="true" :highlight-current-row="true"
         :on-row-click="chooseEntry" :show-data-view-meta="false" />
       <RendererForm v-if="entrySelected" :data-view-key="entryKey" :children="editFields" grid-min-width="220px" :show-data-view-meta="false" />
-      <div class="dictionary-data-page__actions">
-        <RendererButton label="新增条目" :data-view-key="entryKey" perm-action="create" :disabled="busy || uncertain" @click="run(() => workspace!.addEntry())" />
-        <RendererButton label="删除当前条目" :data-view-key="entryKey" :disabled="busy || uncertain || !entryRemovable" @click="removeEntry" />
-        <RendererButton label="保存数据" :data-view-key="entryKey" button-type="primary" :disabled="busy || uncertain" @click="run(() => workspace!.saveData())" />
-        <RendererButton :label="uncertain ? '重读核验（放弃本地修改）' : '取消数据修改并重读'" :data-view-key="entryKey" :disabled="busy" @click="run(() => workspace!.load(true))" />
-      </div>
     </template>
   </section>
 </template>
 
 <script setup lang="ts">
 import {computed} from 'vue'
-import {useRoute} from 'vue-router'
 import {DictionarySchema} from '@spark-appworks/spark-lowcode-api'
 import {buildDataViewKey, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererForm, RendererTable, RendererButton} from '@spark-appworks/spark-component'
+import {RendererForm, RendererTable, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictionary'
 import {useDictionaryWorkspace} from '../model/use-dictionary-workspace'
 
-const route = useRoute()
+const props = defineProps<{
+  /** 唯一字典目标身份，由当前目录宿主按所选正式字典传入；页面不从路由或第二个参数推导目标。 */
+  dictionaryId: string
+}>()
+const emit = defineEmits<{
+  /** 宿主关闭保护状态；草稿、保存中或保存结果未知时为 true，须阻止关闭以免丢失待核验工作。 */
+  pending: [value: boolean]
+}>()
 const {workspace, ready, loading, busy, error, revision, uncertain, run} = useDictionaryWorkspace({
-  dictionaryId: () => typeof route.query['dictionaryId'] === 'string' ? route.query['dictionaryId'] : undefined,
+  dictionaryId: () => props.dictionaryId,
   pageId: 'dictionary-data-page',
+  onPending: value => emit('pending', value),
 })
 const entryKey = buildDataViewKey('_Base_DictData', 'default', LowcodeDictionary.editorScenarioId)
 const dictionaryHeading = computed(() => {
   revision.value
-  const id = typeof route.query['dictionaryId'] === 'string' ? route.query['dictionaryId'] : ''
+  const id = props.dictionaryId
   const name = workspace.value?.definition.currentRow?.['TypeName']
   const title = typeof name === 'string' && name.trim() ? name.trim() : ''
   return title ? `当前方案：${title}（${id}）` : `当前方案 ID：${id}`
@@ -62,6 +63,16 @@ const entryFields = computed<SparkNode[]>(() => {
     field: field.name, label: workspace.value?.fieldLabel(field.name) ?? field.defaultLabel, width: 155,
   }})), {type: 'r-number', props: {field: 'ordIdx', label: '排序', width: 90}}]
 })
+const entryToolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
+  {type: 'r-button', props: {label: '新增条目', dataViewKey: entryKey, permAction: 'create', disabled: busy.value || uncertain.value,
+    onClick: () => run(() => workspace.value!.addEntry())}},
+  {type: 'r-button', props: {label: '删除当前条目', dataViewKey: entryKey, disabled: busy.value || uncertain.value || !entryRemovable.value,
+    onClick: removeEntry}},
+  {type: 'r-button', props: {label: '保存数据', dataViewKey: entryKey, buttonType: 'primary', disabled: busy.value || uncertain.value,
+    onClick: () => run(() => workspace.value!.saveData())}},
+  {type: 'r-button', props: {label: uncertain.value ? '核验原提交（保留本地修改）' : '取消数据修改并重读', dataViewKey: entryKey, disabled: busy.value,
+    onClick: () => run(() => workspace.value!.load(true))}},
+]}))
 const editFields = computed<SparkNode[]>(() => entryFields.value.map(node => ({...node, props: {...node.props, readonly: busy.value}})))
 function chooseEntry(row: DataRow): void {workspace.value?.entries.setCurrentRow(row)}
 async function removeEntry(): Promise<void> {
@@ -73,9 +84,9 @@ async function removeEntry(): Promise<void> {
 </script>
 
 <style scoped>
-.dictionary-data-page { display: grid; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
+.dictionary-data-page { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 16px; padding: 24px; color: var(--el-text-color-primary); }
+.dictionary-data-page > * { min-width: 0; }
 .dictionary-data-page header { display: grid; gap: 4px; }
 .dictionary-data-page h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
 .dictionary-data-page header p { margin: 0; color: var(--el-text-color-secondary); }
-.dictionary-data-page__actions { display: flex; flex-wrap: wrap; gap: 8px; }
 </style>

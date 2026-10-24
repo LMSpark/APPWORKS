@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 193,
-  "directUnmatchedCount": 133,
+  "consumerCount": 194,
+  "directUnmatchedCount": 134,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -918,14 +918,20 @@
     },
     {
       "expression": "/api/DataOperation/GetData",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "sourceLine": 196,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
-      "sourceLine": 27,
+      "sourceLine": 33,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/BatchTableOperateRequestByCRUD",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
-      "sourceLine": 37,
+      "sourceLine": 45,
       "scope": "publishable-lowcode-api"
     },
     {

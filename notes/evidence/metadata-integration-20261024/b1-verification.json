@@ -1,0 +1,229 @@
+{
+  "date": "2026-10-24",
+  "baseCommit": "7365d8d845556fc1816ed4ac34632e06d8e82ea6",
+  "scope": "B1 recovery, catalog-host data entry, standard table toolbar and layout; not full B1",
+  "review": {
+    "recoveryRound1": "PASS",
+    "entryRound1": "PASS",
+    "entryRound2": "PASS including archived live layout",
+    "open": 0
+  },
+  "finalTestCounts": {
+    "domain": 42,
+    "workflow": 29,
+    "catalog": 34,
+    "note": "Do not sum intermediate runs. Workflow final source is covered by the 62-test entry combined run; catalog was then extended and rerun as 34 tests."
+  },
+  "logs": [
+    {
+      "log": "b1-recovery-red.log",
+      "exit": 1,
+      "logSha256": "CA59DA03B8B4E912347CC12C6CC499030650A2B610406E8E2C1D20534682CEEF",
+      "summaries": [
+        "⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯",
+        "Test Files  1 failed (1)",
+        "Tests  3 failed | 34 passed (37)",
+        "Duration  1.43s (transform 779ms, setup 0ms, import 1.04s, tests 154ms, environment 0ms)"
+      ]
+    },
+    {
+      "log": "b1-recovery-round1-green-domain.log",
+      "exit": 0,
+      "logSha256": "4C59FCA27C4241A4431D0EDDAEC13DAC12A3E44E371C4474DE117EF4AE73EDD1",
+      "summaries": [
+        "Test Files  1 passed (1)",
+        "Tests  42 passed (42)",
+        "Duration  1.73s (transform 900ms, setup 0ms, import 1.20s, tests 141ms, environment 0ms)"
+      ]
+    },
+    {
+      "log": "b1-entry-red.log",
+      "exit": 1,
+      "logSha256": "5C733B0D5A81CDC11A1BDD4691515E7F84EE8E014A776B26D6EFE6A0383BBEE7",
+      "summaries": [
+        "⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯",
+        "Test Files  1 failed (1)",
+        "Tests  1 failed | 30 skipped (31)",
+        "Duration  9.85s (transform 6.07s, setup 116ms, import 8.10s, tests 540ms, environment 842ms)"
+      ]
+    },
+    {
+      "log": "b1-entry-green-tests.log",
+      "exit": 0,
+      "logSha256": "344C2F2B87F8FE67BE39E841CCDA08EDB1B99E3CB9274D59343988A36BE163E7",
+      "summaries": [
+        "Test Files  2 passed (2)",
+        "Tests  62 passed (62)",
+        "Duration  20.73s (transform 15.70s, setup 272ms, import 24.74s, tests 9.98s, environment 2.46s)"
+      ]
+    },
+    {
+      "log": "b1-entry-round1-catalog.log",
+      "exit": 0,
+      "logSha256": "EDFE408C99CBE979C901B3DC69CC0B8F94B956799393038DFEC04E8F635DF6DE",
+      "summaries": [
+        "Test Files  1 passed (1)",
+        "Tests  34 passed (34)",
+        "Duration  12.38s (transform 5.87s, setup 97ms, import 7.92s, tests 3.49s, environment 672ms)"
+      ]
+    },
+    {
+      "log": "b1-parent-final-lint.log",
+      "exit": 0,
+      "logSha256": "B29BF1DE63CA215B2FED34FE496B382B0A95B77E2BDA51D7C957BBECEE0D572D",
+      "summaries": []
+    },
+    {
+      "log": "b1-parent-final-rules.log",
+      "exit": 1,
+      "logSha256": "1070DC55F8112233410D4DCF2A41F39C2FC343EAAD96D8D9A4B5B50F7E3F22CA",
+      "summaries": [
+        "Test Files  4 passed (4)",
+        "Tests  49 passed (49)",
+        "Duration  8.97s (transform 856ms, setup 450ms, import 1.33s, tests 7.05s, environment 3.45s)",
+        "Error: appworks-consumer-ledger.json is stale; run pnpm run generate:lowcode-contracts"
+      ]
+    },
+    {
+      "log": "b1-parent-lowcode-generate.log",
+      "exit": 0,
+      "logSha256": "84049D22EB6A78DD490B1B6AC5F027FAFBEDA7D59BE5F6298782A10AD8255029",
+      "summaries": []
+    },
+    {
+      "log": "b1-parent-r2-generate.log",
+      "exit": 0,
+      "logSha256": "6F5CB026A4B36FA9D57D0B871DD99D27B65AA1966654162E1E1D9721B726EF83",
+      "summaries": [
+        "Collected DTS files: 963",
+        "DTS files: 963",
+        "ClassModel symbols (incl. duplicates in files): 1969",
+        "Semantic gaps: 3110"
+      ]
+    },
+    {
+      "log": "b1-parent-r2-typecheck.log",
+      "exit": 0,
+      "logSha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962",
+      "summaries": []
+    },
+    {
+      "log": "b1-parent-r2-rules.log",
+      "exit": 0,
+      "logSha256": "89EEE00EAA6681D76BC225092508E1F024199C3B13DD6AC636A4808ABA874E61",
+      "summaries": [
+        "Test Files  4 passed (4)",
+        "Tests  49 passed (49)",
+        "Duration  7.47s (transform 973ms, setup 569ms, import 1.68s, tests 5.28s, environment 3.95s)"
+      ]
+    },
+    {
+      "log": "b1-parent-r2-build.log",
+      "exit": 0,
+      "logSha256": "93A300DAA0814D6CD2F5849EF774CFA8871750F8946AD6B97FB9BD0FDC2FD3DE",
+      "summaries": [
+        "✓ built in 3.64s"
+      ]
+    },
+    {
+      "log": "b1-entry-round2-lint.log",
+      "exit": 0,
+      "logSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "summaries": []
+    },
+    {
+      "log": "b1-parent-final-catalog-lint.log",
+      "exit": 0,
+      "logSha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "summaries": []
+    }
+  ],
+  "sourceHashes": [
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.ts",
+      "sha256": "05AB27D58DE2AA742FE657594DD963971BD33E427095380B059A44B0C769648B"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/dictionary-workspace.test.ts",
+      "sha256": "49D227BE768FF7B7C779F36491FC21153B98C2CFB9A1CC66741B6A023BA276FC"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture.ts",
+      "sha256": "CCB025657EFC1AE7C39464AFF9032E0BD355A705C37516C649BE3649B99D061C"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "sha256": "71FDBA375D856140EDEB48EDEC5A35AAF5697C6E63C86DFFE232D8EC3B6A5762"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
+      "sha256": "CB6E5D862DF7BDC8F664276629C7535B65F36E7D609780D95415D7F85D606A6A"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
+      "sha256": "5A06DA3279A6CADD263F77964988D2944DF91ED6A953C31D8126BC58EB769308"
+    },
+    {
+      "path": "tests/runtime/page/dictionary/dictionary-catalog.test.ts",
+      "sha256": "C51E02CF6353778DC053F14AC89E782830B5CB1F2EDF704741200233FA06DE07"
+    },
+    {
+      "path": "tests/runtime/page/dictionary/dictionary-workflow.test.ts",
+      "sha256": "B64C38AD17CA8D554BE02B6323B908352F950175871F53CFFD845A892D3B9748"
+    }
+  ],
+  "generatedDiff": {
+    "generatedFiles": 18,
+    "expectedSourceAndManifestFiles": 6,
+    "peripheralSymbolChanges": [
+      {
+        "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/business/business-kit.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-ai/src/agent/conversation/transport/app-sse-events.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererEditor.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererFooter.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererHeader.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/components/containers/zones/RendererTail.types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-component/src/core/types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/dataset-crud-tool.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/metadata.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-data/src/types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      },
+      {
+        "path": "generated/dts-class-model/files/packages/spark-json-document/src/tree/tree-types.ts.json",
+        "onlyCompilerSymbolIdsChanged": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "window": {
+    "from": 33725,
+    "to": 33873,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "22092.6686",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6687",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6688",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6689",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6690",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6691",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 49,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6692",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6693",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictData",
+        "rows": 3,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6694",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6695",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictData",
+        "rows": 3,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6696",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6697",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6698",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6699",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6700",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6701",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 49,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6702",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.6703",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictData",
+        "rows": 3,
+        "code": 200,
+        "httpStatus": 200
+      }
+    ],
+    "failures": 0
+  },
+  "originalHash": "2357420c9c6ee899d582410685dfac7a91d829777ac0b52a97771aaabcc2c3c8",
+  "reopenedHash": "2357420c9c6ee899d582410685dfac7a91d829777ac0b52a97771aaabcc2c3c8",
+  "same": true,
+  "draft": "B1_CANCEL_ONLY_20261024",
+  "restored": "页面类型",
+  "scope": "design edit overlay, explicit cancellation, whole-workspace close and independent reopen; no persistence"
+}

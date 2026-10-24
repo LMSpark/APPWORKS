@@ -115,6 +115,193 @@ describe('Dictionary resource through formal DataViews', () => {
     expect(workspace.pending).toBe(false)
     dataSet.destroy()
   })
+  it('does not let an ordinary discard-and-reload erase a partially applied original capture', async () => {
+    const {workspace, http, dataSet} = fixture()
+    await workspace.load()
+    workspace.entries.updateEditingValue('E1', 'exVal_1', '新值一')
+    workspace.entries.updateEditingValue('E1', 'exVal_2', '新值二')
+    http.failAfterWrite = true
+    http.afterWriteBeforeFailure = () => {http.records['_Base_DictData']![0]!['exVal_2'] = '基础'}
+    await expect(workspace.saveData()).rejects.toThrow()
+    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
+    http.failAfterWrite = false
+
+    await expect(workspace.load(true)).rejects.toThrow(/部分生效|无法按主键核验/)
+
+    expect(http.saves).toHaveLength(1)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
+    expect(workspace.entries.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(workspace.requiresVerification).toBe(true)
+    expect(workspace.pending).toBe(true)
+    expect(http.reads).toHaveLength(3)
+    dataSet.destroy()
+  })
+  it('retains the unknown deletion batch when only the entry deletion reached the owner', async () => {
+    const {workspace, http, dataSet} = fixture()
+    await workspace.load()
+    await workspace.removeDefinition()
+    http.failAfterWrite = true
+    http.afterWriteBeforeFailure = () => {http.records['_Base_DictType']!.push({...initialDefinition})}
+    await expect(workspace.saveDesign()).rejects.toThrow()
+    expect(workspace.definition.hasUnconfirmedSave).toBe(true)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
+    http.failAfterWrite = false
+
+    await expect(workspace.load(true)).rejects.toThrow(/部分生效|无法按主键核验/)
+
+    expect(http.saves).toHaveLength(1)
+    expect(workspace.definition.hasUnconfirmedSave).toBe(true)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
+    expect(workspace.pending).toBe(true)
+    expect(workspace.removed).toBe(false)
+    expect(http.reads).toHaveLength(4)
+    dataSet.destroy()
+  })
+  it('does not discard the original capture or draft when recovery verification reads fail', async () => {
+    const {workspace, http, dataSet} = fixture()
+    await workspace.load()
+    workspace.entries.updateEditingValue('E1', 'exVal_4', '已写但回执丢失')
+    http.failAfterWrite = true
+    await expect(workspace.saveData()).rejects.toThrow()
+    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
+    http.failAfterWrite = false
+    http.failReads = true
+
+    await expect(workspace.load(true)).rejects.toThrow('读取失败')
+
+    expect(http.saves).toHaveLength(1)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
+    expect(workspace.entries.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(workspace.entries.rows[0]!['exVal_4']).toBe('已写但回执丢失')
+    expect(workspace.requiresVerification).toBe(true)
+    expect(workspace.pending).toBe(true)
+    expect(http.reads).toHaveLength(3)
+    dataSet.destroy()
+  })
+  it('preserves an edit made while the explicit reload is awaiting its first query', async () => {
+    const {workspace, http, dataSet} = fixture()
+    await workspace.load()
+    workspace.entries.updateEditingValue('E1', 'exVal_4', '原草稿')
+    await workspace.saveData()
+    http.failAfterWrite = true
+    workspace.entries.updateEditingValue('E1', 'exVal_4', '不确定草稿')
+    await expect(workspace.saveData()).rejects.toThrow()
+    http.failAfterWrite = false
+
+    let entered!: () => void, release!: () => void
+    const waiting = new Promise<void>(resolve => {entered = resolve})
+    const gate = new Promise<void>(resolve => {release = resolve})
+    let firstRead = true
+    http.beforeRead = async config => {
+      if (config.url === '/api/DataOperation/GetData' && firstRead) {firstRead = false; entered(); await gate}
+    }
+    const reload = workspace.load(true)
+    await waiting
+    workspace.entries.updateEditingValue('E1', 'exVal_3', '等待期间应用的新编辑')
+    expect((await workspace.entries.applyEditingRows()).success).toBe(true)
+    workspace.entries.updateEditingValue('E1', 'txt', '等待期间的新编辑')
+    release()
+
+    await expect(reload).rejects.toThrow('原提交已确认，仍有随后发生的编辑')
+
+    expect(http.saves).toHaveLength(2)
+    expect(workspace.entries.getEditingRow('E1')?.['txt']).toBe('等待期间的新编辑')
+    expect(workspace.entries.rows[0]!['exVal_3']).toBe('等待期间应用的新编辑')
+    expect(workspace.entries.hasEditingChanges()).toBe(true)
+    expect(workspace.entries.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(false)
+    expect(http.reads).toHaveLength(5)
+    dataSet.destroy()
+  })
+  it('keeps an authoritative not-applied draft until a separate explicit cancellation', async () => {
+    const {workspace, http, dataSet} = fixture()
+    await workspace.load()
+    workspace.entries.updateEditingValue('E1', 'exVal_4', '尚未写入的草稿')
+    http.failBeforeWrite = true
+    await expect(workspace.saveData()).rejects.toThrow()
+    expect(workspace.entries.hasUnconfirmedSave).toBe(true)
+    http.failBeforeWrite = false
+
+    await expect(workspace.load(true)).rejects.toThrow('原提交未生效')
+
+    expect(http.saves).toHaveLength(1)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(false)
+    expect(workspace.entries.dirtyTracking.hasPendingChanges()).toBe(true)
+    expect(workspace.entries.rows[0]!['exVal_4']).toBe('尚未写入的草稿')
+    expect(workspace.requiresVerification).toBe(false)
+    expect(workspace.pending).toBe(true)
+    await workspace.load(true)
+    expect(workspace.entries.rows[0]!['exVal_4']).toBeNull()
+    expect(workspace.pending).toBe(false)
+    expect(http.saves).toHaveLength(1)
+    expect(http.reads).toHaveLength(5)
+    dataSet.destroy()
+  })
+  it('keeps an explicit server rejection editable and allows a later deliberate retry', async () => {
+    const {workspace, http, dataSet} = fixture()
+    await workspace.load()
+    workspace.entries.updateEditingValue('E1', 'exVal_4', '被拒后保留的草稿')
+    http.rejectWrite = {code: 400, message: '字典条目业务拒绝'}
+
+    await expect(workspace.saveData()).rejects.toThrow('字典条目业务拒绝')
+
+    expect.soft(workspace.entries.hasUnconfirmedSave).toBe(false)
+    expect.soft(workspace.requiresVerification).toBe(false)
+    expect.soft(workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('被拒后保留的草稿')
+    expect.soft(workspace.pending).toBe(true)
+    expect.soft(http.saves).toHaveLength(1)
+    http.rejectWrite = undefined
+
+    await expect.soft(workspace.saveData()).resolves.toBeUndefined()
+
+    expect.soft(http.saves).toHaveLength(2)
+    expect.soft(http.records['_Base_DictData']![0]!['exVal_4']).toBe('被拒后保留的草稿')
+    dataSet.destroy()
+  })
+  it('keeps a real DataSet preflight validation failure correctable without a false unknown state', async () => {
+    const {workspace, http, dataSet} = fixture(new DictionaryHttp(), false, 'SCENE', ['_Base_DictData.exVal_4'])
+    await workspace.load()
+    workspace.entries.updateEditingValue('E1', 'exVal_4', '')
+
+    await expect(workspace.saveData()).rejects.toThrow('DATA_VIEW_SAVE_VALIDATION')
+
+    expect(workspace.entries.hasUnconfirmedSave).toBe(false)
+    expect(workspace.requiresVerification).toBe(false)
+    expect(workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('')
+    expect(workspace.pending).toBe(true)
+    expect(http.saves).toHaveLength(0)
+    workspace.entries.updateEditingValue('E1', 'exVal_4', '修正后的值')
+    await workspace.saveData()
+    expect(http.saves).toHaveLength(1)
+    expect(http.records['_Base_DictData']![0]!['exVal_4']).toBe('修正后的值')
+    dataSet.destroy()
+  })
+  it('clears the creating state after a lost new-design receipt is confirmed', async () => {
+    const http = new DictionaryHttp()
+    http.records = {_Base_DictType: [], _Base_DictData: []}
+    const {workspace, dataSet} = fixture(http, true)
+    await workspace.load()
+    workspace.definition.updateEditingValue('D1', 'TypeName', '新字典')
+    workspace.definition.updateEditingValue('D1', 'functiondesc', '新字典用途')
+    http.failAfterWrite = true
+    await expect(workspace.saveDesign()).rejects.toThrow()
+    expect(workspace.definition.hasUnconfirmedSave).toBe(true)
+    http.failAfterWrite = false
+
+    await workspace.load(true)
+
+    expect(workspace.requiresVerification).toBe(false)
+    expect(workspace.pending).toBe(false)
+    await workspace.addEntry()
+    const id = workspace.entries.getPkKey(workspace.entries.currentRow!)!
+    workspace.entries.updateEditingValue(id, 'val', 'A')
+    workspace.entries.updateEditingValue(id, 'txt', '新条目')
+    await workspace.saveData()
+    expect(http.saves).toHaveLength(2)
+    expect(http.saves[1]!.data).toMatchObject([{TableName: '_Base_DictData'}])
+    expect(http.records['_Base_DictData']).toMatchObject([{typeid: 'D1', val: 'A', txt: '新条目'}])
+    dataSet.destroy()
+  })
   it('discards a staged added row and an edited extension without a write', async () => {
     const {workspace, http, dataSet} = fixture()
     await workspace.load(); await workspace.addEntry()
@@ -211,6 +398,29 @@ describe('Dictionary resource through formal DataViews', () => {
     await workspace.load(true)
     expect(workspace.removed).toBe(true)
     expect(workspace.pending).toBe(false)
+    expect(http.saves).toHaveLength(1)
+    expect(http.reads.map(config => (config.data as {Table: Array<{Name: string}>}).Table[0]!.Name)).toEqual([
+      '_Base_DictType', '_Base_DictData', '_Base_DictData', '_Base_DictType', '_Base_DictType', '_Base_DictData',
+    ])
+    dataSet.destroy()
+  })
+  it('allows reread after a confirmed deletion whose follow-up query failed', async () => {
+    const {workspace, http, dataSet} = fixture()
+    await workspace.load()
+    await workspace.removeDefinition()
+    http.failReadAt = http.reads.length + 1
+
+    await expect(workspace.saveDesign()).rejects.toThrow('读取失败')
+
+    expect(http.saves).toHaveLength(1)
+    expect(workspace.entries.hasUnconfirmedSave).toBe(false)
+    expect(workspace.definition.hasUnconfirmedSave).toBe(false)
+    expect(workspace.requiresVerification).toBe(false)
+    http.failReadAt = undefined
+
+    await workspace.load(true)
+
+    expect(workspace.removed).toBe(true)
     expect(http.saves).toHaveLength(1)
     dataSet.destroy()
   })

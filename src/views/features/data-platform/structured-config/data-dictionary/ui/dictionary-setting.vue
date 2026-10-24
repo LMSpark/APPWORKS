@@ -10,7 +10,7 @@ AI用途：实现专题方案设计页时保留元数据空间和已保存方案
   <template v-if="ready && workspace">
     <RendererForm :data-view-key="definitionKey" :children="definitionFields" grid-min-width="220px" :show-data-view-meta="false" />
     <RendererButton :data-view-key="definitionKey" label="保存设计" button-type="primary" :disabled="busy || uncertain" @click="save" />
-    <RendererButton :data-view-key="definitionKey" :label="uncertain ? '重读核验（放弃本地修改）' : '取消设计修改并重读'" :disabled="busy" @click="reload" />
+    <RendererButton :data-view-key="definitionKey" :label="uncertain ? '核验原提交（保留本地修改）' : '取消设计修改并重读'" :disabled="busy" @click="reload" />
     <RendererButton :data-view-key="definitionKey" label="放弃设计修改并关闭" :disabled="busy || uncertain" @click="cancel" />
     <RendererButton v-if="!create" :data-view-key="definitionKey" label="删除字典资源…" :disabled="busy || !definitionRemovable" @click="confirmDelete = true" />
     <RendererDialog :data-view-key="definitionKey" :model-value="confirmDelete" title="删除字典资源" width="480px" @update:model-value="confirmDelete = false">

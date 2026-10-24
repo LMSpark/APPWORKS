@@ -1,0 +1,1378 @@
+{
+  "date": "2026-10-24",
+  "before": {
+    "nodes": [
+      {
+        "className": "el-dialog renderer-fullscreen-dialog",
+        "clientWidth": 965,
+        "gridColumns": "none",
+        "height": 541.4375,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 1112,
+        "tag": "DIV",
+        "transform": "none",
+        "width": 965.375,
+        "widthCss": "965.375px",
+        "x": 30.8125,
+        "y": 186.59375
+      },
+      {
+        "className": "el-dialog__header show-close",
+        "clientWidth": 933,
+        "gridColumns": "none",
+        "height": 41.59375,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 933,
+        "tag": "HEADER",
+        "transform": "none",
+        "width": 933.375,
+        "widthCss": "933.375px",
+        "x": 46.8125,
+        "y": 202.59375
+      },
+      {
+        "className": "renderer-dialog-header",
+        "clientWidth": 865,
+        "gridColumns": "none",
+        "height": 25.59375,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 865,
+        "tag": "DIV",
+        "transform": "none",
+        "width": 865.375,
+        "widthCss": "865.375px",
+        "x": 46.8125,
+        "y": 202.59375
+      },
+      {
+        "className": "renderer-dialog-title",
+        "clientWidth": 96,
+        "gridColumns": "none",
+        "height": 25.59375,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 96,
+        "tag": "DIV",
+        "transform": "none",
+        "width": 96,
+        "widthCss": "96px",
+        "x": 46.8125,
+        "y": 202.59375
+      },
+      {
+        "className": "el-dialog__headerbtn",
+        "clientWidth": 48,
+        "gridColumns": "none",
+        "height": 48,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 48,
+        "tag": "BUTTON",
+        "transform": "matrix(1, 0, 0, 1, 0, -24)",
+        "width": 48,
+        "widthCss": "48px",
+        "x": 932.1875,
+        "y": 199.390625
+      },
+      {
+        "className": "el-icon el-dialog__close",
+        "clientWidth": 16,
+        "gridColumns": "none",
+        "height": 16,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 16,
+        "tag": "I",
+        "transform": "none",
+        "width": 16,
+        "widthCss": "16px",
+        "x": 948.1875,
+        "y": 213.390625
+      },
+      {
+        "className": "el-dialog__body",
+        "clientWidth": 933,
+        "gridColumns": "none",
+        "height": 419.84375,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 1096,
+        "tag": "DIV",
+        "transform": "none",
+        "width": 933.375,
+        "widthCss": "933.375px",
+        "x": 46.8125,
+        "y": 244.1875
+      },
+      {
+        "className": "renderer-dialog-body",
+        "clientWidth": 933,
+        "gridColumns": "38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px 38.8906px",
+        "height": 419.84375,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 1096,
+        "tag": "DIV",
+        "transform": "none",
+        "width": 933.375,
+        "widthCss": "933.375px",
+        "x": 46.8125,
+        "y": 244.1875
+      },
+      {
+        "className": "dictionary-data-page",
+        "clientWidth": 933,
+        "gridColumns": "1072px",
+        "height": 419.84375,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 1096,
+        "tag": "SECTION",
+        "transform": "none",
+        "width": 933.375,
+        "widthCss": "933.375px",
+        "x": 46.8125,
+        "y": 244.1875
+      },
+      {
+        "className": "renderer-table-layout renderer-table-layout--top",
+        "clientWidth": 1072,
+        "gridColumns": "none",
+        "height": 297.453125,
+        "minWidth": "auto",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 1072,
+        "tag": "DIV",
+        "transform": "none",
+        "width": 1072,
+        "widthCss": "1072px",
+        "x": 70.8125,
+        "y": 342.578125
+      },
+      {
+        "className": "el-table--fit el-table--striped el-table--enable-row-hover el-table--enable-row-transition el-table el-table--layout-fixed renderer-table-main is-scrolling-none",
+        "clientWidth": 1072,
+        "gridColumns": "none",
+        "height": 253.453125,
+        "minWidth": "0px",
+        "overflowX": "hidden",
+        "scrollLeft": 0,
+        "scrollWidth": 1072,
+        "tag": "DIV",
+        "transform": "none",
+        "width": 1072,
+        "widthCss": "1072px",
+        "x": 70.8125,
+        "y": 386.578125
+      },
+      {
+        "className": "el-table__inner-wrapper",
+        "clientWidth": 1072,
+        "gridColumns": "none",
+        "height": 253.453125,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 1072,
+        "tag": "DIV",
+        "transform": "none",
+        "width": 1072,
+        "widthCss": "1072px",
+        "x": 70.8125,
+        "y": 386.578125
+      },
+      {
+        "className": "el-dialog__footer",
+        "clientWidth": 933,
+        "gridColumns": "none",
+        "height": 48,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 933,
+        "tag": "FOOTER",
+        "transform": "none",
+        "width": 933.375,
+        "widthCss": "933.375px",
+        "x": 46.8125,
+        "y": 664.03125
+      },
+      {
+        "className": "renderer-dialog-footer",
+        "clientWidth": 933,
+        "gridColumns": "none",
+        "height": 32,
+        "minWidth": "0px",
+        "overflowX": "visible",
+        "scrollLeft": 0,
+        "scrollWidth": 933,
+        "tag": "DIV",
+        "transform": "none",
+        "width": 933.375,
+        "widthCss": "933.375px",
+        "x": 46.8125,
+        "y": 680.03125
+      }
+    ],
+    "viewport": {
+      "h": 1244,
+      "w": 1027
+    }
+  },
+  "after": [
+    {
+      "body": {
+        "clientWidth": 933,
+        "height": 336.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 933,
+        "width": 933.375,
+        "x": 46.8125,
+        "y": 244.1875
+      },
+      "buttons": [
+        {
+          "centerHit": true,
+          "clientWidth": 48,
+          "height": 48,
+          "name": "Close this dialog",
+          "scrollLeft": 0,
+          "scrollWidth": 48,
+          "width": 48,
+          "withinViewport": true,
+          "x": 932.1875,
+          "y": 199.390625
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "新增条目",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 70.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 114,
+          "height": 32,
+          "name": "删除当前条目",
+          "scrollLeft": 0,
+          "scrollWidth": 114,
+          "width": 116,
+          "withinViewport": true,
+          "x": 174.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "保存数据",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 306.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 156,
+          "height": 32,
+          "name": "取消数据修改并重读",
+          "scrollLeft": 0,
+          "scrollWidth": 156,
+          "width": 158,
+          "withinViewport": true,
+          "x": 410.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 编码",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 202.59375,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 显示文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 371.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第二文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 526.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第三文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 681.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第四文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 836.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": false,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第五文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 991.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": false,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 排序",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": false,
+          "x": 1100.09375,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 58,
+          "height": 32,
+          "name": "关闭",
+          "scrollLeft": 0,
+          "scrollWidth": 58,
+          "width": 60,
+          "withinViewport": true,
+          "x": 46.8125,
+          "y": 596.25
+        }
+      ],
+      "dialog": {
+        "clientWidth": 965,
+        "height": 457.65625,
+        "scrollLeft": 0,
+        "scrollWidth": 965,
+        "width": 965.375,
+        "x": 30.8125,
+        "y": 186.59375
+      },
+      "page": {
+        "clientWidth": 933,
+        "height": 336.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 933,
+        "width": 933.375,
+        "x": 46.8125,
+        "y": 244.1875
+      },
+      "scrollbars": [
+        {
+          "className": "el-scrollbar__wrap el-scrollbar__wrap--hidden-default",
+          "clientWidth": 885,
+          "height": 125.671875,
+          "scrollLeft": 0,
+          "scrollWidth": 1072,
+          "width": 885.375,
+          "x": 70.8125,
+          "y": 430.578125
+        }
+      ],
+      "table": {
+        "clientWidth": 885,
+        "height": 213.671875,
+        "scrollLeft": 0,
+        "scrollWidth": 885,
+        "width": 885.375,
+        "x": 70.8125,
+        "y": 342.578125
+      },
+      "viewport": {
+        "h": 1244,
+        "w": 1027
+      }
+    },
+    {
+      "body": {
+        "clientWidth": 933,
+        "height": 336.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 933,
+        "width": 933.375,
+        "x": 46.8125,
+        "y": 244.1875
+      },
+      "buttons": [
+        {
+          "centerHit": true,
+          "clientWidth": 48,
+          "height": 48,
+          "name": "Close this dialog",
+          "scrollLeft": 0,
+          "scrollWidth": 48,
+          "width": 48,
+          "withinViewport": true,
+          "x": 932.1875,
+          "y": 199.390625
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "新增条目",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 70.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 114,
+          "height": 32,
+          "name": "删除当前条目",
+          "scrollLeft": 0,
+          "scrollWidth": 114,
+          "width": 116,
+          "withinViewport": true,
+          "x": 174.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "保存数据",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 306.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 156,
+          "height": 32,
+          "name": "取消数据修改并重读",
+          "scrollLeft": 0,
+          "scrollWidth": 156,
+          "width": 158,
+          "withinViewport": true,
+          "x": 410.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": false,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 编码",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 15.59375,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 显示文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 184.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第二文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 339.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第三文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 494.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第四文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 649.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第五文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 804.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 排序",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 913.09375,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 58,
+          "height": 32,
+          "name": "关闭",
+          "scrollLeft": 0,
+          "scrollWidth": 58,
+          "width": 60,
+          "withinViewport": true,
+          "x": 46.8125,
+          "y": 596.25
+        }
+      ],
+      "dialog": {
+        "clientWidth": 965,
+        "height": 457.65625,
+        "scrollLeft": 0,
+        "scrollWidth": 965,
+        "width": 965.375,
+        "x": 30.8125,
+        "y": 186.59375
+      },
+      "page": {
+        "clientWidth": 933,
+        "height": 336.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 933,
+        "width": 933.375,
+        "x": 46.8125,
+        "y": 244.1875
+      },
+      "scrollbars": [
+        {
+          "className": "el-scrollbar__wrap el-scrollbar__wrap--hidden-default",
+          "clientWidth": 885,
+          "height": 125.671875,
+          "scrollLeft": 187,
+          "scrollWidth": 1072,
+          "width": 885.375,
+          "x": 70.8125,
+          "y": 430.578125
+        }
+      ],
+      "table": {
+        "clientWidth": 885,
+        "height": 213.671875,
+        "scrollLeft": 0,
+        "scrollWidth": 885,
+        "width": 885.375,
+        "x": 70.8125,
+        "y": 342.578125
+      },
+      "viewport": {
+        "h": 1244,
+        "w": 1027
+      }
+    },
+    {
+      "body": {
+        "clientWidth": 682,
+        "height": 336.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 682,
+        "width": 682.390625,
+        "x": 38.796875,
+        "y": 192.59375
+      },
+      "buttons": [
+        {
+          "centerHit": true,
+          "clientWidth": 48,
+          "height": 48,
+          "name": "Close this dialog",
+          "scrollLeft": 0,
+          "scrollWidth": 48,
+          "width": 48,
+          "withinViewport": true,
+          "x": 673.1875,
+          "y": 147.796875
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "新增条目",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 62.796875,
+          "y": 290.984375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 114,
+          "height": 32,
+          "name": "删除当前条目",
+          "scrollLeft": 0,
+          "scrollWidth": 114,
+          "width": 116,
+          "withinViewport": true,
+          "x": 166.796875,
+          "y": 290.984375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "保存数据",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 298.796875,
+          "y": 290.984375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 156,
+          "height": 32,
+          "name": "取消数据修改并重读",
+          "scrollLeft": 0,
+          "scrollWidth": 156,
+          "width": 158,
+          "withinViewport": true,
+          "x": 402.796875,
+          "y": 290.984375
+        },
+        {
+          "centerHit": false,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 编码",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 7.578125,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 显示文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 176.859375,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第二文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 331.859375,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第三文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 486.859375,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第四文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 641.859375,
+          "y": 351.484375
+        },
+        {
+          "centerHit": false,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第五文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": false,
+          "x": 796.859375,
+          "y": 351.484375
+        },
+        {
+          "centerHit": false,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 排序",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": false,
+          "x": 905.078125,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 58,
+          "height": 32,
+          "name": "关闭",
+          "scrollLeft": 0,
+          "scrollWidth": 58,
+          "width": 60,
+          "withinViewport": true,
+          "x": 38.796875,
+          "y": 544.65625
+        }
+      ],
+      "dialog": {
+        "clientWidth": 714,
+        "height": 457.65625,
+        "scrollLeft": 0,
+        "scrollWidth": 714,
+        "width": 714.390625,
+        "x": 22.796875,
+        "y": 135
+      },
+      "page": {
+        "clientWidth": 682,
+        "height": 336.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 682,
+        "width": 682.390625,
+        "x": 38.796875,
+        "y": 192.59375
+      },
+      "scrollbars": [
+        {
+          "className": "el-scrollbar__wrap el-scrollbar__wrap--hidden-default",
+          "clientWidth": 634,
+          "height": 125.671875,
+          "scrollLeft": 187,
+          "scrollWidth": 1072,
+          "width": 634.390625,
+          "x": 62.796875,
+          "y": 378.984375
+        }
+      ],
+      "table": {
+        "clientWidth": 634,
+        "height": 213.671875,
+        "scrollLeft": 0,
+        "scrollWidth": 634,
+        "width": 634.390625,
+        "x": 62.796875,
+        "y": 290.984375
+      },
+      "viewport": {
+        "h": 900,
+        "w": 760
+      }
+    },
+    {
+      "body": {
+        "clientWidth": 1068,
+        "height": 336.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 1068,
+        "width": 1068,
+        "x": 106,
+        "y": 192.59375
+      },
+      "buttons": [
+        {
+          "centerHit": true,
+          "clientWidth": 48,
+          "height": 48,
+          "name": "Close this dialog",
+          "scrollLeft": 0,
+          "scrollWidth": 48,
+          "width": 48,
+          "withinViewport": true,
+          "x": 1126,
+          "y": 147.796875
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "新增条目",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 130,
+          "y": 290.984375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 114,
+          "height": 32,
+          "name": "删除当前条目",
+          "scrollLeft": 0,
+          "scrollWidth": 114,
+          "width": 116,
+          "withinViewport": true,
+          "x": 234,
+          "y": 290.984375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "保存数据",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 366,
+          "y": 290.984375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 156,
+          "height": 32,
+          "name": "取消数据修改并重读",
+          "scrollLeft": 0,
+          "scrollWidth": 156,
+          "width": 158,
+          "withinViewport": true,
+          "x": 470,
+          "y": 290.984375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 编码",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 209.78125,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 显示文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 379.0625,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第二文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 534.0625,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第三文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 689.0625,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第四文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 844.0625,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第五文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 999.0625,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 排序",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 1107.28125,
+          "y": 351.484375
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 58,
+          "height": 32,
+          "name": "关闭",
+          "scrollLeft": 0,
+          "scrollWidth": 58,
+          "width": 60,
+          "withinViewport": true,
+          "x": 106,
+          "y": 544.65625
+        }
+      ],
+      "dialog": {
+        "clientWidth": 1100,
+        "height": 457.65625,
+        "scrollLeft": 0,
+        "scrollWidth": 1100,
+        "width": 1100,
+        "x": 90,
+        "y": 135
+      },
+      "page": {
+        "clientWidth": 1068,
+        "height": 336.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 1068,
+        "width": 1068,
+        "x": 106,
+        "y": 192.59375
+      },
+      "scrollbars": [
+        {
+          "className": "el-scrollbar__wrap el-scrollbar__wrap--hidden-default",
+          "clientWidth": 1020,
+          "height": 125.671875,
+          "scrollLeft": 52,
+          "scrollWidth": 1072,
+          "width": 1020,
+          "x": 130,
+          "y": 378.984375
+        }
+      ],
+      "table": {
+        "clientWidth": 1020,
+        "height": 213.671875,
+        "scrollLeft": 0,
+        "scrollWidth": 1020,
+        "width": 1020,
+        "x": 130,
+        "y": 290.984375
+      },
+      "viewport": {
+        "h": 900,
+        "w": 1280
+      }
+    },
+    {
+      "body": {
+        "clientWidth": 933,
+        "height": 452.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 933,
+        "width": 933.375,
+        "x": 46.8125,
+        "y": 244.1875
+      },
+      "buttons": [
+        {
+          "centerHit": true,
+          "clientWidth": 48,
+          "height": 48,
+          "name": "Close this dialog",
+          "scrollLeft": 0,
+          "scrollWidth": 48,
+          "width": 48,
+          "withinViewport": true,
+          "x": 932.1875,
+          "y": 199.390625
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "新增条目",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 70.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 114,
+          "height": 32,
+          "name": "删除当前条目",
+          "scrollLeft": 0,
+          "scrollWidth": 114,
+          "width": 116,
+          "withinViewport": true,
+          "x": 174.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 86,
+          "height": 32,
+          "name": "保存数据",
+          "scrollLeft": 0,
+          "scrollWidth": 86,
+          "width": 88,
+          "withinViewport": true,
+          "x": 306.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 156,
+          "height": 32,
+          "name": "取消数据修改并重读",
+          "scrollLeft": 0,
+          "scrollWidth": 156,
+          "width": 158,
+          "withinViewport": true,
+          "x": 410.8125,
+          "y": 342.578125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 编码",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 150.59375,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 显示文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 319.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第二文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 474.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第三文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 629.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第四文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 784.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 第五文本",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": true,
+          "x": 939.875,
+          "y": 403.078125
+        },
+        {
+          "centerHit": false,
+          "clientWidth": 24,
+          "height": 14,
+          "name": "Sort by 排序",
+          "scrollLeft": 0,
+          "scrollWidth": 24,
+          "width": 24,
+          "withinViewport": false,
+          "x": 1048.09375,
+          "y": 403.078125
+        },
+        {
+          "centerHit": true,
+          "clientWidth": 58,
+          "height": 32,
+          "name": "关闭",
+          "scrollLeft": 0,
+          "scrollWidth": 58,
+          "width": 60,
+          "withinViewport": true,
+          "x": 46.8125,
+          "y": 712.25
+        }
+      ],
+      "dialog": {
+        "clientWidth": 965,
+        "height": 573.65625,
+        "scrollLeft": 0,
+        "scrollWidth": 965,
+        "width": 965.375,
+        "x": 30.8125,
+        "y": 186.59375
+      },
+      "page": {
+        "clientWidth": 933,
+        "height": 452.0625,
+        "scrollLeft": 0,
+        "scrollWidth": 933,
+        "width": 933.375,
+        "x": 46.8125,
+        "y": 244.1875
+      },
+      "scrollbars": [
+        {
+          "className": "el-scrollbar__wrap el-scrollbar__wrap--hidden-default",
+          "clientWidth": 885,
+          "height": 125.671875,
+          "scrollLeft": 52,
+          "scrollWidth": 1072,
+          "width": 885.375,
+          "x": 70.8125,
+          "y": 430.578125
+        }
+      ],
+      "table": {
+        "clientWidth": 885,
+        "height": 213.671875,
+        "scrollLeft": 0,
+        "scrollWidth": 885,
+        "width": 885.375,
+        "x": 70.8125,
+        "y": 342.578125
+      },
+      "viewport": {
+        "h": 1244,
+        "w": 1027
+      }
+    }
+  ],
+  "network": {
+    "from": 56920,
+    "to": 57015,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "22092.10360",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.10361",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.10362",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.10363",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.10364",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.10365",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 49,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.10366",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.10367",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictData",
+        "rows": 3,
+        "code": 200,
+        "httpStatus": 200
+      }
+    ],
+    "failures": 0
+  },
+  "businessHash": "2357420c9c6ee899d582410685dfac7a91d829777ac0b52a97771aaabcc2c3c8",
+  "equalsBaseline": true,
+  "nativeHorizontalScroll": {
+    "before": 0,
+    "after": 187,
+    "lastColumnCenterHit": true
+  },
+  "scope": "Layout at default/760/1280 and fresh read after CSS-only fix; native scroll; no writes"
+}

@@ -1,0 +1,199 @@
+{
+  "date": "2026-10-24",
+  "scope": "Live directory-host entry, standard toolbar, local edit close guard, cancel and independent reopen; no save/write fault injection",
+  "dictionaryId": "1F475ECA5D144E3B8FC9F04FF980B344",
+  "steps": [
+    "Open data maintenance from formal catalog selection",
+    "Select html; edit exVal_4 locally to B1_DATA_CANCEL_ONLY_20261024",
+    "Footer close disabled; header close blocked and draft retained",
+    "Cancel data changes and reread",
+    "Close workspace fully; reopen through catalog; select html and verify empty exVal_4"
+  ],
+  "network": {
+    "from": 47554,
+    "to": 47779,
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "22092.8890",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8891",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8892",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8893",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8894",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8895",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 49,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8896",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8897",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictData",
+        "rows": 3,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8898",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8899",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictData",
+        "rows": 3,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8900",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataSet",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8901",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8902",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Relation",
+        "rows": 0,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8903",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_DataModel_Field",
+        "rows": 47,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8904",
+        "path": "/api/DataOperation/GetData",
+        "table": "View_TblList",
+        "rows": 2,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8905",
+        "path": "/api/DataOperation/GetData",
+        "table": "Base_TblField",
+        "rows": 49,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8906",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictType",
+        "rows": 1,
+        "code": 200,
+        "httpStatus": 200
+      },
+      {
+        "requestId": "22092.8907",
+        "path": "/api/DataOperation/GetData",
+        "table": "_Base_DictData",
+        "rows": 3,
+        "code": 200,
+        "httpStatus": 200
+      }
+    ],
+    "failures": 0
+  },
+  "businessFields": {
+    "definition": [
+      "rowid",
+      "AppId",
+      "TypeName",
+      "dictionaryType",
+      "functiondesc",
+      "val",
+      "txt",
+      "secondValue",
+      "thirdValue",
+      "fourthvalue",
+      "fiveValue"
+    ],
+    "entries": [
+      "rowid",
+      "typeid",
+      "ordIdx",
+      "val",
+      "txt",
+      "exVal_1",
+      "exVal_2",
+      "exVal_3",
+      "exVal_4"
+    ]
+  },
+  "businessHashBefore": "2357420c9c6ee899d582410685dfac7a91d829777ac0b52a97771aaabcc2c3c8",
+  "businessHashAfter": "2357420c9c6ee899d582410685dfac7a91d829777ac0b52a97771aaabcc2c3c8",
+  "businessFieldsEqual": true,
+  "writes": 0,
+  "screenshots": [
+    "b1-data-draft-close-protected.png",
+    "b1-data-reopened.png"
+  ]
+}

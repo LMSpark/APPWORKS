@@ -8,8 +8,9 @@ import {LowcodeDictionary} from '@/lowcode/resources/dictionary/lowcode-dictiona
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {Spark, registerAllRenderers, RendererTable, RendererFilter} from '@spark-appworks/spark-component'
+import {Spark, registerAllRenderers, RendererForm, RendererTable, RendererFilter} from '@spark-appworks/spark-component'
 import DictionaryCatalog from '@/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue'
+import DictionaryData from '@/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue'
 import {DictionaryHttp, fixture} from '../../../../packages/spark-lowcode-api/src/platform/resources/dictionary/tests/dictionary-workspace.fixture'
 import {buildOptionSourceFromView} from '../../../../packages/spark-component/src/components/fields/options/option-source'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
@@ -18,7 +19,7 @@ import {defineComponent, h} from 'vue'
 import {RouterView} from 'vue-router'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
-let http: CatalogHttp, runtime: DataSpaceRuntimeApi
+let http: CatalogHttp, runtime: DataSpaceRuntimeApi, dictionaryHttp: DictionaryHttp
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
@@ -45,6 +46,9 @@ class CatalogHttp extends HttpClientBase {
   hideStructureName = false
   unresolvedCreator = false
   userRows = [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}]
+  dictionaryRows: Array<Record<string, unknown>> = [
+    {rowid: 'D1', AppId: 'APP', TypeName: '配色', createuser: 'U-ROW', StructureTypeID: 'S1'},
+  ]
   pauseNextUsers?: () => Promise<void>
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
@@ -54,7 +58,8 @@ class CatalogHttp extends HttpClientBase {
       const pause = this.pauseNextUsers; delete this.pauseNextUsers; await pause()
     }
     if (name === 'Base_UserInfo' && this.failUsers) throw new Error('用户目录读取失败')
-    let rows: Record<string, unknown>[] = name === '_Base_DictType' ? [{rowid: 'D1', AppId: 'APP', TypeName: '配色', createuser: this.unresolvedCreator ? 'OLD-ID' : 'U-ROW', StructureTypeID: 'S1'}]
+    let rows: Record<string, unknown>[] = name === '_Base_DictType'
+      ? this.dictionaryRows.map(row => ({...row, createuser: this.unresolvedCreator ? 'OLD-ID' : row['createuser']}))
       : name === 'Base_UserInfo' ? this.userRows
       : [{rowid: 'S1', Mrowid: '000000', Name: '基础'}]
     if (name === 'Base_UserInfo' && body.Table[0]?.Filter) {
@@ -70,17 +75,34 @@ class CatalogHttp extends HttpClientBase {
       status: 200, statusText: 'OK', headers: {}}
   }
 }
+class CatalogDictionaryHttp extends DictionaryHttp {
+  protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+    const response = await super.executeRequest(config)
+    if (config.url !== '/api/DataOperation/GetData') return response
+    const body = config.data as {Table?: Array<{Filter?: string}>}
+    const encodedFilter = body.Table?.[0]?.Filter
+    if (!encodedFilter) return response
+    const payload = response.data as {Result?: {data?: {Items?: Record<string, unknown>[]; Count?: number}}}
+    const resultData = payload.Result?.data
+    if (!resultData?.Items) return response
+    const filter = new DataViewFilterLocal(DataViewFilterCodec.decode(encodedFilter))
+    resultData.Items = resultData.Items.filter(row => filter.matches(row))
+    resultData.Count = resultData.Items.length
+    return response
+  }
+}
 const sets: DataSet[] = []
 const wrappers: VueWrapper[] = []
 const originalStubs = {...config.global.stubs}
 beforeEach(() => {
   http = new CatalogHttp()
+  dictionaryHttp = new CatalogDictionaryHttp()
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
   service.readSpaceDefinition.mockResolvedValue({dataSpaceId: 'CATALOG', name: '字典目录', raw: {}})
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(models.find(m => m.metaName === metaName)))
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
   vi.spyOn(LowcodeDictionary, 'loadEditor').mockImplementation(async () => {
-    const {dataSet} = fixture(new DictionaryHttp(), false, LowcodeDictionary.editorScenarioId)
+    const {dataSet} = fixture(dictionaryHttp, false, LowcodeDictionary.editorScenarioId)
     sets.push(dataSet)
     return {dataSet, applicationId: 'APP'}
   })
@@ -362,33 +384,143 @@ describe('dictionary catalog formal view assembly', () => {
     expect(wrapper.text()).toContain('编码类型')
   })
 
-  it('navigates to dictionary data page with dictionaryId under tenant scope', async () => {
+  it('opens the selected dictionary data workspace from its catalog host', async () => {
     const {wrapper, router} = await openCatalog('/t/ENT/PROJ/catalog')
-    const push = vi.spyOn(router, 'push')
     const table = wrapper.findComponent(RendererTable)
     await table.get('.el-table__body .el-table__row').trigger('click')
     await flushPromises()
     const openData = wrapper.findAll('button').find(button => button.text() === '打开数据维护')!
     await openData.trigger('click')
     await flushPromises()
-    expect(push).toHaveBeenCalledWith({
-      path: '/t/ENT/PROJ/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page',
-      query: {dictionaryId: 'D1'},
-    })
+    const dataPage = wrapper.findComponent(DictionaryData)
+    expect(dataPage.exists()).toBe(true)
+    expect(router.currentRoute.value.path).toBe('/t/ENT/PROJ/catalog')
+    expect(router.currentRoute.value.query).toEqual({})
+    expect(dataPage.text()).toContain('当前方案：配色（D1）')
+    expect(dataPage.findComponent(RendererTable).text()).toContain('白')
+    for (const label of ['新增条目', '删除当前条目', '保存数据', '取消数据修改并重读']) {
+      expect(dataPage.findAll('button').some(button => button.text() === label)).toBe(true)
+    }
   })
 
-  it('navigates to dictionary data page without tenant prefix on catalog route', async () => {
-    const {wrapper, router} = await openCatalog('/catalog')
-    const push = vi.spyOn(router, 'push')
-    const table = wrapper.findComponent(RendererTable)
+  it('keeps the data workspace open while dirty, then closes after ordinary cancel rereads', async () => {
+    const {wrapper} = await openCatalog()
+    const catalogTable = wrapper.findComponent(RendererTable)
+    await catalogTable.get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click')
+    await flushPromises()
+    const dataPage = wrapper.findComponent(DictionaryData)
+    const table = dataPage.findComponent(RendererTable)
     await table.get('.el-table__body .el-table__row').trigger('click')
     await flushPromises()
-    const openData = wrapper.findAll('button').find(button => button.text() === '打开数据维护')!
-    await openData.trigger('click')
+    await dataPage.findComponent(RendererForm).find('input').setValue('未提交草稿')
     await flushPromises()
-    expect(push).toHaveBeenCalledWith({
-      path: '/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page',
-      query: {dictionaryId: 'D1'},
-    })
+    const close = () => wrapper.findAll('button').find(button => button.text() === '关闭')!
+    expect(close().attributes('disabled')).toBeDefined()
+    expect(dataPage.findAll('button').some(button => button.text() === '保存数据')).toBe(true)
+    await dataPage.findAll('button').find(button => button.text() === '取消数据修改并重读')!.trigger('click')
+    await flushPromises()
+    expect(close().attributes('disabled')).toBeUndefined()
+    await close().trigger('click')
+    await flushPromises()
+    expect(wrapper.findComponent(DictionaryData).exists()).toBe(false)
+    expect(dictionaryHttp.saves).toHaveLength(0)
+  })
+
+  it('keeps the data workspace open when a save receipt is unknown', async () => {
+    const {wrapper} = await openCatalog()
+    const catalogTable = wrapper.findComponent(RendererTable)
+    await catalogTable.get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click')
+    await flushPromises()
+    const dataPage = wrapper.findComponent(DictionaryData)
+    await dataPage.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    await dataPage.findComponent(RendererForm).find('input').setValue('回执未知修改')
+    await flushPromises()
+    dictionaryHttp.afterResponse = async request => {
+      if (request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') throw new Error('回执中断')
+    }
+    await dataPage.findAll('button').find(button => button.text() === '保存数据')!.trigger('click')
+    await flushPromises()
+    expect(dataPage.findAll('button').some(button => button.text() === '核验原提交（保留本地修改）')).toBe(true)
+    expect(wrapper.findAll('button').find(button => button.text() === '关闭')!.attributes('disabled')).toBeDefined()
+    expect(dictionaryHttp.saves).toHaveLength(1)
+  })
+
+  it('saves D1 from the catalog host, closes its runtime, and opens an isolated D2 workspace', async () => {
+    http.dictionaryRows.push({rowid: 'D2', AppId: 'APP', TypeName: '双目标', createuser: 'U-ROW', StructureTypeID: 'S1'})
+    dictionaryHttp.records['_Base_DictType']!.push({rowid: 'D2', AppId: 'APP', TypeName: '双目标', dictionaryType: '0',
+      val: '代码', txt: '名称', secondValue: '色号', thirdValue: '类别', fourthvalue: 'D2用途', fiveValue: 'D2说明', functiondesc: ''})
+    dictionaryHttp.records['_Base_DictData']!.push({rowid: 'E2', typeid: 'D2', ordIdx: 1, val: '20', txt: '黑',
+      exVal_1: '#000', exVal_2: '基础', exVal_3: '', exVal_4: 'D2原值'})
+    const {wrapper, router} = await openCatalog('/t/ENT/PROJ/catalog')
+    const catalogTable = wrapper.findComponent(RendererTable)
+    const catalogRows = catalogTable.findAll('.el-table__body .el-table__row')
+    expect(catalogRows).toHaveLength(2)
+
+    await catalogRows[0]!.trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click')
+    await flushPromises()
+    const d1Page = wrapper.findComponent(DictionaryData)
+    expect(d1Page.text()).toContain('当前方案：配色（D1）')
+    await d1Page.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    const d1Note = d1Page.findComponent(RendererForm).findAll('.el-form-item')
+      .find(item => item.find('label').text() === '说明')!.find('input')
+    await d1Note.setValue('D1目录入口保存')
+    await flushPromises()
+    await d1Page.findAll('button').find(button => button.text() === '保存数据')!.trigger('click')
+    await flushPromises()
+
+    expect(dictionaryHttp.saves).toHaveLength(1)
+    expect(dictionaryHttp.saves[0]!.data).toMatchObject([{TableName: '_Base_DictData', CrudModel: {
+      Changed: [expect.objectContaining({rowid: 'E1', exVal_4: 'D1目录入口保存'})],
+    }}])
+    expect(dictionaryHttp.saves[0]!.data).toHaveLength(1)
+    expect(dictionaryHttp.records['_Base_DictData']![0]!['exVal_4']).toBe('D1目录入口保存')
+
+    const d1RuntimeDataSet = sets.at(-1)!
+    await wrapper.findAll('button').find(button => button.text() === '关闭')!.trigger('click')
+    await flushPromises()
+    expect(wrapper.findComponent(DictionaryData).exists()).toBe(false)
+    expect(d1RuntimeDataSet.destroyed).toBe(true)
+
+    await catalogTable.findAll('.el-table__body .el-table__row')[1]!.trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '打开数据维护')!.trigger('click')
+    await flushPromises()
+    const d2Page = wrapper.findComponent(DictionaryData)
+    const d2RuntimeDataSet = sets.at(-1)!
+    expect(d2Page.exists()).toBe(true)
+    expect(d2RuntimeDataSet).not.toBe(d1RuntimeDataSet)
+    expect(d1RuntimeDataSet.destroyed).toBe(true)
+    expect(d2RuntimeDataSet.destroyed).toBe(false)
+    expect(d2Page.text()).toContain('当前方案：双目标（D2）')
+    expect(d2Page.text()).toContain('D2用途')
+    expect(d2Page.findComponent(RendererTable).text()).toContain('黑')
+    expect(router.currentRoute.value.path).toBe('/t/ENT/PROJ/catalog')
+    expect(router.currentRoute.value.query).toEqual({})
+
+    await d2Page.findComponent(RendererTable).get('.el-table__body .el-table__row').trigger('click')
+    await flushPromises()
+    const d2Note = d2Page.findComponent(RendererForm).findAll('.el-form-item')
+      .find(item => item.find('label').text() === 'D2用途')!.find('input')
+    await d2Note.setValue('D2目录入口保存')
+    await flushPromises()
+    await d2Page.findAll('button').find(button => button.text() === '保存数据')!.trigger('click')
+    await flushPromises()
+
+    expect(dictionaryHttp.saves).toHaveLength(2)
+    expect(dictionaryHttp.saves[1]!.data).toMatchObject([{TableName: '_Base_DictData', CrudModel: {
+      Changed: [expect.objectContaining({rowid: 'E2', exVal_3: 'D2目录入口保存'})],
+    }}])
+    expect(dictionaryHttp.saves[1]!.data).toHaveLength(1)
+    expect(dictionaryHttp.records['_Base_DictData']![0]!['exVal_4']).toBe('D1目录入口保存')
+    expect(dictionaryHttp.records['_Base_DictData']![1]!['exVal_3']).toBe('D2目录入口保存')
+    expect(dictionaryHttp.records['_Base_DictData']![1]!['exVal_4']).toBe('D2原值')
   })
 })

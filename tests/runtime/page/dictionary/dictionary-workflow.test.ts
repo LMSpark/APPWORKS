@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
-import {createMemoryHistory, createRouter, RouterView, type LocationQueryRaw} from 'vue-router'
+import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h, ref, type Ref} from 'vue'
 import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererButton, RendererForm, RendererTable} from '@spark-appworks/spark-component'
@@ -14,7 +14,7 @@ import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dyn
 vi.mock('@/lowcode/lowcode-runtime', () => ({lowcodeApi: {}, lowcodeHttp: {}}))
 const originalStubs = {...config.global.stubs}
 const sets: DataSet[] = [], wrappers: VueWrapper[] = []
-const hosts = new WeakMap<VueWrapper, {dynamic: ReturnType<typeof createDynamicRouter>; designId: Ref<string>}>()
+const hosts = new WeakMap<VueWrapper, {dynamic: ReturnType<typeof createDynamicRouter>; designId: Ref<string>; dataId: Ref<string | undefined>}>()
 let http: DictionaryHttp
 beforeEach(() => {
   http = new DictionaryHttp()
@@ -34,19 +34,21 @@ afterEach(() => {
   sets.splice(0).forEach(ds => ds.destroy())
   vi.restoreAllMocks(); vi.unstubAllGlobals(); config.global.stubs = originalStubs
 })
-async function open(kind: 'design' | 'data', create = false, query: LocationQueryRaw = {dictionaryId: 'D1'}) {
+async function open(kind: 'design' | 'data', create = false, dictionaryId: string | undefined = 'D1') {
   const designId = ref('D1')
-  const page = kind === 'design' ? defineComponent({setup: () => () => h(DictionaryDesign, {dictionaryId: designId.value, create})}) : DictionaryData
+  const dataId = ref(dictionaryId)
+  const page = kind === 'design' ? defineComponent({setup: () => () => h(DictionaryDesign, {dictionaryId: designId.value, create})})
+    : defineComponent({setup: () => () => h(DictionaryData, {dictionaryId: dataId.value})})
   const router = createRouter({history: createMemoryHistory(), routes: []})
   const dynamic = createDynamicRouter({router, pageComponent: page, componentMap: {'/dictionary': page},
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header', items: [
       {id: 'dictionary', title: '字典', path: '/dictionary', itemKind: 'system-page', blueprintScenarioId: LowcodeDictionary.editorScenarioId},
     ]})})
   await dynamic.registerRoutes()
-  await router.push({path: '/dictionary', query}); await router.isReady()
+  await router.push('/dictionary'); await router.isReady()
   const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper)
-  hosts.set(wrapper, {dynamic, designId})
+  hosts.set(wrapper, {dynamic, designId, dataId})
   await flushPromises()
   return wrapper
 }
@@ -96,7 +98,7 @@ describe('Dictionary independent design and data pages', () => {
     const stale = sets[0]!
     if (action === 'target-switch') {
       http = secondDictionary()
-      await data.vm.$router.push({path: '/dictionary', query: {dictionaryId: 'D2'}}); await flushPromises()
+      hosts.get(data)!.dataId.value = 'D2'; await flushPromises()
       expect(data.findComponent(RendererTable).text()).toContain('新目标数据')
     } else data.unmount()
     gate.release(); await flushPromises()
@@ -140,7 +142,7 @@ describe('Dictionary independent design and data pages', () => {
     const {dynamic} = hosts.get(data)!
     expect(() => dynamic.assertPageRuntimesClean()).toThrow('未保存')
     expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
-    await button(data, '重读核验（放弃本地修改）').trigger('click'); await flushPromises()
+    await button(data, '核验原提交（保留本地修改）').trigger('click'); await flushPromises()
     expect(() => dynamic.assertPageRuntimesClean()).not.toThrow()
     expect(data.findComponent(RendererTable).text()).toContain('已写但未知')
     expect(http.saves).toHaveLength(1)
@@ -213,7 +215,7 @@ describe('Dictionary independent design and data pages', () => {
     http = new DictionaryHttp()
     Object.assign(http.records['_Base_DictType']![0]!, {rowid: 'D2', fiveValue: '新目标标题'})
     Object.assign(http.records['_Base_DictData']![0]!, {rowid: 'E2', typeid: 'D2', exVal_4: '新目标数据'})
-    await data.vm.$router.push({path: '/dictionary', query: {dictionaryId: 'D2'}}); await flushPromises()
+    hosts.get(data)!.dataId.value = 'D2'; await flushPromises()
     expect(data.findComponent(RendererTable).text()).toContain('新目标数据')
     release({dataSet: stale, applicationId: 'APP'}); await flushPromises()
     expect(stale.destroyed).toBe(true)
@@ -238,8 +240,8 @@ describe('Dictionary independent design and data pages', () => {
     expect(http.reads).toHaveLength(0)
     expect(http.saves).toHaveLength(0)
   })
-  it.each([{}, {dictionaryId: ['D1', 'D2']}])('rejects absent or repeated resource identity before loading: %j', async query => {
-    const data = await open('data', false, query)
+  it.each(['', '   '])('rejects missing or blank resource identity before loading: %j', async dictionaryId => {
+    const data = await open('data', false, dictionaryId)
     expect(data.get('[role="alert"]').text()).toContain('唯一字典')
     expect(LowcodeDictionary.loadEditor).not.toHaveBeenCalled()
     expect(http.reads).toHaveLength(0)
@@ -260,7 +262,7 @@ describe('Dictionary independent design and data pages', () => {
     http = new DictionaryHttp()
     Object.assign(http.records['_Base_DictType']![0]!, {rowid: 'D2', fiveValue: '新目标标题'})
     Object.assign(http.records['_Base_DictData']![0]!, {rowid: 'E2', typeid: 'D2', exVal_4: '新目标数据'})
-    await data.vm.$router.push({path: '/dictionary', query: {dictionaryId: 'D2'}}); await flushPromises()
+    hosts.get(data)!.dataId.value = 'D2'; await flushPromises()
     expect(data.findComponent(RendererTable).text()).toContain('新目标标题')
     expect(data.findComponent(RendererTable).text()).toContain('新目标数据')
     await selectEntry(data)
@@ -370,9 +372,65 @@ describe('Dictionary independent design and data pages', () => {
     await button(data, '保存数据').trigger('click'); await flushPromises()
     expect(data.get('[role="alert"]').text()).toBeTruthy()
     expect(button(data, '保存数据').attributes('disabled')).toBeDefined()
-    await button(data, '重读核验（放弃本地修改）').trigger('click'); await flushPromises()
+    await button(data, '核验原提交（保留本地修改）').trigger('click'); await flushPromises()
     expect(data.findComponent(RendererTable).text()).toContain('回执中断的数据')
     expect(button(data, '保存数据').attributes('disabled')).toBeUndefined()
+    expect(http.saves).toHaveLength(1)
+  })
+  it('keeps a not-applied draft through verification and labels cancellation separately', async () => {
+    const data = await open('data')
+    await selectEntry(data)
+    const note = field(data, '说明').get('input')
+    await note.setValue('请求未到达的数据')
+    http.failBeforeWrite = true
+    await button(data, '保存数据').trigger('click'); await flushPromises()
+    expect(button(data, '核验原提交（保留本地修改）').exists()).toBe(true)
+    http.failBeforeWrite = false
+
+    await button(data, '核验原提交（保留本地修改）').trigger('click'); await flushPromises()
+
+    expect(data.get('[role="alert"]').text()).toContain('原提交未生效')
+    expect(data.text()).toContain('请求未到达的数据')
+    expect(button(data, '取消数据修改并重读').exists()).toBe(true)
+    expect(data.findAll('button').some(node => node.text() === '核验原提交（保留本地修改）')).toBe(false)
+    expect(http.saves).toHaveLength(1)
+
+    await button(data, '取消数据修改并重读').trigger('click'); await flushPromises()
+
+    expect(data.findComponent(RendererTable).text()).not.toContain('请求未到达的数据')
+    expect(http.saves).toHaveLength(1)
+  })
+  it.each(['design', 'data'] as const)('%s page labels a formal business rejection as an editable draft', async kind => {
+    const page = await open(kind)
+    let label: string
+    if (kind === 'design') {
+      label = '第五文本标题'
+      await field(page, label).get('input').setValue('业务拒绝后的设计草稿')
+    } else {
+      await selectEntry(page)
+      label = '说明'
+      await field(page, label).get('input').setValue('业务拒绝后的数据草稿')
+    }
+    const draft = kind === 'design' ? '业务拒绝后的设计草稿' : '业务拒绝后的数据草稿'
+    http.rejectWrite = {code: 400, message: '服务端明确拒绝字典修改'}
+
+    await button(page, kind === 'design' ? '保存设计' : '保存数据').trigger('click'); await flushPromises()
+
+    expect(page.get('[role="alert"]').text()).toContain('服务端明确拒绝字典修改')
+    if (kind === 'design') expect((field(page, label).get('input').element as HTMLInputElement).value).toBe(draft)
+    else expect(page.text()).toContain(draft)
+    const buttons = page.findAll('button')
+    const verify = buttons.find(node => node.text() === '核验原提交（保留本地修改）')
+    const cancelLabel = kind === 'design' ? '取消设计修改并重读' : '取消数据修改并重读'
+    const cancel = buttons.find(node => node.text() === cancelLabel)
+    expect.soft(verify).toBeUndefined()
+    expect.soft(cancel).toBeDefined()
+    const availableAction = verify ?? cancel
+    if (!availableAction) throw new Error('明确拒绝后没有可见的数据恢复或取消入口')
+
+    await availableAction.trigger('click'); await flushPromises()
+
+    expect(page.text()).not.toContain(draft)
     expect(http.saves).toHaveLength(1)
   })
   it('creates a design before entering data maintenance and persists a new six-field entry', async () => {

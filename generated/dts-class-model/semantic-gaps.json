@@ -1,5 +1,5 @@
 {
-  "gapCount": 3103,
+  "gapCount": 3105,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -27336,7 +27336,7 @@
       "chainBreak": "ModelRenameFilePlan.tables 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 11,
+      "declarationLine": 12,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27348,7 +27348,7 @@
       "chainBreak": "ModelRenameFilePlan.tools 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 12,
+      "declarationLine": 13,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27360,7 +27360,7 @@
       "chainBreak": "ModelRenameFilePlan.references 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27372,7 +27372,7 @@
       "chainBreak": "ModelRenameFilePlan.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 14,
+      "declarationLine": 15,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27384,7 +27384,7 @@
       "chainBreak": "ModelRenameFilePlan.complete 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 15,
+      "declarationLine": 16,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27395,7 +27395,7 @@
       "chainBreak": "ModelRenameStatus 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 17,
+      "declarationLine": 18,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -27406,7 +27406,7 @@
       "chainBreak": "ModelRenameFlow 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 18,
+      "declarationLine": 19,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -27418,7 +27418,7 @@
       "chainBreak": "ModelRenameFlow.status 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 19,
+      "declarationLine": 20,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27430,7 +27430,7 @@
       "chainBreak": "ModelRenameFlow.changes 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 20,
+      "declarationLine": 21,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27442,7 +27442,7 @@
       "chainBreak": "ModelRenameFlow.baseline 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 21,
+      "declarationLine": 22,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27454,7 +27454,7 @@
       "chainBreak": "ModelRenameFlow.name 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 22,
+      "declarationLine": 23,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27466,19 +27466,31 @@
       "chainBreak": "ModelRenameFlow.file 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 23,
+      "declarationLine": 24,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
     {
       "kind": "attribute",
       "className": "ModelRenameFlow",
-      "memberName": "pendingRows",
+      "memberName": "capture",
       "reason": "missing-jsdoc",
-      "chainBreak": "ModelRenameFlow.pendingRows 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "ModelRenameFlow.capture 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 24,
+      "declarationLine": 25,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ModelRenameFlow",
+      "memberName": "captureSignatures",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ModelRenameFlow.captureSignatures 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "declarationLine": 26,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27490,7 +27502,7 @@
       "chainBreak": "ModelRenameFlow.verification 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 25,
+      "declarationLine": 31,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27502,7 +27514,7 @@
       "chainBreak": "ModelRenameFlow.verified 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 31,
+      "declarationLine": 37,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27513,7 +27525,7 @@
       "chainBreak": "ModelRenameLifecycle 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 33,
+      "declarationLine": 39,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -27525,7 +27537,7 @@
       "chainBreak": "ModelRenameLifecycle.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 34,
+      "declarationLine": 40,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27537,7 +27549,7 @@
       "chainBreak": "ModelRenameLifecycle.onDispatch 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 35,
+      "declarationLine": 41,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27549,7 +27561,7 @@
       "chainBreak": "ModelRenameLifecycle.completed 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 36,
+      "declarationLine": 42,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27561,7 +27573,7 @@
       "chainBreak": "ModelRenameLifecycle.prepareFile 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 37,
+      "declarationLine": 43,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27572,7 +27584,7 @@
       "chainBreak": "ModelRenameHost 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 39,
+      "declarationLine": 45,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -27584,7 +27596,7 @@
       "chainBreak": "ModelRenameHost.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 40,
+      "declarationLine": 46,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27596,7 +27608,7 @@
       "chainBreak": "ModelRenameHost.targetId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 41,
+      "declarationLine": 47,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27608,7 +27620,7 @@
       "chainBreak": "ModelRenameHost.modelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 42,
+      "declarationLine": 48,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27620,7 +27632,7 @@
       "chainBreak": "ModelRenameHost.lifecycle 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 43,
+      "declarationLine": 49,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27632,7 +27644,7 @@
       "chainBreak": "ModelRenameHost.input 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 44,
+      "declarationLine": 50,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27644,7 +27656,7 @@
       "chainBreak": "ModelRenameHost.changesView 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 45,
+      "declarationLine": 51,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27656,7 +27668,7 @@
       "chainBreak": "ModelRenameHost.dependencies 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 46,
+      "declarationLine": 52,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27668,7 +27680,7 @@
       "chainBreak": "ModelRenameHost.views 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 47,
+      "declarationLine": 53,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27680,7 +27692,7 @@
       "chainBreak": "ModelRenameHost.flow 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 48,
+      "declarationLine": 54,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27691,7 +27703,7 @@
       "chainBreak": "ModelRenameHostInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 50,
+      "declarationLine": 56,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -27703,7 +27715,7 @@
       "chainBreak": "ModelRenameHostInput.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 51,
+      "declarationLine": 57,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27715,7 +27727,7 @@
       "chainBreak": "ModelRenameHostInput.targetId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 52,
+      "declarationLine": 58,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27727,7 +27739,7 @@
       "chainBreak": "ModelRenameHostInput.modelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 53,
+      "declarationLine": 59,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27739,7 +27751,7 @@
       "chainBreak": "ModelRenameHostInput.lifecycle 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 54,
+      "declarationLine": 60,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27750,7 +27762,7 @@
       "chainBreak": "ModelRenameHandle 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 82,
+      "declarationLine": 92,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -27762,7 +27774,7 @@
       "chainBreak": "ModelRenameHandle.input 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 83,
+      "declarationLine": 93,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27774,7 +27786,19 @@
       "chainBreak": "ModelRenameHandle.changesView 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 84,
+      "declarationLine": 94,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ModelRenameHandle",
+      "memberName": "targetViews",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ModelRenameHandle.targetViews 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
+      "declarationLine": 95,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27786,7 +27810,7 @@
       "chainBreak": "ModelRenameHandle.getState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 85,
+      "declarationLine": 96,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27798,7 +27822,7 @@
       "chainBreak": "ModelRenameHandle.preview 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 86,
+      "declarationLine": 97,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27810,7 +27834,7 @@
       "chainBreak": "ModelRenameHandle.cancel 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 87,
+      "declarationLine": 98,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27822,7 +27846,7 @@
       "chainBreak": "ModelRenameHandle.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 88,
+      "declarationLine": 99,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27834,19 +27858,19 @@
       "chainBreak": "ModelRenameHandle.verify 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 89,
+      "declarationLine": 100,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
     {
       "kind": "method",
       "className": "ModelRenameHandle",
-      "memberName": "acceptCurrent",
+      "memberName": "abandonNotApplied",
       "reason": "missing-jsdoc",
-      "chainBreak": "ModelRenameHandle.acceptCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "chainBreak": "ModelRenameHandle.abandonNotApplied 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 90,
+      "declarationLine": 103,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },
@@ -27858,7 +27882,7 @@
       "chainBreak": "ModelRenameHandle.release 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
-      "declarationLine": 91,
+      "declarationLine": 104,
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "declarationKind": "interface"
     },

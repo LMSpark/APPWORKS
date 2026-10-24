@@ -111,9 +111,38 @@
           ],
           "title": "ModelRenameFilePlan"
         },
-        "pendingRows": {
-          "type": "object",
-          "title": "Map<string, string>"
+        "capture": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "DataSpaceDefinitionCaptureBatch"
+        },
+        "captureSignatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "view": {
+                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "signature": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "view",
+              "ids",
+              "signature"
+            ],
+            "additionalProperties": false
+          }
         },
         "verification": {
           "type": "array",
@@ -152,7 +181,8 @@
         "baseline",
         "name",
         "file",
-        "pendingRows",
+        "capture",
+        "captureSignatures",
         "verification",
         "verified"
       ],
@@ -284,6 +314,12 @@
         },
         "changesView": {
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "targetViews": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
         }
       },
       "additionalProperties": false,
@@ -323,19 +359,29 @@
         },
         "method.verify.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "options": {
+              "type": "object",
+              "properties": {
+                "discardLocalChanges": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
           "additionalProperties": false
         },
         "method.verify.return": {
           "type": "object",
           "title": "Promise<boolean>"
         },
-        "method.acceptCurrent.params": {
+        "method.abandonNotApplied.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.acceptCurrent.return": true,
+        "method.abandonNotApplied.return": true,
         "method.release.params": {
           "type": "object",
           "properties": {},
@@ -345,7 +391,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-23T03:13:28.363Z",
+  "generatedAt": "2026-10-24T05:10:03.611Z",
   "models": {
     "ModelRenameFilePlan": {
       "name": "ModelRenameFilePlan",
@@ -467,7 +513,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    status: ModelRenameStatus;\n    changes: ModelNameChange[];\n    baseline: string;\n    name: string;\n    file: ModelRenameFilePlan | null;\n    pendingRows: Map<string, string>;\n    verification: Array<{\n        table: string;\n        id: string;\n        property: string;\n        result: string;\n    }>;\n    verified: string;\n}",
+        "declarationTypeText": "{\n    status: ModelRenameStatus;\n    changes: ModelNameChange[];\n    baseline: string;\n    name: string;\n    file: ModelRenameFilePlan | null;\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureSignatures: Array<{\n        view: DataView;\n        ids: string[];\n        signature: string;\n    }> | null;\n    verification: Array<{\n        table: string;\n        id: string;\n        property: string;\n        result: string;\n    }>;\n    verified: string;\n}",
         "members": {
           "attributes": [
             {
@@ -496,7 +542,12 @@
               "writable": true
             },
             {
-              "name": "pendingRows",
+              "name": "capture",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "captureSignatures",
               "readable": true,
               "writable": true
             },
@@ -688,7 +739,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    readonly input: DataView;\n    readonly changesView: DataView;\n    getState(): ReturnType<typeof modelRenameGetState>;\n    preview(): Promise<void>;\n    cancel(): void;\n    save(): Promise<void>;\n    verify(): Promise<boolean>;\n    acceptCurrent(): void;\n    release(): void;\n}",
+        "declarationTypeText": "{\n    readonly input: DataView;\n    readonly changesView: DataView;\n    readonly targetViews: readonly DataView[];\n    getState(): ReturnType<typeof modelRenameGetState>;\n    preview(): Promise<void>;\n    cancel(): void;\n    save(): Promise<void>;\n    verify(options?: Readonly<{\n        discardLocalChanges?: boolean;\n    }>): Promise<boolean>;\n    abandonNotApplied(): void;\n    release(): void;\n}",
         "members": {
           "attributes": [
             {
@@ -698,6 +749,11 @@
             },
             {
               "name": "changesView",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetViews",
               "readable": true,
               "writable": false
             }
@@ -755,7 +811,24 @@
             },
             {
               "name": "verify",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        discardLocalChanges?: boolean;\n    }"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",
@@ -768,7 +841,7 @@
               }
             },
             {
-              "name": "acceptCurrent",
+              "name": "abandonNotApplied",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

@@ -3759,7 +3759,7 @@
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts.json",
-      "sourceModifiedAt": "2026-10-23T03:13:28.363Z"
+      "sourceModifiedAt": "2026-10-24T05:10:03.611Z"
     },
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts",
@@ -4344,7 +4344,7 @@
     "src/views/features/data-platform/data-set-management/design/model/rename/DataSpaceModelRename.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/model/rename/DataSpaceModelRename.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/model/rename/DataSpaceModelRename.vue.json",
-      "sourceModifiedAt": "2026-10-18T03:31:12.678Z"
+      "sourceModifiedAt": "2026-10-24T04:38:07.160Z"
     },
     "src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls.ts",

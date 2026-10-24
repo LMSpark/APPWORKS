@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataView, resolveDataViewKey} from '@spark-appworks/spark-data'
+import {createModelRenameHandle, createModelRenameHost} from '../../../../../src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
@@ -150,7 +151,7 @@ describe('formal model registration rename', () => {
     {sourceName: 'OrderSource', writableReference: false},
   ])('preserves physical output references when renaming a registered model: %j', async ({sourceName, writableReference}) => {
     const reference = ' { "Type": "GetRefData", "RefTableName": "Orders", "RefFieldName": "rowid", "FkFieldName": "rowid", "Extra": false } '
-    const f = fixture({sourceFields: [
+    const f = fixture({allowRelationEdit: true, sourceFields: [
       {rowid: 'F1', dataModelId: 'M1', Name: 'rowid', type: 'dataModel', IsPKey: 1, IsOutput: 1, FieldType: 'string'},
       {rowid: 'F2', dataModelId: 'M2', Name: 'rowid', type: 'dataModel', IsPKey: 1, IsOutput: 1, FieldType: 'string'},
       {rowid: 'F3', dataModelId: 'M2', Name: 'orderId', type: 'dataModel', IsPKey: 0, IsOutput: 1, FieldType: 'string', ValueFun: reference},
@@ -188,7 +189,7 @@ describe('formal model registration rename', () => {
   })
 
   it('preserves desensitization rule IDs matching the old model name through rename and reopening', async () => {
-    const f = fixture({sourceFields: [
+    const f = fixture({allowRelationEdit: true, sourceFields: [
       {rowid: 'F1', dataModelId: 'M1', Name: 'rowid', type: 'dataModel', IsOutput: 1, Expression: 'Orders'},
       {rowid: 'F2', dataModelId: 'M1', Name: 'parentId', type: 'dataModel', IsOutput: 1},
       {rowid: 'F3', dataModelId: 'M2', Name: 'rowid', type: 'dataModel', IsOutput: 1, Expression: '  Orders.rowid  '},
@@ -392,8 +393,343 @@ describe('formal model registration rename', () => {
     expect(await operation.verify()).toBe(false)
     expect(operation.getState().status).toBe('different')
     expect(f.fileWrites).toHaveLength(0); expect(writes(f)).toHaveLength(1)
-    operation.acceptCurrent(); expect(operation.getState().pending).toBe(false)
+    expect(operation.getState().pending).toBe(true); expect(operation.getState().tables.length).toBeGreaterThan(0)
     expect(f.modelRow().Name).toBe('Orders')
+  })
+
+  it('requires an explicit abandon after the original SPARK batch proves not-applied', async () => {
+    const f = fixture({omitModelWrite: true}), session = await f.open('A'), operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    expect(session.metadataDataSet.getView('Base_DataModel')!.hasUnconfirmedSave).toBe(true)
+    expect(f.modelRow().Name).toBe('Orders')
+    expect(await operation.verify()).toBe(false)
+    expect(operation.getState()).toMatchObject({status: 'different', pending: true, canAbandonNotApplied: true})
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    operation.abandonNotApplied()
+    expect(operation.getState()).toMatchObject({status: 'idle', pending: false, changes: [], tables: [], tools: [], canAbandonNotApplied: false})
+    expect(operation.input.rows[0]?.['name']).toBe('Orders')
+    await expect(operation.save()).rejects.toThrow(/预览改名/)
+    for (const name of ['Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation']) {
+      const view = session.metadataDataSet.getView(name)
+      if (view) {expect(view.editingRows).toEqual([]); expect(view.dirtyTracking.dirtyRowIds.size).toBe(0)}
+    }
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    operation.input.updateEditingValue('rename', 'name', 'FreshSalesOrders'); await operation.preview()
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    await expect(operation.save()).rejects.toThrow(/回读/)
+    expect(writes(f)).toHaveLength(2); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('keeps an unrelated source-input owner tracked when abandoning a not-applied rename', async () => {
+    const f = fixture({sourceInput: true, omitModelWrite: true}), session = await f.open('A'), operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
+    expect(await operation.verify()).toBe(false)
+    const owner = session.getSourceInput('F2')
+    const stagedValue = '{"Type":"GetConstValue","Value":"sibling draft"}'
+    owner.stage(stagedValue)
+    const fields = session.metadataDataSet.getView('Base_DataModel_Field')!
+    expect(fields.getEditingRow('F2')?.['ValueFun']).toBe(stagedValue)
+    expect(session.hasPendingSourceInputs()).toBe(true)
+
+    operation.abandonNotApplied()
+
+    const trackedBeforeReacquiringOwner = session.hasPendingSourceInputs()
+    const reacquiredOwner = session.getSourceInput('F2')
+    expect({
+      rename: operation.getState(),
+      sameOwner: reacquiredOwner === owner,
+      sessionPending: trackedBeforeReacquiringOwner,
+      ownerPending: owner.getState().pending,
+      draft: fields.getEditingRow('F2')?.['ValueFun'],
+      databaseWrites: writes(f).length,
+      fileWrites: f.fileWrites.length,
+    }).toMatchObject({
+      rename: {status: 'idle', pending: false, changes: [], tables: [], tools: []},
+      sameOwner: true,
+      sessionPending: true,
+      ownerPending: true,
+      draft: stagedValue,
+      databaseWrites: 1,
+      fileWrites: 0,
+    })
+  })
+
+  it('does not resign not-applied intent after a later edit', async () => {
+    const f = fixture(), session = await f.open('A'), operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
+    f.setModelValues({Name: 'Orders'})
+    expect(await operation.verify()).toBe(false)
+    const model = session.metadataDataSet.getView('Base_DataModel')!
+    model.updateEditingValue('M1', 'Description', 'later intent')
+    await expect(operation.verify()).rejects.toThrow(/新修改|不能放弃/)
+    expect(model.getEditingRow('M1')?.['Description']).toBe('later intent')
+    expect(() => operation.abandonNotApplied()).toThrow(/意图未变化/)
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('requires an explicit discardLocalChanges action for a confirmed batch with an applied native delta', async () => {
+    const f = fixture(), session = await f.open('A'), operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    f.loseNextFileResponse(); await expect(operation.save()).rejects.toThrow()
+    expect(operation.getState().status).toBe('configuration')
+    const model = session.metadataDataSet.getView('Base_DataModel')!
+    model.updateEditingValue('M1', 'Description', 'explicitly discard this delta')
+    expect((await model.applyEditingRows(['M1'])).success).toBe(true)
+    await expect(operation.verify()).rejects.toThrow(/后续本地修改/)
+    expect(model.rows.find(row => row['rowid'] === 'M1')?.['Description']).toBe('explicitly discard this delta')
+    const verify = operation.verify as unknown as (options?: {discardLocalChanges?: boolean}) => Promise<boolean>
+    await expect(verify({discardLocalChanges: true})).resolves.toBe(true)
+    expect(model.rows.find(row => row['rowid'] === 'M1')?.['Description']).not.toBe('explicitly discard this delta')
+    expect(operation.getState().pending).toBe(false)
+    expect(writes(f)).toHaveLength(1)
+  })
+
+  it('preserves edits entered after the explicit discard click during domain readback', async () => {
+    const f = fixture(), session = await f.open('A'), operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    f.loseNextFileResponse(); await expect(operation.save()).rejects.toThrow()
+    const model = session.metadataDataSet.getView('Base_DataModel')!
+    model.updateEditingValue('M1', 'Description', 'discard at click')
+    expect((await model.applyEditingRows(['M1'])).success).toBe(true)
+    const load = model.loadFromServer.bind(model)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    let started!: () => void
+    const loadStarted = new Promise<void>(resolve => {started = resolve})
+    vi.spyOn(model, 'loadFromServer').mockImplementationOnce(async (...args) => {started(); await gate; return await load(...args)})
+    const verify = operation.verify as unknown as (options?: {discardLocalChanges?: boolean}) => Promise<boolean>
+    const recovering = verify({discardLocalChanges: true})
+    await loadStarted
+    model.updateEditingValue('M1', 'Description', 'keep after click')
+    release()
+    await expect(recovering).rejects.toThrow()
+    expect(model.getEditingRow('M1')?.['Description']).toBe('keep after click')
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
+  })
+
+  it('preserves edits entered after the explicit discard click during native receipt recovery', async () => {
+    const f = fixture(), session = await f.open('A'), data = session.metadataDataSet, operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
+    const save = data.saveChanges.bind(data), recovery = vi.spyOn(data, 'saveChanges').mockImplementation(async options => {
+      const result = await save(options)
+      if (options?.views?.some(view => view.tableName === 'Base_DataModel')) {
+        data.getView('Base_DataModel')!.updateEditingValue('M1', 'Description', 'keep after native click')
+      }
+      return result
+    })
+    const verify = operation.verify as unknown as (options?: {discardLocalChanges?: boolean}) => Promise<boolean>
+    await expect(verify({discardLocalChanges: true})).rejects.toThrow()
+    recovery.mockRestore()
+    expect(data.getView('Base_DataModel')!.getEditingRow('M1')?.['Description']).toBe('keep after native click')
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('preserves edits entered after the explicit discard click during file completion', async () => {
+    const t = toolFixture(), session = await t.f.open('A'), operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    t.lose('ONE'); await expect(operation.save()).rejects.toThrow()
+    const model = session.metadataDataSet.getView('Base_DataModel')!
+    model.updateEditingValue('M1', 'Description', 'discard at click')
+    expect((await model.applyEditingRows(['M1'])).success).toBe(true)
+    t.onSave(() => model.updateEditingValue('M1', 'Description', 'keep after file click'))
+    const verify = operation.verify as unknown as (options?: {discardLocalChanges?: boolean}) => Promise<boolean>
+    await expect(verify({discardLocalChanges: true})).rejects.toThrow()
+    t.onSave(() => {})
+    expect(model.getEditingRow('M1')?.['Description']).toBe('keep after file click')
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(t.f)).toHaveLength(1); expect(t.saves).toEqual(['ONE/rule.json', 'TWO/rule.json'])
+  })
+
+  it('preflights every original target before discarding any local changes when one target is busy', async () => {
+    const fieldFunction = JSON.stringify({Type: 'GetRefData', RefTableName: 'Orders', RefFieldName: 'rowid', FkFieldName: 'customerId'})
+    const f = fixture({allowRelationEdit: true, sourceFields: [
+      {rowid: 'F1', dataModelId: 'M1', Name: 'rowid', type: 'dataModel', IsPKey: 1, IsOutput: 1, FieldType: 'string', ValueFun: ''},
+      {rowid: 'F2', dataModelId: 'M2', Name: 'lookup', type: 'inputParams', ValueFun: fieldFunction},
+    ]})
+    f.setModelValues({Filter: JSON.stringify({Type: 'cond', Field: 'Orders.rowid', Operator: 'equal', ValueFun: {Type: 'GetConstValue', Value: 1}})}, 'A', 'M2')
+    const session = await f.open('A'), data = session.metadataDataSet, operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    const fieldChange = operation.getState().changes.find(change => change.table === 'Base_DataModel_Field' && change.id === 'F2')
+    expect(fieldChange).toBeDefined()
+    f.loseNextFileResponse(); await expect(operation.save()).rejects.toThrow()
+    const model = data.getView('Base_DataModel')!
+    const fields = operation.targetViews.find(view => view.tableName === 'Base_DataModel_Field' && view.rows.some(row => view.getPkKey(row) === fieldChange?.id))
+    expect(fields).toBeDefined()
+    if (!fields || !fieldChange) throw new Error('field rename target was not captured by the native view')
+    expect(fields.viewId).toBe('modelrename:M1')
+    model.updateEditingValue('M1', 'Description', 'preserve model delta')
+    fields.updateEditingValue('F2', 'ValueFun', 'preserve field delta')
+    expect((await model.applyEditingRows(['M1'])).success).toBe(true)
+    expect((await fields.applyEditingRows(['F2'])).success).toBe(true)
+    Object.defineProperty(fields, 'mutating', {configurable: true, value: true})
+    const verify = operation.verify as unknown as (options?: {discardLocalChanges?: boolean}) => Promise<boolean>
+    await expect(verify({discardLocalChanges: true})).rejects.toThrow(/正忙/)
+    delete (fields as unknown as {mutating?: boolean}).mutating
+    expect(model.rows.find(row => row['rowid'] === 'M1')?.['Description']).toBe('preserve model delta')
+    expect(fields.rows.find(row => row['rowid'] === 'F2')?.['ValueFun']).toBe('preserve field delta')
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(1)
+  })
+
+  it('does not invoke abandon on a sibling model view during rename recovery', async () => {
+    const f = fixture(), session = await f.open('A'), data = session.metadataDataSet
+    const operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    const sibling = data.getView('Base_DataSet')!
+    const abandon = vi.spyOn(sibling, 'abandonUnconfirmedSave')
+    f.loseNextResponse()
+    await expect(operation.save()).rejects.toThrow()
+    sibling.updateEditingValue('A', 'inputParams', '[]')
+    f.loseNextResponse()
+    await expect(data.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})).rejects.toThrow()
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+    expect(await operation.verify()).toBe(true)
+    expect(abandon).not.toHaveBeenCalled()
+    expect(sibling.hasUnconfirmedSave).toBe(true)
+    expect(writes(f).filter(request => JSON.stringify(request.data).includes('"TableName":"Base_DataModel"'))).toHaveLength(1)
+    await data.saveChanges({views: [{tableName: 'Base_DataSet', viewId: 'default', ids: ['A']}]})
+    expect(sibling.hasUnconfirmedSave).toBe(false)
+  })
+
+  it.each(['context', 'instance'] as const)('keeps an unknown batch unresolved when its original query %s changes', async change => {
+    const f = fixture(), session = await f.open('A'), data = session.metadataDataSet
+    const operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
+    const original = data.getView('Base_DataModel')!
+    if (change === 'context') original.queryContext = {...original.queryContext, dataSpaceId: 'OTHER'}
+    else {
+      const table = original.dataTable!
+      table.destroyView(original.viewId)
+      table.addView(original.viewId)
+    }
+    await expect(operation.verify()).rejects.toThrow(/视图或查询上下文/)
+    expect(operation.getState().status).toBe('unknown')
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it.each(['incomplete', 'duplicate', 'malformed'] as const)('retains original intent and refuses to replay after a %s native receipt', async receiptShape => {
+    const f = fixture(), session = await f.open('A'), data = session.metadataDataSet
+    const operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    const save = data.saveChanges.bind(data), dispatch = vi.spyOn(data, 'saveChanges').mockImplementation(async options => {
+      const result = await save(options)
+      if (options?.views?.some(view => view.tableName === 'Base_DataModel')) {
+        const viewResults = receiptShape === 'incomplete' ? result.data!.viewResults.slice(1)
+          : receiptShape === 'duplicate' ? [...result.data!.viewResults, ...result.data!.viewResults.slice(0, 1)]
+            : [null] as never
+        return {...result, data: {...result.data!, viewResults}}
+      }
+      return result
+    })
+    await expect(operation.save()).rejects.toThrow()
+    await expect(operation.verify()).rejects.toThrow(/回执无效/)
+    expect(operation.getState().pending).toBe(true)
+    expect(operation.getState().tables.length).toBeGreaterThan(0)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+    dispatch.mockRestore()
+  })
+
+  it('refuses to infer a rename outcome when its original capture is missing', async () => {
+    const f = fixture(), session = await f.open('A'), data = session.metadataDataSet
+    const host = createModelRenameHost({dataSet: data, targetId: 'A', modelId: 'M1', lifecycle: {
+      assertCurrent: () => {}, onDispatch: () => {}, completed: () => {},
+      prepareFile: async () => ({tables: [], tools: [], references: [], assertCurrent: async () => {}, complete: async () => {}}),
+    }})
+    const operation = createModelRenameHandle(host)
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
+    host.flow.capture = null
+    await expect(operation.verify()).rejects.toThrow(/缺少模型改名原始SPARK捕获/)
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('clears only locally staged rename deltas after a predispatch apply failure', async () => {
+    const f = fixture()
+    f.setModelValues({Filter: JSON.stringify({Type: 'cond', Field: 'Orders.rowid', Operator: 'equal', ValueFun: {Type: 'GetConstValue', Value: 1}})}, 'A', 'M2')
+    const session = await f.open('A'), operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    expect(operation.getState().changes.map(change => change.id)).toContain('M2')
+    const nativeApply = DataView.prototype.applyEditingRows
+    let applications = 0
+    const apply = vi.spyOn(DataView.prototype, 'applyEditingRows').mockImplementation(async function(this: DataView, ids: Parameters<DataView['applyEditingRows']>[0]) {
+      if (++applications === 2) throw new Error('staging fault before dispatch')
+      return await nativeApply.call(this, ids)
+    })
+    await expect(operation.save()).rejects.toThrow('staging fault before dispatch')
+    apply.mockRestore()
+    expect(operation.getState().status).toBe('ready')
+    expect(writes(f)).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
+    for (const name of ['Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation']) {
+      const view = session.metadataDataSet.getView(name)
+      if (view) {expect(view.editingRows).toEqual([]); expect(view.dirtyTracking.dirtyRowIds.size).toBe(0)}
+    }
+  })
+
+  it('keeps a late applied edit made during original receipt recovery', async () => {
+    const f = fixture(), session = await f.open('A'), data = session.metadataDataSet
+    const operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    f.loseNextResponse(); await expect(operation.save()).rejects.toThrow()
+    const save = data.saveChanges.bind(data), recovery = vi.spyOn(data, 'saveChanges').mockImplementation(async options => {
+      const result = await save(options)
+      if (options?.views?.some(view => view.tableName === 'Base_DataModel')) {
+        const target = data.getView('Base_DataModel')!
+        target.updateEditingValue('M1', 'Description', 'late applied after click')
+      }
+      return result
+    })
+    await expect(operation.verify()).rejects.toThrow(/新字段编辑/)
+    recovery.mockRestore()
+    const model = data.getView('Base_DataModel')!
+    expect(model.getEditingRow('M1')?.['Description']).toBe('late applied after click')
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('keeps a late applied target edit during domain readback and does not enter file completion', async () => {
+    const f = fixture(), session = await f.open('A'), operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    const model = session.metadataDataSet.getView('Base_DataModel')!
+    const releaseSave = f.holdModelResponse(), saving = operation.save()
+    await vi.waitFor(() => expect(writes(f)).toHaveLength(1))
+    const load = model.loadFromServer.bind(model)
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    let started!: () => void
+    const loadStarted = new Promise<void>(resolve => {started = resolve})
+    vi.spyOn(model, 'loadFromServer').mockImplementationOnce(async (...args) => {started(); await gate; return await load(...args)})
+    releaseSave()
+    await loadStarted
+    model.updateEditingValue('M1', 'Description', 'late domain edit')
+    expect((await model.applyEditingRows(['M1'])).success).toBe(true)
+    release()
+    await expect(saving).rejects.toThrow()
+    expect(model.rows.find(row => row['rowid'] === 'M1')?.['Description']).toBe('late domain edit')
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it('blocks file completion and preserves a target overlay started during tool saving', async () => {
+    const t = toolFixture(), session = await t.f.open('A'), operation = session.getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()
+    const model = session.metadataDataSet.getView('Base_DataModel')!
+    t.onSave(() => model.updateEditingValue('M1', 'Description', 'late tool-stage edit'))
+    await expect(operation.save()).rejects.toThrow(/注册名未确认|定义视图出现草稿/)
+    expect(model.getEditingRow('M1')?.['Description']).toBe('late tool-stage edit')
+    expect(t.f.modelRow().description).toBe('')
+    expect(operation.getState().pending).toBe(true)
+    expect(writes(t.f)).toHaveLength(1)
   })
 
   it('reports a concurrent new old-name reference on readback instead of declaring a completed rename', async () => {
@@ -408,7 +744,7 @@ describe('formal model registration rename', () => {
     expect(await operation.verify()).toBe(false)
     expect(operation.getState().verification.some(item => item.id === 'LATE')).toBe(true)
     expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
-    operation.acceptCurrent()
+    expect(operation.getState().pending).toBe(true); expect(writes(f)).toHaveLength(1); expect(f.fileWrites).toHaveLength(0)
   })
 
   it('reconciles a concurrently changed scene after DB confirmation and preserves its unrelated edits', async () => {

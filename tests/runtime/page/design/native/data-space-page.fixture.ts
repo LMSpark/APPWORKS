@@ -301,7 +301,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
           if (!targetId) throw new Error('model save has no query identity')
           const patch = Object.fromEntries(Object.entries(change).filter(([key]) => key !== 'rowid' && !key.startsWith('lingma_sys_')))
           const key = `${targetId}:${String(change['rowid'])}`
-          modelValues.set(key, {...modelValues.get(key), ...Object.fromEntries(Object.entries(patch).filter(([property]) => !options.omitModelProperties?.includes(property))), updatetime: '2026-10-09T19:30:00', updateuser: 'CURRENT_USER'})
+          if (!options.omitModelWrite) modelValues.set(key, {...modelValues.get(key), ...Object.fromEntries(Object.entries(patch).filter(([property]) => !options.omitModelProperties?.includes(property))), updatetime: '2026-10-09T19:30:00', updateuser: 'CURRENT_USER'})
           result = {maplistedit: [{Base_DataModel: [{rowid: change['rowid'], ...patch}]}]}
           await modelResponse
         } else throw new Error('wrong save model or fields')

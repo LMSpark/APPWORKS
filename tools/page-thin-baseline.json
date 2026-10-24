@@ -24,13 +24,6 @@
     "command-status": 4,
     "json-baseline": 1
   },
-  "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts": {
-    "command-status": 7,
-    "json-baseline": 1
-  },
-  "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts": {
-    "command-status": 5
-  },
   "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts": {
     "command-status": 7,
     "json-baseline": 1
@@ -39,13 +32,20 @@
     "command-status": 7,
     "json-baseline": 1
   },
+  "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts": {
+    "command-status": 8,
+    "json-baseline": 2,
+    "static-copy": 1
+  },
   "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts": {
     "json-baseline": 1
   },
-  "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts": {
-    "command-status": 8,
-    "json-baseline": 3,
-    "static-copy": 1
+  "src/lowcode/data-space/model-source/source-edit/lowcode-data-space-model-source-edit-session.ts": {
+    "command-status": 7,
+    "json-baseline": 1
+  },
+  "src/lowcode/data-space/model-source/source-input/lowcode-data-space-source-input-session.ts": {
+    "command-status": 5
   },
   "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
     "command-status": 6,
@@ -96,11 +96,11 @@
     "command-status": 7,
     "static-copy": 1
   },
-  "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue": {
-    "command-status": 3
-  },
   "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue": {
     "command-status": 1
+  },
+  "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue": {
+    "command-status": 3
   },
   "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue": {
     "command-status": 8,

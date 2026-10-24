@@ -725,7 +725,7 @@
 
 **状态：approved → implementing（2026-10-24 用户批准）。** 用户指令：“你用低价模型实施，你负责派工，验证，烟测，更新计划状态”。当前执行阶段A，B/C/E pending、D中的权限专题 deferred。本文以当前源码为事实依据，参考源码与真实服务能力分别核验；不修改或启动 Java 后端，不推送。既有提交是本轮基线，不将旧 I 编号或历史验收当作新阶段完成。
 
-**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏及A3.2已提交；A3.3来源替换/同步已完成代码复审、自动化与预览取消烟测，准备提交；下一组A3.4改名，随后A3.5新增。阶段A完整生命周期持久烟测、双空间真实组件绑定、未加载保存、跨实例未知恢复及整页对照仍未完成。
+**当前断点（2026-10-24）：** A1、A2、A3.1、字段工具栏、A3.2及A3.3已提交；A3.4代码与本组验收完成，随后A3.5模型新增、A3.6字段新增。阶段A完整生命周期持久烟测、双空间真实组件绑定、未加载保存、跨实例未知恢复及整页对照仍未完成。
 
 ### 1. 目标、边界与完成口径
 
@@ -967,3 +967,16 @@ flowchart TD
 - A3.3修复轮1/5复审：权威not-applied与回执/原capture身份矩阵2项ADDRESSED；显式confirmed丢弃仍缺原captured目标在后续领域await中的晚编辑证明（现测试只改无关Base_DataSet）。186项及UI5有效，未发现生产缺陷；进入修复轮2/5，仅补F1捕获目标在同步discard后/领域回读中新增overlay与applied delta的保护证据，失败才修owner。产品代码未变，主控963生成、全lint/rules/build、真实预览/取消/新实例原值均保持有效，线上0次持久化。
 - 阶段A跨实例公共合同只读核定：DataView/RuntimeApi的原未知捕获依赖内存context，destroy后无新实例重挂入口；pagedata的ProjectWorkspace缓存在软关闭时可能尚存，但新定义DataView未接回，scope变化/刷新会丢失。当前调用源码未见两类写入携带持久操作ID，不等于已证实实际服务不支持。Ruling: 将“已有同context精确回读”和“跨实例恢复入口/最小操作凭据缺口”分别记录，A3实例内通过不核销关闭/刷新/重登录未知保证；后续按真实服务既有合同核定公共承接，不猜新协议、不复制业务草稿或凭据、不先制造线上未知写入。只读报告cache/task-cross-instance-recovery-preparation.md，独立能力继续推进。
 - A3.3修复轮2/5复审通过：剩余原captured F1在显式discard后/领域await中的晚overlay与applied delta两项保护已证实；原三项证据缺口全部解决，Spec/Quality Approved，0 open。两轮仅补测试，无生产/helper/UI/fixture更改。最终source188（不叠加聚焦12）、UI5、typecheck/scoped/full lint、ai-codegen、rules、build通过；正式ClassModel生成963文件、文档398文件通过。真实来源预览/同步预览取消→关闭整个设计器→新实例原值与按钮状态通过，0次线上持久化。证据a3-3-acceptance.md/JSON/两截图；可按明确路径提交，完整生命周期及阶段A其余验收仍未核销。
+- A3.3提交已核实：a049bc3a6fb5becb25b97f82156cb1bc20d7b31b，父92dcc18b1，27个明确暂存文件；提交后工作区干净、ahead 8，未推送。继续A3.4模型改名原捕获恢复，使用已核定brief及A3.3最终共享合同；保持稳定模型身份、结构化引用迁移、歧义引用拒绝和独立场景/工具文件确认。新低价实施者单写，首次冻结即补齐not-applied、显式discard成功/同捕获晚编辑及回执/身份矩阵，避免先弱化验收再补证。
+- A3残留搜索补充：在已提交a049bc3a6的src/lowcode/data-space范围，git grep仍发现field-create-session:278、model-create-session:312、model-rename-session:239三处全DataSet abandon。后两项已排A3.4/A3.5；字段新增此前未包含在五owner窄清单，现登记并只读核其正式入口/调用合同，预计后续单独收敛，不把五owner结束误报为全链旁路清零。唯一生产写者仍为A3.4。
+- A3.4过程偏差登记：实施者确认先改生产/UI，只有旧rename套件47/47基线绿灯，未留新增反例修改前红灯；修改后4项旧断言失败不能充作旧实现反例。主控暂停继续扩生产修改，先冻结现场并审明旧断言变化，再由同一写者仅对rename session单文件做备份/hash校验的事后基线复现。后续A3.5/字段新增改为显式两段派工：先仅测试和证据，主控核定后才开放生产修改，避免再次跳过。现无线上写入/生成并发，未提交。
+- 字段新增只读核定已完成：standalone/default新增与核验是正式UI可达，原保存只选一个生成field ID，但恢复仍全DataSet abandon；modelFields工作区仅暂存并由A2联合保存，须保持独立。Ruling: 作为A3.5后的A3.6窄组补收敛；准备报告关于沿用generic accept-current的建议不采纳，仍按原capture先完整确认、未生效明确放弃、后编辑默认保留的同一合同。只证明owner范围不匹配，未证明标准UI能同时制造两个未知提交，不夸大为线上兄弟数据丢失。
+- A3.4测试阶段发现：增强为真实同DataSet sibling unknown capture后，当前实现定向通过、a049bc3a6 session单文件事后基线失败并清掉sibling原capture；a3-4-post-edit-base-sibling-capture-red.log已留存，恢复SHA256与备份一致。另一个当前实现反例证实提交前第二次apply失败时M2本地引用草稿残留，归为真实cleanup缺陷；生产继续冻结，待权威not-applied、显式discard及身份/异步矩阵补齐后集中修正。单纯spy初证不冒充真实capture隔离验证。
+- A3.4主控已独立复跑冻结矩阵并留存a3-4-parent-frozen-matrix.log/exit.txt：10通过、2真实失败，确认显式confirmed discard缺失及提交前M2暂存残留；此前有一次注入未命中的setup失败不计产品证据。Ruling: 开放第二阶段仅修原rename owner/UI的这两项与configuration提前进入领域阶段错误，并补齐brief验证矩阵；保留readonly依赖/引用合同及独立file/tool阶段，不改共享helper。fixture原有omitModelWrite在单模型分支未生效的最小修订纳入测试范围，使not-applied用真正省略写入表达，不能用先写后回滚替代。
+
+- A3.4 首轮独立审查：Spec / Task quality needs correction，唯一 P2 为 not-applied 的显式“放弃”仍保留 `ready/pending` 原改名意图，可被再次提交。按 brief 的“放弃原意图”合同裁定必须清理原计划并释放待处理状态；进入正式 fix round 1/5，由原低价实施者补状态与 UI 回归，父级不改产品。冻结审查包与修复前逐文件快照在 cache；此修复轮数与此前试跑日志 round 编号无关。正式 ClassModel 生成及全仓 lint 已通过，修复后重核受影响门禁。真实页面暂退回目录，尚未执行改名或持久化。
+- A3残留语义核查：field-remove 的 `acceptCurrent` 不能仅凭名称判为全局恢复旁路。当前真实UI仅预览/暂存，正式保存沿A2工作区共享SavePart/capture；该动作只在核验后稳定different时结束未决领域流程，文案明确“不代表原删除已确认成功”，不重放或全局abandon。只读报告cache/task-field-remove-residual-check.md，本轮未重跑测试/请求服务；无证据要求另增收敛组，后续仍由既定整组验收覆盖。
+- A3.4 fix round 1/5复审：原“放弃后仍ready/pending”P2已ADDRESSED；新增1项P2，复用finish触发宿主completed并清所有模型/字段/输入/source owner映射，未确认未生效操作不应引发该成功副作用。进入R2/5：只收窄原意图reset与成功hook的边界，先以真实session晚到无关owner反例确认，再最小修复。R1最终rename65/UI7/typecheck/scoped lint、父级生成963与fixture影响面6项通过；真实改名预览/取消通过，0次UI持久化，暂停等待R2后独立重开。
+- A3.4 fix round 2/5复审：新增无关source-input owner跟踪P2已ADDRESSED，Spec/Quality PASS，0 open；真实反例先取hasPendingSourceInputs再重取owner，旧实现会丢pending守卫，修正后原草稿/owner保持。66项+UI7项/typecheck/scoped/full lint/生成963/build通过，新实例原名/来源/说明与按钮状态通过。完整verify:rules末项page-thin失败：rename新增stagedRows行快照使JSON基线3→4。进入R3/5工程门禁修复：移除新增的重复行真源并沿原生DataView变更合同保留提交前精确清理；禁止调高基线、改正则或换行/临时变量规避计数。该门禁失败未计通过，原始a3-4-r2-rules.log保留。
+- A3.4 R3门禁裁定：实施者移除新增stagedRows及核实无消费者的pendingRows后，JSON行快照计数降到2，原基线3。允许并要求由父级在冻结后执行正式 `node tools/verify-page-thin.mjs --update` 收紧3→2；禁止为维持计数留下冗余或手工放宽。当前“已减少，请收紧”与先前4>3超限区分记录，行为测试继续，不另向用户申请内部工程决策。
+- A3.4 fix round 3/5复审通过：page-thin问题ADDRESSED，Spec/Quality PASS，0 open。删除stagedRows与无消费者pendingRows，按正式DataView dirtyTracking.getDiff/编辑覆盖判断原patch；原生基线缺失拒绝清理。父级正式--update仅将rename JSON基线3→2（其他生成排序/换行），再生成ClassModel963文件；最终rename66、UI7、fixture影响面6项、typecheck/scoped/full lint、ai-codegen、完整rules、build均通过。真实预览/取消后最终R3新实例原三模型/原名/来源/说明及按钮状态通过，0次UI持久化；证据a3-4-acceptance.md/JSON/两截图。A3.4代码收敛可提交，阶段A完整生命周期与跨实例等余项未核销；未推送。

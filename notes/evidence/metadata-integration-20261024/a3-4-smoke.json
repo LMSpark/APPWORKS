@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-24",
+  "task": "A3.4 model rename capture recovery",
+  "baseCommit": "a049bc3a6fb5becb25b97f82156cb1bc20d7b31b",
+  "environment": "NewApp actual service through localhost:5273",
+  "appId": "D99A1DCE9894698799101EFD70F8FC76",
+  "targetSpaceId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "targetModelId": "A7199374E11E24BB0FB6938407224304",
+  "targetModel": "SourceScope_20261018",
+  "previewName": "SourceScope_Preview_20261024",
+  "uiPersistenceActions": 0,
+  "checks": [
+    "Opened the original directory navigation, T design and SourceScope model workspace",
+    "Entered a temporary name through the bound standard field and opened rename preview",
+    "Preview displayed the exact model ID, Base_DataModel.Name old/new values, the original scenario binding and no configured blueprint tools",
+    "Cancelled the preview without invoking confirm rename; original name restored and close configuration enabled",
+    "Closed model configuration and the entire design dialog",
+    "After the final R3 product freeze, opened an independent design instance from the directory",
+    "Confirmed all three original model names remained on the canvas",
+    "Reopened SourceScope and confirmed the original name, ContentType dictionary source and original description; save disabled and close enabled",
+    "Exited to the original directory"
+  ],
+  "reopenedDescription": "来源替换后连续保存已验证 20261018",
+  "screenshots": ["a3-4-rename-preview.png", "a3-4-rename-reopened.png"],
+  "limitations": [
+    "Preview/cancel screenshot was captured at R1; R2/R3 did not change that preview/cancel path",
+    "Independent reopen screenshot was captured after final R3 product freeze",
+    "No rename was persisted online; actual rename/source/deletion persistence remains in the planned disposable-model lifecycle acceptance",
+    "No online unknown or partial-result fault injection; recovery evidence is local real-DataView fixture testing",
+    "UI persistence action count is not a count of HTTP requests"
+  ]
+}

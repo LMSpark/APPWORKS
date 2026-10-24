@@ -38,7 +38,8 @@ AI用途：原生模型节点的注册名修改；不在页面拼请求或保存
       <RendererButton v-if="state.status === 'ready'" data-action="save-rename-model" button-type="primary" :disabled="locked" @click="run('save')" label="确认修改注册名" />
       <RendererButton v-if="editable && state.pending" data-action="cancel-rename-model" :disabled="busy" @click="run('cancel')" label="放弃注册名修改" />
       <RendererButton v-if="!editable" data-action="verify-rename-model" :disabled="busy" @click="run('verify')" label="核验并接续配置保存" />
-      <RendererButton v-if="state.status === 'different'" data-action="accept-rename-model" :disabled="busy" @click="run('acceptCurrent')" label="采用当前结果并结束操作" />
+      <RendererButton v-if="state.canDiscardLocalChanges" data-action="discard-local-rename-changes" :disabled="busy" @click="run('verifyDiscardLocalChanges')" label="核验并放弃目标本地新修改" />
+      <RendererButton v-if="state.canAbandonNotApplied" data-action="abandon-not-applied-rename-model" :disabled="busy" @click="run('abandonNotApplied')" label="放弃未执行的本次改名" />
     </div>
     </component>
   </section>
@@ -62,17 +63,29 @@ const locked = computed(() => props.disabled || busy.value || !editable.value)
 watch(() => busy.value || state.value.pending, value => emit('pending', value), {immediate: true, flush: 'sync'})
 const changed = () => {if (active) {tick.value++; emit('changed')}}
 owner.input.events.on('editingFieldChanged', changed)
-async function run(action: 'preview' | 'save' | 'verify' | 'cancel' | 'acceptCurrent'): Promise<void> {
+for (const view of owner.targetViews) {
+  view.events.on('editingFieldChanged', changed)
+  view.events.on('editingChanged', changed)
+  view.events.on('editingDiscarded', changed)
+  view.events.on('rowsChanged', changed)
+}
+async function run(action: 'preview' | 'save' | 'verify' | 'verifyDiscardLocalChanges' | 'cancel' | 'abandonNotApplied'): Promise<void> {
   if (busy.value || props.disabled && ['preview', 'save'].includes(action)) return
   busy.value = true; error.value = ''; message.value = ''
   try {
-    const result = await owner[action]()
-    if (active) message.value = action === 'save' || action === 'verify' && result === true ? '注册名、本空间引用及已扫描工具绑定已保存并回读确认'
-      : action === 'cancel' ? '已放弃本地注册名修改' : action === 'acceptCurrent' ? '已采用当前正式结果；未补写引用' : ''
+    const result = action === 'verifyDiscardLocalChanges' ? await owner.verify({discardLocalChanges: true}) : await owner[action]()
+    if (active) message.value = action === 'save' || (action === 'verify' || action === 'verifyDiscardLocalChanges') && result === true ? '注册名、本空间引用及已扫描工具绑定已保存并回读确认'
+      : action === 'cancel' || action === 'abandonNotApplied' ? '已放弃本地注册名修改' : ''
   } catch (cause) {if (active) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active) {busy.value = false; changed()}}
 }
-onBeforeUnmount(() => {active = false; owner.input.events.off('editingFieldChanged', changed); props.session.releaseModelRename(props.modelId); emit('pending', false)})
+onBeforeUnmount(() => {
+  active = false; owner.input.events.off('editingFieldChanged', changed)
+  for (const view of owner.targetViews) {
+    view.events.off('editingFieldChanged', changed); view.events.off('editingChanged', changed); view.events.off('editingDiscarded', changed); view.events.off('rowsChanged', changed)
+  }
+  props.session.releaseModelRename(props.modelId); emit('pending', false)
+})
 </script>
 <style scoped>
 section:not(.compact) {border-bottom:1px solid var(--el-border-color); padding-bottom:1rem; margin-bottom:1rem;}
